@@ -4,7 +4,7 @@
 
   IMPLICIT NONE 
 
-  DOUBLE PRECISION, PARAMETER   :: nu_min= 2.D15, nu_max=3.D15, constant=5.879*10.D10 !nu_min= 1.D14, nu_max=1.D17,
+  DOUBLE PRECISION, PARAMETER   :: constant=5.879*10.D10 
   DOUBLE PRECISION              :: freq, freq_max, planck, ran_freq, ran_planck, planck_max, ran2
   DOUBLE PRECISION              :: planck_numax, planck_numin
     OPEN (UNIT=10, FILE='gauss-3.dat') 

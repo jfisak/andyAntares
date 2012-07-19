@@ -1,17 +1,17 @@
-SUBROUTINE read_input(n_pack, n_bin, iseed)
+SUBROUTINE read_input(n_pack, iseed)
 
   USE types
 
   IMPLICIT NONE
 
-  INTEGER             :: n_pack, n_bin, iseed, idx, npar
+  INTEGER             :: n_pack, iseed, idx, npar
   CHARACTER  :: LINE*80, ACTPAR*20
 
   OPEN (UNIT=1, FILE='input.dat', STATUS='OLD')
 
 ! Default values
   n_pack = 10000
-  n_bin = 100
+  n_nubin = 100
   nx_cell = 100 ! number of cell in x direction
   ny_cell = 100 ! number of cell in y direction
   nz_cell = 100 ! number of cell in z direction
@@ -20,10 +20,10 @@ SUBROUTINE read_input(n_pack, n_bin, iseed)
   ymax = 50.  
   zmax = 50. 
   R_inf = 20.
-  R_star = 2. 
-  T_eff = 20000.
+  R_star = 1. 
+  T_eff = 40000.
   M_dot = 1.D-6
-  V_inf = 3000.D0
+  V_inf = 2250.D0
   iseed = -1  
 
   DO
@@ -36,11 +36,11 @@ SUBROUTINE read_input(n_pack, n_bin, iseed)
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I20)', ERR=91) n_pack
 
-    ELSE IF (ACTPAR .EQ. 'n_bin') THEN
+    ELSE IF (ACTPAR .EQ. 'n_nubin') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
-    READ (ACTPAR, '(I20)', ERR=91) n_bin
+    READ (ACTPAR, '(I20)', ERR=91) n_nubin
 
     ELSE IF (ACTPAR .EQ. 'nx_cell') THEN
     CALL SARGC (LINE, NPAR)
@@ -126,19 +126,49 @@ SUBROUTINE read_input(n_pack, n_bin, iseed)
   CLOSE (1)
 
   WRITE (*,'(A,I10)')   'npackages    = ', n_pack
-  WRITE (*,'(A,I10)')   'nbin         = ', n_bin
+  WRITE (*,'(A,I10)')   'n_nubin      = ', n_nubin
   WRITE (*,'(A,I10)')   'nx_cell      = ', nx_cell
   WRITE (*,'(A,I10)')   'ny_cell      = ', ny_cell  
   WRITE (*,'(A,I10)')   'nz_cell      = ', nz_cell
   WRITE (*,'(A,I10)')   'n_modelgrid  = ', n_modelgrid
-  WRITE (*,'(A,F10.3)') 'grid_xmax    = ', xmax
-  WRITE (*,'(A,F10.3)') 'grid_ymax    = ', ymax
-  WRITE (*,'(A,F10.3)') 'grid_zmax    = ', zmax
-  WRITE (*,'(A,F10.3)') 'R_wind       = ', R_inf
-  WRITE (*,'(A,F10.3)') 'R_star       = ', R_star ! R_star*r_sun
-  WRITE (*,'(A,F10.3)') 'T_eff        = ', T_eff
-  WRITE (*,'(A,F10.3)') 'M_dot        = ', M_dot 
-  WRITE (*,'(A,F10.3)') 'V_inf        = ', V_inf
+  WRITE (*,'(A,F10.3)') 'grid_xmax (Rsun)    = ', xmax
+  WRITE (*,'(A,F10.3)') 'grid_ymax (Rsun)    = ', ymax
+  WRITE (*,'(A,F10.3)') 'grid_zmax (Rsun)    = ', zmax
+  WRITE (*,'(A,F10.3)') 'R_wind (Rsun)    = ', R_inf
+  WRITE (*,'(A,F10.3)') 'R_star (Rsun)    = ', R_star ! R_star*r_sun
+  WRITE (*,'(A,F10.3)') 'T_eff (K)        = ', T_eff
+  WRITE (*,'(A,F10.3)') 'M_dot (Msun/yr)  = ', M_dot 
+  WRITE (*,'(A,F10.3)') 'V_inf (km/s)     = ', V_inf
+  IF (iseed .le. 0) then 
+     WRITE (*,'(A)') 'Random-seed value is random '
+  ELSE
+     WRITE (*,'(A,I6)') 'random_seed = ', iseed
+  ENDIF
+  WRITE (*,'(3/)')
+
+  ! Convert quantities to cgs 
+  xmax=xmax*r_sun
+  ymax=ymax*r_sun  
+  zmax=zmax*r_sun
+  R_star=R_star*r_sun
+  R_inf=R_inf*r_sun
+  V_inf=V_inf*1.D5
+  M_dot=M_dot*m_sun/(3600.*24.*365.25)
+
+  WRITE (*,'(A,I10)')   'npackages    = ', n_pack
+  WRITE (*,'(A,I10)')   'n_nubin      = ', n_nubin
+  WRITE (*,'(A,I10)')   'nx_cell      = ', nx_cell
+  WRITE (*,'(A,I10)')   'ny_cell      = ', ny_cell  
+  WRITE (*,'(A,I10)')   'nz_cell      = ', nz_cell
+  WRITE (*,'(A,I10)')   'n_modelgrid  = ', n_modelgrid
+  WRITE (*,'(A,G10.3)') 'grid_xmax    = ', xmax
+  WRITE (*,'(A,G10.3)') 'grid_ymax    = ', ymax
+  WRITE (*,'(A,G10.3)') 'grid_zmax    = ', zmax
+  WRITE (*,'(A,G10.3)') 'R_wind    = ', R_inf
+  WRITE (*,'(A,G10.3)') 'R_star    = ', R_star ! R_star*r_sun
+  WRITE (*,'(A,G10.3)') 'T_eff (K) = ', T_eff
+  WRITE (*,'(A,G10.3)') 'M_dot     = ', M_dot 
+  WRITE (*,'(A,G10.3)') 'V_inf     = ', V_inf
   IF (iseed .le. 0) then 
      WRITE (*,'(A)') 'Random-seed value is random '
   ELSE

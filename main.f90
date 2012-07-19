@@ -2,21 +2,21 @@ SUBROUTINE main
 
   USE types
 
-! Purpose: to calculet the escape probability 
+! Purpose: to calculate the escape probability 
 
   IMPLICIT NONE
 
-  INTEGER                           :: n_pack, n_bin!, nx_cell, ny_cell, nz_cell
+  INTEGER                           :: n_pack !nx_cell, ny_cell, nz_cell
   INTEGER                           :: I, J, K, L, iseed, idx
 
-  INTEGER, PARAMETER                :: Nmax = 1000000000, nopa =20
+  INTEGER, PARAMETER                :: Nmax = 1000000000 !, nopa =20
 !  DOUBLE PRECISION, PARAMETER       :: upper_opa=2.D0/5.D0, lower_opa=0.01D0    ! Opacity for photons sent from the photosphere R_star = 10
-  DOUBLE PRECISION, PARAMETER       :: upper_opa=2.D0/9.D0, lower_opa=0.1D0/18.D0    ! Opacity for photons sent from the photosphere    R_star = 2
+!  DOUBLE PRECISION, PARAMETER       :: upper_opa=2.D0/9.D0, lower_opa=0.1D0/18.D0    ! Opacity for photons sent from the photosphere    R_star = 2
 !  DOUBLE PRECISION, PARAMETER       :: upper_opa=0.2, lower_opa=1.d0/200.d0         ! Opacity for photons sent from point sours
   INTEGER, DIMENSION (9)            :: TT
 !  DOUBLE PRECISION                  :: xmax, ymax, zmax, deltax, deltay, deltaz, 
 !  DOUBLE PRECISION                  :: delta_cellx, delta_celly, delta_cellz, 
-  DOUBLE PRECISION                  :: delta_opa, opa_cell
+!  DOUBLE PRECISION                  :: delta_opa, opa_cell
 
 ! Link data to identify program version
   CHARACTER LINK_DATE*30, LINK_USER*10, LINK_HOST*60
@@ -25,7 +25,7 @@ SUBROUTINE main
 
   OPEN (UNIT=2, FILE='cells.dat')  
   OPEN (UNIT=3, FILE='modelgrid.dat')
-!  OPEN (UNIT=4, FILE='density.dat')
+  OPEN (UNIT=4, FILE='density.dat')
 
 !  test = 0
 
@@ -34,7 +34,7 @@ SUBROUTINE main
                      LINK_DATE
   WRITE(*,'(4A)') '>>> created by ', LINK_USER(:IDX(LINK_USER)), &
            ' at host ', LINK_HOST(:IDX(LINK_HOST))
-  CALL read_input(n_pack, n_bin, iseed)
+  CALL read_input(n_pack, iseed)
 
 ! Initialing seed from the system time
 ! If we set iseed < 0 in input.dat then iseed will be initializing from the system time
@@ -65,7 +65,7 @@ SUBROUTINE main
 ! Define length of dinamic arrays (cell and package)
   ALLOCATE (cell(Ngrid))
   ALLOCATE (package(n_pack))
-  ALLOCATE (model_grid(n_modelgrid))
+  ALLOCATE (model_grid(n_modelgrid+1))
 
 !  TYPE(grid_cell), DIMENSION(N) :: cell  
 
@@ -115,7 +115,7 @@ SUBROUTINE main
         DO K=1, nz_cell
            IF (I .EQ. nx_cell/2) THEN ! Only for one slice in the midle
                WRITE(3, *) cell(L)%corner, model_grid(cell(L)%model_index)%rho
-!               WRITE(4, *) model_grid(cell(L)%model_index)%rho
+               WRITE(4, *) model_grid(cell(L)%model_index)%rho
            END IF
            L = L + 1
         END DO
@@ -127,22 +127,28 @@ SUBROUTINE main
 ! calculated one using our propagation procedure
 
 ! Increament of opacity (for testing)
-  delta_opa = (upper_opa - lower_opa)/nopa
+!  delta_opa = (upper_opa - lower_opa)/nopa
 
 ! Loop over the numer of different opacity (nopa)
-  DO I=1,nopa
+!  DO I=1,nopa
      print*, 'tau loop',  I
 !    Opacity for tau calculation
-     opa_cell = lower_opa  +  (I-1)*delta_opa
+!     opa_cell = lower_opa  +  (I-1)*delta_opa
 !     print*,   opa_cell * (xmax-R_star)
 !     print*, R_star
 !     stop
-!    Initalisation of photon packages from the photosphere
+!    Initialisation of photon packages from the photosphere
      CALL init_photsphere(n_pack) 
+     print*, 'photon is initialised'
 !    Initalisation of photon packages from point sourse
 !     CALL init_photonpack(n_pack)
 !    Propagation of the photon in 3D gred
-     CALL propagation(n_pack, opa_cell, lower_opa, delta_opa)
-  END DO
+!     CALL propagation(n_pack, opa_cell, lower_opa, delta_opa)
+     print*, 'update packages'
+     CALL update_packages(n_pack)
+     print*, 'do spectrum'
+     CALL do_spectrum(n_pack)
+     print*, 'do finalize'
+!  END DO
     
 END SUBROUTINE main

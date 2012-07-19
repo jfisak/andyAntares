@@ -76,8 +76,14 @@ SUBROUTINE propagation(n_pack, opa_cell, lower_opa, delta_opa)
            print*, package(pack_index)%dir
        END IF
 
-!      Calculate the distance to the point of event
+!      Calculate the distance to the point of event for simplifying case without lines
        event_dist = (tau_rand-tau)/(opa_cell * rho)
+
+      CALL event_dist()
+
+
+
+
        IF (debug .EQ. 1) THEN 
           print*, cell_dist, next_cell, event_dist , cell(package(pack_index)%cell_numb)%indexc
        END IF

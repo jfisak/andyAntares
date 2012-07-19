@@ -7,10 +7,10 @@ n_modelgrid = 20
 xmax = 20.
 ymax = 20.
 zmax = 20.
-R_wind = 20.
-R_star = 2.
-T_eff = 39000.
+R_wind = 10.
+R_star = 1.
+T_eff = 40000.
 M_dot = 0.000001
-V_inf = 3000.
+V_inf = 2250.
 *random_seed = 1
 

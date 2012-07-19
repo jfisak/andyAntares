@@ -6,10 +6,11 @@ SUBROUTINE init_photsphere(n_pack)
 
     INTEGER                           :: I, n_pack, ind_cell_numb, ind_x, ind_y, ind_z 
     DOUBLE PRECISION                  :: L_star, sint, cost, sinp, cosp, length, freq, D
-    DOUBLE PRECISION, PARAMETER       :: delta_t=1.D0
+ !   DOUBLE PRECISION, PARAMETER       :: delta_t=1.D0
     DOUBLE PRECISION, DIMENSION(3)    :: direction, directionn
 
-    L_star = 4.D0*pi*(R_star*r_sun)**2*sigma*T_eff
+    L_star = 4.D0*pi*(R_star)**2*sigma*T_eff**4
+    print*, L_star
 
 !    ind_x = nx_cell/2 + 1
 !    ind_y = ny_cell/2 + 1
@@ -45,7 +46,8 @@ SUBROUTINE init_photsphere(n_pack)
        package(I)%last_cross = NONE
 
 !      Assign rf energy and frequency to the packet
-       package(I)%e_rf = (L_star/n_pack) * delta_t  
+       package(I)%e_rf = L_star/n_pack  
+       IF (I .EQ. 1) print*, package(I)%e_rf
        CALL freq_from_planck(freq)   ! here the frequency is sampled from a Planck law
        package(I)%freq_rf = freq
 
