@@ -1,11 +1,10 @@
-SUBROUTINE read_input(n_pack, n_bin, R_star, iseed)
+SUBROUTINE read_input(n_pack, n_bin, iseed)
 
   USE types
 
   IMPLICIT NONE
 
   INTEGER             :: n_pack, n_bin, iseed, idx, npar
-  DOUBLE PRECISION    :: R_star
   CHARACTER  :: LINE*80, ACTPAR*20
 
   OPEN (UNIT=1, FILE='input.dat', STATUS='OLD')
@@ -16,10 +15,15 @@ SUBROUTINE read_input(n_pack, n_bin, R_star, iseed)
   nx_cell = 100 ! number of cell in x direction
   ny_cell = 100 ! number of cell in y direction
   nz_cell = 100 ! number of cell in z direction
+  n_modelgrid = 100
   xmax = 50.    ! coordinates of outer bourder of the wind in units of stellar radius 
   ymax = 50.  
   zmax = 50. 
-  R_star = 2.
+  R_inf = 20.
+  R_star = 2. 
+  T_eff = 20000.
+  M_dot = 1.D-6
+  V_inf = 3000.D0
   iseed = -1  
 
   DO
@@ -56,6 +60,12 @@ SUBROUTINE read_input(n_pack, n_bin, R_star, iseed)
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I20)', ERR=91) nz_cell
 
+    ELSE IF (ACTPAR .EQ. 'n_modelgrid') THEN
+    CALL SARGC (LINE, NPAR)
+    IF (NPAR .LT. 2) GOTO 90
+    CALL SARGV(LINE,2,ACTPAR)
+    READ (ACTPAR, '(I20)', ERR=91) n_modelgrid
+
     ELSE IF (ACTPAR .EQ. 'xmax') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
@@ -74,11 +84,35 @@ SUBROUTINE read_input(n_pack, n_bin, R_star, iseed)
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(F20.0)', ERR=91) zmax
 
+    ELSE IF (ACTPAR .EQ. 'R_inf') THEN
+    CALL SARGC (LINE, NPAR)
+    IF (NPAR .LT. 2) GOTO 90
+    CALL SARGV(LINE,2,ACTPAR)
+    READ (ACTPAR, '(F20.0)', ERR=91) R_inf
+
     ELSE IF (ACTPAR .EQ. 'R_star') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(F20.0)', ERR=91) R_star 
+
+    ELSE IF (ACTPAR .EQ. 'T_eff') THEN
+    CALL SARGC (LINE, NPAR)
+    IF (NPAR .LT. 2) GOTO 90
+    CALL SARGV(LINE,2,ACTPAR)
+    READ (ACTPAR, '(F20.0)', ERR=91) T_eff 
+
+    ELSE IF (ACTPAR .EQ. 'M_dot') THEN
+    CALL SARGC (LINE, NPAR)
+    IF (NPAR .LT. 2) GOTO 90
+    CALL SARGV(LINE,2,ACTPAR)
+    READ (ACTPAR, '(F20.0)', ERR=91) M_dot
+
+    ELSE IF (ACTPAR .EQ. 'V_inf') THEN
+    CALL SARGC (LINE, NPAR)
+    IF (NPAR .LT. 2) GOTO 90
+    CALL SARGV(LINE,2,ACTPAR)
+    READ (ACTPAR, '(F20.0)', ERR=91) V_inf
 
     ELSE IF (ACTPAR .EQ. 'random_seed') THEN
     CALL SARGC (LINE, NPAR)
@@ -91,15 +125,20 @@ SUBROUTINE read_input(n_pack, n_bin, R_star, iseed)
 99 CONTINUE
   CLOSE (1)
 
-  WRITE (*,'(A,I10)')   'npackages  = ', n_pack
-  WRITE (*,'(A,I10)')   'nbin       = ', n_bin
-  WRITE (*,'(A,I10)')   'nx_cell    = ', nx_cell
-  WRITE (*,'(A,I10)')   'ny_cell    = ', ny_cell  
-  WRITE (*,'(A,I10)')   'nz_cell    = ', nz_cell
-  WRITE (*,'(A,F10.3)') 'grid_xmax  = ', xmax
-  WRITE (*,'(A,F10.3)') 'grid_ymax  = ', ymax
-  WRITE (*,'(A,F10.3)') 'grid_zmax  = ', zmax
-  WRITE (*,'(A,F10.3)') 'R_star     = ', R_star ! R_star*r_sun
+  WRITE (*,'(A,I10)')   'npackages    = ', n_pack
+  WRITE (*,'(A,I10)')   'nbin         = ', n_bin
+  WRITE (*,'(A,I10)')   'nx_cell      = ', nx_cell
+  WRITE (*,'(A,I10)')   'ny_cell      = ', ny_cell  
+  WRITE (*,'(A,I10)')   'nz_cell      = ', nz_cell
+  WRITE (*,'(A,I10)')   'n_modelgrid  = ', n_modelgrid
+  WRITE (*,'(A,F10.3)') 'grid_xmax    = ', xmax
+  WRITE (*,'(A,F10.3)') 'grid_ymax    = ', ymax
+  WRITE (*,'(A,F10.3)') 'grid_zmax    = ', zmax
+  WRITE (*,'(A,F10.3)') 'R_wind       = ', R_inf
+  WRITE (*,'(A,F10.3)') 'R_star       = ', R_star ! R_star*r_sun
+  WRITE (*,'(A,F10.3)') 'T_eff        = ', T_eff
+  WRITE (*,'(A,F10.3)') 'M_dot        = ', M_dot 
+  WRITE (*,'(A,F10.3)') 'V_inf        = ', V_inf
   IF (iseed .le. 0) then 
      WRITE (*,'(A)') 'Random-seed value is random '
   ELSE

@@ -1,20 +1,19 @@
-  SUBROUTINE toy_model(R_wind, R_star, M_dot, V_inf) 
+  SUBROUTINE toy_model() 
 
   USE types
 
   IMPLICIT NONE    
 
   INTEGER                           :: I, J, M
-  DOUBLE PRECISION                  :: R_wind, R_star, M_dot, V_inf, delta_r, r, &
-                                       delta, delta2
+  DOUBLE PRECISION                  :: delta_r, r, delta, delta2
 
-  delta_r = (R_wind - R_star)/n_modelgrid
+  delta_r = (R_inf - R_star)/n_modelgrid
 
   DO I=1,n_modelgrid
      r = R_star + I * delta_r
      model_grid(I)%rwind = r
-     model_grid(I)%vel   = (r/R_wind)*V_inf
-     model_grid(I)%rho   = M_dot / (4.D0 * pi * r**2 * model_grid(I)%vel)
+     model_grid(I)%vel   = (r/R_inf)*V_inf
+     model_grid(I)%rho   = M_dot / (4.D0 * pi * r**2 * model_grid(I)%vel)     
   END DO
 
 
@@ -31,7 +30,7 @@
             M = J           
         END IF          
      END DO  
-     cell(I)%model_index = M
+     cell(I)%model_index = M     
   END DO
   
   END SUBROUTINE toy_model

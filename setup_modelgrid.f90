@@ -6,7 +6,7 @@
 
   INTEGER                           :: I, J, K, L
   DOUBLE PRECISION, DIMENSION(3)    :: cell_center
-  DOUBLE PRECISION                  :: M_dot
+  DOUBLE PRECISION                  :: M_dot, r
 
   M_dot = 5.D0
 
@@ -31,6 +31,10 @@
            cell(L)%corner(2)  = -ymax + (J-1)*cell_width     
            cell(L)%corner(3)  = -zmax + (K-1)*cell_width 
 !           write(2,*) cell(L)%indexc, cell(L)%corner ! don't write if it is not necessary (computational very expensive)
+!          Absolute radius of the grid cell 
+           r =SQRT( (cell(L)%corner(1) + cell_width/2.D0)**2 
+              + (cell(L)%corner(2) + cell_width/2.D0))**2    &
+              + (cell(L)%corner(3) + cell_width/2.D0))**2)
            L = L + 1
         END DO
      END DO

@@ -1,4 +1,4 @@
-SUBROUTINE propagation(n_pack, opa_cell, lower_opa, delta_opa, R_star)
+SUBROUTINE propagation(n_pack, opa_cell, lower_opa, delta_opa)
  
 ! Propagation of the photon in 3D grid
 
@@ -7,8 +7,8 @@ SUBROUTINE propagation(n_pack, opa_cell, lower_opa, delta_opa, R_star)
   IMPLICIT NONE    
 
     INTEGER                           :: I, I_esc, pack_index, nc, next_cell, n_pack
-    DOUBLE PRECISION                  :: tau, xi, ran2, tau_rand, cell_dist, event_dist, r,    &
-                                         rho_cell, I_beta, opa_cell, lower_opa, delta_opa, R_star
+    DOUBLE PRECISION                  :: tau, xi, ran2, tau_rand, cell_dist, event_dist, r,   &
+                                         rho_cell, I_beta, opa_cell, lower_opa, delta_opa
     DOUBLE PRECISION, PARAMETER       :: rho=1.D0
 
 !    DOUBLE PRECISION, PARAMETER       :: opa_cell=1.D0/20.D0, rho=1.D0
@@ -87,7 +87,7 @@ SUBROUTINE propagation(n_pack, opa_cell, lower_opa, delta_opa, R_star)
        ENDIF
        IF (event_dist .LT. cell_dist) THEN   
 !         Move photon package from the curent position for some distance
-          CALL move_package(pack_index, event_dist, R_star)
+          CALL move_package(pack_index, event_dist)
           CALL do_event(pack_index, tau, tau_rand)
 	  IF (debug .EQ. 1) THEN 
               print*, 'do event', opa_cell * rho_cell * cell_dist
@@ -96,7 +96,7 @@ SUBROUTINE propagation(n_pack, opa_cell, lower_opa, delta_opa, R_star)
 !         Calculate(accumulate) the optical depth along the package inside the cell (cell distance)
           tau = tau + opa_cell * rho_cell * cell_dist
 !         Move package from the curent position for the cell_dist
-          CALL move_package(pack_index, cell_dist, R_star)
+          CALL move_package(pack_index, cell_dist)
 !         If package escaped the calculation volume (next_cell=-99) then it become no-active and 
 !         package type is update to the type_escaped, else the cell number is updated
           CALL change_cell(pack_index, next_cell)

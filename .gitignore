@@ -1,0 +1,7 @@
+# Do not put these file types under version control
+*.o
+*.mod
+*.exe
+*~
+*dat
+compiletime.for

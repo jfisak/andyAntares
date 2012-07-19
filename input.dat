@@ -3,10 +3,14 @@ n_bin = 100
 nx_cell = 200
 ny_cell = 200
 nz_cell = 200
+n_modelgrid = 20
 xmax = 20.
 ymax = 20.
 zmax = 20.
+R_wind = 20.
 R_star = 2.
-M_dot = 
+T_eff = 39000.
+M_dot = 0.000001
+V_inf = 3000.
 *random_seed = 1
 

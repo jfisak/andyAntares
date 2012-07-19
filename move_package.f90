@@ -1,4 +1,4 @@
-SUBROUTINE move_package(pack_index, dist, R_star)
+SUBROUTINE move_package(pack_index, dist)
 
 ! Move photon package from the curent position for some distance (abdate package(pack_index)%pos)
 
@@ -7,7 +7,7 @@ SUBROUTINE move_package(pack_index, dist, R_star)
   IMPLICIT NONE    
 
     INTEGER                           :: pack_index, nc
-    DOUBLE PRECISION                  :: dist, length, R_star
+    DOUBLE PRECISION                  :: dist, length, D
 !
     IF (debug .EQ. 1) THEN 
         print*, package(pack_index)%pos, pack_index, dist
@@ -27,9 +27,13 @@ SUBROUTINE move_package(pack_index, dist, R_star)
     package(pack_index)%pos(3) = package(pack_index)%pos(3) + dist * package(pack_index)%dir(3)
     length=SQRT(package(pack_index)%pos(1)**2 + package(pack_index)%pos(2)**2 + package(pack_index)%pos(3)**2)  
 
+!   Rest frame quantities do not change while propagating without any events, 
+!   but cmf quantities need to be updated
+    CALL doppler_factor(pack_index, D)
+    package(pack_index)%freq_cmf = package(pack_index)%freq_rf * D
+    package(pack_index)%e_cmf = package(pack_index)%e_rf * package(pack_index)%freq_cmf/package(pack_index)%freq_rf
 !    IF (length .LT. R_star) package(pack_index)%active = 0
    
-
    IF (debug .EQ. 1) THEN 
        print*, package(pack_index)%pos
    END IF

@@ -16,7 +16,7 @@ SUBROUTINE main
   INTEGER, DIMENSION (9)            :: TT
 !  DOUBLE PRECISION                  :: xmax, ymax, zmax, deltax, deltay, deltaz, 
 !  DOUBLE PRECISION                  :: delta_cellx, delta_celly, delta_cellz, 
-  DOUBLE PRECISION                  :: delta_opa, opa_cell, R_star
+  DOUBLE PRECISION                  :: delta_opa, opa_cell
 
 ! Link data to identify program version
   CHARACTER LINK_DATE*30, LINK_USER*10, LINK_HOST*60
@@ -24,8 +24,8 @@ SUBROUTINE main
 !  COMMON / RAN_SEED / idum
 
   OPEN (UNIT=2, FILE='cells.dat')  
-
-
+  OPEN (UNIT=3, FILE='modelgrid.dat')
+!  OPEN (UNIT=4, FILE='density.dat')
 
 !  test = 0
 
@@ -34,12 +34,12 @@ SUBROUTINE main
                      LINK_DATE
   WRITE(*,'(4A)') '>>> created by ', LINK_USER(:IDX(LINK_USER)), &
            ' at host ', LINK_HOST(:IDX(LINK_HOST))
-
-  CALL read_input(n_pack, n_bin, R_star, iseed)
+  CALL read_input(n_pack, n_bin, iseed)
 
 ! Initialing seed from the system time
 ! If we set iseed < 0 in input.dat then iseed will be initializing from the system time
 ! otherwise, iseed will take a value given in the input file
+  print*, 'read input'
   CALL DATE_AND_TIME(VALUES = TT)
   IF (iseed .LE. 0) THEN  
     iseed = TT(1)+70*(TT(2)+12*(TT(3)+31*(TT(5)+23*(TT(6)+59*TT(7)))))
@@ -65,7 +65,7 @@ SUBROUTINE main
 ! Define length of dinamic arrays (cell and package)
   ALLOCATE (cell(Ngrid))
   ALLOCATE (package(n_pack))
-
+  ALLOCATE (model_grid(n_modelgrid))
 
 !  TYPE(grid_cell), DIMENSION(N) :: cell  
 
@@ -74,7 +74,7 @@ SUBROUTINE main
 !  print*, cell_width
 !! Size of the grid cells in x,y, and z direction (now they are with the same size i.e. regular gred)
 !  deltax = 2.D0*xmax/nx_cell
-!  deltay = 2.D0*ymax/ny_cell
+!  deltay = 2.D0*ymax/ny_cellR
 !  deltaz = 2.D0*zmax/nz_cell
 
 ! Set up of the gred
@@ -106,8 +106,22 @@ SUBROUTINE main
 !     END DO
 !  END DO
 
-! Set up of the model gred
-!  CALL setup_modelgrid
+
+  CALL toy_model()     ! Set up outflow
+
+  L = 1
+  DO I=1, nx_cell
+     DO J=1, ny_cell
+        DO K=1, nz_cell
+           IF (I .EQ. nx_cell/2) THEN ! Only for one slice in the midle
+               WRITE(3, *) cell(L)%corner, model_grid(cell(L)%model_index)%rho
+!               WRITE(4, *) model_grid(cell(L)%model_index)%rho
+           END IF
+           L = L + 1
+        END DO
+     END DO
+  END DO         
+
 
 ! Checking if the analitic solution for the escape probability (e^(-tau)) is in agreement with the
 ! calculated one using our propagation procedure
@@ -124,11 +138,11 @@ SUBROUTINE main
 !     print*, R_star
 !     stop
 !    Initalisation of photon packages from the photosphere
-     CALL init_photsphere(n_pack, R_star) 
+     CALL init_photsphere(n_pack) 
 !    Initalisation of photon packages from point sourse
-!     CALL init_photonpack(n_pack, R_star)
+!     CALL init_photonpack(n_pack)
 !    Propagation of the photon in 3D gred
-     CALL propagation(n_pack, opa_cell, lower_opa, delta_opa, R_star)
+     CALL propagation(n_pack, opa_cell, lower_opa, delta_opa)
   END DO
     
 END SUBROUTINE main

@@ -1,17 +1,15 @@
-SUBROUTINE init_photsphere(n_pack, R_star)
+SUBROUTINE init_photsphere(n_pack)
 
   USE types
 
   IMPLICIT NONE
 
     INTEGER                           :: I, n_pack, ind_cell_numb, ind_x, ind_y, ind_z 
-    DOUBLE PRECISION                  :: L_star, R_star, sint, cost, sinp, cosp, length
+    DOUBLE PRECISION                  :: L_star, sint, cost, sinp, cosp, length, freq, D
     DOUBLE PRECISION, PARAMETER       :: delta_t=1.D0
     DOUBLE PRECISION, DIMENSION(3)    :: direction, directionn
 
-!    print*, R_star
-
-    L_star = 4.D0*pi*(R_star*r_sun)**2*sigma*T
+    L_star = 4.D0*pi*(R_star*r_sun)**2*sigma*T_eff
 
 !    ind_x = nx_cell/2 + 1
 !    ind_y = ny_cell/2 + 1
@@ -41,13 +39,25 @@ SUBROUTINE init_photsphere(n_pack, R_star)
            STOP 'ERROR in cell_number'
        package(I)%cell_numb = ind_cell_numb
 
-
-       package(I)%e_rf = (L_star/n_pack) * delta_t  
+!      Flag the packet as an active r-pkt and allow all kind of cell crossings
        package(I)%active = 1
        package(I)%typ = type_rpkt
        package(I)%last_cross = NONE
+
+!      Assign rf energy and frequency to the packet
+       package(I)%e_rf = (L_star/n_pack) * delta_t  
+       CALL freq_from_planck(freq)   ! here the frequency is sampled from a Planck law
+       package(I)%freq_rf = freq
+
+!      Now convert the energy and frequency to their cmf values
+       CALL doppler_factor(I, D)
+       package(I)%freq_cmf = package(I)%freq_rf * D 
+       package(I)%e_cmf = package(I)%e_rf * D  
+
+
 !       print*, package(I)%cell_numb,package(I)%dir !,  package(I)%pos, package(I)% e_rf
 !      e_cmf, freq_cmf, freq_rf, cell_numb, pack_numb, active
+
     END DO
 
 !    PRINT*, ind_x, ind_y, ind_z, ind_cell_numb

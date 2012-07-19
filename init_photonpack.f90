@@ -1,15 +1,15 @@
-SUBROUTINE init_photonpack(n_pack, R_star)
+SUBROUTINE init_photonpack(n_pack)
 
   USE types
 
   IMPLICIT NONE
 
     INTEGER                           :: I, n_pack, ind_cell_numb, ind_x, ind_y, ind_z
-    DOUBLE PRECISION                  :: L_star, R_star
+    DOUBLE PRECISION                  :: L_star
     DOUBLE PRECISION, PARAMETER       :: delta_t=1.D0
     DOUBLE PRECISION, DIMENSION(3)    :: direction
 
-    L_star = 4.D0*pi*(R_star*r_sun)**2*sigma*T
+    L_star = 4.D0*pi*(R_star*r_sun)**2*sigma*T_eff
     R_star = 0.
 
 !    ind_x = nx_cell/2 + 1

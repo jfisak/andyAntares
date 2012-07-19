@@ -17,14 +17,17 @@ IMPLICIT NONE
      DOUBLE PRECISION                :: e_cmf, e_rf, freq_cmf, freq_rf
   END TYPE photon
 
-
+  TYPE modelgrid 
+     DOUBLE PRECISION                :: rho, vel, rwind
+  END TYPE modelgrid
 
 ! Global variables
   DOUBLE PRECISION                   :: xmax, ymax, zmax, cell_width
-  INTEGER                            :: nx_cell, ny_cell, nz_cell, Ngrid
+  DOUBLE PRECISION                   :: R_star, R_inf, V_inf, M_dot, T_eff
+  INTEGER                            :: nx_cell, ny_cell, nz_cell, Ngrid, n_modelgrid
 
-  TYPE(grid_cell), ALLOCATABLE       :: cell(:) 
-    
+  TYPE(modelgrid), ALLOCATABLE       :: model_grid(:)
+  TYPE(grid_cell), ALLOCATABLE       :: cell(:)   
   TYPE(photon), ALLOCATABLE          :: package(:)
 
   INTEGER                            :: idum
@@ -52,6 +55,6 @@ IMPLICIT NONE
   DOUBLE PRECISION, PARAMETER       :: pi=3.1415926535897932D+00,me_g=9.109534D-28,mp_g=1.6726485D-24,sigma_e=6.6516D-25,&
                                        h=6.626176D-27,light_speed=2.99792458D+10,e_charge=4.803242D-10,ftran=0.6407D+00, &       
                                        nio=4.5655967D+14,const=1.D-04,vel_ter=920.0D+05,r_sun=695990.D+05,beta=2.0D+00,  &   
-                                       BOLK=1.380662D-16,m_sun=1.989D+33,  T=39000, sigma=5.6704D+05 !ergcm^(-2)s(-1)K(-4) !D. H. Cohen et al.2012
+                                       BOLK=1.380662D-16,m_sun=1.989D+33, sigma=5.6704D+05 !ergcm^(-2)s(-1)K(-4) !D. H. Cohen et al.2012
 
 END MODULE types
