@@ -1,8 +1,13 @@
 SUBROUTINE main
+  ! Propagate a bunch of photon packets through a stellar wind
+
+
+#ifdef MPI_ON
+  include 'mpif.h'
+#endif
 
   USE types
 
-! Purpose: to calculate the escape probability 
 
   IMPLICIT NONE
 
@@ -29,21 +34,48 @@ SUBROUTINE main
 
 !  test = 0
 
-! Write Link Data (Program Version) to CPR file
+
+#ifdef MPI_ON
+  integer  ierr  
+
+  call MPI_INIT(ierr)
+  if (ierr .ne. MPI_SUCCESS) then
+    print *,'Error starting MPI program. Terminating.'
+    call MPI_ABORT(MPI_COMM_WORLD, rc, ierr)
+  end if
+
+  call MPI_COMM_RANK(MPI_COMM_WORLD, my_rank, ierr)
+  call MPI_COMM_SIZE(MPI_COMM_WORLD, n_tasks, ierr)
+  print *, 'Number of tasks=',numtasks,' My rank=',rank
+#endif
+
+
+  ! Write Link Data (Program Version) to CPR file
   WRITE(*,'(2A)') '>>> Program started: Program Version from ',  &
                      LINK_DATE
   WRITE(*,'(4A)') '>>> created by ', LINK_USER(:IDX(LINK_USER)), &
            ' at host ', LINK_HOST(:IDX(LINK_HOST))
   CALL read_input(n_pack, iseed)
 
-! Initialing seed from the system time
-! If we set iseed < 0 in input.dat then iseed will be initializing from the system time
-! otherwise, iseed will take a value given in the input file
+
+  ! Initialing seed from the system time
+  ! If we set iseed < 0 in input.dat then iseed will be initializing from the system time
+  ! otherwise, iseed will take a value given in the input file
   print*, 'read input'
   CALL DATE_AND_TIME(VALUES = TT)
   IF (iseed .LE. 0) THEN  
     iseed = TT(1)+70*(TT(2)+12*(TT(3)+31*(TT(5)+23*(TT(6)+59*TT(7)))))
   END IF
+
+
+#ifdef MPI_ON
+  ! For MPI parallel calculations each task needs its own random number seed
+  ! This is achieved by adding an offset to the basic random number seed
+  ! which depends on the task's ID number. This has to be done for both
+  ! "random" and pre-defined seeds.
+  iseed = iseed + my_rank*17
+#endif
+
 
 ! The initial value of iseed (idum) should be set to different NEGATIVE integer values 
 ! in order to obtain different random sequences. Seed is updated by ran2 once for each 
@@ -139,7 +171,7 @@ SUBROUTINE main
 !     stop
 !    Initialisation of photon packages from the photosphere
      CALL init_photsphere(n_pack) 
-     print*, 'photon is initialised'
+     print*, 'photons initialised'
 !    Initalisation of photon packages from point sourse
 !     CALL init_photonpack(n_pack)
 !    Propagation of the photon in 3D gred
@@ -151,4 +183,9 @@ SUBROUTINE main
      print*, 'do finalize'
 !  END DO
     
+
+#ifdef MPI_ON
+  call MPI_FINALIZE(ierr)
+#endif
+
 END SUBROUTINE main

@@ -1,6 +1,11 @@
 MODULE types
 
-IMPLICIT NONE
+#ifdef MPI_ON
+  include 'mpif.h'
+#endif
+
+
+  IMPLICIT NONE
 
 ! Type Definitions
 
@@ -23,6 +28,7 @@ IMPLICIT NONE
 
   TYPE spec_type
      DOUBLE PRECISION                :: freq, flux
+     INTEGER                         :: esc
   END TYPE spec_type
 
 
@@ -39,6 +45,9 @@ IMPLICIT NONE
   INTEGER                            :: idum
   INTEGER                            :: debug
 
+#ifdef MPI_ON
+  INTEGER                            :: n_tasks, my_rank
+#endif
 
 
 ! Globally defined numerical constants 
@@ -70,7 +79,9 @@ IMPLICIT NONE
 
 !! Parameters for testing
   DOUBLE PRECISION, PARAMETER        :: freq_line=light_speed/1216.D-8, osc_line=0.416D0 ! for Ly_alph line
-  DOUBLE PRECISION, PARAMETER        :: nu_min= 2.D15, nu_max=3.D15  !nu_min= 1.D14, nu_max=1.D17,
+!  DOUBLE PRECISION, PARAMETER        :: nu_min= 2.D15, nu_max=3.D15  !nu_min= 1.D14, nu_max=1.D17,
+  DOUBLE PRECISION, PARAMETER         :: nu_min= 2.14286D15, nu_max=3.D15
+!  DOUBLE PRECISION, PARAMETER        :: nu_min= 2.4D15, nu_max=2.542D15 
 
 
 END MODULE types

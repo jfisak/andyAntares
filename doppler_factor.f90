@@ -1,15 +1,18 @@
- SUBROUTINE doppler_factor(pack_index, D)
+SUBROUTINE doppler_factor(pack_index, D)
+
+  ! Calculate the Doppler factor to transform a rest frame frequency
+  ! into a comoving frame frequency (Mihalas & Mihalas Eq. 89.5)
  
   USE types
 
   IMPLICIT NONE    
 
-    INTEGER                           :: pack_index
-    DOUBLE PRECISION                  :: D_gamma, D, vel_radial, vec_length
-    DOUBLE PRECISION, DIMENSION(3)    :: vel_vec
+  INTEGER                           :: pack_index
+  DOUBLE PRECISION                  :: D_gamma, D, vel_radial, vec_length
+  DOUBLE PRECISION, DIMENSION(3)    :: vel_vec
     
-    D_gamma = 1.D0 ! For non-relativistic case    
-    CALL velo(pack_index, vel_vec)
-    D = D_gamma * (1.D0 -  DOT_PRODUCT(package(pack_index)%dir,vel_vec)/light_speed)
+  D_gamma = 1.D0 ! For non-relativistic case    
+  CALL velo(pack_index, vel_vec)
+  D = D_gamma * (1.D0 -  DOT_PRODUCT(package(pack_index)%dir,vel_vec)/light_speed)
 
- END SUBROUTINE doppler_factor
+END SUBROUTINE doppler_factor

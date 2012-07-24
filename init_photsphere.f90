@@ -10,7 +10,7 @@ SUBROUTINE init_photsphere(n_pack)
     DOUBLE PRECISION, DIMENSION(3)    :: direction, directionn
 
     L_star = 4.D0*pi*(R_star)**2*sigma*T_eff**4
-    print*, L_star
+    print*, L_star, pi, R_star/r_sun,sigma, T_eff
 
 !    ind_x = nx_cell/2 + 1
 !    ind_y = ny_cell/2 + 1

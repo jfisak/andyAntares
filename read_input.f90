@@ -134,10 +134,10 @@ SUBROUTINE read_input(n_pack, iseed)
   WRITE (*,'(A,F10.3)') 'grid_xmax (Rsun)    = ', xmax
   WRITE (*,'(A,F10.3)') 'grid_ymax (Rsun)    = ', ymax
   WRITE (*,'(A,F10.3)') 'grid_zmax (Rsun)    = ', zmax
-  WRITE (*,'(A,F10.3)') 'R_wind (Rsun)    = ', R_inf
+  WRITE (*,'(A,F10.3)') 'R_inf (Rsun)     = ', R_inf
   WRITE (*,'(A,F10.3)') 'R_star (Rsun)    = ', R_star ! R_star*r_sun
   WRITE (*,'(A,F10.3)') 'T_eff (K)        = ', T_eff
-  WRITE (*,'(A,F10.3)') 'M_dot (Msun/yr)  = ', M_dot 
+  WRITE (*,'(A,G10.3)') 'M_dot (Msun/yr)  = ', M_dot 
   WRITE (*,'(A,F10.3)') 'V_inf (km/s)     = ', V_inf
   IF (iseed .le. 0) then 
      WRITE (*,'(A)') 'Random-seed value is random '
@@ -164,7 +164,7 @@ SUBROUTINE read_input(n_pack, iseed)
   WRITE (*,'(A,G10.3)') 'grid_xmax    = ', xmax
   WRITE (*,'(A,G10.3)') 'grid_ymax    = ', ymax
   WRITE (*,'(A,G10.3)') 'grid_zmax    = ', zmax
-  WRITE (*,'(A,G10.3)') 'R_wind    = ', R_inf
+  WRITE (*,'(A,G10.3)') 'R_inf     = ', R_inf
   WRITE (*,'(A,G10.3)') 'R_star    = ', R_star ! R_star*r_sun
   WRITE (*,'(A,G10.3)') 'T_eff (K) = ', T_eff
   WRITE (*,'(A,G10.3)') 'M_dot     = ', M_dot 
