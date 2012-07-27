@@ -29,8 +29,9 @@ SUBROUTINE boundary(pack_index, dist, next_cell)
     dist_plusz = (cell(nc)%corner(3) + cell_width - package(pack_index)%pos(3))/package(pack_index)%dir(3)     
     dist_minz = (cell(nc)%corner(3) - package(pack_index)%pos(3))/package(pack_index)%dir(3)
     IF (debug .EQ. 1) THEN 
-        print*, package(pack_index)%dir
-        print*, dist_plusx, dist_minx, dist_plusy, dist_miny, dist_plusz, dist_minz
+        print*, 'boundary: dir ', package(pack_index)%dir
+        print*, 'boundary: distances posx, negx, posy, negy, posz, negz ', &
+             dist_plusx, dist_minx, dist_plusy, dist_miny, dist_plusz, dist_minz
     END IF
 
 !   Initalisation - large distance bigger than grid size (all calculated idstances should be shorter)
@@ -52,7 +53,8 @@ SUBROUTINE boundary(pack_index, dist, next_cell)
       END IF
     END IF
     IF (debug .EQ. 1) THEN 
-        print*, dist, next_cell, nc , ny_cell, nz_cell
+        print*, 'boundary: dist, nextcell, current cell, ny_cell, nz_cell ', &
+             dist, next_cell, nc , ny_cell, nz_cell
     END IF
 
     IF ((dist_minx .GT. 0.D0).AND.(dist_minx .LT. dist).AND.(forbidden .NE. posx)) THEN
@@ -66,7 +68,7 @@ SUBROUTINE boundary(pack_index, dist, next_cell)
        END IF
     END IF
     IF (debug .EQ. 1) THEN 
-        print*, dist, next_cell
+        print*, 'boundary: dist, nextcell ', dist, next_cell
     END IF
 
     IF ((dist_plusy .GT. 0.D0).AND.(dist_plusy .LT. dist).AND.(forbidden .NE. negy)) THEN
@@ -80,7 +82,7 @@ SUBROUTINE boundary(pack_index, dist, next_cell)
        END IF
     END IF
     IF (debug .EQ. 1) THEN 
-        print*, dist, next_cell
+        print*, 'boundary: dist, nextcell ', dist, next_cell
     END IF
 
     IF ((dist_miny .GT. 0.D0).AND.(dist_miny .LT. dist).AND.(forbidden .NE. posy)) THEN
@@ -94,7 +96,7 @@ SUBROUTINE boundary(pack_index, dist, next_cell)
       END IF
     END IF
     IF (debug .EQ. 1) THEN 
-        print*, dist, next_cell
+        print*, 'boundary: dist, nextcell ', dist, next_cell
     END IF
 
     IF ((dist_plusz .GT. 0.D0).AND.(dist_plusz .LT. dist).AND.(forbidden .NE. negz)) THEN
@@ -108,7 +110,7 @@ SUBROUTINE boundary(pack_index, dist, next_cell)
       END IF
     END IF
     IF (debug .EQ. 1) THEN 
-        print*, dist, next_cell
+        print*, 'boundary: dist, nextcell ', dist, next_cell
     END IF
 
     IF ((dist_minz .GT. 0.D0).AND.(dist_minz .LT. dist).AND.(forbidden .NE. posz)) THEN
@@ -122,13 +124,14 @@ SUBROUTINE boundary(pack_index, dist, next_cell)
       END IF
     END IF
     IF (debug .EQ. 1) THEN 
-        print*, dist, next_cell
+        print*, 'boundary: dist, nextcell ', dist, next_cell
     END IF
 
     IF (debug .EQ. 3) THEN
-      print*, nc, cell(nc)%indexc, FLOOR(package(pack_index)%pos(1)/cell_width + nx_cell/2) + 1, &
-              FLOOR(package(pack_index)%pos(2)/cell_width + ny_cell/2) + 1,  &
-              FLOOR(package(pack_index)%pos(3)/cell_width + nz_cell/2) + 1 
+      print*, nc, cell(nc)%indexc, &
+           FLOOR(package(pack_index)%pos(1)/cell_width + dble(nx_cell)/2) + 1, &
+           FLOOR(package(pack_index)%pos(2)/cell_width + dble(ny_cell)/2) + 1, &
+           FLOOR(package(pack_index)%pos(3)/cell_width + dble(nz_cell)/2) + 1 
       print*, package(pack_index)%pos, package(pack_index)%dir
       print*, cell(nc)%corner, cell(nc)%corner+cell_width
       print*, dist_plusx, dist_minx, dist_plusy, dist_miny, dist_plusz, dist_minz
@@ -143,9 +146,9 @@ SUBROUTINE boundary(pack_index, dist, next_cell)
       print*, forbidden
       print*, nc, cell(nc)%indexc, cell(nc)%corner, cell(nc)%corner+cell_width
 
-      print*, FLOOR(package(pack_index)%pos(1)/cell_width + nx_cell/2) + 1
-      print*, FLOOR(package(pack_index)%pos(2)/cell_width + ny_cell/2) + 1
-      print*, FLOOR(package(pack_index)%pos(3)/cell_width + nz_cell/2) + 1
+      print*, FLOOR(package(pack_index)%pos(1)/cell_width + dble(nx_cell)/2) + 1
+      print*, FLOOR(package(pack_index)%pos(2)/cell_width + dble(ny_cell)/2) + 1
+      print*, FLOOR(package(pack_index)%pos(3)/cell_width + dble(nz_cell)/2) + 1
 
        print*, package(pack_index)%dir, package(pack_index)%pos
        print*, dist_plusx, dist_minx, dist_plusy, dist_miny, dist_plusz, dist_minz

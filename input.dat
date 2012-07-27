@@ -10,7 +10,7 @@ zmax = 10.
 R_inf  = 10.
 R_star = 1.
 T_eff = 40000.
-M_dot = 1e-12
+M_dot = 1e-14
 V_inf = 3000.
 *random_seed = 1
 

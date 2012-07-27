@@ -77,16 +77,17 @@ SUBROUTINE main
 #endif
 
 
-! The initial value of iseed (idum) should be set to different NEGATIVE integer values 
-! in order to obtain different random sequences. Seed is updated by ran2 once for each 
-! random number generated.
+  ! The initial value of iseed (idum) should be set to different
+  ! NEGATIVE integer values in order to obtain different random
+  ! sequences. Seed is updated by ran2 once for each random number
+  ! generated.
   idum = -iseed
 
   debug = 0
 
-!  R_star = R_star * r_sun
 
-! Number of grid cells
+
+  ! Number of grid cells
   Ngrid = nx_cell * ny_cell * nz_cell
 
   IF (Ngrid .GT. Nmax) THEN
@@ -94,22 +95,34 @@ SUBROUTINE main
      STOP 
   END IF
 
-! Define length of dinamic arrays (cell and package)
+  ! Define length of dinamic arrays (cell and package)
   ALLOCATE (cell(Ngrid))
-  ALLOCATE (package(n_pack))
+
+  ! Allocate array for photon packages.
+  ! n_pack refers to a dummy package which can be used to sample
+  ! packets properties while moved around.
+  dummypackage=n_pack+1
+  ALLOCATE (package(n_pack+1))
+
+
+  ! Allocate array for model grid structure.
+  ! Cell n_modelgrid+1 is associated to propagation grid cells 
+  ! which have no counterpart on the modelgrid  
   ALLOCATE (model_grid(n_modelgrid+1))
 
-!  TYPE(grid_cell), DIMENSION(N) :: cell  
+  !  TYPE(grid_cell), DIMENSION(N) :: cell  
 
-! Size of the grid cells in x,y, and z direction (now they are with the same size i.e. regular gred)
+  ! Size of the grid cells in x,y, and z direction (now they are with
+  ! the same size i.e. regular gred)
   cell_width = 2.D0*xmax/nx_cell
-!  print*, cell_width
-!! Size of the grid cells in x,y, and z direction (now they are with the same size i.e. regular gred)
-!  deltax = 2.D0*xmax/nx_cell
-!  deltay = 2.D0*ymax/ny_cellR
-!  deltaz = 2.D0*zmax/nz_cell
+  !  print*, cell_width
+  ! Size of the grid cells in x,y, and z direction (now they are with
+  ! the same size i.e. regular gred)
+  !  deltax = 2.D0*xmax/nx_cell
+  !  deltay = 2.D0*ymax/ny_cellR
+  !  deltaz = 2.D0*zmax/nz_cell
 
-! Set up of the gred
+  ! Set up of the gred
   CALL setup_grid()
 
 !  L = 1
@@ -155,21 +168,22 @@ SUBROUTINE main
   END DO         
 
 
-! Checking if the analitic solution for the escape probability (e^(-tau)) is in agreement with the
-! calculated one using our propagation procedure
+  ! Checking if the analitic solution for the escape probability
+  ! (e^(-tau)) is in agreement with the calculated one using our
+  ! propagation procedure
 
-! Increament of opacity (for testing)
-!  delta_opa = (upper_opa - lower_opa)/nopa
+  ! Increament of opacity (for testing)
+  !  delta_opa = (upper_opa - lower_opa)/nopa
 
-! Loop over the numer of different opacity (nopa)
-!  DO I=1,nopa
+  ! Loop over the numer of different opacity (nopa)
+  !  DO I=1,nopa
      print*, 'tau loop',  I
 !    Opacity for tau calculation
 !     opa_cell = lower_opa  +  (I-1)*delta_opa
 !     print*,   opa_cell * (xmax-R_star)
 !     print*, R_star
 !     stop
-!    Initialisation of photon packages from the photosphere
+     !    Initialisation of photon packages from the photosphere
      CALL init_photsphere(n_pack) 
      print*, 'photons initialised'
 !    Initalisation of photon packages from point sourse

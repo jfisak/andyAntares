@@ -37,6 +37,7 @@ MODULE types
   DOUBLE PRECISION                   :: xmax, ymax, zmax, cell_width
   DOUBLE PRECISION                   :: R_star, R_inf, V_inf, M_dot, T_eff
   INTEGER                            :: nx_cell, ny_cell, nz_cell, Ngrid, n_modelgrid, n_nubin
+  INTEGER                            :: dummypackage
 
   TYPE(modelgrid), ALLOCATABLE       :: model_grid(:)
   TYPE(grid_cell), ALLOCATABLE       :: cell(:)   

@@ -39,14 +39,27 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
         ! gradient of the projected velocity in a direction of the
         ! photon propagation is more complicated in case of no
         ! homologus expannsion
-        l_dist = light_speed * (R_inf/V_inf) * ((package(pack_index)%freq_cmf - freq_line)/freq_line)
+        l_dist = light_speed * (R_inf/V_inf) * ((package(pack_index)%freq_cmf - freq_line)/package(pack_index)%freq_rf)
+
 
         ! Calculate optical depth in the next line (Sobolev, dv/dr dependent)
         ! and continuum optical depth accumulated up to the line
-        CALL velo(pack_index,vel_vec)
+        !CALL velo(pack_index,vel_vec)
+        !tau_line = light_speed/freq_line * constant * osc_line * pop_number * &
+        !     vec_length(package(pack_index)%pos)/vec_length(vel_vec)     
+        !tau_cont = kappa_cont * l_dist
+
+        package(dummypackage) = package(pack_index)
+        CALL move_package(dummypackage, l_dist)
+        CALL velo(dummypackage,vel_vec)
+        pop_number = M_dot / (4.D0 * pi * & 
+             vec_length(package(dummypackage)%pos)**2 * vec_length(vel_vec))     
+        pop_number = pop_number/mp_g
+        IF (vec_length(package(dummypackage)%pos) .GT. r_inf) pop_number = 0
         tau_line = light_speed/freq_line * constant * osc_line * pop_number * &
-             vec_length(package(pack_index)%pos)/vec_length(vel_vec)     
+             vec_length(package(dummypackage)%pos)/vec_length(vel_vec)     
         tau_cont = kappa_cont * l_dist
+
 
         ! Now do a step by step analysis of which event occurs and return the 
         ! distance and corresponding event

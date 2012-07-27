@@ -10,7 +10,7 @@ SUBROUTINE move_package(pack_index, dist)
   DOUBLE PRECISION                  :: dist, length, D, vec_length
 !
   IF (debug .EQ. 1) THEN 
-     print*, package(pack_index)%pos, pack_index, dist
+     print*, 'before move (pos, pack_index, pos)', package(pack_index)%pos, pack_index, dist
   END IF
 
   IF (debug .EQ. 2) THEN 
@@ -38,7 +38,7 @@ SUBROUTINE move_package(pack_index, dist)
   package(pack_index)%e_cmf = package(pack_index)%e_rf * D
    
   IF (debug .EQ. 1) THEN 
-     print*, package(pack_index)%pos
+     print*, 'after move (pos)', package(pack_index)%pos
   END IF
 
   IF (debug .EQ. 2) THEN 
@@ -46,9 +46,9 @@ SUBROUTINE move_package(pack_index, dist)
      nc=package(pack_index)%cell_numb
      print*, nc, cell(nc)%indexc, cell(nc)%corner, cell(nc)%corner+cell_width
      
-     print*, FLOOR(package(pack_index)%pos(1)/cell_width + nx_cell/2) + 1
-     print*, FLOOR(package(pack_index)%pos(2)/cell_width + ny_cell/2) + 1
-     print*, FLOOR(package(pack_index)%pos(3)/cell_width + nz_cell/2) + 1
+     print*, FLOOR(package(pack_index)%pos(1)/cell_width + dble(nx_cell)/2) + 1
+     print*, FLOOR(package(pack_index)%pos(2)/cell_width + dble(ny_cell)/2) + 1
+     print*, FLOOR(package(pack_index)%pos(3)/cell_width + dble(nz_cell)/2) + 1
   END IF
 
 
