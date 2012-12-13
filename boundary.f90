@@ -19,7 +19,7 @@ SUBROUTINE boundary(pack_index, dist, next_cell)
 !   Number of the current cell
     nc = package(pack_index)%cell_numb
 
-!   Calculate the distances to the all cell surfaces from the photon curent position along the ray
+!   Calculate the distances to the all cell surfaces from the photon current position along the ray
 !   (formula for this can be found in http://www.roe.ac.uk/ifa/postgrad/pedagogy/2009_forgan.pdf 
 !    - Fig. 2, An Introduction to Monte Carlo Radiative Transfer, Duncan Forgan)
     dist_plusx = (cell(nc)%corner(1) + cell_width - package(pack_index)%pos(1))/package(pack_index)%dir(1)

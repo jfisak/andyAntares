@@ -11,14 +11,18 @@ linkuser=$(shell whoami)
 linkhost=$(shell hostname)
 
 #Objects
-OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o modul.o	\
-          random_unitvector.o ran2.o init_photonpack.o boundary.o	\
-          change_cell.o move_package.o emit_rpackage.o			\
-          init_photsphere.o random_unitvector2.o setup_grid.o		\
-           random_unitvector1.o toy_model.o doppler_factor.o		\
-          vec_length.o velo.o angle_aberration.o freq_from_planck.o	\
-          do_rpackage.o event_dist.o get_package_model_index.o		\
-          do_rpackage_event.o update_packages.o do_spectrum.o
+OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o modul.o	  \
+          random_unitvector.o ran2.o init_photonpack.o boundary.o	  \
+          change_cell.o move_package.o emit_rpackage.o			  \
+          init_photsphere.o random_unitvector2.o setup_grid.o		  \
+          random_unitvector1.o read_1D_model.o doppler_factor.o		  \
+          vec_length.o velo.o angle_aberration.o freq_from_planck.o	  \
+          do_rpackage.o event_dist.o get_package_model_index.o		  \
+          do_rpackage_event.o update_packages.o do_spectrum.o             \
+          read_composition.o read_atomic_data.o read_transitions.o        \
+          sorting-new.o setup_model_grid.o update_grid.o                  \
+          saha_boltzmann_factor.o ionization_fraction.o f_edens.o         \
+          find_e_nd.o part_fun.o
 
 #Rules
 all : $(PROJECT)

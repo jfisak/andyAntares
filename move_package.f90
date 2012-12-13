@@ -1,6 +1,6 @@
 SUBROUTINE move_package(pack_index, dist)
 
-  ! Move photon package from the curent position for some distance (abdate package(pack_index)%pos)
+  ! Move photon package from the curent position for some distance (update package(pack_index)%pos)
 
   USE types
 
@@ -22,6 +22,7 @@ SUBROUTINE move_package(pack_index, dist)
      print*, FLOOR(package(pack_index)%pos(3)/cell_width + nz_cell/2) + 1
   END IF
 
+  ! Calculate the position of package
   package(pack_index)%pos(1) = package(pack_index)%pos(1) + dist * package(pack_index)%dir(1) 
   package(pack_index)%pos(2) = package(pack_index)%pos(2) + dist * package(pack_index)%dir(2) 
   package(pack_index)%pos(3) = package(pack_index)%pos(3) + dist * package(pack_index)%dir(3)

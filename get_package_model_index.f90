@@ -1,6 +1,6 @@
  FUNCTION get_package_model_index(pack_index)
 
-! For the pack_index calculet the model_index
+! For the pack_index calculate the model_index
 
   USE types
 

@@ -24,11 +24,11 @@ SUBROUTINE init_photonpack(n_pack)
        package(I)%dir = direction
        package(I)%e_rf = (L_star/n_pack) * delta_t  
 !      Only for regular grid!!!!
-       ind_x = FLOOR(package(I)%pos(1)/cell_width + dble(nx_cell)/2) + 1
-       ind_y = FLOOR(package(I)%pos(2)/cell_width + dble(ny_cell)/2) + 1
-       ind_z = FLOOR(package(I)%pos(3)/cell_width + dble(nz_cell)/2) + 1
+       ind_x = FLOOR(package(I)%pos(1)/cell_width + DBLE(nx_cell)/2) + 1
+       ind_y = FLOOR(package(I)%pos(2)/cell_width + DBLE(ny_cell)/2) + 1
+       ind_z = FLOOR(package(I)%pos(3)/cell_width + DBLE(nz_cell)/2) + 1
        ind_cell_numb = (ind_x-1)*ny_cell*nz_cell + (ind_y-1)*nz_cell + ind_z
-       IF ((ind_cell_numb .GT. nx_cell*ny_cell*nz_cell).OR.(ind_cell_numb .LT. 1)) &
+       IF ((ind_cell_numb .GT. nx_cell*ny_cell*nz_cell) .OR. (ind_cell_numb .LT. 1)) &
            STOP 'ERROR in cell_number'
        package(I)%cell_numb = ind_cell_numb
        package(I)%active = 1

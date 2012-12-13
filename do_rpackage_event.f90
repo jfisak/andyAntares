@@ -44,7 +44,7 @@ SUBROUTINE do_rpackage_event(pack_index, event)
 END SUBROUTINE do_rpackage_event
 
 
-
+!!!!!! This is for test analitic expresion !!!!!!!!
 !!    print*, rand_numb
 !    rand_numb = 0.1D0
 !!    rand_numb = ran2(idum)     

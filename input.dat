@@ -1,16 +1,11 @@
-n_pack = 1000000
+n_pack = 10000000
 n_nubin = 1000
 nx_cell = 200
 ny_cell = 200
 nz_cell = 200
-n_modelgrid = 100
+model_type = 1    
 xmax = 10.
 ymax = 10.
 zmax = 10.
-R_inf  = 10.
-R_star = 1.
-T_eff = 40000.
-M_dot = 1e-14
-V_inf = 3000.
 *random_seed = 1
 

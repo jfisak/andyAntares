@@ -1,26 +1,27 @@
 SUBROUTINE main
+
   ! Propagate a bunch of photon packets through a stellar wind
 
+! To run MPI (Message Passing Interface) it is necessary to include file mpif.h (Implicit Fortran MPI interfaces)
+! to have output in an elegant manner, i.e. good formating
+!#IFDEF MPI_ON
+!  INCLUDE 'mpif.h' 
+!#ENDIF
 
-#ifdef MPI_ON
-  include 'mpif.h'
-#endif
-
+! Use module types (modul.f90)
   USE types
 
 
   IMPLICIT NONE
 
-  INTEGER                           :: n_pack !nx_cell, ny_cell, nz_cell
+  INTEGER                           :: n_pack                                        !nx_cell, ny_cell, nz_cell
   INTEGER                           :: I, J, K, L, iseed, idx
-
-  INTEGER, PARAMETER                :: Nmax = 1000000000 !, nopa =20
-!  DOUBLE PRECISION, PARAMETER       :: upper_opa=2.D0/5.D0, lower_opa=0.01D0    ! Opacity for photons sent from the photosphere R_star = 10
-!  DOUBLE PRECISION, PARAMETER       :: upper_opa=2.D0/9.D0, lower_opa=0.1D0/18.D0    ! Opacity for photons sent from the photosphere    R_star = 2
-!  DOUBLE PRECISION, PARAMETER       :: upper_opa=0.2, lower_opa=1.d0/200.d0         ! Opacity for photons sent from point sours
   INTEGER, DIMENSION (9)            :: TT
-!  DOUBLE PRECISION                  :: xmax, ymax, zmax, deltax, deltay, deltaz, 
-!  DOUBLE PRECISION                  :: delta_cellx, delta_celly, delta_cellz, 
+!  DOUBLE PRECISION, PARAMETER       :: upper_opa=2.D0/5.D0, lower_opa=0.01D0         ! Opacity for photons sent from the photosphere R_star = 10
+!  DOUBLE PRECISION, PARAMETER       :: upper_opa=2.D0/9.D0, lower_opa=0.1D0/18.D0    ! Opacity for photons sent from the photosphere R_star = 2
+!  DOUBLE PRECISION, PARAMETER       :: upper_opa=0.2, lower_opa=1.d0/200.d0          ! Opacity for photons sent from point sours
+!  DOUBLE PRECISION                  :: xmax, ymax, zmax, deltax, deltay, deltaz 
+!  DOUBLE PRECISION                  :: delta_cellx, delta_celly, delta_cellz 
 !  DOUBLE PRECISION                  :: delta_opa, opa_cell
 
 ! Link data to identify program version
@@ -34,45 +35,62 @@ SUBROUTINE main
 
 !  test = 0
 
-
-#ifdef MPI_ON
-  integer  ierr  
-
-  call MPI_INIT(ierr)
-  if (ierr .ne. MPI_SUCCESS) then
-    print *,'Error starting MPI program. Terminating.'
-    call MPI_ABORT(MPI_COMM_WORLD, rc, ierr)
-  end if
-
-  call MPI_COMM_RANK(MPI_COMM_WORLD, my_rank, ierr)
-  call MPI_COMM_SIZE(MPI_COMM_WORLD, n_tasks, ierr)
-  print *, 'Number of tasks=',numtasks,' My rank=',rank
-#endif
+!! Initialize MPI Parallelisation 
+!#IFDEF MPI_ON
+!  INTEGER  ierr  
+!  ! Initialize the MPI execution environment 
+!  CALL MPI_INIT(ierr)
+!  ! If MPI routine completed successfully
+!  IF (ierr .NE. MPI_SUCCESS) THEN
+!    PRINT*,'Error starting MPI program. Terminating.'
+!    ! If MPI routine failed
+!    CALL MPI_ABORT(MPI_COMM_WORLD, rc, ierr)
+!  END IF
+!  ! To determine rank within the set of processes
+!  CALL MPI_COMM_RANK(MPI_COMM_WORLD, my_rank, ierr)
+!  ! To determine the number of processes
+!  CALL MPI_COMM_SIZE(MPI_COMM_WORLD, n_tasks, ierr)
+!  PRINT*, 'Number of tasks=',numtasks,' My rank=', my_rank
+!#ENDIF
 
 
   ! Write Link Data (Program Version) to CPR file
   WRITE(*,'(2A)') '>>> Program started: Program Version from ',  &
-                     LINK_DATE
+                     LINK_DATE  !tag which returns the date the link was created as text
   WRITE(*,'(4A)') '>>> created by ', LINK_USER(:IDX(LINK_USER)), &
            ' at host ', LINK_HOST(:IDX(LINK_HOST))
-  CALL read_input(n_pack, iseed)
 
+  ! Read input  
+  CALL read_input(n_pack, iseed)
+  PRINT*, 'read input'
+
+  ! Read composition
+  CALL read_composition()
+
+! Read atomic data (level information)
+  CALL read_atomic_data()
+  PRINT*, 'stop'
+
+! Read transition data
+  CALL read_transitions()
+  PRINT*, 'stop'
+
+!  STOP
 
   ! Initialing seed from the system time
-  ! If we set iseed < 0 in input.dat then iseed will be initializing from the system time
-  ! otherwise, iseed will take a value given in the input file
-  print*, 'read input'
+  ! If we set iseed < 0 in input.dat then iseed will be randomly initializing from the system time
+  ! otherwise, iseed will take a fix value given in the input file
   CALL DATE_AND_TIME(VALUES = TT)
   IF (iseed .LE. 0) THEN  
     iseed = TT(1)+70*(TT(2)+12*(TT(3)+31*(TT(5)+23*(TT(6)+59*TT(7)))))
   END IF
 
-
 #ifdef MPI_ON
   ! For MPI parallel calculations each task needs its own random number seed
-  ! This is achieved by adding an offset to the basic random number seed
-  ! which depends on the task's ID number. This has to be done for both
-  ! "random" and pre-defined seeds.
+  ! This is achieved by adding an offset (in this case it is number 17, but 
+  ! can be any other number) to the basic random number seed which depends 
+  ! on the task's ID number. This has to be done for both "random" and 
+  ! pre-defined seeds.
   iseed = iseed + my_rank*17
 #endif
 
@@ -83,77 +101,24 @@ SUBROUTINE main
   ! generated.
   idum = -iseed
 
+  ! Only for debuging; if set the values > 0 then variou print out statement 
+  ! will give information on a packet's history (depending on the actual value of debug)
   debug = 0
-
-
-
-  ! Number of grid cells
-  Ngrid = nx_cell * ny_cell * nz_cell
-
-  IF (Ngrid .GT. Nmax) THEN
-     print*, 'ERROR: N > Nmax', Ngrid
-     STOP 
-  END IF
-
-  ! Define length of dinamic arrays (cell and package)
-  ALLOCATE (cell(Ngrid))
 
   ! Allocate array for photon packages.
   ! n_pack refers to a dummy package which can be used to sample
   ! packets properties while moved around.
-  dummypackage=n_pack+1
-  ALLOCATE (package(n_pack+1))
+  dummypackage = n_pack + 1
+  ALLOCATE (package(n_pack + 1))
 
-
-  ! Allocate array for model grid structure.
-  ! Cell n_modelgrid+1 is associated to propagation grid cells 
-  ! which have no counterpart on the modelgrid  
-  ALLOCATE (model_grid(n_modelgrid+1))
-
-  !  TYPE(grid_cell), DIMENSION(N) :: cell  
-
-  ! Size of the grid cells in x,y, and z direction (now they are with
-  ! the same size i.e. regular gred)
-  cell_width = 2.D0*xmax/nx_cell
-  !  print*, cell_width
-  ! Size of the grid cells in x,y, and z direction (now they are with
-  ! the same size i.e. regular gred)
-  !  deltax = 2.D0*xmax/nx_cell
-  !  deltay = 2.D0*ymax/ny_cellR
-  !  deltaz = 2.D0*zmax/nz_cell
-
-  ! Set up of the gred
+  ! Set up of the propagation grid
   CALL setup_grid()
+  print*, 'propagation grid is set up'
 
-!  L = 1
-!  DO I=1, nx_cell
-!     DO J=1, ny_cell
-!        DO K=1, nz_cell
-!           ! Index(number) of each cell in x,y, and z direction
-!           cell(L)%indexc(1) = I
-!           cell(L)%indexc(2) = J
-!           cell(L)%indexc(3) = K
-!           ! Size of each grid cells in x,y, and z direction
-!           cell(L)%deltax = deltax
-!           cell(L)%deltay = deltay
-!           cell(L)%deltaz = deltaz
-!           ! Coordinates of the lower left corner of each cell
-!           cell(L)%corner(1)  = -xmax + (I-1)*cell(L)%deltax 
-!           cell(L)%corner(2)  = -ymax + (J-1)*cell(L)%deltay     
-!           cell(L)%corner(3)  = -zmax + (K-1)*cell(L)%deltaz 
-!           ! Coordinates of the lower left corner of each cell
-!           cell(L)%corner(1)  = -xmax + (I-1)*cell_width
-!           cell(L)%corner(2)  = -ymax + (J-1)*cell_width     
-!           cell(L)%corner(3)  = -zmax + (K-1)*cell_width 
-!           write(2,*) cell(L)%indexc, cell(L)%corner ! don't write if it is not necessary (computational very expensive)
-!           L = L + 1
-!        END DO
-!     END DO
-!  END DO
-
-
-  CALL toy_model()     ! Set up outflow
-
+  ! Set up outflow (model grid)
+  CALL setup_model_grid()
+  print*, 'model grid is set up'
+ 
   L = 1
   DO I=1, nx_cell
      DO J=1, ny_cell
@@ -166,7 +131,7 @@ SUBROUTINE main
         END DO
      END DO
   END DO         
-
+  print*, 'Check model grid done'
 
   ! Checking if the analitic solution for the escape probability
   ! (e^(-tau)) is in agreement with the calculated one using our
@@ -175,31 +140,42 @@ SUBROUTINE main
   ! Increament of opacity (for testing)
   !  delta_opa = (upper_opa - lower_opa)/nopa
 
-  ! Loop over the numer of different opacity (nopa)
-  !  DO I=1,nopa
-     print*, 'tau loop',  I
-!    Opacity for tau calculation
-!     opa_cell = lower_opa  +  (I-1)*delta_opa
-!     print*,   opa_cell * (xmax-R_star)
-!     print*, R_star
-!     stop
-     !    Initialisation of photon packages from the photosphere
-     CALL init_photsphere(n_pack) 
-     print*, 'photons initialised'
-!    Initalisation of photon packages from point sourse
-!     CALL init_photonpack(n_pack)
-!    Propagation of the photon in 3D gred
-!     CALL propagation(n_pack, opa_cell, lower_opa, delta_opa)
-     print*, 'update packages'
-     CALL update_packages(n_pack)
-     print*, 'do spectrum'
-     CALL do_spectrum(n_pack)
-     print*, 'do finalize'
-!  END DO
+  ! Update model grid properties (model will be updated after 
+  ! consistance temperature calculation from teh radiation field)
+  CALL update_grid()
+  PRINT*, 'Update grid finished'
+
+     ! Loop over the numer of different opacity (nopa)
+     ! DO I=1,nopa
+     ! print*, 'tau loop',  I
+     ! Opacity for tau calculation
+     ! opa_cell = lower_opa  +  (I-1)*delta_opa
+     ! print*,   opa_cell * (xmax-R_star)
+     ! print*, R_star
+     ! stop
+
+
+! Initialisation of photon packages from the photosphere
+  CALL init_photsphere(n_pack) 
+  print*, 'photons initialised'
+
+  ! Initalisation of photon packages from point sourse
+  ! CALL init_photonpack(n_pack)
+
+  ! Propagation of the photon in 3D grid
+  ! CALL propagation(n_pack, opa_cell, lower_opa, delta_opa)
+  print*, 'update packages'
+  CALL update_packages(n_pack)
+
+  print*, 'do spectrum'
+  CALL do_spectrum(n_pack)
+  print*, 'do finalize'
+
+     ! END DO
     
 
-#ifdef MPI_ON
-  call MPI_FINALIZE(ierr)
-#endif
+!#ifdef MPI_ON
+!  call MPI_FINALIZE(ierr)
+!#endif
 
 END SUBROUTINE main

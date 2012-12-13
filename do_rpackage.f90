@@ -7,9 +7,10 @@ SUBROUTINE do_rpackage(pack_index)
   IMPLICIT NONE    
 
   INTEGER                           :: I, I_esc, pack_index, nc, next_cell, n_pack, event
+  INTEGER                           :: get_package_model_index
   DOUBLE PRECISION                  :: tau, xi, ran2, tau_rand, cell_dist, e_dist, r,   &
-                                         rho_cell, I_beta, opa_cell, lower_opa, delta_opa
-  DOUBLE PRECISION, PARAMETER       :: rho=1.D0
+                                       rho_cell, I_beta, opa_cell, lower_opa, delta_opa
+  ! DOUBLE PRECISION, PARAMETER       :: rho = 1.D0
 
   ! DOUBLE PRECISION, PARAMETER       :: opa_cell=1.D0/20.D0, rho=1.D0
   ! DOUBLE PRECISION, PARAMETER       :: opa_cell=5.D-3, rho=5.D-2
@@ -20,18 +21,25 @@ SUBROUTINE do_rpackage(pack_index)
 
   CALL boundary(pack_index, cell_dist, next_cell)
   IF (cell_dist .LT. 0.D0) STOP 'cell_dist < 0'
-  CALL event_dist(pack_index, cell_dist, e_dist, event)
-  IF (debug .EQ. 1) THEN 
-     print*, cell_dist, next_cell, e_dist , cell(package(pack_index)%cell_numb)%indexc
+  IF (get_package_model_index(pack_index) .EQ. n_modelgrid + 1) THEN
+      ! Package is outside the wind model but still inside the propagation grid qube
+      ! No physicak interaction shoul occure, set e_dist > cell_dist
+      e_dist = cell_dist + 1.D10
+  ELSE
+      ! Search for interaction
+      CALL event_dist(pack_index, cell_dist, e_dist, event)
   END IF
 
+  IF (debug .EQ. 1) THEN 
+      print*, cell_dist, next_cell, e_dist , cell(package(pack_index)%cell_numb)%indexc
+  END IF
 
-
-  IF (e_dist .LT. cell_dist) THEN   
-     ! Move photon package from the curent position for some distance
-     !print*, pack_index, freq_line, package(pack_index)%freq_cmf, package(pack_index)%freq_rf
+  IF (e_dist .LT. cell_dist) THEN
+     ! print*, 'photon interacts'   
+     ! Move photon package from the current position for some distance
+     ! print*, pack_index, freq_line, package(pack_index)%freq_cmf, package(pack_index)%freq_rf
      CALL move_package(pack_index, e_dist)
-     !print*, pack_index, freq_line, package(pack_index)%freq_cmf, package(pack_index)%freq_rf
+     ! print*, pack_index, freq_line, package(pack_index)%freq_cmf, package(pack_index)%freq_rf
      CALL do_rpackage_event(pack_index, event)
      IF (debug .EQ. 1) THEN 
         print*, 'do event', opa_cell * rho_cell * cell_dist

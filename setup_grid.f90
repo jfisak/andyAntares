@@ -1,10 +1,29 @@
   SUBROUTINE setup_grid() 
+ 
+  ! Set up propagation grid cells
 
   USE types
 
   IMPLICIT NONE    
 
-  INTEGER                           :: I, J, K, L
+  INTEGER             :: I, J, K, L
+  INTEGER, PARAMETER  :: Nmax = 1000000000                          
+
+
+  ! Number of propagation grid cells
+  Ngrid = nx_cell * ny_cell * nz_cell
+
+  IF (Ngrid .GT. Nmax) THEN
+     PRINT*, 'ERROR: N > Nmax', Ngrid
+     STOP 
+  END IF
+
+  ! Define length of dynamic arrays (cell and package)
+  ALLOCATE (cell(Ngrid))
+
+  ! Size of the grid cells in x,y, and z direction (now they are with
+  ! the same size i.e. regular gred)
+  cell_width = 2.D0 * xmax / nx_cell
 
   L = 1
   DO I=1, nx_cell
