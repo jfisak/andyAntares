@@ -14,9 +14,10 @@ SUBROUTINE main
 
   IMPLICIT NONE
 
-  INTEGER                           :: n_pack                                        !nx_cell, ny_cell, nz_cell
+  INTEGER                           :: n_pack, iteration                                      !nx_cell, ny_cell, nz_cell
   INTEGER                           :: I, J, K, L, iseed, idx
   INTEGER, DIMENSION (9)            :: TT
+  DOUBLE PRECISION, ALLOCATABLE     :: current_temp(:)
 !  DOUBLE PRECISION, PARAMETER       :: upper_opa=2.D0/5.D0, lower_opa=0.01D0         ! Opacity for photons sent from the photosphere R_star = 10
 !  DOUBLE PRECISION, PARAMETER       :: upper_opa=2.D0/9.D0, lower_opa=0.1D0/18.D0    ! Opacity for photons sent from the photosphere R_star = 2
 !  DOUBLE PRECISION, PARAMETER       :: upper_opa=0.2, lower_opa=1.d0/200.d0          ! Opacity for photons sent from point sours
@@ -118,7 +119,8 @@ SUBROUTINE main
   ! Set up outflow (model grid)
   CALL setup_model_grid()
   print*, 'model grid is set up'
- 
+  ALLOCATE(current_temp(n_modelgrid))
+
   L = 1
   DO I=1, nx_cell
      DO J=1, ny_cell
@@ -142,8 +144,18 @@ SUBROUTINE main
 
   ! Update model grid properties (model will be updated after 
   ! consistance temperature calculation from teh radiation field)
-  CALL update_grid()
-  PRINT*, 'Update grid finished'
+
+  current_temp = 0.D0
+
+  DO iteration = 1, 10
+
+     CALL update_grid(iteration)
+     PRINT*, 'Update grid finished' 
+
+     IF ( MAXVAL((model_grid(:)%T - current_temp) / model_grid(:)%T) .LT. 0.05D0) EXIT
+
+     current_temp = model_grid(:)%T
+     PRINT*, 'iteration:', iteration, current_temp
 
      ! Loop over the numer of different opacity (nopa)
      ! DO I=1,nopa
@@ -154,19 +166,23 @@ SUBROUTINE main
      ! print*, R_star
      ! stop
 
+     ! Initialisation of photon packages from the photosphere
+     CALL init_photsphere(n_pack) 
+     print*, 'photons initialised'
 
-! Initialisation of photon packages from the photosphere
-  CALL init_photsphere(n_pack) 
-  print*, 'photons initialised'
+     ! Initalisation of photon packages from point sourse
+     ! CALL init_photonpack(n_pack)
 
-  ! Initalisation of photon packages from point sourse
-  ! CALL init_photonpack(n_pack)
+     ! Propagation of the photon in 3D grid
+     ! CALL propagation(n_pack, opa_cell, lower_opa, delta_opa)
+     print*, 'update packages'
+     CALL update_packages(n_pack)
+     print*, 'Number of destoyed packages =', destroyed_pack
 
-  ! Propagation of the photon in 3D grid
-  ! CALL propagation(n_pack, opa_cell, lower_opa, delta_opa)
-  print*, 'update packages'
-  CALL update_packages(n_pack)
+  END DO 
 
+  IF (iteration .GE. 10) print*, 'No convergency'
+ 
   print*, 'do spectrum'
   CALL do_spectrum(n_pack)
   print*, 'do finalize'

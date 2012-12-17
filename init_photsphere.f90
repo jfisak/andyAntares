@@ -59,7 +59,7 @@ SUBROUTINE init_photsphere(n_pack)
 
      ! Assine 1 to the last_line whith which package is in resonance
      package(I)%last_line = no_line
-
+     package(I)%delta_s = 0.D0
      ! print*, package(I)%cell_numb,package(I)%dir !,  package(I)%pos, package(I)% e_rf
      ! e_cmf, freq_cmf, freq_rf, cell_numb, pack_numb, active
   

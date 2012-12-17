@@ -12,7 +12,7 @@ SUBROUTINE do_spectrum(n_pack)
  
   ! Set up the frequency grid to extract spectrum
   print*, 'SETUP FREQ GRID'
-  delta_nu = (nu_max - nu_min / 2.D0) / n_nubin
+  delta_nu = (nu_max - nu_min) / n_nubin
   DO I= 1, n_nubin 
      spectrum(I)%freq = nu_min + (I - 1) * delta_nu
      spectrum(I)%flux = 0.D0           

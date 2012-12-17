@@ -41,7 +41,7 @@ SUBROUTINE find_e_nd(model_grid_index, el_nd)
     CALL f_edens(model_grid_index, el_nd_2, func2)
     diff = (el_nd_2 - el_nd_1) / (func2 - func1) * func2 
     IF (ABS(diff) .LT. minc) THEN
-       PRINT*, 'Electron number density in cell', model_grid_index, 'equals', el_nd_2
+!       PRINT*, 'Electron number density in cell', model_grid_index, 'equals', el_nd_2
        EXIT
     END IF
     el_nd_1 = el_nd_2

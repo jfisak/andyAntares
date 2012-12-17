@@ -1,4 +1,4 @@
-SUBROUTINE update_grid()
+SUBROUTINE update_grid(iteration)
 
   ! Calculate electron number density, population number of the ground level
   ! and total population number for every model grin cell for given composition
@@ -7,14 +7,29 @@ SUBROUTINE update_grid()
 
   IMPLICIT NONE    
 
-  INTEGER             :: gridcell, indexe, indexi, numb_ions
-  DOUBLE PRECISION    :: el_nd, temp, frac, U, N_jk, gl_pop
+  INTEGER             :: gridcell, indexe, indexi, numb_ions, iteration
+  DOUBLE PRECISION    :: el_nd, temp, frac, U, N_jk, gl_pop, volume
+  
+  ! Volume of the grid cell in case that width of cells are the same
+  volume = cell_width**3
 
   DO gridcell = 1, n_modelgrid
+   IF (iteration .EQ. 1) THEN
      ! Calculate electron number density for every model grid cell gridcell
      CALL find_e_nd(gridcell, el_nd)
-     model_grid(gridcell)%e_dens = el_nd
-     temp = model_grid(gridcell)%T
+   ELSE
+     ! Energy density contribeted to the model grid cell 
+     model_grid(gridcell)%J = model_grid(gridcell)%J / volume / model_grid(gridcell)%assoc_cells
+     temp = (model_grid(gridcell)%J * pi / sigma )**(1/4) 
+     model_grid(gridcell)%T = temp
+     ! Calculate electron number density for every model grid cell gridcell
+     CALL find_e_nd(gridcell, el_nd)
+     model_grid(gridcell)%J = 0.D0   
+   END IF
+   model_grid(gridcell)%e_dens = el_nd
+   temp = model_grid(gridcell)%T
+
+
 !     print*, 'temp and e_nd:', gridcell,  model_grid(gridcell)%rho, temp, el_nd/6.1D14
      DO indexe = 1, n_elements
         numb_ions = elements(indexe)%nions
@@ -39,5 +54,7 @@ SUBROUTINE update_grid()
      END DO
 !     stop
   END DO
+
+  
   
 END SUBROUTINE update_grid

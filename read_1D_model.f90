@@ -41,7 +41,9 @@
      model_grid(I)%rwind = r  * R_star
      model_grid(I)%vel = velo * 1.D5
      model_grid(I)%rho = dens
-     model_grid(I)%T = 5000. !temp
+     model_grid(I)%T = 5000. ! should be temp 
+     model_grid(I)%J = 0.D0 
+     model_grid(M)%assoc_cells = 0
      !Total mass density of grid cell I
 !     tot_md = M_dot / (4.D0 * pi * (model_grid(I)%rwind)**2 * model_grid(I)%vel)     
 !     print*, I, model_grid(I)%rwind, model_grid(I)%vel, model_grid(I)%rho, tot_md
@@ -86,6 +88,7 @@
            END IF          
         END DO  
         cell(I)%model_index = M     
+        model_grid(M)%assoc_cells = model_grid(M)%assoc_cells + 1
      ELSE
         cell(I)%model_index = n_modelgrid + 1     
      ENDIF

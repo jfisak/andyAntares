@@ -39,6 +39,7 @@ SUBROUTINE do_rpackage(pack_index)
      ! Move photon package from the current position for some distance
      ! print*, pack_index, freq_line, package(pack_index)%freq_cmf, package(pack_index)%freq_rf
      CALL move_package(pack_index, e_dist)
+     CALL update_estimators(pack_index, e_dist)
      ! print*, pack_index, freq_line, package(pack_index)%freq_cmf, package(pack_index)%freq_rf
      CALL do_rpackage_event(pack_index, event)
      IF (debug .EQ. 1) THEN 
@@ -46,7 +47,8 @@ SUBROUTINE do_rpackage(pack_index)
      END IF
   ELSE     
      ! Move package from the curent position for the cell_dist
-     CALL move_package(pack_index, cell_dist)
+     CALL move_package(pack_index, cell_dist)     
+     CALL update_estimators(pack_index, cell_dist)
      ! If package escaped the calculation volume (next_cell=-99) then
      ! it become no-active and package type is update to the
      ! type_escaped, else the cell number is updated

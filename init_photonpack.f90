@@ -11,7 +11,7 @@ SUBROUTINE init_photonpack(n_pack)
 
     L_star = 4.D0*pi*(R_star*r_sun)**2*sigma*T_eff
     R_star = 0.
-
+    destroyed_pack = 0
 !    ind_x = nx_cell/2 + 1
 !    ind_y = ny_cell/2 + 1
 !    ind_z = nz_cell/2 + 1

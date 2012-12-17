@@ -29,8 +29,10 @@ SUBROUTINE move_package(pack_index, dist)
 
   ! Deactivate packets which travel beyond the photosphere
   ! length=SQRT(package(pack_index)%pos(1)**2 + package(pack_index)%pos(2)**2 + package(pack_index)%pos(3)**2)  
-  IF (vec_length(package(pack_index)%pos) .LT. R_star) package(pack_index)%active = 0
-
+  IF (vec_length(package(pack_index)%pos) .LT. R_star) THEN
+      package(pack_index)%active = 0
+      destroyed_pack = destroyed_pack + 1
+  END IF
 
   ! Rest frame quantities do not change while propagating without any events, 
   ! but cmf quantities need to be updated
@@ -52,5 +54,6 @@ SUBROUTINE move_package(pack_index, dist)
      print*, FLOOR(package(pack_index)%pos(3)/cell_width + dble(nz_cell)/2) + 1
   END IF
 
+  package(pack_index)%delta_s = package(pack_index)%delta_s + dist
 
 END SUBROUTINE move_package
