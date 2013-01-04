@@ -48,7 +48,7 @@ SUBROUTINE find_e_nd(model_grid_index, el_nd)
     el_nd_2 = el_nd_2 - diff
 
     ! Debug
-    !print*, loop_index, el_nd_1, el_nd_2, diff
+    print*, loop_index, el_nd_1, el_nd_2, diff
     !print*, loop_index, func1, func2, diff
 
     loop_index = loop_index + 1  

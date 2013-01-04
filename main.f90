@@ -30,9 +30,8 @@ SUBROUTINE main
   COMMON / COM_LINKINFO / LINK_DATE, LINK_USER, LINK_HOST
 !  COMMON / RAN_SEED / idum
 
-  OPEN (UNIT=2, FILE='cells.dat')  
-  OPEN (UNIT=3, FILE='modelgrid.dat')
-  OPEN (UNIT=4, FILE='density.dat')
+!  OPEN (UNIT=3, FILE='modelgrid.dat')
+!  OPEN (UNIT=4, FILE='density.dat')
 
 !  test = 0
 
@@ -68,15 +67,15 @@ SUBROUTINE main
   ! Read composition
   CALL read_composition()
 
-! Read atomic data (level information)
+  ! Read atomic data (level information)
   CALL read_atomic_data()
   PRINT*, 'stop'
 
-! Read transition data
+  ! Read transition data
   CALL read_transitions()
   PRINT*, 'stop'
 
-!  STOP
+  ! STOP
 
   ! Initialing seed from the system time
   ! If we set iseed < 0 in input.dat then iseed will be randomly initializing from the system time
@@ -126,8 +125,8 @@ SUBROUTINE main
      DO J=1, ny_cell
         DO K=1, nz_cell
            IF (I .EQ. nx_cell/2) THEN ! Only for one slice in the midle
-               WRITE(3, *) cell(L)%corner, model_grid(cell(L)%model_index)%rho
-               WRITE(4, *) model_grid(cell(L)%model_index)%rho
+!               WRITE(3, *) cell(L)%corner, model_grid(cell(L)%model_index)%rho
+!               WRITE(4, *) 0, 0, model_grid(cell(L)%model_index)%rwind, model_grid(cell(L)%model_index)%rho
            END IF
            L = L + 1
         END DO
@@ -143,11 +142,11 @@ SUBROUTINE main
   !  delta_opa = (upper_opa - lower_opa)/nopa
 
   ! Update model grid properties (model will be updated after 
-  ! consistance temperature calculation from teh radiation field)
+  ! consistance temperature calculation from the radiation field)
 
   current_temp = 0.D0
 
-  DO iteration = 1, 10
+  DO iteration = 1, 2
 
      CALL update_grid(iteration)
      PRINT*, 'Update grid finished' 

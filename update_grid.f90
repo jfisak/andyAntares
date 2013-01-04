@@ -7,30 +7,31 @@ SUBROUTINE update_grid(iteration)
 
   IMPLICIT NONE    
 
-  INTEGER             :: gridcell, indexe, indexi, numb_ions, iteration
+  INTEGER             :: gridcell, indexe, indexi, numb_ions, iteration, flag
   DOUBLE PRECISION    :: el_nd, temp, frac, U, N_jk, gl_pop, volume
   
   ! Volume of the grid cell in case that width of cells are the same
   volume = cell_width**3
 
   DO gridcell = 1, n_modelgrid
-   IF (iteration .EQ. 1) THEN
-     ! Calculate electron number density for every model grid cell gridcell
-     CALL find_e_nd(gridcell, el_nd)
-   ELSE
-     ! Energy density contribeted to the model grid cell 
-     model_grid(gridcell)%J = model_grid(gridcell)%J / volume / model_grid(gridcell)%assoc_cells
-     temp = (model_grid(gridcell)%J * pi / sigma )**(1/4) 
-     model_grid(gridcell)%T = temp
-     ! Calculate electron number density for every model grid cell gridcell
-     CALL find_e_nd(gridcell, el_nd)
-     model_grid(gridcell)%J = 0.D0   
-   END IF
-   model_grid(gridcell)%e_dens = el_nd
-   temp = model_grid(gridcell)%T
+     IF (iteration .EQ. 1) THEN
+         ! Calculate electron number density for every model grid cell (gridcell)
+         CALL find_e_nd(gridcell, el_nd)
+         flag = 1
+     ELSE 
+         ! Energy density contribeted to the model grid cell 
+         model_grid(gridcell)%J = model_grid(gridcell)%J / volume / model_grid(gridcell)%assoc_cells
+         temp = (model_grid(gridcell)%J * pi / sigma )**(1.D0/4.D0)
+         model_grid(gridcell)%T = temp
+         ! Calculate electron number density for every model grid cell gridcell
+         CALL find_e_nd(gridcell, el_nd)
+         model_grid(gridcell)%J = 0.D0  
+         flag = 2        
+     END IF
+     model_grid(gridcell)%e_dens = el_nd
+     temp = model_grid(gridcell)%T
 
-
-!     print*, 'temp and e_nd:', gridcell,  model_grid(gridcell)%rho, temp, el_nd/6.1D14
+     print*, 'temp and e_nd:', flag, gridcell,  temp !model_grid(gridcell)%rho, temp !, el_nd/6.1D14
      DO indexe = 1, n_elements
         numb_ions = elements(indexe)%nions
         DO indexi = 1, numb_ions

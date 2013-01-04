@@ -9,6 +9,7 @@
   INTEGER             :: I, J, K, L
   INTEGER, PARAMETER  :: Nmax = 1000000000                          
 
+  OPEN (UNIT=2, FILE='cells.dat')
 
   ! Number of propagation grid cells
   Ngrid = nx_cell * ny_cell * nz_cell
@@ -45,7 +46,8 @@
            cell(L)%corner(1)  = -xmax + (I-1)*cell_width
            cell(L)%corner(2)  = -ymax + (J-1)*cell_width     
            cell(L)%corner(3)  = -zmax + (K-1)*cell_width 
-!           write(2,*) cell(L)%indexc, cell(L)%corner ! don't write if it is not necessary (computational very expensive)
+!           WRITE(2,*) cell(L)%indexc, cell(L)%corner ! don't write if it is not necessary (computational very expensive)
+!           print*, xmax, nx_cell, xmax / nx_cell, (K-1)*cell_width, cell(L)%corner(1), cell(L)%corner(2), cell(L)%corner(3)
            L = L + 1
         END DO
      END DO

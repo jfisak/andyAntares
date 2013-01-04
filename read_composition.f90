@@ -11,10 +11,11 @@ SUBROUTINE read_composition()
 
   IMPLICIT NONE    
 
-  INTEGER        :: I, J 
-  INTEGER        :: element_index, Z, lowerion, upperion
-  INTEGER        :: current_ion, nions
-  DOUBLE PRECISION :: mass
+  INTEGER            :: I, J 
+  INTEGER            :: element_index, Z, lowerion, upperion
+  INTEGER            :: current_ion, nions
+  DOUBLE PRECISION   :: mass
+
   OPEN (UNIT=7, FILE='compose_adata.dat')
 
   ! From compose_adata.dat read only first line which corespons 
@@ -27,6 +28,7 @@ SUBROUTINE read_composition()
   ALLOCATE (elements(n_elements)) 
 
   ! Loop over all chem.elements involved i.e. read all other lines in the compose_adata.dat
+  ! and assine these values to the elements(I)%... and elements(I)%ions(J)%...
   DO I = 1, n_elements
      READ(7,*) element_index, Z, lowerion, upperion, mass
      PRINT*, element_index, Z, lowerion, upperion, mass
@@ -48,8 +50,8 @@ SUBROUTINE read_composition()
      END DO
   END DO
 
-! Only for testing
-PRINT*, 'testing'
+  ! Only for testing
+  PRINT*, 'testing'
   DO I = 1, n_elements
      element_index = I
      Z = elements(I)%atom_number
