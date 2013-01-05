@@ -120,6 +120,13 @@ SUBROUTINE main
   print*, 'model grid is set up'
   ALLOCATE(current_temp(n_modelgrid))
 
+  print*,'CHECK GRID SIZES'
+  print*, xmax, R_inf, cell_width
+  print*, xmax/R_star, R_inf/R_star, cell_width/R_star
+  print*, (-xmax + nx_cell*cell_width)/R_star
+  STOP
+
+
   L = 1
   DO I=1, nx_cell
      DO J=1, ny_cell
