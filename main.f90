@@ -30,8 +30,10 @@ SUBROUTINE main
   COMMON / COM_LINKINFO / LINK_DATE, LINK_USER, LINK_HOST
 !  COMMON / RAN_SEED / idum
 
-  OPEN (UNIT=3, FILE='modelgrid.dat')
-  OPEN (UNIT=4, FILE='density.dat')
+
+!  OPEN (UNIT=2, FILE='cells.dat')  
+!  OPEN (UNIT=3, FILE='modelgrid.dat')
+!  OPEN (UNIT=4, FILE='density.dat')
 
 !  test = 0
 
@@ -67,15 +69,15 @@ SUBROUTINE main
   ! Read composition
   CALL read_composition()
 
-  ! Read atomic data (level information)
+! Read atomic data (level information)
   CALL read_atomic_data()
   PRINT*, 'stop'
 
-  ! Read transition data
+! Read transition data
   CALL read_transitions()
   PRINT*, 'stop'
 
-  ! STOP
+!  STOP
 
   ! Initialing seed from the system time
   ! If we set iseed < 0 in input.dat then iseed will be randomly initializing from the system time
@@ -111,14 +113,13 @@ SUBROUTINE main
   dummypackage = n_pack + 1
   ALLOCATE (package(n_pack + 1))
 
-  ! Set up of the propagation grid
-  CALL setup_grid()
-  print*, 'propagation grid is set up'
-
   ! Set up outflow (model grid)
   CALL setup_model_grid()
-  print*, 'model grid is set up'
+  xmax = xmax * R_star
+  ymax = ymax * R_star 
+  zmax = zmax * R_star
   ALLOCATE(current_temp(n_modelgrid))
+  print*, 'model grid is set up'
 
   print*,'CHECK GRID SIZES'
   print*, xmax, R_inf, cell_width
@@ -126,13 +127,18 @@ SUBROUTINE main
   print*, (-xmax + nx_cell*cell_width)/R_star
   !STOP
 
+  ! Set up of the propagation grid
+  CALL setup_grid()
+  print*, 'propagation grid is set up'
+
   L = 1
   DO I=1, nx_cell
      DO J=1, ny_cell
         DO K=1, nz_cell
            IF (I .EQ. nx_cell/2) THEN ! Only for one slice in the midle
-               WRITE(3, *) cell(L)%corner, model_grid(cell(L)%model_index)%rho
-               WRITE(4, *) model_grid(cell(L)%model_index)%rwind, model_grid(cell(L)%model_index)%rho
+              ! WRITE(3, *) cell(L)%corner, model_grid(cell(L)%model_index)%rho
+              ! WRITE(4, *) model_grid(cell(L)%model_index)%rwind, model_grid(cell(L)%model_index)%rho
+              ! WRITE(4, *) model_grid(cell(L)%model_index)%rho
            END IF
            L = L + 1
         END DO
@@ -148,7 +154,7 @@ SUBROUTINE main
   !  delta_opa = (upper_opa - lower_opa)/nopa
 
   ! Update model grid properties (model will be updated after 
-  ! consistance temperature calculation from the radiation field)
+  ! consistance temperature calculation from teh radiation field)
 
   current_temp = 0.D0
 
@@ -160,7 +166,7 @@ SUBROUTINE main
      IF ( MAXVAL((model_grid(:)%T - current_temp) / model_grid(:)%T) .LT. 0.05D0) EXIT
 
      current_temp = model_grid(:)%T
-     PRINT*, 'iteration:', iteration, current_temp
+     !PRINT*, 'iteration:', iteration, current_temp
 
      ! Loop over the numer of different opacity (nopa)
      ! DO I=1,nopa
