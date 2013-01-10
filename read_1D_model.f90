@@ -13,7 +13,6 @@
 
 
   OPEN (UNIT=11, FILE='model_data.dat')
-  OPEN (UNIT=15, FILE='modelgrid.dat')
 
   READ(11,*) T_eff
   READ(11,*) R_star
@@ -25,7 +24,7 @@
 !  print*, T_eff, R_star, R_inf, V_inf, M_dot, n_modelgrid
 
   R_star = R_star * r_sun
-  WRITE(15, *) 0.D0, 0.D0, R_star/R_star
+  ! WRITE(15, *) 0.D0, 0.D0, R_star/R_star
 
 !  R_inf  = R_inf  * R_star
 !  V_inf  = V_inf  * 1.D5
@@ -49,7 +48,7 @@
      model_grid(M)%assoc_cells = 0
      !Total mass density of grid cell I
 !     tot_md = M_dot / (4.D0 * pi * (model_grid(I)%rwind)**2 * model_grid(I)%vel)     
-     WRITE(15, *) 0.D0, 0.D0, model_grid(I)%rwind/R_star, model_grid(I)%rho
+     !WRITE(15, *) 0.D0, 0.D0, model_grid(I)%rwind/R_star, model_grid(I)%rho
 !     print*, I, model_grid(I)%rwind, model_grid(I)%vel, model_grid(I)%rho, model_grid(I)%T
 
      ALLOCATE (model_grid(I)%grid_comp(n_elements))

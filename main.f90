@@ -30,8 +30,8 @@ SUBROUTINE main
   COMMON / COM_LINKINFO / LINK_DATE, LINK_USER, LINK_HOST
 !  COMMON / RAN_SEED / idum
 
-!  OPEN (UNIT=3, FILE='modelgrid.dat')
-!  OPEN (UNIT=4, FILE='density.dat')
+  OPEN (UNIT=3, FILE='modelgrid.dat')
+  OPEN (UNIT=4, FILE='density.dat')
 
 !  test = 0
 
@@ -124,16 +124,15 @@ SUBROUTINE main
   print*, xmax, R_inf, cell_width
   print*, xmax/R_star, R_inf/R_star, cell_width/R_star
   print*, (-xmax + nx_cell*cell_width)/R_star
-  STOP
-
+  !STOP
 
   L = 1
   DO I=1, nx_cell
      DO J=1, ny_cell
         DO K=1, nz_cell
            IF (I .EQ. nx_cell/2) THEN ! Only for one slice in the midle
-!               WRITE(3, *) cell(L)%corner, model_grid(cell(L)%model_index)%rho
-!               WRITE(4, *) 0, 0, model_grid(cell(L)%model_index)%rwind, model_grid(cell(L)%model_index)%rho
+               WRITE(3, *) cell(L)%corner, model_grid(cell(L)%model_index)%rho
+               WRITE(4, *) model_grid(cell(L)%model_index)%rwind, model_grid(cell(L)%model_index)%rho
            END IF
            L = L + 1
         END DO
@@ -153,7 +152,7 @@ SUBROUTINE main
 
   current_temp = 0.D0
 
-  DO iteration = 1, 2
+  DO iteration = 1, 1
 
      CALL update_grid(iteration)
      PRINT*, 'Update grid finished' 
