@@ -107,26 +107,26 @@ SUBROUTINE read_input(n_pack, iseed)
   WRITE (*,'(3/)')
 
   ! Convert quantities to cgs 
-  xmax = xmax * r_sun
-  ymax = ymax * r_sun  
-  zmax = zmax * r_sun
-
-
-  WRITE (*,'(A,I10)')   'npackages    = ', n_pack
-  WRITE (*,'(A,I10)')   'n_nubin      = ', n_nubin
-  WRITE (*,'(A,I10)')   'nx_cell      = ', nx_cell
-  WRITE (*,'(A,I10)')   'ny_cell      = ', ny_cell  
-  WRITE (*,'(A,I10)')   'nz_cell      = ', nz_cell
-  WRITE (*,'(A,I10)')   'model_type   = ', model_type
-  WRITE (*,'(A,G10.3)') 'grid_xmax    = ', xmax
-  WRITE (*,'(A,G10.3)') 'grid_ymax    = ', ymax
-  WRITE (*,'(A,G10.3)') 'grid_zmax    = ', zmax
-  IF (iseed .le. 0) then 
-     WRITE (*,'(A)') 'Random-seed value is random '
-  ELSE
-     WRITE (*,'(A,I6)') 'random_seed = ', iseed
-  ENDIF
-  WRITE (*,'(3/)')
+!  xmax = xmax * r_sun
+!  ymax = ymax * r_sun  
+!  zmax = zmax * r_sun
+!!
+!
+!  WRITE (*,'(A,I10)')   'npackages    = ', n_pack
+!  WRITE (*,'(A,I10)')   'n_nubin      = ', n_nubin
+!  WRITE (*,'(A,I10)')   'nx_cell      = ', nx_cell
+!  WRITE (*,'(A,I10)')   'ny_cell      = ', ny_cell  
+!  WRITE (*,'(A,I10)')   'nz_cell      = ', nz_cell
+!  WRITE (*,'(A,I10)')   'model_type   = ', model_type
+!  WRITE (*,'(A,G10.3)') 'grid_xmax    = ', xmax
+!  WRITE (*,'(A,G10.3)') 'grid_ymax    = ', ymax
+!  WRITE (*,'(A,G10.3)') 'grid_zmax    = ', zmax
+!  IF (iseed .le. 0) then 
+!     WRITE (*,'(A)') 'Random-seed value is random '
+!  ELSE
+!     WRITE (*,'(A,I6)') 'random_seed = ', iseed
+!  ENDIF
+!  WRITE (*,'(3/)')
 
 RETURN
 

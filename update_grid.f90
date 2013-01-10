@@ -7,32 +7,34 @@ SUBROUTINE update_grid(iteration)
 
   IMPLICIT NONE    
 
-  INTEGER             :: gridcell, indexe, indexi, numb_ions, iteration, flag
+  INTEGER             :: gridcell, indexe, indexi, numb_ions, iteration
   DOUBLE PRECISION    :: el_nd, temp, frac, U, N_jk, gl_pop, volume
   
   ! Volume of the grid cell in case that width of cells are the same
   volume = cell_width**3
 
   DO gridcell = 1, n_modelgrid
-     IF (iteration .EQ. 1) THEN
-         ! Calculate electron number density for every model grid cell (gridcell)
-         CALL find_e_nd(gridcell, el_nd)
-         flag = 1
-     ELSE 
-         ! Energy density contribeted to the model grid cell 
+    IF (model_grid(gridcell)%assoc_cells .GT. 0) THEN
+      IF (iteration .EQ. 1) THEN
+        ! Calculate electron number density for every model grid cell gridcell
+        CALL find_e_nd(gridcell, el_nd)
+      ELSE
+        ! Energy density contribeted to the model grid cell 
          model_grid(gridcell)%J = model_grid(gridcell)%J / volume / model_grid(gridcell)%assoc_cells
-         temp = (model_grid(gridcell)%J * pi / sigma )**(1.D0/4.D0)
+         temp = (model_grid(gridcell)%J * pi / sigma )**(1./4.) 
+         !print*, temp
          model_grid(gridcell)%T = temp
          ! Calculate electron number density for every model grid cell gridcell
+         !print*, gridcell, model_grid(gridcell)%J, temp
          CALL find_e_nd(gridcell, el_nd)
-         model_grid(gridcell)%J = 0.D0  
-         flag = 2        
-     END IF
-     model_grid(gridcell)%e_dens = el_nd
-     temp = model_grid(gridcell)%T
+         model_grid(gridcell)%J = 0.D0   
+      END IF
+      model_grid(gridcell)%e_dens = el_nd
+      temp = model_grid(gridcell)%T
 
-     print*, 'temp and e_nd:', flag, gridcell,  temp !model_grid(gridcell)%rho, temp !, el_nd/6.1D14
-     DO indexe = 1, n_elements
+
+      !     print*, 'temp and e_nd:', gridcell,  model_grid(gridcell)%rho, temp, el_nd/6.1D14
+      DO indexe = 1, n_elements
         numb_ions = elements(indexe)%nions
         DO indexi = 1, numb_ions
            ! Calculate fraction (frac) of element indexe in ionization stage indexi
@@ -52,8 +54,9 @@ SUBROUTINE update_grid(iteration)
            model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%gl_pop = gl_pop
            model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop = N_jk
         END DO
-     END DO
+      END DO
 !     stop
+    ENDIF
   END DO
 
   

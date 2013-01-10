@@ -124,9 +124,9 @@ MODULE types
 
 !! Physical constants
   DOUBLE PRECISION, PARAMETER        :: pi=3.1415926535897932D+00,me_g=9.109534D-28,mp_g=1.6726485D-24, sigma_e=6.6516D-25,&
-                                        h=6.626176D-27,light_speed=2.99792458D+10,e_charge=4.803242D-10,ftran=0.6407D+00,  &       
-                                        nio=4.5655967D+14,const=1.D-04,vel_ter=920.0D+05,r_sun=695990.D+05,beta=2.0D+00,   &   
-                                        BOLK=1.380662D-16,m_sun=1.989D+33, sigma =5.6704D-05 !ergcm^(-2)s(-1)K(-4) !D. H. Cohen et al.2012
+                                       h=6.626176D-27,light_speed=2.99792458D+10,e_charge=4.803242D-10,ftran=0.6407D+00, &       
+                                       nio=4.5655967D+14,const=1.D-04,vel_ter=920.0D+05,r_sun=695990.D+05,beta=2.0D+00,  &   
+                                       BOLK=1.380662D-16,m_sun=1.989D+33, sigma =5.6704D-05 !ergcm^(-2)s(-1)K(-4) !D. H. Cohen et al.2012
   DOUBLE PRECISION, PARAMETER        :: parsec=30.857D17, e_v = 1.60217646D-12, saha_const=2.0706839D-16
 
 !! Parameters for testing
@@ -137,7 +137,7 @@ MODULE types
 !  DOUBLE PRECISION, PARAMETER       :: nu_min= 2.14286D15, nu_max=3.D15
 
 ! Define the min and max wavelenght range in cm for the synthetic spectrum calculation 1A = 1.D-8 cm
-  ! DOUBLE PRECISION, PARAMETER        :: nu_min = 3.D14, nu_max = 3.7D15 ! in cm (800 - 10000 A)
-  DOUBLE PRECISION, PARAMETER       :: nu_min = 2.4D15, nu_max = 2.5D15 ! in cm (1150 - 1250 A)
+   DOUBLE PRECISION, PARAMETER        :: nu_min = 3.D14, nu_max = 3.7D15 ! in cm (800 - 10000 A)
+  !DOUBLE PRECISION, PARAMETER       :: nu_min = 2.4D15, nu_max = 2.5D15 ! in cm (1150 - 1250 A)
 
 END MODULE types

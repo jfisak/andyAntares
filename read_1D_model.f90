@@ -13,7 +13,6 @@
 
 
   OPEN (UNIT=11, FILE='model_data.dat')
-  OPEN (UNIT=15, FILE='modelgrid.dat')
 
   READ(11,*) T_eff
   READ(11,*) R_star
@@ -25,8 +24,6 @@
 !  print*, T_eff, R_star, R_inf, V_inf, M_dot, n_modelgrid
 
   R_star = R_star * r_sun
-  WRITE(15, *) 0.D0, 0.D0, R_star/R_star
-
 !  R_inf  = R_inf  * R_star
 !  V_inf  = V_inf  * 1.D5
 !  M_dot  = M_dot  * m_sun / (3600.D0*24.D0*365.25D0)
@@ -46,11 +43,10 @@
      model_grid(I)%rho = dens
      model_grid(I)%T = 5000. ! should be temp 
      model_grid(I)%J = 0.D0 
-     model_grid(M)%assoc_cells = 0
+     model_grid(I)%assoc_cells = 0
      !Total mass density of grid cell I
 !     tot_md = M_dot / (4.D0 * pi * (model_grid(I)%rwind)**2 * model_grid(I)%vel)     
-     WRITE(15, *) 0.D0, 0.D0, model_grid(I)%rwind/R_star, model_grid(I)%rho
-!     print*, I, model_grid(I)%rwind, model_grid(I)%vel, model_grid(I)%rho, model_grid(I)%T
+!     print*, I, model_grid(I)%rwind, model_grid(I)%vel, model_grid(I)%rho, tot_md
 
      ALLOCATE (model_grid(I)%grid_comp(n_elements))
      DO J = 1, n_elements      
@@ -75,28 +71,6 @@
   model_grid(n_modelgrid+1)%vel   = 0.D0
   model_grid(n_modelgrid+1)%rho   = 0.D0     
 
-
-! Define which model grid cell corespondes to the propagation grid cell
-  DO I = 1, Ngrid
-     ! Absolute radius of the propagation grid cell (midle of the cell)
-     r =SQRT( (cell(I)%corner(1) + cell_width/2.D0)**2 + &
-              (cell(I)%corner(2) + cell_width/2.D0)**2 + &
-              (cell(I)%corner(3) + cell_width/2.D0)**2)
-     IF (r .LT. R_inf) THEN
-        delta = 1.D99
-        DO J = 1, n_modelgrid   
-           delta2 = ABS(r - model_grid(J)%rwind)
-           IF (delta2 .LT. delta) THEN
-               delta = delta2 
-               M = J           
-           END IF          
-        END DO  
-        cell(I)%model_index = M     
-        model_grid(M)%assoc_cells = model_grid(M)%assoc_cells + 1
-     ELSE
-        cell(I)%model_index = n_modelgrid + 1     
-     ENDIF
-  END DO
 
 ! Only for testing 
 ! DO I=1, Ngrid
