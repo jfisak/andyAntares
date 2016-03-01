@@ -52,6 +52,7 @@ SUBROUTINE init_photsphere(n_pack)
      CALL freq_from_planck(freq)   ! here the frequency is sampled from a Planck law
      package(I)%freq_rf = freq
 
+
      ! Now convert the energy and frequency to their cmf values
      CALL doppler_factor(I, D)
      package(I)%freq_cmf = package(I)%freq_rf * D 
@@ -71,6 +72,12 @@ SUBROUTINE init_photsphere(n_pack)
   ! package(I)%pos = 95.
   ! package(I)%dir = -1.
   ! package(I)%e_rf = 0.
+     OPEN(19,file="photonFdistr.dat")
+      do I=1,n_pack
+       write(19,*) package(I)%freq_rf
+      end do
+     CLOSE(19)
+        
 
 END SUBROUTINE init_photsphere
 

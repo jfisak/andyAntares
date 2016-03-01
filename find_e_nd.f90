@@ -13,7 +13,7 @@ SUBROUTINE find_e_nd(model_grid_index, el_nd)
   DOUBLE PRECISION                   :: diff
 
   ! Smallest value for the el_nd (can be either 1. or 0.)
-  el_nd_1 = 0.D0 
+  el_nd_1 = 0.D0
 
 !  DO I = 1, n_elements
 !     numb_ions = elements(I)%nions
@@ -22,6 +22,7 @@ SUBROUTINE find_e_nd(model_grid_index, el_nd)
 
    ! All H is ionized because and it is larger value for the el_nd 
    el_nd_2 = model_grid(model_grid_index)%rho / mp_g
+   print*, 'hodnota el_nd_2: ', el_nd_2
 
   ! Debug
   ! print*, el_nd_1, el_nd_2
@@ -31,7 +32,11 @@ SUBROUTINE find_e_nd(model_grid_index, el_nd)
   ! STOP
 
   loop_index = 1
+!    print*, "loop_index: ", loop_index
+!    print*, "max_it: ", max_it
   DO 
+    print*, "loop_index: ", loop_index
+    print*, "max_it: ", max_it
     IF (loop_index .GT. max_it) THEN
         PRINT*, 'No solution for the electron density found in cell', model_grid_index
         STOP
@@ -39,6 +44,7 @@ SUBROUTINE find_e_nd(model_grid_index, el_nd)
     ! Calculate the function func1 which is the root of the electron number density
     CALL f_edens(model_grid_index, el_nd_1, func1)
     CALL f_edens(model_grid_index, el_nd_2, func2)
+    print*, 'electron densities: el_nd_1 = ', el_nd_1, ', el_nd_2 = ', el_nd_2
     diff = (el_nd_2 - el_nd_1) / (func2 - func1) * func2 
     IF (ABS(diff) .LT. minc) THEN
 !       PRINT*, 'Electron number density in cell', model_grid_index, 'equals', el_nd_2
@@ -48,7 +54,8 @@ SUBROUTINE find_e_nd(model_grid_index, el_nd)
     el_nd_2 = el_nd_2 - diff
 
     ! Debug
-    print*, loop_index, el_nd_1, el_nd_2, diff
+    print*, 'electron density: ', loop_index, el_nd_1, el_nd_2, '\n', diff
+    !print*, 'electron density: ', diff
     !print*, loop_index, func1, func2, diff
 
     loop_index = loop_index + 1  

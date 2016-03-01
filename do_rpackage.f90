@@ -23,7 +23,7 @@ SUBROUTINE do_rpackage(pack_index)
   IF (cell_dist .LT. 0.D0) STOP 'cell_dist < 0'
   IF (get_package_model_index(pack_index) .EQ. n_modelgrid + 1) THEN
       ! Package is outside the wind model but still inside the propagation grid qube
-      ! No physicak interaction shoul occure, set e_dist > cell_dist
+      ! No physical interaction should occure, set e_dist > cell_dist
       e_dist = cell_dist + 1.D10
   ELSE
       ! Search for interaction
