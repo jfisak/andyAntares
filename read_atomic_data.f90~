@@ -15,10 +15,9 @@ SUBROUTINE read_atomic_data()
   INTEGER          :: I, J, L, K, n_ions, atomicnumber, flag
   INTEGER          :: a_numb, i_stat, n_lev, l_numb, n_tran, remember_last_element, n_levels
   DOUBLE PRECISION :: i_pot, l_e, s_waight, ionstage, ionoffset
-  CHARACTER(20)    :: elfile
 
 
-!  OPEN (UNIT=8, FILE='atomic_data.dat')
+  OPEN (UNIT=8, FILE='atomic_data.dat')
 
   ntransitions = 0
 
@@ -26,10 +25,10 @@ SUBROUTINE read_atomic_data()
 
   ! Read data from atomic_data.dat until the end of the file and use only data
   ! of the elements and their ionization stages given in compose_adata.dat
-!  DO 
+  DO 
      ! Read only the first line of every element in particular ionization stage
-!     READ(8,*, END=10) a_numb, i_stat, n_lev, i_pot
-!     PRINT*, 'atomic data =', a_numb, i_stat, n_lev, i_pot
+     READ(8,*, END=10) a_numb, i_stat, n_lev, i_pot
+     PRINT*, 'atomic data =', a_numb, i_stat, n_lev, i_pot
      ! In the case that the a_nub of the next reading line is not equal to the atomic number of 
      ! the last read element the last read element (donated with remember_last_element) then
      ! ionization potential will not change (or increase), e.i. ion.pot. increment ionoffset = 0.
@@ -39,9 +38,6 @@ SUBROUTINE read_atomic_data()
      flag = 0
      ! Loop over all elements (which we already read from compose_adata.dat)
      DO I = 1, n_elements
-      elfile=elements(I)%levelfile
-      PRINT*, 'levelfile ', elfile
-      OPEN(UNIT=8,FILE=elfile)
         atomicnumber = elements(I)%atom_number
         n_ions = elements(I)%nions
 !        PRINT*, 'n_ions=', n_ions
@@ -80,7 +76,6 @@ SUBROUTINE read_atomic_data()
 
         END DO
       END DO
-     CLOSE(8)
 
       ! In case we did not find the given element in the particular ionization stage
       ! we will just read data without using them. Print statement is only for testing
@@ -97,8 +92,8 @@ SUBROUTINE read_atomic_data()
       ionoffset = ionoffset + i_pot * e_v 
       ! Remember last element we pass
       remember_last_element = a_numb
-!  END DO
-!10 CONTINUE
+  END DO
+10 CONTINUE
 
   ! Real number of transitions (how many transitions are involved, using only 
   ! transition to the one direction, upward or downward)

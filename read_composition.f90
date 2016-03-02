@@ -22,6 +22,7 @@ SUBROUTINE read_composition()
   ! From compose_adata.dat read only first line which corespons 
   ! to the number of the chemical elements ( n_elements) involved 
   ! in the calculation
+  ! TOTO BYCH RAD UPRAVIL, NEMUSI BYT NEJVHODNEJSI
   READ(7,*) n_elements
   PRINT*, 'read in number of elements =', n_elements
 
