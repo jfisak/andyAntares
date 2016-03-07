@@ -17,8 +17,9 @@ SUBROUTINE read_transitions()
   INTEGER                                       :: a_numb, i_stat, n_tran, n_ions, ionstage
   DOUBLE PRECISION                              :: A, col_str, constant
   TYPE(line_list)                               :: dammy
+  CHARACTER(20)                                 :: elfile
 
-  OPEN (UNIT=9, FILE='transitions.dat')
+!  OPEN (UNIT=9, FILE='transitions.dat')
   OPEN (UNIT=10, FILE='frequencies.dat')
 
   ! Calculate the constant for the oscilatior strength calculation
@@ -28,13 +29,15 @@ SUBROUTINE read_transitions()
 
   L = 1 
 
-  DO 
-     READ(9,*, END=10) a_numb, i_stat, n_tran
+!  DO 
      PRINT*, 'transition data =', a_numb, i_stat, n_tran
      flag = 0
 
      DO I = 1, n_elements
         atomicnumber = elements(I)%atom_number
+        elfile=elements(I)%transitionfile
+        OPEN (UNIT=9, status='old', FILE=elfile)
+        READ(9,*) a_numb, i_stat, n_tran
         n_ions = elements(I)%nions
         !PRINT*, I
         ! Loop over all ions
@@ -62,7 +65,8 @@ SUBROUTINE read_transitions()
               flag = 1
            END IF
 
-	END DO
+        END DO
+       CLOSE(9)
       END DO
 
 
@@ -73,7 +77,7 @@ SUBROUTINE read_transitions()
           END DO
       END IF
   
-  END DO
+!  END DO
 10 CONTINUE
 
   PRINT*, 'check lenght of line list', L-1, ntransitions
@@ -84,6 +88,7 @@ SUBROUTINE read_transitions()
 !     PRINT*, I, linelist(I)%freq, linelist(I)%atom_number, linelist(I)%ion,linelist(I)%lower,linelist(I)%upper, linelist(I)%A_ul
 !  END DO
 
+  print*, 'n_transitions = ', ntransitions
   CALL sorting_new(ntransitions, linelist)
 !  linelist(1) = dammy
 

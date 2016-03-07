@@ -118,7 +118,7 @@ SUBROUTINE main
   xmax = xmax * R_star
   ymax = ymax * R_star 
   zmax = zmax * R_star
-  ALLOCATE(current_temp(n_modelgrid))
+  ALLOCATE(current_temp(n_modelgrid+1))
   print*, 'model grid is set up'
 
   print*,'CHECK GRID SIZES'
@@ -162,11 +162,11 @@ SUBROUTINE main
 
      CALL update_grid(iteration)
      PRINT*, 'Update grid finished' 
-
+     print*, 'model_grid(:)%T = ', model_grid(:)%T
      IF ( MAXVAL((model_grid(:)%T - current_temp) / model_grid(:)%T) .LT. 0.05D0) EXIT
 
      current_temp = model_grid(:)%T
-     !PRINT*, 'iteration:', iteration, current_temp
+     PRINT*, 'iteration:', iteration, current_temp
 
      ! Loop over the numer of different opacity (nopa)
      ! DO I=1,nopa

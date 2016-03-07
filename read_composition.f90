@@ -14,7 +14,7 @@ SUBROUTINE read_composition()
   INTEGER            :: I, J 
   INTEGER            :: element_index, Z, lowerion, upperion
   INTEGER            :: current_ion, nions
-  CHARACTER (20)     :: elementfile
+  CHARACTER (20)     :: elementfile, transfile
   DOUBLE PRECISION   :: mass
 
   OPEN (UNIT=7, FILE='compose_adata.dat')
@@ -32,11 +32,12 @@ SUBROUTINE read_composition()
   ! Loop over all chem.elements involved i.e. read all other lines in the compose_adata.dat
   ! and assine these values to the elements(I)%... and elements(I)%ions(J)%...
   DO I = 1, n_elements
-     READ(7,*) element_index, Z, lowerion, upperion, mass, elementfile
+     READ(7,*) element_index, Z, lowerion, upperion, mass, elementfile, transfile
      PRINT*, element_index, Z, lowerion, upperion, mass
      elements(I)%atom_number = Z
      elements(I)%atom_mass = mass * mp_g
      elements(I)%levelfile = elementfile
+     elements(I)%transitionfile = transfile
      write(*,*) elementfile
      ! Number of ions 
      nions =  upperion - lowerion + 1
