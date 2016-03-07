@@ -70,11 +70,13 @@ SUBROUTINE main
   CALL read_composition()
 
 ! Read atomic data (level information)
-  CALL read_atomic_data()
+!  CALL read_atomic_data()
+   CALL read_atomic_characteristics()
   PRINT*, 'stop'
 
 ! Read transition data
-  CALL read_transitions()
+!  CALL read_transitions()
+
   PRINT*, 'stop'
 
 !  STOP

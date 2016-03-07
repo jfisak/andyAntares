@@ -11,13 +11,14 @@ SUBROUTINE read_composition()
 
   IMPLICIT NONE    
 
-  INTEGER            :: I, J 
+  INTEGER            :: I, J, flag
   INTEGER            :: element_index, Z, lowerion, upperion
   INTEGER            :: current_ion, nions,ios, NR
   INTEGER, PARAMETER :: maxelements = 180
-  CHARACTER (20)     :: elementfile, transfile
+  CHARACTER (20)     :: elementfile
   CHARACTER (1)      :: junk
   DOUBLE PRECISION   :: mass
+  INTEGER, ALLOCATABLE :: elindexes(:)
 
   OPEN (UNIT=7, FILE='compose_adata.dat')
   ! computes number of lines in the input file
@@ -25,7 +26,7 @@ SUBROUTINE read_composition()
   ! for this time it will calculate number of rows
   NR = 0
   DO I=1,maxelements
-   READ(7,*,IOSTAT=ios) junk, junk, junk, junk, junk, junk, junk
+   READ(7,*,IOSTAT=ios) junk, junk, junk, junk, junk, junk
     IF (ios /= 0) EXIT
     IF (I == maxelements) THEN
      print*, 'Error: Maximum number of records exceeded...'
@@ -36,22 +37,36 @@ SUBROUTINE read_composition()
   END DO
   REWIND(7)
   print*, 'number of rows is equal to ', NR
-  ! in this case is the number of elements equal to number of rows
-  n_elements = NR
-  PRINT*, 'read in number of elements =', n_elements
-
+  ALLOCATE(elindexes(NR))
+  ! number of elements calculation
+  DO I = 1, NR
+     READ(7,*) element_index, Z, lowerion, upperion, mass, elementfile
+  END DO
+ IF (NR .EQ. 1) THEN
+  n_elements = 1
+ ELSE
+  n_elements=0
+  DO I = 2,NR
+   flag = 0
+   DO J = 1,I
+    IF(elindexes(J) .EQ. elindexes(I)) flag = 1
+   END DO
+    IF(flag .EQ. 0) n_elements = n_elements + 1
+  END DO
+ END IF
   ! Allocate the memory to the elements(n_elements)
+  print*, 'number of elements: ', n_elements
   ALLOCATE (elements(n_elements)) 
 
-  ! Loop over all chem.elements involved i.e. read all other lines in the compose_adata.dat
+  REWIND(7)
+  ! Loop over all rows involved i.e. read all other lines in the compose_adata.dat
   ! and assine these values to the elements(I)%... and elements(I)%ions(J)%...
-  DO I = 1, n_elements
-     READ(7,*) element_index, Z, lowerion, upperion, mass, elementfile, transfile
+  DO I = 1, NR
+     READ(7,*) element_index, Z, lowerion, upperion, mass, elementfile
      PRINT*, element_index, Z, lowerion, upperion, mass
      elements(I)%atom_number = Z
      elements(I)%atom_mass = mass * mp_g
      elements(I)%levelfile = elementfile
-     elements(I)%transitionfile = transfile
      write(*,*) elementfile
      ! Number of ions 
      nions =  upperion - lowerion + 1
@@ -63,7 +78,7 @@ SUBROUTINE read_composition()
      ! Allocate the memory to the elements(I)%ions(nions)
      ALLOCATE (elements(I)%ions(nions))
      ! Loop over all ions of given chem.element
-     DO J = 1, nions
+     DO J = lowerion, upperion
         elements(I)%ions(J)%ion_stage = current_ion
         current_ion = lowerion + 1
      END DO
