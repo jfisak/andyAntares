@@ -1,6 +1,6 @@
 #Compiler settings
 F90 = gfortran
-FCFLAGS =  -g -O2 -cpp #-mp
+FCFLAGS =  -g -O2 -cpp -fbounds-check #-mp
 
 #Variables
 progname = main
