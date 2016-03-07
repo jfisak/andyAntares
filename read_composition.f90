@@ -13,17 +13,31 @@ SUBROUTINE read_composition()
 
   INTEGER            :: I, J 
   INTEGER            :: element_index, Z, lowerion, upperion
-  INTEGER            :: current_ion, nions
+  INTEGER            :: current_ion, nions,ios, NR
+  INTEGER, PARAMETER :: maxelements = 180
   CHARACTER (20)     :: elementfile, transfile
+  CHARACTER (1)      :: junk
   DOUBLE PRECISION   :: mass
 
   OPEN (UNIT=7, FILE='compose_adata.dat')
-
-  ! From compose_adata.dat read only first line which corespons 
-  ! to the number of the chemical elements ( n_elements) involved 
-  ! in the calculation
-  ! TOTO BYCH RAD UPRAVIL, NEMUSI BYT NEJVHODNEJSI
-  READ(7,*) n_elements
+  ! computes number of lines in the input file
+  ! number of rows is equal to 0
+  ! for this time it will calculate number of rows
+  NR = 0
+  DO I=1,maxelements
+   READ(7,*,IOSTAT=ios) junk, junk, junk, junk, junk, junk, junk
+    IF (ios /= 0) EXIT
+    IF (I == maxelements) THEN
+     print*, 'Error: Maximum number of records exceeded...'
+     print*, 'Exiting program now...'
+     STOP
+    END IF
+   NR = NR + 1
+  END DO
+  REWIND(7)
+  print*, 'number of rows is equal to ', NR
+  ! in this case is the number of elements equal to number of rows
+  n_elements = NR
   PRINT*, 'read in number of elements =', n_elements
 
   ! Allocate the memory to the elements(n_elements)
