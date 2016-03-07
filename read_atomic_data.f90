@@ -109,8 +109,9 @@ SUBROUTINE read_atomic_data()
   PRINT*, 'transition =', ntransitions
 
 ! Testing
-  PRINT*, 'TESTING'
+  PRINT*, 'ATOMIC DATA: TESTING'
   DO I = 1, n_elements
+     print*, elements(I)%levelfile
      n_ions = elements(I)%nions
      PRINT*, 'element index is =', I, 'atomic number =',  elements(I)%atom_number, 'ionn stages =', elements(I)%nions
      DO J = 1, n_ions        

@@ -10,7 +10,7 @@
   DOUBLE PRECISION                        :: temp, el_nd, frac
   DOUBLE PRECISION                        :: N, D, SUMM, sb_factor
 
-  print*, 'START SUBROUTINE ionization_fraction' 
+!  print*, 'START SUBROUTINE ionization_fraction' 
 !  print*, 'Ion.frac. is called for:',indexe, indexi, temp, el_nd
 
   numb_ions = elements(indexe)%nions
@@ -19,9 +19,9 @@
   N = 1.D0
   DO I = indexi, numb_ions - 1
      CALL saha_boltzmann_factor(indexe, I, temp, sb_factor)
-   print*, 'el_nd: ', el_nd
+!  print*, 'el_nd: ', el_nd
      N = N * el_nd * sb_factor
-     print*, 'saha Boltzman factor: ', I, sb_factor, N
+!     print*, 'saha Boltzman factor: ', I, sb_factor, N
   END DO
 
   SUMM = 0.D0
@@ -38,7 +38,7 @@
   END DO
 
   frac = N / SUMM
-  print*, '   Ion.frac:', frac
-  print*, 'END SUBROUTINE ionization_fraction' 
+!  print*, '   Ion.frac:', frac
+!  print*, 'END SUBROUTINE ionization_fraction' 
 
   END SUBROUTINE ionization_fraction
