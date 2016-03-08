@@ -60,7 +60,7 @@ DO I = 1, n_elements
             ! Increase the level energy l_e (multiply with e_v) by ionoffset i.e. 
             ! for the ion.pot. of the ground level
             elements(I)%ions(J)%levels(K)%exci_energy = l_e * e_v + ionoffset
-            IF (K .EQ. 2) PRINT*,  l_e * e_v + ionoffset
+         !   IF (K .EQ. 2) PRINT*,  l_e * e_v + ionoffset
             elements(I)%ions(J)%levels(K)%stat_waight = s_waight
             ! Calculate total number of transitions of the given level
             ntransitions =  ntransitions + n_tran
@@ -70,10 +70,12 @@ DO I = 1, n_elements
          ! atomic_data.dat from the next element
          flag = 1
       !END IF
-   READ(8,*) junk
 ! this part will be soon erased, I hope
    END DO
+   READ(8,*) junk
+   print*, 'number of transitions: ', ntransitions/2
    IF(I .EQ. n_elements) THEN
+    ntransitions = ntransitions/2.D0
     ALLOCATE (linelist(ntransitions))
     L=1
    END IF
@@ -83,15 +85,15 @@ DO I = 1, n_elements
    !     atomicnumber = elements(I)%atom_number
    !    elfile=elements(I)%transitionfile
    !     OPEN (UNIT=9, status='old', FILE=elfile)
-   !     READ(9,*) a_numb, i_stat, n_tran
    !     n_ions = elements(I)%nions
         !PRINT*, I
         ! Loop over all ions
         DO J = 1, n_ions                   
+         READ(8,*) a_numb, i_stat, n_tran
    !       ionstage = elements(I)%ions(J)%ion_stage 
           !PRINT*, '  ',J
    !       IF ((a_numb .EQ. atomicnumber) .AND. (i_stat .EQ. ionstage)) THEN 
-              DO K = 1, ntransitions
+              DO K = 1, n_tran
                  READ(8,*) kindex, low_level, up_level, A, col_str
                  PRINT*, kindex, low_level, up_level, A, col_str
 !                 linelist(L)%atom_number = a_numb
