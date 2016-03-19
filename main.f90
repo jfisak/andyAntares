@@ -18,6 +18,7 @@ SUBROUTINE main
   INTEGER                           :: I, J, K, L, iseed, idx
   INTEGER, DIMENSION (9)            :: TT
   DOUBLE PRECISION, ALLOCATABLE     :: current_temp(:)
+  CHARACTER(1)                      :: junk
 !  DOUBLE PRECISION, PARAMETER       :: upper_opa=2.D0/5.D0, lower_opa=0.01D0         ! Opacity for photons sent from the photosphere R_star = 10
 !  DOUBLE PRECISION, PARAMETER       :: upper_opa=2.D0/9.D0, lower_opa=0.1D0/18.D0    ! Opacity for photons sent from the photosphere R_star = 2
 !  DOUBLE PRECISION, PARAMETER       :: upper_opa=0.2, lower_opa=1.d0/200.d0          ! Opacity for photons sent from point sours
@@ -65,6 +66,7 @@ SUBROUTINE main
   ! Read input  
   CALL read_input(n_pack, iseed)
   PRINT*, 'read input'
+  read*, junk
 
   ! Read composition
   CALL read_composition()

@@ -49,7 +49,11 @@ SUBROUTINE init_photsphere(n_pack)
      ! Assign rf energy and frequency to the packet
      package(I)%e_rf = L_star/n_pack  
      IF (I .EQ. 1) print*, package(I)%e_rf
-     CALL freq_from_planck(freq)   ! here the frequency is sampled from a Planck law
+     IF (inputflux .EQ. 1) THEN
+      CALL freq_from_file(freq,I,n_pack) ! frequency is sampled using an existing emergent flux
+     ELSE
+      CALL freq_from_planck(freq)   ! here the frequency is sampled from a Planck law
+     END IF
      package(I)%freq_rf = freq
 
 
