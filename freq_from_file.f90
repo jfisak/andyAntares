@@ -64,7 +64,7 @@ END IF
  freq_min = incomingflux(2,1)
  freq_max = incomingflux(NR + 1, 1)
  !print*, 'incomingflux(:,2): ', incomingflux(:,2)
- junk = MAXVAL(incomingflux(:,2))
+ flux_max = MAXVAL(incomingflux(:,2))
  !print*, 'MAXVAL? ', junk
  !print*, 'initial calculations for frequency generation: ', freq_min, freq_max, flux_max
  FOUND = .FALSE.
@@ -123,11 +123,11 @@ END IF
    END IF
   END IF
   IF (FOUND .EQV. .TRUE.) THEN
-   print*, 'we found the photon :-)'
+  ! print*, 'we found the photon :-)'
   ELSE
-   print*, 'we did not find it ... trying again...'
+  ! print*, 'we did not find it ... trying again...'
   END IF
-  if (MODULO(n_packet,10000) .EQ. 0 ) print*, 'Generating frequency packet ', n_packet, ' ...'
+  if ((MODULO(n_packet,10000) .EQ. 0) .AND. (FOUND .EQV. .TRUE.)) print*, 'Generating the frequency packet ', n_packet, ' ...'
  END DO
  ! after the last photon is calculated we erase the field incomingflux'
  IF(n_packet .EQ. n_packs) DEALLOCATE(incomingflux)
