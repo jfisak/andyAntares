@@ -2,7 +2,7 @@
 ! using distribution from an emergent flux computed by
 ! another model of atmosphere
 ! this procedure is called if and only if incomingflux = 1
-SUBROUTINE freq_from_file(freq,n_packet,n_packs)
+SUBROUTINE freq_from_file(n_packs,freq,n_packet)
 
   USE types
 
@@ -25,37 +25,49 @@ SUBROUTINE freq_from_file(freq,n_packet,n_packs)
  
 ! in the first photon computes the flux field which depends on frequency
 ! flux(NUMBER OF ROW, INDEX) INDEX = 1 ... FREQUENCY, INDEX = 2 ... FLUX
-IF(n_packet .EQ. 1) THEN
-  !print*, 'initialization of reading input flux'
-  OPEN(11,status='old',FILE='emflux.dat')
-  ! it is necessary to compute number of rows of the file
-  NR = 0
- DO I=1,maxrows
-   READ(11,*,IOSTAT=ios) junk, junk, junk, junk, junk
-  IF (ios /= 0) EXIT
-  IF (I == maxrows) THEN
-   print*, 'Error: Maximum number of records exceeded...'
-   print*, 'Exiting program now...'
-   STOP
-  END IF
-  NR = NR + 1
- END DO
- REWIND(11)
- ! now we can allocate the field flux (frequency, flux))
- IF (DEBUG .EQ. 1) print*, 'allocation of the field incomingflux(', NR, ', 2)'
- ALLOCATE(incomingflux(NR+1,2))
- ! and read from given file
- PRINT*, 'reading the flux from input file...'
- incomingflux(1,1) = NR
- incomingflux(1,2) = 0
- DO I=2,NR+1
-  READ(11,*) junk, incomingflux(I,1), junk, incomingflux(I,2), junk
- END DO
- CLOSE(11)
- do I=1,NR+1
- ! print*, 'incomingflux: ', incomingflux(I,1), ', ', incomingflux(I,2)
- end do
-END IF
+! at first we will use the given input flux
+SELECT CASE (inputflux)
+ ! in this case we read input file from Jiri Kubat's model in the form
+ ! row number   frequency       wavelength      flux    log flux
+CASE (1)
+ IF(n_packet .EQ. 1) THEN
+   !print*, 'initialization of reading input flux'
+   OPEN(11,status='old',FILE='emflux.dat')
+   ! it is necessary to compute number of rows of the file
+   NR = 0
+  DO I=1,maxrows
+    READ(11,*,IOSTAT=ios) junk, junk, junk, junk, junk
+   IF (ios /= 0) EXIT
+   IF (I == maxrows) THEN
+    print*, 'Error: Maximum number of records exceeded...'
+    print*, 'Exiting program now...'
+    STOP
+   END IF
+   NR = NR + 1
+  END DO
+  REWIND(11)
+  ! now we can allocate the field flux (frequency, flux))
+  IF (DEBUG .EQ. 1) print*, 'allocation of the field incomingflux(', NR, ', 2)'
+  ALLOCATE(incomingflux(NR+1,2))
+  ! and read from given file
+  PRINT*, 'reading the flux from input file...'
+  incomingflux(1,1) = NR
+  incomingflux(1,2) = 0
+  DO I=2,NR+1
+   READ(11,*) junk, incomingflux(I,1), junk, incomingflux(I,2), junk
+  END DO
+  CLOSE(11)
+  do I=1,NR+1
+  ! print*, 'incomingflux: ', incomingflux(I,1), ', ', incomingflux(I,2)
+  end do
+ END IF
+ CASE DEFAULT
+  print*, 'the choice of variable inputflux = ', inputflux, 'is not known...'
+END SELECT
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! now we have the field incomingflux allocated and defined values...now we can
+! generate the photonic frequencies
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! now we generate a new photonic frequency

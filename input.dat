@@ -1,4 +1,4 @@
-n_pack = 10000000
+n_pack = 1000000
 n_nubin = 1000
 nx_cell = 200
 ny_cell = 200
@@ -8,4 +8,4 @@ xmax = 10.
 ymax = 10.
 zmax = 10.
 *random_seed = 1
-inputflux = 1
+inputflux = 0
