@@ -25,6 +25,7 @@ SUBROUTINE read_atomic_characteristics()
 !  OPEN (UNIT=8, FILE='atomic_data.dat')
 
   ntransitions = 0
+  constant = ( me_g * light_speed ** 3)/(8.E0 * pi ** 2 * e_charge ** 2)
 
 DO I = 1, n_elements
 !________________________________________________________________
@@ -74,10 +75,10 @@ DO I = 1, n_elements
    END DO
    READ(8,*) junk
    print*, 'number of transitions: ', ntransitions/2
+   IF(I .EQ. 1) L = 1
    IF(I .EQ. n_elements) THEN
     ntransitions = ntransitions/2.D0
     ALLOCATE (linelist(ntransitions))
-    L=1
    END IF
 !________________________________________________________________
 !_______ now we read atomic lines _______________________________
@@ -108,6 +109,7 @@ DO I = 1, n_elements
                  linelist(L)%f_ul = constant * (elements(I)%ions(J)%levels(up_level)%stat_waight / &
                                     elements(I)%ions(J)%levels(low_level)%stat_waight) *           &
                                     (linelist(L)%A_ul / linelist(L)%freq ** 2)
+                 print*, 'L = ', L, 'linelist: ', linelist(L)
                  L = L+1  
               END DO
 !           END IF
@@ -152,24 +154,24 @@ END DO
 
   ! Real number of transitions (how many transitions are involved, using only 
   ! transition to the one direction, upward or downward)
-!  ntransitions = ntransitions/2.D0
-!  PRINT*, 'transition =', ntransitions
-!
-!! Testing
-!  PRINT*, 'ATOMIC DATA: TESTING'
-!  DO I = 1, n_elements
-!     print*, elements(I)%levelfile
-!     n_ions = elements(I)%nions
-!     PRINT*, 'element index is =', I, 'atomic number =',  elements(I)%atom_number, 'ionn stages =', elements(I)%nions
-!     DO J = 1, n_ions        
-!        PRINT*, 'ionisation index =', J,  'ionisation stage  =', elements(I)%ions(J)%ion_stage, &
-!                'ionisation pot. =', elements(I)%ions(J)%ion_potential/e_v,                     &
-!                'number of levels =', elements(I)%ions(J)%nlevels
-!        n_levels = elements(I)%ions(J)%nlevels
-!      DO K = 1, n_levels
-!         PRINT*, K, elements(I)%ions(J)%levels(K)%exci_energy, elements(I)%ions(J)%levels(K)%stat_waight
-!      END DO
-!     END DO
-!  END DO
+  ntransitions = ntransitions/2.D0
+  PRINT*, 'transition =', ntransitions
+
+! Testing
+  PRINT*, 'ATOMIC DATA: TESTING'
+  DO I = 1, n_elements
+     print*, elements(I)%levelfile
+     n_ions = elements(I)%nions
+     PRINT*, 'element index is =', I, 'atomic number =',  elements(I)%atom_number, 'ionn stages =', elements(I)%nions
+     DO J = 1, n_ions        
+        PRINT*, 'ionisation index =', J,  'ionisation stage  =', elements(I)%ions(J)%ion_stage, &
+                'ionisation pot. =', elements(I)%ions(J)%ion_potential/e_v,                     &
+                'number of levels =', elements(I)%ions(J)%nlevels
+        n_levels = elements(I)%ions(J)%nlevels
+      DO K = 1, n_levels
+         PRINT*, K, elements(I)%ions(J)%levels(K)%exci_energy, elements(I)%ions(J)%levels(K)%stat_waight
+      END DO
+     END DO
+  END DO
 
 END SUBROUTINE read_atomic_characteristics

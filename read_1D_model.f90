@@ -7,11 +7,14 @@
   IMPLICIT NONE    
 
   INTEGER                                   :: I, J, M, numbions, indexg, atom_number
+  INTEGER                                   :: ios
+  INTEGER, PARAMETER                        :: maxrows = 6000000
   DOUBLE PRECISION                          :: delta_r, delta, delta2, tot_nd, tot_md
-  DOUBLE PRECISION                          :: r, velo, dens, temp
+  DOUBLE PRECISION                          :: r, velo, dens, temp, junk
   DOUBLE PRECISION, DIMENSION(n_elements)   :: massfrac
 
-
+ SELECT CASE (inputModel)
+  CASE(0)
   OPEN (UNIT=11, FILE='model_data.dat')
 
   READ(11,*) T_eff
@@ -83,6 +86,50 @@
 !              (cell(I)%corner(3) + cell_width/2.D0)**2)
 !   print*, r, model_grid(cell(I)%model_index)%rwind, R_inf,  model_grid(cell(I)%model_index)%rho
 ! END DO
-
-  
+ ! in this case we read input model from Jiri Krticka program...
+ ! these files are in this form
+ ! 1. number of row
+ ! 2. wind radius
+ ! 3. velocity
+ ! 4. mass density
+ ! 5. temperature
+ ! 6. q (?)
+ ! 7. mass loss rate
+ CASE(1)
+  print*, 'we will read a model from Jiri Krticka program...'
+  OPEN(UNIT=11,FILE='47839.dat')
+   ! at first the number of rows calculation...
+   n_modelgrid = 0
+  DO I=1,maxrows
+    READ(11,*,IOSTAT=ios) junk, junk, junk, junk, junk, junk, junk
+   IF (ios /= 0) EXIT
+   IF (I == maxrows) THEN
+    print*, 'Subroutine read_1D_model:'
+    print*, 'Error: Maximum number of records exceeded...'
+    print*, 'Exiting program now...'
+    STOP
+   END IF
+   n_modelgrid = n_modelgrid + 1
+  END DO
+   ALLOCATE (model_grid(n_modelgrid + 1))
+  DO I=1,n_modelgrid
+   READ(11,*) indexg, r, velo, dens, temp, junk, junk
+     model_grid(I)%rwind = r!  * R_star
+     model_grid(I)%vel = velo! * 1.D5
+     model_grid(I)%rho = dens
+     model_grid(I)%T = temp ! should be temp 
+     model_grid(I)%J = 0.D0 
+     model_grid(I)%assoc_cells = 0
+   END DO
+  CLOSE(11)
+  ! Dummy cell to associate to propagation grid cells which have no representation on the model grid.
+  ! All cells out of model grid set to 0 and associate to n_modelgrid. 
+  ! Other cells will obtainde particular values with memory
+  model_grid(n_modelgrid+1)%rwind = 0.D0
+  model_grid(n_modelgrid+1)%vel   = 0.D0
+  model_grid(n_modelgrid+1)%rho   = 0.D0     
+ CASE DEFAULT
+  print*, 'the choice of the variable inputModel = ', inputModel, 'is not known...'
+  STOP 'ENDING PROGRAM NOW...'
+ END SELECT
   END SUBROUTINE read_1D_model

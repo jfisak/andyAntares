@@ -17,7 +17,6 @@ SUBROUTINE read_transitions()
   INTEGER                                       :: a_numb, i_stat, n_tran, n_ions, ionstage
   DOUBLE PRECISION                              :: A, col_str, constant
   TYPE(line_list)                               :: dammy
-  CHARACTER(20)                                 :: elfile
 
 !  OPEN (UNIT=9, FILE='transitions.dat')
   OPEN (UNIT=10, FILE='frequencies.dat')
@@ -35,8 +34,7 @@ SUBROUTINE read_transitions()
 
      DO I = 1, n_elements
         atomicnumber = elements(I)%atom_number
-        elfile=elements(I)%transitionfile
-        OPEN (UNIT=9, status='old', FILE=elfile)
+        OPEN (UNIT=9, status='old', FILE='transitions.dat')
         READ(9,*) a_numb, i_stat, n_tran
         n_ions = elements(I)%nions
         !PRINT*, I
@@ -60,6 +58,7 @@ SUBROUTINE read_transitions()
                  linelist(L)%f_ul = constant * (elements(I)%ions(J)%levels(up_level)%stat_waight / &
                                     elements(I)%ions(J)%levels(low_level)%stat_waight) *           &
                                     (linelist(L)%A_ul / linelist(L)%freq ** 2)
+                 print*, 'L = ', L, ' linelist: ', linelist(L)
                  L = L+1  
               END DO
               flag = 1

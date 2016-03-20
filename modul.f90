@@ -88,7 +88,7 @@ MODULE types
   INTEGER                            :: idum
   INTEGER                            :: debug
 ! flux from existing input file
-  INTEGER                            :: inputflux
+  INTEGER                            :: inputflux, inputmodel
 
 !#ifdef MPI_ON
 !  INTEGER                            :: n_tasks, my_rank
