@@ -112,6 +112,7 @@
    n_modelgrid = n_modelgrid + 1
   END DO
    ALLOCATE (model_grid(n_modelgrid + 1))
+   REWIND(11)
   DO I=1,n_modelgrid
    READ(11,*) indexg, r, velo, dens, temp, junk, junk
      model_grid(I)%rwind = r!  * R_star
@@ -120,14 +121,28 @@
      model_grid(I)%T = temp ! should be temp 
      model_grid(I)%J = 0.D0 
      model_grid(I)%assoc_cells = 0
+     ALLOCATE (model_grid(I)%grid_comp(n_elements))
+     DO J = 1, n_elements      
+        numbions = elements(J)%nions
+        ALLOCATE (model_grid(I)%grid_comp(J)%grid_ion(numbions))
+        atom_number = elements(J)%atom_number
+        model_grid(I)%grid_comp(J)%abund = 1.D0
+        !Calculate total number density for included species
+        !tot_nd = model_grid(I)%grid_comp(J)%abund / elements(J)%atom_mass 
+        !model_grid(I)%grid_comp(J)%numb_den = tot_nd
+     END DO
    END DO
   CLOSE(11)
+  R_inf  = model_grid(n_modelgrid)%rwind
+  V_inf  = model_grid(n_modelgrid)%vel
   ! Dummy cell to associate to propagation grid cells which have no representation on the model grid.
   ! All cells out of model grid set to 0 and associate to n_modelgrid. 
   ! Other cells will obtainde particular values with memory
   model_grid(n_modelgrid+1)%rwind = 0.D0
   model_grid(n_modelgrid+1)%vel   = 0.D0
   model_grid(n_modelgrid+1)%rho   = 0.D0     
+  R_star = 9.9000000000004 * r_sun
+  T_eff = 30000
  CASE DEFAULT
   print*, 'the choice of the variable inputModel = ', inputModel, 'is not known...'
   STOP 'ENDING PROGRAM NOW...'
