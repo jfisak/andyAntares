@@ -46,7 +46,7 @@
      model_grid(I)%rwind = r  * R_star
      model_grid(I)%vel = velo * 1.D5
      model_grid(I)%rho = dens
-     model_grid(I)%T = 5000. ! should be temp 
+     model_grid(I)%T = 30000. ! should be temp 
      model_grid(I)%J = 0.D0 
      model_grid(I)%assoc_cells = 0
      !Total mass density of grid cell I
@@ -97,9 +97,11 @@
  ! 7. mass loss rate
  CASE(1)
   print*, 'we will read a model from Jiri Krticka program...'
-  OPEN(UNIT=11,FILE='47839.dat')
+  OPEN(UNIT=11,status='old',FILE='47839.dat')
    ! at first the number of rows calculation...
    n_modelgrid = 0
+  R_star = 9.9E0 * r_sun
+  T_eff = 37500
   DO I=1,maxrows
     READ(11,*,IOSTAT=ios) junk, junk, junk, junk, junk, junk, junk
    IF (ios /= 0) EXIT
@@ -115,12 +117,17 @@
    REWIND(11)
   DO I=1,n_modelgrid
    READ(11,*) indexg, r, velo, dens, temp, junk, junk
-     model_grid(I)%rwind = r!  * R_star
-     model_grid(I)%vel = velo! * 1.D5
+     model_grid(I)%rwind = r  !  * R_star
+     model_grid(I)%vel = velo * 1.E2
      model_grid(I)%rho = dens
      model_grid(I)%T = temp ! should be temp 
      model_grid(I)%J = 0.D0 
      model_grid(I)%assoc_cells = 0
+!     print*, 'testing model grid...'
+!     print*, model_grid(I)%rwind, model_grid(I)%vel, &
+!        model_grid(I)%rho, model_grid(I)%T, model_grid(I)%J, &
+!        model_grid(I)%assoc_cells
+     !IF (I /= 1) print*, 'delta r: ', model_grid(I)%rwind - model_grid(I-1)%rwind
      ALLOCATE (model_grid(I)%grid_comp(n_elements))
      DO J = 1, n_elements      
         numbions = elements(J)%nions
@@ -141,8 +148,6 @@
   model_grid(n_modelgrid+1)%rwind = 0.D0
   model_grid(n_modelgrid+1)%vel   = 0.D0
   model_grid(n_modelgrid+1)%rho   = 0.D0     
-  R_star = 9.9000000000004 * r_sun
-  T_eff = 30000
  CASE DEFAULT
   print*, 'the choice of the variable inputModel = ', inputModel, 'is not known...'
   STOP 'ENDING PROGRAM NOW...'
