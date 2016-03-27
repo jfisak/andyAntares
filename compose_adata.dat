@@ -7,5 +7,5 @@
 	1	1	2	0		atomic_data.dat
 **transitions**
 * energy transitions
-	Z	lion	uion	trans_type	transition_file
-	1	1	2	0		hydrogen.dat
+*	Z	lion	uion	trans_type	transition_file
+	1	1	2	0		transitions.dat
