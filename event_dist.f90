@@ -47,8 +47,11 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
          ! In case we have more lines
          DO I = 1, ntransitions
             ! If 
-            IF (package(pack_index)%freq_cmf .GT. linelist(I)%freq) &
-                package(pack_index)%last_line = I-1         
+            !print*, 'photon: ', pack_index, 'freq_cmf: ', package(pack_index)%freq_cmf, 'linelist:', linelist(I)%freq
+            IF (package(pack_index)%freq_cmf .GT. linelist(I)%freq) THEN
+                package(pack_index)%last_line = I-1
+                !print*, 'package(pack_index)%last_line = I-1', I-1
+            END IF
          END DO 
          ! In case that package frequency can interact only with one more line from the line list,
          ! then index of the last line with which package interacted is ntransitions.
@@ -63,7 +66,8 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
      indexi = linelist(next_line)%indexi
      lower_level = linelist(next_line)%lower
      
-!     print*, pack_index, package(pack_index)%last_line, package(pack_index)%freq_cmf, next_line, freq_line
+   !  print*, 'subroutine event_dist:'
+   !  print*, pack_index, package(pack_index)%last_line, package(pack_index)%freq_cmf, next_line, freq_line
 
      IF (package(pack_index)%freq_cmf .GT. freq_line) THEN
         ! Calculate distance the photon needs to travel to come to
@@ -74,7 +78,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
         ! homologous expansion
         ! This is case when we assume that he have only hydrogen 
         l_dist = light_speed * (R_inf/V_inf) * ((package(pack_index)%freq_cmf - freq_line)/package(pack_index)%freq_rf)
-!        print*, 'AAAAA'
+        !print*, 'AAAAA'
         ! Calculate optical depth in the next line (Sobolev, dv/dr dependent)
         ! and continuum optical depth accumulated up to the line
         !CALL velo(pack_index,vel_vec)

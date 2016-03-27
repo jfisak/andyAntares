@@ -18,6 +18,7 @@ SUBROUTINE do_rpackage_event(pack_index, event)
      ! case, i.e. we immediately re-emit the package isotropically in
      ! the cmf and conserve the cmf frequency print*,
      ! freq_line,package(pack_index)%freq_cmf
+     print*, 'package: ', pack_index, 'line interaction...'
      CALL emit_rpackage(pack_index)
   ELSE IF (event .EQ. rpkt_eventtype_continuum) THEN
      ! In this case the package undergoes a continuum event. In the
@@ -36,6 +37,7 @@ SUBROUTINE do_rpackage_event(pack_index, event)
      ! As an easy next step make sure that a proper e/s opacity is
      ! calcualted, than the following lines should work and give
      ! isotropic re-emission in the cmf
+     print*, 'package: ', pack_index, 'continuum interaction...'
      CALL emit_rpackage(pack_index)
   ELSE
      STOP 'ERROR in do_rpackage event'

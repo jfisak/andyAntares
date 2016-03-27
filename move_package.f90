@@ -15,11 +15,11 @@ SUBROUTINE move_package(pack_index, dist)
 
   IF (debug .EQ. 2) THEN 
      print*, package(pack_index)%pos, pack_index, dist
-     nc=package(pack_index)%cell_numb
-     print*, nc, cell(nc)%indexc, cell(nc)%corner, cell(nc)%corner+cell_width
-     print*, FLOOR(package(pack_index)%pos(1)/cell_width + nx_cell/2) + 1
-     print*, FLOOR(package(pack_index)%pos(2)/cell_width + ny_cell/2) + 1
-     print*, FLOOR(package(pack_index)%pos(3)/cell_width + nz_cell/2) + 1
+   ! nc=package(pack_index)%cell_numb
+   ! print*, nc, cell(nc)%indexc, cell(nc)%corner, cell(nc)%corner+cell_width
+   ! print*, FLOOR(package(pack_index)%pos(1)/cell_width + nx_cell/2) + 1
+   ! print*, FLOOR(package(pack_index)%pos(2)/cell_width + ny_cell/2) + 1
+   ! print*, FLOOR(package(pack_index)%pos(3)/cell_width + nz_cell/2) + 1
   END IF
 
   ! Calculate the position of package
@@ -39,7 +39,9 @@ SUBROUTINE move_package(pack_index, dist)
   CALL doppler_factor(pack_index, D)
   package(pack_index)%freq_cmf = package(pack_index)%freq_rf * D
   package(pack_index)%e_cmf = package(pack_index)%e_rf * D
-   
+!  print*, 'frequency in frame: ', package(pack_index)%freq_rf, &
+!        'frequency in CMF: ', package(pack_index)%freq_cmf
+  IF (package(pack_index)%freq_cmf < 0) print*, 'FREQUENCY IS LOWER THAN ZERO!!!'
   IF (debug .EQ. 1) THEN 
      print*, 'after move (pos)', package(pack_index)%pos
   END IF

@@ -25,6 +25,7 @@
   ! Size of the grid cells in x,y, and z direction (now they are with
   ! the same size i.e. regular gred)
   cell_width = 2.D0 * xmax / nx_cell
+  print*, 'parameters of grid: '
   print*, xmax, R_inf, cell_width
   print*, xmax/R_star, R_inf/R_star, cell_width/R_star
   print*, (-xmax + nx_cell*cell_width)/R_star

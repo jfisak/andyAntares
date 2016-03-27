@@ -12,6 +12,7 @@
   DOUBLE PRECISION                          :: delta_r, delta, delta2, tot_nd, tot_md
   DOUBLE PRECISION                          :: r, velo, dens, temp, junk
   DOUBLE PRECISION, DIMENSION(n_elements)   :: massfrac
+  CHARACTER(20)                             :: modelfile 
 
  SELECT CASE (inputModel)
   CASE(0)
@@ -46,7 +47,7 @@
      model_grid(I)%rwind = r  * R_star
      model_grid(I)%vel = velo * 1.D5
      model_grid(I)%rho = dens
-     model_grid(I)%T = 30000. ! should be temp 
+     model_grid(I)%T = 8000. ! should be temp 
      model_grid(I)%J = 0.D0 
      model_grid(I)%assoc_cells = 0
      !Total mass density of grid cell I
@@ -97,11 +98,14 @@
  ! 7. mass loss rate
  CASE(1)
   print*, 'we will read a model from Jiri Krticka program...'
-  OPEN(UNIT=11,status='old',FILE='47839.dat')
+  OPEN(UNIT=12,status='old',FILE='jikrmodel.dat')
+   READ(12,*) T_eff, R_star, modelfile
+  CLOSE(12)
+  OPEN(UNIT=11,status='old',FILE=modelfile)
    ! at first the number of rows calculation...
    n_modelgrid = 0
-  R_star = 9.9E0 * r_sun
-  T_eff = 37500
+  R_star = R_star * r_sun
+!  T_eff = 37500
   DO I=1,maxrows
     READ(11,*,IOSTAT=ios) junk, junk, junk, junk, junk, junk, junk
    IF (ios /= 0) EXIT
