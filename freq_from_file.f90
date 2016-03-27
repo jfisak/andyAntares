@@ -2,7 +2,7 @@
 ! using distribution from an emergent flux computed by
 ! another model of atmosphere
 ! this procedure is called if and only if incomingflux = 1
-SUBROUTINE freq_from_file(n_packs,freq,n_packet)
+SUBROUTINE freq_from_file(n_packs,freq)
 
   USE types
 
@@ -13,7 +13,7 @@ SUBROUTINE freq_from_file(n_packs,freq,n_packet)
 !  LOGICAL                       :: found, linint
   INTEGER, PARAMETER            :: maxrows = 6000000
   DOUBLE PRECISION              :: seed
-  DOUBLE PRECISION              :: freq
+  DOUBLE PRECISION, DIMENSION(n_packs) :: freq
 !  DOUBLE PRECISION              :: freq, freq_min, freq_max, flux_max
 !  DOUBLE PRECISION              :: ran_freq, ran_flux, bound_flux
   DOUBLE PRECISION              :: junk
@@ -30,7 +30,7 @@ SELECT CASE (inputflux)
  ! in this case we read input file from Jiri Kubat's model in the form
  ! row number   frequency       wavelength      flux    log flux
 CASE (1)
- IF(n_packet .EQ. 1) THEN
+ IF(ALLOCATED(incomingflux) .EQV. .FALSE.) THEN
    !print*, 'initialization of reading input flux'
    OPEN(11,status='old',FILE='emflux.dat')
    ! it is necessary to compute number of rows of the file
@@ -66,7 +66,7 @@ CASE (1)
   STOP 'ENDING PROGRAM NOW...'
 END SELECT
 
-CALL acc_rej_montecarlo(freq,n_packet)
+CALL acc_rej_montecarlo(n_packs,freq)
   if ((MODULO(n_packet,10000) .EQ. 0)) print*, 'Generating the frequency packet ', n_packet, ' ...'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! now we have the field incomingflux allocated and defined values...now we can

@@ -1,17 +1,18 @@
 ! this procedure will choose a frequency using
 ! acception/rejection method Monte Carlo
-SUBROUTINE acc_rej_montecarlo(freq,n_packet)
+SUBROUTINE acc_rej_montecarlo(n_packs,freq)
 
   USE types
 
   IMPLICIT NONE 
 
   INTEGER                       :: NR,n_packet,n_packs
-  INTEGER                       :: I,J, lw_index, lg_index
+  INTEGER                       :: I,J, K, lw_index, lg_index
   LOGICAL                       :: found, linint
   INTEGER, PARAMETER            :: maxrows = 6000000
   DOUBLE PRECISION              :: seed
-  DOUBLE PRECISION              :: freq, freq_min, freq_max, flux_max
+  DOUBLE PRECISION, DIMENSION(n_packs) :: freq
+  DOUBLE PRECISION              :: freq_min, freq_max, flux_max
   DOUBLE PRECISION              :: ran_freq, ran_flux, bound_flux
   DOUBLE PRECISION              :: junk
 !  INTEGER                       :: ios
@@ -77,6 +78,7 @@ SUBROUTINE acc_rej_montecarlo(freq,n_packet)
  flux_max = MAXVAL(incomingflux(:,2))
  !print*, 'MAXVAL? ', junk
  !print*, 'initial calculations for frequency generation: ', freq_min, freq_max, flux_max
+DO K=1,n_packs
  FOUND = .FALSE.
  DO WHILE ( FOUND .EQV. .FALSE.)
   CALL random_number(sinseed)
@@ -128,7 +130,7 @@ SUBROUTINE acc_rej_montecarlo(freq,n_packet)
    ! iii did we find the right frequency?
    !print*, 'lw_index = ', lw_index, 'ran_freq = ', ran_freq, 'ran_flux', ran_flux, ' bound_flux = ', bound_flux
    IF (ran_flux < bound_flux) THEN
-    freq = ran_freq
+    freq(K) = ran_freq
     FOUND = .TRUE.
    END IF
   END IF
@@ -137,8 +139,9 @@ SUBROUTINE acc_rej_montecarlo(freq,n_packet)
   ELSE
   ! print*, 'we did not find it ... trying again...'
   END IF
-!  if ((MODULO(n_packet,10000) .EQ. 0) .AND. (FOUND .EQV. .TRUE.)) print*, 'Generating the frequency packet ', n_packet, ' ...'
+  if ((MODULO(K,10000) .EQ. 0) .AND. (FOUND .EQV. .TRUE.)) print*, 'Generating the frequency packet ', K, ' ...'
  END DO
+END DO
  ! after the last photon is calculated we erase the field incomingflux'
 ! IF(n_packet .EQ. n_packs) DEALLOCATE(incomingflux)
 END SUBROUTINE acc_rej_montecarlo
