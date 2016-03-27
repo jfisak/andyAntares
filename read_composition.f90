@@ -12,7 +12,7 @@ SUBROUTINE read_composition()
   IMPLICIT NONE    
 
   INTEGER            :: I, J, flag
-  INTEGER            :: element_index, Z, lowerion, upperion, levels_type
+  INTEGER            :: element_index, Z, lowerion, upperion, levels_type, transition_type
   INTEGER            :: current_element,current_ion, nions,ios, NR
   INTEGER, PARAMETER :: maxelements = 180
   CHARACTER (20)     :: filename
@@ -84,19 +84,48 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
   END IF
   IF ( INDEX(line, '*') /= 0) CYCLE
   READ(line,*) current_element, lowerion, upperion, levels_type, filename
-  ! the most important is to read the filename
+  ! the most important is to read the file
   CALL read_atomic_data2(current_element,lowerion,upperion,levels_type,filename)
  END DO
-
-
-
-
-
-
-
-
-
-
+ ! now reading atomic transitions 
+ ntransitions = 0
+ ! now we have to compute number of possible transitions
+ ! as always we skip over rows starting with '*'
+ DO 
+    READ(7,'(A)',iostat=ios) line
+  IF (ios /= 0) EXIT
+  IF ( INDEX(line, '*') /= 0) CYCLE
+  READ(line,*) current_element, lowerion, upperion, transition_type, filename
+  ! the most important is to read the file
+  CALL read_transitions2(current_element,lowerion,upperion,transition_type,filename)
+ END DO
+ ! now we can allocate ray linelist
+ ALLOCATE(linelist(ntransitions))
+  print*, 'ntransitions = ', ntransitions
+  ! temporary characteristics of number of saved lines
+  !linelist(ntransitions)%indexe = 0
+  ntransitions = 0
+  print*, 'ntransitions = ', ntransitions
+  IF(ALLOCATED(linelist)) print*, 'linelist was allocated succefully...'
+  ! this is used for information about fullfiled number of elements in array linelist
+  REWIND(7)
+  ! we have to find a flag **transitions**
+ DO
+    READ(7,'(A)',iostat=ios) line
+    IF ( TRIM(line) == '**transitions**' ) EXIT
+ END DO
+ ! now we can read informations if the files
+ DO 
+  READ(7,'(A)',iostat=ios) line
+  IF (ios /= 0) EXIT
+  IF ( INDEX(line, '*') /= 0) CYCLE
+  READ(line,*) current_element, lowerion, upperion, transition_type, filename
+  CALL read_transitions2(current_element,lowerion,upperion,transition_type,filename)
+ END DO
+ ! sorting the linelist ray 
+ CALL sorting_new(ntransitions, linelist)
+  print*, 'ntransitions = ', ntransitions
+ 
  !!! Only for testing
  PRINT*, 'testing'
  DO I = 1, n_elements
