@@ -14,8 +14,9 @@ SUBROUTINE read_atomic_data2(element,lowerion,upperion,levels_type,filename)
  ! reading from file variables
  INTEGER                        :: ios, read_levels
  INTEGER                        :: current_element, current_ion, ions
- INTEGER                        :: n_levels, junk, l_numb
+ INTEGER                        :: n_levels, junk, l_numb, l_index
  CHARACTER (LEN=200)            :: line
+ CHARACTER (LEN=3)              :: iconf
  DOUBLE PRECISION               :: i_pot, l_energy, ionoffset, ionstage, s_weight
  ! basic setting of variables
  ionoffset = 0
@@ -23,8 +24,12 @@ SUBROUTINE read_atomic_data2(element,lowerion,upperion,levels_type,filename)
 OPEN(8,status='old',FILE=filename)
  ! now we will choose the reading file using the given levels type
  SELECT CASE(levels_type)
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! standard atomic data (26.03.2016)
  ! **0** the first input of the atomic data for the 3D wind code
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  CASE(0)
   DO
    ! reading from the file filename
@@ -63,7 +68,71 @@ OPEN(8,status='old',FILE=filename)
     ! are every single ions already read?
     IF (ions == (upperion - lowerion + 1)) EXIT
   END DO
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ ! data from the Opacity project
+ ! we expect data in this form
+ ! **iont**
+ !      Z       iont    n_levs  ion_energy
+ ! **levels**
+ !       i      iLV     iCONF   E(RYD)  gi
+ ! **2**
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ CASE(2)
+   ! reading from the file filename
+   ! we ignore rows starting *
+   ! at first we want to find label **iont**
+  DO
+   READ(8,'(A)',IOSTAT=ios) line
+   IF (ios /= 0) STOP 'END OF FILE, LABEL WAS NOT FOUND'
+   IF(TRIM(line) == '**iont**') EXIT
+  END DO
+  ! now will read basic informations about elements iont
+  DO
+   READ(8,'(A)',IOSTAT=ios) line
+   IF (ios /= 0) STOP 'END OF FILE, ION INFORMATIONS WERE NOT FOUND'
+   IF( INDEX(line, '*') /= 0) CYCLE
+   READ(line,*) current_element, current_ion, n_levels, i_pot
+   EXIT
+  END DO
+  ! do we read the right file?
+  IF((current_element /= element).OR. (current_ion < lowerion) .OR. (current_ion > upperion)) STOP 'WRONG ATOMIC DATA...'
+   ! computation and allocation of important variables
+   ionstage = elements(current_element)%ions(current_ion)%ion_stage
+   elements(current_element)%ions(current_ion)%ion_potential = i_pot * e_v
+   elements(current_element)%ions(current_ion)%nlevels = n_levels
+   ALLOCATE(elements(current_element)%ions(current_ion)%levels(n_levels))
+  REWIND(8)
+  DO
+   READ(8,'(A)',IOSTAT=ios) line
+   IF (ios /= 0) STOP 'END OF FILE, LABEL WAS NOT FOUND'
+   IF(TRIM(line) == '**levels**') EXIT
+  END DO
+  J=0
+  DO
+   READ(8,'(A)',IOSTAT=ios) line
+   IF (ios /= 0) EXIT
+   IF ((line == '**iont**').OR.(line == '**levels**')) THEN
+    print*, 'another atomic data were found in the file ', filename
+    print*, 'if these data has not been read yet, they will be unread all times'
+    EXIT
+   END IF
+   IF( INDEX(line, '*') /= 0) CYCLE
+    READ(8,*,IOSTAT=read_levels) l_index, l_numb, iconf, l_energy, s_weight
+    J = J + 1
+    l_energy = -13.5979996 * l_energy
+    elements(current_element)%ions(current_ion)%levels(J)%exci_energy = l_energy * e_v + ionoffset
+    elements(current_element)%ions(current_ion)%levels(J)%stat_waight = s_weight
+    elements(current_element)%ions(current_ion)%levels(J)%elconf = iconf
+    elements(current_element)%ions(current_ion)%levels(J)%l_index = l_index
+  END DO
+   ! if everything is OK, we will read from the variable line variables
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! **DEFAULT** default case
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  CASE DEFAULT
   print*, 'choice has not been found'
   print*, 'reading only hydrogen data inluded in the code...'
@@ -71,4 +140,3 @@ OPEN(8,status='old',FILE=filename)
  END SELECT
 CLOSE(8)
 END SUBROUTINE read_atomic_data2
-
