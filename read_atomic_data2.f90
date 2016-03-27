@@ -31,11 +31,11 @@ OPEN(8,status='old',FILE=filename)
    ! we ignore rows starting *
    ! firstly we read the whole line
    READ(8,'(A)',IOSTAT=ios) line
-   IF( INDEX(line, '*') /= 0) CYCLE
    IF (ios /= 0) THEN
     print*, 'the subroutine read_atomic data:'
     STOP 'ERROR: NO VALID ATOMIC DATA...'
    END IF
+   IF( INDEX(line, '*') /= 0) CYCLE
    ! if everything is OK, we will read from the variable line variables
    READ(line,*) current_element, current_ion, n_levels, i_pot
    print*, 'current element: ', current_element, 'current_ion: ', current_ion, &
@@ -50,7 +50,7 @@ OPEN(8,status='old',FILE=filename)
    ! now we will read every single atomic levels
    DO J=1, n_levels
     READ(8,*,IOSTAT=read_levels) l_numb, l_energy, s_weight, junk
-    ! did we red anything?
+    ! did we read anything?
     IF(read_levels /= 0) STOP 'WRONG NUMBER OF LEVELS IN THE FILE...'
     print*, 'from the level file: ', l_numb, l_energy, s_weight, junk
     ! increase the level energy l_e (multiply with e_v) by ionoffset i. e.
