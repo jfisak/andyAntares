@@ -8,5 +8,5 @@ xmax = 16.
 ymax = 16.
 zmax = 16.
 *random_seed = 1
-inputflux = 1
+inputflux = 0
 inputmodel = 0

@@ -120,6 +120,7 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
   IF (ios /= 0) EXIT
   IF ( INDEX(line, '*') /= 0) CYCLE
   READ(line,*) current_element, lowerion, upperion, transition_type, filename
+  print*, 'calling subroutine read_transitions2...'
   CALL read_transitions2(current_element,lowerion,upperion,transition_type,filename)
  END DO
  ! sorting the linelist ray 
