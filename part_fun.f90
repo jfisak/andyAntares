@@ -10,7 +10,7 @@ SUBROUTINE part_fun(indexe, indexi, temp, U)
   DOUBLE PRECISION    :: U, temp, g_level, e_level
  
   
-!  print*, 'partition func. called for:', indexe, indexi, temp
+  print*, 'partition func. called for:', indexe, indexi, temp
 
   U = elements(indexe)%ions(indexi)%levels(1)%stat_waight
   e_gl = elements(indexe)%ions(indexi)%levels(1)%exci_energy

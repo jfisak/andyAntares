@@ -106,8 +106,9 @@ CASE(0)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  CASE(2)
-  ! only if the variable linelis is allocated
+  ! only if the variable linelist is allocated
   IF(ALLOCATED(linelist)) THEN
+   REWIND(9)
    ! do 0
    DO 
     ! do 1
@@ -115,16 +116,23 @@ CASE(0)
     DO
      READ(9,'(A)',IOSTAT=ios) line
      print*, line
-     IF (ios /= 0) EXIT
+     IF (ios /= 0) print*, 'a flag **iont** was not found'
      IF(TRIM(line) == '**iont**') EXIT
     ! end do 1
     END DO
     ! do 5
+    ! read the file and given atomic transitions
     DO
-      READ(9,'(A)',IOSTAT=ios) line
-      IF (ios /= 0) EXIT
-      IF ( INDEX(line, '*') /= 0) CYCLE
+     ! read basic information about forthcoming data
+     READ(9,'(A)',IOSTAT=ios) line
+     print*, line
+     IF (ios /= 0) STOP 'end of file'
+     IF ( INDEX(line, '*') /= 0) CYCLE
       READ(line,*) current_element, current_ion, n_transitions
+      print*, 'current_element = ', current_element, 'current_ion = ', current_ion, 'n_transitions = ', n_transitions
+      EXIT
+    ! end do 5
+    END DO   
       IF(n_transitions == 0) CYCLE
       ! do we have the right file?
       IF((current_element /= element) .OR. (current_ion < lowerion) &
@@ -137,6 +145,7 @@ CASE(0)
      ! end do 2
      END DO
      ! do 3
+     ! reading transition data
      DO
       READ(9,'(A)',IOSTAT=ios) line
       IF (ios /= 0) EXIT
@@ -163,8 +172,6 @@ CASE(0)
      IF(ios /= 0) EXIT
      n_ions = n_ions + 1
      IF(n_ions == (upperion - lowerion + 1)) EXIT
-    ! end do 5
-    END DO   
     ! end do 0
     END DO
   ! if we do not have the ray linelist allocated, we have
