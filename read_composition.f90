@@ -50,7 +50,7 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
     READ(7,'(A)',iostat=ios) line
    IF (ios /= 0) EXIT
     IF ( TRIM(line) == '**levels**' ) THEN
-       print*, 'we have found the string **levels**...'
+       print*, 'read_composition: we have found the string **levels**...'
        EXIT
     END IF
     IF ( INDEX(line, '*') /= 0) CYCLE
@@ -67,6 +67,7 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
     print*, 'current ion =', current_ion  
     ! Allocate the memory to the elements(I)%ions(nions)
     ALLOCATE (elements(I)%ions(nions))
+    if(ALLOCATED(elements(I)%ions)) print*, 'allocated: elements(', I, ')%ions...', nions
     ! Loop over all ions of given chem.element
     DO J = lowerion, upperion
        elements(I)%ions(J)%ion_stage = current_ion

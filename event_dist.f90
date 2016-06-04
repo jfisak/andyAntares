@@ -108,6 +108,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
 !        SQRT(package(pack_index)%pos(1)**2 + package(pack_index)%pos(2)**2 + package(pack_index)%pos(3)**2)/R_star
 
         !This is not safe yet: possible mismatch of atomic number and element index!!!
+        print*, 'current_mgi = ', current_mgi, ' indexe = ', indexe, ' indexi = ', indexi
         graund_level_pop = model_grid(current_mgi)%grid_comp(indexe)%grid_ion(indexi)%gl_pop
 !        print*, 'BBBBB'
         g_gl = elements(indexe)%ions(indexi)%levels(1)%stat_waight

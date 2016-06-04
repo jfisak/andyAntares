@@ -80,17 +80,22 @@ OPEN(8,status='old',FILE=filename)
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  CASE(2)
-   ! reading from the file filename
-   ! we ignore rows starting *
-   ! at first we want to find label **iont**
+ ! loop over different data sets
+ ! do 0
+ DO
+  ! reading from the file filename
+  ! we ignore rows starting *
+  ! at first we want to find label **iont**
   DO
    READ(8,'(A)',IOSTAT=ios) line
-   IF (ios /= 0) STOP 'END OF FILE, LABEL WAS NOT FOUND'
+   print*, line
+   IF (ios /= 0) STOP 'END OF FILE, FLAG **ions** WAS NOT FOUND'
    IF(TRIM(line) == '**iont**') EXIT
   END DO
   ! now will read basic informations about elements iont
   DO
    READ(8,'(A)',IOSTAT=ios) line
+   print*, line
    IF (ios /= 0) STOP 'END OF FILE, ION INFORMATIONS WERE NOT FOUND'
    IF( INDEX(line, '*') /= 0) CYCLE
    READ(line,*) current_element, current_ion, n_levels, i_pot
@@ -103,30 +108,37 @@ OPEN(8,status='old',FILE=filename)
    elements(current_element)%ions(current_ion)%ion_potential = i_pot * e_v
    elements(current_element)%ions(current_ion)%nlevels = n_levels
    ALLOCATE(elements(current_element)%ions(current_ion)%levels(n_levels))
-  REWIND(8)
+  ! looking for a label **levels**
   DO
    READ(8,'(A)',IOSTAT=ios) line
-   IF (ios /= 0) STOP 'END OF FILE, LABEL WAS NOT FOUND'
+   print*, line
+   IF (ios /= 0) STOP 'END OF FILE, FLAG **levels** WAS NOT FOUND'
    IF(TRIM(line) == '**levels**') EXIT
+   print*, 'flag **levels** was not found....'
   END DO
   J=0
+  ! reading the atomic levels
   DO
    READ(8,'(A)',IOSTAT=ios) line
+   print*, line
    IF (ios /= 0) EXIT
-   IF ((line == '**iont**').OR.(line == '**levels**')) THEN
-    print*, 'another atomic data were found in the file ', filename
-    print*, 'if these data has not been read yet, they will be unread all times'
-    EXIT
-   END IF
    IF( INDEX(line, '*') /= 0) CYCLE
-    READ(8,*,IOSTAT=read_levels) l_index, l_numb, iconf, l_energy, s_weight
+   ! READ(8,*,IOSTAT=read_levels) l_index, l_numb, iconf, l_energy, s_weight
+    READ(line,*,IOSTAT=read_levels) l_index, iconf, l_energy, s_weight
     J = J + 1
     l_energy = -13.5979996 * l_energy
     elements(current_element)%ions(current_ion)%levels(J)%exci_energy = l_energy * e_v + ionoffset
     elements(current_element)%ions(current_ion)%levels(J)%stat_waight = s_weight
     elements(current_element)%ions(current_ion)%levels(J)%elconf = iconf
     elements(current_element)%ions(current_ion)%levels(J)%l_index = l_index
+    IF(J == elements(current_element)%ions(current_ion)%nlevels) THEN
+     ions = ions + 1
+     EXIT
+    END IF
   END DO
+    IF (ions == (upperion - lowerion + 1)) EXIT
+ ! end do 0
+ END DO
    ! if everything is OK, we will read from the variable line variables
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

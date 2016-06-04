@@ -10,7 +10,7 @@ SUBROUTINE part_fun(indexe, indexi, temp, U)
   DOUBLE PRECISION    :: U, temp, g_level, e_level
  
   
-  print*, 'partition func. called for:', indexe, indexi, temp
+!  print*, 'partition func. called for:', indexe, indexi, temp
 
   U = elements(indexe)%ions(indexi)%levels(1)%stat_waight
   e_gl = elements(indexe)%ions(indexi)%levels(1)%exci_energy
@@ -25,6 +25,7 @@ SUBROUTINE part_fun(indexe, indexi, temp, U)
      ! Excitation energy of the excited level
      e_level = elements(indexe)%ions(indexi)%levels(indexl)%exci_energy
      ! Partition function
+     IF(BOLK == 0 .OR. temp == 0 ) print*, "something = 0..."
      U = U + g_level * EXP(-(e_level - e_gl) / BOLK / temp)  
 !     print*, '   part.func. calculation:', indexl, g_level, e_level/e_v
   END DO

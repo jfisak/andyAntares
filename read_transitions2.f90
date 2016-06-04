@@ -16,7 +16,7 @@ SUBROUTINE read_transitions2(element, lowerion, upperion, transition_type, filen
  ! reading from the file
  CHARACTER (LEN=200)            :: line
  INTEGER                        :: ios, linereading, n_levels
- INTEGER                        :: n_transitions, n_line
+ INTEGER                        :: n_transitions, curr_n_tran, n_line
  INTEGER                        :: current_element, current_ion
  INTEGER                        :: kindex, low_level, up_level
  CHARACTER (LEN=4)              :: low_conf, up_conf
@@ -108,8 +108,10 @@ CASE(0)
  CASE(2)
   ! only if the variable linelist is allocated
   IF(ALLOCATED(linelist)) THEN
+   curr_n_tran = 0
    REWIND(9)
    ! do 0
+   ! reading the whole file in the following order
    DO 
     ! do 1
     ! looking for the flag **iont**
@@ -128,12 +130,15 @@ CASE(0)
      print*, line
      IF (ios /= 0) STOP 'end of file'
      IF ( INDEX(line, '*') /= 0) CYCLE
-      READ(line,*) current_element, current_ion, n_transitions
-      print*, 'current_element = ', current_element, 'current_ion = ', current_ion, 'n_transitions = ', n_transitions
-      EXIT
+     READ(line,*) current_element, current_ion, n_transitions
+     print*, 'current_element = ', current_element, 'current_ion = ', current_ion, 'n_transitions = ', n_transitions
+     curr_n_tran = curr_n_tran + n_transitions
+     ! we want to read one row only
+     EXIT
     ! end do 5
     END DO   
-      IF(n_transitions == 0) CYCLE
+      print*, 'n_transitions = ', n_transitions
+      IF(n_transitions == 0) EXIT
       ! do we have the right file?
       IF((current_element /= element) .OR. (current_ion < lowerion) &
         .OR. (current_ion > upperion)) STOP 'WRONG ATOMIC TRANSITIONS...'
@@ -144,10 +149,12 @@ CASE(0)
       IF(TRIM(line) == '**lines**') EXIT
      ! end do 2
      END DO
+     IF (ios /= 0) EXIT
      ! do 3
      ! reading transition data
      DO
       READ(9,'(A)',IOSTAT=ios) line
+      print*, line
       IF (ios /= 0) EXIT
       IF ( INDEX(line, '*') /= 0) CYCLE
       READ(line,*) kindex, low_level, up_level, low_conf, up_conf, col_str, A, l_freq
@@ -164,9 +171,12 @@ CASE(0)
       ! end do 4
       END DO
       ! 
+      linelist(n_line)%indexe = current_element
+      linelist(n_line)%indexi = current_ion
       linelist(n_line)%freq = 1.E-10*light_speed/l_freq
       linelist(n_line)%f_ul = col_str
       linelist(n_line)%A_ul = A
+      if(n_line == curr_n_tran) EXIT
      ! end do 3
      END DO
      IF(ios /= 0) EXIT
@@ -211,6 +221,7 @@ CASE(0)
   STOP
  END SELECT
 CLOSE(9) 
+
 END SUBROUTINE read_transitions2
 
 
