@@ -114,8 +114,8 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
         g_gl = elements(indexe)%ions(indexi)%levels(1)%stat_waight
         g_ll = elements(indexe)%ions(indexi)%levels(lower_level)%stat_waight
         e_exc = elements(indexe)%ions(indexi)%levels(lower_level)%exci_energy - elements(indexe)%ions(indexi)%levels(1)%exci_energy
-        print*, 'e_exc1 = ', elements(indexe)%ions(indexi)%levels(lower_level)%exci_energy, 'e_exc2 = ', &
-        elements(indexe)%ions(indexi)%levels(1)%exci_energy
+        !print*, 'e_exc1 = ', elements(indexe)%ions(indexi)%levels(lower_level)%exci_energy, 'e_exc2 = ', &
+        !elements(indexe)%ions(indexi)%levels(1)%exci_energy
         pop_number = graund_level_pop * g_ll / g_gl * exp(e_exc / BOLK / model_grid(current_mgi)%T )
         !Needs proper treatment of empty cells
         !IF (vec_length(package(dummypackage)%pos) .GT. R_inf) pop_number = 0

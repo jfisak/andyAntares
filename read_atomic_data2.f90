@@ -126,8 +126,8 @@ OPEN(8,status='old',FILE=filename)
    ! READ(8,*,IOSTAT=read_levels) l_index, l_numb, iconf, l_energy, s_weight
     READ(line,*,IOSTAT=read_levels) l_index, iconf, l_energy, s_weight
     J = J + 1
-    l_energy = -13.5979996 * l_energy
-    elements(current_element)%ions(current_ion)%levels(J)%exci_energy = l_energy * e_v + ionoffset
+    !l_energy = 13.5979996 * l_energy
+    elements(current_element)%ions(current_ion)%levels(J)%exci_energy = e_v + l_energy * e_v + ionoffset
     elements(current_element)%ions(current_ion)%levels(J)%stat_waight = s_weight
     elements(current_element)%ions(current_ion)%levels(J)%elconf = iconf
     elements(current_element)%ions(current_ion)%levels(J)%l_index = l_index
