@@ -37,7 +37,7 @@ SUBROUTINE do_rpackage_event(pack_index, event)
      ! As an easy next step make sure that a proper e/s opacity is
      ! calcualted, than the following lines should work and give
      ! isotropic re-emission in the cmf
-     print*, 'package: ', pack_index, 'continuum interaction...'
+     !print*, 'package: ', pack_index, 'continuum interaction...'
      CALL emit_rpackage(pack_index)
   ELSE
      STOP 'ERROR in do_rpackage event'

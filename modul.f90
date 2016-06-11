@@ -73,6 +73,11 @@ MODULE types
      TYPE(element_ions), ALLOCATABLE :: ions(:)
   END TYPE atom_elements
 
+  TYPE virt_particle
+     DOUBLE PRECISION ,DIMENSION(3)  :: pos
+     DOUBLE PRECISION                :: weight
+  END TYPE virt_particle
+
 ! Global variables
   DOUBLE PRECISION                   :: xmax, ymax, zmax, cell_width
   DOUBLE PRECISION                   :: R_star, R_inf, V_inf, M_dot, T_eff
@@ -86,12 +91,12 @@ MODULE types
 
   TYPE(line_list), ALLOCATABLE       :: linelist(:)
   TYPE(atom_elements), ALLOCATABLE   :: elements(:)
+  TYPE(virt_particle), ALLOCATABLE   :: virtual_particle(:)
 
   INTEGER                            :: idum
   INTEGER                            :: debug
 ! flux from existing input file
   INTEGER                            :: inputflux, inputmodel
-
 !#ifdef MPI_ON
 !  INTEGER                            :: n_tasks, my_rank
 !#endif
@@ -133,7 +138,7 @@ MODULE types
                                        h=6.626176D-27,light_speed=2.99792458D+10,e_charge=4.803242D-10,ftran=0.6407D+00, &       
                                        nio=4.5655967D+14,const=1.D-04,vel_ter=920.0D+05,r_sun=695990.D+05,beta=2.0D+00,  &   
                                        BOLK=1.380662D-16,m_sun=1.989D+33, sigma =5.6704D-05 !ergcm^(-2)s(-1)K(-4) !D. H. Cohen et al.2012
-  DOUBLE PRECISION, PARAMETER        :: parsec=30.857D17, e_v = 1.60217646D-12, saha_const=2.0706839D-16
+  DOUBLE PRECISION, PARAMETER        :: parsec=30.857D17, e_v = 1.60217646D-12, saha_const=2.0706839D-16, b = 1.D0
 
 !! Parameters for testing
   DOUBLE PRECISION                   :: freq_line

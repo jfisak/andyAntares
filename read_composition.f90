@@ -68,7 +68,7 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
     ! Allocate the memory to the elements(I)%ions(nions)
     ALLOCATE (elements(I)%ions(nions))
     if(ALLOCATED(elements(I)%ions)) print*, 'allocated: elements(', I, ')%ions...', nions
-    ! Loop over all ions of given chem.element
+    ! Loop over all ions of given chem. element
     DO J = lowerion, upperion
        elements(I)%ions(J)%ion_stage = current_ion
        current_ion = lowerion + 1
@@ -137,6 +137,11 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
     upperion = elements(I)%ions(nions)%ion_stage
     PRINT*, element_index, Z, lowerion, upperion
  END DO
+! OPEN(20,status='new',FILE='oscStr.dat')
+!  DO I = 1, ntransitions
+!   write(20,*) linelist(I)%freq, linelist(I)%f_ul
+!  END DO
+! CLOSE(20)
 
 END SUBROUTINE read_composition
 

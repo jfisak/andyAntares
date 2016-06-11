@@ -67,7 +67,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
      lower_level = linelist(next_line)%lower
      
    !  print*, 'subroutine event_dist:'
-   !  print*, pack_index, package(pack_index)%last_line, package(pack_index)%freq_cmf, next_line, freq_line
+     IF(pack_index.EQ.1) print*, pack_index, package(pack_index)%last_line, package(pack_index)%freq_cmf, next_line, freq_line
 
      IF (package(pack_index)%freq_cmf .GT. freq_line) THEN
         ! Calculate distance the photon needs to travel to come to
@@ -87,7 +87,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
         !tau_cont = kappa_cont * l_dist
 
         ! Assine package(pack_index) to package(dummypackage) 
-	! Use dummypackage to move to the l_dist only to check whether or which kind of interaction will happen at l_dist 
+        ! Use dummypackage to move to the l_dist only to check whether or which kind of interaction will happen at l_dist 
         ! We move only dummypackage instead of package(pack_index) only to check whether or which kind of interaction will happen at l_dist 
         ! 
         ! Calculate optical depth in the next line (Sobolev, dv/dr dependent)
@@ -108,12 +108,14 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
 !        SQRT(package(pack_index)%pos(1)**2 + package(pack_index)%pos(2)**2 + package(pack_index)%pos(3)**2)/R_star
 
         !This is not safe yet: possible mismatch of atomic number and element index!!!
-        print*, 'current_mgi = ', current_mgi, ' indexe = ', indexe, ' indexi = ', indexi
+!        print*, 'current_mgi = ', current_mgi, ' indexe = ', indexe, ' indexi = ', indexi
         graund_level_pop = model_grid(current_mgi)%grid_comp(indexe)%grid_ion(indexi)%gl_pop
 !        print*, 'BBBBB'
         g_gl = elements(indexe)%ions(indexi)%levels(1)%stat_waight
         g_ll = elements(indexe)%ions(indexi)%levels(lower_level)%stat_waight
         e_exc = elements(indexe)%ions(indexi)%levels(lower_level)%exci_energy - elements(indexe)%ions(indexi)%levels(1)%exci_energy
+        print*, 'e_exc1 = ', elements(indexe)%ions(indexi)%levels(lower_level)%exci_energy, 'e_exc2 = ', &
+        elements(indexe)%ions(indexi)%levels(1)%exci_energy
         pop_number = graund_level_pop * g_ll / g_gl * exp(e_exc / BOLK / model_grid(current_mgi)%T )
         !Needs proper treatment of empty cells
         !IF (vec_length(package(dummypackage)%pos) .GT. R_inf) pop_number = 0

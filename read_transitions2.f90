@@ -73,7 +73,7 @@ CASE(0)
                        (linelist(n_line)%A_ul / linelist(n_line)%freq ** 2)
     !print*, n_line, ': ', 'indexe: ', linelist(n_line)%indexe, linelist(n_line)%indexi, linelist(n_line)%lower, &
     !                   linelist(n_line)%upper, 'f = ', linelist(n_line)%freq, linelist(n_line)%A_ul, linelist(n_line)%f_ul
-    print*, 'f = ', linelist(n_line)%freq
+      write(20,*) linelist(n_line)%freq, linelist(n_line)%f_ul
    END DO
    n_ions = n_ions + 1
    IF(n_ions == (upperion - lowerion + 1)) EXIT
@@ -175,11 +175,13 @@ CASE(0)
       linelist(n_line)%indexe = current_element
       linelist(n_line)%indexi = current_ion
       linelist(n_line)%freq = 1.E+8*light_speed/l_freq
-      linelist(n_line)%f_ul = col_str
+    !  linelist(n_line)%f_ul = col_str
       linelist(n_line)%A_ul = A
+      linelist(n_line)%f_ul = 1E-3 * oconstant / elements(current_element)%ions(current_ion)%levels(low_level)%stat_waight *&
+                                (linelist(n_line)%A_ul / linelist(n_line)%freq ** 2)
 !    print*, n_line, ': ', 'indexe: ', linelist(n_line)%indexe, linelist(n_line)%indexi, linelist(n_line)%lower, &
 !                       linelist(n_line)%upper, 'f = ', linelist(n_line)%freq, linelist(n_line)%A_ul, linelist(n_line)%f_ul
-    print*, 'f = ', linelist(n_line)%freq
+      write(20,*) linelist(n_line)%freq, linelist(n_line)%f_ul
       if(n_line == curr_n_tran) EXIT
      ! end do 3
      END DO
