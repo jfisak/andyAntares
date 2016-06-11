@@ -11,59 +11,137 @@ SUBROUTINE read_composition()
 
   IMPLICIT NONE    
 
-  INTEGER            :: I, J 
-  INTEGER            :: element_index, Z, lowerion, upperion
-  INTEGER            :: current_ion, nions
-  CHARACTER (20)     :: elementfile, transfile
+  INTEGER            :: I, J, flag
+  INTEGER            :: element_index, Z, lowerion, upperion, levels_type, transition_type
+  INTEGER            :: current_element,current_ion, nions,ios, NR
+  INTEGER, PARAMETER :: maxelements = 180
+  CHARACTER (20)     :: filename
+  CHARACTER (100)     :: line
+  CHARACTER (1)      :: junk
   DOUBLE PRECISION   :: mass
 
-  OPEN (UNIT=7, FILE='compose_adata.dat')
+OPEN (UNIT=7, FILE='compose_adata.dat')
+ ! computes number of lines in the input file
+ ! number of rows is equal to 0
+ ! for this time it will calculate number of rows
+ n_elements = 0
+ DO I=1,maxelements
+  READ(7,*,IOSTAT=ios) line
+   IF (ios /= 0) EXIT
+   IF (I == maxelements) THEN
+    print*, 'Subroutine read_composition'
+    print*, 'Error: Maximum number of records exceeded...'
+    print*, 'Exiting program now...'
+    STOP
+   END IF
+   IF ( line == '**levels**' ) EXIT
+   IF ( INDEX(line, '*') /= 0) CYCLE
+  n_elements = n_elements + 1
+ END DO
+ ! Allocate the memory to the elements(n_elements)
+ print*, 'number of elements: ', n_elements
+ ALLOCATE (elements(n_elements)) 
 
-  ! From compose_adata.dat read only first line which corespons 
-  ! to the number of the chemical elements ( n_elements) involved 
-  ! in the calculation
-  ! TOTO BYCH RAD UPRAVIL, NEMUSI BYT NEJVHODNEJSI
-  READ(7,*) n_elements
-  PRINT*, 'read in number of elements =', n_elements
-
-  ! Allocate the memory to the elements(n_elements)
-  ALLOCATE (elements(n_elements)) 
-
-  ! Loop over all chem.elements involved i.e. read all other lines in the compose_adata.dat
-  ! and assine these values to the elements(I)%... and elements(I)%ions(J)%...
-  DO I = 1, n_elements
-     READ(7,*) element_index, Z, lowerion, upperion, mass, elementfile, transfile
-     PRINT*, element_index, Z, lowerion, upperion, mass
-     elements(I)%atom_number = Z
-     elements(I)%atom_mass = mass * mp_g
-     elements(I)%levelfile = elementfile
-     elements(I)%transitionfile = transfile
-     write(*,*) elementfile
-     ! Number of ions 
-     nions =  upperion - lowerion + 1
-     elements(I)%nions = nions
-     ! Assine lowerion to the current ion which we will use to caunt number of ions
-     ! This is important because we can play only with 3 and 4 ion.stage of some element
-     current_ion = lowerion
-     print*, 'current ion =', current_ion  
-     ! Allocate the memory to the elements(I)%ions(nions)
-     ALLOCATE (elements(I)%ions(nions))
-     ! Loop over all ions of given chem.element
-     DO J = 1, nions
-        elements(I)%ions(J)%ion_stage = current_ion
-        current_ion = lowerion + 1
-     END DO
-  END DO
-
-  ! Only for testing
-  PRINT*, 'testing'
-  DO I = 1, n_elements
-     element_index = I
-     Z = elements(I)%atom_number
-     lowerion = elements(I)%ions(1)%ion_stage
-     upperion = elements(I)%ions(nions)%ion_stage
-     PRINT*, element_index, Z, lowerion, upperion
-  END DO
+ REWIND(7)
+ ! Loop over all rows involved i.e. read all other lines in the compose_adata.dat
+ ! and assine these values to the elements(I)%... and elements(I)%ions(J)%...
+  I=1
+ DO 
+    READ(7,'(A)',iostat=ios) line
+   IF (ios /= 0) EXIT
+    IF ( TRIM(line) == '**levels**' ) THEN
+       print*, 'read_composition: we have found the string **levels**...'
+       EXIT
+    END IF
+    IF ( INDEX(line, '*') /= 0) CYCLE
+    READ(line,*) element_index, Z, lowerion, upperion, mass
+    PRINT*, element_index, Z, lowerion, upperion, mass
+    elements(I)%atom_number = Z
+    elements(I)%atom_mass = mass * mp_g
+    ! Number of ions 
+    nions =  upperion - lowerion + 1
+    elements(I)%nions = nions
+    ! Assine lowerion to the current ion which we will use to caunt number of ions
+    ! This is important because we can play only with 3 and 4 ion.stage of some element
+    current_ion = lowerion
+    print*, 'current ion =', current_ion  
+    ! Allocate the memory to the elements(I)%ions(nions)
+    ALLOCATE (elements(I)%ions(nions))
+    if(ALLOCATED(elements(I)%ions)) print*, 'allocated: elements(', I, ')%ions...', nions
+    ! Loop over all ions of given chem. element
+    DO J = lowerion, upperion
+       elements(I)%ions(J)%ion_stage = current_ion
+       current_ion = lowerion + 1
+    END DO
+    I=I+1
+ END DO
+ ! now reading atomic levels
+ DO 
+    READ(7,'(A)',iostat=ios) line
+  IF (ios /= 0) EXIT
+  IF ( TRIM(line) == '**transitions**' ) THEN
+      print*, 'we have found **transitions**...'
+      EXIT
+  END IF
+  IF ( INDEX(line, '*') /= 0) CYCLE
+  READ(line,*) current_element, lowerion, upperion, levels_type, filename
+  ! the most important is to read the file
+  CALL read_atomic_data2(current_element,lowerion,upperion,levels_type,filename)
+ END DO
+ ! now reading atomic transitions 
+ ntransitions = 0
+ ! now we have to compute number of possible transitions
+ ! as always we skip over rows starting with '*'
+ DO 
+    READ(7,'(A)',iostat=ios) line
+  IF (ios /= 0) EXIT
+  IF ( INDEX(line, '*') /= 0) CYCLE
+  READ(line,*) current_element, lowerion, upperion, transition_type, filename
+  ! the most important is to read the file
+  CALL read_transitions2(current_element,lowerion,upperion,transition_type,filename)
+ END DO
+ ! now we can allocate ray linelist
+ ALLOCATE(linelist(ntransitions))
+  print*, 'ntransitions = ', ntransitions
+  ! temporary characteristics of number of saved lines
+  !linelist(ntransitions)%indexe = 0
+  ntransitions = 0
+  print*, 'ntransitions = ', ntransitions
+  IF(ALLOCATED(linelist)) print*, 'linelist was allocated succefully...'
+  ! this is used for information about fullfiled number of elements in array linelist
+  REWIND(7)
+  ! we have to find a flag **transitions**
+ DO
+    READ(7,'(A)',iostat=ios) line
+    IF ( TRIM(line) == '**transitions**' ) EXIT
+ END DO
+ ! now we can read informations if the files
+ DO 
+  READ(7,'(A)',iostat=ios) line
+  IF (ios /= 0) EXIT
+  IF ( INDEX(line, '*') /= 0) CYCLE
+  READ(line,*) current_element, lowerion, upperion, transition_type, filename
+  print*, 'calling subroutine read_transitions2...'
+  CALL read_transitions2(current_element,lowerion,upperion,transition_type,filename)
+ END DO
+ ! sorting the linelist ray 
+ CALL sorting_new(ntransitions, linelist)
+  print*, 'ntransitions = ', ntransitions
+ 
+ !!! Only for testing
+ PRINT*, 'testing'
+ DO I = 1, n_elements
+    element_index = I
+    Z = elements(I)%atom_number
+    lowerion = elements(I)%ions(1)%ion_stage
+    upperion = elements(I)%ions(nions)%ion_stage
+    PRINT*, element_index, Z, lowerion, upperion
+ END DO
+! OPEN(20,status='new',FILE='oscStr.dat')
+!  DO I = 1, ntransitions
+!   write(20,*) linelist(I)%freq, linelist(I)%f_ul
+!  END DO
+! CLOSE(20)
 
 END SUBROUTINE read_composition
 

@@ -84,6 +84,18 @@ SUBROUTINE read_input(n_pack, iseed)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I20)', ERR=94) iseed
+
+    ELSE IF (ACTPAR .EQ. 'inputflux') THEN
+    CALL SARGC (LINE, NPAR)
+    IF (NPAR .LT. 2) GOTO 90
+    CALL SARGV(LINE,2,ACTPAR)
+    READ (ACTPAR, '(I20)', ERR=94) inputflux 
+
+    ELSE IF (ACTPAR .EQ. 'inputmodel') THEN
+    CALL SARGC (LINE, NPAR)
+    IF (NPAR .LT. 2) GOTO 90
+    CALL SARGV(LINE,2,ACTPAR)
+    READ (ACTPAR, '(I20)', ERR=94) inputmodel
     ENDIF
   END DO
 
@@ -99,6 +111,8 @@ SUBROUTINE read_input(n_pack, iseed)
   WRITE (*,'(A,F10.3)') 'grid_xmax (Rsun) = ', xmax
   WRITE (*,'(A,F10.3)') 'grid_ymax (Rsun) = ', ymax
   WRITE (*,'(A,F10.3)') 'grid_zmax (Rsun) = ', zmax
+  WRITE (*,'(A,I10)') 'inputflux = ', inputflux
+  WRITE (*,'(A,I10)') 'inputmodel = ', inputmodel
   IF (iseed .LE. 0) THEN 
      WRITE (*,'(A)') 'Random-seed value is random '
   ELSE

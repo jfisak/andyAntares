@@ -4,8 +4,8 @@
 **levels**
 * energy levels
 *	Z	lion	uion	levels_type	level_file
-	1	1	2	0		atomic_data.dat
+	1	1	2	2		hydrogen.dat
 **transitions**
 * energy transitions
 *	Z	lion	uion	trans_type	transition_file
-	1	1	2	0		transitions.dat
+	1	1	2	2		hydrogen_t.dat

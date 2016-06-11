@@ -29,7 +29,7 @@ SUBROUTINE init_photonpack(n_pack)
        ind_z = FLOOR(package(I)%pos(3)/cell_width + DBLE(nz_cell)/2) + 1
        ind_cell_numb = (ind_x-1)*ny_cell*nz_cell + (ind_y-1)*nz_cell + ind_z
        IF ((ind_cell_numb .GT. nx_cell*ny_cell*nz_cell) .OR. (ind_cell_numb .LT. 1)) &
-           STOP 'ERROR in cell_number'
+           STOP 'Subroutine init_photonpack: ERROR in cell_number'
        package(I)%cell_numb = ind_cell_numb
        package(I)%active = 1
        package(I)%typ = type_rpkt

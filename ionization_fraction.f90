@@ -37,6 +37,7 @@
 !      print*, 'hodnota sumy SUMM = ', SUMM
   END DO
 
+ if(SUMM == 0) print*, "ionization_fraction: SUMM = 0..."
   frac = N / SUMM
 !  print*, '   Ion.frac:', frac
 !  print*, 'END SUBROUTINE ionization_fraction' 

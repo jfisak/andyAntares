@@ -47,8 +47,11 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
          ! In case we have more lines
          DO I = 1, ntransitions
             ! If 
-            IF (package(pack_index)%freq_cmf .GT. linelist(I)%freq) &
-                package(pack_index)%last_line = I-1         
+            !print*, 'photon: ', pack_index, 'freq_cmf: ', package(pack_index)%freq_cmf, 'linelist:', linelist(I)%freq
+            IF (package(pack_index)%freq_cmf .GT. linelist(I)%freq) THEN
+                package(pack_index)%last_line = I-1
+                !print*, 'package(pack_index)%last_line = I-1', I-1
+            END IF
          END DO 
          ! In case that package frequency can interact only with one more line from the line list,
          ! then index of the last line with which package interacted is ntransitions.
@@ -63,7 +66,8 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
      indexi = linelist(next_line)%indexi
      lower_level = linelist(next_line)%lower
      
-!     print*, pack_index, package(pack_index)%last_line, package(pack_index)%freq_cmf, next_line, freq_line
+   !  print*, 'subroutine event_dist:'
+     IF(pack_index.EQ.1) print*, pack_index, package(pack_index)%last_line, package(pack_index)%freq_cmf, next_line, freq_line
 
      IF (package(pack_index)%freq_cmf .GT. freq_line) THEN
         ! Calculate distance the photon needs to travel to come to
@@ -74,7 +78,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
         ! homologous expansion
         ! This is case when we assume that he have only hydrogen 
         l_dist = light_speed * (R_inf/V_inf) * ((package(pack_index)%freq_cmf - freq_line)/package(pack_index)%freq_rf)
-!        print*, 'AAAAA'
+        !print*, 'AAAAA'
         ! Calculate optical depth in the next line (Sobolev, dv/dr dependent)
         ! and continuum optical depth accumulated up to the line
         !CALL velo(pack_index,vel_vec)
@@ -83,7 +87,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
         !tau_cont = kappa_cont * l_dist
 
         ! Assine package(pack_index) to package(dummypackage) 
-	! Use dummypackage to move to the l_dist only to check whether or which kind of interaction will happen at l_dist 
+        ! Use dummypackage to move to the l_dist only to check whether or which kind of interaction will happen at l_dist 
         ! We move only dummypackage instead of package(pack_index) only to check whether or which kind of interaction will happen at l_dist 
         ! 
         ! Calculate optical depth in the next line (Sobolev, dv/dr dependent)
@@ -104,11 +108,14 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
 !        SQRT(package(pack_index)%pos(1)**2 + package(pack_index)%pos(2)**2 + package(pack_index)%pos(3)**2)/R_star
 
         !This is not safe yet: possible mismatch of atomic number and element index!!!
+!        print*, 'current_mgi = ', current_mgi, ' indexe = ', indexe, ' indexi = ', indexi
         graund_level_pop = model_grid(current_mgi)%grid_comp(indexe)%grid_ion(indexi)%gl_pop
 !        print*, 'BBBBB'
         g_gl = elements(indexe)%ions(indexi)%levels(1)%stat_waight
         g_ll = elements(indexe)%ions(indexi)%levels(lower_level)%stat_waight
         e_exc = elements(indexe)%ions(indexi)%levels(lower_level)%exci_energy - elements(indexe)%ions(indexi)%levels(1)%exci_energy
+        !print*, 'e_exc1 = ', elements(indexe)%ions(indexi)%levels(lower_level)%exci_energy, 'e_exc2 = ', &
+        !elements(indexe)%ions(indexi)%levels(1)%exci_energy
         pop_number = graund_level_pop * g_ll / g_gl * exp(e_exc / BOLK / model_grid(current_mgi)%T )
         print*, 'e_exc1 = ', elements(indexe)%ions(indexi)%levels(lower_level)%exci_energy, 'e_exc2 = ', &
                 elements(indexe)%ions(indexi)%levels(1)%exci_energy

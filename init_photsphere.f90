@@ -4,10 +4,11 @@ SUBROUTINE init_photsphere(n_pack)
 
   IMPLICIT NONE
 
-  INTEGER                           :: I, n_pack, ind_cell_numb, ind_x, ind_y, ind_z 
+  INTEGER                           :: I, J, n_pack, ind_cell_numb, ind_x, ind_y, ind_z 
   DOUBLE PRECISION                  :: L_star, sint, cost, sinp, cosp, length, freq, D
   !   DOUBLE PRECISION, PARAMETER       :: delta_t=1.D0
   DOUBLE PRECISION, DIMENSION(3)    :: direction, directionn
+  DOUBLE PRECISION, DIMENSION(n_pack) :: frequencies
 
   L_star = 4.D0*pi*(R_star)**2*sigma*T_eff**4
   print*, L_star, pi, R_star/r_sun,sigma, T_eff
@@ -37,8 +38,10 @@ SUBROUTINE init_photsphere(n_pack)
      ind_y = FLOOR(package(I)%pos(2)/cell_width + DBLE(ny_cell)/2) + 1
      ind_z = FLOOR(package(I)%pos(3)/cell_width + DBLE(nz_cell)/2) + 1
      ind_cell_numb = (ind_x - 1) * ny_cell * nz_cell + (ind_y - 1) * nz_cell + ind_z
-     IF ((ind_cell_numb .GT. nx_cell*ny_cell*nz_cell) .OR. (ind_cell_numb .LT. 1)) &
-          STOP 'ERROR in cell_number'
+     IF ((ind_cell_numb .GT. nx_cell*ny_cell*nz_cell) .OR. (ind_cell_numb .LT. 1)) THEN
+      print*, 'ind_cell_numb = ', ind_cell_numb, '...'
+      STOP 'Subroutine init_photsphere: ERROR in cell_number'
+     END IF
      package(I)%cell_numb = ind_cell_numb
 
      ! Flag the packet as an active r-pkt and allow all kind of cell crossings
@@ -49,13 +52,21 @@ SUBROUTINE init_photsphere(n_pack)
      ! Assign rf energy and frequency to the packet
      package(I)%e_rf = L_star/n_pack  
      IF (I .EQ. 1) print*, package(I)%e_rf
-     CALL freq_from_planck(freq)   ! here the frequency is sampled from a Planck law
-     package(I)%freq_rf = freq
+     IF ((inputflux .EQ. 0) ) THEN
+      CALL freq_from_planck(freq)   ! here the frequency is sampled from a Planck law
+      package(I)%freq_rf = freq
+     ELSE IF ((inputflux .EQ. 1) .AND. (I==1)) THEN
+      CALL freq_from_file(n_pack,frequencies) ! frequency is sampled using an existing emergent flux
+      DO J = 1,n_pack
+       package(J)%freq_rf = frequencies(J)
+      END DO
+     END IF
 
 
      ! Now convert the energy and frequency to their cmf values
      CALL doppler_factor(I, D)
      package(I)%freq_cmf = package(I)%freq_rf * D 
+     !print*, 'frequencies: ', package(I)%freq_cmf, package(I)%freq_rf
      package(I)%e_cmf    = package(I)%e_rf * D  
 
      ! Assine 1 to the last_line whith which package is in resonance
