@@ -74,7 +74,7 @@ MODULE types
   END TYPE atom_elements
 
   TYPE virt_particle
-     DOUBLE PRECISION ,DIMENSION(3)  :: pos
+     DOUBLE PRECISION, DIMENSION(3)  :: pos
      DOUBLE PRECISION                :: weight
   END TYPE virt_particle
 
