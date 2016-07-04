@@ -9,6 +9,7 @@
    INTEGER                       :: Npart, np
    DOUBLE PRECISION, DIMENSION(3):: corner, cell_width_2
    ! we have to go through every basic propagation grid cell
+   OPEN(15,FILE='nop.dat')
    DO I = 1, Ngrid
     corner = cell(I)%corner
     cell_width_2(1) = 2.D0 * xmax / nx_cell
@@ -26,7 +27,10 @@
         (virtual_particle(J)%pos(3) .GE. corner(3)) .AND. &
         (virtual_particle(J)%pos(3) < (corner(3) + cell_width_2(3)))) THEN
       np = np + 1
+      IF(np .EQ. 2) EXIT
      END IF
     END DO
+    write(15,*) I, np
    END DO
+   CLOSE(15)
   END SUBROUTINE create_dynamical_grid_cell

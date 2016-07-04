@@ -1,8 +1,8 @@
 n_pack = 100
 n_nubin = 1000
-nx_cell = 300
-ny_cell = 300
-nz_cell = 300
+nx_cell = 30
+ny_cell = 30
+nz_cell = 30
 model_type = 1    
 xmax = 16.
 ymax = 16.
