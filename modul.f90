@@ -10,6 +10,7 @@ MODULE types
 ! Type Definitions
 
   TYPE grid_cell  
+     ! won't be used in dynamical grid
      INTEGER                         :: model_index
      INTEGER, DIMENSION(3)           :: indexc
      DOUBLE PRECISION, DIMENSION(3)  :: corner
