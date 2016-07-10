@@ -17,6 +17,11 @@ MODULE types
 !     REAL                :: deltax, deltay, deltaz 
   END TYPE grid_cell
 
+  TYPE dyn_grid_cell
+      INTEGER                        :: cell_index, up_cell, down_cell
+      DOUBLE PRECISION, DIMENSION(3) :: corner, width
+  END TYPE dyn_grid_cell
+
   TYPE photon 
      INTEGER                         :: cell_numb, pack_numb, active
      INTEGER                         :: typ, last_cross, last_line
@@ -88,6 +93,7 @@ MODULE types
 
   TYPE(modelgrid), ALLOCATABLE       :: model_grid(:)
   TYPE(grid_cell), ALLOCATABLE       :: cell(:)   
+  TYPE(dyn_grid_cell), ALLOCATABLE   :: dyn_cell(:)   
   TYPE(photon), ALLOCATABLE          :: package(:)
 
   TYPE(line_list), ALLOCATABLE       :: linelist(:)
