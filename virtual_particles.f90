@@ -30,7 +30,7 @@ SUBROUTINE virtual_particles(dimIM)
  ! Ntheta =  angleParam
  ! Nphi = 2* angleParam
  !Npart = n_modelgrid * (Ntheta - 2) * Nphi + 2 * n_modelgrid
- Npart = 10000
+ Npart = 500
  print*, 'number of particles: ', Npart
  print*, 'computing positions of virtual particles...'
  ALLOCATE (virtual_particle(Npart))

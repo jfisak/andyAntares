@@ -133,7 +133,7 @@ SUBROUTINE main
 
   ! Set up of the propagation grid
   CALL setup_grid()
-  CALL create_dynamical_grid_cell()
+  CALL setup_grid2()
   print*, 'propagation grid is set up'
 
   L = 1
