@@ -10,7 +10,7 @@ SUBROUTINE move_package(pack_index, dist)
   DOUBLE PRECISION                  :: dist, length, D, vec_length
 !
   IF (debug .EQ. 1) THEN 
-     print*, 'before move (pos, pack_index, pos)', package(pack_index)%pos, pack_index, dist
+    ! print*, 'before move (pos, pack_index, pos)', package(pack_index)%pos, pack_index, dist
   END IF
 
   IF (debug .EQ. 2) THEN 

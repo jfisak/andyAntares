@@ -12,7 +12,7 @@ linkhost=$(shell hostname)
 
 #Objects
 OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o modul.o	  \
-          random_unitvector.o ran2.o init_photonpack.o boundary.o	  \
+          random_unitvector.o ran2.o init_photonpack.o boundary3.o	  \
           change_cell.o move_package.o emit_rpackage.o			  \
           init_photsphere.o random_unitvector2.o setup_grid.o		  \
           random_unitvector1.o read_1D_model.o doppler_factor.o		  \
@@ -24,7 +24,8 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o modul.o	  \
           saha_boltzmann_factor.o ionization_fraction.o f_edens.o         \
           find_e_nd.o part_fun.o update_estimators.o freq_from_file.o     \
 	  acc_rej_montecarlo.o virtual_particles.o setup_grid2.o	  \
-	  create_dynamical_grid_cells.o
+	  create_dynamical_grid_cells.o find_dyn_cell.o                   \
+	  next_dyn_cell3.o
 
 #Rules
 all : $(PROJECT)

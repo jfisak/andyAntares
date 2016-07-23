@@ -58,6 +58,7 @@ SUBROUTINE update_grid(iteration)
 !     stop
     ENDIF
   END DO
+  CLOSE(3)
 
   
   

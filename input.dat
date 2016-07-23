@@ -1,12 +1,12 @@
-n_pack = 100
+n_pack = 100000
 n_nubin = 1000
-nx_cell = 3
-ny_cell = 3
-nz_cell = 3
+nx_cell = 15
+ny_cell = 15
+nz_cell = 15
 model_type = 1    
 xmax = 16.
 ymax = 16.
 zmax = 16.
 *random_seed = 1
-inputflux = 1
+inputflux = 0
 inputmodel = 0

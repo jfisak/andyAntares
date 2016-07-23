@@ -7,6 +7,7 @@
   INTEGER             :: n_pack, pack_index
 
 
+  OPEN (UNIT=3, FILE='position.dat')
   ! print*, 'A'
   DO pack_index = 1, n_pack
      ! print*, 'B'
@@ -37,5 +38,6 @@
      END DO
 
   END DO
+ CLOSE(3)
   
 END SUBROUTINE update_packages

@@ -10,7 +10,7 @@ SUBROUTINE virtual_particles(dimIM)
  ! 
  INTEGER                        :: I,J,K,NP
  ! number of particles
- INTEGER                        :: Npart
+ INTEGER, PARAMETER             :: Npart=50000
  ! 1D model: intervals for particles distribution
  INTEGER                        :: Ntheta, Nphi
  DOUBLE PRECISION               :: radius, phi, theta
@@ -30,7 +30,6 @@ SUBROUTINE virtual_particles(dimIM)
  ! Ntheta =  angleParam
  ! Nphi = 2* angleParam
  !Npart = n_modelgrid * (Ntheta - 2) * Nphi + 2 * n_modelgrid
- Npart = 500
  print*, 'number of particles: ', Npart
  print*, 'computing positions of virtual particles...'
  ALLOCATE (virtual_particle(Npart))
@@ -40,6 +39,7 @@ SUBROUTINE virtual_particles(dimIM)
  DO I = 1, n_modelgrid
   radius = model_grid(I)%rwind
   np_shell = Npart/n_modelgrid
+  IF (np_shell == 0) STOP 'number of virtual particles is small'
   DO J = 1, np_shell
    NP = NP + 1
    CALL random_unitvector2(direction)

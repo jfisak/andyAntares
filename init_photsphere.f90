@@ -19,6 +19,7 @@ SUBROUTINE init_photsphere(n_pack)
   !    ind_cell_numb = (ind_x-1)*ny_cell*nz_cell + (ind_y-1)*nz_cell + ind_z
   !    print*, ind_cell_numb
   !    print*, R_star
+  OPEN(16,FILE='photon_positions.dat')
   DO I = 1, n_pack
      ! Place photon on the photosphere's surface
      CALL random_unitvector1(direction, sint, cost, sinp, cosp)
@@ -34,15 +35,17 @@ SUBROUTINE init_photsphere(n_pack)
      ! Now put the photon to the corresponding grid cell
      ! Determine the cell index where is the photon 
      ! This works only for regular grids!!!!
-     ind_x = FLOOR(package(I)%pos(1)/cell_width + DBLE(nx_cell)/2) + 1
-     ind_y = FLOOR(package(I)%pos(2)/cell_width + DBLE(ny_cell)/2) + 1
-     ind_z = FLOOR(package(I)%pos(3)/cell_width + DBLE(nz_cell)/2) + 1
-     ind_cell_numb = (ind_x - 1) * ny_cell * nz_cell + (ind_y - 1) * nz_cell + ind_z
-     IF ((ind_cell_numb .GT. nx_cell*ny_cell*nz_cell) .OR. (ind_cell_numb .LT. 1)) THEN
-      print*, 'ind_cell_numb = ', ind_cell_numb, '...'
-      STOP 'Subroutine init_photsphere: ERROR in cell_number'
-     END IF
+!     ind_x = FLOOR(package(I)%pos(1)/cell_width + DBLE(nx_cell)/2) + 1
+!     ind_y = FLOOR(package(I)%pos(2)/cell_width + DBLE(ny_cell)/2) + 1
+!     ind_z = FLOOR(package(I)%pos(3)/cell_width + DBLE(nz_cell)/2) + 1
+!     ind_cell_numb = (ind_x - 1) * ny_cell * nz_cell + (ind_y - 1) * nz_cell + ind_z
+!     IF ((ind_cell_numb .GT. nx_cell*ny_cell*nz_cell) .OR. (ind_cell_numb .LT. 1)) THEN
+!      print*, 'ind_cell_numb = ', ind_cell_numb, '...'
+!      STOP 'Subroutine init_photsphere: ERROR in cell_number'
+!     END IF
+     CALL find_dyn_cell(package(I)%pos,ind_cell_numb)
      package(I)%cell_numb = ind_cell_numb
+     write(16,*) dyn_cell(ind_cell_numb)%corner, package(I)%pos
 
      ! Flag the packet as an active r-pkt and allow all kind of cell crossings
      package(I)%active     = 1
@@ -76,6 +79,7 @@ SUBROUTINE init_photsphere(n_pack)
      ! e_cmf, freq_cmf, freq_rf, cell_numb, pack_numb, active
   
   END DO
+  CLOSE(16)
 
   ! PRINT*, ind_x, ind_y, ind_z, ind_cell_numb
 

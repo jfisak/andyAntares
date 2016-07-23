@@ -18,6 +18,7 @@ MODULE types
   END TYPE grid_cell
 
   TYPE dyn_grid_cell
+      INTEGER                        :: model_index
       INTEGER                        :: cell_index, up_cell, down_cell
       DOUBLE PRECISION, DIMENSION(3) :: corner, width
   END TYPE dyn_grid_cell
@@ -137,6 +138,8 @@ MODULE types
   INTEGER                            :: ntransitions
   ! Specify backgraund model type (1-D, 2-D, 3-D)
   INTEGER                            :: model_type
+  ! Specify minimal size of dynamic cell
+  DOUBLE PRECISION, PARAMETER          :: minwidth = 1E8
 
 
 

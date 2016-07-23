@@ -30,7 +30,6 @@
     cell_width_2(1) = dyn_cell(n_dyncell)%width(1)
     cell_width_2(2) = dyn_cell(n_dyncell)%width(2)
     cell_width_2(3) = dyn_cell(n_dyncell)%width(3)
-    print*, 'corner: ', corner, 'cell_width_2: ', cell_width_2
     ! at first we have to know, how many particles are
     ! in the given cell
      np = 0
@@ -46,11 +45,11 @@
         (virtual_particle(J)%pos(2) < (corner(2) + cell_width_2(2))) .AND. &
         (virtual_particle(J)%pos(3) >= corner(3)) .AND. &
         (virtual_particle(J)%pos(3) < (corner(3) + cell_width_2(3)))) THEN
-      print*, 'we have a new catched virtual particle :-)'
+     ! print*, 'we have a new catched virtual particle :-)'
       np = np + 1
       ! if the field is full, we will have to increase its size
       if(np == up_bound) then
-       print*, 'creating a larger array local_particle'
+      ! print*, 'creating a larger array local_particle'
        ! define a new upper bound
        newbound = 2 * up_bound
        ALLOCATE(pom(up_bound))
@@ -103,24 +102,24 @@
      ! now we have to decide what to do on the basement of number of
      ! local particles
      ! 1. the division of the cells is good enough
-      print*, 'dynamic grid: ', up_bound, act_n_dyncell, max_n_dcell
+     ! print*, 'dynamic grid: ', up_bound, act_n_dyncell, max_n_dcell
      IF(loc_np <= maxPart ) THEN
       ! we move to the lower level of the grid to the "not ending" subcell
       DO
 !       IF(loc_downcell /= 0) &
 !         print*, 'dyn_cell(down_cell)%up_cell - act_n_dyncell == no_dcells - 1', &
 !         act_n_dyncell - dyn_cell(loc_downcell)%up_cell 
-        IF(dyn_cell(act_n_dyncell)%down_cell /= 0) THEN
+       IF(dyn_cell(act_n_dyncell)%down_cell /= 0) THEN
          IF(act_n_dyncell - dyn_cell(loc_downcell)%up_cell == no_dcells - 1) &
           THEN
           ! we will move one level lower
-          print*, 'moving to the lower level...'
+          !print*, 'moving to the lower level...'
           act_n_dyncell = dyn_cell(act_n_dyncell)%down_cell
           loc_upcell = dyn_cell(act_n_dyncell)%up_cell
           loc_downcell = dyn_cell(act_n_dyncell)%down_cell
          ! we can go to the next subcell in the given level
          ELSE
-          print*, 'moving to the next cell...'
+         ! print*, 'moving to the next cell...'
           act_n_dyncell = act_n_dyncell + 1
           EXIT
          END IF
@@ -130,6 +129,13 @@
       END DO
      ! we have to create additional cells otherwise
      ELSE
+      if (dyn_cell(act_n_dyncell)%width(1)/2.E0 < minwidth .OR. &
+          dyn_cell(act_n_dyncell)%width(2)/2.E0 < minwidth .OR. &
+          dyn_cell(act_n_dyncell)%width(3)/2.E0 < minwidth) then
+          loc_np = 0
+          print*, 'CELL WOULD BE TOO SMALL...MOVING TO THE NEXT CELL...'
+          CYCLE
+      end if
      ! is there some free space left in the field dyn_cell?
       up_bound = SIZE(dyn_cell(:))
       if(max_n_dcell + no_dcells >= up_bound) then

@@ -6,11 +6,12 @@
 
   IMPLICIT NONE    
 
-  INTEGER                        :: I, J, K, L, M
-  INTEGER, PARAMETER             :: Nmax = 1000000000               
-  DOUBLE PRECISION               :: r, delta, delta2           
-  DOUBLE PRECISION, DIMENSION(3) :: cell_width2
-  INTEGER                        :: max_n_dcell
+  INTEGER                                :: I, J, K, L, M
+  INTEGER, PARAMETER                     :: Nmax = 1000000000               
+  DOUBLE PRECISION                       :: r, delta, delta2           
+  DOUBLE PRECISION, DIMENSION(3)         :: cell_width2
+  INTEGER                                :: max_n_dcell, N_dyn_grid
+  TYPE(dyn_grid_cell), ALLOCATABLE       :: pom2(:)
 
 
   ! Number of propagation grid cells
@@ -68,50 +69,66 @@
    write(15,*) dyn_cell(I)%corner, dyn_cell(I)%width
   END DO
 
-
+   ! we will resize the field dyn_cell
+   ! because we do not want empty cells
+   ! inside
+   ALLOCATE(pom2(max_n_dcell))
+   do I = 1, max_n_dcell
+    pom2(I) = dyn_cell(I)
+   end do
+   DEALLOCATE(dyn_cell)
+   ALLOCATE(dyn_cell(max_n_dcell))
+   do I = 1, max_n_dcell
+    dyn_cell(I) = pom2(I)
+   end do
+   DEALLOCATE(pom2)
+   N_dyn_grid = max_n_dcell
   
   ! Establish a connection between the propagation grid and the
   ! model grid. This depends on the model grid type (1D, 2D, 3D)
-!  IF (model_type .EQ. 1) THEN
-!    ! This is the algorithm needed for a 1D model grid
-!    ! Define which model grid cell coresponds to the propagation grid cell
-!    DO I = 1, Ngrid
-!      ! Absolute radius of the propagation grid cell (midle of the cell)
-!      r =SQRT( (cell(I)%corner(1) + cell_width/2.D0)**2 + &
-!              (cell(I)%corner(2) + cell_width/2.D0)**2 + &
-!              (cell(I)%corner(3) + cell_width/2.D0)**2)
-!      !print*,I,r/R_star
-!      IF ((r .GT. R_star) .AND. (r .LT. R_inf)) THEN
-!        ! Cells with radius larger than the stellar radius but smaller
-!        ! than the winds outer radius have an associated model grid cell.
-!        ! Find this model grid cell and add a pointer to the propatation
-!        ! grid. Finally record the number of asscociated prop. grid cells
-!        ! on the model grid
-!        delta = 1.D99
-!        DO J = 1, n_modelgrid   
-!           delta2 = ABS(r - model_grid(J)%rwind)
-!           !print*,I,J,r/R_star,model_grid(J)%rwind/R_star,delta2/R_star,delta/R_star
-!           IF (delta2 .LT. delta) THEN
-!              delta = delta2 
-!              M = J           
-!           END IF
-!        END DO
-!        cell(I)%model_index = M     
-!        model_grid(M)%assoc_cells = model_grid(M)%assoc_cells + 1
-!      ELSE
-!        ! Cells with radius smaller than the stellar radius or larger
-!        ! than the winds outer radius have no associated model grid cell
-!        ! Make them point to the dummy model grid cell
-!        cell(I)%model_index = n_modelgrid + 1     
-!      ENDIF
-!      !print*, I,J,M
-!    END DO
-!  ENDIF
-!
-!
-!  DO I = 1, n_modelgrid
-!     print*, I, model_grid(I)%assoc_cells
-!  END DO
+  IF (model_type .EQ. 1) THEN
+    ! This is the algorithm needed for a 1D model grid
+    ! Define which model grid cell coresponds to the propagation grid cell
+    DO I = 1, N_dyn_grid
+     ! we want to do this only for ending cells
+     IF(dyn_cell(I)%up_cell == 0) THEN
+      ! Absolute radius of the propagation grid cell (midle of the cell)
+      r =SQRT((dyn_cell(I)%corner(1) + dyn_cell(I)%width(1)/2.D0)**2 + &
+              (dyn_cell(I)%corner(2) + dyn_cell(I)%width(2)/2.D0)**2 + &
+              (dyn_cell(I)%corner(3) + dyn_cell(I)%width(3)/2.D0)**2)
+      !print*,I,r/R_star
+      IF ((r .GT. R_star) .AND. (r .LT. R_inf)) THEN
+        ! Cells with radius larger than the stellar radius but smaller
+        ! than the winds outer radius have an associated model grid cell.
+        ! Find this model grid cell and add a pointer to the propatation
+        ! grid. Finally record the number of asscociated prop. grid cells
+        ! on the model grid
+        delta = 1.D99
+        DO J = 1, n_modelgrid   
+           delta2 = ABS(r - model_grid(J)%rwind)
+           !print*,I,J,r/R_star,model_grid(J)%rwind/R_star,delta2/R_star,delta/R_star
+           IF (delta2 .LT. delta) THEN
+              delta = delta2 
+              M = J           
+           END IF
+        END DO
+        dyn_cell(I)%model_index = M     
+        model_grid(M)%assoc_cells = model_grid(M)%assoc_cells + 1
+      ELSE
+        ! Cells with radius smaller than the stellar radius or larger
+        ! than the winds outer radius have no associated model grid cell
+        ! Make them point to the dummy model grid cell
+        dyn_cell(I)%model_index = n_modelgrid + 1     
+      ENDIF
+      !print*, I,J,M
+     END IF
+    END DO
+  ENDIF
+
+
+  DO I = 1, n_modelgrid + 1
+     print*, 'assoc_cells = ', I, model_grid(I)%assoc_cells
+  END DO
 
 
 END SUBROUTINE setup_grid2
