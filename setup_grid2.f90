@@ -60,6 +60,7 @@
   ! the maximal number of cells is now equal to L
   max_n_dcell = Ngrid
 
+ IF(dyngrid /= 0) THEN
   DO I = 1, Ngrid
    CALL create_dynamical_grid_cells(I, max_n_dcell)
    print*, 'max_n_dcell = ', max_n_dcell
@@ -68,6 +69,7 @@
   DO I = 1, max_n_dcell
    write(15,*) dyn_cell(I)%corner, dyn_cell(I)%width
   END DO
+ END IF
 
    ! we will resize the field dyn_cell
    ! because we do not want empty cells

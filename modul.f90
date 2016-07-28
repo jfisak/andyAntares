@@ -87,6 +87,7 @@ MODULE types
 
 ! Global variables
   DOUBLE PRECISION                   :: xmax, ymax, zmax, cell_width
+  INTEGER                            :: dyngrid
   DOUBLE PRECISION                   :: R_star, R_inf, V_inf, M_dot, T_eff
   DOUBLE PRECISION, ALLOCATABLE      :: incomingflux(:,:)
   INTEGER                            :: nx_cell, ny_cell, nz_cell, Ngrid, destroyed_pack
