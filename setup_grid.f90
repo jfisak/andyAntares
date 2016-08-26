@@ -8,7 +8,8 @@
 
   INTEGER             :: I, J, K, L, M
   INTEGER, PARAMETER  :: Nmax = 1000000000               
-  DOUBLE PRECISION    :: r, delta, delta2           
+  DOUBLE PRECISION, PARAMETER :: deltamax = 1e9
+  DOUBLE PRECISION    :: r, z, delta, delta2           
 
 
   ! Number of propagation grid cells
@@ -93,6 +94,43 @@
       ENDIF
       !print*, I,J,M
     END DO
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! 2D model grid
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ELSE IF (model_type .EQ. 2) THEN
+   DO I = 1, Ngrid
+      ! Absolute radius of the propagation grid cell (midle of the cell)
+      r = SQRT( (cell(I)%corner(1) + cell_width/2.D0)**2 + &
+              (cell(I)%corner(2) + cell_width/2.D0)**2 + &
+              (cell(I)%corner(3) + cell_width/2.D0)**2)
+      z = cell(I)%corner(3) + cell_width/2.D0
+      !print*,I,r/R_star
+      IF ((r .GT. R_star) .AND. (r .LT. R_inf)) THEN
+       ! Cells with radius larger than the stellar radius but smaller
+       ! than the winds outer radius have an associated model grid cell.
+       ! Find this model grid cell and add a pointer to the propatation
+       ! grid. Finally record the number of asscociated prop. grid cells
+       ! on the model grid
+       delta = 1.D99
+       DO J = 1, n_modelgrid
+        delta2 = (sqrt(r**2 - z**2) - &
+                (sqrt(model_grid(J)%rwind**2 - model_grid(J)%zwind**2)))**2 + &
+                (model_grid(J)%zwind - z)**2
+        IF( delta2 .LT. delta ) THEN
+          delta = delta2
+          M = J
+        END IF
+        cell(I)%model_index = M     
+        model_grid(M)%assoc_cells = model_grid(M)%assoc_cells + 1
+        ! if the propagation cell is too far from the nearest model point
+        ! we will associate this cell to the dummy cells
+        IF( delta .GT. deltamax) THEN
+         cell(I)%model_index = n_modelgrid + 1
+         model_grid(n_modelgrid + 1)%assoc_cells = model_grid(n_modelgrid + 1)%assoc_cells + 1
+        END IF
+       END DO
+      END IF
+   END DO
   ENDIF
 
 

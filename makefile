@@ -23,7 +23,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o modul.o	  \
           sorting-new.o setup_model_grid.o update_grid.o                  \
           saha_boltzmann_factor.o ionization_fraction.o f_edens.o         \
           find_e_nd.o part_fun.o update_estimators.o freq_from_file.o     \
-	  acc_rej_montecarlo.o
+	  acc_rej_montecarlo.o read_2D_model.o
 
 #Rules
 all : $(PROJECT)
