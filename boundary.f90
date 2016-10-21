@@ -22,11 +22,11 @@ SUBROUTINE boundary(pack_index, dist, next_cell)
 !   Calculate the distances to the all cell surfaces from the photon current position along the ray
 !   (formula for this can be found in http://www.roe.ac.uk/ifa/postgrad/pedagogy/2009_forgan.pdf 
 !    - Fig. 2, An Introduction to Monte Carlo Radiative Transfer, Duncan Forgan)
-    dist_plusx = (cell(nc)%corner(1) + cell_width - package(pack_index)%pos(1))/package(pack_index)%dir(1)
+    dist_plusx = (cell(nc)%corner(1) + cell_width(1) - package(pack_index)%pos(1))/package(pack_index)%dir(1)
     dist_minx = (cell(nc)%corner(1) - package(pack_index)%pos(1))/package(pack_index)%dir(1)
-    dist_plusy = (cell(nc)%corner(2) + cell_width - package(pack_index)%pos(2))/package(pack_index)%dir(2)
+    dist_plusy = (cell(nc)%corner(2) + cell_width(2) - package(pack_index)%pos(2))/package(pack_index)%dir(2)
     dist_miny = (cell(nc)%corner(2) - package(pack_index)%pos(2))/package(pack_index)%dir(2)
-    dist_plusz = (cell(nc)%corner(3) + cell_width - package(pack_index)%pos(3))/package(pack_index)%dir(3)     
+    dist_plusz = (cell(nc)%corner(3) + cell_width(3) - package(pack_index)%pos(3))/package(pack_index)%dir(3)     
     dist_minz = (cell(nc)%corner(3) - package(pack_index)%pos(3))/package(pack_index)%dir(3)
     IF (debug .EQ. 1) THEN 
         print*, 'boundary: dir ', package(pack_index)%dir
@@ -129,9 +129,9 @@ SUBROUTINE boundary(pack_index, dist, next_cell)
 
     IF (debug .EQ. 3) THEN
       print*, nc, cell(nc)%indexc, &
-           FLOOR(package(pack_index)%pos(1)/cell_width + dble(nx_cell)/2) + 1, &
-           FLOOR(package(pack_index)%pos(2)/cell_width + dble(ny_cell)/2) + 1, &
-           FLOOR(package(pack_index)%pos(3)/cell_width + dble(nz_cell)/2) + 1 
+           FLOOR(package(pack_index)%pos(1)/cell_width(1) + dble(nx_cell)/2) + 1, &
+           FLOOR(package(pack_index)%pos(2)/cell_width(2) + dble(ny_cell)/2) + 1, &
+           FLOOR(package(pack_index)%pos(3)/cell_width(3) + dble(nz_cell)/2) + 1 
       print*, package(pack_index)%pos, package(pack_index)%dir
       print*, cell(nc)%corner, cell(nc)%corner+cell_width
       print*, dist_plusx, dist_minx, dist_plusy, dist_miny, dist_plusz, dist_minz
@@ -144,11 +144,11 @@ SUBROUTINE boundary(pack_index, dist, next_cell)
       print*, pack_index
       print*, dist, next_cell, hit_surface       
       print*, forbidden
-      print*, nc, cell(nc)%indexc, cell(nc)%corner, cell(nc)%corner+cell_width
+      print*, nc, cell(nc)%indexc, cell(nc)%corner, cell(nc)%corner+cell_width(nc)
 
-      print*, FLOOR(package(pack_index)%pos(1)/cell_width + dble(nx_cell)/2) + 1
-      print*, FLOOR(package(pack_index)%pos(2)/cell_width + dble(ny_cell)/2) + 1
-      print*, FLOOR(package(pack_index)%pos(3)/cell_width + dble(nz_cell)/2) + 1
+      print*, FLOOR(package(pack_index)%pos(1)/cell_width(1) + dble(nx_cell)/2) + 1
+      print*, FLOOR(package(pack_index)%pos(2)/cell_width(2) + dble(ny_cell)/2) + 1
+      print*, FLOOR(package(pack_index)%pos(3)/cell_width(3) + dble(nz_cell)/2) + 1
 
        print*, package(pack_index)%dir, package(pack_index)%pos
        print*, dist_plusx, dist_minx, dist_plusy, dist_miny, dist_plusz, dist_minz
