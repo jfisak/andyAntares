@@ -7,12 +7,15 @@
   IMPLICIT NONE    
 
   INTEGER                                   :: I, J, M, numbions, indexg, atom_number
+  ! for reading from files
+  DOUBLE PRECISION                          :: junk
   INTEGER                                   :: ios
   INTEGER, PARAMETER                        :: maxrows = 6000000
-  DOUBLE PRECISION                          :: delta_r, delta, delta2, tot_nd, tot_md
-  DOUBLE PRECISION                          :: r, velo, dens, temp, junk
+  DOUBLE PRECISION                          :: r, velo, dens, temp
   DOUBLE PRECISION, DIMENSION(n_elements)   :: massfrac
   CHARACTER(20)                             :: modelfile 
+  ! variables which are not needed in the code
+  !DOUBLE PRECISION                          :: delta_r, delta, delta2, tot_nd, tot_md
 
  SELECT CASE (inputModel)
   CASE(0)
@@ -39,7 +42,7 @@
  ! Allocate array for model grid structure.
   ! Cell n_modelgrid+1 is associated to propagation grid cells 
   ! which have no counterpart on the modelgrid  
-  ALLOCATE (model_grid(n_modelgrid + 1))
+  ALLOCATE (model_grid(n_modelgrid + 2))
 
   DO I = 1, n_modelgrid
      ! Maybe better to calculate at the midle of the grid cell rather then at the outer boundary 

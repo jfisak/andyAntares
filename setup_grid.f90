@@ -8,7 +8,7 @@
 
   INTEGER             :: I, J, K, L, M
   INTEGER, PARAMETER  :: Nmax = 1000000000               
-  DOUBLE PRECISION, PARAMETER :: deltamax = 1e9
+  DOUBLE PRECISION, PARAMETER :: deltamax = 1.D12
   DOUBLE PRECISION    :: r, z, delta, delta2           
 
 
@@ -25,7 +25,9 @@
 
   ! Size of the grid cells in x,y, and z direction (now they are with
   ! the same size i.e. regular gred)
-  cell_width = 2.D0 * xmax / nx_cell
+  cell_width(1) = 2.D0 * xmax / nx_cell
+  cell_width(2) = 2.D0 * ymax / ny_cell
+  cell_width(3) = 2.D0 * zmax / nz_cell
   print*, 'parameters of grid: '
   print*, xmax, R_inf, cell_width
   print*, xmax/R_star, R_inf/R_star, cell_width/R_star
@@ -48,10 +50,10 @@
 !           cell(L)%corner(2)  = -ymax + (J-1)*cell(L)%deltay     
 !           cell(L)%corner(3)  = -zmax + (K-1)*cell(L)%deltaz 
            ! Coordinates of the lower left corner of each cell
-           cell(L)%corner(1)  = -xmax + (I-1)*cell_width
-           cell(L)%corner(2)  = -ymax + (J-1)*cell_width     
-           cell(L)%corner(3)  = -zmax + (K-1)*cell_width 
-!           write(2,*) cell(L)%indexc, cell(L)%corner ! don't write if it is not necessary (computational very expensive)
+           cell(L)%corner(1)  = -xmax + (I-1)*cell_width(1)
+           cell(L)%corner(2)  = -ymax + (J-1)*cell_width(2)     
+           cell(L)%corner(3)  = -zmax + (K-1)*cell_width(3) 
+           write(2,*) cell(L)%indexc, cell(L)%corner ! don't write if it is not necessary (computational very expensive)
            L = L + 1
         END DO
      END DO
@@ -65,9 +67,9 @@
     ! Define which model grid cell coresponds to the propagation grid cell
     DO I = 1, Ngrid
       ! Absolute radius of the propagation grid cell (midle of the cell)
-      r =SQRT( (cell(I)%corner(1) + cell_width/2.D0)**2 + &
-              (cell(I)%corner(2) + cell_width/2.D0)**2 + &
-              (cell(I)%corner(3) + cell_width/2.D0)**2)
+      r = SQRT( (cell(I)%corner(1) + cell_width(1)/2.D0)**2 + &
+              (cell(I)%corner(2) + cell_width(2)/2.D0)**2 + &
+              (cell(I)%corner(3) + cell_width(3)/2.D0)**2)
       !print*,I,r/R_star
       IF ((r .GT. R_star) .AND. (r .LT. R_inf)) THEN
         ! Cells with radius larger than the stellar radius but smaller
@@ -91,6 +93,7 @@
         ! than the winds outer radius have no associated model grid cell
         ! Make them point to the dummy model grid cell
         cell(I)%model_index = n_modelgrid + 1     
+        model_grid(n_modelgrid + 1)%assoc_cells = model_grid(n_modelgrid + 1)%assoc_cells + 1
       ENDIF
       !print*, I,J,M
     END DO
@@ -98,12 +101,14 @@
   ! 2D model grid
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ELSE IF (model_type .EQ. 2) THEN
+   print*, 'asociating propagation grid cells to disc model cells'
    DO I = 1, Ngrid
+      IF(mod(I,10000) .EQ. 0) print*, 'associating propagation grid', I, REAL(I)/REAL(Ngrid) * 1.E2, ' % completed'
       ! Absolute radius of the propagation grid cell (midle of the cell)
-      r = SQRT( (cell(I)%corner(1) + cell_width/2.D0)**2 + &
-              (cell(I)%corner(2) + cell_width/2.D0)**2 + &
-              (cell(I)%corner(3) + cell_width/2.D0)**2)
-      z = cell(I)%corner(3) + cell_width/2.D0
+      r = SQRT( (cell(I)%corner(1) + cell_width(1)/2.D0)**2 + &
+              (cell(I)%corner(2) + cell_width(2)/2.D0)**2 + &
+              (cell(I)%corner(3) + cell_width(3)/2.D0)**2)
+      z = cell(I)%corner(3) + cell_width(3)/2.D0
       !print*,I,r/R_star
       IF ((r .GT. R_star) .AND. (r .LT. R_inf)) THEN
        ! Cells with radius larger than the stellar radius but smaller
@@ -113,30 +118,40 @@
        ! on the model grid
        delta = 1.D99
        DO J = 1, n_modelgrid
-        delta2 = (sqrt(r**2 - z**2) - &
+        delta2 = sqrt((sqrt(r**2 - z**2) - &
                 (sqrt(model_grid(J)%rwind**2 - model_grid(J)%zwind**2)))**2 + &
-                (model_grid(J)%zwind - z)**2
+                (model_grid(J)%zwind - z)**2)
+        !IF(delta2 .LE. deltamax) print*, I, J, ' delta2 = ', delta2
         IF( delta2 .LT. delta ) THEN
           delta = delta2
           M = J
         END IF
-        cell(I)%model_index = M     
-        model_grid(M)%assoc_cells = model_grid(M)%assoc_cells + 1
         ! if the propagation cell is too far from the nearest model point
         ! we will associate this cell to the dummy cells
-        IF( delta .GT. deltamax) THEN
-         cell(I)%model_index = n_modelgrid + 1
-         model_grid(n_modelgrid + 1)%assoc_cells = model_grid(n_modelgrid + 1)%assoc_cells + 1
-        END IF
        END DO
+        IF( delta .GT. deltamax) THEN
+         cell(I)%model_index = n_modelgrid + 2
+         model_grid(n_modelgrid + 2)%assoc_cells = model_grid(n_modelgrid + 2)%assoc_cells + 1
+         !print*, 'model grid n + 2 = ', model_grid(n_modelgrid + 2)%assoc_cells
+        ELSE
+         cell(I)%model_index = M     
+         model_grid(M)%assoc_cells = model_grid(M)%assoc_cells + 1
+        END IF
+      ELSE
+       ! Cells with radius smaller than the stellar radius or larger
+       ! than the winds outer radius have no associated model grid cell
+       ! Make them point to the dummy model grid cell
+       cell(I)%model_index = n_modelgrid + 1     
+       model_grid(n_modelgrid + 1)%assoc_cells = model_grid(n_modelgrid + 1)%assoc_cells + 1
       END IF
+      !print*, I,J,M
    END DO
   ENDIF
 
-
-  DO I = 1, n_modelgrid
-     print*, I, model_grid(I)%assoc_cells
-  END DO
+!  print*, 'printing number of associated cells'
+!  DO I = 1, n_modelgrid + 2
+!     print*, I, model_grid(I)%assoc_cells
+!  END DO
 
 
 END SUBROUTINE setup_grid

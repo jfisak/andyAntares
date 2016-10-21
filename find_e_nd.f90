@@ -24,6 +24,8 @@ SUBROUTINE find_e_nd(model_grid_index, el_nd)
    el_nd_2 = model_grid(model_grid_index)%rho / mp_g
 !   print*, 'hodnota el_nd_2: ', el_nd_2
 
+  
+  !print*, 'model_grid_index = ', model_grid_index, ' temp = ', model_grid(model_grid_index)%T
   ! Debug
   ! print*, el_nd_1, el_nd_2
   ! CALL f_edens(model_grid_index, el_nd_1, func1)
@@ -35,8 +37,8 @@ SUBROUTINE find_e_nd(model_grid_index, el_nd)
 !    print*, "loop_index: ", loop_index
 !    print*, "max_it: ", max_it
   DO 
-!    print*, "loop_index: ", loop_index
-!    print*, "max_it: ", max_it
+    !print*, "loop_index: ", loop_index
+    !print*, "max_it: ", max_it
     IF (loop_index .GT. max_it) THEN
         PRINT*, 'No solution for the electron density found in cell', model_grid_index
         STOP

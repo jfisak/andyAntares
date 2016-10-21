@@ -8,15 +8,22 @@
 
 
   ! print*, 'A'
+  OPEN(UNIT=3,FILE='position.dat')
   DO pack_index = 1, n_pack
+     write(3,*) 'photon number ', pack_index
      ! print*, 'B'
      IF (MODULO(pack_index,10000) .EQ. 0) print*, 'Working on packet ', pack_index,' ...'
      IF (debug .NE. 0) print*, 'Working on packet ', pack_index,' ...' 
       
-     ! Do this loop until something happend with package
+     ! Do this loop until something happened with package
      DO  WHILE (package(pack_index)%active .EQ. 1)
         ! print*, 'C'
         IF (package(pack_index)%typ .EQ. type_rpkt) THEN
+         IF(package(pack_index)%n_interactions .EQ. 1000000) THEN
+          print*, 'package ', pack_index, ' interacted for 2000000 times and will be destroyed...'
+          package(pack_index)%active = 0
+          destroyed_pack = destroyed_pack + 1
+         END IF
            ! print*, 'D'
            ! If the packet is of type rpkt, it represents a photon. So it needs to be propagated.
            CALL do_rpackage(pack_index)
@@ -37,5 +44,6 @@
      END DO
 
   END DO
+  CLOSE(UNIT=3)
   
 END SUBROUTINE update_packages

@@ -18,7 +18,7 @@ MODULE types
 
   TYPE photon 
      INTEGER                         :: cell_numb, pack_numb, active
-     INTEGER                         :: typ, last_cross, last_line
+     INTEGER                         :: typ, last_cross, last_line, n_interactions
      DOUBLE PRECISION, DIMENSION(3)  :: pos, dir 
      DOUBLE PRECISION                :: e_cmf, e_rf, freq_cmf, freq_rf, delta_s
   END TYPE photon
@@ -36,7 +36,7 @@ MODULE types
 
 
   TYPE modelgrid 
-     INTEGER                         :: assoc_cells
+     INTEGER*4                       :: assoc_cells
      DOUBLE PRECISION                :: T, J, rho, vel, rwind, e_dens
      DOUBLE PRECISION                :: zwind, velang
      TYPE(grid_comp_t), ALLOCATABLE  :: grid_comp(:)
@@ -80,7 +80,8 @@ MODULE types
   END TYPE virt_particle
 
 ! Global variables
-  DOUBLE PRECISION                   :: xmax, ymax, zmax, cell_width
+  DOUBLE PRECISION                   :: xmax, ymax, zmax
+  DOUBLE PRECISION, DIMENSION(3)     :: cell_width
   DOUBLE PRECISION                   :: R_star, R_inf, V_inf, M_dot, T_eff
   DOUBLE PRECISION, ALLOCATABLE      :: incomingflux(:,:)
   INTEGER                            :: nx_cell, ny_cell, nz_cell, Ngrid, destroyed_pack

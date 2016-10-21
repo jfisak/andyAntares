@@ -10,7 +10,9 @@ SUBROUTINE init_photsphere(n_pack)
   DOUBLE PRECISION, DIMENSION(3)    :: direction, directionn
   DOUBLE PRECISION, DIMENSION(n_pack) :: frequencies
 
+  destroyed_pack = 0
   L_star = 4.D0*pi*(R_star)**2*sigma*T_eff**4
+  print*, 'init photsphere...'
   print*, L_star, pi, R_star/r_sun,sigma, T_eff
 
   !    ind_x = nx_cell/2 + 1
@@ -34,9 +36,9 @@ SUBROUTINE init_photsphere(n_pack)
      ! Now put the photon to the corresponding grid cell
      ! Determine the cell index where is the photon 
      ! This works only for regular grids!!!!
-     ind_x = FLOOR(package(I)%pos(1)/cell_width + DBLE(nx_cell)/2) + 1
-     ind_y = FLOOR(package(I)%pos(2)/cell_width + DBLE(ny_cell)/2) + 1
-     ind_z = FLOOR(package(I)%pos(3)/cell_width + DBLE(nz_cell)/2) + 1
+     ind_x = FLOOR(package(I)%pos(1)/cell_width(1) + DBLE(nx_cell)/2) + 1
+     ind_y = FLOOR(package(I)%pos(2)/cell_width(2) + DBLE(ny_cell)/2) + 1
+     ind_z = FLOOR(package(I)%pos(3)/cell_width(3) + DBLE(nz_cell)/2) + 1
      ind_cell_numb = (ind_x - 1) * ny_cell * nz_cell + (ind_y - 1) * nz_cell + ind_z
      IF ((ind_cell_numb .GT. nx_cell*ny_cell*nz_cell) .OR. (ind_cell_numb .LT. 1)) THEN
       print*, 'ind_cell_numb = ', ind_cell_numb, '...'
@@ -48,6 +50,7 @@ SUBROUTINE init_photsphere(n_pack)
      package(I)%active     = 1
      package(I)%typ        = type_rpkt
      package(I)%last_cross = NONE
+     package(I)%n_interactions = 0
 
      ! Assign rf energy and frequency to the packet
      package(I)%e_rf = L_star/n_pack  
@@ -76,6 +79,7 @@ SUBROUTINE init_photsphere(n_pack)
      ! e_cmf, freq_cmf, freq_rf, cell_numb, pack_numb, active
   
   END DO
+  print*, 'photons initialized...'
 
   ! PRINT*, ind_x, ind_y, ind_z, ind_cell_numb
 
@@ -83,11 +87,6 @@ SUBROUTINE init_photsphere(n_pack)
   ! package(I)%pos = 95.
   ! package(I)%dir = -1.
   ! package(I)%e_rf = 0.
-     OPEN(19,file="photonFdistr.dat")
-      do I=1,n_pack
-       write(19,*) package(I)%freq_rf
-      end do
-     CLOSE(19)
         
 
 END SUBROUTINE init_photsphere

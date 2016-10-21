@@ -30,6 +30,8 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
                          !cell(package(pack_index)%cell_numb)%model_index)%rho/mp_g  
 
   electron_density = model_grid(current_mgi)%e_dens
+  IF(current_mgi .EQ. n_modelgrid + 2) electron_density = 0.D0
+  !print*, 'electron_density = ', electron_density
 
   ! For now we neglect cont. opacities, but the routine was written generally to
   ! allow for adding  cont. opacity in the future
@@ -78,7 +80,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
         ! homologous expansion
         ! This is case when we assume that he have only hydrogen 
         l_dist = light_speed * (R_inf/V_inf) * ((package(pack_index)%freq_cmf - freq_line)/package(pack_index)%freq_rf)
-        !print*, 'AAAAA'
+        !print*, 'AAAAA', ' l_dist = ', l_dist
         ! Calculate optical depth in the next line (Sobolev, dv/dr dependent)
         ! and continuum optical depth accumulated up to the line
         !CALL velo(pack_index,vel_vec)
@@ -93,6 +95,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
         ! Calculate optical depth in the next line (Sobolev, dv/dr dependent)
         ! and continuum optical depth accumulated up to the line
         package(dummypackage) = package(pack_index)
+        !print*, 'before moving package #', pack_index
         CALL move_package(dummypackage, l_dist)
         CALL velo(dummypackage,vel_vec)
 
@@ -108,7 +111,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
 !        SQRT(package(pack_index)%pos(1)**2 + package(pack_index)%pos(2)**2 + package(pack_index)%pos(3)**2)/R_star
 
         !This is not safe yet: possible mismatch of atomic number and element index!!!
-!        print*, 'current_mgi = ', current_mgi, ' indexe = ', indexe, ' indexi = ', indexi
+        !print*, 'current_mgi = ', current_mgi, ' indexe = ', indexe, ' indexi = ', indexi
         graund_level_pop = model_grid(current_mgi)%grid_comp(indexe)%grid_ion(indexi)%gl_pop
 !        print*, 'BBBBB'
         g_gl = elements(indexe)%ions(indexi)%levels(1)%stat_waight
@@ -123,8 +126,9 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
         !IF (vec_length(package(dummypackage)%pos) .GT. R_inf) pop_number = 0
         tau_line = light_speed / freq_line * constant * linelist(next_line)%f_ul * pop_number * &
                    vec_length(package(dummypackage)%pos) / vec_length(vel_vec)     
+        IF(current_mgi .EQ. n_modelgrid + 2) tau_line = 0.D0
         tau_cont = kappa_cont * l_dist
-!        print*, 'CCCCC', tau_line, tau_cont
+        !print*, 'CCCCC', tau_line, tau_cont
  
 
         ! Now do a step by step analysis of which event occurs and return the 

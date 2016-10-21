@@ -25,11 +25,13 @@
      DO indexi = 1, numb_ions
         CALL ionization_fraction(indexe, indexi, temp, el_nd, frac)
         SUMMI = SUMMI + (indexi - 1) * frac
-!        print*, '  Ion.frac:', indexi, frac
+!        print*, '  Ion.frac:', indexi, frac, SUMMI
      END DO
 !     print*, model_grid(model_grid_index)%grid_comp(indexe)%abund, elements(indexe)%atom_mass
      SUMME = SUMME + (model_grid(model_grid_index)%grid_comp(indexe)%abund / elements(indexe)%atom_mass) * SUMMI
   END DO
+
+  !print*, 'SUMME = ', SUMME
 
   ! we are searching for solution el_nd and because we subtract el_nd 
 !  print*, 'model_grid(model_grid_index)%rho: ', model_grid(model_grid_index)%rho, &

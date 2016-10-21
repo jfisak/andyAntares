@@ -1,7 +1,7 @@
 SUBROUTINE update_grid(iteration)
 
   ! Calculate electron number density, population number of the ground level
-  ! and total population number for every model grin cell for given composition
+  ! and total population number for every model grid cell for given composition
   ! and corresponding ionization stages.
   USE types
 
@@ -11,8 +11,9 @@ SUBROUTINE update_grid(iteration)
   DOUBLE PRECISION    :: el_nd, temp, frac, U, N_jk, gl_pop, volume
   
   ! Volume of the grid cell in case that width of cells are the same
-  volume = cell_width**3
+  volume = cell_width(1) * cell_width(2) * cell_width(3)
 
+   print*, 'updating grid'
   DO gridcell = 1, n_modelgrid
     IF (model_grid(gridcell)%assoc_cells .GT. 0) THEN
       IF (iteration .EQ. 1) THEN
@@ -22,7 +23,7 @@ SUBROUTINE update_grid(iteration)
         ! Energy density contribeted to the model grid cell 
          model_grid(gridcell)%J = model_grid(gridcell)%J / volume / model_grid(gridcell)%assoc_cells
          temp = (model_grid(gridcell)%J * pi / sigma )**(1./4.) 
-         !print*, temp
+         print*, temp
          model_grid(gridcell)%T = temp
          ! Calculate electron number density for every model grid cell gridcell
          !print*, gridcell, model_grid(gridcell)%J, temp

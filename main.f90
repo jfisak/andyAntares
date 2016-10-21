@@ -32,7 +32,7 @@ SUBROUTINE main
 !  COMMON / RAN_SEED / idum
 
 
-!  OPEN (UNIT=2, FILE='cells.dat')  
+  OPEN (UNIT=2, FILE='cells.dat')  
 !  OPEN (UNIT=3, FILE='modelgrid.dat')
 !  OPEN (UNIT=4, FILE='density.dat')
 
@@ -122,32 +122,32 @@ SUBROUTINE main
   xmax = xmax * R_star
   ymax = ymax * R_star 
   zmax = zmax * R_star
-  ALLOCATE(current_temp(n_modelgrid+1))
+  ALLOCATE(current_temp(n_modelgrid+2))
   print*, 'model grid is set up'
 
   print*,'CHECK GRID SIZES'
-  print*, xmax, R_inf, cell_width
+  print*, R_star, xmax, R_inf, cell_width
   print*, xmax/R_star, R_inf/R_star, cell_width/R_star
-  print*, (-xmax + nx_cell*cell_width)/R_star
+  print*, (-xmax + nx_cell*cell_width(1))/R_star
   !STOP
 
   ! Set up of the propagation grid
   CALL setup_grid()
   print*, 'propagation grid is set up'
 
-  L = 1
-  DO I=1, nx_cell
-     DO J=1, ny_cell
-        DO K=1, nz_cell
-           IF (I .EQ. nx_cell/2) THEN ! Only for one slice in the midle
-              ! WRITE(3, *) cell(L)%corner, model_grid(cell(L)%model_index)%rho
-              ! WRITE(4, *) model_grid(cell(L)%model_index)%rwind, model_grid(cell(L)%model_index)%rho
-              ! WRITE(4, *) model_grid(cell(L)%model_index)%rho
-           END IF
-           L = L + 1
-        END DO
-     END DO
-  END DO         
+!  L = 1
+!  DO I=1, nx_cell
+!     DO J=1, ny_cell
+!        DO K=1, nz_cell
+!           IF (I .EQ. nx_cell/2) THEN ! Only for one slice in the midle
+!              ! WRITE(3, *) cell(L)%corner, model_grid(cell(L)%model_index)%rho
+!              ! WRITE(4, *) model_grid(cell(L)%model_index)%rwind, model_grid(cell(L)%model_index)%rho
+!              ! WRITE(4, *) model_grid(cell(L)%model_index)%rho
+!           END IF
+!           L = L + 1
+!        END DO
+!     END DO
+!  END DO         
   print*, 'Check model grid done'
 
   ! Checking if the analitic solution for the escape probability
@@ -208,5 +208,6 @@ SUBROUTINE main
 !#ifdef MPI_ON
 !  call MPI_FINALIZE(ierr)
 !#endif
+CLOSE(2)
 
 END SUBROUTINE main

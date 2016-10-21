@@ -16,7 +16,7 @@ SUBROUTINE do_rpackage(pack_index)
   ! DOUBLE PRECISION, PARAMETER       :: opa_cell=5.D-3, rho=5.D-2
 
   OPEN (UNIT=3, FILE='position.dat')  
-  ! WRITE(3,*) pack_index, package(pack_index)%cell_numb, package(pack_index)%pos
+   WRITE(3,*) pack_index, get_package_model_index(pack_index), package(pack_index)%pos
 
 
   CALL boundary(pack_index, cell_dist, next_cell)
@@ -25,8 +25,10 @@ SUBROUTINE do_rpackage(pack_index)
       ! Package is outside the wind model but still inside the propagation grid qube
       ! No physical interaction should occure, set e_dist > cell_dist
       e_dist = cell_dist + 1.D10
+  ELSE IF(get_package_model_index(pack_index) .EQ. n_modelgrid + 2) THEN
+      e_dist = 1.D50
+      print*, 'package: ', pack_index, ' is in empty space...'
   ELSE
-      ! Search for interaction
       CALL event_dist(pack_index, cell_dist, e_dist, event)
   END IF
 
@@ -34,10 +36,12 @@ SUBROUTINE do_rpackage(pack_index)
       print*, cell_dist, next_cell, e_dist , cell(package(pack_index)%cell_numb)%indexc
   END IF
 
+  !print*, 'e_dist = ', e_dist, ' cell_dist = ', cell_dist
   IF (e_dist .LT. cell_dist) THEN
      ! print*, 'photon interacts'   
      ! Move photon package from the current position for some distance
      ! print*, pack_index, freq_line, package(pack_index)%freq_cmf, package(pack_index)%freq_rf
+     !print*, 'before moving package #', pack_index
      CALL move_package(pack_index, e_dist)
      CALL update_estimators(pack_index, e_dist)
      ! print*, pack_index, freq_line, package(pack_index)%freq_cmf, package(pack_index)%freq_rf
@@ -47,6 +51,7 @@ SUBROUTINE do_rpackage(pack_index)
      END IF
   ELSE     
      ! Move package from the curent position for the cell_dist
+     !print*, 'before moving package #', pack_index
      CALL move_package(pack_index, cell_dist)     
      CALL update_estimators(pack_index, cell_dist)
      ! If package escaped the calculation volume (next_cell=-99) then
