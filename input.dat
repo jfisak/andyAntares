@@ -1,4 +1,4 @@
-n_pack = 1000000
+n_pack = 100000
 n_nubin = 1000
 nx_cell = 300
 ny_cell = 300

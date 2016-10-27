@@ -13,7 +13,10 @@
 
       cost=2.D0*ran2(idum) - 1.D0
       sint=SQRT(1.D0 - cost*cost)
-      phi=2.D0*pi*ran2(idum)
+! it seems not to be correct because this distribution is not uniform -- points are
+! more distributed arround the poles
+!      phi=2.D0*pi*ran2(idum)
+      phi = acos(2.0*ran2(idum)-1.0)
       cosp=COS(phi)
       sinp=SIN(phi)
       direction(1)=sint*cosp
