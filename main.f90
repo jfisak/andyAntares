@@ -134,6 +134,8 @@ SUBROUTINE main
   ! Set up of the propagation grid
   CALL setup_grid()
   print*, 'propagation grid is set up'
+  ! Set up connection between propagation and model grid
+  CALL connection_prop_model_grid()
 
 !  L = 1
 !  DO I=1, nx_cell
