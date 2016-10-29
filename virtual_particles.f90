@@ -26,6 +26,8 @@ SUBROUTINE virtual_particles(dimIM)
  ! a random point
  DOUBLE PRECISION               :: point
  DOUBLE PRECISION               :: ran2
+ ! not needed variables, only for a subroutine call
+ DOUBLE PRECISION               :: ct, st, cp, sp
 
 
  SELECT CASE (dimIM)
@@ -85,8 +87,8 @@ SUBROUTINE virtual_particles(dimIM)
   IF (np_shell == 0) STOP 'number of virtual particles is small'
   DO J = 1, np_shell
    NP = NP + 1
-   CALL random_unitvector1(direction)
-   IF(mod(NP,2).EQ.0) direction(3) = -direction(3)
+   print*, 'NP = ', NP
+   CALL random_unitvector1(direction,st,ct,sp,cp)
    virtual_particle(NP)%pos = radius * direction
     write(20,*) virtual_particle(NP)%pos(1), virtual_particle(NP)%pos(2), virtual_particle(NP)%pos(3)
   END DO
