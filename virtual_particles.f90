@@ -87,37 +87,11 @@ SUBROUTINE virtual_particles(dimIM)
   IF (np_shell == 0) STOP 'number of virtual particles is small'
   DO J = 1, np_shell
    NP = NP + 1
-   print*, 'NP = ', NP
    CALL random_unitvector1(direction,st,ct,sp,cp)
    virtual_particle(NP)%pos = radius * direction
     write(20,*) virtual_particle(NP)%pos(1), virtual_particle(NP)%pos(2), virtual_particle(NP)%pos(3)
   END DO
  END DO
- !DO I = 1, n_modelgrid
- ! radius = model_grid(I)%rwind
- ! ! we define number of particles in shells
- ! DO J = 1, Ntheta
- !  ! if the particles are in the pole we have to treat them separately
- !  IF( (J.EQ.1).OR.(J.EQ.Ntheta)) THEN
- !   virtual_particle(J)%pos(1) = 0.D0
- !   virtual_particle(J)%pos(2) = 0.D0
- !   if (J.EQ.1) virtual_particle(J)%pos(3) = -radius
- !   if (J.EQ.Ntheta) virtual_particle(J)%pos(3) = radius
- !   NP = NP + 1
- !   ! we do not have to calculate the phi positions of particles
- !   CYCLE
- !  END IF
- !  theta = (2.E0 * pi) / Ntheta * REAL(J) - pi
- !  DO K = 1, Nphi
- !   phi = (2 * pi)/(Nphi) * K
- !   NP = NP + 1
- !   virtual_particle(NP)%pos(1) = radius * cos(theta) * cos(phi)
- !   virtual_particle(NP)%pos(2) = radius * cos(theta) * sin(phi)
- !   virtual_particle(NP)%pos(3) = radius * sin(theta)
- !   write(20,*) virtual_particle(NP)%pos(1), virtual_particle(NP)%pos(2), virtual_particle(NP)%pos(3)
- !  END DO
- ! END DO
- !END DO
  CLOSE(20)
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! 2D models
