@@ -134,23 +134,25 @@ SUBROUTINE main
   !STOP
 
   ! Set up of the propagation grid
-  CALL setup_grid()
+  !CALL setup_grid()
   CALL setup_grid2()
+  ! connects the propagation grid with the model grid
+  CALL connection_prop_model_grid()
   print*, 'propagation grid is set up'
 
-  L = 1
-  DO I=1, nx_cell
-     DO J=1, ny_cell
-        DO K=1, nz_cell
-           IF (I .EQ. nx_cell/2) THEN ! Only for one slice in the midle
-              ! WRITE(3, *) cell(L)%corner, model_grid(cell(L)%model_index)%rho
-              ! WRITE(4, *) model_grid(cell(L)%model_index)%rwind, model_grid(cell(L)%model_index)%rho
-              ! WRITE(4, *) model_grid(cell(L)%model_index)%rho
-           END IF
-           L = L + 1
-        END DO
-     END DO
-  END DO         
+!  L = 1
+!  DO I=1, nx_cell
+!     DO J=1, ny_cell
+!        DO K=1, nz_cell
+!           IF (I .EQ. nx_cell/2) THEN ! Only for one slice in the midle
+!              ! WRITE(3, *) cell(L)%corner, model_grid(cell(L)%model_index)%rho
+!              ! WRITE(4, *) model_grid(cell(L)%model_index)%rwind, model_grid(cell(L)%model_index)%rho
+!              ! WRITE(4, *) model_grid(cell(L)%model_index)%rho
+!           END IF
+!           L = L + 1
+!        END DO
+!     END DO
+!  END DO         
   print*, 'Check model grid done'
 
   ! Checking if the analitic solution for the escape probability

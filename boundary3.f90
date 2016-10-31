@@ -15,15 +15,73 @@ SUBROUTINE boundary3(pack_index, dist, next_cell)
     DOUBLE PRECISION                :: dist_minz, dist, surface_pos 
 
     hit_surface = 0
- 
-!   Number of the current cell
-    nc = package(pack_index)%cell_numb
 
-  corner = dyn_cell(cell_numb)%corner
-  width = dyn_cell(cell_numb)%width
+! calculation of a distance from the basic cell
+! firstly we have to know which basic cell photon occupies
+!   Number of the current cell
+  nc = package(pack_index)%cell_numb
+! define a local variable actCell
+  actCell = nc
+! number of the corresponding basic cell
+  DO WHILE(dyn_cell(actCell)%down_cell /= 0) 
+   actCell = dyn_cell(actCell)%down_cell
+  END DO
+! now we know a basic cell number
+  basic_cell_number = actCell
+! now we compute the nearest distance from the basic cell
+  bcorner = dyn_cell(cell_numb)%corner
+  bwidth = dyn_cell(cell_numb)%width
   phot_pos = package(pack_index)%pos
   dir = package(pack_index)%dir
-  ! we will calculate parameters t1,...,t6
+ ! we will calculate parameters t1,...,t6
+ IF(dir(1) /= 0) THEN
+  bt1 = (dyn_cell(basic_cell_numb)%corner(1) - package(pack_index)%pos(1))/(package(pack_index)%dir(1))
+  bt4 = (dyn_cell(basic_cell_numb)%corner(1) + dyn_cell(basic_cell_numb)%width(1) - package(pack_index)%pos(1))/(package(pack_index)%dir(1))
+ ELSE
+  bt1 = 0
+  bt4 = 0
+ END IF
+ IF(dir(2) /= 0) THEN
+  bt2 = (dyn_cell(basic_cell_numb)%corner(2) - package(pack_index)%pos(2))/(package(pack_index)%dir(2))
+  bt5 = (dyn_cell(basic_cell_numb)%corner(2) + dyn_cell(basic_cell_numb)%width(2) - package(pack_index)%pos(2))/(package(pack_index)%dir(2))
+ ELSE
+  bt2 = 0
+  bt5 = 0
+ END IF
+ IF(dir(3) /= 0) THEN
+  bt3 = (dyn_cell(basic_cell_numb)%corner(3) - package(pack_index)%pos(3))/(package(pack_index)%dir(3))
+  bt6 = (dyn_cell(basic_cell_numb)%corner(3) + dyn_cell(basic_cell_numb)%width(3) - package(pack_index)%pos(3))/(package(pack_index)%dir(3))
+ ELSE
+  bt3 = 0
+  bt6 = 0
+ END IF
+
+  bdist = 1.D99
+  ! we are looking for a bound in front of the photon,
+  ! so we have to choose solution with t > 0
+  IF( (bt1 > 0.E0) .AND. (bt1 < dist) ) THEN
+   bdist = bt1
+  END IF
+  IF( (bt2 > 0.E0)  .AND. (bt2 < dist) ) THEN
+   bdist = bt2
+  END IF
+  IF( (bt3 > 0.E0) .AND. (bt3 < dist)  ) THEN
+   bdist = bt3
+  END IF
+  IF( (bt4 > 0.E0) .AND. (bt4 < dist)  ) THEN
+   bdist = bt4
+  END IF
+  IF( (bt5 > 0.E0) .AND. (bt5 < dist)  ) THEN
+   bdist = bt5
+  END IF
+  IF( (bt6 > 0.E0) .AND. (bt6 < dist)  ) THEN
+   bdist = bt6
+  END IF
+  
+ ! now we are computing the nearest distance to the actuall dynamic cell
+  corner = dyn_cell(cell_numb)%corner
+  width = dyn_cell(cell_numb)%width
+ ! we will calculate parameters t1,...,t6
  IF(dir(1) /= 0) THEN
   t1 = (dyn_cell(cell_numb)%corner(1) - package(pack_index)%pos(1))/(package(pack_index)%dir(1))
   t4 = (dyn_cell(cell_numb)%corner(1) + dyn_cell(cell_numb)%width(1) - package(pack_index)%pos(1))/(package(pack_index)%dir(1))

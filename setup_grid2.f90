@@ -26,7 +26,7 @@
   ! Define length of dynamic arrays (cell and package)
   ALLOCATE (dyn_cell(2 * Ngrid))
 
-  ! Size of the grid cells in x,y, and z direction (now they are with
+  ! Size of the basic grid cells in x,y, and z direction (now they are with
   ! the same size i.e. regular gred)
   cell_width2(1) = 2.E0 * xmax / nx_cell
   cell_width2(2) = 2.E0 * ymax / ny_cell
