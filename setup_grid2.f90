@@ -1,6 +1,6 @@
   SUBROUTINE setup_grid2() 
  
-  ! Set up propagation grid cells
+  ! Set up propagation grid cells using dynamic cells
 
   USE types
 
@@ -50,8 +50,7 @@
      ! number of down cell is equal to zero
      dyn_cell(L)%down_cell = 0
      dyn_cell(L)%up_cell = 0
-     write(15,*) dyn_cell(L)%corner, dyn_cell(L)%width
-!       write(2,*) cell(L)%indexc, cell(L)%corner ! don't write if it is not necessary (computational very expensive)
+     !write(2,*) dyn_cell(L)%indexc, cell(L)%corner ! don't write if it is not necessary (computational very expensive)
      L = L + 1
     END DO
    END DO
@@ -65,11 +64,12 @@
    CALL create_dynamical_grid_cells(I, max_n_dcell)
    print*, 'max_n_dcell = ', max_n_dcell
   END DO
-  OPEN(15,FILE='dyn_cells.dat')
-  DO I = 1, max_n_dcell
-   write(15,*) dyn_cell(I)%corner, dyn_cell(I)%width
-  END DO
  END IF
+  OPEN(15,FILE='dyn_cells.dat')
+   DO I = 1, max_n_dcell
+    write(15,*) dyn_cell(I)%corner, dyn_cell(I)%width
+   END DO
+  CLOSE(15)
 
    ! we will resize the field dyn_cell
    ! because we do not want empty cells

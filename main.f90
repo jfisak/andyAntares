@@ -32,7 +32,7 @@ SUBROUTINE main
 !  COMMON / RAN_SEED / idum
 
 
-!  OPEN (UNIT=2, FILE='cells.dat')  
+  OPEN (UNIT=2, FILE='cells.dat')  
 !  OPEN (UNIT=3, FILE='modelgrid.dat')
 !  OPEN (UNIT=4, FILE='density.dat')
 
@@ -119,6 +119,8 @@ SUBROUTINE main
 
   ! Set up outflow (model grid)
   CALL setup_model_grid()
+  ! create virtual particles for the given model cell
+  CALL virtual_particles(1)
   xmax = xmax * R_star
   ymax = ymax * R_star 
   zmax = zmax * R_star
@@ -209,5 +211,6 @@ SUBROUTINE main
 !#ifdef MPI_ON
 !  call MPI_FINALIZE(ierr)
 !#endif
+CLOSE(2)
 
 END SUBROUTINE main
