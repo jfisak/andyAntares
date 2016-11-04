@@ -13,6 +13,16 @@ SUBROUTINE boundary3(pack_index, dist, next_cell)
     INTEGER                         :: pack_index, nc, next_cell,forbidden, hit_surface
     DOUBLE PRECISION                :: dist_plusx, dist_minx, dist_plusy, dist_miny, dist_plusz
     DOUBLE PRECISION                :: dist_minz, dist, surface_pos 
+    ! photon properties
+    DOUBLE PRECISION, DIMENSION(3)  :: dir, phot_pos
+    ! variables for dynamic cells
+    INTEGER                         :: cell_numb
+    DOUBLE PRECISION                :: t1, t2, t3, t4, t5, t6
+    DOUBLE PRECISION, DIMENSION(3)  :: corner, width
+    ! variables for basic cells
+    INTEGER                         :: actCell, basic_cell_numb
+    DOUBLE PRECISION, DIMENSION(3)  :: bcorner, bwidth
+    DOUBLE PRECISION                :: bt1, bt2, bt3, bt4, bt5, bt6, bdist
 
     hit_surface = 0
 
@@ -27,7 +37,7 @@ SUBROUTINE boundary3(pack_index, dist, next_cell)
    actCell = dyn_cell(actCell)%down_cell
   END DO
 ! now we know a basic cell number
-  basic_cell_number = actCell
+  basic_cell_numb = actCell
 ! now we compute the nearest distance from the basic cell
   bcorner = dyn_cell(cell_numb)%corner
   bwidth = dyn_cell(cell_numb)%width
@@ -36,21 +46,24 @@ SUBROUTINE boundary3(pack_index, dist, next_cell)
  ! we will calculate parameters t1,...,t6
  IF(dir(1) /= 0) THEN
   bt1 = (dyn_cell(basic_cell_numb)%corner(1) - package(pack_index)%pos(1))/(package(pack_index)%dir(1))
-  bt4 = (dyn_cell(basic_cell_numb)%corner(1) + dyn_cell(basic_cell_numb)%width(1) - package(pack_index)%pos(1))/(package(pack_index)%dir(1))
+  bt4 = (dyn_cell(basic_cell_numb)%corner(1) + dyn_cell(basic_cell_numb)%width(1) - &
+        package(pack_index)%pos(1))/(package(pack_index)%dir(1))
  ELSE
   bt1 = 0
   bt4 = 0
  END IF
  IF(dir(2) /= 0) THEN
   bt2 = (dyn_cell(basic_cell_numb)%corner(2) - package(pack_index)%pos(2))/(package(pack_index)%dir(2))
-  bt5 = (dyn_cell(basic_cell_numb)%corner(2) + dyn_cell(basic_cell_numb)%width(2) - package(pack_index)%pos(2))/(package(pack_index)%dir(2))
+  bt5 = (dyn_cell(basic_cell_numb)%corner(2) + dyn_cell(basic_cell_numb)%width(2) - &
+        package(pack_index)%pos(2))/(package(pack_index)%dir(2))
  ELSE
   bt2 = 0
   bt5 = 0
  END IF
  IF(dir(3) /= 0) THEN
   bt3 = (dyn_cell(basic_cell_numb)%corner(3) - package(pack_index)%pos(3))/(package(pack_index)%dir(3))
-  bt6 = (dyn_cell(basic_cell_numb)%corner(3) + dyn_cell(basic_cell_numb)%width(3) - package(pack_index)%pos(3))/(package(pack_index)%dir(3))
+  bt6 = (dyn_cell(basic_cell_numb)%corner(3) + dyn_cell(basic_cell_numb)%width(3) - &
+        package(pack_index)%pos(3))/(package(pack_index)%dir(3))
  ELSE
   bt3 = 0
   bt6 = 0
@@ -62,7 +75,7 @@ SUBROUTINE boundary3(pack_index, dist, next_cell)
   IF( (bt1 > 0.E0) .AND. (bt1 < dist) ) THEN
    bdist = bt1
   END IF
-  IF( (bt2 > 0.E0)  .AND. (bt2 < dist) ) THEN
+  IF( (bt2 > 0.E0) .AND. (bt2 < dist) ) THEN
    bdist = bt2
   END IF
   IF( (bt3 > 0.E0) .AND. (bt3 < dist)  ) THEN

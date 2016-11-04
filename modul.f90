@@ -18,7 +18,7 @@ MODULE types
   END TYPE grid_cell
 
   TYPE dyn_grid_cell
-      INTEGER                        :: model_index
+      INTEGER                        :: model_index, indexc
       INTEGER                        :: cell_index, up_cell, down_cell
       DOUBLE PRECISION, DIMENSION(3) :: corner, width
   END TYPE dyn_grid_cell

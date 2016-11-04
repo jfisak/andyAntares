@@ -37,9 +37,9 @@
    DO J=1, ny_cell
     DO K=1, nz_cell
      ! Index(number) of each cell in x,y, and z direction
-!     dyn_cell(L)%indexc(1) = I
-!     dyn_cell(L)%indexc(2) = J
-!     dyn_cell(L)%indexc(3) = K
+     dyn_cell(L)%indexc(1) = I
+     dyn_cell(L)%indexc(2) = J
+     dyn_cell(L)%indexc(3) = K
      ! Coordinates of the lower left corner of each cell
      dyn_cell(L)%corner(1)  = - xmax + (I - 1) * cell_width2(1)
      dyn_cell(L)%corner(2)  = - ymax + (J - 1) * cell_width2(2)     
