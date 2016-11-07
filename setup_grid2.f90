@@ -71,6 +71,17 @@
     write(15,*) dyn_cell(I)%corner, dyn_cell(I)%width
    END DO
   CLOSE(15)
+! DO I = 1, max_n_dcell
+!  IF(dyn_cell(I)%up_cell == 0) THEN
+!   ! what is the basic cell of this dynamical cell
+!   actCell = I
+!   DO WHILE(dyn_cell(actCell)%down_cell /= 0)
+!    actCell = dyn_cell(actCell)%down_cell
+!   END DO
+!   basicCell = actCell
+!  END IF
+!
+! END DO
 
    ! we will resize the field dyn_cell
    ! because we do not want empty cells

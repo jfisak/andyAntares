@@ -23,5 +23,5 @@
   IF(boundPos(3) == -zmax * r_sun .OR. boundPos(3) == zmax * r_sun) next_cell = -99
   testPos = package(pack_index)%pos + package(pack_index)%dir * tTest
   print*, 'next_cell = ', next_cell
-  IF(next_cell /= -99) CALL find_dyn_cell(testPos,next_cell)
+  IF(next_cell /= -99) CALL find_dyn_cell1(testPos,next_cell)
   END SUBROUTINE next_dyn_cell

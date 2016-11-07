@@ -64,10 +64,10 @@
    DO I = 1, Ngrid
       IF(mod(I,10000) .EQ. 0) print*, 'associating propagation grid', I, REAL(I)/REAL(Ngrid) * 1.E2, ' % completed'
       ! Absolute radius of the propagation grid cell (midle of the cell)
-      r = SQRT( (dyn_cell(I)%corner(1) + cell_width(1)/2.D0)**2 + &
-              (dyn_cell(I)%corner(2) + cell_width(2)/2.D0)**2 + &
-              (dyn_cell(I)%corner(3) + cell_width(3)/2.D0)**2)
-      z = dyn_cell(I)%corner(3) + cell_width(3)/2.D0
+      r = SQRT((dyn_cell(I)%corner(1) + dyn_cell(I)%width(1)/2.D0)**2 + &
+               (dyn_cell(I)%corner(2) + dyn_cell(I)%width(2)/2.D0)**2 + &
+               (dyn_cell(I)%corner(3) + dyn_cell(I)%width(3)/2.D0)**2)
+      z = dyn_cell(I)%corner(3) + dyn_cell(I)%width(3)/2.D0
       !print*,I,r/R_star
       IF ((r .GT. R_star) .AND. (r .LT. R_inf)) THEN
        ! Cells with radius larger than the stellar radius but smaller

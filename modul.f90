@@ -18,7 +18,8 @@ MODULE types
   END TYPE grid_cell
 
   TYPE dyn_grid_cell
-      INTEGER                        :: model_index, indexc
+      INTEGER                        :: model_index
+      INTEGER, DIMENSION(3)          :: indexc
       INTEGER                        :: cell_index, up_cell, down_cell
       DOUBLE PRECISION, DIMENSION(3) :: corner, width
   END TYPE dyn_grid_cell
@@ -44,7 +45,8 @@ MODULE types
 
   TYPE modelgrid 
      INTEGER                         :: assoc_cells
-     DOUBLE PRECISION                :: T, J, rho, vel, rwind, e_dens
+     DOUBLE PRECISION                :: zwind, rwind
+     DOUBLE PRECISION                :: T, J, rho, vel, e_dens
      TYPE(grid_comp_t), ALLOCATABLE  :: grid_comp(:)
   END TYPE modelgrid
 

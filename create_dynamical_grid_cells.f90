@@ -129,6 +129,7 @@
       END DO
      ! we have to create additional cells otherwise
      ELSE
+      ! we check if the width of new cells will be large enough
       if (dyn_cell(act_n_dyncell)%width(1)/2.E0 < minwidth .OR. &
           dyn_cell(act_n_dyncell)%width(2)/2.E0 < minwidth .OR. &
           dyn_cell(act_n_dyncell)%width(3)/2.E0 < minwidth) then

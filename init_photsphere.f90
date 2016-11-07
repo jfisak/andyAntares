@@ -43,7 +43,7 @@ SUBROUTINE init_photsphere(n_pack)
 !      print*, 'ind_cell_numb = ', ind_cell_numb, '...'
 !      STOP 'Subroutine init_photsphere: ERROR in cell_number'
 !     END IF
-     CALL find_dyn_cell(package(I)%pos,ind_cell_numb)
+     CALL find_dyn_cell1(package(I)%pos,ind_cell_numb)
      package(I)%cell_numb = ind_cell_numb
      write(16,*) dyn_cell(ind_cell_numb)%corner, package(I)%pos
 

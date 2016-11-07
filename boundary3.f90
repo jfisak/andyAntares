@@ -21,6 +21,7 @@ SUBROUTINE boundary3(pack_index, dist, next_cell)
     DOUBLE PRECISION, DIMENSION(3)  :: corner, width
     ! variables for basic cells
     INTEGER                         :: actCell, basic_cell_numb
+    INTEGER                         :: next_bas_cell, next_bcell
     DOUBLE PRECISION, DIMENSION(3)  :: bcorner, bwidth
     DOUBLE PRECISION                :: bt1, bt2, bt3, bt4, bt5, bt6, bdist
 
@@ -74,21 +75,51 @@ SUBROUTINE boundary3(pack_index, dist, next_cell)
   ! so we have to choose solution with t > 0
   IF( (bt1 > 0.E0) .AND. (bt1 < dist) ) THEN
    bdist = bt1
+   IF(dyn_cell(nc)%indexc(1) == nx_cell) THEN
+    next_bcell = -99
+   ELSE
+    next_bcell = nc + ny_cell * nz_cell
+   END IF
   END IF
   IF( (bt2 > 0.E0) .AND. (bt2 < dist) ) THEN
    bdist = bt2
+   IF(dyn_cell(nc)%indexc(1) == ny_cell) THEN
+    next_bcell = -99
+   ELSE
+    next_bcell = nc + nz_cell
+   END IF
   END IF
   IF( (bt3 > 0.E0) .AND. (bt3 < dist)  ) THEN
    bdist = bt3
+   IF(dyn_cell(nc)%indexc(1) == nz_cell) THEN
+    next_bcell = -99
+   ELSE
+    next_bcell = nc + ny_cell * nz_cell
+   END IF
   END IF
   IF( (bt4 > 0.E0) .AND. (bt4 < dist)  ) THEN
    bdist = bt4
+   IF(dyn_cell(nc)%indexc(1) == 1) THEN
+    next_bcell = -99
+   ELSE
+    next_bcell = nc - ny_cell * nz_cell
+   END IF
   END IF
   IF( (bt5 > 0.E0) .AND. (bt5 < dist)  ) THEN
    bdist = bt5
+   IF(dyn_cell(nc)%indexc(1) == 1) THEN
+    next_bcell = -99
+   ELSE
+    next_bcell = nc - nz_cell
+   END IF
   END IF
   IF( (bt6 > 0.E0) .AND. (bt6 < dist)  ) THEN
    bdist = bt6
+   IF(dyn_cell(nc)%indexc(1) == 1) THEN
+    next_bcell = -99
+   ELSE
+    next_bcell = nc - 1
+   END IF
   END IF
   
  ! now we are computing the nearest distance to the actuall dynamic cell
@@ -138,6 +169,14 @@ SUBROUTINE boundary3(pack_index, dist, next_cell)
   IF( (t6 > 0.E0) .AND. (t6 < dist)  ) THEN
    dist = t6
   END IF
+  ! now we decide if the basic cell number will change or not
+  IF(bdist == dist) THEN
+   next_bas_cell = next_bcell
+  ELSE
+   next_bas_cell = nc
+  END IF
+
+
     CALL next_dyn_cell3(nc,pack_index,next_cell)
     !print*, 'nc = ', nc, 'pack_index = ', pack_index, 'next_cell = ', next_cell, 'dist = ', dist
 !   Calculate the distances to the all cell surfaces from the photon current position along the ray
