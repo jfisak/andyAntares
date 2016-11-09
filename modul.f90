@@ -88,7 +88,8 @@ MODULE types
   END TYPE virt_particle
 
 ! Global variables
-  DOUBLE PRECISION                   :: xmax, ymax, zmax, cell_width
+  DOUBLE PRECISION                   :: xmax, ymax, zmax
+  DOUBLE PRECISION, DIMENSION(3)     :: basic_cell_width
   INTEGER                            :: dyngrid
   DOUBLE PRECISION                   :: R_star, R_inf, V_inf, M_dot, T_eff
   DOUBLE PRECISION, ALLOCATABLE      :: incomingflux(:,:)

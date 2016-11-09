@@ -28,9 +28,9 @@
 
   ! Size of the basic grid cells in x,y, and z direction (now they are with
   ! the same size i.e. regular gred)
-  cell_width2(1) = 2.E0 * xmax / nx_cell
-  cell_width2(2) = 2.E0 * ymax / ny_cell
-  cell_width2(3) = 2.E0 * zmax / nz_cell
+  basic_cell_width(1) = 2.E0 * xmax / DBLE(nx_cell)
+  basic_cell_width(2) = 2.E0 * ymax / DBLE(ny_cell)
+  basic_cell_width(3) = 2.E0 * zmax / DBLE(nz_cell)
 
   L = 1
   DO I=1, nx_cell
@@ -41,22 +41,20 @@
      dyn_cell(L)%indexc(2) = J
      dyn_cell(L)%indexc(3) = K
      ! Coordinates of the lower left corner of each cell
-     dyn_cell(L)%corner(1)  = - xmax + (I - 1) * cell_width2(1)
-     dyn_cell(L)%corner(2)  = - ymax + (J - 1) * cell_width2(2)     
-     dyn_cell(L)%corner(3)  = - zmax + (K - 1) * cell_width2(3) 
+     dyn_cell(L)%corner(1)  = - xmax + DBLE((I - 1)) * basic_cell_width(1)
+     dyn_cell(L)%corner(2)  = - ymax + DBLE((J - 1)) * basic_cell_width(2)     
+     dyn_cell(L)%corner(3)  = - zmax + DBLE((K - 1)) * basic_cell_width(3) 
      ! cell width
-     dyn_cell(L)%width(1) = cell_width2(1)
-     dyn_cell(L)%width(2) = cell_width2(2)
-     dyn_cell(L)%width(3) = cell_width2(3)
+     dyn_cell(L)%width(1) = basic_cell_width(1)
+     dyn_cell(L)%width(2) = basic_cell_width(2)
+     dyn_cell(L)%width(3) = basic_cell_width(3)
      ! number of down cell is equal to zero
      dyn_cell(L)%down_cell = 0
      dyn_cell(L)%up_cell = 0
-     !write(2,*) dyn_cell(L)%indexc, cell(L)%corner ! don't write if it is not necessary (computational very expensive)
      L = L + 1
     END DO
    END DO
   END DO
-  CLOSE(15)
   ! the maximal number of cells is now equal to L
   max_n_dcell = Ngrid
 

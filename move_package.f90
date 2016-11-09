@@ -46,15 +46,15 @@ SUBROUTINE move_package(pack_index, dist)
      print*, 'after move (pos)', package(pack_index)%pos
   END IF
 
-  IF (debug .EQ. 2) THEN 
-     print*, package(pack_index)%pos
-     nc=package(pack_index)%cell_numb
-     print*, nc, cell(nc)%indexc, cell(nc)%corner, cell(nc)%corner+cell_width
-     
-     print*, FLOOR(package(pack_index)%pos(1)/cell_width + dble(nx_cell)/2) + 1
-     print*, FLOOR(package(pack_index)%pos(2)/cell_width + dble(ny_cell)/2) + 1
-     print*, FLOOR(package(pack_index)%pos(3)/cell_width + dble(nz_cell)/2) + 1
-  END IF
+!  IF (debug .EQ. 2) THEN 
+!     print*, package(pack_index)%pos
+!     nc=package(pack_index)%cell_numb
+!     print*, nc, cell(nc)%indexc, cell(nc)%corner, cell(nc)%corner+basic_cell_width
+!     
+!     print*, FLOOR(package(pack_index)%pos(1)/cell_width + dble(nx_cell)/2) + 1
+!     print*, FLOOR(package(pack_index)%pos(2)/cell_width + dble(ny_cell)/2) + 1
+!     print*, FLOOR(package(pack_index)%pos(3)/cell_width + dble(nz_cell)/2) + 1
+!  END IF
 
   package(pack_index)%delta_s = package(pack_index)%delta_s + dist
 

@@ -11,7 +11,7 @@ SUBROUTINE update_grid(iteration)
   DOUBLE PRECISION    :: el_nd, temp, frac, U, N_jk, gl_pop, volume
   
   ! Volume of the grid cell in case that width of cells are the same
-  volume = cell_width**3
+  volume = basic_cell_width(1) * basic_cell_width(2) * basic_cell_width(3)
 
   DO gridcell = 1, n_modelgrid
     IF (model_grid(gridcell)%assoc_cells .GT. 0) THEN

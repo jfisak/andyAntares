@@ -45,7 +45,7 @@ SUBROUTINE init_photsphere(n_pack)
 !     END IF
      CALL find_dyn_cell1(package(I)%pos,ind_cell_numb)
      package(I)%cell_numb = ind_cell_numb
-     write(16,*) dyn_cell(ind_cell_numb)%corner, package(I)%pos
+     write(16,*) dyn_cell(ind_cell_numb)%corner, dyn_cell(ind_cell_numb)%width, package(I)%pos
 
      ! Flag the packet as an active r-pkt and allow all kind of cell crossings
      package(I)%active     = 1
@@ -65,7 +65,6 @@ SUBROUTINE init_photsphere(n_pack)
       END DO
      END IF
 
-
      ! Now convert the energy and frequency to their cmf values
      CALL doppler_factor(I, D)
      package(I)%freq_cmf = package(I)%freq_rf * D 
@@ -77,7 +76,6 @@ SUBROUTINE init_photsphere(n_pack)
      package(I)%delta_s = 0.D0
      ! print*, package(I)%cell_numb,package(I)%dir !,  package(I)%pos, package(I)% e_rf
      ! e_cmf, freq_cmf, freq_rf, cell_numb, pack_numb, active
-  
   END DO
   CLOSE(16)
 

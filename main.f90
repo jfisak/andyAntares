@@ -32,7 +32,7 @@ SUBROUTINE main
 !  COMMON / RAN_SEED / idum
 
 
-  OPEN (UNIT=2, FILE='cells.dat')  
+!  OPEN (UNIT=2, FILE='cells.dat')  
 !  OPEN (UNIT=3, FILE='modelgrid.dat')
 !  OPEN (UNIT=4, FILE='density.dat')
 
@@ -128,9 +128,9 @@ SUBROUTINE main
   print*, 'model grid is set up'
 
   print*,'CHECK GRID SIZES'
-  print*, xmax, R_inf, cell_width
-  print*, xmax/R_star, R_inf/R_star, cell_width/R_star
-  print*, (-xmax + nx_cell*cell_width)/R_star
+  print*, xmax, R_inf, basic_cell_width
+  print*, xmax/R_star, R_inf/R_star, basic_cell_width/R_star
+  print*, (-xmax + nx_cell*basic_cell_width)/R_star
   !STOP
 
   ! Set up of the propagation grid

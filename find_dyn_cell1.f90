@@ -1,3 +1,6 @@
+! this subroutine finds a dynamic cell, where is the given
+! photon located
+! this subroutine expects a position out of bounds of the dyncells
 SUBROUTINE find_dyn_cell1(pos,actual_cell)
 
 USE types
@@ -14,9 +17,9 @@ IMPLICIT NONE
         INTEGER                                 :: actCell
 
 ! firstly we can compute which basic cell this point contains
-bcell(1) = FLOOR(pos(1)/cell_width + dble(nx_cell)/2) + 1
-bcell(2) = FLOOR(pos(2)/cell_width + dble(ny_cell)/2) + 1
-bcell(3) = FLOOR(pos(3)/cell_width + dble(nz_cell)/2) + 1
+bcell(1) = FLOOR(pos(1)/basic_cell_width(1) + dble(nx_cell)/2.D0) + 1
+bcell(2) = FLOOR(pos(2)/basic_cell_width(2) + dble(ny_cell)/2.D0) + 1
+bcell(3) = FLOOR(pos(3)/basic_cell_width(3) + dble(nz_cell)/2.D0) + 1
 ! index of the given basic cell
 bindex = (bcell(1) - 1) * ny_cell * nz_cell + (bcell(2) - 1) * nz_cell + bcell(3)
 ! initial setting of the local variable corresponding to the actual cell
@@ -32,6 +35,7 @@ END IF
 ! we are looking for the given cell in dyncell tree
 DO
  ! did we found the given cell containing the given point?
+ print*, 'find_dyn_cell1: actCell = ', actCell
  IF((pos(1) .GE. dyn_cell(actCell)%corner(1)) .AND. (pos(1) .LE. dyn_cell(actCell)%corner(1) + dyn_cell(actCell)%width(1)) .AND. &
     (pos(2) .GE. dyn_cell(actCell)%corner(2)) .AND. (pos(2) .LE. dyn_cell(actCell)%corner(2) + dyn_cell(actCell)%width(2)) .AND. &
     (pos(3) .GE. dyn_cell(actCell)%corner(3)) .AND. (pos(3) .LE. dyn_cell(actCell)%corner(3) + dyn_cell(actCell)%width(3))) THEN

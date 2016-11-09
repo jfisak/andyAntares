@@ -1,14 +1,20 @@
-SUBROUTINE find_dyn_cell2(pos,basic_cell,next_cell)
+! this subroutine will find all dynamic cells
+! containing the given point (this is the main
+! difference between this sbr and sbr find_dyn_cell1
+SUBROUTINE find_dyn_cell2(pos, act_dyn_cell, basic_cell, next_cell)
 
 USE types
 IMPLICIT NONE
 
 ! input variables
-DOUBLE PRECISION, DIMENSION(3)          :: pos
-INTEGER                                 :: basic_cell
+! position of the given point
+DOUBLE PRECISION, DIMENSION(3)                  :: pos
+! index of the next basic cell
+INTEGER                                         :: basic_cell
+! actual dynamic cell of the photon
+INTEGER                                         :: act_dyn_cell
 ! output variables
-INTEGER                                 :: actual_cell
-
+INTEGER                                         :: next_cell
 ! basic cell variables
         INTEGER, DIMENSION(3)                   :: bcell
         INTEGER                                 :: bindex
@@ -18,29 +24,24 @@ INTEGER                                 :: actual_cell
         INTEGER                                 :: foundCells
         INTEGER, DIMENSION(8)                   :: cells
 
-! firstly we can compute which basic cell this point contains
-bcell(1) = FLOOR(pos(1)/cell_width + dble(nx_cell)/2) + 1
-bcell(2) = FLOOR(pos(2)/cell_width + dble(ny_cell)/2) + 1
-bcell(3) = FLOOR(pos(3)/cell_width + dble(nz_cell)/2) + 1
-! index of the given basic cell
-bindex = (bcell(1) - 1) * ny_cell * nz_cell + (bcell(2) - 1) * nz_cell + bcell(3)
-! initial setting of the local variable corresponding to the actual cell
-actCell = bindex
-foundCells = 0
-! if there is no dynamical cell in the given basic cell
-IF(dyn_cell(actCell)%up_cell == 0) THEN
- next_cell = actCell
- RETURN
-! we will move upper in the dyncell tree otherwise
+actCell = dyn_cell(basic_cell)%up_cell
+IF(actCell == 0) THEN   ! there is no dynamical cell we are looking for
+ next_cell = actCell    ! so the next cell we are looking for is the
+ RETURN                 ! basic cell with index basic_cell
 ELSE
  actCell = dyn_cell(actCell)%up_cell
 END IF
-! we are looking for the given cell in dyncell tree
+!_____________________________________________________________________
+! we are looking for the given cells in dyncell tree !!!!!!!!!!!!!!!!!
+!_____________________________________________________________________
 DO
  ! did we found the given cell containing the given point?
- IF((pos(1) .GE. dyn_cell(actCell)%corner(1)) .AND. (pos(1) .LE. dyn_cell(actCell)%corner(1) + dyn_cell(actCell)%width(1)) .AND. &
-    (pos(2) .GE. dyn_cell(actCell)%corner(2)) .AND. (pos(2) .LE. dyn_cell(actCell)%corner(2) + dyn_cell(actCell)%width(2)) .AND. &
-    (pos(3) .GE. dyn_cell(actCell)%corner(3)) .AND. (pos(3) .LE. dyn_cell(actCell)%corner(3) + dyn_cell(actCell)%width(3))) THEN
+ IF((pos(1) .GE. dyn_cell(actCell)%corner(1)) .AND. &
+    (pos(1) .LE. dyn_cell(actCell)%corner(1) + dyn_cell(actCell)%width(1)) .AND. &
+    (pos(2) .GE. dyn_cell(actCell)%corner(2)) .AND. &
+    (pos(2) .LE. dyn_cell(actCell)%corner(2) + dyn_cell(actCell)%width(2)) .AND. &
+    (pos(3) .GE. dyn_cell(actCell)%corner(3)) .AND. &
+    (pos(3) .LE. dyn_cell(actCell)%corner(3) + dyn_cell(actCell)%width(3))) THEN
   ! we have found a cell containing the given point
   ! is this cell on the top of the dyncell tree?
   IF(dyn_cell(actCell)%up_cell == 0) THEN
@@ -61,19 +62,24 @@ DO
  END IF
  IF(actCell == basic_cell) EXIT
 END DO
-
+!_____________________________________________________________________
+!_____________________________________________________________________
+!_____________________________________________________________________
 ! now we have a set of possible cells we have to choose which one is the right cell
 IF(foundCells == 0) THEN
  STOP 'no cell was found'
 ELSE IF(foundCells == 1) THEN
  next_cell = cells(1)
 ELSE IF(foundCells == 2) THEN
-
-ELSE IF(foundCells == 4) THEN
-
-ELSE IF(foundCells == 8) THEN
-
+ if (cells(1) == act_dyn_cell) then
+  next_cell = cells(2)
+ else if(cells(2) == act_dyn_cell) then
+  next_cell = cells(1)
+ end if
+! we don't have a solution for more cells now
+! will be added in the future
 ELSE
  STOP 'this number of cells is not now known'
+END IF
 
 END SUBROUTINE find_dyn_cell2

@@ -17,7 +17,6 @@ SUBROUTINE do_rpackage(pack_index)
 
   !OPEN (UNIT=3, FILE='position.dat')  
 
-
   CALL boundary3(pack_index, cell_dist, next_cell)
 !  WRITE(3,*) package(pack_index)%pos, dyn_cell(package(pack_index)%cell_numb)%corner, &
 !                dyn_cell(package(pack_index)%cell_numb)%width
