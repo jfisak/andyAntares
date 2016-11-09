@@ -1,4 +1,4 @@
-SUBROUTINE find_dyn_cell2(pos,basic_cell,actual_cell)
+SUBROUTINE find_dyn_cell2(pos,basic_cell,next_cell)
 
 USE types
 IMPLICIT NONE
@@ -29,7 +29,7 @@ actCell = bindex
 foundCells = 0
 ! if there is no dynamical cell in the given basic cell
 IF(dyn_cell(actCell)%up_cell == 0) THEN
- actual_cell = actCell
+ next_cell = actCell
  RETURN
 ! we will move upper in the dyncell tree otherwise
 ELSE
@@ -62,7 +62,18 @@ DO
  IF(actCell == basic_cell) EXIT
 END DO
 
+! now we have a set of possible cells we have to choose which one is the right cell
+IF(foundCells == 0) THEN
+ STOP 'no cell was found'
+ELSE IF(foundCells == 1) THEN
+ next_cell = cells(1)
+ELSE IF(foundCells == 2) THEN
 
+ELSE IF(foundCells == 4) THEN
 
+ELSE IF(foundCells == 8) THEN
+
+ELSE
+ STOP 'this number of cells is not now known'
 
 END SUBROUTINE find_dyn_cell2
