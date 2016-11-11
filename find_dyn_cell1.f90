@@ -24,10 +24,11 @@ bcell(3) = FLOOR(pos(3)/basic_cell_width(3) + dble(nz_cell)/2.D0) + 1
 bindex = (bcell(1) - 1) * ny_cell * nz_cell + (bcell(2) - 1) * nz_cell + bcell(3)
 ! initial setting of the local variable corresponding to the actual cell
 actCell = bindex
+print*, 'find_dyn_cell1: actCell = ', actCell
 ! if there is no dynamical cell in the given basic cell
 IF(dyn_cell(actCell)%up_cell == 0) THEN
  actual_cell = actCell
- RETURN
+ RETURN 
 ! we will move upper in the dyncell tree otherwise
 ELSE
  actCell = dyn_cell(actCell)%up_cell
@@ -35,7 +36,6 @@ END IF
 ! we are looking for the given cell in dyncell tree
 DO
  ! did we found the given cell containing the given point?
- print*, 'find_dyn_cell1: actCell = ', actCell
  IF((pos(1) .GE. dyn_cell(actCell)%corner(1)) .AND. (pos(1) .LE. dyn_cell(actCell)%corner(1) + dyn_cell(actCell)%width(1)) .AND. &
     (pos(2) .GE. dyn_cell(actCell)%corner(2)) .AND. (pos(2) .LE. dyn_cell(actCell)%corner(2) + dyn_cell(actCell)%width(2)) .AND. &
     (pos(3) .GE. dyn_cell(actCell)%corner(3)) .AND. (pos(3) .LE. dyn_cell(actCell)%corner(3) + dyn_cell(actCell)%width(3))) THEN

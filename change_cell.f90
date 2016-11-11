@@ -18,6 +18,7 @@ SUBROUTINE change_cell(pack_index, next_cell)
      package(pack_index)%typ = type_escaped
      package(pack_index)%active = 0
   ELSE
+     print*, 'change cell: next_cell = ', next_cell
      package(pack_index)%cell_numb = next_cell
   END IF
  

@@ -24,10 +24,13 @@ INTEGER                                         :: next_cell
         INTEGER                                 :: foundCells
         INTEGER, DIMENSION(8)                   :: cells
 
-actCell = dyn_cell(basic_cell)%up_cell
-IF(actCell == 0) THEN   ! there is no dynamical cell we are looking for
- next_cell = actCell    ! so the next cell we are looking for is the
- RETURN                 ! basic cell with index basic_cell
+actCell = basic_cell
+! there is no dynamical cell we are looking for
+! so the next cell we are looking for is the
+! basic cell with index basic_cell
+IF(dyn_cell(actCell)%up_cell == 0) THEN
+ next_cell = actCell    
+ RETURN                 
 ELSE
  actCell = dyn_cell(actCell)%up_cell
 END IF
@@ -66,6 +69,7 @@ END DO
 !_____________________________________________________________________
 !_____________________________________________________________________
 ! now we have a set of possible cells we have to choose which one is the right cell
+print*, 'find_dyn_cell2: foundCells = ', foundCells
 IF(foundCells == 0) THEN
  STOP 'no cell was found'
 ELSE IF(foundCells == 1) THEN
@@ -76,6 +80,7 @@ ELSE IF(foundCells == 2) THEN
  else if(cells(2) == act_dyn_cell) then
   next_cell = cells(1)
  end if
+print*, 'find_dyn_cell2: next_cell = ', next_cell
 ! we don't have a solution for more cells now
 ! will be added in the future
 ELSE

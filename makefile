@@ -12,7 +12,7 @@ linkhost=$(shell hostname)
 
 #Objects
 OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o modul.o	  \
-          random_unitvector.o ran2.o boundary3.o	  \
+          random_unitvector.o ran2.o boundary3.o find_dist.o find_bdist.o \
           change_cell.o move_package.o emit_rpackage.o			  \
           init_photsphere.o random_unitvector2.o		  \
           random_unitvector1.o read_1D_model.o doppler_factor.o		  \
