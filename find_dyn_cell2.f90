@@ -30,6 +30,7 @@ actCell = basic_cell
 ! basic cell with index basic_cell
 IF(dyn_cell(actCell)%up_cell == 0) THEN
  next_cell = actCell    
+ print*, 'find_dyn_cell2: next_cell = ', next_cell
  RETURN                 
 ELSE
  actCell = dyn_cell(actCell)%up_cell
@@ -80,7 +81,6 @@ ELSE IF(foundCells == 2) THEN
  else if(cells(2) == act_dyn_cell) then
   next_cell = cells(1)
  end if
-print*, 'find_dyn_cell2: next_cell = ', next_cell
 ! we don't have a solution for more cells now
 ! will be added in the future
 ELSE

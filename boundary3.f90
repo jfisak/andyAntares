@@ -15,6 +15,7 @@ DOUBLE PRECISION                :: dist
 ! local actual cell
 INTEGER                         :: actCell
 ! basic cell variables
+! basic_cell_numb: actual basic cell number
 INTEGER                         :: basic_cell_numb, next_bcell, next_bas_cell
 DOUBLE PRECISION                :: bdist
 ! dynamic cell variables
@@ -39,11 +40,14 @@ DOUBLE PRECISION, DIMENSION(3)  :: cross_pos
   basic_cell_numb = actCell
   print*, 'boundary3: basic_cell_numb = ', basic_cell_numb
 ! now we compute the nearest distance from the basic cell
- CALL find_bdist(pack_index, basic_cell_numb, bdist, next_bcell)
+ CALL find_bdist(pack_index, basic_cell_numb, bdist)
 ! now we are computing the nearest distance to the actuall dynamic cell
  CALL find_dist(pack_index,cell_numb, dist)
 ! now we decide if the basic cell number will change or not
+  print*, 'boundary3: bdist = ', bdist, ' dist = ', dist
   IF(bdist == dist) THEN
+   ! we have to find a new cell
+   CALL find_basic_cell(basic_cell_numb, pack_index,bdist, next_bcell)
    next_bas_cell = next_bcell
   ELSE
    next_bas_cell = basic_cell_numb
