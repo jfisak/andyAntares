@@ -24,8 +24,9 @@ bcell(3) = FLOOR(pos(3)/basic_cell_width(3) + dble(nz_cell)/2.D0) + 1
 bindex = (bcell(1) - 1) * ny_cell * nz_cell + (bcell(2) - 1) * nz_cell + bcell(3)
 ! initial setting of the local variable corresponding to the actual cell
 actCell = bindex
-print*, 'find_dyn_cell1: actCell = ', actCell
+!print*, 'find_dyn_cell1: actCell = ', actCell
 ! if there is no dynamical cell in the given basic cell
+
 IF(dyn_cell(actCell)%up_cell == 0) THEN
  actual_cell = actCell
  RETURN 

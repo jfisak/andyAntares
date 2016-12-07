@@ -12,6 +12,7 @@ SUBROUTINE move_package(pack_index, dist)
   IF (debug .EQ. 1) THEN 
     ! print*, 'before move (pos, pack_index, pos)', package(pack_index)%pos, pack_index, dist
   END IF
+!     print*, 'before move (pos, pack_index, pos)', package(pack_index)%pos, pack_index, dist
 
   IF (debug .EQ. 2) THEN 
      print*, package(pack_index)%pos, pack_index, dist
@@ -22,6 +23,7 @@ SUBROUTINE move_package(pack_index, dist)
    ! print*, FLOOR(package(pack_index)%pos(3)/cell_width + nz_cell/2) + 1
   END IF
 
+!  print*, 'move_package: moving package for dist = ', dist
   ! Calculate the position of package
   package(pack_index)%pos(1) = package(pack_index)%pos(1) + dist * package(pack_index)%dir(1) 
   package(pack_index)%pos(2) = package(pack_index)%pos(2) + dist * package(pack_index)%dir(2) 
@@ -45,6 +47,7 @@ SUBROUTINE move_package(pack_index, dist)
   IF (debug .EQ. 1) THEN 
      print*, 'after move (pos)', package(pack_index)%pos
   END IF
+!     print*, 'after move (pos)', package(pack_index)%pos
 
 !  IF (debug .EQ. 2) THEN 
 !     print*, package(pack_index)%pos

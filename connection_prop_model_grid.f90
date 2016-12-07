@@ -108,9 +108,9 @@
    print*, 'number of propagation cells in vacuum: ', model_grid(n_modelgrid + 2)%assoc_cells
   ENDIF
 
-!  print*, 'printing number of associated cells'
-!  DO I = 1, n_modelgrid + 2
-!     print*, I, model_grid(I)%assoc_cells
-!  END DO
+  print*, 'printing number of associated cells'
+  DO I = 1, n_modelgrid + 1
+     print*, I, model_grid(I)%assoc_cells
+  END DO
 
   END SUBROUTINE connection_prop_model_grid

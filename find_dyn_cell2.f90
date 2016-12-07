@@ -30,7 +30,7 @@ actCell = basic_cell
 ! basic cell with index basic_cell
 IF(dyn_cell(actCell)%up_cell == 0) THEN
  next_cell = actCell    
- print*, 'find_dyn_cell2: next_cell = ', next_cell
+! print*, 'find_dyn_cell2: next_cell = ', next_cell
  RETURN                 
 ELSE
  actCell = dyn_cell(actCell)%up_cell

@@ -120,7 +120,7 @@ SUBROUTINE main
   ! Set up outflow (model grid)
   CALL setup_model_grid()
   ! create virtual particles for the given model cell
-  CALL virtual_particles(1)
+  IF (dyngrid == 1) CALL virtual_particles(1)
   xmax = xmax * R_star
   ymax = ymax * R_star 
   zmax = zmax * R_star
