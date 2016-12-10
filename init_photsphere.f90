@@ -85,11 +85,11 @@ SUBROUTINE init_photsphere(n_pack)
   ! package(I)%pos = 95.
   ! package(I)%dir = -1.
   ! package(I)%e_rf = 0.
-     OPEN(19,file="photonFdistr.dat")
-      do I=1,n_pack
-       write(19,*) package(I)%freq_rf
-      end do
-     CLOSE(19)
+!     OPEN(19,file="photonFdistr.dat")
+!      do I=1,n_pack
+!       write(19,*) package(I)%freq_rf
+!      end do
+!     CLOSE(19)
         
 
 END SUBROUTINE init_photsphere
