@@ -24,6 +24,7 @@ INTEGER                         :: cell_numb
 DOUBLE PRECISION, DIMENSION(3)  :: dir, phot_pos
 ! position of the cross point
 DOUBLE PRECISION, DIMENSION(3)  :: cross_pos
+DOUBLE PRECISION, PARAMETER     :: delta = 1E-3
 
 ! calculation of a distance from the basic cell
 ! firstly we have to know which basic cell photon occupies
@@ -45,7 +46,7 @@ DOUBLE PRECISION, DIMENSION(3)  :: cross_pos
  CALL find_dist(pack_index,cell_numb, dist)
 ! now we decide if the basic cell number will change or not
 !  print*, 'boundary3: bdist = ', bdist, ' dist = ', dist
-  IF(bdist == dist) THEN
+  IF(abs(bdist/dist) - 1 < delta) THEN
    ! we have to find a new cell
    CALL find_basic_cell(basic_cell_numb, pack_index,bdist, next_bcell)
    next_bas_cell = next_bcell
@@ -53,7 +54,7 @@ DOUBLE PRECISION, DIMENSION(3)  :: cross_pos
    next_bas_cell = basic_cell_numb
   END IF
 ! position of the point
- cross_pos = package(pack_index)%pos + package(pack_index)%dir * dist
+! cross_pos = package(pack_index)%pos + package(pack_index)%dir * dist
 
 ! now we calculate next dynamical cell
   !print*, 'boundary3: cross_pos = ', cross_pos, ' cell_numb = ', cell_numb, &
@@ -61,7 +62,7 @@ DOUBLE PRECISION, DIMENSION(3)  :: cross_pos
   IF(next_bas_cell <= 0) THEN
    next_cell = -99
   ELSE
-   CALL find_dyn_cell2(cross_pos, cell_numb, next_bas_cell, next_cell)
+   CALL find_dyn_cell2(dist, pack_index, cell_numb, next_bas_cell, next_cell)
   END IF
   !print*, 'next_cell = ', next_cell
 END SUBROUTINE boundary3

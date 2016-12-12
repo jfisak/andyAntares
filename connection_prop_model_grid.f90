@@ -8,6 +8,7 @@
   DOUBLE PRECISION, PARAMETER    :: deltamax = 1.D12
   ! loop variables
   INTEGER                        :: I, J, M
+  INTEGER                        :: max_n_dcell
   ! variables for calculating the shortest distance between
   ! propagation and model cell
   DOUBLE PRECISION               :: delta, delta2
@@ -15,7 +16,7 @@
   DOUBLE PRECISION               :: r, z
   
 
-
+  max_n_dcell = SIZE(dyn_cell)
   ! Establish a connection between the propagation grid and the
   ! model grid. This depends on the model grid type (1D, 2D, 3D)
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -24,7 +25,8 @@
   IF (model_type .EQ. 1) THEN
     ! This is the algorithm needed for a 1D model grid
     ! Define which model grid cell coresponds to the propagation grid cell
-    DO I = 1, Ngrid
+    DO I = 1, max_n_dcell
+     IF(dyn_cell(I)%up_cell == 0) THEN
       ! Absolute radius of the propagation grid cell (midle of the cell)
       r = SQRT( (dyn_cell(I)%corner(1) + dyn_cell(I)%width(1)/2.D0)**2 + &
                 (dyn_cell(I)%corner(2) + dyn_cell(I)%width(2)/2.D0)**2 + &
@@ -53,7 +55,8 @@
         ! Make them point to the dummy model grid cell
         dyn_cell(I)%model_index = n_modelgrid + 1     
         model_grid(n_modelgrid + 1)%assoc_cells = model_grid(n_modelgrid + 1)%assoc_cells + 1
-      ENDIF
+      END IF
+     END IF
       !print*, I,J,M
     END DO
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
