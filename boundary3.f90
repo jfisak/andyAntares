@@ -35,9 +35,6 @@ DOUBLE PRECISION, DIMENSION(3)  :: cross_pos
  CALL next_cell_down(pack_index, n_cell)
 ! position of the point
 cross_pos = package(pack_index)%pos + package(pack_index)%dir * dist
- CALL next_cell_up(pack_index, dist, n_cell)
- 
-
-
+ CALL next_cell_up(pack_index, dist, n_cell, next_cell)
 
 END SUBROUTINE boundary3

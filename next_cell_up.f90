@@ -21,7 +21,12 @@ INTEGER                                 :: upper_cell
 act_cell = cell_down
 cross_pos = package(pack_index)%pos + package(pack_index)%dir * dist
 cross = package(pack_index)%next_cross
+IF(act_cell < 0) THEN
+ next_cell = act_cell
+ RETURN
+END IF
 
+print*, 'next_cell_up: act_cell = ', act_cell, ' cross_pos = ', cross_pos, 'cross = ', cross
 DO
  corner = dyn_cell(act_cell)%corner
  width = dyn_cell(act_cell)%width
@@ -40,18 +45,18 @@ DO
     if(cross == posx) act_cell = upper_cell
     if(cross == negx) act_cell = upper_cell + 1
    ! lower rear cell
-   ELSE IF(cross_pos(2) >= corner(2) width(2) / 2.D0 .AND. cross_pos(2) <= corner(2) + width(2) .AND. &
+   ELSE IF(cross_pos(2) >= corner(2) + width(2) / 2.D0 .AND. cross_pos(2) <= corner(2) + width(2) .AND. &
       cross_pos(3) >= corner(3) .AND. cross_pos(3) <= corner(3) + width(3) / 2.D0) THEN
     if(cross == posx) act_cell = upper_cell + 2
     if(cross == negx) act_cell = upper_cell + 3
    ! upper front cell
    ELSE IF(cross_pos(2) >= corner(2) .AND. cross_pos(2) <= corner(2) + width(2) / 2.D0 .AND. &
-      cross_pos(3) >= corner(3) + width(3) / 2.D0 .AND. cross_pos(3) <= corner(3) + width(3) THEN
+      cross_pos(3) >= corner(3) + width(3) / 2.D0 .AND. cross_pos(3) <= corner(3) + width(3)) THEN
     if(cross == posx) act_cell = upper_cell + 4
     if(cross == posx) act_cell = upper_cell + 5
    ! upper rear cell
    ELSE IF(cross_pos(2) >= corner(2) + width(2) / 2.D0 .AND. cross_pos(2) <= corner(2) + width(2) .AND. &
-      cross_pos(3) >= corner(3) + width(3) / 2.D0 .AND. cross_pos(3) <= corner(3) + width(3) THEN
+      cross_pos(3) >= corner(3) + width(3) / 2.D0 .AND. cross_pos(3) <= corner(3) + width(3)) THEN
     if(cross == posx) act_cell = upper_cell + 6
     if(cross == posx) act_cell = upper_cell + 7
    END IF
@@ -64,18 +69,18 @@ DO
     if(cross == posy) act_cell = upper_cell
     if(cross == negy) act_cell = upper_cell + 2
    ! lower right cell
-   ELSE IF(cross_pos(1) >= corner(1) width(1) / 2.D0 .AND. cross_pos(1) <= corner(1) + width(1) .AND. &
+   ELSE IF(cross_pos(1) >= corner(1) + width(1) / 2.D0 .AND. cross_pos(1) <= corner(1) + width(1) .AND. &
       cross_pos(3) >= corner(3) .AND. cross_pos(3) <= corner(3) + width(3) / 2.D0) THEN
     if(cross == posy) act_cell = upper_cell + 1
     if(cross == negy) act_cell = upper_cell + 3
    ! upper left cell
    ELSE IF(cross_pos(1) >= corner(1) .AND. cross_pos(1) <= corner(1) + width(1) / 2.D0 .AND. &
-      cross_pos(3) >= corner(3) + width(3) / 2.D0 .AND. cross_pos(3) <= corner(3) + width(3) THEN
+      cross_pos(3) >= corner(3) + width(3) / 2.D0 .AND. cross_pos(3) <= corner(3) + width(3)) THEN
     if(cross == posy) act_cell = upper_cell + 4
     if(cross == posy) act_cell = upper_cell + 6
    ! upper right cell
    ELSE IF(cross_pos(1) >= corner(1) + width(1) / 2.D0 .AND. cross_pos(1) <= corner(1) + width(1) .AND. &
-      cross_pos(3) >= corner(3) + width(3) / 2.D0 .AND. cross_pos(3) <= corner(3) + width(3) THEN
+      cross_pos(3) >= corner(3) + width(3) / 2.D0 .AND. cross_pos(3) <= corner(3) + width(3)) THEN
     if(cross == posy) act_cell = upper_cell + 5
     if(cross == posy) act_cell = upper_cell + 7
    END IF
@@ -88,24 +93,23 @@ DO
     if(cross == posz) act_cell = upper_cell
     if(cross == negz) act_cell = upper_cell + 4
    ! lower right cell
-   ELSE IF(cross_pos(1) >= corner(1) width(1) / 2.D0 .AND. cross_pos(1) <= corner(1) + width(1) .AND. &
+   ELSE IF(cross_pos(1) >= corner(1) + width(1) / 2.D0 .AND. cross_pos(1) <= corner(1) + width(1) .AND. &
       cross_pos(2) >= corner(2) .AND. cross_pos(2) <= corner(2) + width(2) / 2.D0) THEN
     if(cross == posz) act_cell = upper_cell + 1
     if(cross == negz) act_cell = upper_cell + 5
    ! upper left cell
    ELSE IF(cross_pos(1) >= corner(1) .AND. cross_pos(1) <= corner(1) + width(1) / 2.D0 .AND. &
-      cross_pos(2) >= corner(2) + width(2) / 2.D0 .AND. cross_pos(2) <= corner(2) + width(2) THEN
+      cross_pos(2) >= corner(2) + width(2) / 2.D0 .AND. cross_pos(2) <= corner(2) + width(2)) THEN
     if(cross == posz) act_cell = upper_cell + 2
     if(cross == posz) act_cell = upper_cell + 6
    ! upper right cell
    ELSE IF(cross_pos(1) >= corner(1) + width(1) / 2.D0 .AND. cross_pos(1) <= corner(1) + width(1) .AND. &
-      cross_pos(2) >= corner(2) + width(2) / 2.D0 .AND. cross_pos(2) <= corner(2) + width(2) THEN
+      cross_pos(2) >= corner(2) + width(2) / 2.D0 .AND. cross_pos(2) <= corner(2) + width(2)) THEN
     if(cross == posz) act_cell = upper_cell + 3
     if(cross == posz) act_cell = upper_cell + 7
    END IF
   END IF
  END IF  
-
 END DO
 
 END SUBROUTINE next_cell_up
