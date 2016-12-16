@@ -12,6 +12,7 @@
   ! variables describing dynamic cells
   DOUBLE PRECISION, DIMENSION(3)         :: cell_width2
   INTEGER                                :: max_n_dcell, N_dyn_grid
+  INTEGER                                :: xp, xm, yp, ym, zp, zm
   TYPE(dyn_grid_cell), ALLOCATABLE       :: pom2(:)
 
 
@@ -37,9 +38,9 @@
    DO J=1, ny_cell
     DO K=1, nz_cell
      ! Index(number) of each cell in x,y, and z direction
-     dyn_cell(L)%indexc(1) = I
-     dyn_cell(L)%indexc(2) = J
-     dyn_cell(L)%indexc(3) = K
+     !dyn_cell(L)%indexc(1) = I
+     !dyn_cell(L)%indexc(2) = J
+     !dyn_cell(L)%indexc(3) = K
      ! Coordinates of the lower left corner of each cell
      dyn_cell(L)%corner(1)  = - xmax + DBLE((I - 1)) * basic_cell_width(1)
      dyn_cell(L)%corner(2)  = - ymax + DBLE((J - 1)) * basic_cell_width(2)     
@@ -51,6 +52,50 @@
      ! number of down cell is equal to zero
      dyn_cell(L)%down_cell = 0
      dyn_cell(L)%up_cell = 0
+     ! calculation of neighbours
+     ! x+
+     IF(I == nx_cell) THEN
+      xp = -99
+     ELSE
+      xp = L + ny_cell * nz_cell
+     END IF
+     ! x-
+     IF(I == 1) THEN
+      xm = -99
+     ELSE
+      xm = L - ny_cell * nz_cell
+     END IF
+     ! y+
+     IF(J == ny_cell) THEN
+      yp = -99
+     ELSE
+      yp = L + nz_cell
+     END IF
+     ! y-
+     IF(J == 1) THEN
+      ym = -99
+     ELSE
+      ym = L - nz_cell
+     END IF
+     ! z+
+     IF(K == nz_cell) THEN
+      zp = -99
+     ELSE
+      zp = L + 1
+     END IF
+     ! z-
+     IF(K == 1) THEN
+      zm = -99
+     ELSE
+      zm = L - 1
+     END IF
+     ! 
+     dyn_cell(L)%neighbour(1) = xp
+     dyn_cell(L)%neighbour(2) = xm
+     dyn_cell(L)%neighbour(3) = yp
+     dyn_cell(L)%neighbour(4) = ym
+     dyn_cell(L)%neighbour(5) = zp
+     dyn_cell(L)%neighbour(6) = zm
      L = L + 1
     END DO
    END DO

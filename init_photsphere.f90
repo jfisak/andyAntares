@@ -50,7 +50,7 @@ SUBROUTINE init_photsphere(n_pack)
      ! Flag the packet as an active r-pkt and allow all kind of cell crossings
      package(I)%active     = 1
      package(I)%typ        = type_rpkt
-     package(I)%last_cross = NONE
+     package(I)%next_cross = NONE
 
      ! Assign rf energy and frequency to the packet
      package(I)%e_rf = L_star/n_pack  

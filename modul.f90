@@ -19,14 +19,14 @@ MODULE types
 
   TYPE dyn_grid_cell
       INTEGER                        :: model_index
-      INTEGER, DIMENSION(3)          :: indexc
       INTEGER                        :: cell_index, up_cell, down_cell
+      INTEGER, DIMENSION(6)          :: neighbour
       DOUBLE PRECISION, DIMENSION(3) :: corner, width
   END TYPE dyn_grid_cell
 
   TYPE photon 
      INTEGER                         :: cell_numb, pack_numb, active
-     INTEGER                         :: typ, last_cross, last_line
+     INTEGER                         :: typ, next_cross, last_line
      DOUBLE PRECISION, DIMENSION(3)  :: pos, dir 
      DOUBLE PRECISION                :: e_cmf, e_rf, freq_cmf, freq_rf, delta_s
   END TYPE photon

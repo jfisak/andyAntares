@@ -103,7 +103,7 @@
      ! local particles
      ! 1. the division of the cells is good enough
      ! print*, 'dynamic grid: ', up_bound, act_n_dyncell, max_n_dcell
-     IF(loc_np <= maxPart ) THEN
+     IF(loc_np <= maxPart) THEN
       ! we move to the lower level of the grid to the "not ending" subcell
       DO
 !       IF(loc_downcell /= 0) &
@@ -156,53 +156,8 @@
        up_bound = newbound
       end if
       dyn_cell(act_n_dyncell)%up_cell = max_n_dcell + 1
-      DO I = 1, no_dcells
-       dyn_cell(max_n_dcell + I)%width(1) = loc_cell_width(1) / 2.E0
-       dyn_cell(max_n_dcell + I)%width(2) = loc_cell_width(2) / 2.E0
-       dyn_cell(max_n_dcell + I)%width(3) = loc_cell_width(3) / 2.E0
-       dyn_cell(max_n_dcell + I)%down_cell = act_n_dyncell
-       dyn_cell(max_n_dcell + I)%up_cell = 0
-      END DO
-      ! the first cell
-      dyn_cell(max_n_dcell + 1)%corner(1) = loc_corner(1)
-      dyn_cell(max_n_dcell + 1)%corner(2) = loc_corner(2)
-      dyn_cell(max_n_dcell + 1)%corner(3) = loc_corner(3)
-      dyn_cell(max_n_dcell + 1)%down_cell = act_n_dyncell
-      ! the second cell
-      dyn_cell(max_n_dcell + 2)%corner(1) = loc_corner(1) + loc_cell_width(1) / 2.E0
-      dyn_cell(max_n_dcell + 2)%corner(2) = loc_corner(2)
-      dyn_cell(max_n_dcell + 2)%corner(3) = loc_corner(3)
-      dyn_cell(max_n_dcell + 2)%down_cell = act_n_dyncell
-      ! the third cell
-      dyn_cell(max_n_dcell + 3)%corner(1) = loc_corner(1)
-      dyn_cell(max_n_dcell + 3)%corner(2) = loc_corner(2) + loc_cell_width(2) / 2.E0
-      dyn_cell(max_n_dcell + 3)%corner(3) = loc_corner(3)
-      dyn_cell(max_n_dcell + 3)%down_cell = act_n_dyncell
-      ! the forth cell
-      dyn_cell(max_n_dcell + 4)%corner(1) = loc_corner(1) + loc_cell_width(1) / 2.E0
-      dyn_cell(max_n_dcell + 4)%corner(2) = loc_corner(2) + loc_cell_width(2) / 2.E0
-      dyn_cell(max_n_dcell + 4)%corner(3) = loc_corner(3)
-      dyn_cell(max_n_dcell + 4)%down_cell = act_n_dyncell
-      ! the fifth cell
-      dyn_cell(max_n_dcell + 5)%corner(1) = loc_corner(1)
-      dyn_cell(max_n_dcell + 5)%corner(2) = loc_corner(2)
-      dyn_cell(max_n_dcell + 5)%corner(3) = loc_corner(3) + loc_cell_width(3) / 2.E0
-      dyn_cell(max_n_dcell + 5)%down_cell = act_n_dyncell
-      ! the sixth cell
-      dyn_cell(max_n_dcell + 6)%corner(1) = loc_corner(1) + loc_cell_width(1) / 2.E0
-      dyn_cell(max_n_dcell + 6)%corner(2) = loc_corner(2)
-      dyn_cell(max_n_dcell + 6)%corner(3) = loc_corner(3) + loc_cell_width(3) / 2.E0
-      dyn_cell(max_n_dcell + 6)%down_cell = act_n_dyncell
-      ! the seventh cell
-      dyn_cell(max_n_dcell + 7)%corner(1) = loc_corner(1)
-      dyn_cell(max_n_dcell + 7)%corner(2) = loc_corner(2) + loc_cell_width(2) / 2.E0
-      dyn_cell(max_n_dcell + 7)%corner(3) = loc_corner(3) + loc_cell_width(3) / 2.E0
-      dyn_cell(max_n_dcell + 7)%down_cell = act_n_dyncell
-      ! the eighth cell
-      dyn_cell(max_n_dcell + no_dcells)%corner(1) = loc_corner(1) + loc_cell_width(1) / 2.E0
-      dyn_cell(max_n_dcell + no_dcells)%corner(2) = loc_corner(2) + loc_cell_width(2) / 2.E0
-      dyn_cell(max_n_dcell + no_dcells)%corner(3) = loc_corner(3) + loc_cell_width(3) / 2.E0
-      dyn_cell(max_n_dcell + no_dcells)%down_cell = act_n_dyncell
+      ! subroutine which creates subcells in the given cell
+      CALL create_subcells(max_n_dcell, act_n_dyncell, no_dcells)
       ! we have to increase the variable max_n_dcell
       max_n_dcell = max_n_dcell + no_dcells
       act_n_dyncell = dyn_cell(act_n_dyncell)%up_cell
