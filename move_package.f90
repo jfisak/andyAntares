@@ -28,6 +28,9 @@ SUBROUTINE move_package(pack_index, dist)
   package(pack_index)%pos(1) = package(pack_index)%pos(1) + dist * package(pack_index)%dir(1) 
   package(pack_index)%pos(2) = package(pack_index)%pos(2) + dist * package(pack_index)%dir(2) 
   package(pack_index)%pos(3) = package(pack_index)%pos(3) + dist * package(pack_index)%dir(3)
+  if(abs(package(pack_index)%pos(1)) < 1e-1) package(pack_index)%pos(1) = 0e0
+  if(abs(package(pack_index)%pos(2)) < 1e-1) package(pack_index)%pos(2) = 0e0
+  if(abs(package(pack_index)%pos(3)) < 1e-1) package(pack_index)%pos(3) = 0e0
 
   ! Deactivate packets which travel beyond the photosphere
   ! length=SQRT(package(pack_index)%pos(1)**2 + package(pack_index)%pos(2)**2 + package(pack_index)%pos(3)**2)  
@@ -43,7 +46,7 @@ SUBROUTINE move_package(pack_index, dist)
   package(pack_index)%e_cmf = package(pack_index)%e_rf * D
 !  print*, 'frequency in frame: ', package(pack_index)%freq_rf, &
 !        'frequency in CMF: ', package(pack_index)%freq_cmf
-  IF (package(pack_index)%freq_cmf < 0) print*, 'FREQUENCY IS LOWER THAN ZERO!!!'
+  IF (package(pack_index)%freq_cmf < 0) STOP 'FREQUENCY IS LOWER THAN ZERO!!!'
   IF (debug .EQ. 1) THEN 
      print*, 'after move (pos)', package(pack_index)%pos
   END IF

@@ -12,10 +12,8 @@ IMPLICIT NONE
 
 INTEGER                         :: pack_index, next_cell, n_cell
 DOUBLE PRECISION                :: dist
-! local actual cell
-INTEGER                         :: actCell
 ! dynamic cell variables
-INTEGER                         :: cell_numb
+INTEGER                         :: act_cell
 ! photon properties
 DOUBLE PRECISION, DIMENSION(3)  :: dir, phot_pos
 ! position of the cross point
@@ -24,13 +22,11 @@ DOUBLE PRECISION, DIMENSION(3)  :: cross_pos
 ! calculation of a distance from the basic cell
 ! firstly we have to know which basic cell photon occupies
 !   Number of the current cell
-  cell_numb = package(pack_index)%cell_numb
-! define a local variable actCell
-  actCell = cell_numb
+ act_cell = package(pack_index)%cell_numb
 !  print*, 'boundary3: pack index = ', pack_index, ' actCell = ', actCell
 !  print*, 'boundary3: basic_cell_numb = ', basic_cell_numb
 ! now we are computing the nearest distance to the actuall dynamic cell
- CALL find_dist(pack_index, cell_numb, dist)
+ CALL find_dist(pack_index, act_cell, dist)
 ! now we look for the next cell given by indexes
  CALL next_cell_down(pack_index, n_cell)
 ! position of the point

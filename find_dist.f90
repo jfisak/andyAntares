@@ -13,12 +13,14 @@ IMPLICIT NONE
     DOUBLE PRECISION                :: t1, t2, t3, t4, t5, t6
     DOUBLE PRECISION, DIMENSION(3)  :: corner, width
     DOUBLE PRECISION, DIMENSION(3)  :: dir, pos
+    INTEGER                         :: forbidden
 
+  cell_numb = package(pack_index)%cell_numb
   corner = dyn_cell(cell_numb)%corner
   width = dyn_cell(cell_numb)%width
-  cell_numb = package(pack_index)%cell_numb
   dir = package(pack_index)%dir
   pos = package(pack_index)%pos
+  forbidden = package(pack_index)%next_cross
  ! we will calculate parameters t1,...,t6
  IF(dir(1) /= 0) THEN
   t1 = (corner(1) - pos(1))/(dir(1))
@@ -45,29 +47,30 @@ IMPLICIT NONE
   dist = 1.D99
   ! we are looking for the bound in front of the photon,
   ! so we have to choose solution with t > 0
-  IF( (t1 > 0.E0) .AND. (t1 < dist) ) THEN
+  IF( (t1 > 0.E0) .AND. (t1 < dist) .AND. forbidden /= posx) THEN
    dist = t1
-   package(pack_index)%next_cross = posx
-  END IF
-  IF( (t2 > 0.E0)  .AND. (t2 < dist) ) THEN
-   dist = t2
    package(pack_index)%next_cross = negx
   END IF
-  IF( (t3 > 0.E0) .AND. (t3 < dist)  ) THEN
-   dist = t3
-   package(pack_index)%next_cross = posy
-  END IF
-  IF( (t4 > 0.E0) .AND. (t4 < dist)  ) THEN
-   dist = t4
+  IF( (t2 > 0.E0)  .AND. (t2 < dist)  .AND. forbidden /= posy) THEN
+   dist = t2
    package(pack_index)%next_cross = negy
   END IF
-  IF( (t5 > 0.E0) .AND. (t5 < dist)  ) THEN
-   dist = t5
-   package(pack_index)%next_cross = posz
-  END IF
-  IF( (t6 > 0.E0) .AND. (t6 < dist)  ) THEN
-   dist = t6
+  IF( (t3 > 0.E0) .AND. (t3 < dist)  .AND. forbidden /=  posz) THEN
+   dist = t3
    package(pack_index)%next_cross = negz
   END IF
+  IF( (t4 > 0.E0) .AND. (t4 < dist)  .AND. forbidden /=  negx) THEN
+   dist = t4
+   package(pack_index)%next_cross = posx
+  END IF
+  IF( (t5 > 0.E0) .AND. (t5 < dist)  .AND. forbidden /=  negy) THEN
+   dist = t5
+   package(pack_index)%next_cross = posy
+  END IF
+  IF( (t6 > 0.E0) .AND. (t6 < dist)  .AND. forbidden /= negz) THEN
+   dist = t6
+   package(pack_index)%next_cross = posz
+  END IF
+   !print*, 'find_dist: t1 = ', t1, ' t2 = ', t2, ' t3 = ', t3, ' t4 = ', t4, ' t5 = ', t5, ' t6 = ', t6
 
 END SUBROUTINE find_dist

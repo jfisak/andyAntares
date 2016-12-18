@@ -10,6 +10,7 @@ SUBROUTINE do_rpackage(pack_index)
   INTEGER                           :: get_package_model_index
   DOUBLE PRECISION                  :: tau, xi, ran2, tau_rand, cell_dist, e_dist, r,   &
                                        rho_cell, I_beta, opa_cell, lower_opa, delta_opa
+  INTEGER                           :: check_cell
   ! DOUBLE PRECISION, PARAMETER       :: rho = 1.D0
 
   ! DOUBLE PRECISION, PARAMETER       :: opa_cell=1.D0/20.D0, rho=1.D0
@@ -17,8 +18,8 @@ SUBROUTINE do_rpackage(pack_index)
 
 
   CALL boundary3(pack_index, cell_dist, next_cell)
-  WRITE(3,*) package(pack_index)%pos, dyn_cell(package(pack_index)%cell_numb)%corner, &
-                dyn_cell(package(pack_index)%cell_numb)%width, get_package_model_index(pack_index)
+!  WRITE(3,*) package(pack_index)%pos, dyn_cell(package(pack_index)%cell_numb)%corner, &
+!                dyn_cell(package(pack_index)%cell_numb)%width, get_package_model_index(pack_index)
   IF (cell_dist .LT. 0.D0) STOP 'cell_dist < 0'
   IF (get_package_model_index(pack_index) .EQ. n_modelgrid + 1) THEN
       ! Package is outside the wind model but still inside the propagation grid qube
