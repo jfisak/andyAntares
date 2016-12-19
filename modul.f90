@@ -95,6 +95,8 @@ MODULE types
   DOUBLE PRECISION, ALLOCATABLE      :: incomingflux(:,:)
   INTEGER                            :: nx_cell, ny_cell, nz_cell, Ngrid, destroyed_pack
   INTEGER                            :: dummypackage, n_nubin, n_modelgrid
+  ! additional model grid variables
+  INTEGER                            :: add_mg
 
   TYPE(modelgrid), ALLOCATABLE       :: model_grid(:)
   TYPE(grid_cell), ALLOCATABLE       :: cell(:)   
