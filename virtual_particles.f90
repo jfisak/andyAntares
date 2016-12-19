@@ -10,7 +10,7 @@ SUBROUTINE virtual_particles(dimIM)
  ! 
  INTEGER                        :: I,J,K,NP
  ! number of particles
- INTEGER, PARAMETER             :: Npart=100000
+ INTEGER, PARAMETER             :: Npart=1000000
  ! 1D model: intervals for particles distribution
  INTEGER                        :: Ntheta, Nphi
  DOUBLE PRECISION               :: radius, phi, theta
@@ -82,7 +82,7 @@ CASE(1)
  DO I = 1, n_modelgrid
   radius = model_grid(I)%rwind
   np_shell = nOfPoints(I)
-  IF (np_shell == 0) STOP 'number of virtual particles is small'
+  !IF (np_shell == 0) STOP 'number of virtual particles is small'
   DO J = 1, np_shell
    NP = NP + 1
    CALL random_unitvector(direction)
@@ -132,13 +132,14 @@ CASE(2)
  ! distribution of particles on the shell of the radius R
  DO I = 1, n_modelgrid
   radius = model_grid(I)%rwind
-  z = model_grid(I)%zwind
+  virtual_particle(NP)%pos(3) = model_grid(I)%zwind
   np_shell = nOfPoints(I)
-  IF (np_shell == 0) STOP 'number of virtual particles is small'
+  !IF (np_shell == 0) STOP 'number of virtual particles is small'
   DO J = 1, np_shell
    NP = NP + 1
-   CALL random_unitvector(direction)
-   virtual_particle(NP)%pos = radius * direction
+   phi = 2.D0*pi*ran2(idum)
+   virtual_particle(NP)%pos(1) = radius * cos(phi)
+   virtual_particle(NP)%pos(2) = radius * sin(phi)
     write(20,*) virtual_particle(NP)%pos(1), virtual_particle(NP)%pos(2), virtual_particle(NP)%pos(3)
   END DO
  END DO
