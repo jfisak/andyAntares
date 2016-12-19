@@ -7,6 +7,7 @@
   INTEGER             :: n_pack, pack_index
 
 
+  OPEN (UNIT=3, FILE='position.dat')
   ! print*, 'A'
   OPEN(UNIT=3,FILE='position.dat')
   DO pack_index = 1, n_pack

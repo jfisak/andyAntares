@@ -1,0 +1,33 @@
+SUBROUTINE next_cell_down(pack_index, next_cell)
+
+USE types
+
+IMPLICIT NONE
+
+! input variables
+INTEGER                                 :: pack_index
+! outpu variables
+INTEGER                                 :: next_cell
+! local variable next cell
+INTEGER                                 :: n_cell
+! cross the surface
+INTEGER                                 :: cross
+! actual cell
+INTEGER                                 :: act_cell
+
+act_cell = package(pack_index)%cell_numb
+cross = package(pack_index)%next_cross
+
+DO
+ n_cell = dyn_cell(act_cell)%neighbour(cross)
+! print*, 'next_cell_down: act_cell = ', act_cell, 'n_cell = ', n_cell
+ IF(n_cell == 0) THEN
+  IF(dyn_cell(act_cell)%down_cell == 0) STOP 'next_cell: no cell was find'
+  act_cell = dyn_cell(act_cell)%down_cell
+ ELSE 
+  next_cell = n_cell
+  EXIT
+ END IF
+END DO
+
+END SUBROUTINE next_cell_down

@@ -11,7 +11,7 @@ SUBROUTINE update_grid(iteration)
   DOUBLE PRECISION    :: el_nd, temp, frac, U, N_jk, gl_pop, volume
   
   ! Volume of the grid cell in case that width of cells are the same
-  volume = cell_width(1) * cell_width(2) * cell_width(3)
+  volume = basic_cell_width(1) * basic_cell_width(2) * basic_cell_width(3)
 
    print*, 'updating grid'
   DO gridcell = 1, n_modelgrid
@@ -59,6 +59,7 @@ SUBROUTINE update_grid(iteration)
 !     stop
     ENDIF
   END DO
+  CLOSE(3)
 
   
   

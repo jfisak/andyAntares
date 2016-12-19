@@ -11,7 +11,7 @@ SUBROUTINE emit_rpackage(pack_index)
   ! Make it an r-pkt and make sure that all cell transitions are
   ! possible therafter
   package(pack_index)%typ = type_rpkt
-  package(pack_index)%last_cross = NONE
+  package(pack_index)%next_cross = NONE
   !package(pack_index)%freq_cmf = freq_line
 
 

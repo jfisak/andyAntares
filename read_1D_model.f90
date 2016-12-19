@@ -81,6 +81,8 @@
   model_grid(n_modelgrid+1)%rwind = 0.D0
   model_grid(n_modelgrid+1)%vel   = 0.D0
   model_grid(n_modelgrid+1)%rho   = 0.D0     
+  ! calculating virtual particles from the selected input model
+  !CALL virtual_particles(1)
 
 
 ! Only for testing 
@@ -156,7 +158,7 @@
   model_grid(n_modelgrid+1)%vel   = 0.D0
   model_grid(n_modelgrid+1)%rho   = 0.D0     
   ! calculating virtual particles from the selected input model
-!  CALL virtual_particles(1)
+  !CALL virtual_particles(1)
  CASE DEFAULT
   print*, 'the choice of the variable inputModel = ', inputModel, 'is not known...'
   STOP 'ENDING PROGRAM NOW...'

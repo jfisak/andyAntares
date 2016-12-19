@@ -12,6 +12,7 @@
      ! Read 1D wind model
      CALL read_1D_model()
   ELSE IF (model_type .EQ. 2) THEN
+     ! Read 2D wind model
      CALL read_2D_model()
   ELSE IF (model_type .EQ. 3) THEN
      ! Read 3D wind model

@@ -119,6 +119,8 @@ SUBROUTINE main
 
   ! Set up outflow (model grid)
   CALL setup_model_grid()
+  ! create virtual particles for the given model cell
+  IF (dyngrid == 1) CALL virtual_particles(1)
   xmax = xmax * R_star
   ymax = ymax * R_star 
   zmax = zmax * R_star
@@ -126,15 +128,17 @@ SUBROUTINE main
   print*, 'model grid is set up'
 
   print*,'CHECK GRID SIZES'
-  print*, R_star, xmax, R_inf, cell_width
-  print*, xmax/R_star, R_inf/R_star, cell_width/R_star
-  print*, (-xmax + nx_cell*cell_width(1))/R_star
+  print*, xmax, R_inf, basic_cell_width
+  print*, xmax/R_star, R_inf/R_star, basic_cell_width/R_star
+  print*, (-xmax + nx_cell*basic_cell_width)/R_star
   !STOP
 
   ! Set up of the propagation grid
-  CALL setup_grid()
+  !CALL setup_grid()
+  CALL setup_grid2()
+  ! connects the propagation grid with the model grid
+  CALL connection_prop_model_grid()
   print*, 'propagation grid is set up'
-  ! Set up connection between propagation and model grid
   CALL connection_prop_model_grid()
 
 !  L = 1

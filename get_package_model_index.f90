@@ -8,7 +8,7 @@
     
     INTEGER                 :: pack_index, get_package_model_index
 
-   get_package_model_index = cell(package(pack_index)%cell_numb)%model_index
+   get_package_model_index = dyn_cell(package(pack_index)%cell_numb)%model_index
 
   RETURN 
 

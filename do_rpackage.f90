@@ -10,16 +10,16 @@ SUBROUTINE do_rpackage(pack_index)
   INTEGER                           :: get_package_model_index
   DOUBLE PRECISION                  :: tau, xi, ran2, tau_rand, cell_dist, e_dist, r,   &
                                        rho_cell, I_beta, opa_cell, lower_opa, delta_opa
+  INTEGER                           :: check_cell
   ! DOUBLE PRECISION, PARAMETER       :: rho = 1.D0
 
   ! DOUBLE PRECISION, PARAMETER       :: opa_cell=1.D0/20.D0, rho=1.D0
   ! DOUBLE PRECISION, PARAMETER       :: opa_cell=5.D-3, rho=5.D-2
 
-  OPEN (UNIT=3, FILE='position.dat')  
-   WRITE(3,*) pack_index, get_package_model_index(pack_index), package(pack_index)%pos
 
-
-  CALL boundary(pack_index, cell_dist, next_cell)
+  CALL boundary3(pack_index, cell_dist, next_cell)
+!  WRITE(3,*) package(pack_index)%pos, dyn_cell(package(pack_index)%cell_numb)%corner, &
+!                dyn_cell(package(pack_index)%cell_numb)%width, get_package_model_index(pack_index)
   IF (cell_dist .LT. 0.D0) STOP 'cell_dist < 0'
   IF (get_package_model_index(pack_index) .EQ. n_modelgrid + 1) THEN
       ! Package is outside the wind model but still inside the propagation grid qube
@@ -32,9 +32,9 @@ SUBROUTINE do_rpackage(pack_index)
       CALL event_dist(pack_index, cell_dist, e_dist, event)
   END IF
 
-  IF (debug .EQ. 1) THEN 
-      print*, cell_dist, next_cell, e_dist , cell(package(pack_index)%cell_numb)%indexc
-  END IF
+!  IF (debug .EQ. 1) THEN 
+!      print*, cell_dist, next_cell, e_dist , cell(package(pack_index)%cell_numb)%model_index
+!  END IF
 
   !print*, 'e_dist = ', e_dist, ' cell_dist = ', cell_dist
   IF (e_dist .LT. cell_dist) THEN

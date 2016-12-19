@@ -1,0 +1,36 @@
+SUBROUTINE boundary3(pack_index, dist, next_cell) 
+! write nx_cell, ny_cell, nz_cell as global variable
+
+! Calculate the shortest distance to the cell surface which photon will cross and return this 
+! distance (dist), the cell the photon will go to (next_cell, -99 in case of photon leaving 
+! the simulation grid(volume)), and make the photon remember which surface will cross (update 
+! package(pack_index)%last_cross).
+
+USE types
+
+IMPLICIT NONE    
+
+INTEGER                         :: pack_index, next_cell, n_cell
+DOUBLE PRECISION                :: dist
+! dynamic cell variables
+INTEGER                         :: act_cell
+! photon properties
+DOUBLE PRECISION, DIMENSION(3)  :: dir, phot_pos
+! position of the cross point
+DOUBLE PRECISION, DIMENSION(3)  :: cross_pos
+
+! calculation of a distance from the basic cell
+! firstly we have to know which basic cell photon occupies
+!   Number of the current cell
+ act_cell = package(pack_index)%cell_numb
+!  print*, 'boundary3: pack index = ', pack_index, ' actCell = ', actCell
+!  print*, 'boundary3: basic_cell_numb = ', basic_cell_numb
+! now we are computing the nearest distance to the actuall dynamic cell
+ CALL find_dist(pack_index, act_cell, dist)
+! now we look for the next cell given by indexes
+ CALL next_cell_down(pack_index, n_cell)
+! position of the point
+cross_pos = package(pack_index)%pos + package(pack_index)%dir * dist
+ CALL next_cell_up(pack_index, dist, n_cell, next_cell)
+
+END SUBROUTINE boundary3

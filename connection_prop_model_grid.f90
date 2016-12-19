@@ -8,6 +8,7 @@
   DOUBLE PRECISION, PARAMETER    :: deltamax = 1.D12
   ! loop variables
   INTEGER                        :: I, J, M
+  INTEGER                        :: max_n_dcell
   ! variables for calculating the shortest distance between
   ! propagation and model cell
   DOUBLE PRECISION               :: delta, delta2
@@ -15,7 +16,7 @@
   DOUBLE PRECISION               :: r, z
   
 
-
+  max_n_dcell = SIZE(dyn_cell)
   ! Establish a connection between the propagation grid and the
   ! model grid. This depends on the model grid type (1D, 2D, 3D)
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -24,11 +25,12 @@
   IF (model_type .EQ. 1) THEN
     ! This is the algorithm needed for a 1D model grid
     ! Define which model grid cell coresponds to the propagation grid cell
-    DO I = 1, Ngrid
+    DO I = 1, max_n_dcell
+     IF(dyn_cell(I)%up_cell == 0) THEN
       ! Absolute radius of the propagation grid cell (midle of the cell)
-      r = SQRT( (cell(I)%corner(1) + cell_width(1)/2.D0)**2 + &
-              (cell(I)%corner(2) + cell_width(2)/2.D0)**2 + &
-              (cell(I)%corner(3) + cell_width(3)/2.D0)**2)
+      r = SQRT( (dyn_cell(I)%corner(1) + dyn_cell(I)%width(1)/2.D0)**2 + &
+                (dyn_cell(I)%corner(2) + dyn_cell(I)%width(2)/2.D0)**2 + &
+                (dyn_cell(I)%corner(3) + dyn_cell(I)%width(3)/2.D0)**2)
       !print*,I,r/R_star
       IF ((r .GT. R_star) .AND. (r .LT. R_inf)) THEN
         ! Cells with radius larger than the stellar radius but smaller
@@ -45,15 +47,16 @@
               M = J           
            END IF
         END DO
-        cell(I)%model_index = M     
+        dyn_cell(I)%model_index = M     
         model_grid(M)%assoc_cells = model_grid(M)%assoc_cells + 1
       ELSE
         ! Cells with radius smaller than the stellar radius or larger
         ! than the winds outer radius have no associated model grid cell
         ! Make them point to the dummy model grid cell
-        cell(I)%model_index = n_modelgrid + 1     
+        dyn_cell(I)%model_index = n_modelgrid + 1     
         model_grid(n_modelgrid + 1)%assoc_cells = model_grid(n_modelgrid + 1)%assoc_cells + 1
-      ENDIF
+      END IF
+     END IF
       !print*, I,J,M
     END DO
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -64,10 +67,10 @@
    DO I = 1, Ngrid
       IF(mod(I,10000) .EQ. 0) print*, 'associating propagation grid', I, REAL(I)/REAL(Ngrid) * 1.E2, ' % completed'
       ! Absolute radius of the propagation grid cell (midle of the cell)
-      r = SQRT( (cell(I)%corner(1) + cell_width(1)/2.D0)**2 + &
-              (cell(I)%corner(2) + cell_width(2)/2.D0)**2 + &
-              (cell(I)%corner(3) + cell_width(3)/2.D0)**2)
-      z = cell(I)%corner(3) + cell_width(3)/2.D0
+      r = SQRT((dyn_cell(I)%corner(1) + dyn_cell(I)%width(1)/2.D0)**2 + &
+               (dyn_cell(I)%corner(2) + dyn_cell(I)%width(2)/2.D0)**2 + &
+               (dyn_cell(I)%corner(3) + dyn_cell(I)%width(3)/2.D0)**2)
+      z = dyn_cell(I)%corner(3) + dyn_cell(I)%width(3)/2.D0
       !print*,I,r/R_star
       IF ((r .GT. R_star) .AND. (r .LT. R_inf)) THEN
        ! Cells with radius larger than the stellar radius but smaller
@@ -89,18 +92,18 @@
         ! we will associate this cell to the dummy cells
        END DO
         IF( delta .GT. deltamax) THEN
-         cell(I)%model_index = n_modelgrid + 2
+         dyn_cell(I)%model_index = n_modelgrid + add_mg
          model_grid(n_modelgrid + 2)%assoc_cells = model_grid(n_modelgrid + 2)%assoc_cells + 1
          !print*, 'model grid n + 2 = ', model_grid(n_modelgrid + 2)%assoc_cells
         ELSE
-         cell(I)%model_index = M     
+         dyn_cell(I)%model_index = M     
          model_grid(M)%assoc_cells = model_grid(M)%assoc_cells + 1
         END IF
       ELSE
        ! Cells with radius smaller than the stellar radius or larger
        ! than the winds outer radius have no associated model grid cell
        ! Make them point to the dummy model grid cell
-       cell(I)%model_index = n_modelgrid + 1     
+       dyn_cell(I)%model_index = n_modelgrid + 1     
        !model_grid(n_modelgrid + 1)%assoc_cells = model_grid(n_modelgrid + 1)%assoc_cells + 1
       END IF
       !print*, I,J,M
@@ -108,9 +111,9 @@
    print*, 'number of propagation cells in vacuum: ', model_grid(n_modelgrid + 2)%assoc_cells
   ENDIF
 
-!  print*, 'printing number of associated cells'
-!  DO I = 1, n_modelgrid + 2
-!     print*, I, model_grid(I)%assoc_cells
-!  END DO
+  print*, 'printing number of associated cells'
+  DO I = 1, n_modelgrid + 1
+     print*, I, model_grid(I)%assoc_cells
+  END DO
 
   END SUBROUTINE connection_prop_model_grid

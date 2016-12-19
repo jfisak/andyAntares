@@ -30,6 +30,7 @@ IMPLICIT NONE
   ! 5. angular velocity / m/s
   ! 6. temperature / K
   CASE(1)
+   add_mg = 2
    print*, 'we will read input input data from Petr Kurfurst model of stellar disc'
    ! firstly we calculate number of rows in the file
    n_modelgrid = 0
@@ -50,9 +51,9 @@ IMPLICIT NONE
    ! n_modelgrid + 1 ... for dummy cells
    ! n_modelgrid + 2 ... for cells with r < R_inf but too far from some model grid point
    !                     (vacuum cell) 
-   ALLOCATE ( model_grid(n_modelgrid + 2))
+   ALLOCATE ( model_grid(n_modelgrid + add_mg))
    ! will define vacuum index
-   vacuum = n_modelgrid + 2
+   vacuum = n_modelgrid + add_mg
    REWIND(15)
    DO I = 1, n_modelgrid
     READ(15,*) radius, perpend, dens, velrad, velang, temp
@@ -108,18 +109,18 @@ IMPLICIT NONE
    model_grid(n_modelgrid + 1)%velang   = 0.D0
    model_grid(n_modelgrid + 1)%rho   = 0.D0
    ! vacuum grids
-   model_grid(n_modelgrid + 2)%assoc_cells = 0
-   model_grid(n_modelgrid + 2)%rwind = 0.D0
-   model_grid(n_modelgrid + 2)%zwind = 0.D0
-   model_grid(n_modelgrid + 2)%vel   = 0.D0
-   model_grid(n_modelgrid + 2)%velang   = 0.D0
-   model_grid(n_modelgrid + 2)%rho   = 0.D0
-   model_grid(n_modelgrid + 2)%T = 0.D0
-   model_grid(n_modelgrid + 2)%J= 0.D0
-   ALLOCATE (model_grid(n_modelgrid + 2)%grid_comp(n_elements))
+   model_grid(n_modelgrid + add_mg)%assoc_cells = 0
+   model_grid(n_modelgrid + add_mg)%rwind = 0.D0
+   model_grid(n_modelgrid + add_mg)%zwind = 0.D0
+   model_grid(n_modelgrid + add_mg)%vel   = 0.D0
+   model_grid(n_modelgrid + add_mg)%velang   = 0.D0
+   model_grid(n_modelgrid + add_mg)%rho   = 0.D0
+   model_grid(n_modelgrid + add_mg)%T = 0.D0
+   model_grid(n_modelgrid + add_mg)%J= 0.D0
+   ALLOCATE (model_grid(n_modelgrid + add_mg)%grid_comp(n_elements))
     DO J = 1, n_elements
      numbions = elements(J)%nions
-     ALLOCATE (model_grid(n_modelgrid + 2)%grid_comp(J)%grid_ion(numbions))
+     ALLOCATE (model_grid(n_modelgrid + add_mg)%grid_comp(J)%grid_ion(numbions))
      atom_number = elements(J)%atom_number
      model_grid(n_modelgrid + 2)%grid_comp(J)%abund = 0.D0
      !Calculate total number density for included species

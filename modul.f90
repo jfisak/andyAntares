@@ -9,16 +9,25 @@ MODULE types
 
 ! Type Definitions
 
-  TYPE grid_cell  
-     INTEGER                         :: model_index
-     INTEGER, DIMENSION(3)           :: indexc
-     DOUBLE PRECISION, DIMENSION(3)  :: corner
+!  TYPE grid_cell  
+!     ! won't be used in dynamical grid
+!     INTEGER                         :: model_index
+!     INTEGER, DIMENSION(3)           :: indexc
+!     DOUBLE PRECISION, DIMENSION(3)  :: corner
 !     REAL                :: deltax, deltay, deltaz 
-  END TYPE grid_cell
+!  END TYPE grid_cell
+
+  TYPE dyn_grid_cell
+      INTEGER                        :: model_index
+      INTEGER                        :: cell_index, up_cell, down_cell
+      INTEGER, DIMENSION(6)          :: neighbour
+      DOUBLE PRECISION, DIMENSION(3) :: corner, width
+  END TYPE dyn_grid_cell
 
   TYPE photon 
      INTEGER                         :: cell_numb, pack_numb, active
-     INTEGER                         :: typ, last_cross, last_line, n_interactions
+     INTEGER                         :: typ, next_cross, last_line
+     INTEGER                         :: n_interactions
      DOUBLE PRECISION, DIMENSION(3)  :: pos, dir 
      DOUBLE PRECISION                :: e_cmf, e_rf, freq_cmf, freq_rf, delta_s
   END TYPE photon
@@ -75,20 +84,24 @@ MODULE types
   END TYPE atom_elements
 
   TYPE virt_particle
-     DOUBLE PRECISION ,DIMENSION(3)  :: pos
+     DOUBLE PRECISION, DIMENSION(3)  :: pos
      DOUBLE PRECISION                :: weight
   END TYPE virt_particle
 
 ! Global variables
   DOUBLE PRECISION                   :: xmax, ymax, zmax
-  DOUBLE PRECISION, DIMENSION(3)     :: cell_width
+  DOUBLE PRECISION, DIMENSION(3)     :: basic_cell_width
+  INTEGER                            :: dyngrid
   DOUBLE PRECISION                   :: R_star, R_inf, V_inf, M_dot, T_eff
   DOUBLE PRECISION, ALLOCATABLE      :: incomingflux(:,:)
   INTEGER                            :: nx_cell, ny_cell, nz_cell, Ngrid, destroyed_pack
   INTEGER                            :: dummypackage, n_nubin, n_modelgrid
+  ! additional model grid variables
+  INTEGER                            :: add_mg
 
   TYPE(modelgrid), ALLOCATABLE       :: model_grid(:)
-  TYPE(grid_cell), ALLOCATABLE       :: cell(:)   
+!  TYPE(grid_cell), ALLOCATABLE       :: cell(:)   
+  TYPE(dyn_grid_cell), ALLOCATABLE   :: dyn_cell(:)   
   TYPE(photon), ALLOCATABLE          :: package(:)
 
   TYPE(line_list), ALLOCATABLE       :: linelist(:)
@@ -132,6 +145,8 @@ MODULE types
   INTEGER                            :: ntransitions
   ! Specify backgraund model type (1-D, 2-D, 3-D)
   INTEGER                            :: model_type
+  ! Specify minimal size of dynamic cell
+  DOUBLE PRECISION, PARAMETER          :: minwidth = 1E8
 
 
 
