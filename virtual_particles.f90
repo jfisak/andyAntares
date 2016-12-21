@@ -10,7 +10,7 @@ SUBROUTINE virtual_particles(dimIM)
  ! 
  INTEGER                        :: I,J,K,NP
  ! number of particles
- INTEGER, PARAMETER             :: Npart=1000000
+ INTEGER, PARAMETER             :: Npart=100000
  ! 1D model: intervals for particles distribution
  INTEGER                        :: Ntheta, Nphi
  DOUBLE PRECISION               :: radius, phi, theta
@@ -18,16 +18,18 @@ SUBROUTINE virtual_particles(dimIM)
  DOUBLE PRECISION, DIMENSION(3) :: direction
  INTEGER                        :: angleParam, np_shell
  ! division of an interval [0, 1] into parts corresponding to a density
- DOUBLE PRECISION               :: rhotot
+ DOUBLE PRECISION               :: rhotot, rhomax
  ! bound of the division
  DOUBLE PRECISION               :: bound, actbound
  DOUBLE PRECISION, DIMENSION(n_modelgrid) :: bounds
  INTEGER, DIMENSION(n_modelgrid) :: nOfPoints
  ! a random point
  DOUBLE PRECISION               :: point
- DOUBLE PRECISION               :: ran2
+ DOUBLE PRECISION               :: ran2, rand_rho, rand_r
+ INTEGER                        :: loc_rad
 
 
+ OPEN(20,FILE="virtual_particles.dat")
 SELECT CASE (dimIM)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!! 1D MODEL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -36,7 +38,6 @@ SELECT CASE (dimIM)
 ! we consider radial symmetric model
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CASE(1)
- OPEN(20,FILE="virtual_particles.dat")
  ! angle between particles
  ! angleParam = 20
  ! number of virtual particles
@@ -90,7 +91,6 @@ CASE(1)
     write(20,*) virtual_particle(NP)%pos(1), virtual_particle(NP)%pos(2), virtual_particle(NP)%pos(3)
   END DO
  END DO
- CLOSE(20)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!! 2D MODEL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -101,6 +101,8 @@ CASE(2)
  ALLOCATE (virtual_particle(Npart))
  print*, 'number of particles: ', Npart
  print*, 'computing positions of virtual particles...'
+ rhomax = MAXVAL(model_grid(:)%rho)
+ NP = 0
  ! computing number of points on a shell from a density
  ! firstly we compute a total number of density
  rhotot = 0.D0
@@ -111,7 +113,7 @@ CASE(2)
  ! corresponds to the density magnitude
  bound = 0.D0
  DO I = 1, n_modelgrid
-  actbound = bound + model_grid(I)%rho / rhotot
+  actbound = bound + 1.D2 * model_grid(I)%rho / rhotot
   bounds(I) = actbound
   !print*, actbound, model_grid(I)%rho
   bound = actbound
@@ -119,7 +121,7 @@ CASE(2)
  END DO
  ! now we will compute given numbers of points for the given spheres
  DO I = 1, Npart
-  point = ran2(idum)
+  point = 1.D2 * ran2(idum)
   DO J = 1, n_modelgrid
    IF((bounds(J) > point)) THEN
     nOfPoints(J) = nOfPoints(J) + 1
@@ -127,12 +129,30 @@ CASE(2)
    END IF
   END DO
  END DO
+ ! printing number of points for each model grid
+ DO I = 1, n_modelgrid
+  print*, nOfPoints(I)
+ END DO
+! DO I = 1, n_modelgrid
+!  nOfPoints(I) = 0
+! END DO
+! DO WHILE(NP < Npart)
+!  rand_r = ran2(idum)
+!  rand_rho = rhomax * ran2(idum + 1)
+!  loc_rad = INT(FLOOR(1 + (n_modelgrid - 1) * rand_rho))
+!!  print*, 'virtual_particles: rand_r = ', rand_r, ' rand_rho = ', rand_rho, ' loc_rad = ', loc_rad
+!  IF(rand_rho <= model_grid(loc_rad)%rho) THEN
+!   nOfPoints(loc_rad) = nOfPoints(loc_rad) + 1
+!   NP = NP + 1
+!   print*, 'found NP = ', NP
+!  END IF
+! END DO
+! 
  ! we have zero particles located
  NP = 0
  ! distribution of particles on the shell of the radius R
  DO I = 1, n_modelgrid
-  radius = model_grid(I)%rwind
-  virtual_particle(NP)%pos(3) = model_grid(I)%zwind
+  radius = sqrt(model_grid(I)%rwind**2 - model_grid(I)%zwind**2)
   np_shell = nOfPoints(I)
   !IF (np_shell == 0) STOP 'number of virtual particles is small'
   DO J = 1, np_shell
@@ -140,6 +160,7 @@ CASE(2)
    phi = 2.D0*pi*ran2(idum)
    virtual_particle(NP)%pos(1) = radius * cos(phi)
    virtual_particle(NP)%pos(2) = radius * sin(phi)
+   virtual_particle(NP)%pos(3) = model_grid(I)%zwind
     write(20,*) virtual_particle(NP)%pos(1), virtual_particle(NP)%pos(2), virtual_particle(NP)%pos(3)
   END DO
  END DO
@@ -147,5 +168,6 @@ CASE(2)
 CASE DEFAULT
  STOP 'wrong choice of input model dimension...'
 END SELECT
+ CLOSE(20)
 
 END SUBROUTINE

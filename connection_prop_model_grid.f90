@@ -65,6 +65,7 @@
   ELSE IF (model_type .EQ. 2) THEN
    print*, 'asociating propagation grid cells to disc model cells'
    DO I = 1, Ngrid
+    IF(dyn_cell(I)%up_cell == 0) THEN
       IF(mod(I,10000) .EQ. 0) print*, 'associating propagation grid', I, REAL(I)/REAL(Ngrid) * 1.E2, ' % completed'
       ! Absolute radius of the propagation grid cell (midle of the cell)
       r = SQRT((dyn_cell(I)%corner(1) + dyn_cell(I)%width(1)/2.D0)**2 + &
@@ -107,6 +108,7 @@
        !model_grid(n_modelgrid + 1)%assoc_cells = model_grid(n_modelgrid + 1)%assoc_cells + 1
       END IF
       !print*, I,J,M
+    END IF
    END DO
    print*, 'number of propagation cells in vacuum: ', model_grid(n_modelgrid + 2)%assoc_cells
   ENDIF
