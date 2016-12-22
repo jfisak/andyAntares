@@ -9,6 +9,7 @@ INTEGER                                 :: max_n_dcell, act_n_dyncell, no_dcells
 DOUBLE PRECISION, DIMENSION(3)          :: loc_corner, loc_cell_width
 INTEGER                                 :: I
 
+
 loc_corner(1) = dyn_cell(act_n_dyncell)%corner(1)
 loc_corner(2) = dyn_cell(act_n_dyncell)%corner(2)
 loc_corner(3) = dyn_cell(act_n_dyncell)%corner(3)

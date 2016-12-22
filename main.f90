@@ -137,7 +137,6 @@ SUBROUTINE main
   !CALL setup_grid()
   CALL setup_grid2()
   ! connects the propagation grid with the model grid
-  CALL connection_prop_model_grid()
   print*, 'propagation grid is set up'
   CALL connection_prop_model_grid()
 

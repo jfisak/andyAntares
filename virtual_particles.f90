@@ -10,7 +10,7 @@ SUBROUTINE virtual_particles(dimIM)
  ! 
  INTEGER                        :: I,J,K,NP
  ! number of particles
- INTEGER, PARAMETER             :: Npart=100000
+ INTEGER, PARAMETER             :: Npart=10000
  ! 1D model: intervals for particles distribution
  INTEGER                        :: Ntheta, Nphi
  DOUBLE PRECISION               :: radius, phi, theta
@@ -74,9 +74,9 @@ CASE(1)
   END DO
  END DO
  ! printing number of points for each model grid
- DO I = 1, n_modelgrid
-  print*, nOfPoints(I)
- END DO
+! DO I = 1, n_modelgrid
+!  print*, nOfPoints(I)
+! END DO
  ! we have zero particles located
  NP = 0
  ! distribution of particles on the shell of the radius R
@@ -130,9 +130,9 @@ CASE(2)
   END DO
  END DO
  ! printing number of points for each model grid
- DO I = 1, n_modelgrid
-  print*, nOfPoints(I)
- END DO
+! DO I = 1, n_modelgrid
+!  print*, nOfPoints(I)
+! END DO
 ! DO I = 1, n_modelgrid
 !  nOfPoints(I) = 0
 ! END DO

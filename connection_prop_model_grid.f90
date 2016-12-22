@@ -63,10 +63,9 @@
   ! 2D model grid -- Petr Kurfurst's model
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ELSE IF (model_type .EQ. 2) THEN
-   print*, 'asociating propagation grid cells to disc model cells'
-   DO I = 1, Ngrid
+   DO I = 1, max_n_dcell
     IF(dyn_cell(I)%up_cell == 0) THEN
-      IF(mod(I,10000) .EQ. 0) print*, 'associating propagation grid', I, REAL(I)/REAL(Ngrid) * 1.E2, ' % completed'
+      IF(mod(I,10000) .EQ. 0) print*, 'associating propagation grid', I, REAL(I)/REAL(max_n_dcell) * 1.E2, ' % completed'
       ! Absolute radius of the propagation grid cell (midle of the cell)
       r = SQRT((dyn_cell(I)%corner(1) + dyn_cell(I)%width(1)/2.D0)**2 + &
                (dyn_cell(I)%corner(2) + dyn_cell(I)%width(2)/2.D0)**2 + &
@@ -114,8 +113,8 @@
   ENDIF
 
   print*, 'printing number of associated cells'
-  DO I = 1, n_modelgrid + 1
-     print*, I, model_grid(I)%assoc_cells
-  END DO
+!  DO I = 1, n_modelgrid + 1
+!     print*, I, model_grid(I)%assoc_cells
+!  END DO
 
   END SUBROUTINE connection_prop_model_grid
