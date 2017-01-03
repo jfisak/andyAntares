@@ -98,6 +98,8 @@ MODULE types
   INTEGER                            :: dummypackage, n_nubin, n_modelgrid
   ! additional model grid variables
   INTEGER                            :: add_mg
+  ! number of virtual particles
+  INTEGER                            :: Nvirtpart
 
   TYPE(modelgrid), ALLOCATABLE       :: model_grid(:)
 !  TYPE(grid_cell), ALLOCATABLE       :: cell(:)   

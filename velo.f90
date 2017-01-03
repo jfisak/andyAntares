@@ -14,8 +14,8 @@
     DOUBLE PRECISION                  :: vel_rad_norm, vel_ang_norm
 
     IF(model_type .EQ. 1) THEN
-     vel_radial = V_inf/R_inf * vec_length(package(pack_index)%pos)
- !   vel_radial = V_inf * (1.D0 - b/vec_length(package(pack_index)%pos)**beta
+!     vel_radial = V_inf/R_inf * vec_length(package(pack_index)%pos)
+    vel_radial = V_inf * (1.D0 - b/vec_length(package(pack_index)%pos))**beta
  
      vel_vec = package(pack_index)%pos/vec_length(package(pack_index)%pos) * vel_radial
  

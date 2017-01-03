@@ -9,8 +9,6 @@ SUBROUTINE virtual_particles(dimIM)
  INTEGER                        :: dimIM
  ! 
  INTEGER                        :: I,J,K,NP
- ! number of particles
- INTEGER, PARAMETER             :: Npart=10000
  ! 1D model: intervals for particles distribution
  INTEGER                        :: Ntheta, Nphi
  DOUBLE PRECISION               :: radius, phi, theta
@@ -44,27 +42,27 @@ CASE(1)
  ! Ntheta =  angleParam
  ! Nphi = 2* angleParam
  !Npart = n_modelgrid * (Ntheta - 2) * Nphi + 2 * n_modelgrid
- print*, 'number of particles: ', Npart
+ print*, 'number of particles: ', Nvirtpart
  print*, 'computing positions of virtual particles...'
- ALLOCATE (virtual_particle(Npart))
+ ALLOCATE (virtual_particle(Nvirtpart))
  ! computing number of points on a shell from a density
  ! firstly we compute a total number of density
  rhotot = 0.D0
  DO I = 1, n_modelgrid
- rhotot = rhotot + model_grid(I)%rho
+ rhotot = rhotot + model_grid(I)%rho * model_grid(I)%rwind
  END DO
  ! now we divide an interval [0, 1] into parts which lenght
  ! corresponds to the density magnitude
  bound = 0.D0
  DO I = 1, n_modelgrid
-  actbound = bound + model_grid(I)%rho / rhotot
+  actbound = bound + model_grid(I)%rho * model_grid(I)%rwind / rhotot
   bounds(I) = actbound
   !print*, actbound, model_grid(I)%rho
   bound = actbound
   nOfPoints(I) = 0
  END DO
  ! now we will compute given numbers of points for the given spheres
- DO I = 1, Npart
+ DO I = 1, Nvirtpart
   point = ran2(idum)
   DO J = 1, n_modelgrid
    IF((bounds(J) > point)) THEN
@@ -74,9 +72,9 @@ CASE(1)
   END DO
  END DO
  ! printing number of points for each model grid
-! DO I = 1, n_modelgrid
-!  print*, nOfPoints(I)
-! END DO
+ DO I = 1, n_modelgrid
+  print*, nOfPoints(I)
+ END DO
  ! we have zero particles located
  NP = 0
  ! distribution of particles on the shell of the radius R
@@ -98,8 +96,8 @@ CASE(1)
 ! we consider radial symmetric model
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CASE(2)
- ALLOCATE (virtual_particle(Npart))
- print*, 'number of particles: ', Npart
+ ALLOCATE (virtual_particle(Nvirtpart))
+ print*, 'number of particles: ', Nvirtpart
  print*, 'computing positions of virtual particles...'
  rhomax = MAXVAL(model_grid(:)%rho)
  NP = 0
@@ -120,7 +118,7 @@ CASE(2)
   nOfPoints(I) = 0
  END DO
  ! now we will compute given numbers of points for the given spheres
- DO I = 1, Npart
+ DO I = 1, Nvirtpart
   point = 1.D2 * ran2(idum)
   DO J = 1, n_modelgrid
    IF((bounds(J) > point)) THEN

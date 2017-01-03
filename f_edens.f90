@@ -13,7 +13,7 @@
 !  print*, 'f_edens is called for:', model_grid_index, el_nd
 
   temp = model_grid(model_grid_index)%T
-!  print*, '  cell temp., mass.dens.', temp, model_grid(model_grid_index)%rho
+!  print*, 'f_edens:  cell temp., mass.dens.', temp, model_grid(model_grid_index)%rho
 
   SUMME = 0.D0 
 !  print*, '  numb.elem.', n_elements
@@ -24,6 +24,7 @@
 !     print*, '  numb.ions', indexe, numb_ions
      DO indexi = 1, numb_ions
         CALL ionization_fraction(indexe, indexi, temp, el_nd, frac)
+        print*, 'f_edens: frac = ', frac
         SUMMI = SUMMI + (indexi - 1) * frac
 !        print*, '  Ion.frac:', indexi, frac, SUMMI
      END DO

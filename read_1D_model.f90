@@ -27,7 +27,9 @@
 !  READ(11,*) V_inf
 !  READ(11,*) M_dot
   READ(11,*) n_modelgrid
+ 
 
+  add_mg = 1
 !  print*, T_eff, R_star, R_inf, V_inf, M_dot, n_modelgrid
 
   R_star = R_star * r_sun
@@ -42,7 +44,7 @@
  ! Allocate array for model grid structure.
   ! Cell n_modelgrid+1 is associated to propagation grid cells 
   ! which have no counterpart on the modelgrid  
-  ALLOCATE (model_grid(n_modelgrid + 2))
+  ALLOCATE (model_grid(n_modelgrid + add_mg))
 
   DO I = 1, n_modelgrid
      ! Maybe better to calculate at the midle of the grid cell rather then at the outer boundary 
@@ -103,6 +105,7 @@
  ! 7. mass loss rate
  CASE(1)
   print*, 'we will read a model from Jiri Krticka program...'
+  add_mg = 1
   OPEN(UNIT=12,status='old',FILE='jikrmodel.dat')
    READ(12,*) T_eff, R_star, modelfile
   CLOSE(12)
@@ -122,7 +125,7 @@
    END IF
    n_modelgrid = n_modelgrid + 1
   END DO
-   ALLOCATE (model_grid(n_modelgrid + 1))
+   ALLOCATE (model_grid(n_modelgrid + add_mg))
    REWIND(11)
   DO I=1,n_modelgrid
    READ(11,*) indexg, r, velo, dens, temp, junk, junk
@@ -154,7 +157,7 @@
   ! Dummy cell to associate to propagation grid cells which have no representation on the model grid.
   ! All cells out of model grid set to 0 and associate to n_modelgrid. 
   ! Other cells will obtainde particular values with memory
-  model_grid(n_modelgrid+1)%rwind = 0.D0
+  model_grid(n_modelgrid + add_mg)%rwind = 0.D0
   model_grid(n_modelgrid+1)%vel   = 0.D0
   model_grid(n_modelgrid+1)%rho   = 0.D0     
   ! calculating virtual particles from the selected input model

@@ -97,6 +97,12 @@ SUBROUTINE read_input(n_pack, iseed)
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I20)', ERR=94) inputmodel
 
+    ELSE IF (ACTPAR .EQ. 'Nvirtpart') THEN
+    CALL SARGC (LINE, NPAR)
+    IF (NPAR .LT. 2) GOTO 90
+    CALL SARGV(LINE,2,ACTPAR)
+    READ (ACTPAR, '(I20)', ERR=94) Nvirtpart
+
     ELSE IF (ACTPAR .EQ. 'dyngrid') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90

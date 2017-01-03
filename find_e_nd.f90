@@ -13,7 +13,7 @@ SUBROUTINE find_e_nd(model_grid_index, el_nd)
   DOUBLE PRECISION                   :: diff
 
   ! Smallest value for the el_nd (can be either 1. or 0.)
-  el_nd_1 = 0.D0
+  el_nd_1 = model_grid(model_grid_index)%rho / (1D1 * mp_g)
 
 !  DO I = 1, n_elements
 !     numb_ions = elements(I)%nions
@@ -56,7 +56,7 @@ SUBROUTINE find_e_nd(model_grid_index, el_nd)
     el_nd_2 = el_nd_2 - diff
 
     ! Debug
-!    print*, 'electron density: ', loop_index, el_nd_1, el_nd_2, '\n', diff
+    print*, 'electron density: ', loop_index, el_nd_1, el_nd_2, '\n', diff
     !print*, 'electron density: ', diff
     !print*, loop_index, func1, func2, diff
 

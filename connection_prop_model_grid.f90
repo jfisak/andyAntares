@@ -91,7 +91,7 @@
         ! if the propagation cell is too far from the nearest model point
         ! we will associate this cell to the dummy cells
        END DO
-        IF( delta .GT. deltamax) THEN
+        IF( delta .GT. sqrt(dyn_cell(I)%width(1)**2+dyn_cell(I)%width(2)**2+dyn_cell(I)%width(3)**2)/2) THEN
          dyn_cell(I)%model_index = n_modelgrid + add_mg
          model_grid(n_modelgrid + 2)%assoc_cells = model_grid(n_modelgrid + 2)%assoc_cells + 1
          !print*, 'model grid n + 2 = ', model_grid(n_modelgrid + 2)%assoc_cells

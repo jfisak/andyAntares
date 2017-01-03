@@ -124,7 +124,7 @@ SUBROUTINE main
   xmax = xmax * R_star
   ymax = ymax * R_star 
   zmax = zmax * R_star
-  ALLOCATE(current_temp(n_modelgrid+2))
+  ALLOCATE(current_temp(n_modelgrid + add_mg))
   print*, 'model grid is set up'
 
   print*,'CHECK GRID SIZES'
