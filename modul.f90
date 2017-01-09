@@ -20,7 +20,7 @@ MODULE types
   TYPE dyn_grid_cell
       INTEGER                        :: model_index
       INTEGER                        :: cell_index, up_cell, down_cell
-      INTEGER, DIMENSION(6)          :: neighbour
+      INTEGER, DIMENSION(6)          :: neighbor
       DOUBLE PRECISION, DIMENSION(3) :: corner, width
   END TYPE dyn_grid_cell
 

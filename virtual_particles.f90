@@ -49,13 +49,13 @@ CASE(1)
  ! firstly we compute a total number of density
  rhotot = 0.D0
  DO I = 1, n_modelgrid
- rhotot = rhotot + model_grid(I)%rho * model_grid(I)%rwind
+ rhotot = rhotot + log10(1.D0 + model_grid(I)%rho)
  END DO
  ! now we divide an interval [0, 1] into parts which lenght
  ! corresponds to the density magnitude
  bound = 0.D0
  DO I = 1, n_modelgrid
-  actbound = bound + model_grid(I)%rho * model_grid(I)%rwind / rhotot
+  actbound = bound + log10(1.D0 + model_grid(I)%rho) / rhotot
   bounds(I) = actbound
   !print*, actbound, model_grid(I)%rho
   bound = actbound
@@ -72,9 +72,11 @@ CASE(1)
   END DO
  END DO
  ! printing number of points for each model grid
- DO I = 1, n_modelgrid
-  print*, nOfPoints(I)
- END DO
+ OPEN(UNIT=8,FILE='vp_distribution.dat')
+  DO I = 1, n_modelgrid
+   write(8,*) I, nOfPoints(I)
+  END DO
+ CLOSE(8)
  ! we have zero particles located
  NP = 0
  ! distribution of particles on the shell of the radius R

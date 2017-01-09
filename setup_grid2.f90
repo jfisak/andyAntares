@@ -52,7 +52,7 @@
      ! number of down cell is equal to zero
      dyn_cell(L)%down_cell = 0
      dyn_cell(L)%up_cell = 0
-     ! calculation of neighbours
+     ! calculation of neighbors
      ! x+
      IF(I == nx_cell) THEN
       xp = -99
@@ -90,12 +90,12 @@
       zm = L - 1
      END IF
      ! 
-     dyn_cell(L)%neighbour(1) = xp
-     dyn_cell(L)%neighbour(2) = xm
-     dyn_cell(L)%neighbour(3) = yp
-     dyn_cell(L)%neighbour(4) = ym
-     dyn_cell(L)%neighbour(5) = zp
-     dyn_cell(L)%neighbour(6) = zm
+     dyn_cell(L)%neighbor(1) = xp
+     dyn_cell(L)%neighbor(2) = xm
+     dyn_cell(L)%neighbor(3) = yp
+     dyn_cell(L)%neighbor(4) = ym
+     dyn_cell(L)%neighbor(5) = zp
+     dyn_cell(L)%neighbor(6) = zm
      L = L + 1
     END DO
    END DO
