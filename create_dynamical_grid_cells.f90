@@ -20,6 +20,8 @@
    DOUBLE PRECISION, DIMENSION(3)       :: corner, cell_width_2
    TYPE(virt_particle), ALLOCATABLE     :: local_particle(:), pom(:)
    TYPE(dyn_grid_cell), ALLOCATABLE     ::  pom2(:)
+   ! move to the next cell, if the size is smaller than minimal possible cell size
+   LOGICAL                              :: next_cell
    ! local variables
    DOUBLE PRECISION, DIMENSION(3)       :: loc_corner, loc_cell_width
    INTEGER                              :: loc_np
@@ -90,6 +92,7 @@
       loc_upcell = dyn_cell(act_n_dyncell)%up_cell
       loc_downcell = dyn_cell(act_n_dyncell)%down_cell
      ! how many virtual particles is there in this subcell
+    IF(next_cell .EQV. .FALSE.) THEN
      DO J = 1, np
 !      print*, (local_particle(J)%pos(1) >= loc_corner(1)), (local_particle(J)%pos(1) < (loc_corner(1) + loc_cell_width(1))), &
 !              (local_particle(J)%pos(2) >= loc_corner(2)), (local_particle(J)%pos(2) < (loc_corner(2) + loc_cell_width(2))), &
@@ -104,6 +107,10 @@
        loc_np = loc_np + 1
       END IF
      END DO
+    ELSE
+     loc_np = 0
+     next_cell = .FALSE.
+    END IF
      ! now we have to decide what to do on the basement of number of
      ! local particles
      ! 1. the division of the cells is good enough
@@ -140,6 +147,7 @@
           dyn_cell(act_n_dyncell)%width(3)/2.E0 < minwidth) then
           loc_np = 0
           print*, 'CELL WOULD BE TOO SMALL...MOVING TO THE NEXT CELL...'
+          next_cell = .TRUE.
       end if
      ! is there some free space left in the field dyn_cell?
       up_bound = SIZE(dyn_cell(:))
