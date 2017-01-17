@@ -16,7 +16,10 @@ SUBROUTINE virtual_particles(dimIM)
  DOUBLE PRECISION, DIMENSION(3) :: direction
  INTEGER                        :: angleParam, np_shell
  ! division of an interval [0, 1] into parts corresponding to a density
- DOUBLE PRECISION               :: rhomin, rhotot, rhomax
+ DOUBLE PRECISION               :: rhotot, rhomax
+ ! virtual particles distribution
+ DOUBLE PRECISION               :: sumr
+ DOUBLE PRECISION, PARAMETER             :: delta = 0.1
  ! bound of the division
  DOUBLE PRECISION               :: bound, actbound
  DOUBLE PRECISION, DIMENSION(n_modelgrid) :: bounds
@@ -47,30 +50,33 @@ CASE(1)
  ALLOCATE (virtual_particle(Nvirtpart))
  ! computing number of points on a shell from a density
  ! firstly we compute a total number of density
- rhomin = MINVAL(model_grid(:)%rho)
- rhotot = 0.D0
+ sumr = 0.D0
  DO I = 1, n_modelgrid
- rhotot = rhotot + 1/abs(log10(model_grid(I)%rho))
+  sumr = sumr + (model_grid(I)%rwind / R_inf) ** delta
  END DO
- ! now we divide an interval [0, 1] into parts which lenght
- ! corresponds to the density magnitude
- bound = 0.D0
- DO I = 1, n_modelgrid
-  actbound = bound + 1/abs(log10(model_grid(I)%rho)) / rhotot
-  bounds(I) = actbound
-  !print*, actbound, model_grid(I)%rho
-  bound = actbound
-  nOfPoints(I) = 0
- END DO
+! ! now we divide an interval [0, 1] into parts which lenght
+! ! corresponds to the density magnitude
+! bound = 0.D0
+! DO I = 1, n_modelgrid
+!  actbound = bound - log10(model_grid(I)%rho) / rhotot
+!  bounds(I) = actbound
+!  !print*, actbound, model_grid(I)%rho
+!  bound = actbound
+!  nOfPoints(I) = 0
+! END DO
+! ! now we will compute given numbers of points for the given spheres
+! DO I = 1, Nvirtpart
+!  point = ran2(idum)
+!  DO J = 1, n_modelgrid
+!   IF((bounds(J) > point)) THEN
+!    nOfPoints(J) = nOfPoints(J) + 1
+!    EXIT
+!   END IF
+!  END DO
+! END DO
  ! now we will compute given numbers of points for the given spheres
- DO I = 1, Nvirtpart
-  point = ran2(idum)
-  DO J = 1, n_modelgrid
-   IF((bounds(J) > point)) THEN
-    nOfPoints(J) = nOfPoints(J) + 1
-    EXIT
-   END IF
-  END DO
+ DO I = 1, n_modelgrid
+  nOfPoints(I) = INT(FLOAT(Nvirtpart) * (model_grid(I)%rwind / R_inf) ** delta / sumr)
  END DO
  ! printing number of points for each model grid
  OPEN(UNIT=8,FILE='vp_distribution.dat')

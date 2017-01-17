@@ -18,6 +18,7 @@ SUBROUTINE do_rpackage_event(pack_index, event)
      ! case, i.e. we immediately re-emit the package isotropically in
      ! the cmf and conserve the cmf frequency print*,
      ! freq_line,package(pack_index)%freq_cmf
+     print*, 'photon ', pack_index, ' line interaction...'
      package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
      CALL emit_rpackage(pack_index)
   ELSE IF (event .EQ. rpkt_eventtype_continuum) THEN

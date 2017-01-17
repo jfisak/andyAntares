@@ -152,6 +152,7 @@
      END DO
    END DO
   CLOSE(11)
+  R_star = model_grid(1)%rwind
   R_inf  = model_grid(n_modelgrid)%rwind
   V_inf  = model_grid(n_modelgrid)%vel
   ! Dummy cell to associate to propagation grid cells which have no representation on the model grid.
