@@ -17,7 +17,7 @@ SUBROUTINE change_cell(pack_index, next_cell)
   IF (next_cell .LT. 0) THEN 
      package(pack_index)%typ = type_escaped
      package(pack_index)%active = 0
-!     print*, 'change cell: package escaped...'
+     print*, 'change cell: package escaped...'
   ELSE
 !     print*, 'change cell: next_cell = ', next_cell
      package(pack_index)%cell_numb = next_cell

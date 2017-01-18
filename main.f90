@@ -121,9 +121,9 @@ SUBROUTINE main
   CALL setup_model_grid()
   ! create virtual particles for the given model cell
   IF (dyngrid == 1) CALL virtual_particles(model_type)
-  xmax = xmax * R_star
-  ymax = ymax * R_star 
-  zmax = zmax * R_star
+  xmax = R_inf + R_sun
+  ymax = R_inf + R_sun 
+  zmax = R_inf + R_sun
   ALLOCATE(current_temp(n_modelgrid + add_mg))
   print*, 'model grid is set up'
 

@@ -76,6 +76,8 @@
   R_inf  = model_grid(n_modelgrid)%rwind
   V_inf  = model_grid(n_modelgrid)%vel
 
+  ! setting properties
+
 
   ! Dummy cell to associate to propagation grid cells which have no representation on the model grid.
   ! All cells out of model grid set to 0 and associate to n_modelgrid. 
