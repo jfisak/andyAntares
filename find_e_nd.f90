@@ -13,7 +13,7 @@ SUBROUTINE find_e_nd(model_grid_index, el_nd)
   DOUBLE PRECISION                   :: diff
 
   ! Smallest value for the el_nd (can be either 1. or 0.)
-  el_nd_1 = model_grid(model_grid_index)%rho / (1D1 * mp_g)
+  el_nd_1 = 0.D0
 
 !  DO I = 1, n_elements
 !     numb_ions = elements(I)%nions
@@ -27,7 +27,7 @@ SUBROUTINE find_e_nd(model_grid_index, el_nd)
   
   !print*, 'model_grid_index = ', model_grid_index, ' temp = ', model_grid(model_grid_index)%T
   ! Debug
-  ! print*, el_nd_1, el_nd_2
+   print*, 'find_el_nd: ', el_nd_1, el_nd_2, model_grid(model_grid_index)%rho
   ! CALL f_edens(model_grid_index, el_nd_1, func1)
   ! CALL f_edens(model_grid_index, el_nd_2, func2)
   ! print*, func1, func2
@@ -48,7 +48,7 @@ SUBROUTINE find_e_nd(model_grid_index, el_nd)
     CALL f_edens(model_grid_index, el_nd_2, func2)
 !    print*, 'electron densities: el_nd_1 = ', el_nd_1, ', el_nd_2 = ', el_nd_2
     diff = (el_nd_2 - el_nd_1) / (func2 - func1) * func2 
-    IF (ABS(diff) .LT. minc) THEN
+    IF (ABS(el_nd_2 / el_nd_1 - 1.D0) .LT. minc) THEN
 !       PRINT*, 'Electron number density in cell', model_grid_index, 'equals', el_nd_2
        EXIT
     END IF
@@ -56,7 +56,7 @@ SUBROUTINE find_e_nd(model_grid_index, el_nd)
     el_nd_2 = el_nd_2 - diff
 
     ! Debug
-    print*, 'electron density: ', loop_index, el_nd_1, el_nd_2, '\n', diff
+  !  print*, 'electron density: ', loop_index, el_nd_1, el_nd_2, '\n', diff
     !print*, 'electron density: ', diff
     !print*, loop_index, func1, func2, diff
 

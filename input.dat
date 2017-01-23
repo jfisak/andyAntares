@@ -1,9 +1,9 @@
-n_pack = 100000
+n_pack = 1
 n_nubin = 1000
 nx_cell = 5
 ny_cell = 5
 nz_cell = 5
-model_type = 1
+model_type = 2
 xmax = 5.
 ymax = 5.
 zmax = 5.

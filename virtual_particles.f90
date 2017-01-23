@@ -112,20 +112,19 @@ CASE(2)
  NP = 0
  ! computing number of points on a shell from a density
  ! firstly we compute a total number of density
- rhotot = 0.D0
+ sumr = 0.D0
  DO I = 1, n_modelgrid
- rhotot = rhotot + model_grid(I)%rho
+  sumr = sumr + (model_grid(I)%rwind / R_inf) ** delta
  END DO
- ! now we divide an interval [0, 1] into parts which lenght
- ! corresponds to the density magnitude
- bound = 0.D0
  DO I = 1, n_modelgrid
-  actbound = bound + 1.D2 * model_grid(I)%rho / rhotot
-  bounds(I) = actbound
-  !print*, actbound, model_grid(I)%rho
-  bound = actbound
-  nOfPoints(I) = 0
+  nOfPoints(I) = INT(FLOAT(Nvirtpart) * (model_grid(I)%rwind / R_inf) ** delta / sumr)
  END DO
+ ! printing number of points for each model grid
+ OPEN(UNIT=8,FILE='vp_distribution.dat')
+  DO I = 1, n_modelgrid
+   write(8,*) I, nOfPoints(I)
+  END DO
+ CLOSE(8)
  ! now we will compute given numbers of points for the given spheres
  DO I = 1, Nvirtpart
   point = 1.D2 * ran2(idum)

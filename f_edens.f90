@@ -24,7 +24,7 @@
 !     print*, '  numb.ions', indexe, numb_ions
      DO indexi = 1, numb_ions
         CALL ionization_fraction(indexe, indexi, temp, el_nd, frac)
-        print*, 'f_edens: frac = ', frac
+       ! print*, 'f_edens: frac = ', frac
         SUMMI = SUMMI + (indexi - 1) * frac
 !        print*, '  Ion.frac:', indexi, frac, SUMMI
      END DO
