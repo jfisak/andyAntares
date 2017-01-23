@@ -16,6 +16,7 @@ IMPLICIT NONE
  INTEGER                                :: atom_number, numbions
  ! calcultaion a stellar radius
  DOUBLE PRECISION                       :: act_radius, min_radius, max_radius
+ DOUBLE PRECISION                       :: act_z, max_z
  INTEGER                                :: max_radius_index
  INTEGER                                :: vacuum
 
@@ -94,8 +95,16 @@ IMPLICIT NONE
      max_radius_index = I
     END IF
    END DO
+   max_z = 1.D0
+   DO I = 1, n_modelgrid
+    act_z = model_grid(I)%zwind
+    IF(act_z > max_z) THEN
+     max_z = act_z
+    END IF
+   END DO
    print*, 'R_star = ', R_star
    R_inf = max_radius
+   Z_inf = max_z
    V_inf = model_grid(max_radius_index)%vel
    !R_star = model_grid(1)%rwind * 1.D2
    !R_inf = (model_grid(n_modelgrid)%rwind + model_grid(n_modelgrid)%rwind/1.D2) * 1.D2

@@ -19,7 +19,7 @@ SUBROUTINE virtual_particles(dimIM)
  DOUBLE PRECISION               :: rhotot, rhomax
  ! virtual particles distribution
  DOUBLE PRECISION               :: sumr
- DOUBLE PRECISION, PARAMETER             :: delta = 1.0
+ DOUBLE PRECISION, PARAMETER             :: delta = 0.1
  ! bound of the division
  DOUBLE PRECISION               :: bound, actbound
  DOUBLE PRECISION, DIMENSION(n_modelgrid) :: bounds

@@ -123,7 +123,14 @@ SUBROUTINE main
   IF (dyngrid == 1) CALL virtual_particles(model_type)
   xmax = R_inf + R_sun
   ymax = R_inf + R_sun 
-  zmax = R_inf + R_sun
+  IF(model_type == 1) THEN
+   zmax = R_inf + R_sun
+  ELSE IF (model_type == 2 .AND. inputmodel == 1) THEN
+   zmax = Z_inf + R_sun
+  ELSE
+   STOP 'main: non-known model type'
+  END IF
+   
   ALLOCATE(current_temp(n_modelgrid + add_mg))
   print*, 'model grid is set up'
 
@@ -153,7 +160,7 @@ SUBROUTINE main
 !        END DO
 !     END DO
 !  END DO         
-  print*, 'Check model grid done'
+!  print*, 'Check model grid done'
 
   ! Checking if the analitic solution for the escape probability
   ! (e^(-tau)) is in agreement with the calculated one using our

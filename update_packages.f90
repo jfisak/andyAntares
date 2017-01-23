@@ -7,9 +7,8 @@
   INTEGER             :: n_pack, pack_index
 
 
-  OPEN (UNIT=3, FILE='position.dat')
+  !OPEN (UNIT=3, FILE='position.dat')
   ! print*, 'A'
-  OPEN(UNIT=3,FILE='position.dat')
   DO pack_index = 1, n_pack
      write(3,*) 'photon number ', pack_index
      ! print*, 'B'
@@ -45,6 +44,6 @@
      END DO
 
   END DO
-  CLOSE(UNIT=3)
+!  CLOSE(UNIT=3)
   
 END SUBROUTINE update_packages

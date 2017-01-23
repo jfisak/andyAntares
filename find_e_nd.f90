@@ -27,7 +27,7 @@ SUBROUTINE find_e_nd(model_grid_index, el_nd)
   
   !print*, 'model_grid_index = ', model_grid_index, ' temp = ', model_grid(model_grid_index)%T
   ! Debug
-   print*, 'find_el_nd: ', el_nd_1, el_nd_2, model_grid(model_grid_index)%rho
+  ! print*, 'find_el_nd: ', el_nd_1, el_nd_2, model_grid(model_grid_index)%rho
   ! CALL f_edens(model_grid_index, el_nd_1, func1)
   ! CALL f_edens(model_grid_index, el_nd_2, func2)
   ! print*, func1, func2
