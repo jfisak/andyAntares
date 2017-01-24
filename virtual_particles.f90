@@ -19,7 +19,7 @@ SUBROUTINE virtual_particles(dimIM)
  DOUBLE PRECISION               :: rhotot, rhomax
  ! virtual particles distribution
  DOUBLE PRECISION               :: sumr
- DOUBLE PRECISION, PARAMETER             :: delta = 0.1
+ DOUBLE PRECISION               :: delta
  ! bound of the division
  DOUBLE PRECISION               :: bound, actbound
  DOUBLE PRECISION, DIMENSION(n_modelgrid) :: bounds
@@ -39,6 +39,7 @@ SELECT CASE (dimIM)
 ! we consider radial symmetric model
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CASE(1)
+ delta = 1.D0
  ! angle between particles
  ! angleParam = 20
  ! number of virtual particles
@@ -105,6 +106,7 @@ CASE(1)
 ! we consider radial symmetric model
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CASE(2)
+ delta = 1.D-1
  ALLOCATE (virtual_particle(Nvirtpart))
  print*, 'number of particles: ', Nvirtpart
  print*, 'computing positions of virtual particles...'

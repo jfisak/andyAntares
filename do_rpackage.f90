@@ -27,7 +27,7 @@ SUBROUTINE do_rpackage(pack_index)
       e_dist = cell_dist + 1.D10
   ELSE IF(get_package_model_index(pack_index) .EQ. n_modelgrid + 2) THEN
       e_dist = 1.D50
-      print*, 'package: ', pack_index, ' is in empty space...'
+      !print*, 'package: ', pack_index, ' is in empty space...'
   ELSE
       CALL event_dist(pack_index, cell_dist, e_dist, event)
   END IF

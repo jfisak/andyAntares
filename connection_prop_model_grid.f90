@@ -14,7 +14,7 @@
   ! propagation and model cell
   DOUBLE PRECISION               :: delta, delta2
   ! radial and vertical distance
-  DOUBLE PRECISION               :: r, z
+  DOUBLE PRECISION               :: r, z, r0, z0
   
   basic_diagonal = sqrt(basic_cell_width(1)**2 + basic_cell_width(2)**2 + &
                         basic_cell_width(3)**2)
@@ -68,13 +68,16 @@
   ELSE IF (model_type .EQ. 2) THEN
    add_mg = 2
    DO I = 1, max_n_dcell
+    IF(mod(I,10000) .EQ. 0) print*, 'associating propagation grid', I, REAL(I)/REAL(max_n_dcell) * 1.E2, ' % completed'
     IF(dyn_cell(I)%up_cell == 0) THEN
-      IF(mod(I,10000) .EQ. 0) print*, 'associating propagation grid', I, REAL(I)/REAL(max_n_dcell) * 1.E2, ' % completed'
       ! Absolute radius of the propagation grid cell (midle of the cell)
       r = SQRT((dyn_cell(I)%corner(1) + dyn_cell(I)%width(1)/2.D0)**2 + &
                (dyn_cell(I)%corner(2) + dyn_cell(I)%width(2)/2.D0)**2 + &
                (dyn_cell(I)%corner(3) + dyn_cell(I)%width(3)/2.D0)**2)
+      r0 = SQRT(dyn_cell(I)%corner(1)**2 + dyn_cell(I)%corner(2)**2 + &
+               dyn_cell(I)%corner(3)**2)
       z = dyn_cell(I)%corner(3) + dyn_cell(I)%width(3)/2.D0
+      z0 = dyn_cell(I)%corner(3)
       !print*,I,r/R_star
       IF ((r .GT. R_star) .AND. (r .LT. R_inf)) THEN
        ! Cells with radius larger than the stellar radius but smaller
@@ -87,17 +90,21 @@
         delta2 = sqrt((sqrt(r**2 - z**2) - &
                 (sqrt(model_grid(J)%rwind**2 - model_grid(J)%zwind**2)))**2 + &
                 (model_grid(J)%zwind - z)**2)
-        IF( delta2 .LT. delta ) THEN
+        IF( delta2 < delta ) THEN
           delta = delta2
           M = J
         END IF
         ! if the propagation cell is too far from the nearest model point
         ! we will associate this cell to the dummy cells
        END DO
-        diagonal = sqrt(dyn_cell(I)%width(1)**2+dyn_cell(I)%width(2)**2+dyn_cell(I)%width(3)**2)/2.D0
-        IF( (delta > diagonal) .AND. (diagonal < basic_diagonal / 16.D0)) THEN
+        !diagonal = sqrt(dyn_cell(I)%width(1)**2+dyn_cell(I)%width(2)**2+dyn_cell(I)%width(3)**2)
+        diagonal = sqrt(dyn_cell(I)%width(1)**2+dyn_cell(I)%width(3)**2)/2.D0
+        !diagonal = sqrt((sqrt(r**2 - z**2) - sqrt(r0**2 - z0**2))**2 + &
+        ! (z - z0)**2)
+        !IF( (delta > diagonal) .AND. (diagonal < basic_diagonal / 16.D0)) THEN
+        IF((delta > diagonal) .AND. (dyn_cell(I)%width(1) > basic_cell_width(1)/2.D0**6)) THEN
          dyn_cell(I)%model_index = n_modelgrid + add_mg
-         model_grid(n_modelgrid + 2)%assoc_cells = model_grid(n_modelgrid + 2)%assoc_cells + 1
+         model_grid(n_modelgrid + add_mg)%assoc_cells = model_grid(n_modelgrid + add_mg)%assoc_cells + 1
          !print*, 'model grid n + 2 = ', model_grid(n_modelgrid + 2)%assoc_cells
         ELSE
          dyn_cell(I)%model_index = M     
