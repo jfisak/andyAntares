@@ -124,13 +124,14 @@
   ENDIF
 
   print*, 'printing number of associated cells'
-  OPEN(UNIT=3,FILE='vacuum_cells.dat')
+  OPEN(UNIT=3,FILE='conneced_cells.dat')
    DO I=1, n_modelgrid
-    IF(dyn_cell(I)%model_index == n_modelgrid + add_mg) write(3,*) dyn_cell(I)%corner, dyn_cell(I)%width
+!    IF(dyn_cell(I)%model_index == n_modelgrid + add_mg) write(3,*) dyn_cell(I)%corner, dyn_cell(I)%width
+     write(3,*), I, model_grid(I)%assoc_cells
    END DO
   CLOSE(3)
-!  DO I = 1, n_modelgrid + 1
-!     print*, I, model_grid(I)%assoc_cells
-!  END DO
+  DO I = 1, n_modelgrid + 1
+     print*, I, model_grid(I)%assoc_cells
+  END DO
 
   END SUBROUTINE connection_prop_model_grid

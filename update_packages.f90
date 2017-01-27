@@ -7,7 +7,7 @@
   INTEGER             :: n_pack, pack_index
 
 
-  !OPEN (UNIT=3, FILE='position.dat')
+!  OPEN (UNIT=3, FILE='position.dat')
   ! print*, 'A'
   DO pack_index = 1, n_pack
      write(3,*) 'photon number ', pack_index
