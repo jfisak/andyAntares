@@ -15,6 +15,10 @@ IMPLICIT NONE
         INTEGER                                 :: bindex
 ! local actual cell
         INTEGER                                 :: actCell
+! parameters of subcells of dyngrid ijk
+DOUBLE PRECISION, DIMENSION(3)                  :: subcells_width
+INTEGER                                         :: subind_x, subind_y, subind_z
+
 
 ! firstly we can compute which basic cell this point contains
 bcell(1) = FLOOR(pos(1)/basic_cell_width(1) + dble(nx_cell)/2.D0) + 1
@@ -31,10 +35,16 @@ IF(dyn_cell(actCell)%up_cell == 0) THEN
  actual_cell = actCell
  RETURN 
 ! we will move upper in the dyncell tree otherwise
-ELSE
- actCell = dyn_cell(actCell)%up_cell
 END IF
+SELECT CASE(dyngrid)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! dyngrid 8
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CASE(1)
 ! we are looking for the given cell in dyncell tree
+actCell = dyn_cell(actCell)%up_cell
 DO
  ! did we found the given cell containing the given point?
  IF((pos(1) .GE. dyn_cell(actCell)%corner(1)) .AND. (pos(1) .LE. dyn_cell(actCell)%corner(1) + dyn_cell(actCell)%width(1)) .AND. &
@@ -59,5 +69,27 @@ DO
   END IF
  END IF
 END DO
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! dyngrid ijk
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CASE(2)
+ subcells_width = dyn_cell(dyn_cell(actCell)%up_cell)%width
+ subind_x = FLOOR((dyn_cell(actcell)%corner(1) - pos(1))/subcells_width(1))
+ subind_y = FLOOR((dyn_cell(actcell)%corner(2) - pos(2))/subcells_width(2))
+ subind_z = FLOOR((dyn_cell(actcell)%corner(3) - pos(3))/subcells_width(3))
+ print*, 'next_cell_up:', subind_x, subind_y, subind_z
+ actual_cell = dyn_cell(actcell)%up_cell + &
+        subcells_width(1) * subcells_width(2) * (subind_x - 1) + &
+        subcells_width(1) * (subind_y - 1) + subind_z - 1
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! default case
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CASE DEFAULT
+ STOP 'find_dyn_cell1: choice of the dyngrid type is not known'
+END SELECT
 
 END SUBROUTINE find_dyn_cell1

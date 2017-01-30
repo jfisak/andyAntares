@@ -17,15 +17,26 @@ INTEGER                                 :: cross
 INTEGER                                 :: act_cell
 DOUBLE PRECISION, DIMENSION(3)          :: corner, width
 INTEGER                                 :: upper_cell
+! parameters of subcells of dyngrid ijk
+DOUBLE PRECISION, DIMENSION(3)          :: subcells_width
+INTEGER                                 :: subind_x, subind_y, subind_z
 
 act_cell = cell_down
 cross_pos = package(pack_index)%pos + package(pack_index)%dir * dist
 cross = package(pack_index)%next_cross
+! is the photon close to the edge of the propagation grid?
 IF(act_cell < 0) THEN
  next_cell = act_cell
  RETURN
 END IF
 
+SELECT CASE(dyngrid)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! dynamical grid type 8
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CASE(1)
 !print*, 'next_cell_up: act_cell = ', act_cell, ' cross_pos = ', cross_pos, 'cross = ', cross
 !OPEN(UNIT=99,FILE='cells_up.dat')
 DO
@@ -41,7 +52,6 @@ DO
   ! we have to find which cell in the higher level corresponds to the cross point
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! cross in x direction
-  IF(dyngrid == 1) THEN
    IF(cross == posx .OR. cross == negx) THEN
  !   print*, 'next_cell_up: cross = ', cross
     ! lower front cell
@@ -71,9 +81,6 @@ DO
     ELSE
      STOP 'next_cell_up: no cell was found'
     END IF
-   ELSE
-    STOP 'next_cell_up: the type of dynamical cells is not known'
-   END IF
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! cross in y direction
   ELSE IF(cross == posy .OR. cross == negy) THEN
@@ -139,6 +146,29 @@ DO
   END IF
  END IF  
 END DO
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! dynamical grid type ijk
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CASE(2)
+ ! width of subcells
+ subcells_width = dyn_cell(dyn_cell(act_cell)%up_cell)%width
+ subind_x = FLOOR((dyn_cell(act_cell)%corner(1) - cross_pos(1))/subcells_width(1))
+ subind_y = FLOOR((dyn_cell(act_cell)%corner(2) - cross_pos(2))/subcells_width(2))
+ subind_z = FLOOR((dyn_cell(act_cell)%corner(3) - cross_pos(3))/subcells_width(3))
+ print*, 'next_cell_up:', subind_x, subind_y, subind_z
+ next_cell = dyn_cell(act_cell)%up_cell + &
+                subcells_width(1) * subcells_width(2) * subind_x + &
+                subcells_width(1) * subind_y + subind_z 
 !CLOSE(99)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! default case
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CASE DEFAULT
+ STOP 'next_cell_up: wrong choice of a dynamical grid type'
+END SELECT
 
 END SUBROUTINE next_cell_up

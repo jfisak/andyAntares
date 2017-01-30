@@ -16,13 +16,15 @@ IMPLICIT NONE
         ! properties of the original dynamic cell
         DOUBLE PRECISION, DIMENSION(3)  :: loc_corner, loc_cell_width
 
-
-loc_corner(1) = dyn_cell(act_n_dyncell)%corner(1)
-loc_corner(2) = dyn_cell(act_n_dyncell)%corner(2)
-loc_corner(3) = dyn_cell(act_n_dyncell)%corner(3)
-loc_cell_width(1) = dyn_cell(act_n_dyncell)%width(1)
-loc_cell_width(2) = dyn_cell(act_n_dyncell)%width(2)
-loc_cell_width(3) = dyn_cell(act_n_dyncell)%width(3)
+dyn_cell(act_n_dyncell)%up_cell = max_n_dcell + 1
+loc_corner = dyn_cell(act_n_dyncell)%corner
+!loc_corner(1) = dyn_cell(act_n_dyncell)%corner(1)
+!loc_corner(2) = dyn_cell(act_n_dyncell)%corner(2)
+!loc_corner(3) = dyn_cell(act_n_dyncell)%corner(3)
+loc_cell_width = dyn_cell(act_n_dyncell)%width
+!loc_cell_width(1) = dyn_cell(act_n_dyncell)%width(1)
+!loc_cell_width(2) = dyn_cell(act_n_dyncell)%width(2)
+!loc_cell_width(3) = dyn_cell(act_n_dyncell)%width(3)
 
 DO I = 1, no_dcells
  dyn_cell(max_n_dcell + I)%width(1) = loc_cell_width(1) / 2.D0
