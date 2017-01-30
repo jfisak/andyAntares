@@ -41,34 +41,38 @@ DO
   ! we have to find which cell in the higher level corresponds to the cross point
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! cross in x direction
-  IF(cross == posx .OR. cross == negx) THEN
-!   print*, 'next_cell_up: cross = ', cross
-   ! lower front cell
-   IF(cross_pos(2) >= corner(2) .AND. cross_pos(2) <= corner(2) + width(2) / 2.D0 .AND. &
-      cross_pos(3) >= corner(3) .AND. cross_pos(3) <= corner(3) + width(3) / 2.D0) THEN
-!   print*, 'next_cell_up: cross 1'
-    if(cross == posx) act_cell = upper_cell
-    if(cross == negx) act_cell = upper_cell + 1
-   ! lower rear cell
-   ELSE IF(cross_pos(2) >= corner(2) + width(2) / 2.D0 .AND. cross_pos(2) <= corner(2) + width(2) .AND. &
-      cross_pos(3) >= corner(3) .AND. cross_pos(3) <= corner(3) + width(3) / 2.D0) THEN
-!   print*, 'next_cell_up: cross 2'
-    if(cross == posx) act_cell = upper_cell + 2
-    if(cross == negx) act_cell = upper_cell + 3
-   ! upper front cell
-   ELSE IF(cross_pos(2) >= corner(2) .AND. cross_pos(2) <= corner(2) + width(2) / 2.D0 .AND. &
-      cross_pos(3) >= corner(3) + width(3) / 2.D0 .AND. cross_pos(3) <= corner(3) + width(3)) THEN
-!   print*, 'next_cell_up: cross 3'
-    if(cross == posx) act_cell = upper_cell + 4
-    if(cross == negx) act_cell = upper_cell + 5
-   ! upper rear cell
-   ELSE IF(cross_pos(2) >= corner(2) + width(2) / 2.D0 .AND. cross_pos(2) <= corner(2) + width(2) .AND. &
-      cross_pos(3) >= corner(3) + width(3) / 2.D0 .AND. cross_pos(3) <= corner(3) + width(3)) THEN
-!   print*, 'next_cell_up: cross 4'
-    if(cross == posx) act_cell = upper_cell + 6
-    if(cross == negx) act_cell = upper_cell + 7
+  IF(dyngrid == 1) THEN
+   IF(cross == posx .OR. cross == negx) THEN
+ !   print*, 'next_cell_up: cross = ', cross
+    ! lower front cell
+    IF(cross_pos(2) >= corner(2) .AND. cross_pos(2) <= corner(2) + width(2) / 2.D0 .AND. &
+       cross_pos(3) >= corner(3) .AND. cross_pos(3) <= corner(3) + width(3) / 2.D0) THEN
+ !   print*, 'next_cell_up: cross 1'
+     if(cross == posx) act_cell = upper_cell
+     if(cross == negx) act_cell = upper_cell + 1
+    ! lower rear cell
+    ELSE IF(cross_pos(2) >= corner(2) + width(2) / 2.D0 .AND. cross_pos(2) <= corner(2) + width(2) .AND. &
+       cross_pos(3) >= corner(3) .AND. cross_pos(3) <= corner(3) + width(3) / 2.D0) THEN
+ !   print*, 'next_cell_up: cross 2'
+     if(cross == posx) act_cell = upper_cell + 2
+     if(cross == negx) act_cell = upper_cell + 3
+    ! upper front cell
+    ELSE IF(cross_pos(2) >= corner(2) .AND. cross_pos(2) <= corner(2) + width(2) / 2.D0 .AND. &
+       cross_pos(3) >= corner(3) + width(3) / 2.D0 .AND. cross_pos(3) <= corner(3) + width(3)) THEN
+ !   print*, 'next_cell_up: cross 3'
+     if(cross == posx) act_cell = upper_cell + 4
+     if(cross == negx) act_cell = upper_cell + 5
+    ! upper rear cell
+    ELSE IF(cross_pos(2) >= corner(2) + width(2) / 2.D0 .AND. cross_pos(2) <= corner(2) + width(2) .AND. &
+       cross_pos(3) >= corner(3) + width(3) / 2.D0 .AND. cross_pos(3) <= corner(3) + width(3)) THEN
+ !   print*, 'next_cell_up: cross 4'
+     if(cross == posx) act_cell = upper_cell + 6
+     if(cross == negx) act_cell = upper_cell + 7
+    ELSE
+     STOP 'next_cell_up: no cell was found'
+    END IF
    ELSE
-    STOP 'next_cell_up: no cell was found'
+    STOP 'next_cell_up: the type of dynamical cells is not known'
    END IF
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! cross in y direction
