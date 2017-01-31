@@ -1,6 +1,4 @@
-# Do not put these file types under version control
-*.o
-*.mod
-*.exe
-*~
-compiletime.for
+fort.*
+*.dat
+*.log
+graphs/*

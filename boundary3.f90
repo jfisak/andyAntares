@@ -30,7 +30,8 @@ DOUBLE PRECISION, DIMENSION(3)  :: cross_pos
 ! now we look for the next cell given by indexes
  CALL next_cell_down(pack_index, n_cell)
 ! position of the point
-cross_pos = package(pack_index)%pos + package(pack_index)%dir * dist
- CALL next_cell_up(pack_index, dist, n_cell, next_cell)
+!cross_pos = package(pack_index)%pos + package(pack_index)%dir * dist
+if(dyngrid /= 0) CALL next_cell_up(pack_index, dist, n_cell, next_cell)
+if(dyngrid == 0) next_cell = n_cell
 
 END SUBROUTINE boundary3

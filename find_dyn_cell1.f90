@@ -18,6 +18,7 @@ IMPLICIT NONE
 ! parameters of subcells of dyngrid ijk
 DOUBLE PRECISION, DIMENSION(3)                  :: subcells_width
 INTEGER                                         :: subind_x, subind_y, subind_z
+INTEGER                                         :: sub_nx, sub_ny, sub_nz
 
 
 ! firstly we can compute which basic cell this point contains
@@ -76,13 +77,17 @@ END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CASE(2)
  subcells_width = dyn_cell(dyn_cell(actCell)%up_cell)%width
- subind_x = FLOOR((dyn_cell(actcell)%corner(1) - pos(1))/subcells_width(1))
- subind_y = FLOOR((dyn_cell(actcell)%corner(2) - pos(2))/subcells_width(2))
- subind_z = FLOOR((dyn_cell(actcell)%corner(3) - pos(3))/subcells_width(3))
- print*, 'next_cell_up:', subind_x, subind_y, subind_z
+ sub_nx = INT(dyn_cell(actCell)%width(1) / subcells_width(1))
+ sub_ny = INT(dyn_cell(actCell)%width(2) / subcells_width(2))
+ sub_nz = INT(dyn_cell(actCell)%width(3) / subcells_width(3))
+ subind_x = FLOOR((pos(1) - dyn_cell(actcell)%corner(1))/subcells_width(1)) + 1
+ subind_y = FLOOR((pos(2) - dyn_cell(actcell)%corner(2))/subcells_width(2)) + 1
+ subind_z = FLOOR((pos(3) - dyn_cell(actcell)%corner(3))/subcells_width(3)) + 1
+! print*, 'find_dyn_cell1:', subind_x, subind_y, subind_z
  actual_cell = dyn_cell(actcell)%up_cell + &
-        subcells_width(1) * subcells_width(2) * (subind_x - 1) + &
-        subcells_width(1) * (subind_y - 1) + subind_z - 1
+        sub_ny * sub_nz * (subind_x - 1) + &
+        sub_nz * (subind_y - 1) + subind_z - 1
+! print*, 'find_dyn_cell1: actual_cell = ', actual_cell
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! default case

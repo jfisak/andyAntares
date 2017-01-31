@@ -111,7 +111,7 @@
  END IF
   OPEN(15,FILE='dyn_cells.dat')
    DO I = 1, max_n_dcell
-    write(15,*) dyn_cell(I)%corner, dyn_cell(I)%width
+    write(15,*) dyn_cell(I)%corner, dyn_cell(I)%width, dyn_cell(I)%neighbor
    END DO
   CLOSE(15)
 ! DO I = 1, max_n_dcell

@@ -7,10 +7,9 @@
   INTEGER             :: n_pack, pack_index
 
 
-!  OPEN (UNIT=3, FILE='position.dat')
+  OPEN (UNIT=3, FILE='position.dat')
   ! print*, 'A'
   DO pack_index = 1, n_pack
-     write(3,*) 'photon number ', pack_index
      ! print*, 'B'
      IF (MODULO(pack_index,10000) .EQ. 0) print*, 'Working on packet ', pack_index,' ...'
      IF (debug .NE. 0) print*, 'Working on packet ', pack_index,' ...' 
@@ -44,6 +43,6 @@
      END DO
 
   END DO
-!  CLOSE(UNIT=3)
+  CLOSE(UNIT=3)
   
 END SUBROUTINE update_packages

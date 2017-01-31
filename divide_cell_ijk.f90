@@ -38,13 +38,13 @@ new_cell_width(1) = loc_cell_width(1) / DBLE(loc_nx)
 new_cell_width(2) = loc_cell_width(2) / DBLE(loc_ny)
 new_cell_width(3) = loc_cell_width(3) / DBLE(loc_nz)
 
-print*, 'divide_cell_ijk: ', loc_nx, loc_ny, loc_nz
+print*, 'divide_cell_ijk: ', act_n_dyncell, loc_nx, loc_ny, loc_nz
 
 L = 1
 DO I = 1, loc_nx
  DO J = 1, loc_ny
   DO K = 1, loc_nz
-   dyn_cell(max_n_dcell + L)%width = loc_cell_width
+   dyn_cell(max_n_dcell + L)%width = new_cell_width
    dyn_cell(max_n_dcell + L)%down_cell = act_n_dyncell
    dyn_cell(max_n_dcell + L)%up_cell = 0
    ! positions of newly created corners
@@ -53,31 +53,31 @@ DO I = 1, loc_nx
    dyn_cell(max_n_dcell + L)%corner(3) = loc_corner(3) + DBLE((K - 1)) * new_cell_width(3)
    ! calculation of neighbors
    ! x+
-   IF(I == nx_cell) THEN
+   IF(I == loc_nx) THEN
     xp = 0
    ELSE
-    xp = max_n_dcell + L + ny_cell * nz_cell
+    xp = max_n_dcell + L + loc_ny * loc_nz
    END IF
    ! x-
    IF(I == 1) THEN
     xm = 0
    ELSE
-    xm = max_n_dcell + L - ny_cell * nz_cell
+    xm = max_n_dcell + L - loc_ny * loc_nz
    END IF
    ! y+
-   IF(J == ny_cell) THEN
+   IF(J == loc_ny) THEN
     yp = 0
    ELSE
-    yp = max_n_dcell + L + nz_cell
+    yp = max_n_dcell + L + loc_nz
    END IF
    ! y-
    IF(J == 1) THEN
     ym = 0
    ELSE
-    ym = max_n_dcell + L - nz_cell
+    ym = max_n_dcell + L - loc_nz
    END IF
    ! z+
-   IF(K == nz_cell) THEN
+   IF(K == loc_nz) THEN
     zp = 0
    ELSE
     zp = max_n_dcell + L + 1

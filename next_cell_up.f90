@@ -20,6 +20,7 @@ INTEGER                                 :: upper_cell
 ! parameters of subcells of dyngrid ijk
 DOUBLE PRECISION, DIMENSION(3)          :: subcells_width
 INTEGER                                 :: subind_x, subind_y, subind_z
+INTEGER                                         :: sub_nx, sub_ny, sub_nz
 
 act_cell = cell_down
 cross_pos = package(pack_index)%pos + package(pack_index)%dir * dist
@@ -48,7 +49,7 @@ DO
   next_cell = act_cell
   EXIT
  ELSE IF(upper_cell > 0) THEN
- WRITE(99,*) cross_pos, dyn_cell(act_cell)%corner, dyn_cell(act_cell)%width
+  WRITE(99,*) cross_pos, dyn_cell(act_cell)%corner, dyn_cell(act_cell)%width
   ! we have to find which cell in the higher level corresponds to the cross point
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! cross in x direction
@@ -152,15 +153,38 @@ END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CASE(2)
- ! width of subcells
+ upper_cell = dyn_cell(act_cell)%up_cell
+ IF(upper_cell == 0) THEN
+  next_cell = act_cell
+  RETURN
+ ELSE IF(upper_cell > 0) THEN
+ END IF
  subcells_width = dyn_cell(dyn_cell(act_cell)%up_cell)%width
- subind_x = FLOOR((dyn_cell(act_cell)%corner(1) - cross_pos(1))/subcells_width(1))
- subind_y = FLOOR((dyn_cell(act_cell)%corner(2) - cross_pos(2))/subcells_width(2))
- subind_z = FLOOR((dyn_cell(act_cell)%corner(3) - cross_pos(3))/subcells_width(3))
- print*, 'next_cell_up:', subind_x, subind_y, subind_z
+ subcells_width = dyn_cell(dyn_cell(act_cell)%up_cell)%width
+ sub_nx = INT(dyn_cell(act_cell)%width(1) / subcells_width(1))
+ sub_ny = INT(dyn_cell(act_cell)%width(2) / subcells_width(2))
+ sub_nz = INT(dyn_cell(act_cell)%width(3) / subcells_width(3))
+ subind_x = FLOOR((cross_pos(1) - dyn_cell(act_cell)%corner(1))/subcells_width(1)) + 1
+ subind_y = FLOOR((cross_pos(2) - dyn_cell(act_cell)%corner(2))/subcells_width(2)) + 1
+ subind_z = FLOOR((cross_pos(3) - dyn_cell(act_cell)%corner(3))/subcells_width(3)) + 1
+ IF(cross == posx) THEN
+  subind_x = 1
+ ELSE IF(cross == negx) THEN
+  subind_x = sub_nx
+ ELSE IF(cross == posy) THEN
+  subind_y = 1
+ ELSE IF(cross == negy) THEN
+  subind_y = sub_ny
+ ELSE IF(cross == posz) THEN
+  subind_z = 1
+ ELSE IF(cross == negz) THEN
+  subind_z = sub_nz
+ END IF
+! print*, 'next_cell_up:', subind_x, subind_y, subind_z
  next_cell = dyn_cell(act_cell)%up_cell + &
-                subcells_width(1) * subcells_width(2) * subind_x + &
-                subcells_width(1) * subind_y + subind_z 
+        sub_ny * sub_nz * (subind_x - 1) + &
+        sub_nz * (subind_y - 1) + subind_z - 1
+! print*, 'next_cell_up: next_cell = ', next_cell
 !CLOSE(99)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
