@@ -2,16 +2,11 @@ SUBROUTINE main
 
   ! Propagate a bunch of photon packets through a stellar wind
 
-!!!!!!!!! M !!!! M !!!! PPPPP !!!!! III !!!!!!!!!!
-!!!!!!!!! MM !! MM !!!! P    P !!!!! I !!!!!!!!!!!
-!!!!!!!!! M M  M M !!!! PPPPPP !!!!! I !!!!!!!!!!!
-!!!!!!!!! M  MM  M !!!! P !!!!!!!!!! I !!!!!!!!!!!
-!!!!!!!!! M      M !!!! P !!!!!!!!! III !!!!!!!!!!
 ! To run MPI (Message Passing Interface) it is necessary to include file mpif.h (Implicit Fortran MPI interfaces)
 ! to have output in an elegant manner, i.e. good formating
-#IFDEF MPI_ON
-!  INCLUDE 'mpif.h' 
-#ENDIF
+!#IFDEF MPI_ON
+!!  INCLUDE 'mpif.h' 
+!#ENDIF
 
 ! Use module types (modul.f90)
   USE types
@@ -24,20 +19,15 @@ SUBROUTINE main
   INTEGER, DIMENSION (9)            :: TT
   DOUBLE PRECISION, ALLOCATABLE     :: current_temp(:)
   CHARACTER(1)                      :: junk
-!!!!!!!!! M !!!! M !!!! PPPPP !!!!! III !!!!!!!!!!
-!!!!!!!!! MM !! MM !!!! P    P !!!!! I !!!!!!!!!!!
-!!!!!!!!! M M  M M !!!! PPPPPP !!!!! I !!!!!!!!!!!
-!!!!!!!!! M  MM  M !!!! P !!!!!!!!!! I !!!!!!!!!!!
-!!!!!!!!! M      M !!!! P !!!!!!!!! III !!!!!!!!!!
-#IFDEF MPI_ON
-  INTEGER                               :: ierr
-  INTEGER                               :: mpi_comm_world
-  INTEGER                               :: mpi_success
-  INTEGER                               :: my_rank
-  INTEGER                               :: n_tasks
-  INTEGER                               :: numtasks
-  INTEGER                               :: rc
-#ENDIF
+!#IFDEF MPI_ON
+!  INTEGER                               :: ierr
+!  INTEGER                               :: mpi_comm_world
+!  INTEGER                               :: mpi_success
+!  INTEGER                               :: my_rank
+!  INTEGER                               :: n_tasks
+!  INTEGER                               :: numtasks
+!  INTEGER                               :: rc
+!#ENDIF
 !  DOUBLE PRECISION, PARAMETER       :: upper_opa=2.D0/5.D0, lower_opa=0.01D0         ! Opacity for photons sent from the photosphere R_star = 10
 !  DOUBLE PRECISION, PARAMETER       :: upper_opa=2.D0/9.D0, lower_opa=0.1D0/18.D0    ! Opacity for photons sent from the photosphere R_star = 2
 !  DOUBLE PRECISION, PARAMETER       :: upper_opa=0.2, lower_opa=1.d0/200.d0          ! Opacity for photons sent from point sours
@@ -62,21 +52,21 @@ SUBROUTINE main
 !!!!!!!!! M  MM  M !!!! P !!!!!!!!!! I !!!!!!!!!!!
 !!!!!!!!! M      M !!!! P !!!!!!!!! III !!!!!!!!!!
 !! Initialize MPI Parallelisation 
-#IFDEF MPI_ON
-  ! Initialize the MPI execution environment 
-  CALL MPI_INIT(ierr)
-  ! If MPI routine completed successfully
-  IF (ierr .NE. MPI_SUCCESS) THEN
-    PRINT*,'Error starting MPI program. Terminating.'
-    ! If MPI routine failed
-    CALL MPI_ABORT(MPI_COMM_WORLD, rc, ierr)
-  END IF
-  ! To determine rank within the set of processes
-  CALL MPI_COMM_RANK(MPI_COMM_WORLD, my_rank, ierr)
-  ! To determine the number of processes
-  CALL MPI_COMM_SIZE(MPI_COMM_WORLD, n_tasks, ierr)
-  PRINT*, 'Number of tasks=',numtasks,' My rank=', my_rank
-#ENDIF
+!#IFDEF MPI_ON
+!  ! Initialize the MPI execution environment 
+!  CALL MPI_INIT(ierr)
+!  ! If MPI routine completed successfully
+!  IF (ierr .NE. MPI_SUCCESS) THEN
+!    PRINT*,'Error starting MPI program. Terminating.'
+!    ! If MPI routine failed
+!    CALL MPI_ABORT(MPI_COMM_WORLD, rc, ierr)
+!  END IF
+!  ! To determine rank within the set of processes
+!  CALL MPI_COMM_RANK(MPI_COMM_WORLD, my_rank, ierr)
+!  ! To determine the number of processes
+!  CALL MPI_COMM_SIZE(MPI_COMM_WORLD, n_tasks, ierr)
+!  PRINT*, 'Number of tasks=',numtasks,' My rank=', my_rank
+!#ENDIF
 
 
   ! Write Link Data (Program Version) to CPR file
@@ -119,14 +109,14 @@ SUBROUTINE main
 !!!!!!!!! M M  M M !!!! PPPPPP !!!!! I !!!!!!!!!!!
 !!!!!!!!! M  MM  M !!!! P !!!!!!!!!! I !!!!!!!!!!!
 !!!!!!!!! M      M !!!! P !!!!!!!!! III !!!!!!!!!!
-#ifdef MPI_ON
-  ! For MPI parallel calculations each task needs its own random number seed
-  ! This is achieved by adding an offset (in this case it is number 17, but 
-  ! can be any other number) to the basic random number seed which depends 
-  ! on the task's ID number. This has to be done for both "random" and 
-  ! pre-defined seeds.
-  iseed = iseed + my_rank*17
-#endif
+!#ifdef MPI_ON
+!  ! For MPI parallel calculations each task needs its own random number seed
+!  ! This is achieved by adding an offset (in this case it is number 17, but 
+!  ! can be any other number) to the basic random number seed which depends 
+!  ! on the task's ID number. This has to be done for both "random" and 
+!  ! pre-defined seeds.
+!  iseed = iseed + my_rank*17
+!#endif
 
 
   ! The initial value of iseed (idum) should be set to different
