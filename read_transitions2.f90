@@ -19,7 +19,7 @@ SUBROUTINE read_transitions2(element, lowerion, upperion, transition_type, filen
  INTEGER                        :: n_transitions, curr_n_tran, n_line
  INTEGER                        :: current_element, current_ion
  INTEGER                        :: kindex, low_level, up_level
- CHARACTER (LEN=4)              :: low_conf, up_conf
+ CHARACTER (LEN=6)              :: low_conf, up_conf
  DOUBLE PRECISION               :: A, col_str, l_freq
 
 
@@ -48,7 +48,7 @@ CASE(0)
   IF((current_element /= element) .OR. (current_ion < lowerion) &
     .OR. (current_ion > upperion)) STOP 'WRONG ATOMIC TRANSITIONS...'
   n_ions = elements(current_element)%nions
-  print*, 'number of ions n_ions = ', n_ions
+  !print*, 'number of ions n_ions = ', n_ions
    DO I = 1, n_transitions
     READ(9,'(A)',IOSTAT=linereading) line
      IF (linereading /= 0) THEN
@@ -83,7 +83,7 @@ CASE(0)
  ELSE
  DO   
   READ(9,'(A)',IOSTAT=ios) line
-  print*, line
+  !print*, line
   IF (ios /= 0) EXIT
   IF ( INDEX(line, '*') /= 0) CYCLE
   READ(line,*) junk, junk, n_transitions
@@ -109,7 +109,8 @@ CASE(0)
  CASE(2)
   ! only if the variable linelist is allocated
   IF(ALLOCATED(linelist)) THEN
-   curr_n_tran = 0
+   ! local variable set to number of all transitions
+   curr_n_tran = ntransitions
    REWIND(9)
    ! do 0
    ! reading the whole file in the following order
@@ -118,27 +119,25 @@ CASE(0)
     ! looking for the flag **iont**
     DO
      READ(9,'(A)',IOSTAT=ios) line
-     print*, line
+     !print*, line
      IF (ios /= 0) print*, 'a flag **iont** was not found'
      IF(TRIM(line) == '**iont**') EXIT
     ! end do 1
     END DO
-    ! do 5
     ! read the file and given atomic transitions
-    DO
+    DO ! 5
      ! read basic information about forthcoming data
      READ(9,'(A)',IOSTAT=ios) line
-     print*, line
+     !print*, line
      IF (ios /= 0) STOP 'end of file'
      IF ( INDEX(line, '*') /= 0) CYCLE
      READ(line,*) current_element, current_ion, n_transitions
-     print*, 'current_element = ', current_element, 'current_ion = ', current_ion, 'n_transitions = ', n_transitions
+     !print*, 'current_element = ', current_element, 'current_ion = ', current_ion, 'n_transitions = ', n_transitions
      curr_n_tran = curr_n_tran + n_transitions
      ! we want to read one row only
      EXIT
-    ! end do 5
-    END DO   
-      print*, 'n_transitions = ', n_transitions
+    END DO ! 5  
+      !print*, 'n_transitions = ', n_transitions
       IF(n_transitions == 0) EXIT
       ! do we have the right file?
       IF((current_element /= element) .OR. (current_ion < lowerion) &
@@ -155,7 +154,7 @@ CASE(0)
      ! reading transition data
      DO
       READ(9,'(A)',IOSTAT=ios) line
-      print*, line
+      !print*, line
       IF (ios /= 0) EXIT
       IF ( INDEX(line, '*') /= 0) CYCLE
       READ(line,*) kindex, low_level, up_level, low_conf, up_conf, col_str, A, l_freq
@@ -181,7 +180,8 @@ CASE(0)
                                 (linelist(n_line)%A_ul / linelist(n_line)%freq ** 2)
 !    print*, n_line, ': ', 'indexe: ', linelist(n_line)%indexe, linelist(n_line)%indexi, linelist(n_line)%lower, &
 !                       linelist(n_line)%upper, 'f = ', linelist(n_line)%freq, linelist(n_line)%A_ul, linelist(n_line)%f_ul
-      write(20,*) linelist(n_line)%freq, linelist(n_line)%f_ul
+      !write(20,*) linelist(n_line)%freq, linelist(n_line)%f_ul
+      ! print*, 'n_line = ', n_line, 'curr_n_tran = ', curr_n_tran
       if(n_line == curr_n_tran) EXIT
      ! end do 3
      END DO
@@ -201,7 +201,7 @@ CASE(0)
     ! we will compute number of lines in the opened file
     DO
      READ(9,'(A)',IOSTAT=ios) line
-     print*, line
+     !print*, line
      IF (ios /= 0) EXIT
      IF ( INDEX(line, '*') /= 0) CYCLE
      READ(line,*) junk, junk, n_transitions

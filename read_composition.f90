@@ -64,7 +64,8 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
     ! Assine lowerion to the current ion which we will use to caunt number of ions
     ! This is important because we can play only with 3 and 4 ion.stage of some element
     current_ion = lowerion
-    print*, 'current ion =', current_ion  
+    print*, 'current ion =', current_ion
+    print*, 'upperion = ', upperion, 'lowerion = ', lowerion, 'upperion - lowerion + 1', nions
     ! Allocate the memory to the elements(I)%ions(nions)
     ALLOCATE (elements(I)%ions(nions))
     if(ALLOCATED(elements(I)%ions)) print*, 'allocated: elements(', I, ')%ions...', nions
@@ -132,6 +133,7 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
  PRINT*, 'testing'
  DO I = 1, n_elements
     element_index = I
+    nions = SIZE(elements(I)%ions)
     Z = elements(I)%atom_number
     lowerion = elements(I)%ions(1)%ion_stage
     upperion = elements(I)%ions(nions)%ion_stage

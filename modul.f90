@@ -67,7 +67,7 @@ MODULE types
      INTEGER                         :: nuptrans, ndowtrans
      INTEGER                         :: l_index
      DOUBLE PRECISION                :: exci_energy, stat_waight
-     CHARACTER(LEN=3)                :: elconf
+     CHARACTER(LEN=6)                :: elconf
   END TYPE ion_levels
 
   TYPE element_ions 

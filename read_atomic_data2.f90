@@ -16,7 +16,7 @@ SUBROUTINE read_atomic_data2(element,lowerion,upperion,levels_type,filename)
  INTEGER                        :: current_element, current_ion, ions
  INTEGER                        :: n_levels, junk, l_numb, l_index
  CHARACTER (LEN=200)            :: line
- CHARACTER (LEN=3)              :: iconf
+ CHARACTER (LEN=6)              :: iconf
  DOUBLE PRECISION               :: i_pot, l_energy, ionoffset, ionstage, s_weight
  ! basic setting of variables
  ionoffset = 0
