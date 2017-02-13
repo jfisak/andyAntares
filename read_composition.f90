@@ -11,14 +11,16 @@ SUBROUTINE read_composition()
 
   IMPLICIT NONE    
 
-  INTEGER            :: I, J, flag
-  INTEGER            :: element_index, Z, lowerion, upperion, levels_type, transition_type
-  INTEGER            :: current_element,current_ion, nions,ios, NR
-  INTEGER, PARAMETER :: maxelements = 180
-  CHARACTER (20)     :: filename
-  CHARACTER (100)     :: line
-  CHARACTER (1)      :: junk
-  DOUBLE PRECISION   :: mass
+  INTEGER                            :: I, J, flag
+  INTEGER                            :: element_index, Z, lowerion, upperion
+  INTEGER                            :: levels_type, transition_type
+  DOUBLE PRECISION                   :: abundance
+  INTEGER                            :: current_element,current_ion, nions,ios, NR
+  INTEGER, PARAMETER                 :: maxelements = 180
+  CHARACTER (20)                     :: filename
+  CHARACTER (100)                    :: line
+  CHARACTER (1)                      :: junk
+  DOUBLE PRECISION                   :: mass
 
 OPEN (UNIT=7, FILE='compose_adata.dat')
  ! computes number of lines in the input file
@@ -54,13 +56,14 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
        EXIT
     END IF
     IF ( INDEX(line, '*') /= 0) CYCLE
-    READ(line,*) element_index, Z, lowerion, upperion, mass
+    READ(line,*) element_index, Z, abundance, lowerion, upperion, mass
     PRINT*, element_index, Z, lowerion, upperion, mass
     elements(I)%atom_number = Z
     elements(I)%atom_mass = mass * mp_g
     ! Number of ions 
     nions =  upperion - lowerion + 1
     elements(I)%nions = nions
+    elements(I)%abundance = abundance
     ! Assine lowerion to the current ion which we will use to caunt number of ions
     ! This is important because we can play only with 3 and 4 ion.stage of some element
     current_ion = lowerion
@@ -146,5 +149,3 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
 ! CLOSE(20)
 
 END SUBROUTINE read_composition
-
-

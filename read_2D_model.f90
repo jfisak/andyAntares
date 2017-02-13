@@ -72,7 +72,7 @@ IMPLICIT NONE
      numbions = elements(J)%nions
      ALLOCATE (model_grid(I)%grid_comp(J)%grid_ion(numbions))
      atom_number = elements(J)%atom_number
-     model_grid(I)%grid_comp(J)%abund = 1.D0
+     model_grid(I)%grid_comp(J)%abund = elements(J)%abundance
      !Calculate total number density for included species
      !tot_nd = model_grid(I)%grid_comp(J)%abund / elements(J)%atom_mass 
      !model_grid(I)%grid_comp(J)%numb_den = tot_nd

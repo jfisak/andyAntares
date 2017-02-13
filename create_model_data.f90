@@ -39,6 +39,8 @@ PROGRAM create_model_data
      T(I)     = T_eff * 3.D0 / 4.D0
      DO J = 1, n_elements
         IF (J .EQ. 1) THEN
+            mass_frac(J) = 0.D0
+        ELSE IF(J == 2) THEN
             mass_frac(J) = 1.D0
         ELSE
             mass_frac(J) = 0.D0

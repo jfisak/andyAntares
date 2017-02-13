@@ -79,6 +79,7 @@ MODULE types
   TYPE atom_elements 
      INTEGER                         :: indexe, atom_number, nions
      DOUBLE PRECISION                :: atom_mass
+     DOUBLE PRECISION                :: abundance
      CHARACTER(20)                   :: levelfile, transitionfile
      TYPE(element_ions), ALLOCATABLE :: ions(:)
   END TYPE atom_elements
