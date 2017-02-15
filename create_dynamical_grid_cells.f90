@@ -42,7 +42,7 @@ cell_width_2(3) = dyn_cell(n_dyncell)%width(3)
  up_bound = 100
  ! temporary solution
  Npart = SIZE(virtual_particle)
- print*, 'create_dynamical_grid_cells: ', Npart
+! print*, 'create_dynamical_grid_cells: ', Npart
  ALLOCATE(local_particle(up_bound))
 DO J = 1, Npart
  ! is the virtual particle in this cell?
@@ -74,7 +74,7 @@ DO J = 1, Npart
   local_particle(np) = virtual_particle(J)
  END IF
 END DO
-  print*, 'create_dynamical_grid_cells: number of particles: ', np
+!  print*, 'create_dynamical_grid_cells: number of particles: ', np
 SELECT CASE(dyngrid)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!§§
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!§§
@@ -168,7 +168,7 @@ DO
    dyn_cell(act_n_dyncell)%width(2)/2.E0 < minwidth .OR. &
        dyn_cell(act_n_dyncell)%width(3)/2.E0 < minwidth) then
        loc_np = 0
-       print*, 'CELL WOULD BE TOO SMALL...MOVING TO THE NEXT CELL...'
+      ! print*, 'CELL WOULD BE TOO SMALL...MOVING TO THE NEXT CELL...'
        next_cell = .TRUE.
    end if
   ! is there some free space left in the field dyn_cell?
@@ -178,7 +178,7 @@ DO
     ! do we need to resize dyn_cell?
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     if(max_n_dcell + no_dcells >= up_bound) then
-     print*, 'creating a larger array dyn_cell...'
+    ! print*, 'creating a larger array dyn_cell...'
      ! define a new upper bound
      newbound = 2 * up_bound
      ALLOCATE(pom2(up_bound))
@@ -208,7 +208,7 @@ DO
  ! can we stop the large loop?
  ! only if we come back to the basic cell we are creating subcells in
  IF(act_n_dyncell == n_dyncell) THEN
-  print*, 'all dynamic cells for this basic cell were created...'
+!  print*, 'all dynamic cells for this basic cell were created...'
   EXIT
  END IF
 ! stop: large loop
@@ -228,7 +228,7 @@ CASE(2)
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  up_bound = SIZE(dyn_cell(:))
  if(max_n_dcell + no_dcells >= up_bound) then
-  print*, 'creating a larger array dyn_cell...'
+ ! print*, 'creating a larger array dyn_cell...'
   ! define a new upper bound
   newbound =  up_bound + 2 * no_dcells
   ALLOCATE(pom2(up_bound))
@@ -243,8 +243,8 @@ CASE(2)
   DEALLOCATE(pom2)
   up_bound = newbound
  end if
- print*, 'create_dynamical_grid_cells: n_dyncell = ', n_dyncell, ' max_n_dcell = ', &
-        max_n_dcell, ' dimofsubcells = ', dimofsubcells, 'dim(dyn_cell) = ', size(dyn_cell)
+! print*, 'create_dynamical_grid_cells: n_dyncell = ', n_dyncell, ' max_n_dcell = ', &
+!        max_n_dcell, ' dimofsubcells = ', dimofsubcells, 'dim(dyn_cell) = ', size(dyn_cell)
  IF(np >= 8) CALL divide_cell_ijk(n_dyncell, max_n_dcell, dimofsubcells)
  max_n_dcell = max_n_dcell + no_dcells
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

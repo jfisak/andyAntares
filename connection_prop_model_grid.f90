@@ -123,7 +123,7 @@
    print*, 'number of propagation cells in vacuum: ', model_grid(n_modelgrid + add_mg)%assoc_cells
   ENDIF
 
-  print*, 'printing number of associated cells'
+!  print*, 'printing number of associated cells'
 !  OPEN(UNIT=3,FILE='conneced_cells.dat')
 !   DO I=1, n_modelgrid
 !!    IF(dyn_cell(I)%model_index == n_modelgrid + add_mg) write(3,*) dyn_cell(I)%corner, dyn_cell(I)%width

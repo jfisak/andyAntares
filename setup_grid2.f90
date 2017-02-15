@@ -106,7 +106,7 @@
  IF(dyngrid /= 0) THEN
   DO I = 1, Ngrid
    CALL create_dynamical_grid_cells(I, max_n_dcell)
-   print*, 'max_n_dcell = ', max_n_dcell
+   !print*, 'max_n_dcell = ', max_n_dcell
   END DO
  END IF
   OPEN(15,FILE='dyn_cells.dat')

@@ -51,7 +51,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
             ! If 
             !print*, 'photon: ', pack_index, 'freq_cmf: ', package(pack_index)%freq_cmf, 'linelist:', linelist(I)%freq
             IF (package(pack_index)%freq_cmf .GT. linelist(I)%freq) THEN
-                package(pack_index)%last_line = I-1
+                package(pack_index)%last_line = I - 1
                 !print*, 'package(pack_index)%last_line = I-1', I-1
             END IF
          END DO 
@@ -60,7 +60,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
          ! We put (ntransitions - 1) only to be consistence with calculation of next_line, with which
          ! package may interact,should be general for any line interaction
          IF (package(pack_index)%last_line .EQ. no_line) package(pack_index)%last_line = ntransitions - 1
-     ENDIF
+     END IF
 
      next_line = package(pack_index)%last_line + 1
      freq_line = linelist(next_line)%freq
