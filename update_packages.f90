@@ -9,6 +9,10 @@
 
   OPEN (UNIT=3, FILE='position.dat')
   ! print*, 'A'
+!$OMP PARALLEL
+!$DEFAULT(SHARED)
+!$SHARED(linelist, elements, virtual_particle, dyn_cell, package)
+!$OMP DO
   DO pack_index = 1, n_pack
      ! print*, 'B'
      IF (MODULO(pack_index,10000) .EQ. 0) print*, 'Working on packet ', pack_index,' ...'
@@ -43,6 +47,8 @@
      END DO
 
   END DO
+!$OMP END DO
+!$OMP END PARALLEL
   CLOSE(UNIT=3)
   
 END SUBROUTINE update_packages
