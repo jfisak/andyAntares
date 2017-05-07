@@ -15,11 +15,12 @@
 
     IF(model_type .EQ. 1) THEN
 !     vel_radial = V_inf/R_inf * vec_length(package(pack_index)%pos)
-    vel_radial = V_inf * (1.D0 - b/vec_length(package(pack_index)%pos))**beta
+     vel_radial = V_inf * (1.D0 - b/vec_length(package(pack_index)%pos))**beta
+     print*, vel_radial
  
      vel_vec = package(pack_index)%pos/vec_length(package(pack_index)%pos) * vel_radial
  
-     !print*, vec_length(package(pack_index)%pos), vel_radial, vec_length(vel_vec), V_inf, R_inf/r_sun
+!     print*, vec_length(package(pack_index)%pos), vel_radial, vec_length(vel_vec), V_inf, R_inf/r_sun
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ! petr kurfurst's disk model
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

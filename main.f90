@@ -172,9 +172,12 @@ SUBROUTINE main
      ! print*,   opa_cell * (xmax-R_star)
      ! print*, R_star
      ! stop
-
+    ! n_pack will compute in several loops to save some memory
+    nphit = INT(n_pack / max_packs)
+    ! do 03
+    DO J = 1, nphit
      ! Initialisation of photon packages from the photosphere
-     CALL init_photsphere(n_pack) 
+     CALL init_photsphere(loc_n_pack) 
      print*, 'photons initialised'
 
      ! Initalisation of photon packages from point sourse
@@ -183,9 +186,10 @@ SUBROUTINE main
      ! Propagation of the photon in 3D grid
      ! CALL propagation(n_pack, opa_cell, lower_opa, delta_opa)
      print*, 'update packages'
-     CALL update_packages(n_pack)
+     CALL update_packages(loc_n_pack)
      print*, 'Number of destoyed packages =', destroyed_pack
-
+   ! end do 03
+   END DO
   END DO 
 
   IF (iteration .GE. 10) print*, 'No convergency'
