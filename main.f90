@@ -191,14 +191,13 @@ SUBROUTINE main
   ! consistance temperature calculation from teh radiation field)
 
   current_temp = 0.D0
-
-  DO iteration = 1, 1
-
+  iteration = 0
+  DO 
+     iteration = iteration + 1
      CALL update_grid(iteration)
      PRINT*, 'Update grid finished' 
 !     print*, 'model_grid(:)%T = ', model_grid(:)%T
      IF ( MAXVAL((model_grid(:)%T - current_temp) / model_grid(:)%T) .LT. 0.05D0) EXIT
-
      current_temp = model_grid(:)%T
 !     PRINT*, 'iteration:', iteration, current_temp
 
@@ -223,7 +222,6 @@ SUBROUTINE main
      print*, 'update packages'
      CALL update_packages(n_pack)
      print*, 'Number of destoyed packages =', destroyed_pack
-
   END DO 
 
   IF (iteration .GE. 10) print*, 'No convergency'

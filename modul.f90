@@ -45,10 +45,12 @@ MODULE types
 
 
   TYPE modelgrid 
-     INTEGER*4                       :: assoc_cells
+     INTEGER                         :: assoc_cells
      DOUBLE PRECISION                :: T, J, rho, vel, rwind, e_dens
      DOUBLE PRECISION                :: zwind, velang
      TYPE(grid_comp_t), ALLOCATABLE  :: grid_comp(:)
+     ! volume of associated prop cells
+     DOUBLE PRECISION                :: vol
   END TYPE modelgrid
 
 

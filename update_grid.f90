@@ -32,7 +32,7 @@ SUBROUTINE update_grid(iteration)
         CALL find_e_nd(gridcell, el_nd)
       ELSE
         ! Energy density contribeted to the model grid cell 
-         model_grid(gridcell)%J = model_grid(gridcell)%J / volume / model_grid(gridcell)%assoc_cells
+         model_grid(gridcell)%J = model_grid(gridcell)%J / volume 
          temp = (model_grid(gridcell)%J * pi / sigma )**(1./4.) 
          print*, temp
          model_grid(gridcell)%T = temp

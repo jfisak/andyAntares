@@ -26,7 +26,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o modul.o	  \
           acc_rej_montecarlo.o virtual_particles.o setup_grid2.o          \
           create_dynamical_grid_cells.o find_dyn_cell1.o \
           connection_prop_model_grid.o divide_cell_8.o divide_cell_ijk.o  \
-	  next_cell_down.o next_cell_up.o read_2D_model.o
+	  next_cell_down.o next_cell_up.o read_2D_model.o temp_structure.o
 
 #Rules
 all : $(PROJECT)
