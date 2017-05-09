@@ -192,13 +192,19 @@ SUBROUTINE main
 
   current_temp = 0.D0
   iteration = 0
+ OPEN(20, FILE='temp_structure.dat')
   DO 
      iteration = iteration + 1
+     IF (iteration .GE. 10) print*, 'No convergency'
      CALL update_grid(iteration)
      PRINT*, 'Update grid finished' 
 !     print*, 'model_grid(:)%T = ', model_grid(:)%T
-     IF ( MAXVAL((model_grid(:)%T - current_temp) / model_grid(:)%T) .LT. 0.05D0) EXIT
+     IF ( MAXVAL((model_grid(:)%T - current_temp) / model_grid(:)%T) .LT. 0.05D-1) EXIT
      current_temp = model_grid(:)%T
+     WRITE(20,*) 'ITERATION: ', iteration
+     DO I = 1, n_modelgrid
+      WRITE(20,*) I, model_grid(I)%T
+     END DO
 !     PRINT*, 'iteration:', iteration, current_temp
 
      ! Loop over the numer of different opacity (nopa)
@@ -223,8 +229,8 @@ SUBROUTINE main
      CALL update_packages(n_pack)
      print*, 'Number of destoyed packages =', destroyed_pack
   END DO 
+ CLOSE(20)
 
-  IF (iteration .GE. 10) print*, 'No convergency'
  
   print*, 'do spectrum'
   CALL do_spectrum(n_pack)

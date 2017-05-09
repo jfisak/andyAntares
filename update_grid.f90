@@ -21,20 +21,22 @@ SUBROUTINE update_grid(iteration)
    DO I = 1, max_n_dcell
     IF(dyn_cell(I)%up_cell == 0) THEN
      IF(dyn_cell(I)%model_index == gridcell) THEN
-      loc_volume = dyn_cell(I)%width(1)**2 + dyn_cell(I)%width(2)**2 + dyn_cell(I)%width(3)**2
+      loc_volume = dyn_cell(I)%width(1) * dyn_cell(I)%width(2) * dyn_cell(I)%width(3)
       volume = volume + loc_volume
      END IF
     END IF
    END DO
+   !print*, 'update_grid: volume: model cell = ', gridcell, ' volume = ', volume
+
     IF (model_grid(gridcell)%assoc_cells .GT. 0) THEN
       IF (iteration .EQ. 1) THEN
         ! Calculate electron number density for every model grid cell gridcell
         CALL find_e_nd(gridcell, el_nd)
       ELSE
         ! Energy density contribeted to the model grid cell 
-         model_grid(gridcell)%J = model_grid(gridcell)%J / volume 
+         model_grid(gridcell)%J = model_grid(gridcell)%J / volume / (4 * pi)
          temp = (model_grid(gridcell)%J * pi / sigma )**(1./4.) 
-         print*, temp
+!         print*, 'update_grid: temperature: I = ', I, ' T = ', temp
          model_grid(gridcell)%T = temp
          ! Calculate electron number density for every model grid cell gridcell
          !print*, gridcell, model_grid(gridcell)%J, temp

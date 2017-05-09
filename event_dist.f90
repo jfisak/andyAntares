@@ -35,8 +35,8 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
 
   ! For now we neglect cont. opacities, but the routine was written generally to
   ! allow for adding  cont. opacity in the future
-   kappa_cont = 0.D0                      ! no e scattering
-  ! kappa_cont = sigma_e * electron_density * 10.D2 ! add e scattering
+  ! kappa_cont = 0.D0                      ! no e scattering
+   kappa_cont = sigma_e * electron_density * 10.D2 ! add e scattering
 
   ! This is the opacity in co-moving frame. Must be transformed to the lab frame
   ! According to Mihalas and Mihalas Eq. 90.8 this is achieved by 
