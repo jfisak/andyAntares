@@ -34,9 +34,8 @@
         ELSE IF (package(pack_index)%typ .EQ. type_ipkt) THEN 
            ! If the packet is of type ipkt, it represents atomic internal energy (excitation/ionization).
            ! Calculate all transition probabilities and randomly select one of them (macro-atom formalism)
-           ! CALL do_ipackage(pack_index)
-           print*, 'ipkt found, should not happen for now'
-
+           CALL do_ipackage(pack_index)
+           ! print*, 'ipkt found, should not happen for now'
         ELSE
            STOP 'ERROR unknown package typ'
         END IF

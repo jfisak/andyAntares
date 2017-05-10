@@ -93,6 +93,7 @@ MODULE types
   DOUBLE PRECISION                   :: xmax, ymax, zmax
   DOUBLE PRECISION, DIMENSION(3)     :: basic_cell_width
   INTEGER                            :: dyngrid
+  INTEGER                            :: nlte
   DOUBLE PRECISION                   :: R_star, R_inf, V_inf, M_dot, T_eff
   DOUBLE PRECISION                   :: Z_inf
   DOUBLE PRECISION, ALLOCATABLE      :: incomingflux(:,:)
