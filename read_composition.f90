@@ -57,7 +57,7 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
     END IF
     IF ( INDEX(line, '*') /= 0) CYCLE
     READ(line,*) element_index, Z, abundance, lowerion, upperion, mass
-    PRINT*, element_index, Z, lowerion, upperion, mass
+    PRINT*, element_index, Z, abundance, lowerion, upperion, mass
     elements(I)%atom_number = Z
     elements(I)%atom_mass = mass * mp_g
     ! Number of ions 
@@ -99,6 +99,7 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
  DO 
     READ(7,'(A)',iostat=ios) line
   IF (ios /= 0) EXIT
+    print*, line
   IF ( INDEX(line, '*') /= 0) CYCLE
   READ(line,*) current_element, lowerion, upperion, transition_type, filename
   ! the most important is to read the file

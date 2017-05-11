@@ -164,10 +164,20 @@ CASE(0)
       ! do 4
       ! will find lower and upper index for every transition
       DO I = 1,n_levels
-       IF(low_conf == elements(current_element)%ions(current_ion)%levels(I)%elconf) &
-          linelist(n_line)%lower = elements(current_element)%ions(current_ion)%levels(I)%l_index
-       IF(up_conf == elements(current_element)%ions(current_ion)%levels(I)%elconf) &
-          linelist(n_line)%upper = elements(current_element)%ions(current_ion)%levels(I)%l_index
+       IF(low_conf == elements(current_element)%ions(current_ion)%levels(I)%elconf) THEN
+        IF(col_str >= 0) THEN
+         linelist(n_line)%lower = elements(current_element)%ions(current_ion)%levels(I)%l_index
+        ELSE
+         linelist(n_line)%upper = elements(current_element)%ions(current_ion)%levels(I)%l_index
+        END IF 
+       END IF
+       IF(up_conf == elements(current_element)%ions(current_ion)%levels(I)%elconf) THEN
+        IF(col_str >= 0) THEN
+         linelist(n_line)%upper = elements(current_element)%ions(current_ion)%levels(I)%l_index
+        ELSE
+         linelist(n_line)%lower = elements(current_element)%ions(current_ion)%levels(I)%l_index
+        END IF
+       END IF
       ! end do 4
       END DO
       ! 
@@ -175,9 +185,10 @@ CASE(0)
       linelist(n_line)%indexi = current_ion
       linelist(n_line)%freq = 1.E+8*light_speed/l_freq
     !  linelist(n_line)%f_ul = col_str
-      linelist(n_line)%A_ul = A
-      linelist(n_line)%f_ul = 1E-3 * oconstant / elements(current_element)%ions(current_ion)%levels(low_level)%stat_waight *&
-                                (linelist(n_line)%A_ul / linelist(n_line)%freq ** 2)
+      linelist(n_line)%A_ul = abs(A)
+      linelist(n_line)%f_ul = 1E-3 * oconstant / &
+        elements(current_element)%ions(current_ion)%levels(low_level)%stat_waight *&
+        (abs(linelist(n_line)%A_ul) / linelist(n_line)%freq ** 2)
 !    print*, n_line, ': ', 'indexe: ', linelist(n_line)%indexe, linelist(n_line)%indexi, linelist(n_line)%lower, &
 !                       linelist(n_line)%upper, 'f = ', linelist(n_line)%freq, linelist(n_line)%A_ul, linelist(n_line)%f_ul
       !write(20,*) linelist(n_line)%freq, linelist(n_line)%f_ul

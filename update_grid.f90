@@ -9,23 +9,12 @@ SUBROUTINE update_grid(iteration)
 
   INTEGER             :: gridcell, indexe, indexi, numb_ions, iteration
   DOUBLE PRECISION    :: el_nd, temp, frac, U, N_jk, gl_pop
-  DOUBLE PRECISION    :: volume, loc_volume
   INTEGER             :: max_n_dcell
   INTEGER             :: I
   
   max_n_dcell = SIZE(dyn_cell)
    print*, 'updating grid'
   DO gridcell = 1, n_modelgrid
-   ! computing of volume of the associated propagation cells
-   volume = 0.D0
-   DO I = 1, max_n_dcell
-    IF(dyn_cell(I)%up_cell == 0) THEN
-     IF(dyn_cell(I)%model_index == gridcell) THEN
-      loc_volume = dyn_cell(I)%width(1) * dyn_cell(I)%width(2) * dyn_cell(I)%width(3)
-      volume = volume + loc_volume
-     END IF
-    END IF
-   END DO
    !print*, 'update_grid: volume: model cell = ', gridcell, ' volume = ', volume
 
     IF (model_grid(gridcell)%assoc_cells .GT. 0) THEN
@@ -34,8 +23,9 @@ SUBROUTINE update_grid(iteration)
         CALL find_e_nd(gridcell, el_nd)
       ELSE
         ! Energy density contribeted to the model grid cell 
-         model_grid(gridcell)%J = model_grid(gridcell)%J / volume / (4 * pi)
+         model_grid(gridcell)%J = model_grid(gridcell)%J / model_grid(gridcell)%volume / (4 * pi)
          temp = (model_grid(gridcell)%J * pi / sigma )**(1./4.) 
+         print*, 'model cell: ', gridcell, ' temperature = ', temp, ' flux = ', model_grid(gridcell)%J
 !         print*, 'update_grid: temperature: I = ', I, ' T = ', temp
          model_grid(gridcell)%T = temp
          ! Calculate electron number density for every model grid cell gridcell
