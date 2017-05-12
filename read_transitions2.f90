@@ -166,16 +166,16 @@ CASE(0)
       DO I = 1,n_levels
        IF(low_conf == elements(current_element)%ions(current_ion)%levels(I)%elconf) THEN
         IF(col_str >= 0) THEN
-         linelist(n_line)%lower = elements(current_element)%ions(current_ion)%levels(I)%l_index
-        ELSE
          linelist(n_line)%upper = elements(current_element)%ions(current_ion)%levels(I)%l_index
+        ELSE
+         linelist(n_line)%lower = elements(current_element)%ions(current_ion)%levels(I)%l_index
         END IF 
        END IF
        IF(up_conf == elements(current_element)%ions(current_ion)%levels(I)%elconf) THEN
         IF(col_str >= 0) THEN
-         linelist(n_line)%upper = elements(current_element)%ions(current_ion)%levels(I)%l_index
-        ELSE
          linelist(n_line)%lower = elements(current_element)%ions(current_ion)%levels(I)%l_index
+        ELSE
+         linelist(n_line)%upper = elements(current_element)%ions(current_ion)%levels(I)%l_index
         END IF
        END IF
       ! end do 4

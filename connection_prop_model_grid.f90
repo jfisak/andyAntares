@@ -136,6 +136,7 @@ DO gridcell = 1, n_modelgrid
    END IF
   END IF
  END DO
+ !print*, 'connection_prop_model_grid: volume of the cell ', gridcell, ' is ', volume
  model_grid(gridcell)%volume = volume
 END DO
 

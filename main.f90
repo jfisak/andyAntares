@@ -41,6 +41,7 @@ SUBROUTINE main
 !  COMMON / RAN_SEED / idum
 
 
+
   OPEN (UNIT=2, FILE='cells.dat')  
 !  OPEN (UNIT=3, FILE='modelgrid.dat')
 !  OPEN (UNIT=4, FILE='density.dat')
@@ -159,8 +160,13 @@ SUBROUTINE main
   current_temp = 0.D0
   iteration = 0
  OPEN(20, FILE='temp_structure.dat')
-  DO 
-     iteration = iteration + 1
+  DO iteration = 1,1
+   ! definition of counters
+   count_intdownjump = 0
+   count_intupjump = 0
+   count_scattering = 0
+
+    ! iteration = iteration + 1
      IF (iteration .GE. 10) print*, 'No convergency'
      CALL update_grid(iteration)
      PRINT*, 'Update grid finished' 
@@ -200,6 +206,8 @@ SUBROUTINE main
  
   print*, 'do spectrum'
   CALL do_spectrum(n_pack)
+  print*, 'scattering: count_intdownjump, count_intupjump, count_scattering', &
+        count_intdownjump, count_intupjump, count_scattering
   print*, 'do finalize'
 
      ! END DO

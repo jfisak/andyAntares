@@ -20,6 +20,7 @@
   DO I = indexi, numb_ions - 1
      CALL saha_boltzmann_factor(indexe, I, temp, sb_factor)
 !  print*, 'el_nd: ', el_nd
+!   print*, 's-b factor = ', sb_factor
      N = N * el_nd * sb_factor
 !     print*, 'saha Boltzman factor: ', I, sb_factor, N
   END DO

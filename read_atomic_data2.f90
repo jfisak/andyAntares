@@ -103,14 +103,13 @@ OPEN(8,status='old',FILE=filename)
    EXIT
   END DO
    ! firstly we have to calculate ionoffset
-   ionoffset = 0
    IF(ions > 1) THEN
     DO I = 1, ions - 1
      ionoffset = ionoffset + elements(current_element)%ions(I)%ion_potential
     END DO
      ionoffset = ionoffset + i_pot 
    ELSE
-    ionoffset = i_pot
+    ionoffset = 0
    END IF
   ! do we read the right file?
   IF((current_element /= element).OR. (current_ion < lowerion) .OR. (current_ion > upperion)) STOP 'WRONG ATOMIC DATA...'
@@ -139,7 +138,7 @@ OPEN(8,status='old',FILE=filename)
     J = J + 1
     !l_energy = 13.5979996 * l_energy
     elements(current_element)%ions(current_ion)%levels(J)%exci_energy = &
-        (l_energy * rydberg + ionoffset) * e_v 
+        ((i_pot - abs(l_energy) * rydberg) + ionoffset) * e_v
     print*, 'exci energy = ', elements(current_element)%ions(current_ion)%levels(J)%exci_energy
     elements(current_element)%ions(current_ion)%levels(J)%stat_waight = s_weight
     elements(current_element)%ions(current_ion)%levels(J)%elconf = iconf

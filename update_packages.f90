@@ -5,7 +5,7 @@
   IMPLICIT NONE    
 
   INTEGER             :: n_pack, pack_index
-
+  
 
   OPEN (UNIT=3, FILE='position.dat')
   ! print*, 'A'
