@@ -37,8 +37,6 @@ CALL exp_int_func(1, x, eif)
 
 value_2 = gf_const * exp(x) * eif
 
-
-
 gf = MAX(value_1, value_2)
 
 END SUBROUTINE gamma_function

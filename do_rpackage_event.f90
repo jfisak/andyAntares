@@ -41,6 +41,7 @@ SUBROUTINE do_rpackage_event(pack_index, event)
      ! isotropic re-emission in the cmf
      package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
 !     print*, 'photon ', pack_index, ' continuum interaction...'
+     count_thomson = count_thomson + 1
      CALL emit_rpackage(pack_index)
   ELSE
      STOP 'ERROR in do_rpackage event'

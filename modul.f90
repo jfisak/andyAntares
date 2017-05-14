@@ -175,6 +175,9 @@ MODULE types
 ! counters of interactions
 INTEGER                                 :: count_intdownjump, &
                                            count_intupjump, &
-                                           count_scattering
+                                           count_resscattering, &
+                                           count_fluorescence, &
+                                           count_coldeexc, &
+                                           count_thomson
 
 END MODULE types

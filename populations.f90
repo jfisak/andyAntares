@@ -10,6 +10,7 @@ INTEGER                         :: indexe, indexi, level, model_cell
 DOUBLE PRECISION                :: pop_number
 ! local variables for LTE
 DOUBLE PRECISION                :: graund_level_pop, g_gstat, g_stat, e_exc
+DOUBLE PRECISION                :: abund, rho, atom_mass
 
 SELECT CASE(nlte)
 ! LTE approximation
@@ -23,11 +24,15 @@ CASE(0)
  ! excitation energy
  e_exc = elements(indexe)%ions(indexi)%levels(level)%exci_energy - &
         elements(indexe)%ions(indexi)%levels(1)%exci_energy
+ rho = model_grid(model_cell)%rho
+ abund = model_grid(model_cell)%grid_comp(indexe)%abund
+ atom_mass = elements(indexe)%atom_mass
  
  pop_number = graund_level_pop * g_stat / g_gstat * &
-        exp(e_exc / BOLK / model_grid(model_cell)%T ) / &
-        model_grid(model_cell)%volume
-! print*, 'populations: pop_number = ', pop_number
+        exp(-e_exc / BOLK / model_grid(model_cell)%T ) * &
+        rho * abund / atom_mass
+ !print*, 'populations: rho = ', rho, ' abund = ', abund, ' atom_mass = ', atom_mass
+ !print*, 'populations: pop_number = ', pop_number
 ! NLTE approximation
 CASE(1)
  STOP 'NLTE is not supported yet'

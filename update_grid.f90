@@ -33,9 +33,8 @@ SUBROUTINE update_grid(iteration)
          CALL find_e_nd(gridcell, el_nd)
          model_grid(gridcell)%J = 0.D0   
       END IF
-      model_grid(gridcell)%e_dens = el_nd
+      model_grid(gridcell)%e_dens = el_nd 
       temp = model_grid(gridcell)%T
-
 
       !     print*, 'temp and e_nd:', gridcell,  model_grid(gridcell)%rho, temp, el_nd/6.1D14
       DO indexe = 1, n_elements

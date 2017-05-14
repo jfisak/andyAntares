@@ -164,7 +164,10 @@ SUBROUTINE main
    ! definition of counters
    count_intdownjump = 0
    count_intupjump = 0
-   count_scattering = 0
+   count_resscattering = 0
+   count_fluorescence = 0
+   count_coldeexc = 0
+   count_thomson = 0
 
     ! iteration = iteration + 1
      IF (iteration .GE. 10) print*, 'No convergency'
@@ -206,8 +209,10 @@ SUBROUTINE main
  
   print*, 'do spectrum'
   CALL do_spectrum(n_pack)
-  print*, 'scattering: count_intdownjump, count_intupjump, count_scattering', &
-        count_intdownjump, count_intupjump, count_scattering
+  print*, 'scattering: count_intdownjump, count_intupjump, count_resscattering, &
+        count_fluorescence, count_coldeexc, count_thomson', &
+        count_intdownjump, count_intupjump, count_resscattering, count_fluorescence, &
+        count_coldeexc, count_thomson
   print*, 'do finalize'
 
      ! END DO

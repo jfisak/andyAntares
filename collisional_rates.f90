@@ -1,18 +1,22 @@
 ! this subroutine calculates collisional rates for the given energy
 ! level
-SUBROUTINE collisional_rates(approx, pack_index, act_state, nlns, linetransitions, Ztot, Lcoll)
+SUBROUTINE collisional_rates(approx, pack_index, line, pop, nlns, linetransitions, Ztot, Lcoll)
 USE types
 IMPLICIT NONE
 ! input variables
 INTEGER                                 :: approx
-INTEGER                                 :: pack_index, act_state, nlns
+INTEGER                                 :: pack_index, line, nlns
 INTEGER, DIMENSION(nlns)                :: linetransitions
+DOUBLE PRECISION                        :: pop
 ! constans
 DOUBLE PRECISION, PARAMETER             :: c0 = 5.465D-11
+!DOUBLE PRECISION, PARAMETER             :: c0 = 5.46510**(-11)
 DOUBLE PRECISION, PARAMETER             :: IH = 13.6 * e_v
 DOUBLE PRECISION, PARAMETER             :: coll_const = 14.5
 ! indexes
-INTEGER                                 :: line
+INTEGER                                 :: act_line
+! atomic data
+INTEGER                                 :: element_index, ion_index
 ! value of collision rate
 DOUBLE PRECISION                        :: actVal
 INTEGER                                 :: current_mgi
@@ -35,7 +39,7 @@ DOUBLE PRECISION, DIMENSION(nlns) :: Lcoll
 SELECT CASE(approx)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! van Regemorter approximation
-CASE(0)
+CASE(1)
  current_mgi = get_package_model_index(pack_index)
  ! electron density
  electron_density = model_grid(current_mgi)%e_dens
@@ -44,23 +48,33 @@ CASE(0)
  el_temperature = temperature
  ! number of lines we are interested in
  nlns = SIZE(linetransitions)
-
- DO line = 1, nlns
+ element_index = linelist(line)%indexe
+ ion_index = linelist(line)%indexi
+ Ztot = 0.D0
+ CALL populations(element_index, ion_index, linelist(line)%lower, current_mgi, pop)
+ DO act_line = 1, nlns
   ! oscilator strength
-  osc_str = linelist(linetransitions(line))%f_ul
+  osc_str = linelist(linetransitions(act_line))%f_ul
   ! frequency of transition
-  freq = linelist(linetransitions(line))%freq
+  freq = linelist(linetransitions(act_line))%freq
   x = (h * freq) / (BOLK * temperature)
   ! gamma function
-  CALL gamma_function(x, act_state, gf)
+  CALL gamma_function(x, act_line, gf)
   ! value of the collision coefficient
   actVal = electron_density * c0 * (temperature)**(1.0/2.0) * &
         coll_const * (IH / (h * freq)) * osc_str * &
         ((h * freq) / (BOLK * el_temperature)) * &
         exp(-(h * freq) / (BOLK * el_temperature)) * gf
-  Lcoll(line) = actVal
+  actVal = actVal * (linelist(act_line)%upper - linelist(act_line)%lower)
+  Lcoll(act_line) = actVal
   Ztot = Ztot + actVal
+! print*, 'cool_excit: pop = ', pop, ' electron_density = ', electron_density, &
+!        ' temperature = ', temperature, ' gf = ', gf, ' osc_str = ', osc_str, &
+!        ' x = ', x
+!  print*, 'collisional_rates: actVal = ', actVal
  END DO
+ Ztot = pop * Ztot
+! print*, 'collisional_rates: Ztot = ', Ztot
 CASE DEFAULT
  STOP 'collisional_rates: this approximation is not known'
 END SELECT
