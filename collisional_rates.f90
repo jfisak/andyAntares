@@ -1,6 +1,6 @@
 ! this subroutine calculates collisional rates for the given energy
 ! level
-SUBROUTINE collisional_rates(approx, pack_index, line, pop, nlns, linetransitions, Ztot, Lcoll)
+SUBROUTINE collisional_rates(approx, lower,pack_index, line, nlns, linetransitions, Ztot, Lcoll)
 USE types
 IMPLICIT NONE
 ! input variables
@@ -8,6 +8,8 @@ INTEGER                                 :: approx
 INTEGER                                 :: pack_index, line, nlns
 INTEGER, DIMENSION(nlns)                :: linetransitions
 DOUBLE PRECISION                        :: pop
+! = 1 for upward = 0 for downward transitions
+LOGICAL                                 :: lower
 ! constans
 DOUBLE PRECISION, PARAMETER             :: c0 = 5.465D-11
 !DOUBLE PRECISION, PARAMETER             :: c0 = 5.46510**(-11)
@@ -31,8 +33,9 @@ DOUBLE PRECISION                        :: freq, osc_str
 DOUBLE PRECISION                        :: x
 ! output variables
 ! total rate
-DOUBLE PRECISION                        :: Ztot
+DOUBLE PRECISION                        :: Ztot, stat_weight
 ! the rates for the given transitions
+INTEGER                                 :: level_index
 DOUBLE PRECISION, DIMENSION(nlns) :: Lcoll
 
 
@@ -51,10 +54,16 @@ CASE(1)
  element_index = linelist(line)%indexe
  ion_index = linelist(line)%indexi
  Ztot = 0.D0
- CALL populations(element_index, ion_index, linelist(line)%lower, current_mgi, pop)
+  IF (lower .EQV. .TRUE.) THEN
+   level_index = linelist(line)%lower
+  ELSE IF (lower .EQV. .FALSE.) THEN
+   level_index = linelist(line)%upper
+  END IF
  DO act_line = 1, nlns
+  CALL populations(element_index, ion_index, level_index, current_mgi, pop)
   ! oscilator strength
   osc_str = linelist(linetransitions(act_line))%f_ul
+  stat_weight = elements(element_index)%ions(ion_index)%levels(level_index)%stat_waight
   ! frequency of transition
   freq = linelist(linetransitions(act_line))%freq
   x = (h * freq) / (BOLK * temperature)
@@ -65,9 +74,10 @@ CASE(1)
         coll_const * (IH / (h * freq)) * osc_str * &
         ((h * freq) / (BOLK * el_temperature)) * &
         exp(-(h * freq) / (BOLK * el_temperature)) * gf
-  actVal = actVal * (linelist(act_line)%upper - linelist(act_line)%lower)
+!  actVal = actVal * (linelist(act_line)%upper - linelist(act_line)%lower)
   Lcoll(act_line) = actVal
-  Ztot = Ztot + actVal
+  Ztot = Ztot + actVal * stat_weight * &
+        (linelist(act_line)%upper - linelist(act_line)%lower)
 ! print*, 'cool_excit: pop = ', pop, ' electron_density = ', electron_density, &
 !        ' temperature = ', temperature, ' gf = ', gf, ' osc_str = ', osc_str, &
 !        ' x = ', x

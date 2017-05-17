@@ -16,12 +16,12 @@ INTEGER                         :: element_index, ion_index
 INTEGER                         :: I, J, K, line
 INTEGER, ALLOCATABLE            :: linetransitions(:), transitions(:), lineuptransitions(:), &
                                    lineradtransitions(:) ! an array of transitions down from last_line
-DOUBLE PRECISION, ALLOCATABLE   :: Lintdownjump(:), Lraddeexc(:), Lintupjump(:), Lrad(:), Lcoll(:)
+DOUBLE PRECISION, ALLOCATABLE   :: Lintdownjump(:), Lraddeexc(:), Lintupjump(:), Lrad(:), Lcoll(:), Lupcoll(:)
 INTEGER                         :: act_line
 DOUBLE PRECISION                :: actVal
 DOUBLE PRECISION                :: ran2, rand
 ! sum function
-DOUBLE PRECISION                :: Z, Ztotal, Zintdownjump, Zraddeexc, Zintupjump, Zrad, Zcoll
+DOUBLE PRECISION                :: Z, Ztotal, Zintdownjump, Zraddeexc, Zintupjump, Zrad, Zcoll, Zupcoll
 ! partition function for the given process
 DOUBLE PRECISION                :: Z0, Z1, Z2, Z3
 DOUBLE PRECISION                :: summ, stat_weight, exci_energy
@@ -90,14 +90,21 @@ DO WHILE (active == 1)
  Zintdownjump = 0.D0
  ALLOCATE(Lintdownjump(nlns))
  ! 1.) radiative deexcitation
+ ! this allocates only in the first loop, because this field will only remember transitions
+ ! from the last_line's upper level
  Zraddeexc = 0.D0
  ALLOCATE(Lraddeexc(nlns))
  ! 3.) collisional deexcitation
  ALLOCATE(Lcoll(nlns))
- CALL collisional_rates(1, pack_index, actual_state, act_popup, nlns, linetransitions, Zcoll, Lcoll)
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ ! collisional deexcitacion
+ ! now in the van Regemorter approximation (the first parameter is equal to 1)
+ CALL collisional_rates(1, .TRUE., pack_index, actual_state, nlns, linetransitions, Zcoll, Lcoll)
  ! 2.) internal upward jump within the current ion
  Zintupjump = 0.D0
  ALLOCATE(Lintupjump(nluns))
+ Zupcoll = 0.D0
+ ALLOCATE(Lupcoll(nluns))
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! internal downward jump and radiative deexcitation
  DO I = 1, nlns
@@ -130,17 +137,16 @@ DO WHILE (active == 1)
 !   actVal
   Lraddeexc(I) = actVal
  END DO
- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- ! collisional deexcitacion
- ! now in the van Regemorter approximation (the first parameter is equal to 1)
 !print*, 'do_ipackage: Zintdownjump = ', Zintdownjump
+ CALL populations(element_index, ion_index, linelist(act_line)%upper, current_mgi, act_popup)
+ CALL collisional_rates(1, .FALSE., pack_index, actual_state, nluns, lineuptransitions, &
+        Zupcoll, Lupcoll)
  DO I = 1, nluns
   act_line = lineuptransitions(I)
   stat_weight = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%stat_waight
   exci_energy = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy
   ! internal jump up
-  CALL populations(element_index, ion_index, linelist(act_line)%upper, current_mgi, act_popup)
-  actVal = act_popup * linelist(act_line)%A_ul * exci_energy
+  actVal = act_popup * (linelist(act_line)%A_ul * exci_energy + Lupcoll(I))
   Zintupjump = Zintupjump + stat_weight * actVal
   Lintupjump(I) = actVal
  END DO
@@ -161,7 +167,7 @@ Z3 = Zcoll
 ! internal downward jump
 ! in this case a macro-atom transits into a lower state without an energy emission
 IF(rand >= 0 .AND. rand < Z0) THEN
-print*, 'internal downard jump will occur'
+!print*, 'internal downard jump will occur'
  count_intdownjump = count_intdownjump + 1
 ! next transition will be an internal downward jump
  summ = 0
@@ -182,7 +188,7 @@ print*, 'internal downard jump will occur'
 ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
 !print*, 'radiative downwnard jump will occur'
 ! next transition will be an radiative deexcitation
- print*, 'do_ipackage: packet: ', pack_index, ' radiative deexcitation...'
+ !print*, 'do_ipackage: packet: ', pack_index, ' radiative deexcitation...'
  package(pack_index)%typ = type_rpkt
  package(pack_index)%last_line = no_line
  CALL emit_rpackage(pack_index)
@@ -241,7 +247,7 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
 ! internal upward jump
 ! in this case a macro-atom transits into a upper state without an energy emission
 ELSE IF (rand >= Z1 .AND. rand <= Z2) THEN
-print*, 'internal upwnard jump will occur'
+!print*, 'internal upwnard jump will occur'
  count_intupjump = count_intupjump + 1
  summ = Z1
  DO I = 1, nluns
@@ -259,7 +265,7 @@ print*, 'internal upwnard jump will occur'
 ELSE IF(rand >= Z2 .AND. rand <= Z3) THEN
  summ = Z2
  package(pack_index)%last_line = no_line
- print*, 'pack_index = ', pack_index, ' collisional deexcitation...'
+ !print*, 'pack_index = ', pack_index, ' collisional deexcitation...'
 ! DO I = 1, nlns
 !  ! we will find the given state
 !  IF(rand >= summ .AND. rand < summ + Lcoll(I)) THEN
@@ -283,7 +289,7 @@ END IF
 ! only one loop
 !STOP 'testing the code'
 
-DEALLOCATE(linetransitions, lineuptransitions, Lintdownjump, Lintupjump, Lraddeexc, Lcoll)
+DEALLOCATE(linetransitions, lineuptransitions, Lintdownjump, Lintupjump, Lraddeexc, Lcoll, Lupcoll)
 
 END DO
 

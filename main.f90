@@ -160,26 +160,26 @@ SUBROUTINE main
   current_temp = 0.D0
   iteration = 0
  OPEN(20, FILE='temp_structure.dat')
-  DO iteration = 1,1
+  DO! iteration = 1,1
    ! definition of counters
-   count_intdownjump = 0
-   count_intupjump = 0
-   count_resscattering = 0
-   count_fluorescence = 0
-   count_coldeexc = 0
-   count_thomson = 0
 
-    ! iteration = iteration + 1
+     iteration = iteration + 1
      IF (iteration .GE. 10) print*, 'No convergency'
      CALL update_grid(iteration)
      PRINT*, 'Update grid finished' 
-!     print*, 'model_grid(:)%T = ', model_grid(:)%T
-     IF ( MAXVAL((model_grid(:)%T - current_temp) / model_grid(:)%T) .LT. 0.05D-1) EXIT
-     current_temp = model_grid(:)%T
      WRITE(20,*) 'ITERATION: ', iteration
      DO I = 1, n_modelgrid
       WRITE(20,*) I, model_grid(I)%T
      END DO
+!     print*, 'model_grid(:)%T = ', model_grid(:)%T
+     IF ( MAXVAL(abs(model_grid(:)%T - current_temp) / model_grid(:)%T) .LT. 0.05D-1) EXIT
+     count_intdownjump = 0
+     count_intupjump = 0
+     count_resscattering = 0
+     count_fluorescence = 0
+     count_coldeexc = 0
+     count_thomson = 0
+     current_temp = model_grid(:)%T
 !     PRINT*, 'iteration:', iteration, current_temp
 
      ! Loop over the numer of different opacity (nopa)
