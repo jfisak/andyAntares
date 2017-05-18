@@ -88,9 +88,9 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
       EXIT
   END IF
   IF ( INDEX(line, '*') /= 0) CYCLE
-  READ(line,*) current_element, lowerion, upperion, levels_type, filename
+  READ(line,*) element_index, current_element, lowerion, upperion, levels_type, filename
   ! the most important is to read the file
-  CALL read_atomic_data2(current_element,lowerion,upperion,levels_type,filename)
+  CALL read_atomic_data2(element_index, current_element,lowerion,upperion,levels_type,filename)
  END DO
  ! now reading atomic transitions 
  ntransitions = 0
@@ -101,9 +101,9 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
   IF (ios /= 0) EXIT
     print*, line
   IF ( INDEX(line, '*') /= 0) CYCLE
-  READ(line,*) current_element, lowerion, upperion, transition_type, filename
+  READ(line,*) element_index, current_element, lowerion, upperion, transition_type, filename
   ! the most important is to read the file
-  CALL read_transitions2(current_element,lowerion,upperion,transition_type,filename)
+  CALL read_transitions2(element_index, current_element,lowerion,upperion,transition_type,filename)
  END DO
  ! now we can allocate ray linelist
  ALLOCATE(linelist(ntransitions))
@@ -125,9 +125,9 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
   READ(7,'(A)',iostat=ios) line
   IF (ios /= 0) EXIT
   IF ( INDEX(line, '*') /= 0) CYCLE
-  READ(line,*) current_element, lowerion, upperion, transition_type, filename
+  READ(line,*) element_index, current_element, lowerion, upperion, transition_type, filename
   print*, 'calling subroutine read_transitions2...'
-  CALL read_transitions2(current_element,lowerion,upperion,transition_type,filename)
+  CALL read_transitions2(element_index, current_element,lowerion,upperion,transition_type,filename)
  END DO
  ! sorting the linelist ray 
  CALL sorting_new(ntransitions, linelist)

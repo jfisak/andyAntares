@@ -1,4 +1,4 @@
-SUBROUTINE read_transitions2(element, lowerion, upperion, transition_type, filename)
+SUBROUTINE read_transitions2(el_index, element, lowerion, upperion, transition_type, filename)
 
 
  USE types
@@ -6,7 +6,7 @@ SUBROUTINE read_transitions2(element, lowerion, upperion, transition_type, filen
  IMPLICIT NONE    
 
  ! input data
- INTEGER                        :: element, lowerion, upperion, transition_type
+ INTEGER                        :: element, lowerion, upperion, transition_type, el_index
  INTEGER                        :: n_ions, junk
  CHARACTER (LEN=20)             :: filename
  ! used constants
@@ -19,7 +19,7 @@ SUBROUTINE read_transitions2(element, lowerion, upperion, transition_type, filen
  INTEGER                        :: n_transitions, curr_n_tran, n_line
  INTEGER                        :: current_element, current_ion
  INTEGER                        :: kindex, low_level, up_level
- CHARACTER (LEN=6)              :: low_conf, up_conf
+ CHARACTER (LEN=15)              :: low_conf, up_conf
  DOUBLE PRECISION               :: A, col_str, l_freq
 
 
@@ -47,7 +47,7 @@ CASE(0)
   ! do we have the right file?
   IF((current_element /= element) .OR. (current_ion < lowerion) &
     .OR. (current_ion > upperion)) STOP 'WRONG ATOMIC TRANSITIONS...'
-  n_ions = elements(current_element)%nions
+  n_ions = elements(el_index)%nions
   !print*, 'number of ions n_ions = ', n_ions
    DO I = 1, n_transitions
     READ(9,'(A)',IOSTAT=linereading) line
@@ -65,11 +65,11 @@ CASE(0)
     linelist(n_line)%indexi = current_ion
     linelist(n_line)%lower = low_level
     linelist(n_line)%upper = up_level
-    linelist(n_line)%freq = (elements(current_element)%ions(current_ion)%levels(up_level)%exci_energy -&
-                               elements(current_element)%ions(current_ion)%levels(low_level)%exci_energy) / h
+    linelist(n_line)%freq = (elements(el_index)%ions(current_ion)%levels(up_level)%exci_energy -&
+                               elements(el_index)%ions(current_ion)%levels(low_level)%exci_energy) / h
     linelist(n_line)%A_ul = A
-    linelist(n_line)%f_ul = oconstant * (elements(current_element)%ions(current_ion)%levels(up_level)%stat_waight / &
-                       elements(current_element)%ions(current_ion)%levels(low_level)%stat_waight) *                 &
+    linelist(n_line)%f_ul = oconstant * (elements(el_index)%ions(current_ion)%levels(up_level)%stat_waight / &
+                       elements(el_index)%ions(current_ion)%levels(low_level)%stat_waight) *                 &
                        (linelist(n_line)%A_ul / linelist(n_line)%freq ** 2)
     !print*, n_line, ': ', 'indexe: ', linelist(n_line)%indexe, linelist(n_line)%indexi, linelist(n_line)%lower, &
     !                   linelist(n_line)%upper, 'f = ', linelist(n_line)%freq, linelist(n_line)%A_ul, linelist(n_line)%f_ul
@@ -154,40 +154,53 @@ CASE(0)
      ! reading transition data
      DO
       READ(9,'(A)',IOSTAT=ios) line
-      !print*, line
+      print*, line
       IF (ios /= 0) EXIT
       IF ( INDEX(line, '*') /= 0) CYCLE
       READ(line,*) kindex, low_level, up_level, low_conf, up_conf, col_str, A, l_freq
       n_line = ntransitions + 1
       ntransitions = n_line
-      n_levels = elements(current_element)%ions(current_ion)%nlevels
+      n_levels = elements(el_index)%ions(current_ion)%nlevels
+      !print*, 'read_transitions2: iconf = ', low_conf, ' jconf = ', up_conf, &
+      ! 'n_levels = ', n_levels
       ! do 4
       ! will find lower and upper index for every transition
-      DO I = 1,n_levels
-       IF(low_conf == elements(current_element)%ions(current_ion)%levels(I)%elconf) THEN
+      DO I = 1, n_levels
+       !print*, 'I = ', I, 'i_conf = ', low_conf, 'j_conf = ', &
+       !up_conf, elements(el_index)%ions(current_ion)%levels(I)%elconf, &
+       !'l_index = ', elements(el_index)%ions(current_ion)%levels(I)%l_index
+       IF(low_conf == elements(el_index)%ions(current_ion)%levels(I)%elconf) THEN
+        !print*, 'found electron configuration...'
         IF(col_str >= 0) THEN
-         linelist(n_line)%upper = elements(current_element)%ions(current_ion)%levels(I)%l_index
+         linelist(n_line)%upper = elements(el_index)%ions(current_ion)%levels(I)%l_index
         ELSE
-         linelist(n_line)%lower = elements(current_element)%ions(current_ion)%levels(I)%l_index
+         linelist(n_line)%lower = elements(el_index)%ions(current_ion)%levels(I)%l_index
         END IF 
+       ! print*, 'l_index = ', elements(el_index)%ions(current_ion)%levels(I)%l_index
        END IF
-       IF(up_conf == elements(current_element)%ions(current_ion)%levels(I)%elconf) THEN
+       IF(up_conf == elements(el_index)%ions(current_ion)%levels(I)%elconf) THEN
+        !print*, 'found electron configuration...'
         IF(col_str >= 0) THEN
-         linelist(n_line)%lower = elements(current_element)%ions(current_ion)%levels(I)%l_index
+         linelist(n_line)%lower = elements(el_index)%ions(current_ion)%levels(I)%l_index
         ELSE
-         linelist(n_line)%upper = elements(current_element)%ions(current_ion)%levels(I)%l_index
+         linelist(n_line)%upper = elements(el_index)%ions(current_ion)%levels(I)%l_index
         END IF
+        !print*, 'l_index = ', elements(el_index)%ions(current_ion)%levels(I)%l_index
        END IF
       ! end do 4
       END DO
+      IF(linelist(n_line)%lower == 0 .OR. linelist(n_line)%upper == 0) THEN
+      ! print*, 'l_index = ', elements(el_index)%ions(current_ion)%levels(I)%l_index
+       STOP 'lower or upper index is equal to zero'
+      END IF
       ! 
-      linelist(n_line)%indexe = current_element
+      linelist(n_line)%indexe = el_index
       linelist(n_line)%indexi = current_ion
       linelist(n_line)%freq = 1.E+8*light_speed/l_freq
     !  linelist(n_line)%f_ul = col_str
       linelist(n_line)%A_ul = abs(A)
       linelist(n_line)%f_ul = 1E-3 * oconstant / &
-        elements(current_element)%ions(current_ion)%levels(low_level)%stat_waight *&
+        elements(el_index)%ions(current_ion)%levels(low_level)%stat_waight *&
         (abs(linelist(n_line)%A_ul) / linelist(n_line)%freq ** 2)
 !    print*, n_line, ': ', 'indexe: ', linelist(n_line)%indexe, linelist(n_line)%indexi, linelist(n_line)%lower, &
 !                       linelist(n_line)%upper, 'f = ', linelist(n_line)%freq, linelist(n_line)%A_ul, linelist(n_line)%f_ul

@@ -52,7 +52,7 @@
      model_grid(I)%rwind = r  * R_star
      model_grid(I)%vel = velo * 1.D5
      model_grid(I)%rho = dens
-     model_grid(I)%T = 7000. ! should be temp 
+     model_grid(I)%T = 10000. ! should be temp 
      model_grid(I)%J = 0.D0 
      model_grid(I)%assoc_cells = 0
      !Total mass density of grid cell I
@@ -66,7 +66,8 @@
         numbions = elements(J)%nions
         ALLOCATE (model_grid(I)%grid_comp(J)%grid_ion(numbions))
         atom_number = elements(J)%atom_number
-        model_grid(I)%grid_comp(J)%abund = massfrac(atom_number)        
+        !model_grid(I)%grid_comp(J)%abund = massfrac(atom_number)        
+        model_grid(I)%grid_comp(J)%abund = elements(J)%abundance
         !Calculate total number density for included species
         !tot_nd = model_grid(I)%grid_comp(J)%abund / elements(J)%atom_mass 
         !model_grid(I)%grid_comp(J)%numb_den = tot_nd

@@ -1,22 +1,22 @@
 ! reads atomic data for the given element (from the file compose_adata.dat)
 ! in the format given by the parameter 
-SUBROUTINE read_atomic_data2(element,lowerion,upperion,levels_type,filename)
+SUBROUTINE read_atomic_data2(el_index, element, lowerion, upperion, levels_type, filename)
 
   USE types
 
   IMPLICIT NONE    
 
  ! input parameters
- INTEGER                        :: element, lowerion, upperion, levels_type
+ INTEGER                        :: element, lowerion, upperion, levels_type, el_index
  CHARACTER (LEN=20)             :: filename
  ! loop variables
  INTEGER                        :: I, J, K
  ! reading from file variables
  INTEGER                        :: ios, read_levels
  INTEGER                        :: current_element, current_ion, ions
- INTEGER                        :: n_levels, junk, l_numb, l_index
+ INTEGER                        :: n_levels, junk, kindex, l_numb, l_index
  CHARACTER (LEN=200)            :: line
- CHARACTER (LEN=6)              :: iconf
+ CHARACTER (LEN=15)              :: iconf
  DOUBLE PRECISION               :: i_pot, l_energy, ionoffset, ionstage, s_weight
  DOUBLE PRECISION, PARAMETER    :: rydberg = 13.5979996 !(eV)
  ! basic setting of variables
@@ -63,6 +63,7 @@ OPEN(8,status='old',FILE=filename)
     ! for the ion. potential of the ground level
     elements(current_element)%ions(current_ion)%levels(J)%exci_energy = l_energy * e_v + ionoffset
     elements(current_element)%ions(current_ion)%levels(J)%stat_waight = s_weight
+    print*, 'exci_energy = ', elements(current_element)%ions(current_ion)%levels(J)%exci_energy/e_v
    END DO
     ! we can increase number of read ions :-)
     ions = ions + 1
@@ -103,21 +104,22 @@ OPEN(8,status='old',FILE=filename)
    EXIT
   END DO
    ! firstly we have to calculate ionoffset
+   ionoffset = 0
    IF(ions > 1) THEN
     DO I = 1, ions - 1
-     ionoffset = ionoffset + elements(current_element)%ions(I)%ion_potential
+     ionoffset = ionoffset + elements(el_index)%ions(I)%ion_potential
     END DO
-     ionoffset = ionoffset + i_pot 
+     !ionoffset = ionoffset + i_pot 
    ELSE
     ionoffset = 0
    END IF
   ! do we read the right file?
   IF((current_element /= element).OR. (current_ion < lowerion) .OR. (current_ion > upperion)) STOP 'WRONG ATOMIC DATA...'
    ! computation and allocation of important variables
-   ionstage = elements(current_element)%ions(current_ion)%ion_stage
-   elements(current_element)%ions(current_ion)%ion_potential = i_pot * e_v
-   elements(current_element)%ions(current_ion)%nlevels = n_levels
-   ALLOCATE(elements(current_element)%ions(current_ion)%levels(n_levels))
+   ionstage = elements(el_index)%ions(current_ion)%ion_stage
+   elements(el_index)%ions(current_ion)%ion_potential = i_pot * e_v
+   elements(el_index)%ions(current_ion)%nlevels = n_levels
+   ALLOCATE(elements(el_index)%ions(current_ion)%levels(n_levels))
   ! looking for a label **levels**
   DO
    READ(8,'(A)',IOSTAT=ios) line
@@ -134,16 +136,17 @@ OPEN(8,status='old',FILE=filename)
    IF (ios /= 0) EXIT
    IF( INDEX(line, '*') /= 0) CYCLE
    ! READ(8,*,IOSTAT=read_levels) l_index, l_numb, iconf, l_energy, s_weight
-    READ(line,*,IOSTAT=read_levels) l_index, iconf, l_energy, s_weight
+    READ(line,*,IOSTAT=read_levels) kindex, l_index, iconf, l_energy, s_weight
+    !print*, 'read_atomic_data2: kindex = ', kindex, ' iconf = ', iconf
     J = J + 1
     !l_energy = 13.5979996 * l_energy
-    elements(current_element)%ions(current_ion)%levels(J)%exci_energy = &
-        ((i_pot - abs(l_energy) * rydberg) + ionoffset) * e_v
-    print*, 'exci energy = ', elements(current_element)%ions(current_ion)%levels(J)%exci_energy
-    elements(current_element)%ions(current_ion)%levels(J)%stat_waight = s_weight
-    elements(current_element)%ions(current_ion)%levels(J)%elconf = iconf
-    elements(current_element)%ions(current_ion)%levels(J)%l_index = l_index
-    IF(J == elements(current_element)%ions(current_ion)%nlevels) THEN
+    elements(el_index)%ions(current_ion)%levels(J)%exci_energy = &
+        (l_energy + ionoffset) * e_v
+    !print*, 'exci energy = ', elements(el_index)%ions(current_ion)%levels(J)%exci_energy/e_v
+    elements(el_index)%ions(current_ion)%levels(J)%stat_waight = s_weight
+    elements(el_index)%ions(current_ion)%levels(J)%elconf = iconf
+    elements(el_index)%ions(current_ion)%levels(J)%l_index = kindex
+    IF(J == elements(el_index)%ions(current_ion)%nlevels) THEN
      ions = ions + 1
      EXIT
     END IF
