@@ -39,6 +39,7 @@ last_level = linelist(last_line)%upper
 element_index = linelist(last_line)%indexe
 ion_index = linelist(last_line)%indexi
 current_mgi = get_package_model_index(pack_index)
+print*, 'do_ipackage: element_index = ', element_index, 'ion_index = ', ion_index
 
 active = 1
 ! this is an initial state of the macro-atom
@@ -99,7 +100,7 @@ DO WHILE (active == 1)
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! collisional deexcitacion
  ! now in the van Regemorter approximation (the first parameter is equal to 1)
- CALL collisional_rates(1, .TRUE., pack_index, actual_state, nlns, linetransitions, Zcoll, Lcoll)
+ CALL collisional_rates(1, .TRUE., pack_index, actual_state, nlns, linetransitions, Lcoll)
  ! 2.) internal upward jump within the current ion
  Zintupjump = 0.D0
  ALLOCATE(Lintupjump(nluns))
@@ -137,16 +138,26 @@ DO WHILE (active == 1)
 !   actVal
   Lraddeexc(I) = actVal
  END DO
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! collisional deexcitation
+  Zcoll = 0.D0
+  DO I = 1, nlns
+   act_line = linetransitions(I)
+   stat_weight = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%upper)%stat_waight
+   actVal = Lcoll(I) * &
+   (elements(element_index)%ions(ion_index)%levels(linelist(act_line)%upper)%exci_energy - &
+   elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy)
+   Zcoll = Zcoll + stat_weight * actVal
+  END DO
 !print*, 'do_ipackage: Zintdownjump = ', Zintdownjump
  CALL populations(element_index, ion_index, linelist(act_line)%upper, current_mgi, act_popup)
- CALL collisional_rates(1, .FALSE., pack_index, actual_state, nluns, lineuptransitions, &
-        Zupcoll, Lupcoll)
+ CALL collisional_rates(1, .FALSE., pack_index, actual_state, nluns, lineuptransitions, Lupcoll)
  DO I = 1, nluns
   act_line = lineuptransitions(I)
   stat_weight = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%stat_waight
   exci_energy = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy
   ! internal jump up
-  actVal = act_popup * (linelist(act_line)%A_ul * exci_energy + Lupcoll(I))
+  actVal = act_popup * linelist(act_line)%A_ul * exci_energy  + Lupcoll(I)
   Zintupjump = Zintupjump + stat_weight * actVal
   Lintupjump(I) = actVal
  END DO
@@ -167,7 +178,6 @@ Z3 = Zcoll
 ! internal downward jump
 ! in this case a macro-atom transits into a lower state without an energy emission
 IF(rand >= 0 .AND. rand < Z0) THEN
-!print*, 'internal downard jump will occur'
  count_intdownjump = count_intdownjump + 1
 ! next transition will be an internal downward jump
  summ = 0
@@ -175,7 +185,7 @@ IF(rand >= 0 .AND. rand < Z0) THEN
   ! we will find the given state
   IF(rand >= summ .AND. rand < summ + Lintdownjump(I)) THEN
    actual_state = linelist(linetransitions(I))%lower
-   !print*, 'do_ipackage: packet: ', pack_index, ' internal downward jump...'
+   print*, 'do_ipackage: packet: ', pack_index, ' internal downward jump...'
    EXIT
   END IF
   summ = summ + Lintdownjump(I)
@@ -186,9 +196,8 @@ IF(rand >= 0 .AND. rand < Z0) THEN
 ! we have to choose a new frequency, which would be calculated randomly from the 
 ! possible transition last_line -> some lower line
 ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
-!print*, 'radiative downwnard jump will occur'
 ! next transition will be an radiative deexcitation
- !print*, 'do_ipackage: packet: ', pack_index, ' radiative deexcitation...'
+ print*, 'do_ipackage: packet: ', pack_index, ' radiative deexcitation...'
  package(pack_index)%typ = type_rpkt
  package(pack_index)%last_line = no_line
  CALL emit_rpackage(pack_index)
@@ -232,6 +241,7 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
    package(pack_index)%freq_cmf = new_freq
    CALL doppler_factor(pack_index, D)
    package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
+   package(pack_index)%last_line = no_line
    IF(linelist(lineradtransitions(line))%lower == linelist(last_line)%lower) THEN
     ! resonant scattering occures
     count_resscattering = count_resscattering + 1
@@ -247,14 +257,13 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
 ! internal upward jump
 ! in this case a macro-atom transits into a upper state without an energy emission
 ELSE IF (rand >= Z1 .AND. rand <= Z2) THEN
-!print*, 'internal upwnard jump will occur'
  count_intupjump = count_intupjump + 1
  summ = Z1
  DO I = 1, nluns
   ! we will find the given state
   IF(rand >= summ .AND. rand < summ + Lintupjump(I)) THEN
    actual_state = linelist(lineuptransitions(I))%upper
-   !print*, 'do_ipackage: packet: ', pack_index, ' internal upward jump...'
+   print*, 'do_ipackage: packet: ', pack_index, ' internal upward jump...'
    EXIT
   END IF
   summ = summ + Lintupjump(I)
@@ -265,7 +274,7 @@ ELSE IF (rand >= Z1 .AND. rand <= Z2) THEN
 ELSE IF(rand >= Z2 .AND. rand <= Z3) THEN
  summ = Z2
  package(pack_index)%last_line = no_line
- !print*, 'pack_index = ', pack_index, ' collisional deexcitation...'
+ print*, 'pack_index = ', pack_index, ' collisional deexcitation...'
 ! DO I = 1, nlns
 !  ! we will find the given state
 !  IF(rand >= summ .AND. rand < summ + Lcoll(I)) THEN

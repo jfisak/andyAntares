@@ -12,6 +12,12 @@ SUBROUTINE update_grid(iteration)
   INTEGER             :: max_n_dcell
   INTEGER             :: I
   
+  OPEN(31, FILE='carbonI.dat')
+  OPEN(32, FILE='carbonII.dat')
+  OPEN(33, FILE='carbonIII.dat')
+  OPEN(34, FILE='carbonIV.dat')
+  OPEN(35, FILE='carbonV.dat')
+  OPEN(36, FILE='carbonVI.dat')
   max_n_dcell = SIZE(dyn_cell)
    print*, 'updating grid'
   DO gridcell = 1, n_modelgrid
@@ -25,7 +31,8 @@ SUBROUTINE update_grid(iteration)
         ! Energy density contribeted to the model grid cell 
          model_grid(gridcell)%J = model_grid(gridcell)%J / model_grid(gridcell)%volume / (4 * pi)
          temp = (model_grid(gridcell)%J * pi / sigma )**(1./4.) 
-         print*, 'model cell: ', gridcell, ' temperature = ', temp, ' flux = ', model_grid(gridcell)%J
+         print*, 'model cell: ', gridcell, ' temperature = ', temp, ' flux = ', model_grid(gridcell)%J, &
+                ' volume = ', model_grid(gridcell)%volume
 !         print*, 'update_grid: temperature: I = ', I, ' T = ', temp
          model_grid(gridcell)%T = temp
          ! Calculate electron number density for every model grid cell gridcell
@@ -56,11 +63,23 @@ SUBROUTINE update_grid(iteration)
            gl_pop = ( elements(indexe)%ions(indexi)%levels(1)%stat_waight * N_jk ) /  U 
            model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%gl_pop = gl_pop
            model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop = N_jk
+           IF(indexe == 3 .AND. indexi == 1) WRITE(31,*) model_grid(gridcell)%rwind, frac
+           IF(indexe == 3 .AND. indexi == 2) WRITE(32,*) model_grid(gridcell)%rwind, frac
+           IF(indexe == 3 .AND. indexi == 3) WRITE(33,*) model_grid(gridcell)%rwind, frac
+           IF(indexe == 3 .AND. indexi == 4) WRITE(34,*) model_grid(gridcell)%rwind, frac
+           IF(indexe == 3 .AND. indexi == 5) WRITE(35,*) model_grid(gridcell)%rwind, frac
+           IF(indexe == 3 .AND. indexi == 6) WRITE(36,*) model_grid(gridcell)%rwind, frac
         END DO
       END DO
 !     stop
     ENDIF
   END DO
+  CLOSE(31)
+  CLOSE(32)
+  CLOSE(33)
+  CLOSE(34)
+  CLOSE(35)
+  CLOSE(36)
   CLOSE(3)
 
   

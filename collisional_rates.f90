@@ -1,6 +1,6 @@
 ! this subroutine calculates collisional rates for the given energy
 ! level
-SUBROUTINE collisional_rates(approx, lower,pack_index, line, nlns, linetransitions, Ztot, Lcoll)
+SUBROUTINE collisional_rates(approx, lower,pack_index, line, nlns, linetransitions, Lcoll)
 USE types
 IMPLICIT NONE
 ! input variables
@@ -59,8 +59,8 @@ CASE(1)
   ELSE IF (lower .EQV. .FALSE.) THEN
    level_index = linelist(line)%upper
   END IF
+ CALL populations(element_index, ion_index, level_index, current_mgi, pop)
  DO act_line = 1, nlns
-  CALL populations(element_index, ion_index, level_index, current_mgi, pop)
   ! oscilator strength
   osc_str = linelist(linetransitions(act_line))%f_ul
   stat_weight = elements(element_index)%ions(ion_index)%levels(level_index)%stat_waight
@@ -75,15 +75,16 @@ CASE(1)
         ((h * freq) / (BOLK * el_temperature)) * &
         exp(-(h * freq) / (BOLK * el_temperature)) * gf
 !  actVal = actVal * (linelist(act_line)%upper - linelist(act_line)%lower)
-  Lcoll(act_line) = actVal
-  Ztot = Ztot + actVal * stat_weight * &
-        (linelist(act_line)%upper - linelist(act_line)%lower)
+  Lcoll(act_line) = pop * actVal
+!  Ztot = Ztot + actVal * stat_weight * &
+!        (linelist(act_line)%upper - linelist(act_line)%lower)
 ! print*, 'cool_excit: pop = ', pop, ' electron_density = ', electron_density, &
 !        ' temperature = ', temperature, ' gf = ', gf, ' osc_str = ', osc_str, &
 !        ' x = ', x
 !  print*, 'collisional_rates: actVal = ', actVal
  END DO
- Ztot = pop * Ztot
+! print*, 'collisional_rates: Ztot/pop = ', Ztot
+! Ztot = pop * Ztot
 ! print*, 'collisional_rates: Ztot = ', Ztot
 CASE DEFAULT
  STOP 'collisional_rates: this approximation is not known'

@@ -24,6 +24,8 @@ DOUBLE PRECISION, ALLOCATABLE           :: expintfunc(:)
 SELECT CASE(approx)
 CASE(1)
  eif = ap_1 - log10(x)
+! not recommended to use
+
 CASE(2)
  nintervals = 1e4
  ALLOCATE(expintfunc(nintervals))

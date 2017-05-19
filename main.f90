@@ -160,10 +160,10 @@ SUBROUTINE main
   current_temp = 0.D0
   iteration = 0
  OPEN(20, FILE='temp_structure.dat')
-  DO! iteration = 1,1
+  DO iteration = 1,1
    ! definition of counters
 
-     iteration = iteration + 1
+     !iteration = iteration + 1
      IF (iteration .GE. 10) print*, 'No convergency'
      CALL update_grid(iteration)
      PRINT*, 'Update grid finished' 
