@@ -13,11 +13,12 @@ SUBROUTINE read_composition()
 
   INTEGER                            :: I, J, flag
   INTEGER                            :: element_index, Z, lowerion, upperion
+  INTEGER                            :: photn
   INTEGER                            :: levels_type, transition_type
   DOUBLE PRECISION                   :: abundance
   INTEGER                            :: current_element,current_ion, nions,ios, NR
   INTEGER, PARAMETER                 :: maxelements = 180
-  CHARACTER (20)                     :: filename
+  CHARACTER (20)                     :: filename, photfile
   CHARACTER (100)                    :: line
   CHARACTER (1)                      :: junk
   DOUBLE PRECISION                   :: mass
@@ -88,9 +89,10 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
       EXIT
   END IF
   IF ( INDEX(line, '*') /= 0) CYCLE
-  READ(line,*) element_index, current_element, lowerion, upperion, levels_type, filename
+  READ(line,*) element_index, current_element, lowerion, upperion, levels_type, filename, photn, photfile
   ! the most important is to read the file
   CALL read_atomic_data2(element_index, current_element,lowerion,upperion,levels_type,filename)
+  CALL read_photcs(element_index, photn, photfile)
  END DO
  ! now reading atomic transitions 
  ntransitions = 0

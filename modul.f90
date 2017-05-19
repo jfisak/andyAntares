@@ -64,6 +64,7 @@ MODULE types
      INTEGER                         :: l_index
      DOUBLE PRECISION                :: exci_energy, stat_waight
      CHARACTER(LEN=15)               :: elconf
+     DOUBLE PRECISION, ALLOCATABLE   :: photcros(:,:)
   END TYPE ion_levels
 
   TYPE element_ions 
