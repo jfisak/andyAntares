@@ -19,9 +19,11 @@ SUBROUTINE read_composition()
   INTEGER                            :: current_element,current_ion, nions,ios, NR
   INTEGER, PARAMETER                 :: maxelements = 180
   CHARACTER (20)                     :: filename, photfile
-  CHARACTER (100)                    :: line
+  CHARACTER (LEN=200)                    :: line
   CHARACTER (1)                      :: junk
   DOUBLE PRECISION                   :: mass
+  ! photon cross section data type
+  INTEGER                            :: phcs_type
 
 OPEN (UNIT=7, FILE='compose_adata.dat')
  ! computes number of lines in the input file
@@ -83,16 +85,16 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
  ! now reading atomic levels
  DO 
     READ(7,'(A)',iostat=ios) line
+    ! print*, line
   IF (ios /= 0) EXIT
   IF ( TRIM(line) == '**transitions**' ) THEN
       print*, 'we have found **transitions**...'
       EXIT
   END IF
   IF ( INDEX(line, '*') /= 0) CYCLE
-  READ(line,*) element_index, current_element, lowerion, upperion, levels_type, filename, photn, photfile
+  READ(line,*) element_index, current_element, lowerion, upperion, levels_type, filename
   ! the most important is to read the file
-  CALL read_atomic_data2(element_index, current_element,lowerion,upperion,levels_type,filename)
-  CALL read_photcs(element_index, photn, photfile)
+  CALL read_levels(element_index, current_element,lowerion,upperion,levels_type,filename)
  END DO
  ! now reading atomic transitions 
  ntransitions = 0
@@ -127,9 +129,15 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
   READ(7,'(A)',iostat=ios) line
   IF (ios /= 0) EXIT
   IF ( INDEX(line, '*') /= 0) CYCLE
-  READ(line,*) element_index, current_element, lowerion, upperion, transition_type, filename
+  READ(line,*) element_index, current_element, lowerion, upperion, transition_type, filename, &
+        phcs_type, photn, photfile
   print*, 'calling subroutine read_transitions2...'
   CALL read_transitions2(element_index, current_element,lowerion,upperion,transition_type,filename)
+  IF(photn == 0) THEN
+   print*, 'no valid data for potoionization cross sections'
+  ELSE
+   CALL read_photcs(phcs_type, element_index, photn, photfile)
+  END IF
  END DO
  ! sorting the linelist ray 
  CALL sorting_new(ntransitions, linelist)
