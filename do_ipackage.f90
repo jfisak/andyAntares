@@ -16,17 +16,20 @@ INTEGER                         :: element_index, ion_index
 INTEGER                         :: I, J, K, line
 INTEGER, ALLOCATABLE            :: linetransitions(:), transitions(:), lineuptransitions(:), &
                                    lineradtransitions(:) ! an array of transitions down from last_line
-DOUBLE PRECISION, ALLOCATABLE   :: Lintdownjump(:), Lraddeexc(:), Lintupjump(:), Lrad(:), Lcoll(:), Lupcoll(:)
+DOUBLE PRECISION, ALLOCATABLE   :: Lintdownrad(:), Lraddeexc(:), Lintuprad(:), &
+                                   Lrad(:), Lintdowncoll(:), Lintupcoll(:), Lcolldeexc(:), &
+                                   Lintdown(:), Lintup(:)
 INTEGER                         :: act_line
 DOUBLE PRECISION                :: actVal
 DOUBLE PRECISION                :: ran2, rand
 ! sum function
-DOUBLE PRECISION                :: Z, Ztotal, Zintdownjump, Zraddeexc, Zintupjump, Zrad, Zcoll, Zupcoll
+DOUBLE PRECISION                :: Z, Ztotal, Zintdownrad, Zraddeexc, Zintuprad, Zrad, Zcoll, &
+                                   Zintupcoll, Zintdowncoll, Zdown, Zup, Zintdown, Zintup
 ! partition function for the given process
 DOUBLE PRECISION                :: Z0, Z1, Z2, Z3
 DOUBLE PRECISION                :: summ, stat_weight, exci_energy
 ! populations
-DOUBLE PRECISION                :: act_popup, act_popdown
+DOUBLE PRECISION                :: act_pop
 INTEGER                         :: get_package_model_index, current_mgi
 ! new frequency
 DOUBLE PRECISION                :: new_freq
@@ -88,89 +91,45 @@ DO WHILE (active == 1)
  
  ! total rates of procedure
  ! 0.) internal downward jump within the current ion
- Zintdownjump = 0.D0
- ALLOCATE(Lintdownjump(nlns))
+ ALLOCATE(Lintdownrad(nlns))
  ! 1.) radiative deexcitation
  ! this allocates only in the first loop, because this field will only remember transitions
  ! from the last_line's upper level
- Zraddeexc = 0.D0
  ALLOCATE(Lraddeexc(nlns))
  ! 3.) collisional deexcitation
- ALLOCATE(Lcoll(nlns))
- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- ! collisional deexcitacion
- ! now in the van Regemorter approximation (the first parameter is equal to 1)
- CALL collisional_rates(1, .TRUE., pack_index, actual_state, nlns, linetransitions, Lcoll)
+ ALLOCATE(Lintdowncoll(nlns))
+ ALLOCATE(Lcolldeexc(nlns))
  ! 2.) internal upward jump within the current ion
- Zintupjump = 0.D0
- ALLOCATE(Lintupjump(nluns))
- Zupcoll = 0.D0
- ALLOCATE(Lupcoll(nluns))
+ ALLOCATE(Lintuprad(nluns))
+ ALLOCATE(Lintupcoll(nluns))
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- ! internal downward jump and radiative deexcitation
- DO I = 1, nlns
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  ! internal downward jump
-  act_line = linetransitions(I)
-  ! internal jump down
-  ! calculation of number density of the given ion
-  CALL populations(element_index, ion_index, linelist(act_line)%upper, current_mgi, act_popdown)
-  ! statistical weight
-  stat_weight = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%upper)%stat_waight
-  exci_energy = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy
-  ! calculation of a rate coefficient
-  actVal = (Lcoll(I) + act_popdown * linelist(act_line)%A_ul) * exci_energy
- ! print*, 'do_ipackage: stat_waight, exci_energy, act_popdown, linelist(act_line)%A_ul, actVal', &
- !       stat_weight, exci_energy, act_popdown, linelist(act_line)%A_ul, actVal
-  Zintdownjump = Zintdownjump + stat_weight * actVal
-  Lintdownjump(I) = actVal
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  ! radiative deexcitation
-  CALL populations(element_index, ion_index, linelist(act_line)%upper, current_mgi, act_popup)
-  !print*, 'do_ipackage: act_popup = ', act_popup
-  actVal = act_popup * linelist(act_line)%A_ul * &
-   (elements(element_index)%ions(ion_index)%levels(linelist(act_line)%upper)%exci_energy - &
-   elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy)
-  Zraddeexc = Zraddeexc + stat_weight * actVal
-!  print*, 'do_ipackage: e_u - e_l, actVal', &
-!   (elements(element_index)%ions(ion_index)%levels(linelist(act_line)%upper)%exci_energy - &
-!   elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy), &
-!   actVal
-  Lraddeexc(I) = actVal
- END DO
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  ! collisional deexcitation
-  Zcoll = 0.D0
-  DO I = 1, nlns
-   act_line = linetransitions(I)
-   stat_weight = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%upper)%stat_waight
-   actVal = Lcoll(I) * &
-   (elements(element_index)%ions(ion_index)%levels(linelist(act_line)%upper)%exci_energy - &
-   elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy)
-   Zcoll = Zcoll + stat_weight * actVal
-  END DO
-!print*, 'do_ipackage: Zintdownjump = ', Zintdownjump
- CALL populations(element_index, ion_index, linelist(act_line)%upper, current_mgi, act_popup)
- CALL collisional_rates(1, .FALSE., pack_index, actual_state, nluns, lineuptransitions, Lupcoll)
+ ! calculation of the given transition probabilities
+ CALL populations(element_index, ion_index, linelist(act_line)%upper, current_mgi, act_pop)
+ CALL radiative_rates(nlns, linetransitions, nluns, lineuptransitions, act_pop, &
+ Lintdownrad, Zintdownrad, Lintuprad, Zintuprad, Lraddeexc, Zraddeexc)
+ CALL collisional_rates(1, pack_index, actual_state, nlns, linetransitions, nluns, lineuptransitions, &
+ act_pop, Lintdowncoll, Zintdowncoll, Lintupcoll, Zintupcoll, Lcolldeexc, Zcoll)
+ ! total rates of internal donwnward jump
  DO I = 1, nluns
-  act_line = lineuptransitions(I)
-  stat_weight = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%stat_waight
-  exci_energy = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy
+   Lintdown(I) = Lintdownrad(I) + Lintdowncoll(I)
+   Zintdown = Zintdownrad + Zintdowncoll
+ END DO
+ ! total rates of internal upward jump
+ DO I = 1, nluns
   ! internal jump up
-  actVal = act_popup * linelist(act_line)%A_ul * exci_energy  + Lupcoll(I)
-  Zintupjump = Zintupjump + stat_weight * actVal
-  Lintupjump(I) = actVal
+   Lintup(I) = Lintuprad(I) + Lintupcoll(I)
+   Zintup = Zintuprad + Zintupcoll
  END DO
 ! the total sum 
-Ztotal = Zintdownjump + Zraddeexc + Zintupjump + Zcoll
+Ztotal = Zintdown+ Zraddeexc + Zintup + Zcoll
 ! a random number for computation, which process occurs
 rand = ran2(idum)
 !print*, 'do_ipackage: Ztotal = ', Ztotal
 rand = rand * Ztotal
 !print*, 'do_ipackage: random number: ', rand
 ! these variables are only to the whole line won't be too long
-Z0 = Zintdownjump
-Z2 = Zintupjump
+Z0 = Zintdown
+Z2 = Zintup
 Z1 = Zraddeexc
 Z3 = Zcoll
 !print*, 'Zintdownjump, Zintupjump, Zraddeexc, Zcoll: ', Zintdownjump, Zintupjump, Zraddeexc, Zcoll
@@ -183,12 +142,12 @@ IF(rand >= 0 .AND. rand < Z0) THEN
  summ = 0
  DO I = 1, nlns
   ! we will find the given state
-  IF(rand >= summ .AND. rand < summ + Lintdownjump(I)) THEN
+  IF(rand >= summ .AND. rand < summ + Lintdown(I)) THEN
    actual_state = linelist(linetransitions(I))%lower
    print*, 'do_ipackage: packet: ', pack_index, ' internal downward jump...'
    EXIT
   END IF
-  summ = summ + Lintdownjump(I)
+  summ = summ + Lintdown(I)
  END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! radiative deexciation
@@ -261,12 +220,12 @@ ELSE IF (rand >= Z1 .AND. rand <= Z2) THEN
  summ = Z1
  DO I = 1, nluns
   ! we will find the given state
-  IF(rand >= summ .AND. rand < summ + Lintupjump(I)) THEN
+  IF(rand >= summ .AND. rand < summ + Lintup(I)) THEN
    actual_state = linelist(lineuptransitions(I))%upper
    print*, 'do_ipackage: packet: ', pack_index, ' internal upward jump...'
    EXIT
   END IF
-  summ = summ + Lintupjump(I)
+  summ = summ + Lintup(I)
  END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! collisional deexcitation
@@ -277,14 +236,14 @@ ELSE IF(rand >= Z2 .AND. rand <= Z3) THEN
  print*, 'pack_index = ', pack_index, ' collisional deexcitation...'
 ! DO I = 1, nlns
 !  ! we will find the given state
-!  IF(rand >= summ .AND. rand < summ + Lcoll(I)) THEN
+!  IF(rand >= summ .AND. rand < summ + Ldowncoll(I)) THEN
 !   !print*, 'do_ipackage: packet: ', pack_index, ' internal downward jump...'
 !   ! now it will transform into a k-packet, we will have to decide, which k-packet it
 !   ! will be
 !   CALL col_deexcitation_event(element_index, ion_index, last_line, nlns, linetransitions)
 !   EXIT
 !  END IF
-!  summ = summ + Lcoll(I)
+!  summ = summ + Ldowncoll(I)
 ! END DO
  !print*, 'collisional deexcitation occures...'
  count_coldeexc = count_coldeexc + 1
@@ -298,7 +257,9 @@ END IF
 ! only one loop
 !STOP 'testing the code'
 
-DEALLOCATE(linetransitions, lineuptransitions, Lintdownjump, Lintupjump, Lraddeexc, Lcoll, Lupcoll)
+DEALLOCATE(linetransitions, lineuptransitions, &
+                Lintdownrad, Lintuprad, Lraddeexc, Lintdowncoll, Lintupcoll, &
+                Lcolldeexc, Lintup, Lintdown)
 
 END DO
 
