@@ -1,5 +1,5 @@
 SUBROUTINE radiative_rates(nlns, linetransitions, nluns, lineuptransitions, population, &
-Lintdown, Zintdown, Lintup, Zintup, Lrad, Zrad)
+Lintdown, Zintdown, Lintup, Zintup, Zrad)
 USE types
 IMPLICIT NONE
 
@@ -15,13 +15,24 @@ INTEGER                                 :: act_line
 DOUBLE PRECISION                        :: actVal
 INTEGER                                 :: I
 ! output variables
-DOUBLE PRECISION, DIMENSION(nlns)       :: Lintdown, Lrad
+DOUBLE PRECISION, DIMENSION(nlns)       :: Lintdown
 DOUBLE PRECISION, DIMENSION(nluns)      :: Lintup
 DOUBLE PRECISION                        :: Zintdown, Zintup, Zrad
 
 Zintdown = 0.D0
 Zrad= 0.D0
 Zintup = 0.D0
+! we have to know which element and ion we are calculating data for
+! we will use the knowledge of lines and assume that at it is
+! possible at least one transition upwards or downwards and from
+! the first element we get the element and the ion informations
+IF(SIZE(linetransitions) /= 0) THEN
+ element_index = linelist(linetransitions(1))%indexe
+ ion_index = linelist(linetransitions(1))%indexi
+ELSE! IF(SIZE(lineuptransitions) /= 0) THEN
+ element_index = linelist(lineuptransitions(1))%indexe
+ ion_index = linelist(lineuptransitions(1))%indexi
+END IF 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal downward jump and radiative deexcitation
 DO I = 1, nlns
@@ -44,11 +55,7 @@ DO I = 1, nlns
  !print*, 'do_ipackage: population = ', population
  actVal = population * linelist(act_line)%A_ul * (exci_energy_u - exci_energy_l)
  Zrad = Zrad + stat_weight * actVal
-!  print*, 'do_ipackage: e_u - e_l, actVal', &
-!   (elements(element_index)%ions(ion_index)%levels(linelist(act_line)%upper)%exci_energy - &
-!   elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy), &
-!   actVal
- Lrad(I) = actVal
+! Lrad(I) = actVal
 END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal upward jump
@@ -60,6 +67,7 @@ DO I = 1, nluns
  actVal = population * linelist(act_line)%A_ul * exci_energy_l
  Zintup = Zintup + stat_weight * actVal
  Lintup(I) = actVal
+ !print*, 'radiative_rates: Zintup = ', Zintup, ' Lintup(I) = ', Lintup(I)
 END DO
 
 

@@ -1,7 +1,7 @@
 ! this subroutine calculates collisional rates for the given energy
 ! level
 SUBROUTINE collisional_rates(approx, pack_index, level, nlns, linetransitions, nluns, &
-lineuptransitions, population, Ldown, Zdown, Lup, Zup, Lcoll, Zcoll)
+lineuptransitions, population, Ldown, Zdown, Lup, Zup, Zcoll)
 USE types
 IMPLICIT NONE
 ! input variables
@@ -9,7 +9,8 @@ IMPLICIT NONE
 INTEGER                                 :: approx
 ! line -- number of line in the linelist field
 INTEGER                                 :: pack_index, level, nlns, nluns
-INTEGER, DIMENSION(nlns)                :: linetransitions, lineuptransitions
+INTEGER, DIMENSION(nlns)                :: linetransitions
+INTEGER, DIMENSION(nluns)               :: lineuptransitions
 DOUBLE PRECISION                        :: population
 ! constans
 DOUBLE PRECISION, PARAMETER             :: c0 = 5.465D-11
@@ -38,8 +39,9 @@ DOUBLE PRECISION                        :: x
 ! total rate
 DOUBLE PRECISION                        :: Zdown, Zup, Zcoll
 ! the rates for the given transitions
-DOUBLE PRECISION, DIMENSION(nlns)       :: Ldown, Lcoll
+DOUBLE PRECISION, DIMENSION(nlns)       :: Ldown
 DOUBLE PRECISION, DIMENSION(nluns)      :: Lup
+DOUBLE PRECISION                        :: lcoll
 DOUBLE PRECISION                        :: stat_weight
 
 
@@ -55,8 +57,18 @@ CASE(1)
  el_temperature = temperature
  ! number of lines we are interested in
  nlns = SIZE(linetransitions)
+
+! we have to know which element and ion we are calculating data for
+! we will use the knowledge of lines and assume that at it is
+! possible at least one transition upwards or downwards and from
+! the first element we get the element and the ion informations
+IF(SIZE(linetransitions) /= 0) THEN
  element_index = linelist(linetransitions(1))%indexe
  ion_index = linelist(linetransitions(1))%indexi
+ELSE IF(SIZE(lineuptransitions) /= 0) THEN
+ element_index = linelist(lineuptransitions(1))%indexe
+ ion_index = linelist(lineuptransitions(1))%indexi
+END IF 
  Zup = 0.D0
  Zdown = 0.D0
  Zcoll = 0.D0
@@ -82,13 +94,13 @@ CASE(1)
   Ldown(I) = actVal * exci_energy_l
   Zdown = Zdown + Ldown(I) * stat_weight
  ! collisional deexcitation
-  Lcoll(I) = actVal * (exci_energy_u - exci_energy_l)
-  Zcoll = Zcoll + Lcoll(I) * stat_weight
+  lcoll = actVal * (exci_energy_u - exci_energy_l)
+  Zcoll = Zcoll + lcoll * stat_weight
 !        (linelist(act_line)%upper - linelist(act_line)%lower)
-! print*, 'cool_excit: pop = ', pop, ' electron_density = ', electron_density, &
+! print*, 'cool_excit: pop = ', population, ' electron_density = ', electron_density, &
 !        ' temperature = ', temperature, ' gf = ', gf, ' osc_str = ', osc_str, &
 !        ' x = ', x
-!  print*, 'collisional_rates: actVal = ', actVal
+!  print*, 'collisional_rates: Zcoll = ', Zcoll
  END DO
 ! print*, 'collisional_rates: Ztot/pop = ', Ztot
 ! Ztot = pop * Ztot
@@ -97,11 +109,11 @@ CASE(1)
  DO I = 1, nluns
   act_line = lineuptransitions(I)
   ! important physical quantities
-  osc_str = linelist(linetransitions(act_line))%f_ul
+  osc_str = linelist(act_line)%f_ul
   stat_weight = elements(element_index)%ions(ion_index)%levels(level)%stat_waight
   exci_energy_l = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy
   ! frequency of transition
-  freq = linelist(linetransitions(act_line))%freq
+  freq = linelist(act_line)%freq
   x = (h * freq) / (BOLK * temperature)
   ! gamma function
   CALL gamma_function(x, act_line, gf)

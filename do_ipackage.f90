@@ -16,10 +16,17 @@ INTEGER                         :: element_index, ion_index
 INTEGER                         :: I, J, K, line
 INTEGER, ALLOCATABLE            :: linetransitions(:), transitions(:), lineuptransitions(:), &
                                    lineradtransitions(:) ! an array of transitions down from last_line
-DOUBLE PRECISION, ALLOCATABLE   :: Lintdownrad(:), Lraddeexc(:), Lintuprad(:), &
-                                   Lrad(:), Lintdowncoll(:), Lintupcoll(:), Lcolldeexc(:), &
+! Lintdownrad -- internal downward jumps: radiative part
+! Lintuprad -- internal upward jumps: radiative part
+! Lrad -- radiative transitions, computed if and only if radiative deexcitation occurs
+!         downward transitions from the last_line
+! Lintdowncoll -- internal downward jumps: collisional part
+! Lintupcoll -- internal upward jumps: collisional part
+! Lintdown -- internal downward jumps: radiative + collisional
+! Lintup -- internal upward jumps: radiative + collisional
+DOUBLE PRECISION, ALLOCATABLE   :: Lintdownrad(:), Lintuprad(:), Lrad(:), &
+                                   Lintdowncoll(:), Lintupcoll(:), &
                                    Lintdown(:), Lintup(:)
-INTEGER                         :: act_line
 DOUBLE PRECISION                :: actVal
 DOUBLE PRECISION                :: ran2, rand
 ! sum function
@@ -95,33 +102,35 @@ DO WHILE (active == 1)
  ! 1.) radiative deexcitation
  ! this allocates only in the first loop, because this field will only remember transitions
  ! from the last_line's upper level
- ALLOCATE(Lraddeexc(nlns))
  ! 3.) collisional deexcitation
  ALLOCATE(Lintdowncoll(nlns))
- ALLOCATE(Lcolldeexc(nlns))
  ! 2.) internal upward jump within the current ion
  ALLOCATE(Lintuprad(nluns))
  ALLOCATE(Lintupcoll(nluns))
+ ALLOCATE(Lintdown(nlns), Lintup(nluns))
+ Zintdown = 0.D0
+ Zintup = 0.D0
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! calculation of the given transition probabilities
- CALL populations(element_index, ion_index, linelist(act_line)%upper, current_mgi, act_pop)
+ CALL populations(element_index, ion_index, actual_state, current_mgi, act_pop)
  CALL radiative_rates(nlns, linetransitions, nluns, lineuptransitions, act_pop, &
- Lintdownrad, Zintdownrad, Lintuprad, Zintuprad, Lraddeexc, Zraddeexc)
+ Lintdownrad, Zintdownrad, Lintuprad, Zintuprad, Zraddeexc)
  CALL collisional_rates(1, pack_index, actual_state, nlns, linetransitions, nluns, lineuptransitions, &
- act_pop, Lintdowncoll, Zintdowncoll, Lintupcoll, Zintupcoll, Lcolldeexc, Zcoll)
+ act_pop, Lintdowncoll, Zintdowncoll, Lintupcoll, Zintupcoll, Zcoll)
  ! total rates of internal donwnward jump
- DO I = 1, nluns
+ DO I = 1, nlns
    Lintdown(I) = Lintdownrad(I) + Lintdowncoll(I)
-   Zintdown = Zintdownrad + Zintdowncoll
  END DO
+ Zintdown = Zintdownrad + Zintdowncoll
  ! total rates of internal upward jump
  DO I = 1, nluns
   ! internal jump up
    Lintup(I) = Lintuprad(I) + Lintupcoll(I)
-   Zintup = Zintuprad + Zintupcoll
+   !print*, 'Lintuprad(I) = ', Lintuprad(I), ' Lintupcoll(I) = ', Lintupcoll(I)
  END DO
+ Zintup = Zintuprad + Zintupcoll
 ! the total sum 
-Ztotal = Zintdown+ Zraddeexc + Zintup + Zcoll
+Ztotal = Zintdown + Zraddeexc + Zintup + Zcoll
 ! a random number for computation, which process occurs
 rand = ran2(idum)
 !print*, 'do_ipackage: Ztotal = ', Ztotal
@@ -132,7 +141,7 @@ Z0 = Zintdown
 Z2 = Zintup
 Z1 = Zraddeexc
 Z3 = Zcoll
-!print*, 'Zintdownjump, Zintupjump, Zraddeexc, Zcoll: ', Zintdownjump, Zintupjump, Zraddeexc, Zcoll
+!print*, 'Zintdown, Zintup, Zraddeexc, Zcoll: ', Zintdown, Zintup, Zraddeexc, Zcoll
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal downward jump
 ! in this case a macro-atom transits into a lower state without an energy emission
@@ -258,8 +267,8 @@ END IF
 !STOP 'testing the code'
 
 DEALLOCATE(linetransitions, lineuptransitions, &
-                Lintdownrad, Lintuprad, Lraddeexc, Lintdowncoll, Lintupcoll, &
-                Lcolldeexc, Lintup, Lintdown)
+                Lintdownrad, Lintuprad, Lintdowncoll, Lintupcoll, &
+                Lintup, Lintdown)
 
 END DO
 

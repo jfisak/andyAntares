@@ -27,12 +27,14 @@ CASE(0)
  rho = model_grid(model_cell)%rho
  abund = model_grid(model_cell)%grid_comp(indexe)%abund
  atom_mass = elements(indexe)%atom_mass
+! print*, 'populations: e_exc = ', e_exc, ' g_stat = ', g_stat, ' g_gstat = ', g_gstat, &
+! ' graund_level_pop = ', graund_level_pop
  
  pop_number = graund_level_pop * g_stat / g_gstat * &
         exp(-e_exc / BOLK / model_grid(model_cell)%T ) * &
         rho * abund / atom_mass
- !print*, 'populations: rho = ', rho, ' abund = ', abund, ' atom_mass = ', atom_mass
- !print*, 'populations: pop_number = ', pop_number
+! print*, 'populations: rho = ', rho, ' abund = ', abund, ' atom_mass = ', atom_mass
+! print*, 'populations: pop_number = ', pop_number
 ! NLTE approximation
 CASE(1)
  STOP 'NLTE is not supported yet'
