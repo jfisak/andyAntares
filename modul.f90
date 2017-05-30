@@ -69,7 +69,7 @@ MODULE types
   END TYPE ion_levels
 
   TYPE element_ions 
-     INTEGER                         :: nlevels, ion_stage
+     INTEGER                         :: ion_stage
      DOUBLE PRECISION                :: ion_potential
      TYPE(ion_levels), ALLOCATABLE   :: levels(:)
   END TYPE element_ions

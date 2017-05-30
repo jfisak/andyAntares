@@ -1,17 +1,17 @@
 **composition**
 *	index	Z	abund	i_low	i_up	mass		
-        1	1	0.9	1	2       1.008
+        1	1	0.71	1	2       1.008
 	2	2	0.09	1	3	2.016
-	3	6	0.01	1	6	12.0107
+	3	6	0.2	1	7	12.0107
 **levels**
 * energy levels
-*	index 	ion	uion	levels_type	level_file
+*	index 	Z	ion	uion	levels_type	level_file
 	1	1	1	2	2		hydrogen.dat
 	2	2	1	3	2		helium.dat
-	3	6	1	6	2		carbon.dat
+	3	6	1	7	2		carbon.dat
 **transitions**
 * energy transitions
-*	index	Z	lion	uion	trans_type	transition_file
-	1    	1	1	2	2		hydrogen_t.dat
-	2    	2	1	3	2		helium_t.dat
-	3    	6	1	6	2		carbon_t.dat
+*	index	Z	lion	uion	trans_type	transition_file	phcs_type	n_csections	phot_cs_file
+	1    	1	1	2	2		hydrogen_t.dat	2		1		hydrogen_x.dat
+	2    	2	1	3	2		helium_t.dat  	2		0		0
+	3    	6	1	6	2		carbon_t.dat  	2		0		0

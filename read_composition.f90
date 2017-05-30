@@ -17,7 +17,6 @@ SUBROUTINE read_composition()
   INTEGER                            :: levels_type, transition_type
   DOUBLE PRECISION                   :: abundance
   INTEGER                            :: current_element,current_ion, nions,ios, NR
-  INTEGER, PARAMETER                 :: maxelements = 180
   CHARACTER (20)                     :: filename, photfile
   CHARACTER (LEN=200)                    :: line
   CHARACTER (1)                      :: junk
@@ -30,17 +29,11 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
  ! number of rows is equal to 0
  ! for this time it will calculate number of rows
  n_elements = 0
- DO I=1,maxelements
+ DO
   READ(7,*,IOSTAT=ios) line
    IF (ios /= 0) EXIT
-   IF (I == maxelements) THEN
-    print*, 'Subroutine read_composition'
-    print*, 'Error: Maximum number of records exceeded...'
-    print*, 'Exiting program now...'
-    STOP
-   END IF
    IF ( line == '**levels**' ) EXIT
-   IF ( INDEX(line, '*') /= 0) CYCLE
+   IF ( line(1:1) == '*') CYCLE
   n_elements = n_elements + 1
  END DO
  ! Allocate the memory to the elements(n_elements)
@@ -58,13 +51,14 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
        print*, 'read_composition: we have found the string **levels**...'
        EXIT
     END IF
-    IF ( INDEX(line, '*') /= 0) CYCLE
+    IF ( line(1:1) == '*') CYCLE
     READ(line,*) element_index, Z, abundance, lowerion, upperion, mass
     PRINT*, element_index, Z, abundance, lowerion, upperion, mass
     elements(I)%atom_number = Z
     elements(I)%atom_mass = mass * mp_g
     ! Number of ions 
     nions =  upperion - lowerion + 1
+    print*, 'Z = ', Z, ' nions = ', nions
     elements(I)%nions = nions
     elements(I)%abundance = abundance
     ! Assine lowerion to the current ion which we will use to caunt number of ions
@@ -96,43 +90,43 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
   ! the most important is to read the file
   CALL read_levels(element_index, current_element,lowerion,upperion,levels_type,filename)
  END DO
- ! now reading atomic transitions 
- ntransitions = 0
+! now reading atomic transitions 
+! ntransitions = 0
  ! now we have to compute number of possible transitions
  ! as always we skip over rows starting with '*'
- DO 
-    READ(7,'(A)',iostat=ios) line
-  IF (ios /= 0) EXIT
-    print*, line
-  IF ( INDEX(line, '*') /= 0) CYCLE
-  READ(line,*) element_index, current_element, lowerion, upperion, transition_type, filename
-  ! the most important is to read the file
-  CALL read_transitions2(element_index, current_element,lowerion,upperion,transition_type,filename)
- END DO
- ! now we can allocate ray linelist
- ALLOCATE(linelist(ntransitions))
-  print*, 'ntransitions = ', ntransitions
-  ! temporary characteristics of number of saved lines
-  !linelist(ntransitions)%indexe = 0
-  ntransitions = 0
-  print*, 'ntransitions = ', ntransitions
-  IF(ALLOCATED(linelist)) print*, 'linelist was allocated succefully...'
-  ! this is used for information about fullfiled number of elements in array linelist
-  REWIND(7)
-  ! we have to find a flag **transitions**
- DO
-    READ(7,'(A)',iostat=ios) line
-    IF ( TRIM(line) == '**transitions**' ) EXIT
- END DO
- ! now we can read informations if the files
+! DO 
+!    READ(7,'(A)',iostat=ios) line
+!  IF (ios /= 0) EXIT
+!    print*, line
+!  IF ( INDEX(line, '*') /= 0) CYCLE
+!  READ(line,*) element_index, current_element, lowerion, upperion, transition_type, filename
+!  ! the most important is to read the file
+!  CALL read_transitions(element_index, current_element,lowerion,upperion,transition_type,filename)
+! END DO
+! ! now we can allocate ray linelist
+! ALLOCATE(linelist(ntransitions))
+!  print*, 'ntransitions = ', ntransitions
+!  ! temporary characteristics of number of saved lines
+!  !linelist(ntransitions)%indexe = 0
+!  ntransitions = 0
+!  print*, 'ntransitions = ', ntransitions
+!  IF(ALLOCATED(linelist)) print*, 'linelist was allocated succefully...'
+!  ! this is used for information about fullfiled number of elements in array linelist
+!  REWIND(7)
+!  ! we have to find a flag **transitions**
+! DO
+!    READ(7,'(A)',iostat=ios) line
+!    IF ( TRIM(line) == '**transitions**' ) EXIT
+! END DO
+! ! now we can read informations if the files
  DO 
   READ(7,'(A)',iostat=ios) line
   IF (ios /= 0) EXIT
   IF ( INDEX(line, '*') /= 0) CYCLE
   READ(line,*) element_index, current_element, lowerion, upperion, transition_type, filename, &
         phcs_type, photn, photfile
-  print*, 'calling subroutine read_transitions2...'
-  CALL read_transitions2(element_index, current_element,lowerion,upperion,transition_type,filename)
+  print*, 'calling subroutine read_transitions...'
+  CALL read_transitions(element_index, current_element,lowerion,upperion,transition_type,filename)
   IF(photn == 0) THEN
    print*, 'no valid data for potoionization cross sections'
   ELSE

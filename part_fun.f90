@@ -17,7 +17,7 @@ SUBROUTINE part_fun(indexe, indexi, temp, U)
 !  print*, '  Part.func. initialisation:', U, e_gl
 
   ! Number ov levels for the given element indexe in ionisation stage indexi
-  nlevels = elements(indexe)%ions(indexi)%nlevels
+  nlevels = SIZE(elements(indexe)%ions(indexi)%levels)
 
   DO indexl = 2, nlevels
      ! Statistical weight of th egrpund level
