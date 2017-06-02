@@ -20,7 +20,7 @@ SUBROUTINE read_composition()
   CHARACTER (20)                     :: filename, photfile
   CHARACTER (LEN=200)                    :: line
   CHARACTER (1)                      :: junk
-  DOUBLE PRECISION                   :: mass
+  DOUBLE PRECISION                   :: mass, tot_abundance
   ! photon cross section data type
   INTEGER                            :: phcs_type
 
@@ -29,6 +29,7 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
  ! number of rows is equal to 0
  ! for this time it will calculate number of rows
  n_elements = 0
+ tot_abundance = 0.D0
  DO
   READ(7,*,IOSTAT=ios) line
    IF (ios /= 0) EXIT
@@ -61,6 +62,7 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
     print*, 'Z = ', Z, ' nions = ', nions
     elements(I)%nions = nions
     elements(I)%abundance = abundance
+    tot_abundance = tot_abundance + abundance
     ! Assine lowerion to the current ion which we will use to caunt number of ions
     ! This is important because we can play only with 3 and 4 ion.stage of some element
     current_ion = lowerion
@@ -75,6 +77,10 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
        current_ion = lowerion + 1
     END DO
     I=I+1
+ END DO
+ ! norma of abundances
+ DO I = 1, n_elements
+  elements(I)%abundance = elements(I)%abundance / tot_abundance
  END DO
  ! now reading atomic levels
  DO 
@@ -140,12 +146,12 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
  !!! Only for testing
  PRINT*, 'testing'
  DO I = 1, n_elements
-    element_index = I
-    nions = SIZE(elements(I)%ions)
-    Z = elements(I)%atom_number
-    lowerion = elements(I)%ions(1)%ion_stage
-    upperion = elements(I)%ions(nions)%ion_stage
-    PRINT*, element_index, Z, lowerion, upperion
+  element_index = I
+  nions = SIZE(elements(I)%ions)
+  Z = elements(I)%atom_number
+  lowerion = elements(I)%ions(1)%ion_stage
+  upperion = elements(I)%ions(nions)%ion_stage
+  PRINT*, element_index, Z, lowerion, upperion
  END DO
 ! OPEN(20,status='new',FILE='oscStr.dat')
 !  DO I = 1, ntransitions

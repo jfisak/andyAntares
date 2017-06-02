@@ -19,6 +19,7 @@
   N = 1.D0
   DO I = indexi, numb_ions - 1
      CALL saha_boltzmann_factor(indexe, I, temp, sb_factor)
+  IF(sb_factor == -1.0) EXIT
 !  print*, 'el_nd: ', el_nd
 !   print*, 's-b factor = ', sb_factor
      N = N * el_nd * sb_factor
@@ -30,16 +31,22 @@
      D = 1.D0
      DO J = I, numb_ions - 1
         CALL saha_boltzmann_factor(indexe, J, temp, sb_factor)
+        IF(sb_factor == -1.0) EXIT
         D = D * el_nd * sb_factor
 !        print*, 'vypocet ionization fraction, hodnoty: el_nd = ', el_nd, ' ,sb_factor = ', sb_factor, ' , temp = ', temp
 !        print*, 'probehl', I, ' a ', J, ' -ty cyklus vypoctu D, D=', D
      END DO
+     IF(sb_factor == -1.0) EXIT
      SUMM = SUMM + D     
 !      print*, 'hodnota sumy SUMM = ', SUMM
   END DO
 
- if(SUMM == 0) print*, "ionization_fraction: SUMM = 0..."
+ !if(SUMM == 0) print*, "ionization_fraction: SUMM = 0..."
+ IF(sb_factor > 0) THEN
   frac = N / SUMM
+ ELSE IF(sb_factor < 0) THEN
+  frac = 0.D0
+ END IF
 !  print*, '   Ion.frac:', frac
 !  print*, 'END SUBROUTINE ionization_fraction' 
 
