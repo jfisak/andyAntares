@@ -137,14 +137,13 @@ CASE(2)
   old_size = SIZE(linelist)
   new_size = old_size + tot_ntrans
   ALLOCATE(pom(old_size))
-  pom = linelist
+  pom(1:old_size) = linelist(1:old_size)
   DEALLOCATE(linelist)
   ALLOCATE(linelist(new_size))
   linelist(1:old_size) = pom(1:old_size)
   DEALLOCATE(pom)
  ELSE
   ALLOCATE(linelist(tot_ntrans))
-  print*, 'linelist allocated, tot_ntrans = ', tot_ntrans
   ntransitions = 0
  END IF
  REWIND(9)
@@ -193,12 +192,14 @@ CASE(2)
    END DO
    IF(found_low_conf .EQV. .FALSE. .OR. found_up_conf .EQV. .FALSE.) THEN
     ! this configuration will not be taken into account and we will read the next line
-    EXIT
+    print*, 'element: ', element, ' ion = ', ion_index, ' was not included...'
+    CYCLE
    ELSE
     ntransitions = ntransitions + 1
    END IF
    IF((current_element /= element) .OR. (current_ion < lowerion) &
      .OR. (current_ion > upperion)) STOP 'WRONG ATOMIC TRANSITIONS...'
+   !print*, 'indexe = ', el_index, ' indexi = ', current_ion, ' ntransitions = ', ntransitions
    linelist(ntransitions)%indexe = el_index
    linelist(ntransitions)%indexi = current_ion
    linelist(ntransitions)%freq = 1.E+8*light_speed/l_freq
@@ -219,7 +220,7 @@ CASE(2)
  ! linelist so it will not be so large
  IF(ntransitions < SIZE(linelist)) THEN
   ALLOCATE(pom(SIZE(linelist)))
-  pom = linelist
+  pom(1:new_size) = linelist(1:new_size)
   DEALLOCATE(linelist)
   ALLOCATE(linelist(ntransitions))
   linelist(1:ntransitions) = pom(1:ntransitions)
