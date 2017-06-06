@@ -9,6 +9,7 @@
   INTEGER                                 :: I, J, numb_ions, indexe, indexi
   DOUBLE PRECISION                        :: temp, el_nd, frac
   DOUBLE PRECISION                        :: N, D, SUMM, sb_factor
+  LOGICAL                                 :: too_large
 
 !  print*, 'START SUBROUTINE ionization_fraction' 
 !  print*, 'Ion.frac. is called for:',indexe, indexi, temp, el_nd
@@ -18,10 +19,10 @@
 
   N = 1.D0
   DO I = indexi, numb_ions - 1
-     CALL saha_boltzmann_factor(indexe, I, temp, sb_factor)
-  IF(sb_factor == -1.0) EXIT
+     CALL saha_boltzmann_factor(indexe, I, temp, sb_factor, too_large)
 !  print*, 'el_nd: ', el_nd
 !   print*, 's-b factor = ', sb_factor
+     IF(too_large .EQV. .TRUE.) CYCLE
      N = N * el_nd * sb_factor
 !     print*, 'saha Boltzman factor: ', I, sb_factor, N
   END DO
@@ -30,23 +31,23 @@
   DO I = 1, numb_ions
      D = 1.D0
      DO J = I, numb_ions - 1
-        CALL saha_boltzmann_factor(indexe, J, temp, sb_factor)
+        CALL saha_boltzmann_factor(indexe, J, temp, sb_factor, too_large)
+        IF(too_large .EQV. .TRUE.) CYCLE
+        !print*, 'ionization_fraction: sb_factor = ', sb_factor
         IF(sb_factor == -1.0) EXIT
         D = D * el_nd * sb_factor
+        IF(isnan(D)) THEN
+        END IF
 !        print*, 'vypocet ionization fraction, hodnoty: el_nd = ', el_nd, ' ,sb_factor = ', sb_factor, ' , temp = ', temp
 !        print*, 'probehl', I, ' a ', J, ' -ty cyklus vypoctu D, D=', D
      END DO
      IF(sb_factor == -1.0) EXIT
      SUMM = SUMM + D     
-!      print*, 'hodnota sumy SUMM = ', SUMM
+!      print*, 'hodnota SUMM = ', SUMM
   END DO
 
  !if(SUMM == 0) print*, "ionization_fraction: SUMM = 0..."
- IF(sb_factor > 0) THEN
   frac = N / SUMM
- ELSE IF(sb_factor < 0) THEN
-  frac = 0.D0
- END IF
 !  print*, '   Ion.frac:', frac
 !  print*, 'END SUBROUTINE ionization_fraction' 
 
