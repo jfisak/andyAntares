@@ -23,6 +23,7 @@ SUBROUTINE read_composition()
   DOUBLE PRECISION                   :: mass, tot_abundance
   ! photon cross section data type
   INTEGER                            :: phcs_type
+  INTEGER                            :: K, n_levels, n_ions, n_points
 
 OPEN (UNIT=7, FILE='compose_adata.dat')
  ! computes number of lines in the input file
@@ -92,9 +93,9 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
       EXIT
   END IF
   IF ( INDEX(line, '*') /= 0) CYCLE
-  READ(line,*) element_index, current_element, lowerion, upperion, levels_type, filename
+  READ(line,*) element_index, lowerion, upperion, levels_type, filename
   ! the most important is to read the file
-  CALL read_levels(element_index, current_element,lowerion,upperion,levels_type,filename)
+  CALL read_levels(element_index, lowerion,upperion,levels_type,filename)
  END DO
 ! now reading atomic transitions 
 ! ntransitions = 0
@@ -129,20 +130,20 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
   READ(7,'(A)',iostat=ios) line
   IF (ios /= 0) EXIT
   IF ( INDEX(line, '*') /= 0) CYCLE
-  READ(line,*) element_index, current_element, lowerion, upperion, transition_type, filename, &
+  READ(line,*) element_index, lowerion, upperion, transition_type, filename, &
         phcs_type, photn, photfile
   print*, 'calling subroutine read_transitions...'
-  CALL read_transitions(element_index, current_element,lowerion,upperion,transition_type,filename)
+  CALL read_transitions(element_index, lowerion, upperion, transition_type, filename)
   IF(photn == 0) THEN
    print*, 'no valid data for potoionization cross sections'
   ELSE
+   print*, 'calling subroutine read_photcs...'
    CALL read_photcs(phcs_type, element_index, photn, photfile)
   END IF
  END DO
  ! sorting the linelist ray 
  CALL sorting_new(ntransitions, linelist)
   print*, 'ntransitions = ', ntransitions
- 
  !!! Only for testing
  PRINT*, 'testing'
  DO I = 1, n_elements
@@ -153,6 +154,16 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
   upperion = elements(I)%ions(nions)%ion_stage
   PRINT*, element_index, Z, lowerion, upperion
  END DO
+! DO I = 1, n_elements
+!  n_ions = SIZE(elements(I)%ions)
+!  DO J = 1, n_ions
+!   n_levels = SIZE(elements(I)%ions(J)%levels)
+!   DO K = 1, n_levels
+!    n_points = SIZE(elements(I)%ions(J)%levels(K)%photcros)
+!    print*, 'element = ', I, ' ion = ', J, ' level = ', K, ' n_points = ', n_points
+!   END DO
+!  END DO
+! END DO
 ! OPEN(20,status='new',FILE='oscStr.dat')
 !  DO I = 1, ntransitions
 !   write(20,*) linelist(I)%freq, linelist(I)%f_ul

@@ -1,6 +1,6 @@
 ! reads atomic data for the given element (from the file compose_adata.dat)
 ! in the format given by the parameter 
-SUBROUTINE read_levels(el_index, element, lowerion, upperion, levels_type, filename)
+SUBROUTINE read_levels(el_index, lowerion, upperion, levels_type, filename)
 
   USE types
 
@@ -29,6 +29,7 @@ SUBROUTINE read_levels(el_index, element, lowerion, upperion, levels_type, filen
  ! basic setting of variables
  ionoffset = 0
  ions = 0
+ element = elements(el_index)%atom_number
 OPEN(8,status='old',FILE=filename)
  ! now we will choose the reading file using the given levels type
  SELECT CASE(levels_type)
@@ -89,6 +90,7 @@ OPEN(8,status='old',FILE=filename)
  I = 0
  DO 
   READ(8,'(A)') line
+  !print*, line
   IF(line(1:1) == '*') CYCLE
   READ(line,*) indexi, i_pot
   I = I + 1
@@ -156,8 +158,6 @@ OPEN(8,status='old',FILE=filename)
    ionstage = elements(el_index)%ions(current_ion)%ion_stage
    elements(el_index)%ions(current_ion)%levels(J)%exci_energy = &
        (l_energy + ionoffset) * e_v
-   !print*, 'iconf = ', iconf
-   !print*, 'exci energy = ', elements(el_index)%ions(current_ion)%levels(J)%exci_energy/e_v
    elements(el_index)%ions(current_ion)%levels(J)%stat_waight = s_weight
    elements(el_index)%ions(current_ion)%levels(J)%elconf = iconf
    ! we have to calculate l_index correctly: it should start at 1 for every ion
@@ -165,7 +165,6 @@ OPEN(8,status='old',FILE=filename)
    ! the total number of levels of the lower ions from the number kindex
    IF(J == 1) lowering_index = kindex
    elements(el_index)%ions(current_ion)%levels(J)%l_index = kindex - lowering_index + 1
-   !print*, 'J = ', J, 'stat waight = ', elements(el_index)%ions(current_ion)%levels(J)%stat_waight
    IF( J == act_nlevels) EXIT
   END DO
  END DO

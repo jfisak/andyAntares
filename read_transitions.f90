@@ -1,4 +1,4 @@
-SUBROUTINE read_transitions(el_index, element, lowerion, upperion, transition_type, filename)
+SUBROUTINE read_transitions(el_index, lowerion, upperion, transition_type, filename)
 
 
  USE types
@@ -33,7 +33,7 @@ SUBROUTINE read_transitions(el_index, element, lowerion, upperion, transition_ty
 ! calculate the constant for the oscilator strength calculation
 oconstant = (me_g * light_speed ** 3)/(8.D0 * pi ** 2 * e_charge**2)
 n_ions = 0
-
+element = elements(el_index)%atom_number
 OPEN (UNIT=9, status='old', FILE=filename)
 SELECT CASE(transition_type)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -192,7 +192,8 @@ CASE(2)
    END DO
    IF(found_low_conf .EQV. .FALSE. .OR. found_up_conf .EQV. .FALSE.) THEN
     ! this configuration will not be taken into account and we will read the next line
-    print*, 'element: ', element, ' ion = ', ion_index, ' was not included...'
+    print*, 'element: ', element, ' ion = ', ion_index, ' line from ', low_conf, ' to ', up_conf, &
+     '  was not included...'
     CYCLE
    ELSE
     ntransitions = ntransitions + 1
