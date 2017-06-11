@@ -69,7 +69,7 @@ CASE(2)
     ALLOCATE(elements(indexe)%ions(indexI)%levels(indexclev)%photcros(2,nofPoints))
    !print*, 'nofPoints = ', nofPoints
    ! we can compute a frequency treshold from these data
-   freqt = abs(energy * Rydberg) / h
+   freqt = abs(energy * Rydberg * e_v) / h
    ! now we will read the given data for the photoionization cross section
    DO I = 1, nofPoints
     READ(13, '(A)', IOSTAT=ios) line
@@ -80,7 +80,7 @@ CASE(2)
     !print*, freq(I), cross(I)
     IF(save_cs .EQV. .TRUE.) THEN
      freq = freq * freqt
-     elements(indexe)%ions(indexI)%levels(indexclev)%photcros(1,I) = freq * freqt
+     elements(indexe)%ions(indexI)%levels(indexclev)%photcros(1,I) = freq
      elements(indexe)%ions(indexI)%levels(indexclev)%photcros(2,I) = cross
      ! print*, index, indexI, freq(I), cross(I)
     END IF
