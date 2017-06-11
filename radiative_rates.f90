@@ -29,9 +29,13 @@ Zintup = 0.D0
 IF(SIZE(linetransitions) /= 0) THEN
  element_index = linelist(linetransitions(1))%indexe
  ion_index = linelist(linetransitions(1))%indexi
-ELSE! IF(SIZE(lineuptransitions) /= 0) THEN
+ELSE IF(SIZE(lineuptransitions) /= 0) THEN
  element_index = linelist(lineuptransitions(1))%indexe
  ion_index = linelist(lineuptransitions(1))%indexi
+ELSE
+ Zintdown = 0.D0
+ Zintup = 0.D0
+ Zrad = 0.D0
 END IF 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal downward jump and radiative deexcitation

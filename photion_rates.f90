@@ -1,4 +1,4 @@
-SUBROUTINE photion_rates(approx, indexe, indexi, leveli, current_mgi, act_pop, phot_cross)
+SUBROUTINE photion_rates(approx, indexe, indexi, leveli, current_mgi, act_pop, Zcross)
 USE types
 IMPLICIT NONE
 
@@ -12,14 +12,15 @@ INTEGER                                 :: I
 DOUBLE PRECISION, ALLOCATABLE           :: freq(:), cross(:), func(:)
 DOUBLE PRECISION                        :: planck
 DOUBLE PRECISION                        :: summ
-! output variables
 DOUBLE PRECISION                        :: phot_cross
+! output variables
+DOUBLE PRECISION                        :: Zcross
 
 SELECT CASE(approx)
 ! the most stupid approximation: J is the Planck function
 CASE(0)
  npoints = SIZE(elements(indexe)%ions(indexi)%levels(leveli)%photcros(1,:))
- print*, 'photion_rates: npoints = ', npoints
+ !print*, 'photion_rates: npoints = ', npoints
  IF(npoints == 0) THEN
   phot_cross = 0.D0
   RETURN
@@ -37,8 +38,8 @@ CASE(0)
  DO I = 1, npoints - 1
   summ = summ + (func(I) + func(I + 1)) / 2.D0 * (freq(I + 1) - freq(I))
  END DO
- print*, 'phot_cross = ', phot_cross
  phot_cross = 4 * pi * summ * act_pop
+ Zcross = phot_cross * elements(indexe)%ions(indexi)%levels(leveli)%exci_energy
  print*, 'photion_rates: phot_cross = ', phot_cross
 CASE DEFAULT
  STOP 'photion_rates: this approximation is not known'

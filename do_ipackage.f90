@@ -32,8 +32,10 @@ DOUBLE PRECISION                :: ran2, rand
 ! sum function
 DOUBLE PRECISION                :: Z, Ztotal, Zintdownrad, Zraddeexc, Zintuprad, Zrad, Zcoll, &
                                    Zintupcoll, Zintdowncoll, Zdown, Zup, Zintdown, Zintup
+DOUBLE PRECISION                :: Zphotionup, Zphotiondown, Zcollionup, Zcolliondown
+DOUBLE PRECISION                :: Zionization, Zrecombination
 ! partition function for the given process
-DOUBLE PRECISION                :: Z0, Z1, Z2, Z3
+DOUBLE PRECISION                :: Z0, Z1, Z2, Z3, Z4, Z5
 DOUBLE PRECISION                :: summ, stat_weight, exci_energy
 ! populations
 DOUBLE PRECISION                :: act_pop
@@ -49,7 +51,7 @@ last_level = linelist(last_line)%upper
 element_index = linelist(last_line)%indexe
 ion_index = linelist(last_line)%indexi
 current_mgi = get_package_model_index(pack_index)
-print*, 'do_ipackage: element_index = ', element_index, 'ion_index = ', ion_index
+!print*, 'do_ipackage: element_index = ', element_index, 'ion_index = ', ion_index, ' level_index = ', linelist(last_line)%upper
 
 active = 1
 ! this is an initial state of the macro-atom
@@ -117,6 +119,8 @@ DO WHILE (active == 1)
  Lintdownrad, Zintdownrad, Lintuprad, Zintuprad, Zraddeexc)
  CALL collisional_rates(1, pack_index, actual_state, nlns, linetransitions, nluns, lineuptransitions, &
  act_pop, Lintdowncoll, Zintdowncoll, Lintupcoll, Zintupcoll, Zcoll)
+ CALL photion_rates(0, element_index, ion_index, actual_state, current_mgi, act_pop, Zphotionup)
+ CALL collion_rates(1, element_index, ion_index, pack_index, actual_state, act_pop, Zcollionup)
  ! total rates of internal donwnward jump
  DO I = 1, nlns
    Lintdown(I) = Lintdownrad(I) + Lintdowncoll(I)
@@ -129,19 +133,22 @@ DO WHILE (active == 1)
    !print*, 'Lintuprad(I) = ', Lintuprad(I), ' Lintupcoll(I) = ', Lintupcoll(I)
  END DO
  Zintup = Zintuprad + Zintupcoll
+! an ionization sum
+Zionization = Zphotionup + Zcollionup
 ! the total sum 
-Ztotal = Zintdown + Zraddeexc + Zintup + Zcoll
+Ztotal = Zintdown + Zraddeexc + Zintup + Zcoll + Zionization
 ! a random number for computation, which process occurs
 rand = ran2(idum)
 !print*, 'do_ipackage: Ztotal = ', Ztotal
 rand = rand * Ztotal
-!print*, 'do_ipackage: random number: ', rand
+! print*, 'do_ipackage: random number: ', rand
 ! these variables are only to the whole line won't be too long
 Z0 = Zintdown
 Z2 = Zintup
 Z1 = Zraddeexc
 Z3 = Zcoll
-!print*, 'Zintdown, Zintup, Zraddeexc, Zcoll: ', Zintdown, Zintup, Zraddeexc, Zcoll
+Z4 = Zionization
+!print*, 'Zintdown, Zintup, Zraddeexc, Zcoll, Zionization: ', Zintdown, Zintup, Zraddeexc, Zcoll, Zionization
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal downward jump
 ! in this case a macro-atom transits into a lower state without an energy emission
@@ -260,6 +267,12 @@ ELSE IF(rand >= Z2 .AND. rand <= Z3) THEN
  ! for now 
  package(pack_index)%typ = type_kpkt
  active = 0
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! photoionization
+ELSE IF(rand >= Z3 .AND. rand <= Z4) THEN
+ print*, 'pack_index = ', pack_index, ' internal jump to to the upper ionization state...'
+ ion_index = ion_index - 1
+ actual_state = 1
 END IF
 
 
