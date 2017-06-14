@@ -52,8 +52,8 @@ DO I = 1, nlns
  actVal = population * linelist(act_line)%A_ul * exci_energy_l
 ! print*, 'do_ipackage: stat_waight, exci_energy, population, linelist(act_line)%A_ul, actVal', &
 !       stat_weight, exci_energy, population, linelist(act_line)%A_ul, actVal
- Lintdown(I) = actVal
- Zintdown = Zintdown + stat_weight * actVal
+ Lintdown(I) = actVal * stat_weight
+ Zintdown = Zintdown + actVal
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! radiative deexcitation
  !print*, 'do_ipackage: population = ', population
@@ -68,8 +68,8 @@ DO I = 1, nluns
  stat_weight = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%stat_waight
  exci_energy = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy
  ! internal jump up
- actVal = population * linelist(act_line)%A_ul * exci_energy_l
- Zintup = Zintup + stat_weight * actVal
+ actVal = population * linelist(act_line)%A_ul * exci_energy_l * stat_weight
+ Zintup = Zintup + actVal
  Lintup(I) = actVal
  !print*, 'radiative_rates: Zintup = ', Zintup, ' Lintup(I) = ', Lintup(I)
 END DO

@@ -44,6 +44,7 @@ SELECT CASE(transition_type)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CASE(0)
  ! only if the ray linelist is allocated we can read important physical quantities from file
+ STOP 'reading_transitions: this choice of input atomic transitions is not supported now'
  IF(ALLOCATED(linelist)) THEN
  DO
   READ(9,'(A)',IOSTAT=ios) line
@@ -165,6 +166,11 @@ CASE(2)
    !print*, 'I = ', I, 'i_conf = ', low_conf, 'j_conf = ', up_conf, &
    !'l_index = ', elements(el_index)%ions(current_ion)%levels(I)%l_index
    ! firstly we will check out if this is a transition which levels were really included
+   ! we do not want to save lines with no probability
+   IF(A == 0.D0) THEN
+    !print*, 'A is equal to zero, cycling...'
+    CYCLE
+   END IF
    found_low_conf = .FALSE.
    found_up_conf = .FALSE.
    n_levels = SIZE(elements(el_index)%ions(current_ion)%levels)
@@ -221,7 +227,7 @@ CASE(2)
  ! linelist so it will not be so large
  IF(ntransitions < SIZE(linelist)) THEN
   ALLOCATE(pom(SIZE(linelist)))
-  pom(1:new_size) = linelist(1:new_size)
+  pom(1:ntransitions) = linelist(1:ntransitions)
   DEALLOCATE(linelist)
   ALLOCATE(linelist(ntransitions))
   linelist(1:ntransitions) = pom(1:ntransitions)

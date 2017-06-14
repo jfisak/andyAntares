@@ -28,7 +28,8 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o modul.o	  \
           connection_prop_model_grid.o divide_cell_8.o divide_cell_ijk.o  \
 	  next_cell_down.o next_cell_up.o read_2D_model.o populations.o   \
 	  collisional_rates.o gamma_function.o exp_int_func.o cool_excit.o \
-	  read_photcs.o radiative_rates.o photion_rates.o collion_rates.o
+	  read_photcs.o radiative_rates.o photion_rates.o collion_rates.o \
+	  flux_function.o
 
 #Rules
 all : $(PROJECT)

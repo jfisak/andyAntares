@@ -91,11 +91,11 @@ END IF
         exp(-(h * freq) / (BOLK * el_temperature)) * gf
 !  actVal = actVal * (linelist(act_line)%upper - linelist(act_line)%lower)
  ! internal downward jump
-  Ldown(I) = actVal * exci_energy_l
-  Zdown = Zdown + Ldown(I) * stat_weight
+  Ldown(I) = actVal * exci_energy_l * stat_weight
+  Zdown = Zdown + Ldown(I)
  ! collisional deexcitation
   lcoll = actVal * (exci_energy_u - exci_energy_l)
-  Zcoll = Zcoll + lcoll * stat_weight
+  Zcoll = Zcoll + lcoll
 !        (linelist(act_line)%upper - linelist(act_line)%lower)
 ! print*, 'cool_excit: pop = ', population, ' electron_density = ', electron_density, &
 !        ' temperature = ', temperature, ' gf = ', gf, ' osc_str = ', osc_str, &
@@ -122,8 +122,8 @@ END IF
         coll_const * (IH / (h * freq)) * osc_str * &
         ((h * freq) / (BOLK * el_temperature)) * &
         exp(-(h * freq) / (BOLK * el_temperature)) * gf
-  Lup(I) = actVal * exci_energy_l
-  Zup = Zup + Lup(I) * stat_weight
+  Lup(I) = actVal * exci_energy_l * stat_weight
+  Zup = Zup + Lup(I)
  END DO
 CASE DEFAULT
  STOP 'collisional_rates: this approximation is not known'

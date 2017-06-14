@@ -1,4 +1,4 @@
-SUBROUTINE collion_rates(approximation, indexe, indexi, pack_index, act_level, act_pop, Zion)
+SUBROUTINE collion_rates(approximation, indexe, indexi, pack_index, act_level, act_pop, Zion, nrecom, Lrecom, Zrecomb)
 USE types
 IMPLICIT NONE
 
@@ -7,6 +7,7 @@ INTEGER                         :: approximation
 INTEGER                         :: pack_index, act_level
 DOUBLE PRECISION                :: act_pop
 INTEGER                         :: indexe, indexi
+INTEGER                         :: nrecom
 ! grid informations
 INTEGER                         :: current_mgi
 DOUBLE PRECISION                :: el_dens, temp, gl_pop_ip1e, x
@@ -20,16 +21,27 @@ DOUBLE PRECISION                :: eif, freq
 DOUBLE PRECISION                :: ali, bli, freq1, freq2, func1, func2
 INTEGER                         :: actPoint
 DOUBLE PRECISION                :: cross_sect
+DOUBLE PRECISION                :: exci_energy, pop_number
+DOUBLE PRECISION                :: stat_weight
 ! output variables
-DOUBLE PRECISION                :: Zion
+DOUBLE PRECISION                :: Zion, Zrecomb
+! recombination
+DOUBLE PRECISION, DIMENSION(nrecom) :: Lrecom
+
 
 
 SELECT CASE(approximation)
 
 !_______________________________________________________________
-! hydrogenic approximation
-! cross section is proportional to (f_ijk/f)^3
+! cross section from file saved as a table
 CASE (1)
+ nfreq = SIZE(elements(indexe)%ions(indexi)%levels(act_level)%photcros(1,:))
+ IF(nfreq == 0) THEN
+  Zion = 0.D0
+  Zrecomb = 0.D0
+  RETURN
+ END IF
+ ALLOCATE(crossfreq(nfreq))
  ! actual model grid index
  current_mgi = get_package_model_index(pack_index)
  ! electron density
@@ -37,6 +49,7 @@ CASE (1)
  ! temperature
  temp = model_grid(current_mgi)%T
  ! number density of a ground state of ion indexi + 1, indexe
+IF(indexi < elements(indexe)%atom_number) THEN
  gl_pop_ip1e = model_grid(current_mgi)%grid_comp(indexe)%grid_ion(indexi + 1)%gl_pop
  ! frequency
   freq = (elements(indexe)%ions(indexi + 1)%levels(1)%exci_energy - &
@@ -48,8 +61,6 @@ CASE (1)
  ! photoionization cross section
  !CALL bound_free_rates(pack_index, act_level, rad_rate)
  ! photoionization cross section for the given frequency freq
- nfreq = SIZE(elements(indexe)%ions(indexi)%levels(act_level)%photcros(1,:))
- ALLOCATE(crossfreq(nfreq))
  crossfreq(:) = elements(indexe)%ions(indexi)%levels(act_level)%photcros(1,:)
  actPoint = 0
  DO I = 1, nfreq
@@ -80,10 +91,33 @@ CASE (1)
  ELSE IF(indexi > 2) THEN
   gindex = 2
  END IF
-
- Zion = act_pop * el_dens *coll_const / temp**(1.0/2.0) * gindex * cross_sect * exp(-x) / x 
+ Zion = act_pop * el_dens *coll_const / temp**(1.0/2.0) * FLOAT(gindex) * cross_sect * exp(-x) / x 
  !print*, 'collion_rates: Zion = ', Zion
-
+ELSE
+ Zion = 0.D0
+END IF
+print*, 'collion_rates: Zion = ', Zion
+!_________________________________________________________________________________________
+! recombination
+SELECT CASE(nlte)
+CASE(0)
+IF(indexi > 1) THEN
+ Zrecomb = 0.D0
+ DO I = 1, nrecom
+  CALL populations(indexe, indexi - 1, I, current_mgi, pop_number)
+  exci_energy = elements(indexe)%ions(indexi - 1)%levels(I)%exci_energy
+  stat_weight = elements(indexe)%ions(indexi - 1)%levels(I)%stat_waight
+  Lrecom(I) = pop_number * el_dens *coll_const / temp**(1.0/2.0) * FLOAT(gindex) * cross_sect * &
+        exp(-x) / x * exci_energy * stat_weight
+  ! for now it will be equal to zero
+  Lrecom(I) = 0.D0
+  Zrecomb = Zrecomb + Lrecom(I)
+  print*, 'Lrecom = ', Lrecom(I)
+ END DO
+ELSE
+ Zrecomb = 0.D0
+END IF
+END SELECT
 
 CASE DEFAULT
  STOP 'bound_free_rates: non valid approximation was chosen'
