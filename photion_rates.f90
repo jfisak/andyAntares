@@ -9,11 +9,11 @@ DOUBLE PRECISION, DIMENSION(nrecom)     :: Lrecom
 DOUBLE PRECISION                        :: act_pop
 ! computing fields
 INTEGER                                 :: npoints
-INTEGER                                 :: I, Istart
+INTEGER                                 :: I, Istart, J, Jstart
 DOUBLE PRECISION, ALLOCATABLE           :: freq(:), cross(:), func(:)
 DOUBLE PRECISION                        :: flux
 DOUBLE PRECISION                        :: summ
-DOUBLE PRECISION                        :: phot_cross, coll_cross
+DOUBLE PRECISION                        :: phot_cross
 DOUBLE PRECISION                        :: freqt
 DOUBLE PRECISION                        :: exci_energy
 DOUBLE PRECISION                        :: pop_number
@@ -77,19 +77,32 @@ IF(indexi > 1) THEN
    ((2 * h * freq(I)**3.0) / light_speed**2.0 + flux) * exp(-x)
   !print*, 'func(I) = ', func(I)
  END DO
- summ = 0
- DO I = 1, npoints - 1
-  summ = summ + (func(I) + func(I + 1)) / 2.D0 * (freq(I + 1) - freq(I))
- END DO
- coll_cross = 4 * pi * act_pop * summ
- Zrecom = 0.D0
  DO I = 1, nrecom
-  CALL populations(indexe, indexi - 1, I, current_mgi, pop_number)
-  exci_energy = elements(indexe)%ions(indexi - 1)%levels(I)%exci_energy
-  stat_weight = elements(indexe)%ions(indexi - 1)%levels(I)%stat_waight
-  Lrecom(I) = pop_number * coll_cross * exci_energy * stat_weight
-  Lrecom(I) = 0.D0
-  Zrecom = Zrecom + Lrecom(I) 
+  freqt = (elements(indexe)%ions(indexi)%levels(leveli)%exci_energy - &
+         elements(indexe)%ions(indexi + 1)%levels(I)%exci_energy) / h
+  ! looking for starting point
+  DO J = 1, npoints
+   IF(freq(J) >= freqt) THEN
+    Jstart = J
+    EXIT
+   IF(J == npoints) Jstart = npoints
+   END IF
+  END DO
+  !print*, 'Jstart = ', Jstart
+  summ = 0
+  DO J = Jstart, npoints - 1
+   summ = summ + (func(J) + func(J + 1)) / 2.D0 * (freq(J + 1) - freq(J))
+  END DO
+  phot_cross = 4 * pi * act_pop * summ
+  Zrecom = 0.D0
+   CALL populations(indexe, indexi - 1, I, current_mgi, pop_number)
+   exci_energy = elements(indexe)%ions(indexi - 1)%levels(I)%exci_energy
+   stat_weight = elements(indexe)%ions(indexi - 1)%levels(I)%stat_waight
+   Lrecom(I) = pop_number * phot_cross * exci_energy * stat_weight
+   !print*, 'Lrecom(I) = ', Lrecom(I)
+   !Lrecom(I) = 0.D0
+   Zrecom = Zrecom + Lrecom(I) 
+   print*, 'Zrecom = ', Zrecom
  END DO
 ELSE
  Zrecom = 0.D0

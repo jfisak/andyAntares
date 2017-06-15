@@ -13,7 +13,7 @@ INTEGER                         :: current_mgi
 DOUBLE PRECISION                :: el_dens, temp, gl_pop_ip1e, x
 INTEGER                         :: gindex, nfreq
 INTEGER                         :: get_package_model_index
-INTEGER                         :: I
+INTEGER                         :: I, J
 DOUBLE PRECISION, PARAMETER     :: coll_const = 1.55D13
 DOUBLE PRECISION, ALLOCATABLE   :: crossfreq(:)
 DOUBLE PRECISION                :: eif, freq
@@ -50,7 +50,6 @@ CASE (1)
  temp = model_grid(current_mgi)%T
  ! number density of a ground state of ion indexi + 1, indexe
 IF(indexi < elements(indexe)%atom_number) THEN
- gl_pop_ip1e = model_grid(current_mgi)%grid_comp(indexe)%grid_ion(indexi + 1)%gl_pop
  ! frequency
   freq = (elements(indexe)%ions(indexi + 1)%levels(1)%exci_energy - &
           elements(indexe)%ions(indexi)%levels(act_level)%exci_energy) / h
@@ -76,10 +75,10 @@ IF(indexi < elements(indexe)%atom_number) THEN
   RETURN
  END IF
  ! now we have to do a linear interpolation between the points actPoint - 1 and actPoint
- freq1 = elements(indexe)%ions(indexi)%levels(act_level)%photcros(1, I - 1)
- freq2 = elements(indexe)%ions(indexi)%levels(act_level)%photcros(1, I)
- func1 = elements(indexe)%ions(indexi)%levels(act_level)%photcros(2, I - 1)
- func2 = elements(indexe)%ions(indexi)%levels(act_level)%photcros(2, I)
+ freq1 = elements(indexe)%ions(indexi)%levels(act_level)%photcros(1, actPoint - 1)
+ freq2 = elements(indexe)%ions(indexi)%levels(act_level)%photcros(1, actPoint)
+ func1 = elements(indexe)%ions(indexi)%levels(act_level)%photcros(2, actPoint - 1)
+ func2 = elements(indexe)%ions(indexi)%levels(act_level)%photcros(2, actPoint)
  ali = (func1 - func2) / (freq1 - freq2)
  bli = (func2 * freq1 - func1 * freq2) / (freq1 - freq2)
  cross_sect = ali * freq + bli
@@ -101,22 +100,58 @@ print*, 'collion_rates: Zion = ', Zion
 ! recombination
 SELECT CASE(nlte)
 CASE(0)
-IF(indexi > 1) THEN
  Zrecomb = 0.D0
- DO I = 1, nrecom
-  CALL populations(indexe, indexi - 1, I, current_mgi, pop_number)
-  exci_energy = elements(indexe)%ions(indexi - 1)%levels(I)%exci_energy
-  stat_weight = elements(indexe)%ions(indexi - 1)%levels(I)%stat_waight
-  Lrecom(I) = pop_number * el_dens *coll_const / temp**(1.0/2.0) * FLOAT(gindex) * cross_sect * &
-        exp(-x) / x * exci_energy * stat_weight
-  ! for now it will be equal to zero
-  Lrecom(I) = 0.D0
-  Zrecomb = Zrecomb + Lrecom(I)
-  print*, 'Lrecom = ', Lrecom(I)
- END DO
-ELSE
- Zrecomb = 0.D0
-END IF
+ IF(indexi > 1) THEN
+  ! gindex
+  IF(indexi - 1 == 1) THEN
+   gindex = 0
+  ELSE IF(indexi - 1 == 2) THEN
+   gindex = 1
+  ELSE IF(indexi - 1 > 2) THEN
+   gindex = 2
+  END IF
+  DO I = 1, nrecom
+   ! frequency
+   freq = (elements(indexe)%ions(indexi)%levels(act_level)%exci_energy - &
+           elements(indexe)%ions(indexi - 1)%levels(I)%exci_energy) / h
+   x = (h * freq) / (BOLK * temp)
+   ! exponential integral function (calculation of eif)
+   CALL exp_int_func(1, x, eif)
+   actPoint = 0
+   DO J = 1, nfreq
+    IF(freq > crossfreq(J)) THEN
+     actPoint = J
+     EXIT
+    END IF
+   END DO
+   ! if the frequency is out of range of the frequency interval
+   ! the total rate will be equal to zero
+   IF(actPoint == 0 .OR. actPoint == 1) THEN
+    Zion = 0
+    RETURN
+   END IF
+   ! now we have to do a linear interpolation between the points actPoint - 1 and actPoint
+   freq1 = elements(indexe)%ions(indexi - 1)%levels(I)%photcros(1, actPoint - 1)
+   freq2 = elements(indexe)%ions(indexi - 1)%levels(I)%photcros(1, actPoint)
+   func1 = elements(indexe)%ions(indexi - 1)%levels(I)%photcros(2, actPoint - 1)
+   func2 = elements(indexe)%ions(indexi - 1)%levels(I)%photcros(2, actPoint)
+   ali = (func1 - func2) / (freq1 - freq2)
+   bli = (func2 * freq1 - func1 * freq2) / (freq1 - freq2)
+   cross_sect = ali * freq + bli
+   ! populations calculation
+   CALL populations(indexe, indexi - 1, I, current_mgi, pop_number)
+   exci_energy = elements(indexe)%ions(indexi - 1)%levels(I)%exci_energy
+   stat_weight = elements(indexe)%ions(indexi - 1)%levels(I)%stat_waight
+   Lrecom(I) = pop_number * el_dens * coll_const / temp**(1.0/2.0) * FLOAT(gindex) * cross_sect * &
+     exp(-x) / x * exci_energy * stat_weight
+   ! for now it will be equal to zero
+   !Lrecom(I) = 0.D0
+   Zrecomb = Zrecomb + Lrecom(I)
+   print*, 'Lrecom = ', Lrecom(I)
+  END DO
+ ELSE
+  Zrecomb = 0.D0
+ END IF
 END SELECT
 
 CASE DEFAULT
