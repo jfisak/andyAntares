@@ -55,13 +55,14 @@ last_level = linelist(last_line)%upper
 element_index = linelist(last_line)%indexe
 ion_index = linelist(last_line)%indexi
 current_mgi = get_package_model_index(pack_index)
-print*, 'do_ipackage: element_index = ', element_index, 'ion_index = ', ion_index, ' level_index = ', last_level
+!print*, 'do_ipackage: element_index = ', element_index, 'ion_index = ', ion_index, ' level_index = ', last_level
 
 active = 1
 ! this is an initial state of the macro-atom
 actual_state = last_level
 ! we will run this loop until the macro atom is deactivated
 DO WHILE (active == 1)
+ print*, 'do_ipackage: actual_state = ', actual_state, ' ion_index = ', ion_index
  ! we have to find all possible downward upward transitions
  ! firstly we calculate number of these possible transitions
  ! number of transitions to a lower level
@@ -117,9 +118,9 @@ DO WHILE (active == 1)
  Zintdown = 0.D0
  Zintup = 0.D0
  ! allocation of the field for recombination processes
- IF(ion_index /= 1) THEN
+ IF(ion_index > 1) THEN
   nlevslion = SIZE(elements(element_index)%ions(ion_index - 1)%levels)
-  print*, 'element_index = ', element_index, 'ion_index - 1 = ', ion_index - 1, ' nlevslion = ', nlevslion
+  !print*, 'element_index = ', element_index, 'ion_index - 1 = ', ion_index - 1, ' nlevslion = ', nlevslion
   ALLOCATE(Lphotrecom(nlevslion), Lcollrecom(nlevslion))
  ELSE
   nlevslion = 0
@@ -160,12 +161,12 @@ rand = rand * Ztotal
 ! these variables are only to the whole line won't be too long
 Z0 = Zintdown
 Z1 = Z0 + Zraddeexc
-Z2 = Z0 + Z1 + Zintup
-Z3 = Z0 + Z1 + Z2 + Zcoll
-Z4 = Z0 + Z1 + Z2 + Z3 + Zionization
-Z5 = Z0 + Z1 + Z2 + Z3 + Z4 + Zrecombination
-print*, 'Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zrecombination: ', &
-        Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zrecombination
+Z2 = Z1 + Zintup
+Z3 = Z2 + Zcoll
+Z4 = Z3 + Zionization
+Z5 = Z4 + Zrecombination
+!print*, 'Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zrecombination: ', &
+!        Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zrecombination
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal downward jump
 ! in this case a macro-atom transits into a lower state without an energy emission
@@ -294,7 +295,6 @@ ELSE IF(rand >= Z3 .AND. rand <= Z4) THEN
 ! recombination
 ELSE IF(rand >= Z4 .AND. rand <= Z5) THEN
  print*, 'pack_index = ', pack_index, ' internal jump to to the lower ionization state...'
- print*, 'rand = ', rand, ' Z4 = ', Z4, ' Z5 = ', Z5
  ion_index = ion_index - 1
  summ = 0.D0
  rand = ran2(idum)
@@ -314,7 +314,8 @@ END IF
 
 DEALLOCATE(linetransitions, lineuptransitions, &
                 Lintdownrad, Lintuprad, Lintdowncoll, Lintupcoll, &
-                Lintup, Lintdown, Lphotrecom, Lcollrecom)
+                Lintup, Lintdown)
+IF(nlevslion /= 0) DEALLOCATE(Lphotrecom, Lcollrecom)
 
 END DO
 

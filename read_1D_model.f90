@@ -13,7 +13,7 @@
   INTEGER, PARAMETER                        :: maxrows = 6000000
   DOUBLE PRECISION                          :: r, velo, dens, temp
   DOUBLE PRECISION, DIMENSION(n_elements)   :: massfrac
-  CHARACTER(20)                             :: modelfile 
+  CHARACTER(20)                             :: modelfile, jikrfile
   ! variables which are not needed in the code
   !DOUBLE PRECISION                          :: delta_r, delta, delta2, tot_nd, tot_md
 
@@ -109,7 +109,10 @@
  CASE(1)
   print*, 'we will read a model from Jiri Krticka program...'
   add_mg = 1
-  OPEN(UNIT=12,status='old',FILE='jikrmodel.dat')
+  CALL GET_ENVIRONMENT_VARIABLE("JIKRMODEL", jikrfile)
+  IF(TRIM(jikrfile) == "") STOP "no input model file selected, &
+                                   please set the variable JIKRMODEL"
+  OPEN(UNIT=12,status='old',FILE=jikrfile)
    READ(12,*) T_eff, R_star, modelfile
   CLOSE(12)
   OPEN(UNIT=11,status='old',FILE=modelfile)
