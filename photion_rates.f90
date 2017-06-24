@@ -74,10 +74,11 @@ IF(indexi > 1) THEN
  Zrecom = 0.D0
  DO K = 1, nrecom
   npoints = SIZE(elements(indexe)%ions(indexi - 1)%levels(K)%photcros(1,:))
-  ALLOCATE(freq(npoints), cross(npoints), func(npoints))
-  freq(1:npoints) = elements(indexe)%ions(indexi - 1)%levels(K)%photcros(1,1:npoints)
-  cross(1:npoints) = elements(indexe)%ions(indexi - 1)%levels(K)%photcros(2,1:npoints)
   IF (npoints /= 0) THEN
+   ALLOCATE(freq(npoints), cross(npoints), func(npoints))
+   !print*, 'photion_rates: indexe = ', indexe, ' indexi = ', indexi
+   freq(1:npoints) = elements(indexe)%ions(indexi - 1)%levels(K)%photcros(1,1:npoints)
+   cross(1:npoints) = elements(indexe)%ions(indexi - 1)%levels(K)%photcros(2,1:npoints)
    DO I = 1, npoints
     flux = flux_function(0,freq(I), T_eff)
     x = (h * freq(I)) / (BOLK * T_eff)
@@ -104,19 +105,19 @@ IF(indexi > 1) THEN
    exci_energy = elements(indexe)%ions(indexi - 1)%levels(K)%exci_energy
    stat_weight = elements(indexe)%ions(indexi - 1)%levels(K)%stat_waight
    Lrecom(K) = pop_number * phot_cross * exci_energy * stat_weight
-   !print*, 'Lrecom(K) = ', Lrecom(K)
+   !print*, 'photion_rates: Lrecom(K) = ', Lrecom(K)
    !Lrecom(K) = 0.D0
    Zrecom = Zrecom + Lrecom(K) 
    !print*, 'Zrecom = ', Zrecom
+   DEALLOCATE(freq, cross, func)
   ELSE
    Lrecom(K) = 0.D0
   END IF
-  DEALLOCATE(freq, cross, func)
  END DO
 ELSE
  Zrecom = 0.D0
 END IF
  !print*, 'Zrecom = ', Zrecom
-print*, 'photion_rates: Zion = ', Zion, ' Zrecom = ', Zrecom
+!print*, 'photion_rates: Zion = ', Zion, ' Zrecom = ', Zrecom
 
 END SUBROUTINE photion_rates
