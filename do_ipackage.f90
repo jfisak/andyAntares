@@ -7,7 +7,7 @@ IMPLICIT NONE
 ! input variables
 INTEGER                         :: pack_index
 INTEGER                         :: actual_state
-INTEGER                         :: last_line, last_level
+INTEGER                         :: last_line, last_level, last_ion
 ! is a macro atom active?
 INTEGER                         :: active
 ! number of line transitions
@@ -28,19 +28,20 @@ DOUBLE PRECISION, ALLOCATABLE   :: Lintdownrad(:), Lintuprad(:), Lrad(:), &
                                    Lintdowncoll(:), Lintupcoll(:), &
                                    Lintdown(:), Lintup(:), &
                                    ! internal recombination
-                                   Lphotrecom(:), Lcollrecom(:)
+                                   Lphotrecom(:), Lintphotrecom(:), Lcollrecom(:), Lintcollrecom(:)
 INTEGER                         :: nlevslion
 DOUBLE PRECISION                :: actVal
 DOUBLE PRECISION                :: ran2, rand
 ! sum function
 DOUBLE PRECISION                :: Z, Ztotal, Zintdownrad, Zraddeexc, Zintuprad, Zrad, Zcoll, &
-                                   Zintupcoll, Zintdowncoll, Zdown, Zup, Zintdown, Zintup
+                                   Zintupcoll, Zintdowncoll, Zdown, Zup, Zintdown, Zintup, &
+                                   Zphotrecom, Zintrecombination, Zcollrecom
 ! B-F internal processes
 DOUBLE PRECISION                :: Zphotionup, Zphotiondown, Zcollionup, Zcolliondown
 DOUBLE PRECISION                :: Zionization, Zrecombination
 ! partition function for the given process
-DOUBLE PRECISION                :: Z0, Z1, Z2, Z3, Z4, Z5
-DOUBLE PRECISION                :: summ, stat_weight, exci_energy
+DOUBLE PRECISION                :: Z0, Z1, Z2, Z3, Z4, Z5, Z6
+DOUBLE PRECISION                :: summ, stat_weight, exci_energy, exci_energy_l, exci_energy_u
 ! populations
 DOUBLE PRECISION                :: act_pop
 INTEGER                         :: get_package_model_index, current_mgi
@@ -50,8 +51,11 @@ DOUBLE PRECISION                :: new_freq
 DOUBLE PRECISION                :: D
 
 ! define the needed variables
+! it is necessary to remember the initial conditions of a macro-atom
 last_line = package(pack_index)%last_line
+last_ion = linelist(last_line)%indexi
 last_level = linelist(last_line)%upper
+linelist(last_line)%n_exc = linelist(last_line)%n_exc + 1
 element_index = linelist(last_line)%indexe
 ion_index = linelist(last_line)%indexi
 current_mgi = get_package_model_index(pack_index)
@@ -62,7 +66,7 @@ active = 1
 actual_state = last_level
 ! we will run this loop until the macro atom is deactivated
 DO WHILE (active == 1)
- print*, 'do_ipackage: actual_state = ', actual_state, ' ion_index = ', ion_index
+ !print*, 'do_ipackage: actual_state = ', actual_state, ' ion_index = ', ion_index
  ! we have to find all possible downward upward transitions
  ! firstly we calculate number of these possible transitions
  ! number of transitions to a lower level
@@ -121,7 +125,7 @@ DO WHILE (active == 1)
  IF(ion_index > 1) THEN
   nlevslion = SIZE(elements(element_index)%ions(ion_index - 1)%levels)
   !print*, 'element_index = ', element_index, 'ion_index - 1 = ', ion_index - 1, ' nlevslion = ', nlevslion
-  ALLOCATE(Lphotrecom(nlevslion), Lcollrecom(nlevslion))
+  ALLOCATE(Lphotrecom(nlevslion), Lintphotrecom(nlevslion), Lcollrecom(nlevslion), Lintcollrecom(nlevslion))
  ELSE
   nlevslion = 0
  END IF
@@ -133,9 +137,9 @@ DO WHILE (active == 1)
  CALL collisional_rates(1, pack_index, actual_state, nlns, linetransitions, nluns, lineuptransitions, &
   act_pop, Lintdowncoll, Zintdowncoll, Lintupcoll, Zintupcoll, Zcoll)
  CALL photion_rates(0, element_index, ion_index, actual_state, current_mgi, act_pop, Zphotionup, &
-  nlevslion, Lphotrecom, Zphotiondown)
+  nlevslion, Lphotrecom, Zphotrecom, Lintphotrecom, Zphotiondown)
  CALL collion_rates(1, element_index, ion_index, pack_index, actual_state, act_pop, Zcollionup, &
-  nlevslion, Lcollrecom, Zcolliondown)
+  nlevslion, Lintcollrecom, Zcolliondown,Lcollrecom, Zcollrecom)
  ! total rates of internal donwnward jump
  DO I = 1, nlns
    Lintdown(I) = Lintdownrad(I) + Lintdowncoll(I)
@@ -148,11 +152,12 @@ DO WHILE (active == 1)
    !print*, 'Lintuprad(I) = ', Lintuprad(I), ' Lintupcoll(I) = ', Lintupcoll(I)
  END DO
  Zintup = Zintuprad + Zintupcoll
-! an ionization sum
+! an internal ionization sum
 Zionization = Zphotionup + Zcollionup
-Zrecombination = Zphotiondown + Zcolliondown
+Zintrecombination = Zphotiondown + Zcolliondown
+Zrecombination = Zphotrecom + Zcollrecom
 ! the total sum 
-Ztotal = Zintdown + Zraddeexc + Zintup + Zcoll + Zionization + Zrecombination
+Ztotal = Zintdown + Zraddeexc + Zintup + Zcoll + Zionization + Zrecombination + Zintrecombination
 ! a random number for computation, which process occurs
 rand = ran2(idum)
 !print*, 'do_ipackage: Ztotal = ', Ztotal
@@ -164,9 +169,10 @@ Z1 = Z0 + Zraddeexc
 Z2 = Z1 + Zintup
 Z3 = Z2 + Zcoll
 Z4 = Z3 + Zionization
-Z5 = Z4 + Zrecombination
-!print*, 'Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zrecombination: ', &
-!        Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zrecombination
+Z5 = Z4 + Zintrecombination
+Z6 = Z5 + Zrecombination
+!print*, 'Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zrecombination, Zintrecombination: ', &
+!        Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zrecombination, Zintrecombination
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal downward jump
 ! in this case a macro-atom transits into a lower state without an energy emission
@@ -178,7 +184,7 @@ IF(rand >= 0 .AND. rand < Z0) THEN
   ! we will find the given state
   IF(rand >= summ .AND. rand < summ + Lintdown(I)) THEN
    actual_state = linelist(linetransitions(I))%lower
-   print*, 'do_ipackage: packet: ', pack_index, ' internal downward jump...'
+   !print*, 'do_ipackage: packet: ', pack_index, ' internal downward jump...'
    EXIT
   END IF
   summ = summ + Lintdown(I)
@@ -190,7 +196,7 @@ IF(rand >= 0 .AND. rand < Z0) THEN
 ! possible transition last_line -> some lower line
 ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
 ! next transition will be an radiative deexcitation
- print*, 'do_ipackage: packet: ', pack_index, ' radiative deexcitation...'
+ !print*, 'do_ipackage: packet: ', pack_index, ' radiative deexcitation...'
  package(pack_index)%typ = type_rpkt
  package(pack_index)%last_line = no_line
  CALL emit_rpackage(pack_index)
@@ -201,40 +207,51 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
  nlns = 0
  DO K = 1, ntransitions
   ! we are interested only in the transitions for the given atom
-  IF(linelist(K)%indexe == element_index .AND. linelist(K)%indexi == ion_index) THEN
+  IF(linelist(K)%indexe == element_index .AND. linelist(K)%indexi == linelist(last_line)%indexi) THEN
    ! transitions to a lower level
-   IF(linelist(K)%upper == linelist(last_line)%upper) THEN
+  ! print*, 'do_ipackage: linelist(K)%upper = ', linelist(K)%upper
+   IF(linelist(K)%upper == last_level) THEN
     nlns = nlns + 1
    END IF
   END IF
  END DO
  ALLOCATE(lineradtransitions(nlns), Lrad(nlns))
  J = 0
+! print*, 'do_ipackage: nlns = ', nlns, &
+!  ' linelist(last_line)%indexe = ', linelist(last_line)%indexe,&
+!  ' linelist(last_line)%indexi = ', linelist(last_line)%indexi, ' last_level = ', last_level, &
+!  ' last_line = ', last_line, ' ntransitions = ', ntransitions
  DO K = 1, ntransitions
-  IF(linelist(K)%indexe == element_index .AND. linelist(K)%indexi == ion_index) THEN
+  IF(linelist(K)%indexe == element_index .AND. linelist(K)%indexi == linelist(last_line)%indexi) THEN
    ! transitions to a lower level
-   IF(linelist(K)%upper == linelist(last_line)%upper) THEN
+   IF(linelist(K)%upper == last_level) THEN
     J = J + 1
     lineradtransitions(J) = K
-    actVal = linelist(K)%A_ul
-    Lrad(J) = actVal
-    Zrad = Zrad + actVal
+    exci_energy_u = &
+     elements(element_index)%ions(last_ion)%levels(linelist(K)%upper)%exci_energy
+    exci_energy_l = &
+     elements(element_index)%ions(last_ion)%levels(linelist(K)%lower)%exci_energy
+    stat_weight = &
+     elements(element_index)%ions(last_ion)%levels(linelist(K)%lower)%stat_waight
+    Lrad(J) = linelist(K)%A_ul * stat_weight * (exci_energy_u - exci_energy_l)
+    !print*, 'do_ipackage: Lrad(J) = ', Lrad(J)
+    Zrad = Zrad + Lrad(J)
    END IF
   END IF
  END DO
  rand = rand * Zrad
- !print*, 'do_ipackage: rand = ', rand, ' Zrad = ', Zrad
  summ = 0
  ! looking for the given line
  DO line = 1, nlns
   IF(rand >= summ .AND. rand <= summ + Lrad(line)) THEN
-!   print*, 'radiative deexcitation'
+   !print*, 'raddeexc: summ = ', summ, ' rand = ', rand, ' Zrad = ', Zrad
    ! we found the given cell now we have to compute only a new frequency
    new_freq = linelist(lineradtransitions(line))%freq
    package(pack_index)%freq_cmf = new_freq
    CALL doppler_factor(pack_index, D)
    package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
    package(pack_index)%last_line = no_line
+   linelist(lineradtransitions(line))%n_deexc = linelist(lineradtransitions(line))%n_deexc + 1
    IF(linelist(lineradtransitions(line))%lower == linelist(last_line)%lower) THEN
     ! resonant scattering occures
     count_resscattering = count_resscattering + 1
@@ -271,7 +288,6 @@ ELSE IF(rand >= Z2 .AND. rand <= Z3) THEN
 ! DO I = 1, nlns
 !  ! we will find the given state
 !  IF(rand >= summ .AND. rand < summ + Ldowncoll(I)) THEN
-!   !print*, 'do_ipackage: packet: ', pack_index, ' internal downward jump...'
 !   ! now it will transform into a k-packet, we will have to decide, which k-packet it
 !   ! will be
 !   CALL col_deexcitation_event(element_index, ion_index, last_line, nlns, linetransitions)
@@ -286,13 +302,13 @@ ELSE IF(rand >= Z2 .AND. rand <= Z3) THEN
  package(pack_index)%typ = type_kpkt
  active = 0
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! photoionization
+! internal photoionization
 ELSE IF(rand >= Z3 .AND. rand <= Z4) THEN
  print*, 'pack_index = ', pack_index, ' internal jump to to the upper ionization state...'
  ion_index = ion_index + 1
  actual_state = 1
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! recombination
+! internal recombination
 ELSE IF(rand >= Z4 .AND. rand <= Z5) THEN
  print*, 'pack_index = ', pack_index, ' internal jump to to the lower ionization state...'
  ion_index = ion_index - 1
@@ -302,20 +318,29 @@ ELSE IF(rand >= Z4 .AND. rand <= Z5) THEN
  DO I = 1, nlevslion
   ! we will find the given state
   !print*, 'summ = ', summ, ' summ + L(I) = ', summ + Lphotrecom(I) + Lcollrecom(I)
-  IF(rand >= summ .AND. rand < summ + Lphotrecom(I) + Lcollrecom(I)) THEN
+  IF(rand >= summ .AND. rand < summ + Lintphotrecom(I) + Lcollrecom(I)) THEN
    actual_state = I
-   print*, 'do_ipackage: changing actual state to the state I = ', I
-   print*, 'do_ipackage: packet: ', pack_index, ' internal upward jump...'
+!   print*, 'do_ipackage: changing actual state to the state I = ', I
+   !print*, 'do_ipackage: packet: ', pack_index, ' internal jump to the lower ionization state...'
    EXIT
   END IF
-  summ = summ + Lphotrecom(I) + Lcollrecom(I)
+  summ = summ + Lintphotrecom(I) + Lcollrecom(I)
  END DO
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! recombination
+ELSE IF(rand >= Z5 .AND. rand <= Z6) THEN
+ print*, 'do_ipackage: pack_index = ', pack_index, 'radiative recombination'
+ package(pack_index)%typ = type_kpkt
+ active = 0
+ ! temporary
+ ! the frequency should be sampled from the photion cross section
+ package(pack_index)%freq_cmf = linelist(last_line)%freq
 END IF
 
 DEALLOCATE(linetransitions, lineuptransitions, &
                 Lintdownrad, Lintuprad, Lintdowncoll, Lintupcoll, &
                 Lintup, Lintdown)
-IF(nlevslion /= 0) DEALLOCATE(Lphotrecom, Lcollrecom)
+IF(nlevslion /= 0) DEALLOCATE(Lphotrecom, Lintphotrecom, Lcollrecom, Lintcollrecom)
 
 END DO
 

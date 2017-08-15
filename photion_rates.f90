@@ -1,11 +1,12 @@
-SUBROUTINE photion_rates(approx, indexe, indexi, leveli, current_mgi, act_pop, Zion, nrecom, Lrecom, Zrecom)
+SUBROUTINE photion_rates(approx, indexe, indexi, leveli, current_mgi, act_pop, Zion, nrecom, &
+        Lintrecom, Zintrecom, Lrecom, Zrecom)
 USE types
 IMPLICIT NONE
 
 ! input variables
 INTEGER                                 :: approx, indexe, indexi, leveli
 INTEGER                                 :: current_mgi, nrecom
-DOUBLE PRECISION, DIMENSION(nrecom)     :: Lrecom
+DOUBLE PRECISION, DIMENSION(nrecom)     :: Lrecom, Lintrecom
 DOUBLE PRECISION                        :: act_pop
 ! computing fields
 INTEGER                                 :: npoints
@@ -15,13 +16,13 @@ DOUBLE PRECISION                        :: flux
 DOUBLE PRECISION                        :: summ
 DOUBLE PRECISION                        :: phot_cross
 DOUBLE PRECISION                        :: freqt
-DOUBLE PRECISION                        :: exci_energy
+DOUBLE PRECISION                        :: exci_energy, gr_exci_energy
 DOUBLE PRECISION                        :: pop_number
 DOUBLE PRECISION                        :: x
 DOUBLE PRECISION                        :: flux_function
 DOUBLE PRECISION                        :: stat_weight
 ! output variables
-DOUBLE PRECISION                        :: Zion, Zrecom
+DOUBLE PRECISION                        :: Zion, Zrecom, Zintrecom
 
 
 IF(indexi < elements(indexe)%atom_number) THEN
@@ -71,6 +72,7 @@ END IF
  !____________________________________________________________________________
  ! recombination
 IF(indexi > 1) THEN
+ Zintrecom = 0.D0
  Zrecom = 0.D0
  DO K = 1, nrecom
   npoints = SIZE(elements(indexe)%ions(indexi - 1)%levels(K)%photcros(1,:))
@@ -103,19 +105,24 @@ IF(indexi > 1) THEN
    phot_cross = 4 * pi * act_pop * summ
    CALL populations(indexe, indexi - 1, K, current_mgi, pop_number)
    exci_energy = elements(indexe)%ions(indexi - 1)%levels(K)%exci_energy
+   gr_exci_energy = elements(indexe)%ions(indexi)%levels(1)%exci_energy
    stat_weight = elements(indexe)%ions(indexi - 1)%levels(K)%stat_waight
-   Lrecom(K) = pop_number * phot_cross * exci_energy * stat_weight
+   Lintrecom(K) = pop_number * phot_cross * exci_energy * stat_weight
+   Lrecom(K) = pop_number * phot_cross * stat_weight * (exci_energy - gr_exci_energy)
    !print*, 'photion_rates: Lrecom(K) = ', Lrecom(K)
    !Lrecom(K) = 0.D0
-   Zrecom = Zrecom + Lrecom(K) 
+   Zintrecom = Zintrecom + Lintrecom(K) 
+   Zrecom = Zrecom + Lrecom(K)
    !print*, 'Zrecom = ', Zrecom
    DEALLOCATE(freq, cross, func)
   ELSE
    Lrecom(K) = 0.D0
+   Lintrecom(K) = 0.D0
   END IF
  END DO
 ELSE
  Zrecom = 0.D0
+ Zintrecom = 0.D0
 END IF
  !print*, 'Zrecom = ', Zrecom
 !print*, 'photion_rates: Zion = ', Zion, ' Zrecom = ', Zrecom

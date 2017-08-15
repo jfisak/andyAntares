@@ -1,4 +1,5 @@
-SUBROUTINE collion_rates(approximation, indexe, indexi, pack_index, act_level, act_pop, Zion, nrecom, Lrecom, Zrecomb)
+SUBROUTINE collion_rates(approximation, indexe, indexi, pack_index, act_level, act_pop, Zion, &
+        nrecom, Lrecom, Zrecomb,Lintrecom,Zintrecomb)
 USE types
 IMPLICIT NONE
 
@@ -22,12 +23,13 @@ DOUBLE PRECISION                :: eif, freq
 DOUBLE PRECISION                :: ali, bli, freq1, freq2, func1, func2
 INTEGER                         :: actPoint
 DOUBLE PRECISION                :: cross_sect
-DOUBLE PRECISION                :: exci_energy, pop_number
+DOUBLE PRECISION                :: exci_energy, gr_exci_energy, pop_number
 DOUBLE PRECISION                :: stat_weight
 ! output variables
-DOUBLE PRECISION                :: Zion, Zrecomb
+DOUBLE PRECISION                :: Zion, Zrecomb, Zintrecomb
 ! recombination
-DOUBLE PRECISION, DIMENSION(nrecom) :: Lrecom
+DOUBLE PRECISION, DIMENSION(nrecom) :: Lrecom, Lintrecom
+DOUBLE PRECISION, PARAMETER             :: times = 1e0
 
 
 
@@ -48,7 +50,7 @@ CASE (1)
    temp = model_grid(current_mgi)%T
    ! number density of a ground state of ion indexi + 1, indexe
    ! frequency
-    freq = (elements(indexe)%ions(indexi + 1)%levels(1)%exci_energy - &
+   freq = (elements(indexe)%ions(indexi + 1)%levels(1)%exci_energy - &
             elements(indexe)%ions(indexi)%levels(act_level)%exci_energy) / h
    ! argument of E_1(x)
    x = (h * freq) / (BOLK * temp)
@@ -69,26 +71,28 @@ CASE (1)
    ! the total rate will be equal to zero
    IF(actPoint == 0 .OR. actPoint == 1) THEN
     Zion = 0
-    RETURN
+   ELSE
+    ! now we have to do a linear interpolation between the points actPoint - 1 and actPoint
+    freq1 = elements(indexe)%ions(indexi)%levels(act_level)%photcros(1, actPoint - 1)
+    freq2 = elements(indexe)%ions(indexi)%levels(act_level)%photcros(1, actPoint)
+    func1 = elements(indexe)%ions(indexi)%levels(act_level)%photcros(2, actPoint - 1)
+    func2 = elements(indexe)%ions(indexi)%levels(act_level)%photcros(2, actPoint)
+    ali = (func1 - func2) / (freq1 - freq2)
+    bli = (func2 * freq1 - func1 * freq2) / (freq1 - freq2)
+    cross_sect = ali * freq + bli
+    !print*, 'photoionization: ali = ', ali, ' bli = ', bli, ' cross_sect = ', cross_sect
+    ! gindex
+    IF(indexi == 1) THEN
+     gindex = 0
+    ELSE IF(indexi == 2) THEN
+     gindex = 1
+    ELSE IF(indexi > 2) THEN
+     gindex = 2
+    END IF
+    Zion = act_pop * el_dens *coll_const / temp**(1.0/2.0) * DBLE(gindex) * cross_sect * exp(-x) / x 
+    Zion = times * Zion
+    !print*, 'collion_rates: Zion = ', Zion
    END IF
-   ! now we have to do a linear interpolation between the points actPoint - 1 and actPoint
-   freq1 = elements(indexe)%ions(indexi)%levels(act_level)%photcros(1, actPoint - 1)
-   freq2 = elements(indexe)%ions(indexi)%levels(act_level)%photcros(1, actPoint)
-   func1 = elements(indexe)%ions(indexi)%levels(act_level)%photcros(2, actPoint - 1)
-   func2 = elements(indexe)%ions(indexi)%levels(act_level)%photcros(2, actPoint)
-   ali = (func1 - func2) / (freq1 - freq2)
-   bli = (func2 * freq1 - func1 * freq2) / (freq1 - freq2)
-   cross_sect = ali * freq + bli
-   ! gindex
-   IF(indexi == 1) THEN
-    gindex = 0
-   ELSE IF(indexi == 2) THEN
-    gindex = 1
-   ELSE IF(indexi > 2) THEN
-    gindex = 2
-   END IF
-   Zion = act_pop * el_dens *coll_const / temp**(1.0/2.0) * FLOAT(gindex) * cross_sect * exp(-x) / x 
-   !print*, 'collion_rates: Zion = ', Zion
    DEALLOCATE(crossfreq)
   END IF
  ELSE
@@ -100,6 +104,7 @@ CASE (1)
  SELECT CASE(nlte)
   CASE(0)
    Zrecomb = 0.D0
+   Zintrecomb = 0.D0
    IF(indexi > 1) THEN
     ! gindex
     IF(indexi - 1 == 1) THEN
@@ -111,50 +116,58 @@ CASE (1)
     END IF
     DO I = 1, nrecom
      npoints = SIZE(elements(indexe)%ions(indexi - 1)%levels(I)%photcros(1,:))
-     ALLOCATE(crossfreq(npoints))
-     crossfreq(1:npoints) = elements(indexe)%ions(indexi - 1)%levels(I)%photcros(1, 1:npoints)
-     ! frequency
-     freq = (elements(indexe)%ions(indexi)%levels(act_level)%exci_energy - &
-             elements(indexe)%ions(indexi - 1)%levels(I)%exci_energy) / h
-     x = (h * freq) / (BOLK * temp)
-     ! exponential integral function (calculation of eif)
-     CALL exp_int_func(1, x, eif)
-     actPoint = 0
-     DO J = 1, npoints
-      IF(freq > crossfreq(J)) THEN
-       actPoint = J
-       EXIT
+     IF(npoints /= 0) THEN
+      ALLOCATE(crossfreq(npoints))
+      crossfreq(1:npoints) = elements(indexe)%ions(indexi - 1)%levels(I)%photcros(1, 1:npoints)
+      ! frequency
+      freq = (elements(indexe)%ions(indexi)%levels(act_level)%exci_energy - &
+              elements(indexe)%ions(indexi - 1)%levels(I)%exci_energy) / h
+      x = (h * freq) / (BOLK * temp)
+      ! exponential integral function (calculation of eif)
+      CALL exp_int_func(1, x, eif)
+      actPoint = 0
+      DO J = 1, npoints
+       IF(freq > crossfreq(J)) THEN
+        actPoint = J
+        EXIT
+       END IF
+      END DO
+      ! if the frequency is out of range of the frequency interval
+      ! the total rate will be equal to zero
+      IF(actPoint == 0 .OR. actPoint == 1) THEN
+       Zion = 0
+       RETURN
       END IF
-     END DO
-     ! if the frequency is out of range of the frequency interval
-     ! the total rate will be equal to zero
-     IF(actPoint == 0 .OR. actPoint == 1) THEN
-      Zion = 0
-      RETURN
+      ! now we have to do a linear interpolation between the points actPoint - 1 and actPoint
+      freq1 = elements(indexe)%ions(indexi - 1)%levels(I)%photcros(1, actPoint - 1)
+      freq2 = elements(indexe)%ions(indexi - 1)%levels(I)%photcros(1, actPoint)
+      func1 = elements(indexe)%ions(indexi - 1)%levels(I)%photcros(2, actPoint - 1)
+      func2 = elements(indexe)%ions(indexi - 1)%levels(I)%photcros(2, actPoint)
+      ali = (func1 - func2) / (freq1 - freq2)
+      bli = (func2 * freq1 - func1 * freq2) / (freq1 - freq2)
+      cross_sect = ali * freq + bli
+      ! populations calculation
+      CALL populations(indexe, indexi - 1, I, current_mgi, pop_number)
+      exci_energy = elements(indexe)%ions(indexi - 1)%levels(I)%exci_energy
+      gr_exci_energy = elements(indexe)%ions(indexi - 1)%levels(1)%exci_energy
+      stat_weight = elements(indexe)%ions(indexi - 1)%levels(I)%stat_waight
+      Lintrecom(I) = pop_number * el_dens * coll_const / temp**(1.0/2.0) * FLOAT(gindex) * cross_sect * &
+        exp(-x) / x * exci_energy * stat_weight
+      Lrecom(I) = pop_number * el_dens * coll_const / temp**(1.0/2.0) * FLOAT(gindex) * cross_sect * &
+        exp(-x) / x * (exci_energy - gr_exci_energy) * stat_weight
+      ! for now it will be equal to zero
+      !Lrecom(I) = 0.D0
+      Zintrecomb = Zintrecomb + Lintrecom(I)
+      Zrecomb = Zrecomb + Lrecom(I)
+      !print*, 'collion_rates: Lrecom = ', Lrecom(I)
+      DEALLOCATE(crossfreq)
      END IF
-     ! now we have to do a linear interpolation between the points actPoint - 1 and actPoint
-     freq1 = elements(indexe)%ions(indexi - 1)%levels(I)%photcros(1, actPoint - 1)
-     freq2 = elements(indexe)%ions(indexi - 1)%levels(I)%photcros(1, actPoint)
-     func1 = elements(indexe)%ions(indexi - 1)%levels(I)%photcros(2, actPoint - 1)
-     func2 = elements(indexe)%ions(indexi - 1)%levels(I)%photcros(2, actPoint)
-     ali = (func1 - func2) / (freq1 - freq2)
-     bli = (func2 * freq1 - func1 * freq2) / (freq1 - freq2)
-     cross_sect = ali * freq + bli
-     ! populations calculation
-     CALL populations(indexe, indexi - 1, I, current_mgi, pop_number)
-     exci_energy = elements(indexe)%ions(indexi - 1)%levels(I)%exci_energy
-     stat_weight = elements(indexe)%ions(indexi - 1)%levels(I)%stat_waight
-     Lrecom(I) = pop_number * el_dens * coll_const / temp**(1.0/2.0) * FLOAT(gindex) * cross_sect * &
-       exp(-x) / x * exci_energy * stat_weight
-     ! for now it will be equal to zero
-     !Lrecom(I) = 0.D0
-     Zrecomb = Zrecomb + Lrecom(I)
-     !print*, 'Lrecom = ', Lrecom(I)
     END DO
    ELSE
     Zrecomb = 0.D0
+    Zintrecomb = 0.D0
    END IF
-   print*, 'collion_rates: Zion = ', Zion, ' Zrecomb = ', Zrecomb
+   !print*, 'collion_rates: Zion = ', Zion, ' Zrecomb = ', Zrecomb
  END SELECT
 
 CASE DEFAULT
