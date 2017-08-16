@@ -22,6 +22,7 @@ SUBROUTINE read_transitions(el_index, lowerion, upperion, transition_type, filen
  LOGICAL                        :: found_low_conf, found_up_conf
  ! reading from the file
  CHARACTER (LEN=200)            :: line
+ INTEGER                        :: at_number
  INTEGER                        :: ios, reading_transitions, linereading, n_levels, tot_ntrans
  INTEGER                        :: n_transitions, curr_n_tran, n_line
  INTEGER                        :: current_element, current_ion
@@ -126,7 +127,8 @@ CASE(2)
   !print*, line
   IF(reading_transitions /= 0) EXIT
   IF(line(1:1) == '*') CYCLE
-  READ(line,*) junk, el_index, current_ion, junk, junk, junk, junk, low_conf, up_conf, junk, junk, junk 
+  READ(line,*) junk, at_number, current_ion, junk, junk, junk, junk, low_conf, up_conf, junk, junk, junk 
+  CALL find_element_index(at_number,el_index)
   found_low_conf = .FALSE.
   found_up_conf = .FALSE.
   n_levels = SIZE(elements(el_index)%ions(current_ion)%levels)
