@@ -18,6 +18,7 @@ INTEGER                                 :: next1line, n_eqf_lines
 
 SELECT CASE(approximation)
 CASE(1)
+!print*, 'next_line: n_eqf_lines = ', n_eqf_lines
 IF (package(pack_index)%last_line .EQ. no_line) THEN
  ! In case we have more lines
  DO I = 1, ntransitions
@@ -34,14 +35,20 @@ IF (package(pack_index)%last_line .EQ. no_line) THEN
  IF (package(pack_index)%last_line .EQ. no_line) package(pack_index)%last_line = ntransitions - 1
 END IF
 
-
 next1line = package(pack_index)%last_line + 1
+!IF(package(pack_index)%last_line == ntransitions - 1) THEN
+! next1line = package(pack_index)%last_line + 1
+!ELSE
+! next1line = package(pack_index)%last_line + n_eqf_lines
+!END IF 
+!print*, 'next_line: next1line = ', next1line
 ! number of lines with the same frequency
 ! if there are not other lines this variable will be equal to one 
 n_eqf_lines = 1
 I = 1
 DO
  actLine = next1line + I
+ !print*, 'next_line: actLine = ', actLine
  IF(actLine < ntransitions) THEN
   ! testing a frequency of next line: if it has the same frequency we will add this line to the "list"
   ! if the frequency differs, we will exit the loop because the rest of frequencies are totally not equal
@@ -55,7 +62,6 @@ DO
   EXIT
  END IF
 END DO
-
 CASE DEFAULT
 END SELECT
 END SUBROUTINE

@@ -12,6 +12,7 @@
   DO pack_index = 1, n_pack
      ! print*, 'B'
      IF (MODULO(pack_index,10000) .EQ. 0) print*, 'Working on packet ', pack_index,' ...'
+     !print*, 'Working on packet ', pack_index,' ...'
      IF (debug .NE. 0) print*, 'Working on packet ', pack_index,' ...' 
       
      ! Do this loop until something happened with package

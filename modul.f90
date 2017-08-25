@@ -57,6 +57,7 @@ MODULE types
   TYPE line_list
      INTEGER                         :: indexe, indexi, lower, upper
      DOUBLE PRECISION                :: freq, A_ul, f_ul
+     INTEGER                         :: n_deexc, n_exc
   END TYPE line_list
 
   TYPE ion_levels 
@@ -66,6 +67,7 @@ MODULE types
      CHARACTER(LEN=15)               :: elconf
      LOGICAL                         :: phcrossform
      DOUBLE PRECISION, ALLOCATABLE   :: photcros(:,:), phcrosscoeff(:)
+     !DOUBLE PRECISION                :: phfreq
   END TYPE ion_levels
 
   TYPE element_ions 
@@ -162,6 +164,8 @@ MODULE types
                                        nio=4.5655967D+14,const=1.D-04,vel_ter=920.0D+05,r_sun=695990.D+05,beta=2.0D+00,  &   
                                        BOLK=1.380662D-16,m_sun=1.989D+33, sigma =5.6704D-05 !ergcm^(-2)s(-1)K(-4) !D. H. Cohen et al.2012
   DOUBLE PRECISION, PARAMETER        :: parsec=30.857D17, e_v = 1.60217646D-12, saha_const=2.0706839D-16, b = 1.D0
+  ! TEMPORARY CHANGE OF TEMPERATURE STRUCTURE
+  DOUBLE PRECISION, PARAMETER        :: temp_factor = 5.0
 
 !! Parameters for testing
   DOUBLE PRECISION                   :: freq_line
@@ -180,6 +184,7 @@ INTEGER                                 :: count_intdownjump, &
                                            count_resscattering, &
                                            count_fluorescence, &
                                            count_coldeexc, &
-                                           count_thomson
+                                           count_thomson, &
+                                           count_recombination
 
 END MODULE types

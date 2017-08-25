@@ -21,6 +21,7 @@ SUBROUTINE do_rpackage_event(pack_index, event)
 !     print*, 'photon ', pack_index, ' line interaction...'
      package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
      package(pack_index)%typ = type_ipkt
+     !print*, 'photon ', pack_index, ' line interaction...'
 !     CALL emit_rpackage(pack_index)
   ELSE IF (event .EQ. rpkt_eventtype_continuum) THEN
      ! In this case the package undergoes a continuum event. In the

@@ -49,7 +49,7 @@ OPEN(8,status='old',FILE=filename)
     print*, 'the subroutine read_atomic data:'
     STOP 'ERROR: NO VALID ATOMIC DATA...'
    END IF
-   IF( INDEX(line, '*') /= 0) CYCLE
+   IF(line(1:1) == '*') CYCLE
    ! if everything is OK, we will read from the variable line variables
    READ(line,*) current_element, current_ion, n_levels, i_pot
    print*, 'current element: ', current_element, 'current_ion: ', current_ion, &
@@ -98,6 +98,7 @@ OPEN(8,status='old',FILE=filename)
   elements(el_index)%ions(I)%ion_potential  = i_pot * e_v
   IF(I == (upperion - lowerion + 1)) EXIT
  END DO
+ ! number of levels for every ion
  ALLOCATE(nlevels(nions))
  ! set up initial variables for every single index I
  DO I = 1, nions
@@ -119,6 +120,7 @@ OPEN(8,status='old',FILE=filename)
  DO I = 1, nions
   ionindex = I + lowerion - 1
   n_levels = nlevels(I)
+  print*, 'ion = ', I, ' number of levels = ', n_levels
   ALLOCATE(elements(el_index)%ions(ionindex)%levels(n_levels))
  END DO
  ! allocation of the given arrays

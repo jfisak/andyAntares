@@ -119,14 +119,15 @@ SUBROUTINE main
   ALLOCATE(current_temp(n_modelgrid + add_mg))
   print*, 'model grid is set up'
 
-  print*,'CHECK GRID SIZES'
-  print*, xmax, R_inf, basic_cell_width
-  print*, xmax/R_star, R_inf/R_star, basic_cell_width/R_star
-  print*, (-xmax + nx_cell*basic_cell_width)/R_star
+!  print*,'CHECK GRID SIZES'
+!  print*, xmax, R_inf, basic_cell_width
+!  print*, xmax/R_star, R_inf/R_star, basic_cell_width/R_star
+!  print*, (-xmax + nx_cell*basic_cell_width)/R_star
   !STOP
 
   ! Set up of the propagation grid
   !CALL setup_grid()
+  print*, 'setup propagation grid'
   CALL setup_grid2()
   ! connects the propagation grid with the model grid
   print*, 'propagation grid is set up'
@@ -158,18 +159,18 @@ SUBROUTINE main
   ! consistance temperature calculation from teh radiation field)
 
   current_temp = 0.D0
-  iteration = 0
- OPEN(20, FILE='temp_structure.dat')
-  DO !iteration = 1,1
+  !iteration = 0
+! OPEN(20, FILE='temp_structure.dat')
+  DO iteration = 1,1
    ! definition of counters
 
-     iteration = iteration + 1
+     !iteration = iteration + 1
      IF (iteration .GE. 10) print*, 'No convergency'
      CALL update_grid(iteration)
      PRINT*, 'Update grid finished' 
-     WRITE(20,*) 'ITERATION: ', iteration
+!     WRITE(20,*) '# ITERATION: ', iteration
      DO I = 1, n_modelgrid
-      WRITE(20,*) I, model_grid(I)%T
+!      WRITE(20,*) I, model_grid(I)%T
      END DO
 !     print*, 'model_grid(:)%T = ', model_grid(:)%T
      IF ( MAXVAL(abs(model_grid(:)%T - current_temp) / model_grid(:)%T) .LT. 0.05D-1) EXIT
@@ -179,6 +180,7 @@ SUBROUTINE main
      count_fluorescence = 0
      count_coldeexc = 0
      count_thomson = 0
+     count_recombination = 0
      current_temp = model_grid(:)%T
 !     PRINT*, 'iteration:', iteration, current_temp
 
@@ -204,18 +206,24 @@ SUBROUTINE main
      CALL update_packages(n_pack)
      print*, 'Number of destoyed packages =', destroyed_pack
   END DO 
- CLOSE(20)
+! CLOSE(20)
 
  
   print*, 'do spectrum'
   CALL do_spectrum(n_pack)
   print*, 'scattering: count_intdownjump, count_intupjump, count_resscattering, &
-        count_fluorescence, count_coldeexc, count_thomson', &
+        count_fluorescence, count_coldeexc, count_thomson, count_recombination', &
         count_intdownjump, count_intupjump, count_resscattering, count_fluorescence, &
-        count_coldeexc, count_thomson
+        count_coldeexc, count_thomson, count_recombination
   print*, 'do finalize'
 
      ! END DO
+! DO I = 1, ntransitions
+!  write(*,*) linelist(I)%indexe, linelist(I)%indexi, &
+!   elements(linelist(I)%indexe)%ions(linelist(I)%indexi)%levels(linelist(I)%upper)%elconf, &
+!   elements(linelist(I)%indexe)%ions(linelist(I)%indexi)%levels(linelist(I)%lower)%elconf, &
+!   linelist(I)%n_exc, linelist(I)%n_deexc
+! END DO
     
 
 !#ifdef MPI_ON

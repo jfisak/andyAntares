@@ -27,8 +27,8 @@ CASE(0)
  rho = model_grid(model_cell)%rho
  abund = model_grid(model_cell)%grid_comp(indexe)%abund
  atom_mass = elements(indexe)%atom_mass
-! print*, 'populations: e_exc = ', e_exc, ' g_stat = ', g_stat, ' g_gstat = ', g_gstat, &
-! ' graund_level_pop = ', graund_level_pop
+! print*, 'indexe = ', indexe, ' indexi = ', indexi, 'populations: e_exc = ', e_exc, &
+! ' g_stat = ', g_stat, ' g_gstat = ', g_gstat, ' graund_level_pop = ', graund_level_pop
  
  pop_number = graund_level_pop * g_stat / g_gstat * &
         exp(-e_exc / BOLK / model_grid(model_cell)%T ) * &

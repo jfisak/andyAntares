@@ -18,13 +18,13 @@ SUBROUTINE update_grid(iteration)
 !  OPEN(34, FILE='carbonIV.dat')
 !  OPEN(35, FILE='carbonV.dat')
 !  OPEN(36, FILE='carbonVI.dat')
-  OPEN(31, FILE='nitrogenI.dat')
-  OPEN(32, FILE='nitrogenII.dat')
-  OPEN(33, FILE='nitrogenIII.dat')
-  OPEN(34, FILE='nitrogenIV.dat')
-  OPEN(35, FILE='nitrogenV.dat')
-  OPEN(36, FILE='nitrogenVI.dat')
-  OPEN(37, FILE='nitrogenVII.dat')
+!  OPEN(31, FILE='nitrogenI.dat')
+!  OPEN(32, FILE='nitrogenII.dat')
+!  OPEN(33, FILE='nitrogenIII.dat')
+!  OPEN(34, FILE='nitrogenIV.dat')
+!  OPEN(35, FILE='nitrogenV.dat')
+!  OPEN(36, FILE='nitrogenVI.dat')
+!  OPEN(37, FILE='nitrogenVII.dat')
   max_n_dcell = SIZE(dyn_cell)
    print*, 'updating grid'
   DO gridcell = 1, n_modelgrid
@@ -38,8 +38,8 @@ SUBROUTINE update_grid(iteration)
         ! Energy density contribeted to the model grid cell 
          model_grid(gridcell)%J = model_grid(gridcell)%J / model_grid(gridcell)%volume / (4 * pi)
          temp = (model_grid(gridcell)%J * pi / sigma )**(1./4.) 
-         !print*, 'model cell: ', gridcell, ' temperature = ', temp, ' flux = ', model_grid(gridcell)%J, &
-         !       ' volume = ', model_grid(gridcell)%volume
+!         print*, 'model cell: ', gridcell, ' temperature = ', temp, ' flux = ', model_grid(gridcell)%J, &
+!                ' volume = ', model_grid(gridcell)%volume
 !         print*, 'update_grid: temperature: I = ', I, ' T = ', temp
          model_grid(gridcell)%T = temp
          ! Calculate electron number density for every model grid cell gridcell
@@ -76,25 +76,25 @@ SUBROUTINE update_grid(iteration)
 !           IF(indexe == 3 .AND. indexi == 4) WRITE(34,*) model_grid(gridcell)%rwind, frac
 !           IF(indexe == 3 .AND. indexi == 5) WRITE(35,*) model_grid(gridcell)%rwind, frac
 !           IF(indexe == 3 .AND. indexi == 6) WRITE(36,*) model_grid(gridcell)%rwind, frac
-           IF(indexe == 2 .AND. indexi == 1) WRITE(31,*) model_grid(gridcell)%rwind, frac
-           IF(indexe == 2 .AND. indexi == 2) WRITE(32,*) model_grid(gridcell)%rwind, frac
-           IF(indexe == 2 .AND. indexi == 3) WRITE(33,*) model_grid(gridcell)%rwind, frac
-           IF(indexe == 2 .AND. indexi == 4) WRITE(34,*) model_grid(gridcell)%rwind, frac
-           IF(indexe == 2 .AND. indexi == 5) WRITE(35,*) model_grid(gridcell)%rwind, frac
-           IF(indexe == 2 .AND. indexi == 6) WRITE(36,*) model_grid(gridcell)%rwind, frac
-           IF(indexe == 2 .AND. indexi == 7) WRITE(37,*) model_grid(gridcell)%rwind, frac
+!           IF(indexe == 2 .AND. indexi == 1) WRITE(31,*) model_grid(gridcell)%rwind, frac
+!           IF(indexe == 2 .AND. indexi == 2) WRITE(32,*) model_grid(gridcell)%rwind, frac
+!           IF(indexe == 2 .AND. indexi == 3) WRITE(33,*) model_grid(gridcell)%rwind, frac
+!           IF(indexe == 2 .AND. indexi == 4) WRITE(34,*) model_grid(gridcell)%rwind, frac
+!           IF(indexe == 2 .AND. indexi == 5) WRITE(35,*) model_grid(gridcell)%rwind, frac
+!           IF(indexe == 2 .AND. indexi == 6) WRITE(36,*) model_grid(gridcell)%rwind, frac
+!           IF(indexe == 2 .AND. indexi == 7) WRITE(37,*) model_grid(gridcell)%rwind, frac
         END DO
       END DO
 !     stop
     ENDIF
   END DO
-  CLOSE(31)
-  CLOSE(32)
-  CLOSE(33)
-  CLOSE(34)
-  CLOSE(35)
-  CLOSE(36)
-  CLOSE(37)
+!  CLOSE(31)
+!  CLOSE(32)
+!  CLOSE(33)
+!  CLOSE(34)
+!  CLOSE(35)
+!  CLOSE(36)
+!  CLOSE(37)
   CLOSE(3)
 
   

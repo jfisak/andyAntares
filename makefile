@@ -1,6 +1,6 @@
 #Compiler settings
 F90 = gfortran
-FCFLAGS =  -g -O2 -cpp -fbounds-check # -fdefault-real-8 #-mp
+FCFLAGS =  -g -cpp -fbounds-check # -fdefault-real-8 #-mp
 
 #Variables
 progname = main
@@ -29,7 +29,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o modul.o	  \
 	  next_cell_down.o next_cell_up.o read_2D_model.o populations.o   \
 	  collisional_rates.o gamma_function.o exp_int_func.o cool_excit.o \
 	  read_photcs.o radiative_rates.o photion_rates.o collion_rates.o \
-	  flux_function.o find_element_index.o
+	  flux_function.o find_element_index.o next_line.o resonance_distance.o
 
 #Rules
 all : $(PROJECT)

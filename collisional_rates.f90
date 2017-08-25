@@ -43,6 +43,7 @@ DOUBLE PRECISION, DIMENSION(nlns)       :: Ldown
 DOUBLE PRECISION, DIMENSION(nluns)      :: Lup
 DOUBLE PRECISION                        :: lcoll
 DOUBLE PRECISION                        :: stat_weight
+DOUBLE PRECISION, PARAMETER             :: times = 1e10
 
 
 SELECT CASE(approx)
@@ -58,17 +59,18 @@ CASE(1)
  ! number of lines we are interested in
  nlns = SIZE(linetransitions)
 
-! we have to know which element and ion we are calculating data for
-! we will use the knowledge of lines and assume that at it is
-! possible at least one transition upwards or downwards and from
-! the first element we get the element and the ion informations
-IF(SIZE(linetransitions) /= 0) THEN
- element_index = linelist(linetransitions(1))%indexe
- ion_index = linelist(linetransitions(1))%indexi
-ELSE IF(SIZE(lineuptransitions) /= 0) THEN
- element_index = linelist(lineuptransitions(1))%indexe
- ion_index = linelist(lineuptransitions(1))%indexi
-END IF 
+ ! we have to know which element and ion we are calculating data for
+ ! we will use the knowledge of lines and assume that at it is
+ ! possible at least one transition upwards or downwards and from
+ ! the first element we get the element and the ion informations
+ IF(SIZE(linetransitions) /= 0) THEN
+  element_index = linelist(linetransitions(1))%indexe
+  ion_index = linelist(linetransitions(1))%indexi
+ ELSE IF(SIZE(lineuptransitions) /= 0) THEN
+  element_index = linelist(lineuptransitions(1))%indexe
+  ion_index = linelist(lineuptransitions(1))%indexi
+ END IF 
+ ! initialization of rate values
  Zup = 0.D0
  Zdown = 0.D0
  Zcoll = 0.D0
@@ -86,15 +88,16 @@ END IF
   CALL gamma_function(x, act_line, gf)
   ! value of the collision coefficient
   actVal = population * electron_density * c0 * (temperature)**(1.0/2.0) * &
-        coll_const * (IH / (h * freq)) * osc_str * &
-        ((h * freq) / (BOLK * el_temperature)) * &
-        exp(-(h * freq) / (BOLK * el_temperature)) * gf
+   coll_const * (IH / (h * freq)) * osc_str * ((h * freq) / (BOLK * el_temperature)) * &
+   exp(-(h * freq) / (BOLK * el_temperature)) * gf
 !  actVal = actVal * (linelist(act_line)%upper - linelist(act_line)%lower)
  ! internal downward jump
   Ldown(I) = actVal * exci_energy_l * stat_weight
+  Ldown(I) = times * Ldown(I)
   Zdown = Zdown + Ldown(I)
  ! collisional deexcitation
   lcoll = actVal * (exci_energy_u - exci_energy_l)
+  lcoll = times * lcoll
   Zcoll = Zcoll + lcoll
 !        (linelist(act_line)%upper - linelist(act_line)%lower)
 ! print*, 'cool_excit: pop = ', population, ' electron_density = ', electron_density, &
@@ -123,7 +126,7 @@ END IF
         ((h * freq) / (BOLK * el_temperature)) * &
         exp(-(h * freq) / (BOLK * el_temperature)) * gf
   Lup(I) = actVal * exci_energy_l * stat_weight
-  Zup = Zup + Lup(I)
+  Lup(I) = times * Lup(I)
  END DO
 CASE DEFAULT
  STOP 'collisional_rates: this approximation is not known'

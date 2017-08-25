@@ -8,10 +8,6 @@ DOUBLE PRECISION                :: f_line
 ! output variables
 DOUBLE PRECISION                :: ldist
 
-!print*, 'resonance_distance: f_line = ', f_line, ' pack_index = ', pack_index, &
-! ' package(pack_index)%freq_cmf = ', package(pack_index)%freq_cmf, &
-! ' package(pack_index)%freq_rf = ', package(pack_index)%freq_rf, &
-! ' difference of freq = ', package(pack_index)%freq_cmf - f_line
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! MUST BE CHANGED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

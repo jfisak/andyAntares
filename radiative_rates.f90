@@ -59,7 +59,6 @@ DO I = 1, nlns
  !print*, 'do_ipackage: population = ', population
  actVal = population * linelist(act_line)%A_ul * (exci_energy_u - exci_energy_l)
  Zrad = Zrad + stat_weight * actVal
-! Lrad(I) = actVal
 END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal upward jump
@@ -73,6 +72,5 @@ DO I = 1, nluns
  Lintup(I) = actVal
  !print*, 'radiative_rates: Zintup = ', Zintup, ' Lintup(I) = ', Lintup(I)
 END DO
-
 
 END SUBROUTINE radiative_rates

@@ -11,6 +11,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
   DOUBLE PRECISION                  :: electron_density, kappa_cont, vec_length, dist
   DOUBLE PRECISION                  :: graund_level_pop, g_gl, g_ll, e_exc
   DOUBLE PRECISION                  :: f_ul
+  DOUBLE PRECISION, PARAMETER       :: largeNumber = 1.D20
   ! number of lines with the same frequencies
   INTEGER                           :: n_next_lines
   DOUBLE PRECISION, DIMENSION(3)    :: vel_vec
@@ -118,7 +119,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
               dist = dist + l_dist
               IF (dist .GT. cell_dist) THEN
                  ! In this case the package propagates to the next cell
-                 e_dist = cell_dist + 1.D20
+                 e_dist = cell_dist + largeNumber
                  do_loop = 0
                  event = rpkt_eventtype_changecell
               END IF

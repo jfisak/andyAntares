@@ -141,6 +141,7 @@
      model_grid(I)%T = temp ! should be temp 
      model_grid(I)%J = 0.D0 
      model_grid(I)%assoc_cells = 0
+     model_grid(I)%T = model_grid(I)%T / temp_factor
 !     print*, 'testing model grid...'
 !     print*, model_grid(I)%rwind, model_grid(I)%vel, &
 !        model_grid(I)%rho, model_grid(I)%T, model_grid(I)%J, &
@@ -158,6 +159,8 @@
      END DO
    END DO
   CLOSE(11)
+  IF(temp_factor /= 1.0) write(*,*) 'Warning, temperature structure is divided &
+   by a temperature factor = ', temp_factor
   R_star = model_grid(1)%rwind
   R_inf  = model_grid(n_modelgrid)%rwind
   V_inf  = model_grid(n_modelgrid)%vel

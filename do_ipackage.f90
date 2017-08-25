@@ -16,6 +16,7 @@ INTEGER                         :: element_index, ion_index
 INTEGER                         :: I, J, K, line
 INTEGER, ALLOCATABLE            :: linetransitions(:), transitions(:), lineuptransitions(:), &
                                    lineradtransitions(:) ! an array of transitions down from last_line
+! RATES FOR TRANSITIONS
 ! Lintdownrad -- internal downward jumps: radiative part
 ! Lintuprad -- internal upward jumps: radiative part
 ! Lrad -- radiative transitions, computed if and only if radiative deexcitation occurs
@@ -24,6 +25,10 @@ INTEGER, ALLOCATABLE            :: linetransitions(:), transitions(:), lineuptra
 ! Lintupcoll -- internal upward jumps: collisional part
 ! Lintdown -- internal downward jumps: radiative + collisional
 ! Lintup -- internal upward jumps: radiative + collisional
+! Lphotrecom -- photorecombination
+! Lintphotrecom -- internal photorecombination
+! Lcollrecom -- collisional recombination
+! Lintcollrecom -- internal collisional recombination
 DOUBLE PRECISION, ALLOCATABLE   :: Lintdownrad(:), Lintuprad(:), Lrad(:), &
                                    Lintdowncoll(:), Lintupcoll(:), &
                                    Lintdown(:), Lintup(:), &
@@ -273,7 +278,7 @@ ELSE IF (rand >= Z1 .AND. rand <= Z2) THEN
   ! we will find the given state
   IF(rand >= summ .AND. rand < summ + Lintup(I)) THEN
    actual_state = linelist(lineuptransitions(I))%upper
-   print*, 'do_ipackage: packet: ', pack_index, ' internal upward jump...'
+   !print*, 'do_ipackage: packet: ', pack_index, ' internal upward jump...'
    EXIT
   END IF
   summ = summ + Lintup(I)
@@ -284,7 +289,7 @@ ELSE IF (rand >= Z1 .AND. rand <= Z2) THEN
 ELSE IF(rand >= Z2 .AND. rand <= Z3) THEN
  summ = Z2
  package(pack_index)%last_line = no_line
- print*, 'pack_index = ', pack_index, ' collisional deexcitation...'
+ !print*, 'pack_index = ', pack_index, ' collisional deexcitation...'
 ! DO I = 1, nlns
 !  ! we will find the given state
 !  IF(rand >= summ .AND. rand < summ + Ldowncoll(I)) THEN
@@ -304,13 +309,13 @@ ELSE IF(rand >= Z2 .AND. rand <= Z3) THEN
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal photoionization
 ELSE IF(rand >= Z3 .AND. rand <= Z4) THEN
- print*, 'pack_index = ', pack_index, ' internal jump to to the upper ionization state...'
+ !print*, 'pack_index = ', pack_index, ' internal jump to to the upper ionization state...'
  ion_index = ion_index + 1
  actual_state = 1
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal recombination
 ELSE IF(rand >= Z4 .AND. rand <= Z5) THEN
- print*, 'pack_index = ', pack_index, ' internal jump to to the lower ionization state...'
+ !print*, 'pack_index = ', pack_index, ' internal jump to to the lower ionization state...'
  ion_index = ion_index - 1
  summ = 0.D0
  rand = ran2(idum)
@@ -318,22 +323,23 @@ ELSE IF(rand >= Z4 .AND. rand <= Z5) THEN
  DO I = 1, nlevslion
   ! we will find the given state
   !print*, 'summ = ', summ, ' summ + L(I) = ', summ + Lphotrecom(I) + Lcollrecom(I)
-  IF(rand >= summ .AND. rand < summ + Lintphotrecom(I) + Lcollrecom(I)) THEN
+  IF(rand >= summ .AND. rand < summ + Lintphotrecom(I) + Lintcollrecom(I)) THEN
    actual_state = I
 !   print*, 'do_ipackage: changing actual state to the state I = ', I
    !print*, 'do_ipackage: packet: ', pack_index, ' internal jump to the lower ionization state...'
    EXIT
   END IF
-  summ = summ + Lintphotrecom(I) + Lcollrecom(I)
+  summ = summ + Lintphotrecom(I) + Lintcollrecom(I)
  END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! recombination
 ELSE IF(rand >= Z5 .AND. rand <= Z6) THEN
- print*, 'do_ipackage: pack_index = ', pack_index, 'radiative recombination'
+ !print*, 'do_ipackage: pack_index = ', pack_index, 'radiative recombination'
  package(pack_index)%typ = type_kpkt
  active = 0
  ! temporary
  ! the frequency should be sampled from the photion cross section
+ count_recombination = count_recombination + 1
  package(pack_index)%freq_cmf = linelist(last_line)%freq
 END IF
 
