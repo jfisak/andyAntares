@@ -7,15 +7,10 @@ MODULE types
 
   IMPLICIT NONE
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Type Definitions
-
-!  TYPE grid_cell  
-!     ! won't be used in dynamical grid
-!     INTEGER                         :: model_index
-!     INTEGER, DIMENSION(3)           :: indexc
-!     DOUBLE PRECISION, DIMENSION(3)  :: corner
-!     REAL                :: deltax, deltay, deltaz 
-!  END TYPE grid_cell
 
   TYPE dyn_grid_cell
       INTEGER                        :: model_index
@@ -45,7 +40,8 @@ MODULE types
 
 
   TYPE modelgrid 
-     INTEGER*4                       :: assoc_cells
+     INTEGER                         :: assoc_cells
+     DOUBLE PRECISION                :: volume
      DOUBLE PRECISION                :: T, J, rho, vel, rwind, e_dens
      DOUBLE PRECISION                :: zwind, velang
      TYPE(grid_comp_t), ALLOCATABLE  :: grid_comp(:)
@@ -61,17 +57,21 @@ MODULE types
   TYPE line_list
      INTEGER                         :: indexe, indexi, lower, upper
      DOUBLE PRECISION                :: freq, A_ul, f_ul
+     INTEGER                         :: n_deexc, n_exc
   END TYPE line_list
 
   TYPE ion_levels 
      INTEGER                         :: nuptrans, ndowtrans
      INTEGER                         :: l_index
      DOUBLE PRECISION                :: exci_energy, stat_waight
-     CHARACTER(LEN=6)                :: elconf
+     CHARACTER(LEN=15)               :: elconf
+     LOGICAL                         :: phcrossform
+     DOUBLE PRECISION, ALLOCATABLE   :: photcros(:,:), phcrosscoeff(:)
+     !DOUBLE PRECISION                :: phfreq
   END TYPE ion_levels
 
   TYPE element_ions 
-     INTEGER                         :: nlevels, ion_stage
+     INTEGER                         :: ion_stage
      DOUBLE PRECISION                :: ion_potential
      TYPE(ion_levels), ALLOCATABLE   :: levels(:)
   END TYPE element_ions
@@ -89,10 +89,14 @@ MODULE types
      DOUBLE PRECISION                :: weight
   END TYPE virt_particle
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Global variables
   DOUBLE PRECISION                   :: xmax, ymax, zmax
   DOUBLE PRECISION, DIMENSION(3)     :: basic_cell_width
   INTEGER                            :: dyngrid
+  INTEGER                            :: nlte
   DOUBLE PRECISION                   :: R_star, R_inf, V_inf, M_dot, T_eff
   DOUBLE PRECISION                   :: Z_inf
   DOUBLE PRECISION, ALLOCATABLE      :: incomingflux(:,:)
@@ -160,6 +164,8 @@ MODULE types
                                        nio=4.5655967D+14,const=1.D-04,vel_ter=920.0D+05,r_sun=695990.D+05,beta=2.0D+00,  &   
                                        BOLK=1.380662D-16,m_sun=1.989D+33, sigma =5.6704D-05 !ergcm^(-2)s(-1)K(-4) !D. H. Cohen et al.2012
   DOUBLE PRECISION, PARAMETER        :: parsec=30.857D17, e_v = 1.60217646D-12, saha_const=2.0706839D-16, b = 1.D0
+  ! TEMPORARY CHANGE OF TEMPERATURE STRUCTURE
+  DOUBLE PRECISION, PARAMETER        :: temp_factor = 5.0
 
 !! Parameters for testing
   DOUBLE PRECISION                   :: freq_line
@@ -171,5 +177,14 @@ MODULE types
 ! Define the min and max wavelenght range in cm for the synthetic spectrum calculation 1A = 1.D-8 cm
    DOUBLE PRECISION, PARAMETER        :: nu_min = 3.D14, nu_max = 3.7D15 ! in cm (800 - 10000 A)
   !DOUBLE PRECISION, PARAMETER       :: nu_min = 2.4D15, nu_max = 2.5D15 ! in cm (1150 - 1250 A)
+
+! counters of interactions
+INTEGER                                 :: count_intdownjump, &
+                                           count_intupjump, &
+                                           count_resscattering, &
+                                           count_fluorescence, &
+                                           count_coldeexc, &
+                                           count_thomson, &
+                                           count_recombination
 
 END MODULE types

@@ -109,11 +109,11 @@
    !print*, 'max_n_dcell = ', max_n_dcell
   END DO
  END IF
-  OPEN(15,FILE='dyn_cells.dat')
-   DO I = 1, max_n_dcell
-    write(15,*) dyn_cell(I)%corner, dyn_cell(I)%width, dyn_cell(I)%neighbor
-   END DO
-  CLOSE(15)
+  !OPEN(15,FILE='dyn_cells.dat')
+  ! DO I = 1, max_n_dcell
+  !  write(15,*) dyn_cell(I)%corner, dyn_cell(I)%width, dyn_cell(I)%neighbor
+  ! END DO
+  !CLOSE(15)
 ! DO I = 1, max_n_dcell
 !  IF(dyn_cell(I)%up_cell == 0) THEN
 !   ! what is the basic cell of this dynamical cell

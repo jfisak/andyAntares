@@ -13,7 +13,7 @@
   INTEGER, PARAMETER                        :: maxrows = 6000000
   DOUBLE PRECISION                          :: r, velo, dens, temp
   DOUBLE PRECISION, DIMENSION(n_elements)   :: massfrac
-  CHARACTER(20)                             :: modelfile 
+  CHARACTER(20)                             :: modelfile, jikrfile
   ! variables which are not needed in the code
   !DOUBLE PRECISION                          :: delta_r, delta, delta2, tot_nd, tot_md
 
@@ -52,7 +52,7 @@
      model_grid(I)%rwind = r  * R_star
      model_grid(I)%vel = velo * 1.D5
      model_grid(I)%rho = dens
-     model_grid(I)%T = 7000. ! should be temp 
+     model_grid(I)%T = 10000. ! should be temp 
      model_grid(I)%J = 0.D0 
      model_grid(I)%assoc_cells = 0
      !Total mass density of grid cell I
@@ -66,7 +66,8 @@
         numbions = elements(J)%nions
         ALLOCATE (model_grid(I)%grid_comp(J)%grid_ion(numbions))
         atom_number = elements(J)%atom_number
-        model_grid(I)%grid_comp(J)%abund = massfrac(atom_number)        
+        !model_grid(I)%grid_comp(J)%abund = massfrac(atom_number)        
+        model_grid(I)%grid_comp(J)%abund = elements(J)%abundance
         !Calculate total number density for included species
         !tot_nd = model_grid(I)%grid_comp(J)%abund / elements(J)%atom_mass 
         !model_grid(I)%grid_comp(J)%numb_den = tot_nd
@@ -108,7 +109,10 @@
  CASE(1)
   print*, 'we will read a model from Jiri Krticka program...'
   add_mg = 1
-  OPEN(UNIT=12,status='old',FILE='jikrmodel.dat')
+  CALL GET_ENVIRONMENT_VARIABLE("JIKRMODEL", jikrfile)
+  IF(TRIM(jikrfile) == "") STOP "no input model file selected, &
+                                   please set the variable JIKRMODEL"
+  OPEN(UNIT=12,status='old',FILE=jikrfile)
    READ(12,*) T_eff, R_star, modelfile
   CLOSE(12)
   OPEN(UNIT=11,status='old',FILE=modelfile)
@@ -137,6 +141,7 @@
      model_grid(I)%T = temp ! should be temp 
      model_grid(I)%J = 0.D0 
      model_grid(I)%assoc_cells = 0
+     model_grid(I)%T = model_grid(I)%T / temp_factor
 !     print*, 'testing model grid...'
 !     print*, model_grid(I)%rwind, model_grid(I)%vel, &
 !        model_grid(I)%rho, model_grid(I)%T, model_grid(I)%J, &
@@ -154,6 +159,8 @@
      END DO
    END DO
   CLOSE(11)
+  IF(temp_factor /= 1.0) write(*,*) 'Warning, temperature structure is divided &
+   by a temperature factor = ', temp_factor
   R_star = model_grid(1)%rwind
   R_inf  = model_grid(n_modelgrid)%rwind
   V_inf  = model_grid(n_modelgrid)%vel

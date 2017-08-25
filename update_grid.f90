@@ -9,41 +9,46 @@ SUBROUTINE update_grid(iteration)
 
   INTEGER             :: gridcell, indexe, indexi, numb_ions, iteration
   DOUBLE PRECISION    :: el_nd, temp, frac, U, N_jk, gl_pop
-  DOUBLE PRECISION    :: volume, loc_volume
   INTEGER             :: max_n_dcell
   INTEGER             :: I
   
+!  OPEN(31, FILE='carbonI.dat')
+!  OPEN(32, FILE='carbonII.dat')
+!  OPEN(33, FILE='carbonIII.dat')
+!  OPEN(34, FILE='carbonIV.dat')
+!  OPEN(35, FILE='carbonV.dat')
+!  OPEN(36, FILE='carbonVI.dat')
+!  OPEN(31, FILE='nitrogenI.dat')
+!  OPEN(32, FILE='nitrogenII.dat')
+!  OPEN(33, FILE='nitrogenIII.dat')
+!  OPEN(34, FILE='nitrogenIV.dat')
+!  OPEN(35, FILE='nitrogenV.dat')
+!  OPEN(36, FILE='nitrogenVI.dat')
+!  OPEN(37, FILE='nitrogenVII.dat')
   max_n_dcell = SIZE(dyn_cell)
    print*, 'updating grid'
   DO gridcell = 1, n_modelgrid
-   ! computing of volume of the associated propagation cells
-   volume = 0.D0
-   DO I = 1, max_n_dcell
-    IF(dyn_cell(I)%up_cell == 0) THEN
-     IF(dyn_cell(I)%model_index == gridcell) THEN
-      loc_volume = dyn_cell(I)%width(1)**2 + dyn_cell(I)%width(2)**2 + dyn_cell(I)%width(3)**2
-      volume = volume + loc_volume
-     END IF
-    END IF
-   END DO
+   !print*, 'update_grid: volume: model cell = ', gridcell, ' volume = ', volume
+
     IF (model_grid(gridcell)%assoc_cells .GT. 0) THEN
       IF (iteration .EQ. 1) THEN
         ! Calculate electron number density for every model grid cell gridcell
         CALL find_e_nd(gridcell, el_nd)
       ELSE
         ! Energy density contribeted to the model grid cell 
-         model_grid(gridcell)%J = model_grid(gridcell)%J / volume / model_grid(gridcell)%assoc_cells
+         model_grid(gridcell)%J = model_grid(gridcell)%J / model_grid(gridcell)%volume / (4 * pi)
          temp = (model_grid(gridcell)%J * pi / sigma )**(1./4.) 
-         print*, temp
+!         print*, 'model cell: ', gridcell, ' temperature = ', temp, ' flux = ', model_grid(gridcell)%J, &
+!                ' volume = ', model_grid(gridcell)%volume
+!         print*, 'update_grid: temperature: I = ', I, ' T = ', temp
          model_grid(gridcell)%T = temp
          ! Calculate electron number density for every model grid cell gridcell
          !print*, gridcell, model_grid(gridcell)%J, temp
          CALL find_e_nd(gridcell, el_nd)
          model_grid(gridcell)%J = 0.D0   
       END IF
-      model_grid(gridcell)%e_dens = el_nd
+      model_grid(gridcell)%e_dens = el_nd 
       temp = model_grid(gridcell)%T
-
 
       !     print*, 'temp and e_nd:', gridcell,  model_grid(gridcell)%rho, temp, el_nd/6.1D14
       DO indexe = 1, n_elements
@@ -65,11 +70,31 @@ SUBROUTINE update_grid(iteration)
            gl_pop = ( elements(indexe)%ions(indexi)%levels(1)%stat_waight * N_jk ) /  U 
            model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%gl_pop = gl_pop
            model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop = N_jk
+!           IF(indexe == 3 .AND. indexi == 1) WRITE(31,*) model_grid(gridcell)%rwind, frac
+!           IF(indexe == 3 .AND. indexi == 2) WRITE(32,*) model_grid(gridcell)%rwind, frac
+!           IF(indexe == 3 .AND. indexi == 3) WRITE(33,*) model_grid(gridcell)%rwind, frac
+!           IF(indexe == 3 .AND. indexi == 4) WRITE(34,*) model_grid(gridcell)%rwind, frac
+!           IF(indexe == 3 .AND. indexi == 5) WRITE(35,*) model_grid(gridcell)%rwind, frac
+!           IF(indexe == 3 .AND. indexi == 6) WRITE(36,*) model_grid(gridcell)%rwind, frac
+!           IF(indexe == 2 .AND. indexi == 1) WRITE(31,*) model_grid(gridcell)%rwind, frac
+!           IF(indexe == 2 .AND. indexi == 2) WRITE(32,*) model_grid(gridcell)%rwind, frac
+!           IF(indexe == 2 .AND. indexi == 3) WRITE(33,*) model_grid(gridcell)%rwind, frac
+!           IF(indexe == 2 .AND. indexi == 4) WRITE(34,*) model_grid(gridcell)%rwind, frac
+!           IF(indexe == 2 .AND. indexi == 5) WRITE(35,*) model_grid(gridcell)%rwind, frac
+!           IF(indexe == 2 .AND. indexi == 6) WRITE(36,*) model_grid(gridcell)%rwind, frac
+!           IF(indexe == 2 .AND. indexi == 7) WRITE(37,*) model_grid(gridcell)%rwind, frac
         END DO
       END DO
 !     stop
     ENDIF
   END DO
+!  CLOSE(31)
+!  CLOSE(32)
+!  CLOSE(33)
+!  CLOSE(34)
+!  CLOSE(35)
+!  CLOSE(36)
+!  CLOSE(37)
   CLOSE(3)
 
   

@@ -1,4 +1,4 @@
-n_pack = 1000000
+n_pack = 1
 n_nubin = 1000
 nx_cell = 50
 ny_cell = 50
@@ -8,7 +8,8 @@ inputmodel = 0
 xmax = 5.
 ymax = 5.
 zmax = 5.
-dyngrid = 0
-Nvirtpart = 1000000
+dyngrid = 2
+Nvirtpart = 300000
 *random_seed = 1
 inputflux = 0
+nlte = 0

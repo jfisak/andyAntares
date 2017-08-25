@@ -219,9 +219,9 @@ END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CASE(2)
- dimofsubcells(1) = FLOOR(np**(1.0/3.0))
- dimofsubcells(2) = FLOOR(np**(1.0/3.0))
- dimofsubcells(3) = FLOOR(np**(1.0/3.0))
+ dimofsubcells(1) = FLOOR(np**(1.0/2.0))
+ dimofsubcells(2) = FLOOR(np**(1.0/2.0))
+ dimofsubcells(3) = FLOOR(np**(1.0/2.0))
  no_dcells = dimofsubcells(1) * dimofsubcells(2) * dimofsubcells(3)
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! do we need to resize dyn_cell?

@@ -15,6 +15,9 @@
   DOUBLE PRECISION               :: delta, delta2
   ! radial and vertical distance
   DOUBLE PRECISION               :: r, z, r0, z0
+  ! volume of model cell
+  DOUBLE PRECISION               :: volume, loc_volume
+  INTEGER                        :: gridcell
   
   basic_diagonal = sqrt(basic_cell_width(1)**2 + basic_cell_width(2)**2 + &
                         basic_cell_width(3)**2)
@@ -122,6 +125,20 @@
    END DO
    print*, 'number of propagation cells in vacuum: ', model_grid(n_modelgrid + add_mg)%assoc_cells
   ENDIF
+! computing volume of model cells
+DO gridcell = 1, n_modelgrid
+ volume = 0.D0
+ DO I = 1, max_n_dcell
+  IF(dyn_cell(I)%up_cell == 0) THEN
+   IF(dyn_cell(I)%model_index == gridcell) THEN
+    loc_volume = dyn_cell(I)%width(1) * dyn_cell(I)%width(2) * dyn_cell(I)%width(3)
+    volume = volume + loc_volume
+   END IF
+  END IF
+ END DO
+ !print*, 'connection_prop_model_grid: volume of the cell ', gridcell, ' is ', volume
+ model_grid(gridcell)%volume = volume
+END DO
 
 !  print*, 'printing number of associated cells'
 !  OPEN(UNIT=3,FILE='conneced_cells.dat')

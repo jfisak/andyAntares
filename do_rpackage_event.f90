@@ -20,7 +20,9 @@ SUBROUTINE do_rpackage_event(pack_index, event)
      ! freq_line,package(pack_index)%freq_cmf
 !     print*, 'photon ', pack_index, ' line interaction...'
      package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
-     CALL emit_rpackage(pack_index)
+     package(pack_index)%typ = type_ipkt
+     !print*, 'photon ', pack_index, ' line interaction...'
+!     CALL emit_rpackage(pack_index)
   ELSE IF (event .EQ. rpkt_eventtype_continuum) THEN
      ! In this case the package undergoes a continuum event. In the
      ! general case we need to decide now if this was a
@@ -40,6 +42,7 @@ SUBROUTINE do_rpackage_event(pack_index, event)
      ! isotropic re-emission in the cmf
      package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
 !     print*, 'photon ', pack_index, ' continuum interaction...'
+     count_thomson = count_thomson + 1
      CALL emit_rpackage(pack_index)
   ELSE
      STOP 'ERROR in do_rpackage event'

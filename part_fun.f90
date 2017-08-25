@@ -17,7 +17,7 @@ SUBROUTINE part_fun(indexe, indexi, temp, U)
 !  print*, '  Part.func. initialisation:', U, e_gl
 
   ! Number ov levels for the given element indexe in ionisation stage indexi
-  nlevels = elements(indexe)%ions(indexi)%nlevels
+  nlevels = SIZE(elements(indexe)%ions(indexi)%levels)
 
   DO indexl = 2, nlevels
      ! Statistical weight of th egrpund level
@@ -25,7 +25,7 @@ SUBROUTINE part_fun(indexe, indexi, temp, U)
      ! Excitation energy of the excited level
      e_level = elements(indexe)%ions(indexi)%levels(indexl)%exci_energy
      ! Partition function
-     IF(BOLK == 0 .OR. temp == 0 ) print*, "something = 0..."
+     IF(temp == 0 ) STOP 'part_fun: temperature = 0...'
      U = U + g_level * EXP(-(e_level - e_gl) / BOLK / temp)  
 !     print*, '   part.func. calculation:', indexl, g_level, e_level/e_v
   END DO
