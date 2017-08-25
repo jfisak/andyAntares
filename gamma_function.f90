@@ -6,7 +6,8 @@ USE types
 IMPLICIT NONE
 
 ! input variables
-DOUBLE PRECISION                        :: x, transition
+DOUBLE PRECISION                        :: x
+INTEGER                                 :: transition
 DOUBLE PRECISION, PARAMETER             :: gf_const = 2.76D0
 ! exponential integal function
 DOUBLE PRECISION                        :: eif
@@ -14,6 +15,8 @@ DOUBLE PRECISION                        :: eif
 DOUBLE PRECISION                        :: value_1, value_2
 ! output variables
 DOUBLE PRECISION                        :: gf
+INTEGER                                 :: indexe, indexi
+CHARACTER(LEN=15)                       :: el_conf_lower, el_conf_upper
 
 ! THE FIRST VALUE
 ! firstly we will calculate \tilde{g}
@@ -30,7 +33,13 @@ DOUBLE PRECISION                        :: gf
 ! now we choose only one value
 ! IT MUST BE DONE LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 value_1 = 0.7
+indexe = linelist(transition)%indexe
+indexi = linelist(transition)%indexi
+el_conf_lower = elements(indexe)%ions(indexi)%levels(linelist(transition)%lower)%elconf
+el_conf_upper = elements(indexe)%ions(indexi)%levels(linelist(transition)%upper)%elconf
 
+print*, 'el_conf_lower = ', el_conf_lower, ' el_conf_upper = ', el_conf_upper
+STOP
 ! THE SECOND VALUE
 ! the main thing in this part is to calculate an exponential integral function
 CALL exp_int_func(1, x, eif)
