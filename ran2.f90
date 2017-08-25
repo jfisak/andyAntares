@@ -1,5 +1,6 @@
 DOUBLE PRECISION   FUNCTION  ran2(idum)
 
+!$THREATPRIVATE(iv,iy,idum2)
       IMPLICIT NONE 
       INTEGER idum,IM1,IM2,IMM1,IA1,IA2,IQ1,IQ2,IR1,IR2,NTAB,NDIV
       DOUBLE PRECISION AM,EPS,RNMX
@@ -30,6 +31,7 @@ DOUBLE PRECISION   FUNCTION  ran2(idum)
       idum2=IA2*(idum2-k*IQ2)-k*IR2
       if (idum2.lt.0) idum2=idum2+IM2
       j=1+iy/NDIV
+!      print*, 'ran2: iy = ', iy, ' NDIV = ', NDIV, ' j = ', j, ' iy/NDIV = ', iy/NDIV
       iy=iv(j)-idum2
       iv(j)=idum
       if(iy.lt.1)iy=iy+IMM1

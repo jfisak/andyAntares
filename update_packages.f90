@@ -7,14 +7,16 @@
   INTEGER             :: n_pack, pack_index
   
 
-  OPEN (UNIT=3, FILE='position.dat')
+!  OPEN (UNIT=3, FILE='position.dat')
+! write(*,*) 'WARNING: positions of packets are being written into the file, if the number of &
+!                packages is large the file will be very large'
   ! print*, 'A'
 !$OMP PARALLEL
-!$DEFAULT(SHARED)
-!$SHARED(linelist, elements, virtual_particle, dyn_cell, package)
+!$DEFAULT(private)
+!$SHARED(dyn_cell, n_pack)
 !$OMP DO
   DO pack_index = 1, n_pack
-     ! print*, 'B'
+     ! prinnt*, 'B'
      IF (MODULO(pack_index,10000) .EQ. 0) print*, 'Working on packet ', pack_index,' ...'
      !print*, 'Working on packet ', pack_index,' ...'
      IF (debug .NE. 0) print*, 'Working on packet ', pack_index,' ...' 
@@ -49,6 +51,6 @@
   END DO
 !$OMP END DO
 !$OMP END PARALLEL
-  CLOSE(UNIT=3)
+!  CLOSE(UNIT=3)
   
 END SUBROUTINE update_packages

@@ -38,8 +38,8 @@ indexi = linelist(transition)%indexi
 el_conf_lower = elements(indexe)%ions(indexi)%levels(linelist(transition)%lower)%elconf
 el_conf_upper = elements(indexe)%ions(indexi)%levels(linelist(transition)%upper)%elconf
 
-print*, 'el_conf_lower = ', el_conf_lower, ' el_conf_upper = ', el_conf_upper
-STOP
+!print*, 'gamma_function: el_conf_lower = ', el_conf_lower, ' el_conf_upper = ', el_conf_upper
+!STOP
 ! THE SECOND VALUE
 ! the main thing in this part is to calculate an exponential integral function
 CALL exp_int_func(1, x, eif)

@@ -28,13 +28,15 @@ SUBROUTINE main
 !  DOUBLE PRECISION                  :: xmax, ymax, zmax, deltax, deltay, deltaz 
 !  DOUBLE PRECISION                  :: delta_cellx, delta_celly, delta_cellz 
 !  DOUBLE PRECISION                  :: delta_opa, opa_cell
+INTEGER                                 :: nphit, loc_n_pack
+INTEGER, PARAMETER                      :: max_packs = 1e7
 
 ! Link data to identify program version
   CHARACTER LINK_DATE*30, LINK_USER*10, LINK_HOST*60
   COMMON / COM_LINKINFO / LINK_DATE, LINK_USER, LINK_HOST
 !  COMMON / RAN_SEED / idum
 
-
+  CALL EXECUTE_COMMAND_LINE('figlet "3D WIND CODE"')
 
   OPEN (UNIT=2, FILE='cells.dat')  
 !  OPEN (UNIT=3, FILE='modelgrid.dat')
@@ -162,7 +164,6 @@ SUBROUTINE main
 
      !iteration = iteration + 1
      IF (iteration .GE. 10) print*, 'No convergency'
->>>>>>> master
      CALL update_grid(iteration)
      IF(iteration == 100) STOP 'too many iteration in the subroutine main'
      PRINT*, 'Update grid finished' 
@@ -193,9 +194,10 @@ SUBROUTINE main
     ! n_pack will compute in several loops to save some memory
     nphit = INT(n_pack / max_packs)
     ! do 03
-    DO J = 1, nphit
+    nphit = 1
+!    DO J = 1, nphit
      ! Initialisation of photon packages from the photosphere
-     CALL init_photsphere(loc_n_pack) 
+     CALL init_photsphere(n_pack) 
      print*, 'photons initialised'
 
      ! Initalisation of photon packages from point sourse
@@ -204,13 +206,10 @@ SUBROUTINE main
      ! Propagation of the photon in 3D grid
      ! CALL propagation(n_pack, opa_cell, lower_opa, delta_opa)
      print*, 'update packages'
-     CALL update_packages(loc_n_pack)
+     CALL update_packages(n_pack)
      print*, 'Number of destoyed packages =', destroyed_pack
-<<<<<<< HEAD
    ! end do 03
-   END DO
-=======
->>>>>>> master
+!   END DO
   END DO 
 ! CLOSE(20)
 
