@@ -93,20 +93,25 @@ MODULE types
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Global variables
+! propagation grid properties
   DOUBLE PRECISION                   :: xmax, ymax, zmax
   DOUBLE PRECISION, DIMENSION(3)     :: basic_cell_width
+  INTEGER                            :: nx_cell, ny_cell, nz_cell, Ngrid, destroyed_pack
   INTEGER                            :: dyngrid
+! NLTE
   INTEGER                            :: nlte
+! properties of a central star
   DOUBLE PRECISION                   :: R_star, R_inf, V_inf, M_dot, T_eff
   DOUBLE PRECISION                   :: Z_inf
+! lower boundary condition
   DOUBLE PRECISION, ALLOCATABLE      :: incomingflux(:,:)
-  INTEGER                            :: nx_cell, ny_cell, nz_cell, Ngrid, destroyed_pack
   INTEGER                            :: dummypackage, n_nubin, n_modelgrid
   ! additional model grid variables
   INTEGER                            :: add_mg
   ! number of virtual particles
   INTEGER                            :: Nvirtpart
 
+! fields for the given types
   TYPE(modelgrid), ALLOCATABLE       :: model_grid(:)
 !  TYPE(grid_cell), ALLOCATABLE       :: cell(:)   
   TYPE(dyn_grid_cell), ALLOCATABLE   :: dyn_cell(:)   
@@ -115,14 +120,14 @@ MODULE types
   TYPE(line_list), ALLOCATABLE       :: linelist(:)
   TYPE(atom_elements), ALLOCATABLE   :: elements(:)
   TYPE(virt_particle), ALLOCATABLE   :: virtual_particle(:)
-
+! variable for random number generation
   INTEGER                            :: idum
+! debug mode
   INTEGER                            :: debug
 ! flux from existing input file
   INTEGER                            :: inputflux, inputmodel
-!#ifdef MPI_ON
-!  INTEGER                            :: n_tasks, my_rank
-!#endif
+! number of photoionization cross sections
+  INTEGER                               :: n_photcrossect
 
 
 ! Globally defined numerical constants 
@@ -165,7 +170,7 @@ MODULE types
                                        BOLK=1.380662D-16,m_sun=1.989D+33, sigma =5.6704D-05 !ergcm^(-2)s(-1)K(-4) !D. H. Cohen et al.2012
   DOUBLE PRECISION, PARAMETER        :: parsec=30.857D17, e_v = 1.60217646D-12, saha_const=2.0706839D-16, b = 1.D0
   ! TEMPORARY CHANGE OF TEMPERATURE STRUCTURE
-  DOUBLE PRECISION, PARAMETER        :: temp_factor = 5.0
+  DOUBLE PRECISION, PARAMETER        :: temp_factor = 1.0
 
 !! Parameters for testing
   DOUBLE PRECISION                   :: freq_line
@@ -186,5 +191,7 @@ INTEGER                                 :: count_intdownjump, &
                                            count_coldeexc, &
                                            count_thomson, &
                                            count_recombination
+
+
 
 END MODULE types

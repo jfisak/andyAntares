@@ -1,11 +1,13 @@
 SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
 
   USE types
+  USE rates
 
   IMPLICIT NONE    
 
   INTEGER                           :: I, pack_index, event,do_loop, get_package_model_index
   INTEGER                           :: nextLine, indexe, indexi, lower_level, current_mgi
+! pointer to a field of continuum rates
   DOUBLE PRECISION                  :: e_dist, ran_numb, ran2, tau_rand, cell_dist, D
   DOUBLE PRECISION                  :: tau, l_dist, tau_line, constant, pop_number, tau_cont
   DOUBLE PRECISION                  :: electron_density, kappa_cont, vec_length, dist
@@ -20,6 +22,8 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
 10  ran_numb = ran2(idum)  ! PUT IT IN SUBROUTINE - write is as do loop
     IF (ran_numb .EQ. 0.D0) GOTO 10    
     tau_rand = -LOG(ran_numb)
+
+! allocating the field
 
   ! Initialize optical depth and distance
   tau = 0.D0
@@ -41,7 +45,8 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
   ! For now we neglect cont. opacities, but the routine was written generally to
   ! allow for adding  cont. opacity in the future
   ! kappa_cont = 0.D0                      ! no e scattering
-  kappa_cont = sigma_e * electron_density  ! add e scattering
+  CALL r_kappa_cont(pack_index, kappa_cont)
+  !kappa_cont = sigma_e * electron_density  ! add e scattering
 
   ! This is the opacity in co-moving frame. Must be transformed to the lab frame
   ! According to Mihalas and Mihalas Eq. 90.8 this is achieved by 

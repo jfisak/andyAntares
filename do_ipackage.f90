@@ -332,7 +332,7 @@ ELSE IF(rand >= Z4 .AND. rand <= Z5) THEN
   summ = summ + Lintphotrecom(I) + Lintcollrecom(I)
  END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! recombination
+! recombination (radiative and collisional)
 ELSE IF(rand >= Z5 .AND. rand <= Z6) THEN
  !print*, 'do_ipackage: pack_index = ', pack_index, 'radiative recombination'
  package(pack_index)%typ = type_kpkt
@@ -340,14 +340,14 @@ ELSE IF(rand >= Z5 .AND. rand <= Z6) THEN
  ! temporary
  ! the frequency should be sampled from the photion cross section
  count_recombination = count_recombination + 1
- package(pack_index)%freq_cmf = linelist(last_line)%freq
+ CALL i_freq_recomb(actual_state, pack_index, act_pop, new_freq)
+ package(pack_index)%freq_cmf = new_freq
 END IF
 
 DEALLOCATE(linetransitions, lineuptransitions, &
                 Lintdownrad, Lintuprad, Lintdowncoll, Lintupcoll, &
                 Lintup, Lintdown)
 IF(nlevslion /= 0) DEALLOCATE(Lphotrecom, Lintphotrecom, Lcollrecom, Lintcollrecom)
-
 END DO
 
 END SUBROUTINE do_ipackage

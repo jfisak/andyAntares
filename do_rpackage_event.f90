@@ -1,12 +1,16 @@
 SUBROUTINE do_rpackage_event(pack_index, event)
 
   USE types
+  USE rates
 
   IMPLICIT NONE    
 
   INTEGER                           :: pack_index, event
   DOUBLE PRECISION                  :: dist, rand_numb, ran2, tau, tau_rand
   DOUBLE PRECISION, DIMENSION(3)    :: direction
+  ! loop variables
+  INTEGER                               :: I
+  DOUBLE PRECISION                      :: summ, rand, ZcontTot
 
 
   IF (event .EQ. rpkt_eventtype_lineinteraction) THEN
@@ -32,18 +36,41 @@ SUBROUTINE do_rpackage_event(pack_index, event)
      ! the cmf. For ff it becomes a kpkt, In the case of bf we have to
      ! check further if it will go to a kpkt or ipkt (bf contribute to
      ! both the thermal kinetic and internal energy pools).
+   ! total number of continuum rates
+   ZcontTot = 0.D0
+   package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
+   DO I = 1, SIZE(Lcont)
+    ZcontTot = ZcontTot + Lcont(I)
+    !write(*,*) 'do_rpackage_event: I = ', I, ' Lcont = ', Lcont(I)
+   END DO
+   ! generating a random number
+   rand = ran2(idum) * ZcontTot
+   summ = 0.D0
+   IF(rand >= summ .AND. rand <= Lcont(1) + summ) THEN
+    ! electron scattering occures
+    ! changes only a direction of propagation
+    count_thomson = count_thomson + 1
+    CALL emit_rpackage(pack_index)
+    !write(*,*) 'do_rpackage_event: electron scattering'
+    RETURN
+   END IF
+   summ = Lcont(1)
+   ! photoionization
+   DO I = 2, SIZE(Lcont)
+    IF(rand >= summ .AND. rand <= Lcont(I) + summ) THEN
+     ! temporary solution
+     !IF(rand >= summ .AND. rand <= Lcont(I)/2.D0 + summ) THEN
+      package(pack_index)%typ = type_ipkt
+      !write(*,*) 'do_rpackage_event: packet = ', pack_index, ' b-f process'
+     !ELSE
+     !  package(pack_index)%typ = type_ipkt
+     EXIT
+    END IF
+    summ = summ + Lcont(I)
+   END DO
+
      
-     ! For now we set the electron number density to zero, so no
-     !continuum opacity should be there print*, 'Continuum event
-     !occurred. This should not happen for now!'
      
-     ! As an easy next step make sure that a proper e/s opacity is
-     ! calcualted, than the following lines should work and give
-     ! isotropic re-emission in the cmf
-     package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
-!     print*, 'photon ', pack_index, ' continuum interaction...'
-     count_thomson = count_thomson + 1
-     CALL emit_rpackage(pack_index)
   ELSE
      STOP 'ERROR in do_rpackage event'
   END IF

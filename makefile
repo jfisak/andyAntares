@@ -12,7 +12,7 @@ linkhost=$(shell hostname)
 
 #Objects
 OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o modul.o	  \
-          random_unitvector.o ran2.o boundary3.o find_dist.o \
+          random_unitvector.o ran2.o boundary3.o find_dist.o rates.o\
           change_cell.o move_package.o emit_rpackage.o			  \
           init_photsphere.o random_unitvector2.o 		  \
           random_unitvector1.o read_1D_model.o doppler_factor.o		  \
@@ -29,12 +29,14 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o modul.o	  \
 	  next_cell_down.o next_cell_up.o read_2D_model.o populations.o   \
 	  collisional_rates.o gamma_function.o exp_int_func.o cool_excit.o \
 	  read_photcs.o radiative_rates.o photion_rates.o collion_rates.o \
-	  flux_function.o find_element_index.o next_line.o resonance_distance.o
+	  flux_function.o find_element_index.o next_line.o resonance_distance.o \
+	  r_kappa_cont.o i_freq_recomb.o lin_int.o
 
 #Rules
 all : $(PROJECT)
 
 modul.o: modul.f90 
+rates.o: rates.f90
 	$(F90) $(FCFLAGS) -o $@ -c $<
 
 %.for:

@@ -26,6 +26,8 @@ SUBROUTINE read_composition()
   INTEGER                            :: phcs_type
   INTEGER                            :: K, n_levels, n_ions, n_points
 
+! initialization the toal number of photoionization cross section
+n_photcrossect = 0
 OPEN (UNIT=7, FILE='compose_adata.dat')
  ! computes number of lines in the input file
  ! number of rows is equal to 0
