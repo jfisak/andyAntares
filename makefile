@@ -30,7 +30,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o modul.o	  \
 	  collisional_rates.o gamma_function.o exp_int_func.o cool_excit.o \
 	  read_photcs.o radiative_rates.o photion_rates.o collion_rates.o \
 	  flux_function.o find_element_index.o next_line.o resonance_distance.o \
-	  r_kappa_cont.o i_freq_recomb.o lin_int.o
+	  r_kappa_cont.o i_freq_recomb.o cool_ff.o warning.o k_freq_ff.o
 
 #Rules
 all : $(PROJECT)

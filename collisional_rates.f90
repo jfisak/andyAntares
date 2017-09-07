@@ -45,7 +45,9 @@ DOUBLE PRECISION                        :: lcoll
 DOUBLE PRECISION                        :: stat_weight
 DOUBLE PRECISION, PARAMETER             :: times = 1e10
 
-
+!IF(times /= 1.D0) THEN
+! CALL warning('collisional rates are multiplied by a non-one factor')
+!END IF
 SELECT CASE(approx)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! van Regemorter approximation
