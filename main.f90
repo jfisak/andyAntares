@@ -58,7 +58,7 @@ SUBROUTINE main
   ! Read input  
   CALL read_input(n_pack, iseed)
   PRINT*, 'read input'
-  read*, junk
+!  read*, junk
 
   ! Read composition
   print*, 'read_composition'

@@ -72,6 +72,7 @@ CASE(2)
    !print*, 'nofPoints = ', nofPoints
    ! we can compute a frequency treshold from these data
    freqt = abs(energy * Rydberg * e_v) / h
+   !write(*,*) 'read_photcs: freqt = ', freqt
    !elements(indexe)%ions(indexI)%levels(indexclev)%phfreq = freqt
    ! now we will read the given data for the photoionization cross section
    DO I = 1, nofPoints

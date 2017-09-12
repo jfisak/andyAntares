@@ -10,7 +10,7 @@
   OPEN (UNIT=3, FILE='position.dat')
   ! print*, 'A'
   DO pack_index = 1, n_pack
-     ! print*, 'B'
+     !write(*,*) 'update_packages: pack_index = ', pack_index
      IF (MODULO(pack_index,10000) .EQ. 0) print*, 'Working on packet ', pack_index,' ...'
      !print*, 'Working on packet ', pack_index,' ...'
      IF (debug .NE. 0) print*, 'Working on packet ', pack_index,' ...' 

@@ -1,6 +1,7 @@
 SUBROUTINE photion_rates(approx, indexe, indexi, leveli, current_mgi, act_pop, Zion, nrecom, &
         Lintrecom, Zintrecom, Lrecom, Zrecom)
 USE types
+USE rates
 IMPLICIT NONE
 
 ! input variables
@@ -108,7 +109,7 @@ IF(indexi > 1) THEN
    gr_exci_energy = elements(indexe)%ions(indexi)%levels(1)%exci_energy
    stat_weight = elements(indexe)%ions(indexi - 1)%levels(K)%stat_waight
    Lintrecom(K) = pop_number * phot_cross * exci_energy * stat_weight
-   Lrecom(K) = pop_number * phot_cross * stat_weight * (exci_energy - gr_exci_energy)
+   Lrecom(K) = pop_number * phot_cross * stat_weight * (gr_exci_energy - exci_energy)
    !print*, 'photion_rates: Lrecom(K) = ', Lrecom(K)
    !Lrecom(K) = 0.D0
    Zintrecom = Zintrecom + Lintrecom(K) 

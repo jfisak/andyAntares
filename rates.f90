@@ -1,8 +1,13 @@
 MODULE rates
 
 ! pointers
+! i-packages
+DOUBLE PRECISION, DIMENSION(:), POINTER ::  Lint_recom => NULL()
+
+! k-packages
 DOUBLE PRECISION, DIMENSION(:), POINTER ::  Lcont => NULL()
 DOUBLE PRECISION, DIMENSION(:), POINTER :: Lcool_excit => NULL()
 DOUBLE PRECISION, DIMENSION(:), POINTER :: Lcool_ff => NULL()
+DOUBLE PRECISION, DIMENSION(:), POINTER :: Lcool_ion => NULL()
 
 END MODULE rates

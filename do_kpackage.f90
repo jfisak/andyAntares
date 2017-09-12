@@ -7,8 +7,8 @@ INTEGER                         :: pack_index
 ! indexes
 INTEGER                         :: I
 ! cooling rates
-DOUBLE PRECISION                :: Zexcit, Ztot, Zff
-DOUBLE PRECISION                :: Z0, Z1
+DOUBLE PRECISION                :: Zexcit, Ztot, Zff, Zion
+DOUBLE PRECISION                :: Z0, Z1, Z2
 DOUBLE PRECISION                :: summ
 DOUBLE PRECISION                :: rand, ran2
 !package(pack_index)%typ = type_rpkt
@@ -22,6 +22,8 @@ DOUBLE PRECISION                :: new_freq
 ! collision excitation rate
 CALL cool_excit(1, pack_index,  Zexcit)
 CALL cool_ff(pack_index, Zff)
+CALL cool_ionization(1, pack_index, Zion)
+CALL cool_fb(pack_index, Zfb)
 
 ! now we allocate an array which will include all possible transitions
 !n_cool_tot = SIZE(Lcool_excit) + SIZE(Lcool_ff)
@@ -33,10 +35,11 @@ CALL cool_ff(pack_index, Zff)
 rand = ran2(idum)
 Z0 = Zexcit
 Z1 = Z0 + Zff
+Z2 = Z1 + Zion
 ! total rate
-Ztot = Zexcit + Zff
+Ztot = Zexcit + Zff + Zion
 rand = rand * Ztot
-print*, 'do_kpackage: Zexcit = ', Zexcit, ' Zff = ', Zff
+!write(*,*) 'do_kpackage: Zexcit = ', Zexcit, ' Zff = ', Zff, ' Zion = ', Zion
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! collisional excitation
@@ -59,6 +62,18 @@ IF(rand >= 0.D0 .AND. rand <= Z0) THEN
 ! FREE-FREE processes
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ELSE IF(rand >= Z0 .AND. rand <= Z1) THEN
+ summ = Z0
+ ! free-free process
+ ! package changes to r-packet
+ package(pack_index)%typ = type_rpkt
+ package(pack_index)%last_line = no_line
+ CALL k_freq_ff(pack_index, new_freq)
+ write(*,*) 'do_kpackage: package = ', pack_index, ' free-free process...'
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! ionization
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ELSE IF(rand >= Z1 .AND. rand <= Z2) THEN
  summ = Z1
  ! free-free process
  ! package changes to r-packet

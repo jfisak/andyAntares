@@ -38,36 +38,35 @@ CASE(1)
  ! --
  temperature = model_grid(current_mgi)%T
  el_temperature = temperature
-! print*, 'cool_excit: current_mgi = ', current_mgi
-
-DO line = 1, ntransitions
- ! population of the given state
- element_index = linelist(line)%indexe
- ion_index = linelist(line)%indexi
- CALL populations(element_index, ion_index, linelist(line)%lower, current_mgi, pop)
- ! oscilator strength
- osc_str = linelist(line)%f_ul
- ! frequency of transition
- freq = linelist(line)%freq
- x = (h * freq) / (BOLK * temperature)
- exc_upper = elements(element_index)%ions(ion_index)%levels(linelist(line)%upper)%exci_energy
- exc_lower = elements(element_index)%ions(ion_index)%levels(linelist(line)%lower)%exci_energy
- ! gamma function
- CALL gamma_function(x, line, gf)
+ ! print*, 'cool_excit: current_mgi = ', current_mgi
  
- actVal = pop * electron_density * c0 * (temperature)**(1.0/2.0) * &
-       coll_const * (IH / (h * freq)) * osc_str * &
-       ((h * freq) / (BOLK * el_temperature)) * &
-       exp(-x) * gf * (exc_upper - exc_lower)
-! print*, 'cool_excit: pop = ', pop, ' electron_density = ', electron_density, &
-!        ' temperature = ', temperature, ' gf = ', gf, ' osc_str = ', osc_str, &
-!        ' x = ', x
- Lcool_excit(line) = actVal
- write(*,*) 'cool_excit: Lcool_excit(', line, ') = ', Lcool_excit(line)
- Zexc = Zexc + actVal
- write(*,*) 'cool_excit: Zexc = ', Zexc
-END DO
-
+ DO line = 1, ntransitions
+  ! population of the given state
+  element_index = linelist(line)%indexe
+  ion_index = linelist(line)%indexi
+  CALL populations(element_index, ion_index, linelist(line)%lower, current_mgi, pop)
+  ! oscilator strength
+  osc_str = linelist(line)%f_ul
+  ! frequency of transition
+  freq = linelist(line)%freq
+  x = (h * freq) / (BOLK * temperature)
+  exc_upper = elements(element_index)%ions(ion_index)%levels(linelist(line)%upper)%exci_energy
+  exc_lower = elements(element_index)%ions(ion_index)%levels(linelist(line)%lower)%exci_energy
+  ! gamma function
+  CALL gamma_function(x, line, gf)
+  
+  actVal = pop * electron_density * c0 * (temperature)**(1.0/2.0) * &
+        coll_const * (IH / (h * freq)) * osc_str * &
+        ((h * freq) / (BOLK * el_temperature)) * &
+        exp(-x) * gf * (exc_upper - exc_lower)
+  ! print*, 'cool_excit: pop = ', pop, ' electron_density = ', electron_density, &
+  !        ' temperature = ', temperature, ' gf = ', gf, ' osc_str = ', osc_str, &
+  !        ' x = ', x
+  Lcool_excit(line) = actVal
+  !write(*,*) 'cool_excit: Lcool_excit(', line, ') = ', Lcool_excit(line)
+  Zexc = Zexc + actVal
+  !write(*,*) 'cool_excit: Zexc = ', Zexc
+ END DO
 CASE DEFAULT
  STOP 'cooling rates: this approximation is not known'
 END SELECT

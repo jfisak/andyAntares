@@ -142,7 +142,7 @@ DO WHILE (active == 1)
  CALL collisional_rates(1, pack_index, actual_state, nlns, linetransitions, nluns, lineuptransitions, &
   act_pop, Lintdowncoll, Zintdowncoll, Lintupcoll, Zintupcoll, Zcoll)
  CALL photion_rates(0, element_index, ion_index, actual_state, current_mgi, act_pop, Zphotionup, &
-  nlevslion, Lphotrecom, Zphotrecom, Lintphotrecom, Zphotiondown)
+  nlevslion, Lintphotrecom, Zphotiondown, Lphotrecom, Zphotrecom)
  CALL collion_rates(1, element_index, ion_index, pack_index, actual_state, act_pop, Zcollionup, &
   nlevslion, Lintcollrecom, Zcolliondown,Lcollrecom, Zcollrecom)
  ! total rates of internal donwnward jump
