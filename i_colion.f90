@@ -1,6 +1,7 @@
-SUBROUTINE collion_rates(approximation, indexe, indexi, pack_index, act_level, act_pop, Zion, &
-        nrecom, Lrecom, Zrecomb,Lintrecom,Zintrecomb)
+SUBROUTINE i_colion(approximation, indexe, indexi, pack_index, act_level, act_pop, Zion, &
+        Zrecomb, Zintrecomb)
 USE types
+USE rates
 IMPLICIT NONE
 
 ! input variables
@@ -12,7 +13,8 @@ INTEGER                         :: nrecom
 ! grid informations
 INTEGER                         :: current_mgi
 DOUBLE PRECISION                :: el_dens, temp, gl_pop_ip1e, x
-INTEGER                         :: gindex, nfreq
+INTEGER                         :: nfreq
+DOUBLE PRECISION                :: gindex
 INTEGER                         :: get_package_model_index
 INTEGER                         :: I, J
 INTEGER                         :: npoints
@@ -28,7 +30,6 @@ DOUBLE PRECISION                :: stat_weight
 ! output variables
 DOUBLE PRECISION                :: Zion, Zrecomb, Zintrecomb
 ! recombination
-DOUBLE PRECISION, DIMENSION(nrecom) :: Lrecom, Lintrecom
 DOUBLE PRECISION, PARAMETER             :: times = 1e0
 
 
@@ -83,13 +84,13 @@ CASE (1)
     !print*, 'photoionization: ali = ', ali, ' bli = ', bli, ' cross_sect = ', cross_sect
     ! gindex
     IF(indexi == 1) THEN
-     gindex = 0
+     gindex = 0.1
     ELSE IF(indexi == 2) THEN
-     gindex = 1
+     gindex = 0.2
     ELSE IF(indexi > 2) THEN
-     gindex = 2
+     gindex = 0.3
     END IF
-    Zion = act_pop * el_dens *coll_const / temp**(1.0/2.0) * DBLE(gindex) * cross_sect * exp(-x) / x 
+    Zion = act_pop * el_dens *coll_const / temp**(1.0/2.0) * gindex * cross_sect * exp(-x) / x 
     Zion = times * Zion
     !print*, 'collion_rates: Zion = ', Zion
    END IF
@@ -108,12 +109,13 @@ CASE (1)
    IF(indexi > 1) THEN
     ! gindex
     IF(indexi - 1 == 1) THEN
-      gindex = 0
+      gindex = 0.1
     ELSE IF(indexi - 1 == 2) THEN
-      gindex = 1
+      gindex = 0.2
     ELSE IF(indexi - 1 > 2) THEN
-      gindex = 2
+      gindex = 0.3
     END IF
+    nrecom = SIZE(Lma_int_reccol)
     DO I = 1, nrecom
      npoints = SIZE(elements(indexe)%ions(indexi - 1)%levels(I)%photcros(1,:))
      IF(npoints /= 0) THEN
@@ -151,15 +153,15 @@ CASE (1)
       exci_energy = elements(indexe)%ions(indexi - 1)%levels(I)%exci_energy
       gr_exci_energy = elements(indexe)%ions(indexi - 1)%levels(1)%exci_energy
       stat_weight = elements(indexe)%ions(indexi - 1)%levels(I)%stat_waight
-      Lintrecom(I) = pop_number * el_dens * coll_const / temp**(1.0/2.0) * FLOAT(gindex) * cross_sect * &
+      Lma_int_reccol(I) = pop_number * el_dens * coll_const / temp**(1.0/2.0) * gindex * cross_sect * &
         exp(-x) / x * exci_energy * stat_weight
-      Lrecom(I) = pop_number * el_dens * coll_const / temp**(1.0/2.0) * FLOAT(gindex) * cross_sect * &
+      Lma_reccol(I) = pop_number * el_dens * coll_const / temp**(1.0/2.0) * gindex * cross_sect * &
         exp(-x) / x * (exci_energy - gr_exci_energy) * stat_weight
       ! for now it will be equal to zero
-      !Lrecom(I) = 0.D0
-      Zintrecomb = Zintrecomb + Lintrecom(I)
-      Zrecomb = Zrecomb + Lrecom(I)
-      !print*, 'collion_rates: Lrecom = ', Lrecom(I)
+      !Lma_reccol(I) = 0.D0
+      Zintrecomb = Zintrecomb + Lma_int_reccol(I)
+      Zrecomb = Zrecomb + Lma_reccol(I)
+      print*, 'collion_rates: Lma_reccol = ', Lma_reccol(I)
       DEALLOCATE(crossfreq)
      END IF
     END DO
@@ -175,4 +177,4 @@ CASE DEFAULT
 END SELECT
 
 
-END SUBROUTINE collion_rates
+END SUBROUTINE i_colion

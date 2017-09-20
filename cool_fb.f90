@@ -42,7 +42,7 @@ IF(.NOT. ASSOCIATED(Lcool_fbE)) THEN
    END DO ! levels
   END DO ! ions
  END DO ! elements
- ALLOCATE(Lcool_fbE(n_phcs), Lcool_fbind(2,n_phcs))
+ ALLOCATE(Lcool_fbE(n_phcs), Lcool_fbind(3,n_phcs))
 END IF
 
 ! number of computed rates
@@ -61,24 +61,20 @@ DO indexe = 1, n_elements
  DO indexi = 2, n_ions
   n_levels = SIZE(elements(indexe)%ions(indexi)%levels)
   DO indexl = 1, n_levels
-   ! for this case we have an ion without electrons thus photoionization is impossible
-   IF(indexi == indexe + 1) THEN
-    nfreq = 0
-   ELSE
-    nfreq = SIZE(elements(indexe)%ions(indexi)%levels(indexl)%photcros(1,:))
-   END IF
+   nfreq = SIZE(elements(indexe)%ions(indexi - 1)%levels(indexl)%photcros(1,:))
    ! setting indexe and indexi
    act_rate = act_rate + 1
    Lcool_fbind(1, act_rate) = indexe
-   Lcool_fbind(2, act_rate) = indexi
+   Lcool_fbind(2, act_rate) = indexi - 1
+   Lcool_fbind(3, act_rate) = indexl
    IF(nfreq /= 0) THEN
     ALLOCATE(crossfreq(nfreq), cross(nfreq))
-    crossfreq(:) = elements(indexe)%ions(indexi)%levels(indexl)%photcros(1,:)
-    cross(:) = elements(indexe)%ions(indexi)%levels(indexl)%photcros(2,:)
+    crossfreq(:) = elements(indexe)%ions(indexi - 1)%levels(indexl)%photcros(1,:)
+    cross(:) = elements(indexe)%ions(indexi - 1)%levels(indexl)%photcros(2,:)
     ! number density of a ground state of ion indexi + 1, indexe
     ! frequency
-    init_freq = (elements(indexe)%ions(indexi + 1)%levels(1)%exci_energy - &
-             elements(indexe)%ions(indexi)%levels(indexl)%exci_energy) / h
+    init_freq = (elements(indexe)%ions(indexi)%levels(1)%exci_energy - &
+             elements(indexe)%ions(indexi - 1)%levels(indexl)%exci_energy) / h
     ! looking for initial point
     DO I = 1, nfreq
      IF(init_freq < crossfreq(I)) THEN

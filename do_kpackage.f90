@@ -80,7 +80,7 @@ ELSE IF(rand >= Z1 .AND. rand <= Z2) THEN
  summ = Z1
  ! free-free process
  ! package changes to r-packet
- package(pack_index)%typ = type_rpkt
+ package(pack_index)%typ = type_ipkt
  package(pack_index)%last_line = no_line
  CALL k_freq_ff(pack_index, new_freq)
  write(*,*) 'do_kpackage: package = ', pack_index, ' ionization process...'

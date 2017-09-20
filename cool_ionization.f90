@@ -13,7 +13,8 @@ INTEGER                         :: nrecom
 ! grid informations
 INTEGER                         :: current_mgi
 DOUBLE PRECISION                :: el_dens, temp, gl_pop_ip1e, x
-INTEGER                         :: gindex, nfreq
+INTEGER                         :: nfreq
+DOUBLE PRECISION                :: gindex
 INTEGER                         :: get_package_model_index
 INTEGER                         :: I, act_rate
 INTEGER                         :: npoints
@@ -81,7 +82,7 @@ CASE (1)
      CALL populations(indexe, indexi, indexl, current_mgi, act_pop)
      ! photoionization cross section
      !CALL bound_free_rates(pack_index, indexl, rad_rate)
-     ! photoionization cross section for the given frequency freq
+     ! photoionization cross section for the given frequency 
      crossfreq(:) = elements(indexe)%ions(indexi)%levels(indexl)%photcros(1,:)
      actPoint = 0
      DO I = 1, nfreq
@@ -108,15 +109,15 @@ CASE (1)
       !print*, 'photoionization: ali = ', ali, ' bli = ', bli, ' cross_sect = ', cross_sect
       ! gindex
       IF(indexi == 1) THEN
-       gindex = 0
+       gindex = 1.D-1
       ELSE IF(indexi == 2) THEN
-       gindex = 1
+       gindex = 2.D-1
       ELSE IF(indexi > 2) THEN
-       gindex = 2
+       gindex = 3.D-1
       END IF
       act_rate = act_rate + 1
-      Lcool_ion(act_rate) = act_pop * el_dens * coll_const / temp**(1.0/2.0) * DBLE(gindex) * &
-       cross_sect * exp(-x) / x * h * freq
+      Lcool_ion(act_rate) = act_pop * el_dens * coll_const / temp**(1.0/2.0) * gindex * &
+       cross_sect * exp(-x) / x * (h * freq)
       !write(*,*) 'cool_ionization: act_pop = ', act_pop, ' el_dens = ', el_dens, ' temp = ', temp,&
       ! ' cross_sect = ', cross_sect
       !write(*,*) 'cool_ionization: Lcool_ion(', act_rate, ') = ', Lcool_ion(act_rate)

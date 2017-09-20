@@ -1,8 +1,9 @@
 ! this subroutine calculates collisional rates for the given energy
 ! level
-SUBROUTINE collisional_rates(approx, pack_index, level, nlns, linetransitions, nluns, &
-lineuptransitions, population, Ldown, Zdown, Lup, Zup, Zcoll)
+SUBROUTINE i_coltrans(approx, pack_index, level, nlns, linetransitions, nluns, &
+lineuptransitions, population, Zdown, Zup, Zcoll)
 USE types
+USE rates
 IMPLICIT NONE
 ! input variables
 ! used approximation for the collisional term calculation
@@ -39,11 +40,9 @@ DOUBLE PRECISION                        :: x
 ! total rate
 DOUBLE PRECISION                        :: Zdown, Zup, Zcoll
 ! the rates for the given transitions
-DOUBLE PRECISION, DIMENSION(nlns)       :: Ldown
-DOUBLE PRECISION, DIMENSION(nluns)      :: Lup
 DOUBLE PRECISION                        :: lcoll
 DOUBLE PRECISION                        :: stat_weight
-DOUBLE PRECISION, PARAMETER             :: times = 1e10
+DOUBLE PRECISION, PARAMETER             :: times = 1.D0
 
 !IF(times /= 1.D0) THEN
 ! CALL warning('collisional rates are multiplied by a non-one factor')
@@ -94,9 +93,9 @@ CASE(1)
    exp(-(h * freq) / (BOLK * el_temperature)) * gf
 !  actVal = actVal * (linelist(act_line)%upper - linelist(act_line)%lower)
  ! internal downward jump
-  Ldown(I) = actVal * exci_energy_l * stat_weight
-  Ldown(I) = times * Ldown(I)
-  Zdown = Zdown + Ldown(I)
+  Lma_int_docoll(I) = actVal * exci_energy_l * stat_weight
+  Lma_int_docoll(I) = times * Lma_int_docoll(I)
+  Zdown = Zdown + Lma_int_docoll(I)
  ! collisional deexcitation
   lcoll = actVal * (exci_energy_u - exci_energy_l)
   lcoll = times * lcoll
@@ -127,12 +126,12 @@ CASE(1)
         coll_const * (IH / (h * freq)) * osc_str * &
         ((h * freq) / (BOLK * el_temperature)) * &
         exp(-(h * freq) / (BOLK * el_temperature)) * gf
-  Lup(I) = actVal * exci_energy_l * stat_weight
-  Lup(I) = times * Lup(I)
+  Lma_int_upcoll(I) = actVal * exci_energy_l * stat_weight
+  Lma_int_upcoll(I) = times * Lma_int_upcoll(I)
  END DO
 CASE DEFAULT
  STOP 'collisional_rates: this approximation is not known'
 END SELECT
 
 
-END SUBROUTINE collisional_rates
+END SUBROUTINE i_coltrans

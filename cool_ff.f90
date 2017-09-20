@@ -42,7 +42,7 @@ act_cooling = 0
 Zcool = 0.D0
 DO indexe = 1, n_elements
  n_ions = SIZE(elements(indexe)%ions)
- DO indexi = 1, n_ions - 1
+ DO indexi = 1, n_ions
   act_cooling = act_cooling + 1
   ion_charge = indexi - 1
   !CALL populations(I, J, 1, cur_mgi, act_pop)

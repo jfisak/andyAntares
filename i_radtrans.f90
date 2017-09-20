@@ -1,6 +1,7 @@
-SUBROUTINE radiative_rates(nlns, linetransitions, nluns, lineuptransitions, population, &
-Lintdown, Zintdown, Lintup, Zintup, Zrad)
+SUBROUTINE i_radtrans(nlns, linetransitions, nluns, lineuptransitions, population, &
+Zintdown, Zintup, Zrad)
 USE types
+USE rates
 IMPLICIT NONE
 
 ! input variables
@@ -15,8 +16,6 @@ INTEGER                                 :: act_line
 DOUBLE PRECISION                        :: actVal
 INTEGER                                 :: I
 ! output variables
-DOUBLE PRECISION, DIMENSION(nlns)       :: Lintdown
-DOUBLE PRECISION, DIMENSION(nluns)      :: Lintup
 DOUBLE PRECISION                        :: Zintdown, Zintup, Zrad
 
 Zintdown = 0.D0
@@ -52,8 +51,9 @@ DO I = 1, nlns
  actVal = population * linelist(act_line)%A_ul * exci_energy_l
 ! print*, 'do_ipackage: stat_waight, exci_energy, population, linelist(act_line)%A_ul, actVal', &
 !       stat_weight, exci_energy, population, linelist(act_line)%A_ul, actVal
- Lintdown(I) = actVal * stat_weight
- Zintdown = Zintdown + actVal
+ Lma_int_dorad(I) = actVal * stat_weight
+ Zintdown = Zintdown + Lma_int_dorad(I)
+! write(*,*) 'i_radtrans: Zintdown = ', Zintdown
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! radiative deexcitation
  !print*, 'do_ipackage: population = ', population
@@ -64,13 +64,17 @@ END DO
 ! internal upward jump
 DO I = 1, nluns
  act_line = lineuptransitions(I)
+ exci_energy_l = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy
  stat_weight = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%stat_waight
  exci_energy = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy
  ! internal jump up
  actVal = population * linelist(act_line)%A_ul * exci_energy_l * stat_weight
- Zintup = Zintup + actVal
- Lintup(I) = actVal
- !print*, 'radiative_rates: Zintup = ', Zintup, ' Lintup(I) = ', Lintup(I)
+ Lma_int_uprad(I) = actVal
+ Zintup = Zintup + Lma_int_uprad(I)
+! write(*,*) 'i_radtrans: act_line = ', act_line, ' stat_weight = ', stat_weight, &
+!  ' exci_energy_l = ', exci_energy_l, ' population = ', population, ' linelist(act_line)%A_ul = ', &
+!  linelist(act_line)%A_ul
+! write(*,*) 'i_radtrans: Zintup = ', Zintup
 END DO
 
-END SUBROUTINE radiative_rates
+END SUBROUTINE i_radtrans
