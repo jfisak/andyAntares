@@ -89,6 +89,11 @@ IF(indexi > 1) THEN
    END DO
    freqt = (elements(indexe)%ions(indexi)%levels(leveli)%exci_energy - &
     elements(indexe)%ions(indexi - 1)%levels(K)%exci_energy) / h
+   !write(*,*) 'i_radion: excienergy1 = ', &
+   ! elements(indexe)%ions(indexi)%levels(leveli)%exci_energy, &
+   ! ' excienergy2 =  ',  &
+   ! elements(indexe)%ions(indexi - 1)%levels(K)%exci_energy, &
+   ! 'freq = ', freqt
    ! looking for starting point
    DO J = 1, npoints
     IF(freq(J) >= freqt) THEN
@@ -97,7 +102,7 @@ IF(indexi > 1) THEN
     IF(J == npoints) Jstart = 1
     END IF
    END DO
-   !print*, 'Jstart = ', Jstart
+   !write(*,*) 'i_radion: Jstart = ', Jstart
    summ = 0
    DO J = Jstart, npoints - 1
     summ = summ + (func(J) + func(J + 1)) / 2.D0 * (freq(J + 1) - freq(J))
@@ -109,10 +114,10 @@ IF(indexi > 1) THEN
    stat_weight = elements(indexe)%ions(indexi - 1)%levels(K)%stat_waight
    Lma_int_recrad(K) = pop_number * phot_cross * exci_energy * stat_weight
    Lma_recrad(K) = pop_number * phot_cross * stat_weight * (gr_exci_energy - exci_energy)
-   !print*, 'photion_rates: Lma_recrad(K) = ', Lma_recrad(K)
+   !print*, 'photion_rates: Lma_recrad(K) = ', Lma_recrad(K), ' Lma_int_recrad = ', Lma_int_recrad(K)
    !Lma_recrad(K) = 0.D0
    Zintrecom = Zintrecom + Lma_int_recrad(K) 
-   !Zrecom = Zrecom + Lma_recrad(K)
+   Zrecom = Zrecom + Lma_recrad(K)
    !print*, 'Zrecom = ', Zrecom
    DEALLOCATE(freq, cross, func)
   ELSE

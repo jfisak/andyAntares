@@ -189,9 +189,9 @@ INTEGER                                 :: count_intdownjump, &
                                            count_resscattering, &
                                            count_fluorescence, &
                                            count_coldeexc, &
-                                           count_thomson, &
-                                           count_recombination
-
+                                           count_thomson
+INTEGER                                 :: count_rrecombination, &
+                                           count_crecombination
 
 
 END MODULE types

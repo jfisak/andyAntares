@@ -180,7 +180,8 @@ SUBROUTINE main
      count_fluorescence = 0
      count_coldeexc = 0
      count_thomson = 0
-     count_recombination = 0
+     count_rrecombination = 0
+     count_crecombination = 0
      current_temp = model_grid(:)%T
 !     PRINT*, 'iteration:', iteration, current_temp
 
@@ -212,9 +213,9 @@ SUBROUTINE main
   print*, 'do spectrum'
   CALL do_spectrum(n_pack)
   print*, 'scattering: count_intdownjump, count_intupjump, count_resscattering, &
-        count_fluorescence, count_coldeexc, count_thomson, count_recombination', &
+        count_fluorescence, count_coldeexc, count_thomson, count_rrecombination, count_crecombination',&
         count_intdownjump, count_intupjump, count_resscattering, count_fluorescence, &
-        count_coldeexc, count_thomson, count_recombination
+        count_coldeexc, count_thomson, count_rrecombination, count_crecombination
   print*, 'do finalize'
 
      ! END DO

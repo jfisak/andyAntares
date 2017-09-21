@@ -11,7 +11,7 @@ linkuser=$(shell whoami)
 linkhost=$(shell hostname)
 
 #Objects
-OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o modul.o	  \
+OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
           random_unitvector.o ran2.o boundary3.o find_dist.o rates.o\
           change_cell.o move_package.o emit_rpackage.o			  \
           init_photsphere.o random_unitvector2.o 		  \
@@ -36,7 +36,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o modul.o	  \
 #Rules
 all : $(PROJECT)
 
-modul.o: modul.f90 
+types.o: types.f90 
 rates.o: rates.f90
 	$(F90) $(FCFLAGS) -o $@ -c $<
 

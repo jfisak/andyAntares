@@ -38,7 +38,7 @@ SUBROUTINE freq_from_planck(freq)
 
      IF ( ran_planck .LT. planck ) THEN
         freq = ran_freq
-        !WRITE(25, *) freq, planck
+!        WRITE(*, *) freq, planck
         end_loop = 1
      END IF
 

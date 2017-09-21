@@ -1,4 +1,4 @@
-SUBROUTINE i_colion(approximation, indexe, indexi, pack_index, act_level, act_pop, Zion, &
+SUBROUTINE i_colion(approximation, indexe, indexi, act_level, pack_index, act_pop, Zion, &
         Zrecomb, Zintrecomb)
 USE types
 USE rates
@@ -9,7 +9,7 @@ INTEGER                         :: approximation
 INTEGER                         :: pack_index, act_level
 DOUBLE PRECISION                :: act_pop
 INTEGER                         :: indexe, indexi
-INTEGER                         :: nrecom
+INTEGER                         :: nlevels
 ! grid informations
 INTEGER                         :: current_mgi
 DOUBLE PRECISION                :: el_dens, temp, gl_pop_ip1e, x
@@ -39,20 +39,20 @@ SELECT CASE(approximation)
 !_______________________________________________________________
 ! cross section from file saved as a table
 CASE (1)
+ ! actual model grid index
+ current_mgi = get_package_model_index(pack_index)
+ ! electron density
+ el_dens = model_grid(current_mgi)%e_dens
+ ! temperature
+ temp = model_grid(current_mgi)%T
  IF(indexi < elements(indexe)%atom_number) THEN
   nfreq = SIZE(elements(indexe)%ions(indexi)%levels(act_level)%photcros(1,:))
   IF(nfreq /= 0) THEN
    ALLOCATE(crossfreq(nfreq))
-   ! actual model grid index
-   current_mgi = get_package_model_index(pack_index)
-   ! electron density
-   el_dens = model_grid(current_mgi)%e_dens
-   ! temperature
-   temp = model_grid(current_mgi)%T
    ! number density of a ground state of ion indexi + 1, indexe
    ! frequency
    freq = (elements(indexe)%ions(indexi + 1)%levels(1)%exci_energy - &
-            elements(indexe)%ions(indexi)%levels(act_level)%exci_energy) / h
+           elements(indexe)%ions(indexi)%levels(act_level)%exci_energy) / h
    ! argument of E_1(x)
    x = (h * freq) / (BOLK * temp)
    ! exponential integral function (calculation of eif)
@@ -107,16 +107,9 @@ CASE (1)
    Zrecomb = 0.D0
    Zintrecomb = 0.D0
    IF(indexi > 1) THEN
-    ! gindex
-    IF(indexi - 1 == 1) THEN
-      gindex = 0.1
-    ELSE IF(indexi - 1 == 2) THEN
-      gindex = 0.2
-    ELSE IF(indexi - 1 > 2) THEN
-      gindex = 0.3
-    END IF
-    nrecom = SIZE(Lma_int_reccol)
-    DO I = 1, nrecom
+    nlevels = SIZE(Lma_int_reccol)
+    !write(*,*) 'i_colion: number of points: ', nlevels
+    DO I = 1, nlevels
      npoints = SIZE(elements(indexe)%ions(indexi - 1)%levels(I)%photcros(1,:))
      IF(npoints /= 0) THEN
       ALLOCATE(crossfreq(npoints))
@@ -124,21 +117,29 @@ CASE (1)
       ! frequency
       freq = (elements(indexe)%ions(indexi)%levels(act_level)%exci_energy - &
               elements(indexe)%ions(indexi - 1)%levels(I)%exci_energy) / h
+      !write(*,*) 'i_colion: excienergy1 = ', &
+      ! elements(indexe)%ions(indexi)%levels(act_level)%exci_energy, &
+      ! ' excienergy2 =  ',  &
+      ! elements(indexe)%ions(indexi - 1)%levels(I)%exci_energy, &
+      ! 'freq = ', freq
       x = (h * freq) / (BOLK * temp)
       ! exponential integral function (calculation of eif)
       CALL exp_int_func(1, x, eif)
       actPoint = 0
       DO J = 1, npoints
-       IF(freq > crossfreq(J)) THEN
+       IF(freq < crossfreq(J)) THEN
         actPoint = J
         EXIT
        END IF
       END DO
       ! if the frequency is out of range of the frequency interval
       ! the total rate will be equal to zero
+      !write(*,*) 'i_colion: actPoint = ', actPoint
       IF(actPoint == 0 .OR. actPoint == 1) THEN
-       Zion = 0
-       RETURN
+       Lma_int_reccol(I) = 0.D0
+       Lma_reccol(I) = 0.D0
+       DEALLOCATE(crossfreq)
+       CYCLE
       END IF
       ! now we have to do a linear interpolation between the points actPoint - 1 and actPoint
       freq1 = elements(indexe)%ions(indexi - 1)%levels(I)%photcros(1, actPoint - 1)
@@ -148,6 +149,14 @@ CASE (1)
       ali = (func1 - func2) / (freq1 - freq2)
       bli = (func2 * freq1 - func1 * freq2) / (freq1 - freq2)
       cross_sect = ali * freq + bli
+      ! gindex
+      IF(indexi - 1 == 1) THEN
+        gindex = 0.1
+      ELSE IF(indexi - 1 == 2) THEN
+        gindex = 0.2
+      ELSE IF(indexi - 1 > 2) THEN
+        gindex = 0.3
+      END IF
       ! populations calculation
       CALL populations(indexe, indexi - 1, I, current_mgi, pop_number)
       exci_energy = elements(indexe)%ions(indexi - 1)%levels(I)%exci_energy
@@ -161,13 +170,14 @@ CASE (1)
       !Lma_reccol(I) = 0.D0
       Zintrecomb = Zintrecomb + Lma_int_reccol(I)
       Zrecomb = Zrecomb + Lma_reccol(I)
-      print*, 'collion_rates: Lma_reccol = ', Lma_reccol(I)
+      !print*, 'collion_rates: Lma_reccol = ', Lma_reccol(I)
       DEALLOCATE(crossfreq)
      END IF
+     !write(*,*) 'i_colion: Zintrecomb = ', Zintrecomb, ' Zrecomb = ', Zrecomb
     END DO
    ELSE
-    Zrecomb = 0.D0
     Zintrecomb = 0.D0
+    Zrecomb = 0.D0
    END IF
    !print*, 'collion_rates: Zion = ', Zion, ' Zrecomb = ', Zrecomb
  END SELECT
