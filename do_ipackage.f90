@@ -352,4 +352,18 @@ DEALLOCATE(linetransitions, lineuptransitions, &
 IF(nlevslion /= 0) DEALLOCATE(Lma_recrad, Lma_int_recrad, Lma_reccol, Lma_int_reccol)
 END DO
 
+! deallocate rates
+IF(ASSOCIATED(Lma_int_dorad)) DEALLOCATE(Lma_int_dorad)
+IF(ASSOCIATED(Lma_int_uprad)) DEALLOCATE(Lma_int_uprad)
+IF(ASSOCIATED(Lma_int_dorad)) DEALLOCATE(Lma_rad)
+IF(ASSOCIATED(Lma_int_docoll)) DEALLOCATE(Lma_int_docoll)
+IF(ASSOCIATED(Lma_int_upcoll)) DEALLOCATE(Lma_int_upcoll)
+IF(ASSOCIATED(Lma_int_up)) DEALLOCATE(Lma_int_up)
+IF(ASSOCIATED(Lma_int_do)) DEALLOCATE(Lma_int_do)
+IF(ASSOCIATED(Lma_int_recrad)) DEALLOCATE(Lma_recrad)
+IF(ASSOCIATED(Lma_recrad)) DEALLOCATE(Lma_int_recrad)
+IF(ASSOCIATED(Lma_int_reccol)) DEALLOCATE(Lma_int_reccol)
+IF(ASSOCIATED(Lma_int_dorad)) DEALLOCATE(Lma_int_reccol)
+
+
 END SUBROUTINE do_ipackage
