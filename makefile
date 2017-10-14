@@ -14,7 +14,7 @@ linkhost=$(shell hostname)
 OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o modul.o	  \
           random_unitvector.o ran2.o boundary3.o find_dist.o \
           change_cell.o move_package.o emit_rpackage.o			  \
-          init_photsphere.o random_unitvector2.o 		  \
+          init_photsphere.o random_unitvector2.o rand2.o		  \
           random_unitvector1.o read_1D_model.o doppler_factor.o		  \
           vec_length.o velo.o angle_aberration.o freq_from_planck.o	  \
           do_rpackage.o do_ipackage.o event_dist.o get_package_model_index.o  \
@@ -35,6 +35,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o modul.o	  \
 all : $(PROJECT)
 
 modul.o: modul.f90 
+rand2.o: rand2.f90 
 	$(F90) $(FCFLAGS) -o $@ -c $<
 
 %.for:
