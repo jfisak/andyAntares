@@ -11,8 +11,8 @@ linkuser=$(shell whoami)
 linkhost=$(shell hostname)
 
 #Objects
-OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o modul.o	  \
-          random_unitvector.o ran2.o boundary3.o find_dist.o \
+OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
+          random_unitvector.o ran2.o boundary3.o find_dist.o rates.o\
           change_cell.o move_package.o emit_rpackage.o			  \
           init_photsphere.o random_unitvector2.o rand2.o		  \
           random_unitvector1.o read_1D_model.o doppler_factor.o		  \
@@ -27,14 +27,17 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o modul.o	  \
           create_dynamical_grid_cells.o find_dyn_cell1.o \
           connection_prop_model_grid.o divide_cell_8.o divide_cell_ijk.o  \
 	  next_cell_down.o next_cell_up.o read_2D_model.o populations.o   \
-	  collisional_rates.o gamma_function.o exp_int_func.o cool_excit.o \
-	  read_photcs.o radiative_rates.o photion_rates.o collion_rates.o \
-	  flux_function.o find_element_index.o next_line.o resonance_distance.o
+	  i_coltrans.o gamma_function.o exp_int_func.o cool_excit.o \
+	  read_photcs.o i_radtrans.o i_radion.o i_colion.o \
+	  flux_function.o find_element_index.o next_line.o resonance_distance.o \
+	  r_kappa_cont.o i_freq_recomb.o cool_ff.o warning.o k_freq_ff.o  \
+	  cool_ionization.o cool_fb.o k_freq_fb.o
 
 #Rules
 all : $(PROJECT)
 
-modul.o: modul.f90 
+types.o: types.f90 
+rates.o: rates.f90
 rand2.o: rand2.f90 
 	$(F90) $(FCFLAGS) -o $@ -c $<
 

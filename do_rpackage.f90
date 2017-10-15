@@ -3,6 +3,7 @@ SUBROUTINE do_rpackage(pack_index)
   ! Propagation of the photon in 3D grid
 
   USE types
+  USE rates
 
   IMPLICIT NONE    
 
@@ -15,7 +16,16 @@ SUBROUTINE do_rpackage(pack_index)
 
   ! DOUBLE PRECISION, PARAMETER       :: opa_cell=1.D0/20.D0, rho=1.D0
   ! DOUBLE PRECISION, PARAMETER       :: opa_cell=5.D-3, rho=5.D-2
+INTEGER                                         :: n_thomson
+INTEGER                                         :: n_tot_cont
 
+! number of thomson scattering (code must be clear)
+n_thomson = 1
+! total number of continuum opacity sources
+n_tot_cont = n_thomson + n_photcrossect
+IF(.NOT. ASSOCIATED(Lcont)) THEN
+ ALLOCATE(Lcont(n_tot_cont))
+END IF
 
   CALL boundary3(pack_index, cell_dist, next_cell)
 !  WRITE(3,*) package(pack_index)%pos, dyn_cell(package(pack_index)%cell_numb)%corner, &

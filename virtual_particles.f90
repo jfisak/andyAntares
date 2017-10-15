@@ -30,7 +30,7 @@ SUBROUTINE virtual_particles(dimIM)
  INTEGER                        :: loc_rad
 
 
-OPEN(20,FILE="virtual_particles.dat")
+!OPEN(20,FILE="virtual_particles.dat")
 SELECT CASE (dimIM)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!! 1D MODEL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -141,8 +141,7 @@ CASE(2)
 ! DO I = 1, n_modelgrid
 !  print*, nOfPoints(I)
 ! END DO
-! DO I = 1, n_modelgrid
-!  nOfPoints(I) = 0
+! DO I = 1, n_modelgrid !  nOfPoints(I) = 0
 ! END DO
 ! DO WHILE(NP < Npart)
 !  rand_r = ran2(idum)
@@ -169,13 +168,13 @@ CASE(2)
    virtual_particle(NP)%pos(1) = radius * cos(phi)
    virtual_particle(NP)%pos(2) = radius * sin(phi)
    virtual_particle(NP)%pos(3) = model_grid(I)%zwind
-    write(20,*) virtual_particle(NP)%pos(1), virtual_particle(NP)%pos(2), virtual_particle(NP)%pos(3)
+!    write(20,*) virtual_particle(NP)%pos(1), virtual_particle(NP)%pos(2), virtual_particle(NP)%pos(3)
   END DO
  END DO
 
 CASE DEFAULT
  STOP 'wrong choice of input model dimension...'
 END SELECT
- CLOSE(20)
+! CLOSE(20)
 
 END SUBROUTINE

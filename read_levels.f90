@@ -62,7 +62,7 @@ OPEN(8,status='old',FILE=filename)
    !elements(current_element)%ions(current_ion)%nlevels = n_levels
    ALLOCATE(elements(current_element)%ions(current_ion)%levels(n_levels))
    ! now we will read every single atomic levels
-   DO J=1, n_levels
+   DO J = 1, n_levels
     READ(8,*,IOSTAT=reading_levels) l_numb, l_energy, s_weight, junk
     ! did we read anything?
     IF(reading_levels /= 0) STOP 'WRONG NUMBER OF LEVELS IN THE FILE...'
@@ -140,7 +140,7 @@ OPEN(8,status='old',FILE=filename)
   !print*, 'n_levels = ', act_nlevels
    ! we have to calculate ionoffset
    ionoffset = 0
-   IF(ions > 1) THEN
+   IF(current_ion > 1) THEN
     DO I = 1, current_ion - 1
      ionoffset = ionoffset + elements(el_index)%ions(I)%ion_potential / e_v
     END DO
@@ -160,6 +160,7 @@ OPEN(8,status='old',FILE=filename)
    ionstage = elements(el_index)%ions(current_ion)%ion_stage
    elements(el_index)%ions(current_ion)%levels(J)%exci_energy = &
        (l_energy + ionoffset) * e_v
+   !write(*,*) 'read_levels: exci_energy = ', elements(el_index)%ions(current_ion)%levels(J)%exci_energy
    elements(el_index)%ions(current_ion)%levels(J)%stat_waight = s_weight
    elements(el_index)%ions(current_ion)%levels(J)%elconf = iconf
    ! we have to calculate l_index correctly: it should start at 1 for every ion

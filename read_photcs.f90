@@ -40,9 +40,9 @@ CASE(2)
   old_ion = 0
   ! do 01: reading loop
   DO
-  ! the first line contains information about the given excitation state
-  READ(13, '(A)', IOSTAT=ios) line
-  !print*, 'read_photcs: ', line
+   ! the first line contains information about the given excitation state
+   READ(13, '(A)', IOSTAT=ios) line
+   !print*, 'read_photcs: ', line
    IF(ios /= 0) EXIT
    READ(line, *) indexclev, indexZ, indexI, junk, junk, energy, nofPoints
    !print*, 'read_photcs: indexclev, indexZ, nofPoints', indexclev, indexZ, nofPoints
@@ -65,11 +65,14 @@ CASE(2)
    !print*, 'indexclev = ', indexclev, ' lowering_index = ', lowering_index
    n_read = n_read + 1
    IF(n_read > max_levels .AND. max_levels > 0) save_cs = .FALSE.
-   IF(save_cs .EQV. .TRUE.) &
+   IF(save_cs .EQV. .TRUE.) THEN
     ALLOCATE(elements(indexe)%ions(indexI)%levels(indexclev)%photcros(2,nofPoints))
+    n_photcrossect = n_photcrossect + 1
+   END IF
    !print*, 'nofPoints = ', nofPoints
    ! we can compute a frequency treshold from these data
    freqt = abs(energy * Rydberg * e_v) / h
+   !write(*,*) 'read_photcs: freqt = ', freqt
    !elements(indexe)%ions(indexI)%levels(indexclev)%phfreq = freqt
    ! now we will read the given data for the photoionization cross section
    DO I = 1, nofPoints

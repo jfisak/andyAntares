@@ -9,7 +9,7 @@ SUBROUTINE freq_from_planck(freq)
   DOUBLE PRECISION              :: freq, freq_max, planck, ran_freq, ran_planck, planck_max, ran2
   DOUBLE PRECISION              :: planck_numax, planck_numin
  
- OPEN (UNIT=25, FILE='gauss-3.dat') 
+! OPEN (UNIT=25, FILE='gauss-3.dat') 
   
   freq_max = wien_const * T_eff
 
@@ -38,10 +38,10 @@ SUBROUTINE freq_from_planck(freq)
 
      IF ( ran_planck .LT. planck ) THEN
         freq = ran_freq
-        WRITE(25, *) freq, planck
+!        WRITE(*, *) freq, planck
         end_loop = 1
      END IF
 
   END DO
-CLOSE(25)
+!CLOSE(25)
 END SUBROUTINE freq_from_planck

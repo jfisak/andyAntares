@@ -17,28 +17,42 @@ DOUBLE PRECISION                        :: value_1, value_2
 DOUBLE PRECISION                        :: gf
 INTEGER                                 :: indexe, indexi
 CHARACTER(LEN=15)                       :: el_conf_lower, el_conf_upper
+INTEGER                                 :: conf_len_lower, conf_len_upper
+CHARACTER(LEN=2)                        :: sconf_l, sconf_u
 
 ! THE FIRST VALUE
 ! firstly we will calculate \tilde{g}
 ! \tilde{g} is equal to 0.7 for transitions <n, l> -> <n, l'>
 !                       0.2 for transitions <n, l> -> <n', l'>
-! configurations of initial and final state
-!iconf = linelist(transition)%iconf
-!jconf = linelist(transition)%jconf
 ! now we have to extract which type of transition occurs
-!conf_leni = LEN_TRIM(iconf)
-!conf_lenj = LEN_TRIM(iconf)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! now we choose only one value
-! IT MUST BE DONE LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! WORKS ONLY FOR THE OPACITY PROJECT DATA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 value_1 = 0.7
 indexe = linelist(transition)%indexe
 indexi = linelist(transition)%indexi
 el_conf_lower = elements(indexe)%ions(indexi)%levels(linelist(transition)%lower)%elconf
 el_conf_upper = elements(indexe)%ions(indexi)%levels(linelist(transition)%upper)%elconf
+! lengths of these arrays without spaces
+conf_len_lower = LEN_TRIM(el_conf_lower)
+conf_len_upper = LEN_TRIM(el_conf_upper)
 
-!print*, 'gamma_function: el_conf_lower = ', el_conf_lower, ' el_conf_upper = ', el_conf_upper
+!write(*,*) 'gamma_function: testing configurations'
+!write(*,*) 'elclower: ', el_conf_lower(conf_len_lower - 2:conf_len_lower - 1)
+!write(*,*) 'elclower: ', el_conf_upper(conf_len_upper - 2:conf_len_upper - 1)
+
+sconf_l = el_conf_lower(conf_len_lower - 2:conf_len_lower - 1)
+sconf_u = el_conf_upper(conf_len_upper - 2:conf_len_upper - 1)
+IF(sconf_l == sconf_u) THEN
+ value_1 = 7.D-1
+ELSE
+ value_1 = 2.D-1
+END IF
+!write(*,*) 'gamma_function: value_1 = ', value_1
+!STOP 'gamma_function: only for testing'
+
+!print*, 'el_conf_lower = ', el_conf_lower, ' el_conf_upper = ', el_conf_upper
 !STOP
 ! THE SECOND VALUE
 ! the main thing in this part is to calculate an exponential integral function
