@@ -22,7 +22,7 @@ DO
  n_cell = dyn_cell(act_cell)%neighbor(cross)
 ! print*, 'next_cell_down: act_cell = ', act_cell, 'n_cell = ', n_cell
  IF(n_cell == 0) THEN
-  IF(dyn_cell(act_cell)%down_cell == 0) STOP 'next_cell: no cell was find'
+  IF(dyn_cell(act_cell)%down_cell == 0) STOP 'next_cell: no cell was found'
   act_cell = dyn_cell(act_cell)%down_cell
  ELSE 
   next_cell = n_cell

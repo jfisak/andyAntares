@@ -1,7 +1,7 @@
  SUBROUTINE update_packages(n_pack)
 
   USE types
-  USE rand2
+!  USE rand2
 
   IMPLICIT NONE    
 
@@ -15,7 +15,7 @@
 !$OMP PARALLEL
 !$DEFAULT(private)
 !$SHARED(dyn_cell, n_pack)
-!$OMP DO
+!$OMP DO 
   DO pack_index = 1, n_pack
      IF (MODULO(pack_index,10000) .EQ. 0) print*, 'Working on packet ', pack_index,' ...'
      !print*, 'Working on packet ', pack_index,' ...'

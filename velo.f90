@@ -16,7 +16,9 @@
     IF(model_type .EQ. 1) THEN
 !     vel_radial = V_inf/R_inf * vec_length(package(pack_index)%pos)
      vel_radial = V_inf * (1.D0 - b/vec_length(package(pack_index)%pos))**beta
-     !print*, 'velo: ', vel_radial
+     !IF(pack_index == 1) print*, 'V_inf = ', V_inf, ' b = ', b, ' beta = ', beta, ' vv = ', vec_length(package(pack_index)%pos)
+     !IF(pack_index == 1) print*, 'v/c = ' ,vel_radial/light_speed
+     !IF(pack_index == 1) print*, 'velo: pack_index = ', pack_index, ' v/c = ' ,vel_radial/light_speed
  
      vel_vec = package(pack_index)%pos/vec_length(package(pack_index)%pos) * vel_radial
  
