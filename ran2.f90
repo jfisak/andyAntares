@@ -8,12 +8,12 @@ SUBROUTINE  ran2(idum)
                                 IA1=40014,IA2=40692,IQ1=53668,IQ2=52774,IR1=12211,IR2=3791, &
                                 NDIV=1+IMM1/NTAB
  INTEGER                     :: j,k
- INTEGER                     :: NTAB, iy, idum2
+ INTEGER                     :: iy, idum2
  INTEGER, DIMENSION(NTAB)    :: iv
- CLASS(ranvar)      :: ranum
+ CLASS(ranvar), POINTER       :: ranum
  DOUBLE PRECISION            :: out_ran
 
- IF(.NOT. ASSOCIATED(ranum)) ranum%init()
+ IF(.NOT. ASSOCIATED(ranum)) ranum%init_val()
 
  NTAB = ranum%NTAB
  iy = ranum%iy
