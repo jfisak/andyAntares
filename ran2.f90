@@ -1,24 +1,24 @@
-SUBROUTINE  ran2(idum)
+DOUBLE PRECISION FUNCTION  ran2(idum)
 
  USE ran2_class
  IMPLICIT NONE 
 
-
- INTEGER, PARAMETER          :: IM1 = 2147483563, IM2 = 2147483399, IMM1 = IM1 - 1, &
-                                IA1=40014,IA2=40692,IQ1=53668,IQ2=52774,IR1=12211,IR2=3791, &
-                                NDIV=1+IMM1/NTAB
+ ! input variables
+ INTEGER                     :: idum
  INTEGER                     :: j,k
  INTEGER                     :: iy, idum2
  INTEGER, DIMENSION(NTAB)    :: iv
- CLASS(ranvar), POINTER       :: ranum
  DOUBLE PRECISION            :: out_ran
 
- IF(.NOT. ASSOCIATED(ranum)) ranum%init_val()
-
- NTAB = ranum%NTAB
+ IF(.NOT. ASSOCIATED(ranum)) THEN
+  !write(*,*) 'ran2: allocating ranum'
+  ALLOCATE(ranum)
+ END IF
+ !write(*,*) 'ran2'
  iy = ranum%iy
  idum2 = ranum%idum2
  iv(:) = ranum%iv(:)
+ !write(*,*) 'ran2: iy = ', iy, ' idum2 = ', idum2
 
  if (idum.le.0) then
   idum=max(-idum,1)
@@ -41,9 +41,14 @@ SUBROUTINE  ran2(idum)
  iy=iv(j)-idum2
  iv(j)=idum
  if(iy.lt.1)iy=iy+IMM1
- out_ran=min(AM*iy,RNMX)
+ ran2 = min(AM*iy,RNMX)
 
- RETURN out_ran
+ ! save new walues to the class variables
+ ranum%iy = iy
+ ranum%idum2 = idum2
+ ranum%iv(:) = iv(:)
 
-END SUBROUTINE 
+ RETURN 
+
+END FUNCTION 
 
