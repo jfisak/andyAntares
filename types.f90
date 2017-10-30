@@ -105,7 +105,7 @@ MODULE types
   DOUBLE PRECISION                   :: Z_inf
 ! lower boundary condition
   DOUBLE PRECISION, ALLOCATABLE      :: incomingflux(:,:)
-  INTEGER                            :: dummypackage, n_nubin, n_modelgrid
+  INTEGER                            :: n_nubin, n_modelgrid
   ! additional model grid variables
   INTEGER                            :: add_mg
   ! number of virtual particles
@@ -128,6 +128,8 @@ MODULE types
   INTEGER                            :: inputflux, inputmodel
 ! number of photoionization cross sections
   INTEGER                               :: n_photcrossect
+! number of dummy packages
+  INTEGER                            :: n_dummy_packs
 
 
 ! Globally defined numerical constants 

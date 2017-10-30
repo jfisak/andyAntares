@@ -6,6 +6,7 @@
   IMPLICIT NONE    
 
   INTEGER             :: n_pack, pack_index
+  INTEGER             :: my_rank
   
 
 !  OPEN (UNIT=3, FILE='position.dat')

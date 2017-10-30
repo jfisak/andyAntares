@@ -19,6 +19,7 @@ act_cell = package(pack_index)%cell_numb
 cross = package(pack_index)%next_cross
 
 DO
+ print*, 'next_cell_down: act_cell = ', act_cell, 'cross = ', cross
  n_cell = dyn_cell(act_cell)%neighbor(cross)
 ! print*, 'next_cell_down: act_cell = ', act_cell, 'n_cell = ', n_cell
  IF(n_cell == 0) THEN

@@ -84,8 +84,16 @@ IF(indexi > 1) THEN
    DO I = 1, npoints
     flux = flux_function(0,freq(I), T_eff)
     x = (h * freq(I)) / (BOLK * T_eff)
-    func(I) = cross(I) / (h * freq(I)) * &
-     ((2.0 * h * freq(I)**3.0) / light_speed**2.0 + flux) * exp(-x)
+    !write(*,*) 'i_radion: f^3/c^2 = ', freq(I)**3/light_speed**2
+    !write(*,*) 'i_radion: expr1 = ', cross(I)/(h * freq(I))! * ((2.0 * h * freq(I)**3.0)/light_speed**2.0 + flux) * exp(-x)
+    !write(*,*) 'i_radion: expr2 = ', ((2.0 * h * freq(I)**3.0)/light_speed**2.0 + flux) * exp(-x)
+    !write(*,*) 'i_radion: expr3 = ', ((2.0 * h * freq(I)**3.0)/light_speed**2.0 ) * exp(-x)
+    IF(((2.0 * h * freq(I)**3.0) / light_speed**2.0 + flux) * exp(-x) > 1.D-150) THEN
+     func(I) = cross(I) / (h * freq(I)) * &
+      ((2.0 * h * freq(I)**3.0) / light_speed**2.0 + flux) * exp(-x)
+    ELSE
+     func(I) = 0.D0
+    END IF
    END DO
    freqt = (elements(indexe)%ions(indexi)%levels(leveli)%exci_energy - &
     elements(indexe)%ions(indexi - 1)%levels(K)%exci_energy) / h

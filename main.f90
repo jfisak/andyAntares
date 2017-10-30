@@ -13,6 +13,7 @@ SUBROUTINE main
   INTEGER, DIMENSION (9)            :: TT
   DOUBLE PRECISION, ALLOCATABLE     :: current_temp(:)
   CHARACTER(1)                      :: junk
+  CHARACTER                         :: n_dummy_packs_char
 !#IFDEF MPI_ON
 !  INTEGER                               :: ierr
 !  INTEGER                               :: mpi_comm_world
@@ -91,12 +92,11 @@ INTEGER, PARAMETER                      :: max_packs = 1e7
   ! Only for debuging; if set the values > 0 then variou print out statement 
   ! will give information on a packet's history (depending on the actual value of debug)
   debug = 0
-
+  
+  CALL GET_ENVIRONMENT_VARIABLE("OMP_NUM_THREADS", n_dummy_packs_char)
   ! Allocate array for photon packages.
-  ! n_pack refers to a dummy package which can be used to sample
-  ! packets properties while moved around.
-  dummypackage = n_pack + 1
-  ALLOCATE (package(n_pack + 1))
+  n_dummy_packs = ICHAR(n_dummy_packs_char)
+  ALLOCATE (package(n_pack + n_dummy_packs))
 
   ! Set up outflow (model grid)
   CALL setup_model_grid()
@@ -172,7 +172,7 @@ INTEGER, PARAMETER                      :: max_packs = 1e7
 !      WRITE(20,*) I, model_grid(I)%T
      END DO
 !     print*, 'model_grid(:)%T = ', model_grid(:)%T
-     IF ( MAXVAL(abs(model_grid(:)%T - current_temp) / model_grid(:)%T) .LT. 0.05D-1) EXIT
+!     IF ( MAXVAL(abs(model_grid(:)%T - current_temp) / model_grid(:)%T) .LT. 0.05D-1) EXIT
      count_intdownjump = 0
      count_intupjump = 0
      count_resscattering = 0

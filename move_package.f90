@@ -8,6 +8,15 @@ SUBROUTINE move_package(pack_index, dist)
 
   INTEGER                           :: pack_index, nc
   DOUBLE PRECISION                  :: dist, length, D, vec_length
+  INTEGER                           :: my_rank, dummypackage
+  INTEGER                           :: n_pack_d
+  INTEGER                           :: OMP_GET_THREAD_NUM
+
+my_rank = OMP_GET_THREAD_NUM()
+!write(*,*)'move_package: Thread rank: ', my_rank
+n_pack_d = SIZE(package)
+dummypackage = n_pack_d - n_dummy_packs + my_rank + 1
+!write(*,*) 'move_package: my_rank = ', my_rank, ' dummypackage = ', dummypackage
 !
   IF (debug .EQ. 1) THEN 
     ! print*, 'before move (pos, pack_index, pos)', package(pack_index)%pos, pack_index, dist
@@ -48,7 +57,11 @@ SUBROUTINE move_package(pack_index, dist)
   package(pack_index)%e_cmf = package(pack_index)%e_rf * D
 !  print*, 'frequency in frame: ', package(pack_index)%freq_rf, &
 !        'frequency in CMF: ', package(pack_index)%freq_cmf
-  IF (package(pack_index)%freq_cmf < 0) STOP 'FREQUENCY IS LOWER THAN ZERO!!!'
+  IF (package(pack_index)%freq_cmf < 0) THEN
+   write(*,*) 'move_package: package = ', pack_index, ' prop. cell = ', package(pack_index)%cell_numb
+   write(*,*) 'FREQUENCY IS LOWER THAN ZERO!!!'
+   !STOP 
+  END IF
   IF (debug .EQ. 1) THEN 
      print*, 'after move (pos)', package(pack_index)%pos
   END IF

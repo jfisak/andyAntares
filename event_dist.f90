@@ -18,6 +18,16 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
   INTEGER                           :: n_next_lines
   DOUBLE PRECISION, DIMENSION(3)    :: vel_vec
   INTEGER                           :: approximation
+  INTEGER                           :: my_rank, dummypackage
+  INTEGER                           :: n_pack_d
+  INTEGER                           :: OMP_GET_THREAD_NUM
+
+  my_rank = OMP_GET_THREAD_NUM()
+  !write(*,*)'event_dist: Thread rank: ', my_rank
+       
+  n_pack_d = SIZE(package)
+  dummypackage = n_pack_d - n_dummy_packs + my_rank + 1
+
 
 10  ran_numb = ran2(idum)  ! PUT IT IN SUBROUTINE - write is as do loop
     IF (ran_numb .EQ. 0.D0) GOTO 10    
