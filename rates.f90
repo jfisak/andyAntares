@@ -3,27 +3,31 @@ MODULE rates
 ! pointers
 ! i-packages
 ! internal radiative downward jump
-DOUBLE PRECISION, DIMENSION(:), POINTER  :: Lma_int_dorad => NULL()
-! internal upward jump
-DOUBLE PRECISION, DIMENSION(:), POINTER  :: Lma_int_uprad => NULL()
-! radiative deexcitation
-DOUBLE PRECISION, DIMENSION(:), POINTER  :: Lma_rad => NULL()
-! internal collisional downward jump
-DOUBLE PRECISION, DIMENSION(:), POINTER  :: Lma_int_docoll => NULL()
-! internal collisional upward jump
-DOUBLE PRECISION, DIMENSION(:), POINTER  :: Lma_int_upcoll => NULL()
-! internal upward jump
-DOUBLE PRECISION, DIMENSION(:), POINTER  :: Lma_int_up => NULL()
-! internal downward jump
-DOUBLE PRECISION, DIMENSION(:), POINTER  :: Lma_int_do => NULL()
-! radiative recombination
-DOUBLE PRECISION, DIMENSION(:), POINTER  :: Lma_recrad => NULL()
-! internal radiative jump to the lower ionization state
-DOUBLE PRECISION, DIMENSION(:), POINTER  :: Lma_int_recrad => NULL()
-! collisional recombination
-DOUBLE PRECISION, DIMENSION(:), POINTER  :: Lma_reccol => NULL()
-! internal collisional jump to the lower ionization state
-DOUBLE PRECISION, DIMENSION(:), POINTER  :: Lma_int_reccol => NULL()
+TYPE, PUBLIC :: irates
+ DOUBLE PRECISION, DIMENSION(:), POINTER  :: Lma_int_dorad 
+ ! internal upward jump
+ DOUBLE PRECISION, DIMENSION(:), POINTER  :: Lma_int_uprad 
+ ! radiative deexcitation
+ DOUBLE PRECISION, DIMENSION(:), POINTER  :: Lma_rad 
+ ! internal collisional downward jump
+ DOUBLE PRECISION, DIMENSION(:), POINTER  :: Lma_int_docoll 
+ ! internal collisional upward jump
+ DOUBLE PRECISION, DIMENSION(:), POINTER  :: Lma_int_upcoll 
+ ! internal upward jump
+ DOUBLE PRECISION, DIMENSION(:), POINTER  :: Lma_int_up 
+ ! internal downward jump
+ DOUBLE PRECISION, DIMENSION(:), POINTER  :: Lma_int_do 
+ ! radiative recombination
+ DOUBLE PRECISION, DIMENSION(:), POINTER  :: Lma_recrad 
+ ! internal radiative jump to the lower ionization state
+ DOUBLE PRECISION, DIMENSION(:), POINTER  :: Lma_int_recrad 
+ ! collisional recombination
+ DOUBLE PRECISION, DIMENSION(:), POINTER  :: Lma_reccol 
+ ! internal collisional jump to the lower ionization state
+ DOUBLE PRECISION, DIMENSION(:), POINTER  :: Lma_int_reccol 
+END TYPE irates
+
+CLASS(irates), POINTER      :: actirates
 
 ! k-packages
 DOUBLE PRECISION, DIMENSION(:), POINTER  ::  Lcont => NULL()

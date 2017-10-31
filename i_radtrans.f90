@@ -1,5 +1,5 @@
 SUBROUTINE i_radtrans(nlns, linetransitions, nluns, lineuptransitions, population, &
-Zintdown, Zintup, Zrad)
+Zintdown, Zintup, Zrad)!, actirates)
 USE types
 USE rates
 IMPLICIT NONE
@@ -17,6 +17,7 @@ DOUBLE PRECISION                        :: actVal
 INTEGER                                 :: I
 ! output variables
 DOUBLE PRECISION                        :: Zintdown, Zintup, Zrad
+!CLASS(irates)                           :: actirates
 
 Zintdown = 0.D0
 Zrad= 0.D0
@@ -51,8 +52,8 @@ DO I = 1, nlns
  actVal = population * linelist(act_line)%A_ul * exci_energy_l
 ! print*, 'do_ipackage: stat_waight, exci_energy, population, linelist(act_line)%A_ul, actVal', &
 !       stat_weight, exci_energy, population, linelist(act_line)%A_ul, actVal
- Lma_int_dorad(I) = actVal * stat_weight
- Zintdown = Zintdown + Lma_int_dorad(I)
+ actirates%Lma_int_dorad(I) = actVal * stat_weight
+ Zintdown = Zintdown + actirates%Lma_int_dorad(I)
 ! write(*,*) 'i_radtrans: Zintdown = ', Zintdown
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! radiative deexcitation
@@ -69,8 +70,8 @@ DO I = 1, nluns
  exci_energy = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy
  ! internal jump up
  actVal = population * linelist(act_line)%A_ul * exci_energy_l * stat_weight
- Lma_int_uprad(I) = actVal
- Zintup = Zintup + Lma_int_uprad(I)
+ actirates%Lma_int_uprad(I) = actVal
+ Zintup = Zintup + actirates%Lma_int_uprad(I)
 ! write(*,*) 'i_radtrans: act_line = ', act_line, ' stat_weight = ', stat_weight, &
 !  ' exci_energy_l = ', exci_energy_l, ' population = ', population, ' linelist(act_line)%A_ul = ', &
 !  linelist(act_line)%A_ul

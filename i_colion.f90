@@ -1,5 +1,5 @@
 SUBROUTINE i_colion(approximation, indexe, indexi, act_level, pack_index, act_pop, Zion, &
-        Zrecomb, Zintrecomb)
+        Zrecomb, Zintrecomb)!, actirates)
 USE types
 USE rates
 IMPLICIT NONE
@@ -31,6 +31,7 @@ DOUBLE PRECISION                :: stat_weight
 DOUBLE PRECISION                :: Zion, Zrecomb, Zintrecomb
 ! recombination
 DOUBLE PRECISION, PARAMETER             :: times = 1e0
+!CLASS(irates)                   :: actirates
 
 
 
@@ -107,7 +108,7 @@ CASE (1)
    Zrecomb = 0.D0
    Zintrecomb = 0.D0
    IF(indexi > 1) THEN
-    nlevels = SIZE(Lma_int_reccol)
+    nlevels = SIZE(actirates%Lma_int_reccol)
     !write(*,*) 'i_colion: number of points: ', nlevels
     DO I = 1, nlevels
      npoints = SIZE(elements(indexe)%ions(indexi - 1)%levels(I)%photcros(1,:))
@@ -136,8 +137,8 @@ CASE (1)
       ! the total rate will be equal to zero
       !write(*,*) 'i_colion: actPoint = ', actPoint
       IF(actPoint == 0 .OR. actPoint == 1) THEN
-       Lma_int_reccol(I) = 0.D0
-       Lma_reccol(I) = 0.D0
+       actirates%Lma_int_reccol(I) = 0.D0
+       actirates%Lma_reccol(I) = 0.D0
        DEALLOCATE(crossfreq)
        CYCLE
       END IF
@@ -162,15 +163,15 @@ CASE (1)
       exci_energy = elements(indexe)%ions(indexi - 1)%levels(I)%exci_energy
       gr_exci_energy = elements(indexe)%ions(indexi - 1)%levels(1)%exci_energy
       stat_weight = elements(indexe)%ions(indexi - 1)%levels(I)%stat_waight
-      Lma_int_reccol(I) = pop_number * el_dens * coll_const / temp**(1.0/2.0) * gindex * cross_sect * &
+      actirates%Lma_int_reccol(I) = pop_number * el_dens * coll_const / temp**(1.0/2.0) * gindex * cross_sect * &
         exp(-x) / x * exci_energy * stat_weight
-      Lma_reccol(I) = pop_number * el_dens * coll_const / temp**(1.0/2.0) * gindex * cross_sect * &
+      actirates%Lma_reccol(I) = pop_number * el_dens * coll_const / temp**(1.0/2.0) * gindex * cross_sect * &
         exp(-x) / x * (exci_energy - gr_exci_energy) * stat_weight
       ! for now it will be equal to zero
-      !Lma_reccol(I) = 0.D0
-      Zintrecomb = Zintrecomb + Lma_int_reccol(I)
-      Zrecomb = Zrecomb + Lma_reccol(I)
-      !print*, 'collion_rates: Lma_reccol = ', Lma_reccol(I)
+      !actirates%Lma_reccol(I) = 0.D0
+      Zintrecomb = Zintrecomb + actirates%Lma_int_reccol(I)
+      Zrecomb = Zrecomb + actirates%Lma_reccol(I)
+      !print*, 'collion_rates: actirates%Lma_reccol = ', actirates%Lma_reccol(I)
       DEALLOCATE(crossfreq)
      END IF
      !write(*,*) 'i_colion: Zintrecomb = ', Zintrecomb, ' Zrecomb = ', Zrecomb

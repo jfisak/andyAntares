@@ -1,7 +1,7 @@
 ! this subroutine calculates collisional rates for the given energy
 ! level
 SUBROUTINE i_coltrans(approx, pack_index, level, nlns, linetransitions, nluns, &
-lineuptransitions, population, Zdown, Zup, Zcoll)
+lineuptransitions, population, Zdown, Zup, Zcoll)!, actirates)
 USE types
 USE rates
 IMPLICIT NONE
@@ -43,6 +43,7 @@ DOUBLE PRECISION                        :: Zdown, Zup, Zcoll
 DOUBLE PRECISION                        :: lcoll
 DOUBLE PRECISION                        :: stat_weight
 DOUBLE PRECISION, PARAMETER             :: times = 1.D0
+!CLASS(irates)                           :: actirates
 
 !IF(times /= 1.D0) THEN
 ! CALL warning('collisional rates are multiplied by a non-one factor')
@@ -93,9 +94,9 @@ CASE(1)
    exp(-(h * freq) / (BOLK * el_temperature)) * gf
 !  actVal = actVal * (linelist(act_line)%upper - linelist(act_line)%lower)
  ! internal downward jump
-  Lma_int_docoll(I) = actVal * exci_energy_l * stat_weight
-  Lma_int_docoll(I) = times * Lma_int_docoll(I)
-  Zdown = Zdown + Lma_int_docoll(I)
+  actirates%Lma_int_docoll(I) = actVal * exci_energy_l * stat_weight
+  actirates%Lma_int_docoll(I) = times * actirates%Lma_int_docoll(I)
+  Zdown = Zdown + actirates%Lma_int_docoll(I)
  ! collisional deexcitation
   lcoll = actVal * (exci_energy_u - exci_energy_l)
   lcoll = times * lcoll
@@ -126,8 +127,8 @@ CASE(1)
         coll_const * (IH / (h * freq)) * osc_str * &
         ((h * freq) / (BOLK * el_temperature)) * &
         exp(-(h * freq) / (BOLK * el_temperature)) * gf
-  Lma_int_upcoll(I) = actVal * exci_energy_l * stat_weight
-  Lma_int_upcoll(I) = times * Lma_int_upcoll(I)
+  actirates%Lma_int_upcoll(I) = actVal * exci_energy_l * stat_weight
+  actirates%Lma_int_upcoll(I) = times * actirates%Lma_int_upcoll(I)
  END DO
 CASE DEFAULT
  STOP 'collisional_rates: this approximation is not known'

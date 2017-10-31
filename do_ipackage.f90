@@ -37,9 +37,16 @@ INTEGER                         :: get_package_model_index, current_mgi
 DOUBLE PRECISION                :: new_freq
 ! Doppler factor
 DOUBLE PRECISION                :: D
+INTEGER                           :: OMP_GET_THREAD_NUM, my_rank
+
+my_rank = OMP_GET_THREAD_NUM()
+
+!CLASS(irates), POINTER      :: actirates
+
 
 ! define the needed variables
 ! it is necessary to remember the initial conditions of a macro-atom
+IF(.NOT. ASSOCIATED(actirates)) ALLOCATE(actirates)
 last_line = package(pack_index)%last_line
 last_ion = linelist(last_line)%indexi
 last_level = linelist(last_line)%upper
@@ -97,47 +104,54 @@ DO WHILE (active == 1)
  
  ! total rates of procedure
  ! 0.) internal downward jump within the current ion
- ALLOCATE(Lma_int_dorad(nlns))
+ ALLOCATE(actirates%Lma_int_dorad(nlns))
  ! 1.) radiative deexcitation
  ! this allocates only in the first loop, because this field will only remember transitions
  ! from the last_line's upper level
  ! 3.) collisional deexcitation
- ALLOCATE(Lma_int_docoll(nlns))
+ ALLOCATE(actirates%Lma_int_docoll(nlns))
  ! 2.) internal upward jump within the current ion
- ALLOCATE(Lma_int_uprad(nluns))
- ALLOCATE(Lma_int_upcoll(nluns))
- ALLOCATE(Lma_int_do(nlns), Lma_int_up(nluns))
+ ALLOCATE(actirates%Lma_int_uprad(nluns))
+ ALLOCATE(actirates%Lma_int_upcoll(nluns))
+ ALLOCATE(actirates%Lma_int_do(nlns), actirates%Lma_int_up(nluns))
  Zintdown = 0.D0
  Zintup = 0.D0
  ! allocation of the field for recombination processes
  IF(ion_index > 1) THEN
   nlevslion = SIZE(elements(element_index)%ions(ion_index - 1)%levels)
-  !print*, 'element_index = ', element_index, 'ion_index - 1 = ', ion_index - 1, ' nlevslion = ', nlevslion
-  ALLOCATE(Lma_recrad(nlevslion), Lma_int_recrad(nlevslion), Lma_reccol(nlevslion), Lma_int_reccol(nlevslion))
+  print*, 'my_rank = ', my_rank, ' element_index = ', element_index, 'ion_index - 1 = ', ion_index - 1, ' nlevslion = ', nlevslion
+  ALLOCATE(actirates%Lma_recrad(nlevslion), actirates%Lma_int_recrad(nlevslion), &
+           actirates%Lma_reccol(nlevslion), actirates%Lma_int_reccol(nlevslion))
  ELSE
   nlevslion = 0
+  ALLOCATE(actirates%Lma_recrad(1), actirates%Lma_int_recrad(1), &
+           actirates%Lma_reccol(1), actirates%Lma_int_reccol(1))
+  actirates%Lma_recrad(1) = 0.D0
+  actirates%Lma_int_recrad(1) = 0.D0
+  actirates%Lma_reccol(1) = 0.D0
+  actirates%Lma_int_reccol(1) = 0.D0
  END IF
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! calculation of the given transition probabilities
  CALL populations(element_index, ion_index, actual_state, current_mgi, act_pop)
  CALL i_radtrans(nlns, linetransitions, nluns, lineuptransitions, act_pop, &
-  Zintdownrad, Zintuprad, Zraddeexc)
+  Zintdownrad, Zintuprad, Zraddeexc)!, actirates)
  CALL i_coltrans(1, pack_index, actual_state, nlns, linetransitions, nluns, lineuptransitions, &
-  act_pop, Zintdowncoll, Zintupcoll, Zcoll)
+  act_pop, Zintdowncoll, Zintupcoll, Zcoll)!, actirates)
  CALL i_radion(0, element_index, ion_index, actual_state, current_mgi, act_pop, Zphotionup, &
-  Zphotiondown, Zphotrecom)
+  Zphotiondown, Zphotrecom)!, actirates)
  CALL i_colion(1, element_index, ion_index, actual_state, pack_index, act_pop, Zcollionup, &
-  Zcolliondown,Zcollrecom)
+  Zcolliondown,Zcollrecom)!, actirates)
  ! total rates of internal donwnward jump
  DO I = 1, nlns
-   Lma_int_do(I) = Lma_int_dorad(I) + Lma_int_docoll(I)
+   actirates%Lma_int_do(I) = actirates%Lma_int_dorad(I) + actirates%Lma_int_docoll(I)
  END DO
  Zintdown = Zintdownrad + Zintdowncoll
  ! total rates of internal upward jump
  DO I = 1, nluns
   ! internal jump up
-   Lma_int_up(I) = Lma_int_uprad(I) + Lma_int_upcoll(I)
-   !print*, 'Lma_int_uprad(I) = ', Lma_int_uprad(I), ' Lma_int_upcoll(I) = ', Lma_int_upcoll(I)
+   actirates%Lma_int_up(I) = actirates%Lma_int_uprad(I) + actirates%Lma_int_upcoll(I)
+   !print*, 'actirates%Lma_int_uprad(I) = ', actirates%Lma_int_uprad(I), ' actirates%Lma_int_upcoll(I) = ', actirates%Lma_int_upcoll(I)
  END DO
  Zintup = Zintuprad + Zintupcoll
 ! an internal ionization sum
@@ -175,12 +189,12 @@ IF(rand >= 0.D0 .AND. rand < Z0) THEN
  summ = 0.D0
  DO I = 1, nlns
   ! we will find the given state
-  IF(rand >= summ .AND. rand < summ + Lma_int_do(I)) THEN
+  IF(rand >= summ .AND. rand < summ + actirates%Lma_int_do(I)) THEN
    actual_state = linelist(linetransitions(I))%lower
    !print*, 'do_ipackage: packet: ', pack_index, ' internal downward jump...'
    EXIT
   END IF
-  summ = summ + Lma_int_do(I)
+  summ = summ + actirates%Lma_int_do(I)
  END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! radiative deexciation
@@ -207,7 +221,7 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
    END IF
   END IF
  END DO
- ALLOCATE(lineradtransitions(nlns), Lma_rad(nlns))
+ ALLOCATE(lineradtransitions(nlns), actirates%Lma_rad(nlns))
  J = 0
 !  ' linelist(last_line)%indexe = ', linelist(last_line)%indexe,&
 !  ' linelist(last_line)%indexi = ', linelist(last_line)%indexi, ' last_level = ', last_level, &
@@ -224,9 +238,9 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
      elements(element_index)%ions(last_ion)%levels(linelist(K)%lower)%exci_energy
     stat_weight = &
      elements(element_index)%ions(last_ion)%levels(linelist(K)%lower)%stat_waight
-    Lma_rad(J) = linelist(K)%A_ul * stat_weight * (exci_energy_u - exci_energy_l)
+    actirates%Lma_rad(J) = linelist(K)%A_ul * stat_weight * (exci_energy_u - exci_energy_l)
     !print*, 'do_ipackage: Lrad(J) = ', Lrad(J)
-    Zrad = Zrad + Lma_rad(J)
+    Zrad = Zrad + actirates%Lma_rad(J)
    END IF
   END IF
  END DO
@@ -234,7 +248,7 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
  summ = 0
  ! looking for the given line
  DO line = 1, nlns
-  IF(rand >= summ .AND. rand <= summ + Lma_rad(line)) THEN
+  IF(rand >= summ .AND. rand <= summ + actirates%Lma_rad(line)) THEN
    !print*, 'do_ipackage: packet: ', pack_index, ' radiative deexcitation...'
    !print*, 'raddeexc: summ = ', summ, ' rand = ', rand, ' Zrad = ', Zrad
    ! we found the given cell now we have to compute only a new frequency
@@ -252,10 +266,10 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
    END IF
    EXIT
   END IF
-  summ = summ + Lma_rad(line)
+  summ = summ + actirates%Lma_rad(line)
  END DO
  active = 0
- DEALLOCATE(Lma_rad)
+ DEALLOCATE(actirates%Lma_rad)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal upward jump
 ! in this case a macro-atom transits into a upper state without an energy emission
@@ -264,13 +278,13 @@ ELSE IF (rand >= Z1 .AND. rand <= Z2) THEN
  summ = Z1
  DO I = 1, nluns
   ! we will find the given state
-  !write(*,*) 'do_ipackage: summ = ', summ, ' rand = ', rand, ' summ + Lma_int_up = ', summ + Lma_int_up(I)
-  IF(rand >= summ .AND. rand < summ + Lma_int_up(I)) THEN
+  !write(*,*) 'do_ipackage: summ = ', summ, ' rand = ', rand, ' summ + actirates%Lma_int_up = ', summ + actirates%Lma_int_up(I)
+  IF(rand >= summ .AND. rand < summ + actirates%Lma_int_up(I)) THEN
    actual_state = linelist(lineuptransitions(I))%upper
    !print*, 'do_ipackage: packet: ', pack_index, ' internal upward jump...'
    EXIT
   END IF
-  summ = summ + Lma_int_up(I)
+  summ = summ + actirates%Lma_int_up(I)
  END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! collisional deexcitation
@@ -311,14 +325,14 @@ ELSE IF(rand >= Z4 .AND. rand <= Z5) THEN
  rand = rand * Zrecombination
  DO I = 1, nlevslion
   ! we will find the given state
-  !print*, 'summ = ', summ, ' summ + L(I) = ', summ + Lma_recrad(I) + Lma_reccol(I)
-  IF(rand >= summ .AND. rand < summ + Lma_int_recrad(I) + Lma_int_reccol(I)) THEN
+  !print*, 'summ = ', summ, ' summ + L(I) = ', summ + actirates%Lma_recrad(I) + actirates%Lma_reccol(I)
+  IF(rand >= summ .AND. rand < summ + actirates%Lma_int_recrad(I) + actirates%Lma_int_reccol(I)) THEN
    actual_state = I
 !   print*, 'do_ipackage: changing actual state to the state I = ', I
    !print*, 'do_ipackage: packet: ', pack_index, ' internal jump to the lower ionization state...'
    EXIT
   END IF
-  summ = summ + Lma_int_recrad(I) + Lma_int_reccol(I)
+  summ = summ + actirates%Lma_int_recrad(I) + actirates%Lma_int_reccol(I)
  END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! radiative recombination
@@ -347,23 +361,25 @@ ELSE
 END IF
 
 DEALLOCATE(linetransitions, lineuptransitions, &
-                Lma_int_dorad, Lma_int_uprad, Lma_int_docoll, Lma_int_upcoll, &
-                Lma_int_up, Lma_int_do)
-IF(nlevslion /= 0) DEALLOCATE(Lma_recrad, Lma_int_recrad, Lma_reccol, Lma_int_reccol)
+                actirates%Lma_int_dorad, actirates%Lma_int_uprad, actirates%Lma_int_docoll, actirates%Lma_int_upcoll, &
+                actirates%Lma_int_up, actirates%Lma_int_do)
+IF(nlevslion /= 0) DEALLOCATE(actirates%Lma_recrad, actirates%Lma_int_recrad, actirates%Lma_reccol, actirates%Lma_int_reccol)
 END DO
 
 ! deallocate rates
-IF(ASSOCIATED(Lma_int_dorad)) DEALLOCATE(Lma_int_dorad)
-IF(ASSOCIATED(Lma_int_uprad)) DEALLOCATE(Lma_int_uprad)
-IF(ASSOCIATED(Lma_int_dorad)) DEALLOCATE(Lma_rad)
-IF(ASSOCIATED(Lma_int_docoll)) DEALLOCATE(Lma_int_docoll)
-IF(ASSOCIATED(Lma_int_upcoll)) DEALLOCATE(Lma_int_upcoll)
-IF(ASSOCIATED(Lma_int_up)) DEALLOCATE(Lma_int_up)
-IF(ASSOCIATED(Lma_int_do)) DEALLOCATE(Lma_int_do)
-IF(ASSOCIATED(Lma_int_recrad)) DEALLOCATE(Lma_recrad)
-IF(ASSOCIATED(Lma_recrad)) DEALLOCATE(Lma_int_recrad)
-IF(ASSOCIATED(Lma_int_reccol)) DEALLOCATE(Lma_int_reccol)
-IF(ASSOCIATED(Lma_int_dorad)) DEALLOCATE(Lma_int_reccol)
+IF(ASSOCIATED(actirates%Lma_int_dorad)) DEALLOCATE(actirates%Lma_int_dorad)
+IF(ASSOCIATED(actirates%Lma_int_uprad)) DEALLOCATE(actirates%Lma_int_uprad)
+IF(ASSOCIATED(actirates%Lma_int_dorad)) DEALLOCATE(actirates%Lma_rad)
+IF(ASSOCIATED(actirates%Lma_int_docoll)) DEALLOCATE(actirates%Lma_int_docoll)
+IF(ASSOCIATED(actirates%Lma_int_upcoll)) DEALLOCATE(actirates%Lma_int_upcoll)
+IF(ASSOCIATED(actirates%Lma_int_up)) DEALLOCATE(actirates%Lma_int_up)
+IF(ASSOCIATED(actirates%Lma_int_do)) DEALLOCATE(actirates%Lma_int_do)
+IF(ASSOCIATED(actirates%Lma_recrad)) DEALLOCATE(actirates%Lma_recrad)
+!write(*,*) 'do_ipackage: size1 = ', SIZE(actirates%Lma_int_recrad)
+IF(ASSOCIATED(actirates%Lma_int_recrad)) DEALLOCATE(actirates%Lma_int_recrad)
+!write(*,*) 'do_ipackage: size2 = ', SIZE(actirates%Lma_int_reccol)
+IF(ASSOCIATED(actirates%Lma_int_reccol)) DEALLOCATE(actirates%Lma_int_reccol)
+IF(ASSOCIATED(actirates%Lma_int_dorad)) DEALLOCATE(actirates%Lma_int_reccol)
 
 
 END SUBROUTINE do_ipackage

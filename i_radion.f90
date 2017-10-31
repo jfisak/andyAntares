@@ -1,4 +1,4 @@
-SUBROUTINE i_radion(approx, indexe, indexi, leveli, current_mgi, act_pop, Zion, Zintrecom, Zrecom)
+SUBROUTINE i_radion(approx, indexe, indexi, leveli, current_mgi, act_pop, Zion, Zintrecom, Zrecom)!, actirates)
 USE types
 USE rates
 IMPLICIT NONE
@@ -22,6 +22,7 @@ DOUBLE PRECISION                        :: flux_function
 DOUBLE PRECISION                        :: stat_weight
 ! output variables
 DOUBLE PRECISION                        :: Zion, Zrecom, Zintrecom
+!CLASS(irates)                           :: actirates
 
 
 IF(indexi < elements(indexe)%atom_number) THEN
@@ -73,7 +74,7 @@ END IF
 IF(indexi > 1) THEN
  Zintrecom = 0.D0
  Zrecom = 0.D0
- nrecom = SIZE(Lma_recrad)
+ nrecom = SIZE(actirates%Lma_recrad)
  DO K = 1, nrecom
   npoints = SIZE(elements(indexe)%ions(indexi - 1)%levels(K)%photcros(1,:))
   IF (npoints /= 0) THEN
@@ -120,17 +121,17 @@ IF(indexi > 1) THEN
    exci_energy = elements(indexe)%ions(indexi - 1)%levels(K)%exci_energy
    gr_exci_energy = elements(indexe)%ions(indexi)%levels(1)%exci_energy
    stat_weight = elements(indexe)%ions(indexi - 1)%levels(K)%stat_waight
-   Lma_int_recrad(K) = pop_number * phot_cross * exci_energy * stat_weight
-   Lma_recrad(K) = pop_number * phot_cross * stat_weight * (gr_exci_energy - exci_energy)
-   !print*, 'photion_rates: Lma_recrad(K) = ', Lma_recrad(K), ' Lma_int_recrad = ', Lma_int_recrad(K)
-   !Lma_recrad(K) = 0.D0
-   Zintrecom = Zintrecom + Lma_int_recrad(K) 
-   Zrecom = Zrecom + Lma_recrad(K)
+   actirates%Lma_int_recrad(K) = pop_number * phot_cross * exci_energy * stat_weight
+   actirates%Lma_recrad(K) = pop_number * phot_cross * stat_weight * (gr_exci_energy - exci_energy)
+   !print*, 'photion_rates: actirates%Lma_recrad(K) = ', actirates%Lma_recrad(K), ' actirates%Lma_int_recrad = ', actirates%Lma_int_recrad(K)
+   !actirates%Lma_recrad(K) = 0.D0
+   Zintrecom = Zintrecom + actirates%Lma_int_recrad(K) 
+   Zrecom = Zrecom + actirates%Lma_recrad(K)
    !print*, 'Zrecom = ', Zrecom
    DEALLOCATE(freq, cross, func)
   ELSE
-   Lma_recrad(K) = 0.D0
-   Lma_int_recrad(K) = 0.D0
+   actirates%Lma_recrad(K) = 0.D0
+   actirates%Lma_int_recrad(K) = 0.D0
   END IF
  END DO
 ELSE
