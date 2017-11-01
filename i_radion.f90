@@ -23,8 +23,14 @@ DOUBLE PRECISION                        :: stat_weight
 ! output variables
 DOUBLE PRECISION                        :: Zion, Zrecom, Zintrecom
 !CLASS(irates)                           :: actirates
+INTEGER                                 :: OMP_GET_THREAD_NUM, my_rank
+
+my_rank = OMP_GET_THREAD_NUM()
 
 
+!write(*,*) 'i_radion: my_rank = ', my_rank, ' recrad = ', size(actirates%Lma_recrad), &
+!           ' intrecrad = ', size(actirates%Lma_int_recrad), ' reccol = ', size(actirates%Lma_reccol), &
+!           ' intreccol = ', size(actirates%Lma_int_reccol)
 IF(indexi < elements(indexe)%atom_number) THEN
  npoints = SIZE(elements(indexe)%ions(indexi)%levels(leveli)%photcros(1,:))
 ELSE
