@@ -21,6 +21,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
   INTEGER                           :: my_rank, dummypackage
   INTEGER                           :: n_pack_d
   INTEGER                           :: OMP_GET_THREAD_NUM
+  DOUBLE PRECISION                  :: freq_line
 
   my_rank = OMP_GET_THREAD_NUM()
   !write(*,*)'event_dist: Thread rank: ', my_rank

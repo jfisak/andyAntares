@@ -116,15 +116,15 @@ DO WHILE (active == 1)
  ALLOCATE(actirates%Lma_int_do(nlns), actirates%Lma_int_up(nluns))
  Zintdown = 0.D0
  Zintup = 0.D0
- IF(my_rank == 1) THEN
-  write(*,*) 'do_ipackage: nlns = ', nlns, ' nluns = ', nluns
-  write(*,*) 'do_ipackage: int_do = ', size(actirates%Lma_int_dorad), &
-             ' int_docoll = ', size(actirates%Lma_int_docoll), &
-             ' intuprad = ', size(actirates%Lma_int_uprad), &
-             ' intupcoll = ', size(actirates%Lma_int_upcoll), &
-             ' int_do = ', size(actirates%Lma_int_do), &
-             ' intup = ', size(actirates%Lma_int_up)
- END IF
+ !IF(my_rank == 1) THEN
+ ! write(*,*) 'do_ipackage: nlns = ', nlns, ' nluns = ', nluns
+ ! write(*,*) 'do_ipackage: int_do = ', size(actirates%Lma_int_dorad), &
+ !            ' int_docoll = ', size(actirates%Lma_int_docoll), &
+ !            ' intuprad = ', size(actirates%Lma_int_uprad), &
+ !            ' intupcoll = ', size(actirates%Lma_int_upcoll), &
+ !            ' int_do = ', size(actirates%Lma_int_do), &
+ !            ' intup = ', size(actirates%Lma_int_up)
+ !END IF
  ! allocation of the field for recombination processes
  IF(ion_index > 1) THEN
   nlevslion = SIZE(elements(element_index)%ions(ion_index - 1)%levels)
@@ -140,9 +140,9 @@ DO WHILE (active == 1)
   actirates%Lma_reccol(1) = 0.D0
   actirates%Lma_int_reccol(1) = 0.D0
  END IF
- write(*,*) 'do_ipackage: my_rank = ', my_rank, ' recrad = ', size(actirates%Lma_recrad), &
-            ' intrecrad = ', size(actirates%Lma_int_recrad), ' reccol = ', size(actirates%Lma_reccol), &
-            ' intreccol = ', size(actirates%Lma_int_reccol)
+ !write(*,*) 'do_ipackage: my_rank = ', my_rank, ' recrad = ', size(actirates%Lma_recrad), &
+ !           ' intrecrad = ', size(actirates%Lma_int_recrad), ' reccol = ', size(actirates%Lma_reccol), &
+ !           ' intreccol = ', size(actirates%Lma_int_reccol)
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! calculation of the given transition probabilities
  CALL populations(element_index, ion_index, actual_state, current_mgi, act_pop)

@@ -81,6 +81,8 @@ IF(indexi > 1) THEN
  Zintrecom = 0.D0
  Zrecom = 0.D0
  nrecom = SIZE(actirates%Lma_recrad)
+ write(*,*) 'i_radion: my_rank = ', my_rank, ' Lma_recrad = ', SIZE(actirates%Lma_recrad), &
+  ' Lma_int_recrad = ', SIZE(actirates%Lma_int_recrad)
  DO K = 1, nrecom
   npoints = SIZE(elements(indexe)%ions(indexi - 1)%levels(K)%photcros(1,:))
   IF (npoints /= 0) THEN
@@ -91,10 +93,6 @@ IF(indexi > 1) THEN
    DO I = 1, npoints
     flux = flux_function(0,freq(I), T_eff)
     x = (h * freq(I)) / (BOLK * T_eff)
-    !write(*,*) 'i_radion: f^3/c^2 = ', freq(I)**3/light_speed**2
-    !write(*,*) 'i_radion: expr1 = ', cross(I)/(h * freq(I))! * ((2.0 * h * freq(I)**3.0)/light_speed**2.0 + flux) * exp(-x)
-    !write(*,*) 'i_radion: expr2 = ', ((2.0 * h * freq(I)**3.0)/light_speed**2.0 + flux) * exp(-x)
-    !write(*,*) 'i_radion: expr3 = ', ((2.0 * h * freq(I)**3.0)/light_speed**2.0 ) * exp(-x)
     IF(((2.0 * h * freq(I)**3.0) / light_speed**2.0 + flux) * exp(-x) > 1.D-150) THEN
      func(I) = cross(I) / (h * freq(I)) * &
       ((2.0 * h * freq(I)**3.0) / light_speed**2.0 + flux) * exp(-x)
@@ -140,10 +138,10 @@ IF(indexi > 1) THEN
    actirates%Lma_int_recrad(K) = 0.D0
   END IF
  END DO
-ELSE
+ELSE ! indexi > 1
  Zrecom = 0.D0
  Zintrecom = 0.D0
-END IF
+END IF ! indexi > 1
  !print*, 'Zrecom = ', Zrecom
 !print*, 'photion_rates: Zion = ', Zion, ' Zrecom = ', Zrecom
 

@@ -174,8 +174,6 @@ MODULE types
   ! TEMPORARY CHANGE OF TEMPERATURE STRUCTURE
   DOUBLE PRECISION, PARAMETER        :: temp_factor = 1.0
 
-!! Parameters for testing
-  DOUBLE PRECISION                   :: freq_line
 
 !  DOUBLE PRECISION, PARAMETER       :: osc_line=0.416D0 ! for Ly_alph line
 !  DOUBLE PRECISION, PARAMETER       :: nu_min= 2.D15, nu_max=3.D15  !nu_min= 1.D14, nu_max=1.D17,
