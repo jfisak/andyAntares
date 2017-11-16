@@ -37,7 +37,7 @@ INTEGER                         :: get_package_model_index, current_mgi
 DOUBLE PRECISION                :: new_freq
 ! Doppler factor
 DOUBLE PRECISION                :: D
-INTEGER                           :: OMP_GET_THREAD_NUM, my_rank
+INTEGER                         :: OMP_GET_THREAD_NUM, my_rank
 
 my_rank = OMP_GET_THREAD_NUM()
 
@@ -104,16 +104,16 @@ DO WHILE (active == 1)
  
  ! total rates of procedure
  ! 0.) internal downward jump within the current ion
- ALLOCATE(actirates%Lma_int_dorad(nlns))
+ !ALLOCATE(actirates%Lma_int_dorad(nlns))
  ! 1.) radiative deexcitation
  ! this allocates only in the first loop, because this field will only remember transitions
  ! from the last_line's upper level
  ! 3.) collisional deexcitation
- ALLOCATE(actirates%Lma_int_docoll(nlns))
+ !ALLOCATE(actirates%Lma_int_docoll(nlns))
  ! 2.) internal upward jump within the current ion
- ALLOCATE(actirates%Lma_int_uprad(nluns))
- ALLOCATE(actirates%Lma_int_upcoll(nluns))
- ALLOCATE(actirates%Lma_int_do(nlns), actirates%Lma_int_up(nluns))
+ !ALLOCATE(actirates%Lma_int_uprad(nluns))
+ !ALLOCATE(actirates%Lma_int_upcoll(nluns))
+ !ALLOCATE(actirates%Lma_int_do(nlns), actirates%Lma_int_up(nluns))
  Zintdown = 0.D0
  Zintup = 0.D0
  !IF(my_rank == 1) THEN
@@ -129,18 +129,19 @@ DO WHILE (active == 1)
  IF(ion_index > 1) THEN
   nlevslion = SIZE(elements(element_index)%ions(ion_index - 1)%levels)
 !  print*, 'my_rank = ', my_rank, ' element_index = ', element_index, 'ion_index - 1 = ', ion_index - 1, ' nlevslion = ', nlevslion
-  ALLOCATE(actirates%Lma_recrad(nlevslion), actirates%Lma_int_recrad(nlevslion), &
-           actirates%Lma_reccol(nlevslion), actirates%Lma_int_reccol(nlevslion))
+ ! ALLOCATE(actirates%Lma_recrad(nlevslion), actirates%Lma_int_recrad(nlevslion), &
+ !          actirates%Lma_reccol(nlevslion), actirates%Lma_int_reccol(nlevslion))
  ELSE
   nlevslion = 0
-  ALLOCATE(actirates%Lma_recrad(1), actirates%Lma_int_recrad(1), &
-           actirates%Lma_reccol(1), actirates%Lma_int_reccol(1))
-  actirates%Lma_recrad(1) = 0.D0
-  actirates%Lma_int_recrad(1) = 0.D0
-  actirates%Lma_reccol(1) = 0.D0
-  actirates%Lma_int_reccol(1) = 0.D0
+ ! ALLOCATE(actirates%Lma_recrad(1), actirates%Lma_int_recrad(1), &
+ !          actirates%Lma_reccol(1), actirates%Lma_int_reccol(1))
+ ! actirates%Lma_recrad(1) = 0.D0
+ ! actirates%Lma_int_recrad(1) = 0.D0
+ ! actirates%Lma_reccol(1) = 0.D0
+ ! actirates%Lma_int_reccol(1) = 0.D0
+ actirates = irates(nlns, nluns, nlevslion)
  END IF
- !write(*,*) 'do_ipackage: my_rank = ', my_rank, ' recrad = ', size(actirates%Lma_recrad), &
+ !write(*,*) 'ALLOCATED: do_ipackage: my_rank = ', my_rank, ' recrad = ', size(actirates%Lma_recrad), &
  !           ' intrecrad = ', size(actirates%Lma_int_recrad), ' reccol = ', size(actirates%Lma_reccol), &
  !           ' intreccol = ', size(actirates%Lma_int_reccol)
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

@@ -81,9 +81,12 @@ IF(indexi > 1) THEN
  Zintrecom = 0.D0
  Zrecom = 0.D0
  nrecom = SIZE(actirates%Lma_recrad)
- write(*,*) 'i_radion: my_rank = ', my_rank, ' Lma_recrad = ', SIZE(actirates%Lma_recrad), &
-  ' Lma_int_recrad = ', SIZE(actirates%Lma_int_recrad)
+ !write(*,*) 'i_radion: my_rank = ', my_rank, ' Lma_recrad = ', SIZE(actirates%Lma_recrad), &
+ ! ' Lma_int_recrad = ', SIZE(actirates%Lma_int_recrad)
  DO K = 1, nrecom
+  IF(nrecom == 1) EXIT
+  write(*,*) 'i_radion: K = ', K, ' my_rank = ', my_rank, ' Lma_recrad = ', SIZE(actirates%Lma_recrad), &
+  ' Lma_int_recrad = ', SIZE(actirates%Lma_int_recrad)
   npoints = SIZE(elements(indexe)%ions(indexi - 1)%levels(K)%photcros(1,:))
   IF (npoints /= 0) THEN
    ALLOCATE(freq(npoints), cross(npoints), func(npoints))
