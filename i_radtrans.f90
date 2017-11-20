@@ -50,8 +50,8 @@ DO I = 1, nlns
  ! internal downward jump
  ! calculation of a rate coefficient
  actVal = population * linelist(act_line)%A_ul * exci_energy_l
-! print*, 'do_ipackage: stat_waight, exci_energy, population, linelist(act_line)%A_ul, actVal', &
-!       stat_weight, exci_energy, population, linelist(act_line)%A_ul, actVal
+ print*, 'do_ipackage: stat_waight, exci_energy, population, linelist(act_line)%A_ul, actVal', &
+       stat_weight, exci_energy, population, linelist(act_line)%A_ul, actVal
  actirates%Lma_int_dorad(I) = actVal * stat_weight
  Zintdown = Zintdown + actirates%Lma_int_dorad(I)
 ! write(*,*) 'i_radtrans: Zintdown = ', Zintdown

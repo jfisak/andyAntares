@@ -46,7 +46,7 @@ my_rank = OMP_GET_THREAD_NUM()
 
 ! define the needed variables
 ! it is necessary to remember the initial conditions of a macro-atom
-IF(.NOT. ASSOCIATED(actirates)) ALLOCATE(actirates)
+!IF(.NOT. ASSOCIATED(actirates)) ALLOCATE(actirates)
 last_line = package(pack_index)%last_line
 last_ion = linelist(last_line)%indexi
 last_level = linelist(last_line)%upper

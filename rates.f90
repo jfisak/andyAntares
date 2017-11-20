@@ -33,11 +33,11 @@ TYPE, PUBLIC :: irates
  DOUBLE PRECISION, DIMENSION(:), POINTER  :: Lma_reccol 
  ! internal collisional jump to the lower ionization state
  DOUBLE PRECISION, DIMENSION(:), POINTER  :: Lma_int_reccol 
- ! constructor
- !SUBROUTINE, PASS :: rates_construct
+ ! destructor
+ !SUBROUTINE, PASS :: rates_destruct
 END TYPE irates
 
-CLASS(irates), POINTER      :: actirates
+TYPE(irates)      :: actirates
 
 INTERFACE irates
  module procedure rates_construct
@@ -45,8 +45,12 @@ END INTERFACE
 
 CONTAINS
 FUNCTION rates_construct(nlns, nluns, nlio)
-CLASS(irates), POINTER          :: rates_construct
+ TYPE(irates)                   :: rates_construct
  INTEGER                        :: nldo, nlup, nlio
+ INTEGER                         :: OMP_GET_THREAD_NUM, my_rank
+
+ my_rank = OMP_GET_THREAD_NUM()
+ write(*,*) 'construction: my_rank = ', my_rank, ' nlns = ', nlns, ' nluns = ', nluns, ' nlio = ', nlio
  ALLOCATE(rates_construct%Lma_int_dorad(nlns))
  ALLOCATE(rates_construct%Lma_int_docoll(nlns))
  ALLOCATE(rates_construct%Lma_int_uprad(nluns))
@@ -57,10 +61,24 @@ CLASS(irates), POINTER          :: rates_construct
  ALLOCATE(rates_construct%Lma_int_recrad(nlio))
  ALLOCATE(rates_construct%Lma_reccol(nlio))
  ALLOCATE(rates_construct%Lma_int_reccol(nlio))
- ALLOCATE(rates_construct%Lma_int_dorad(nlns))
 END FUNCTION rates_construct
 
 
+!FUNCTION rates_destruct(nlns, nluns, nlio)
+! TYPE(irates)                   :: rates_destruct
+! INTEGER                        :: nldo, nlup, nlio
+! DEALLOCATE(rates_destruct%Lma_int_dorad(nlns))
+! DEALLOCATE(rates_destruct%Lma_int_docoll(nlns))
+! DEALLOCATE(rates_destruct%Lma_int_uprad(nluns))
+! DEALLOCATE(rates_destruct%Lma_int_upcoll(nluns))
+! DEALLOCATE(rates_destruct%Lma_int_do(nlns))
+! DEALLOCATE(rates_destruct%Lma_int_up(nluns))
+! DEALLOCATE(rates_destruct%Lma_recrad(nlio))
+! DEALLOCATE(rates_destruct%Lma_int_recrad(nlio))
+! DEALLOCATE(rates_destruct%Lma_reccol(nlio))
+! DEALLOCATE(rates_destruct%Lma_int_reccol(nlio))
+! DEALLOCATE(rates_destruct%Lma_int_dorad(nlns))
+!END FUNCTION rates_destruct
  
 
 

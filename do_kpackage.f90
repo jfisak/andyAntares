@@ -20,6 +20,8 @@ DOUBLE PRECISION                :: new_freq
 INTEGER                         :: act_proc, J
 
 
+package(pack_index)%typ = type_ipkt
+RETURN
 ! calculating of cooling rates
 ! collision excitation rate
 CALL cool_excit(1, pack_index,  Zexcit)
