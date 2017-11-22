@@ -21,6 +21,7 @@ INTEGER                         :: act_proc, J
 
 
 package(pack_index)%typ = type_ipkt
+package(pack_index)%last_line = 1
 RETURN
 ! calculating of cooling rates
 ! collision excitation rate

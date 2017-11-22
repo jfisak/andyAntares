@@ -46,7 +46,7 @@ my_rank = OMP_GET_THREAD_NUM()
 
 ! define the needed variables
 ! it is necessary to remember the initial conditions of a macro-atom
-!IF(.NOT. ASSOCIATED(actirates)) ALLOCATE(actirates)
+IF(.NOT. ASSOCIATED(actirates)) ALLOCATE(actirates)
 last_line = package(pack_index)%last_line
 last_ion = linelist(last_line)%indexi
 last_level = linelist(last_line)%upper
@@ -128,22 +128,12 @@ DO WHILE (active == 1)
  ! allocation of the field for recombination processes
  IF(ion_index > 1) THEN
   nlevslion = SIZE(elements(element_index)%ions(ion_index - 1)%levels)
-!  print*, 'my_rank = ', my_rank, ' element_index = ', element_index, 'ion_index - 1 = ', ion_index - 1, ' nlevslion = ', nlevslion
- ! ALLOCATE(actirates%Lma_recrad(nlevslion), actirates%Lma_int_recrad(nlevslion), &
- !          actirates%Lma_reccol(nlevslion), actirates%Lma_int_reccol(nlevslion))
  ELSE
   nlevslion = 0
- ! ALLOCATE(actirates%Lma_recrad(1), actirates%Lma_int_recrad(1), &
- !          actirates%Lma_reccol(1), actirates%Lma_int_reccol(1))
- ! actirates%Lma_recrad(1) = 0.D0
- ! actirates%Lma_int_recrad(1) = 0.D0
- ! actirates%Lma_reccol(1) = 0.D0
- ! actirates%Lma_int_reccol(1) = 0.D0
- actirates = irates(nlns, nluns, nlevslion)
  END IF
+ actirates = irates(nlns, nluns, nlevslion)
  !write(*,*) 'ALLOCATED: do_ipackage: my_rank = ', my_rank, ' recrad = ', size(actirates%Lma_recrad), &
- !           ' intrecrad = ', size(actirates%Lma_int_recrad), ' reccol = ', size(actirates%Lma_reccol), &
- !           ' intreccol = ', size(actirates%Lma_int_reccol)
+ !           ' intdorad = ', size(actirates%Lma_int_dorad)
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! calculation of the given transition probabilities
  CALL populations(element_index, ion_index, actual_state, current_mgi, act_pop)

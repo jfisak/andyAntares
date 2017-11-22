@@ -17,7 +17,9 @@ DOUBLE PRECISION                        :: actVal
 INTEGER                                 :: I
 ! output variables
 DOUBLE PRECISION                        :: Zintdown, Zintup, Zrad
-!CLASS(irates)                           :: actirates
+INTEGER                         :: OMP_GET_THREAD_NUM, my_rank
+
+my_rank = OMP_GET_THREAD_NUM()
 
 Zintdown = 0.D0
 Zrad= 0.D0
@@ -37,6 +39,10 @@ ELSE
  Zintup = 0.D0
  Zrad = 0.D0
 END IF 
+ !write(*,*) 'ALLOCATED: i_radtrans: my_rank = ', my_rank, ' recrad = ', size(actirates%Lma_recrad), &
+ !           ' intrecrad = ', size(actirates%Lma_int_recrad), ' reccol = ', size(actirates%Lma_reccol), &
+ !           ' intreccol = ', size(actirates%Lma_int_reccol)
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal downward jump and radiative deexcitation
 DO I = 1, nlns
@@ -50,8 +56,8 @@ DO I = 1, nlns
  ! internal downward jump
  ! calculation of a rate coefficient
  actVal = population * linelist(act_line)%A_ul * exci_energy_l
- print*, 'do_ipackage: stat_waight, exci_energy, population, linelist(act_line)%A_ul, actVal', &
-       stat_weight, exci_energy, population, linelist(act_line)%A_ul, actVal
+ !print*, 'i_radtrans: stat_waight, exci_energy, population, linelist(act_line)%A_ul, actVal', &
+ !      stat_weight, exci_energy, population, linelist(act_line)%A_ul, actVal
  actirates%Lma_int_dorad(I) = actVal * stat_weight
  Zintdown = Zintdown + actirates%Lma_int_dorad(I)
 ! write(*,*) 'i_radtrans: Zintdown = ', Zintdown

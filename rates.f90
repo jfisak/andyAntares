@@ -37,7 +37,7 @@ TYPE, PUBLIC :: irates
  !SUBROUTINE, PASS :: rates_destruct
 END TYPE irates
 
-TYPE(irates)      :: actirates
+TYPE(irates), POINTER      :: actirates
 
 INTERFACE irates
  module procedure rates_construct
