@@ -2,7 +2,7 @@
 SUBROUTINE do_ipackage(pack_index)
 
 USE TYPES
-USE rates
+USE rates_i
 IMPLICIT NONE
 
 ! input variables
@@ -37,16 +37,16 @@ INTEGER                         :: get_package_model_index, current_mgi
 DOUBLE PRECISION                :: new_freq
 ! Doppler factor
 DOUBLE PRECISION                :: D
+TYPE(irates)      :: actirates
 INTEGER                         :: OMP_GET_THREAD_NUM, my_rank
 
 my_rank = OMP_GET_THREAD_NUM()
 
-!CLASS(irates), POINTER      :: actirates
 
 
 ! define the needed variables
 ! it is necessary to remember the initial conditions of a macro-atom
-IF(.NOT. ASSOCIATED(actirates)) ALLOCATE(actirates)
+!IF(.NOT. ASSOCIATED(actirates)) ALLOCATE(actirates)
 last_line = package(pack_index)%last_line
 last_ion = linelist(last_line)%indexi
 last_level = linelist(last_line)%upper
@@ -134,17 +134,18 @@ DO WHILE (active == 1)
  actirates = irates(nlns, nluns, nlevslion)
  !write(*,*) 'ALLOCATED: do_ipackage: my_rank = ', my_rank, ' recrad = ', size(actirates%Lma_recrad), &
  !           ' intdorad = ', size(actirates%Lma_int_dorad)
+ !write(*,*) 'do_ipackage: loc(actirates) = ', loc(actirates)
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! calculation of the given transition probabilities
  CALL populations(element_index, ion_index, actual_state, current_mgi, act_pop)
  CALL i_radtrans(nlns, linetransitions, nluns, lineuptransitions, act_pop, &
-  Zintdownrad, Zintuprad, Zraddeexc)!, actirates)
+  Zintdownrad, Zintuprad, Zraddeexc, actirates)
  CALL i_coltrans(1, pack_index, actual_state, nlns, linetransitions, nluns, lineuptransitions, &
-  act_pop, Zintdowncoll, Zintupcoll, Zcoll)!, actirates)
+  act_pop, Zintdowncoll, Zintupcoll, Zcoll, actirates)
  CALL i_radion(0, element_index, ion_index, actual_state, current_mgi, act_pop, Zphotionup, &
-  Zphotiondown, Zphotrecom)!, actirates)
+  Zphotiondown, Zphotrecom, actirates)
  CALL i_colion(1, element_index, ion_index, actual_state, pack_index, act_pop, Zcollionup, &
-  Zcolliondown,Zcollrecom)!, actirates)
+  Zcolliondown,Zcollrecom, actirates)
  ! total rates of internal donwnward jump
  DO I = 1, nlns
    actirates%Lma_int_do(I) = actirates%Lma_int_dorad(I) + actirates%Lma_int_docoll(I)
@@ -370,19 +371,19 @@ IF(nlevslion /= 0) DEALLOCATE(actirates%Lma_recrad, actirates%Lma_int_recrad, ac
 END DO
 
 ! deallocate rates
-IF(ASSOCIATED(actirates%Lma_int_dorad)) DEALLOCATE(actirates%Lma_int_dorad)
-IF(ASSOCIATED(actirates%Lma_int_uprad)) DEALLOCATE(actirates%Lma_int_uprad)
-IF(ASSOCIATED(actirates%Lma_int_dorad)) DEALLOCATE(actirates%Lma_rad)
-IF(ASSOCIATED(actirates%Lma_int_docoll)) DEALLOCATE(actirates%Lma_int_docoll)
-IF(ASSOCIATED(actirates%Lma_int_upcoll)) DEALLOCATE(actirates%Lma_int_upcoll)
-IF(ASSOCIATED(actirates%Lma_int_up)) DEALLOCATE(actirates%Lma_int_up)
-IF(ASSOCIATED(actirates%Lma_int_do)) DEALLOCATE(actirates%Lma_int_do)
-IF(ASSOCIATED(actirates%Lma_recrad)) DEALLOCATE(actirates%Lma_recrad)
+IF(ALLOCATED(actirates%Lma_int_dorad)) DEALLOCATE(actirates%Lma_int_dorad)
+IF(ALLOCATED(actirates%Lma_int_uprad)) DEALLOCATE(actirates%Lma_int_uprad)
+IF(ALLOCATED(actirates%Lma_int_dorad)) DEALLOCATE(actirates%Lma_rad)
+IF(ALLOCATED(actirates%Lma_int_docoll)) DEALLOCATE(actirates%Lma_int_docoll)
+IF(ALLOCATED(actirates%Lma_int_upcoll)) DEALLOCATE(actirates%Lma_int_upcoll)
+IF(ALLOCATED(actirates%Lma_int_up)) DEALLOCATE(actirates%Lma_int_up)
+IF(ALLOCATED(actirates%Lma_int_do)) DEALLOCATE(actirates%Lma_int_do)
+IF(ALLOCATED(actirates%Lma_recrad)) DEALLOCATE(actirates%Lma_recrad)
 !write(*,*) 'do_ipackage: size1 = ', SIZE(actirates%Lma_int_recrad)
-IF(ASSOCIATED(actirates%Lma_int_recrad)) DEALLOCATE(actirates%Lma_int_recrad)
+IF(ALLOCATED(actirates%Lma_int_recrad)) DEALLOCATE(actirates%Lma_int_recrad)
 !write(*,*) 'do_ipackage: size2 = ', SIZE(actirates%Lma_int_reccol)
-IF(ASSOCIATED(actirates%Lma_int_reccol)) DEALLOCATE(actirates%Lma_int_reccol)
-IF(ASSOCIATED(actirates%Lma_int_dorad)) DEALLOCATE(actirates%Lma_int_reccol)
+IF(ALLOCATED(actirates%Lma_int_reccol)) DEALLOCATE(actirates%Lma_int_reccol)
+IF(ALLOCATED(actirates%Lma_int_dorad)) DEALLOCATE(actirates%Lma_int_reccol)
 
 
 END SUBROUTINE do_ipackage

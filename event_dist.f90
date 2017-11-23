@@ -1,7 +1,6 @@
-SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
+SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, Lcont)
 
   USE types
-  USE rates
 
   IMPLICIT NONE    
 
@@ -22,6 +21,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event)
   INTEGER                           :: n_pack_d
   INTEGER                           :: OMP_GET_THREAD_NUM
   DOUBLE PRECISION                  :: freq_line
+  DOUBLE PRECISION, POINTER               :: Lcont(:)
 
   my_rank = OMP_GET_THREAD_NUM()
   !write(*,*)'event_dist: Thread rank: ', my_rank

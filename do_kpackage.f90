@@ -1,6 +1,6 @@
 SUBROUTINE do_kpackage(pack_index)
 USE types
-USE rates
+USE rates_k
 IMPLICIT NONE
 
 INTEGER                         :: pack_index

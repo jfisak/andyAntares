@@ -154,7 +154,7 @@ MODULE types
   INTEGER, PARAMETER                 :: no_line = -99
 
 !! Atomic data
-  ! Total number of chemical elements in the simulation
+ ! Total number of chemical elements in the simulation
   INTEGER                            :: n_elements
   ! Total number of line transitions in the simulation
   INTEGER                            :: ntransitions

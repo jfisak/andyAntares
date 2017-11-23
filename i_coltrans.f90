@@ -1,9 +1,9 @@
 ! this subroutine calculates collisional rates for the given energy
 ! level
 SUBROUTINE i_coltrans(approx, pack_index, level, nlns, linetransitions, nluns, &
-lineuptransitions, population, Zdown, Zup, Zcoll)!, actirates)
+lineuptransitions, population, Zdown, Zup, Zcoll, actirates)
 USE types
-USE rates
+USE rates_i
 IMPLICIT NONE
 ! input variables
 ! used approximation for the collisional term calculation
@@ -43,7 +43,7 @@ DOUBLE PRECISION                        :: Zdown, Zup, Zcoll
 DOUBLE PRECISION                        :: lcoll
 DOUBLE PRECISION                        :: stat_weight
 DOUBLE PRECISION, PARAMETER             :: times = 1.D0
-!CLASS(irates)                           :: actirates
+TYPE(irates)                           :: actirates
 
 !IF(times /= 1.D0) THEN
 ! CALL warning('collisional rates are multiplied by a non-one factor')

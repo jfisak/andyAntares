@@ -1,7 +1,7 @@
 SUBROUTINE i_radtrans(nlns, linetransitions, nluns, lineuptransitions, population, &
-Zintdown, Zintup, Zrad)!, actirates)
+Zintdown, Zintup, Zrad, actirates)
 USE types
-USE rates
+USE rates_i
 IMPLICIT NONE
 
 ! input variables
@@ -18,6 +18,7 @@ INTEGER                                 :: I
 ! output variables
 DOUBLE PRECISION                        :: Zintdown, Zintup, Zrad
 INTEGER                         :: OMP_GET_THREAD_NUM, my_rank
+TYPE(irates)      :: actirates
 
 my_rank = OMP_GET_THREAD_NUM()
 
@@ -40,8 +41,7 @@ ELSE
  Zrad = 0.D0
 END IF 
  !write(*,*) 'ALLOCATED: i_radtrans: my_rank = ', my_rank, ' recrad = ', size(actirates%Lma_recrad), &
- !           ' intrecrad = ', size(actirates%Lma_int_recrad), ' reccol = ', size(actirates%Lma_reccol), &
- !           ' intreccol = ', size(actirates%Lma_int_reccol)
+ !       ' intdorad = ', size(actirates%Lma_int_dorad)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal downward jump and radiative deexcitation

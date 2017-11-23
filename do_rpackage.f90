@@ -3,7 +3,6 @@ SUBROUTINE do_rpackage(pack_index)
   ! Propagation of the photon in 3D grid
 
   USE types
-  USE rates
 
   IMPLICIT NONE    
 
@@ -19,6 +18,7 @@ SUBROUTINE do_rpackage(pack_index)
 INTEGER                                         :: n_thomson
 INTEGER                                         :: n_tot_cont
 INTEGER                                         :: my_rank
+DOUBLE PRECISION, POINTER               :: Lcont(:)
 
 ! number of thomson scattering (code must be clear)
 n_thomson = 1
@@ -40,7 +40,7 @@ END IF
       e_dist = 1.D50
       !print*, 'package: ', pack_index, ' is in empty space...'
   ELSE
-      CALL event_dist(pack_index, cell_dist, e_dist, event)
+      CALL event_dist(pack_index, cell_dist, e_dist, event, Lcont)
   END IF
 
 !  IF (debug .EQ. 1) THEN 
@@ -56,7 +56,7 @@ END IF
      CALL move_package(pack_index, e_dist)
      CALL update_estimators(pack_index, e_dist)
      ! print*, pack_index, freq_line, package(pack_index)%freq_cmf, package(pack_index)%freq_rf
-     CALL do_rpackage_event(pack_index, event)
+     CALL do_rpackage_event(pack_index, event, Lcont)
      IF (debug .EQ. 1) THEN 
         print*, 'do event', opa_cell * rho_cell * cell_dist
      END IF

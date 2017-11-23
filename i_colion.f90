@@ -1,7 +1,7 @@
 SUBROUTINE i_colion(approximation, indexe, indexi, act_level, pack_index, act_pop, Zion, &
-        Zrecomb, Zintrecomb)!, actirates)
+        Zrecomb, Zintrecomb, actirates)
 USE types
-USE rates
+USE rates_i
 IMPLICIT NONE
 
 ! input variables
@@ -31,7 +31,7 @@ DOUBLE PRECISION                :: stat_weight
 DOUBLE PRECISION                :: Zion, Zrecomb, Zintrecomb
 ! recombination
 DOUBLE PRECISION, PARAMETER             :: times = 1e0
-!CLASS(irates)                   :: actirates
+TYPE(irates)                   :: actirates
 
 
 

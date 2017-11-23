@@ -1,6 +1,6 @@
-SUBROUTINE i_radion(approx, indexe, indexi, leveli, current_mgi, act_pop, Zion, Zintrecom, Zrecom)!, actirates)
+SUBROUTINE i_radion(approx, indexe, indexi, leveli, current_mgi, act_pop, Zion, Zintrecom, Zrecom, actirates)
 USE types
-USE rates
+USE rates_i
 IMPLICIT NONE
 
 ! input variables
@@ -22,7 +22,7 @@ DOUBLE PRECISION                        :: flux_function
 DOUBLE PRECISION                        :: stat_weight
 ! output variables
 DOUBLE PRECISION                        :: Zion, Zrecom, Zintrecom
-!CLASS(irates)                           :: actirates
+TYPE(irates)                           :: actirates
 INTEGER                                 :: OMP_GET_THREAD_NUM, my_rank
 
 my_rank = OMP_GET_THREAD_NUM()
@@ -85,8 +85,8 @@ IF(indexi > 1) THEN
  ! ' Lma_int_recrad = ', SIZE(actirates%Lma_int_recrad)
  DO K = 1, nrecom
   IF(nrecom == 1) EXIT
-  write(*,*) 'i_radion: K = ', K, ' my_rank = ', my_rank, ' Lma_recrad = ', SIZE(actirates%Lma_recrad), &
-  ' Lma_int_recrad = ', SIZE(actirates%Lma_int_recrad)
+  !write(*,*) 'i_radion: K = ', K, ' my_rank = ', my_rank, ' Lma_recrad = ', SIZE(actirates%Lma_recrad), &
+  !' Lma_int_recrad = ', SIZE(actirates%Lma_int_recrad)
   npoints = SIZE(elements(indexe)%ions(indexi - 1)%levels(K)%photcros(1,:))
   IF (npoints /= 0) THEN
    ALLOCATE(freq(npoints), cross(npoints), func(npoints))

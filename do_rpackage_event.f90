@@ -1,7 +1,6 @@
-SUBROUTINE do_rpackage_event(pack_index, event)
+SUBROUTINE do_rpackage_event(pack_index, event, Lcont)
 
   USE types
-  USE rates
 
   IMPLICIT NONE    
 
@@ -11,6 +10,7 @@ SUBROUTINE do_rpackage_event(pack_index, event)
   ! loop variables
   INTEGER                               :: I
   DOUBLE PRECISION                      :: summ, rand, ZcontTot
+  DOUBLE PRECISION, POINTER               :: Lcont(:)
 
 
   IF (event .EQ. rpkt_eventtype_lineinteraction) THEN
