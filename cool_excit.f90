@@ -1,6 +1,6 @@
-SUBROUTINE cool_excit(approx, pack_index, Zexc)
+SUBROUTINE cool_excit(approx, pack_index, Zexc, actikrates)
 USE types
-USE rates
+USE rates_k
 IMPLICIT NONE
 ! input variables
 INTEGER                                         :: approx, pack_index
@@ -16,16 +16,12 @@ DOUBLE PRECISION                                :: exc_upper, exc_lower
 ! radiative rates
 DOUBLE PRECISION                                :: actVal, x, gf
 ! constans
-DOUBLE PRECISION, PARAMETER             :: c0 = 5.465D-11
-DOUBLE PRECISION, PARAMETER             :: IH = 13.6 * e_v
-DOUBLE PRECISION, PARAMETER             :: coll_const = 14.5
+DOUBLE PRECISION, PARAMETER                     :: c0 = 5.465D-11
+DOUBLE PRECISION, PARAMETER                     :: IH = 13.6 * e_v
+DOUBLE PRECISION, PARAMETER                     :: coll_const = 14.5
 ! output variables
 DOUBLE PRECISION                                :: Zexc
-! we expect that number of included ions does not change in the stellar wind
-! so we do not reallocate existing array
-IF(.NOT. ASSOCIATED(Lcool_ff)) THEN
- ALLOCATE(Lcool_excit(ntransitions))
-END IF
+TYPE(krates)                                    :: actikrates
 
 Zexc = 0.D0
 SELECT CASE(approx)
@@ -62,8 +58,8 @@ CASE(1)
   ! print*, 'cool_excit: pop = ', pop, ' electron_density = ', electron_density, &
   !        ' temperature = ', temperature, ' gf = ', gf, ' osc_str = ', osc_str, &
   !        ' x = ', x
-  Lcool_excit(line) = actVal
-  !write(*,*) 'cool_excit: Lcool_excit(', line, ') = ', Lcool_excit(line)
+  actikrates%Lcool_excit(line) = actVal
+  !write(*,*) 'cool_excit: actikrates%Lcool_excit(', line, ') = ', actikrates%Lcool_excit(line)
   Zexc = Zexc + actVal
   !write(*,*) 'cool_excit: Zexc = ', Zexc
  END DO

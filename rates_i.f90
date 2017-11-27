@@ -54,22 +54,5 @@ FUNCTION rates_construct(nlns, nluns, nlio)
 END FUNCTION rates_construct
 
 
-!FUNCTION rates_destruct(nlns, nluns, nlio)
-! TYPE(irates)                   :: rates_destruct
-! INTEGER                        :: nldo, nlup, nlio
-! DEALLOCATE(rates_destruct%Lma_int_dorad(nlns))
-! DEALLOCATE(rates_destruct%Lma_int_docoll(nlns))
-! DEALLOCATE(rates_destruct%Lma_int_uprad(nluns))
-! DEALLOCATE(rates_destruct%Lma_int_upcoll(nluns))
-! DEALLOCATE(rates_destruct%Lma_int_do(nlns))
-! DEALLOCATE(rates_destruct%Lma_int_up(nluns))
-! DEALLOCATE(rates_destruct%Lma_recrad(nlio))
-! DEALLOCATE(rates_destruct%Lma_int_recrad(nlio))
-! DEALLOCATE(rates_destruct%Lma_reccol(nlio))
-! DEALLOCATE(rates_destruct%Lma_int_reccol(nlio))
-! DEALLOCATE(rates_destruct%Lma_int_dorad(nlns))
-!END FUNCTION rates_destruct
- 
-
 
 END MODULE rates_i

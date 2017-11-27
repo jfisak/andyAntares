@@ -1,6 +1,6 @@
-SUBROUTINE cool_fb(pack_index, Zfb)
+SUBROUTINE cool_fb(pack_index, Zfb, actikrates)
 USE types
-USE rates
+USE rates_k
 IMPLICIT NONE
 
 ! input
@@ -28,22 +28,9 @@ DOUBLE PRECISION                        :: actInt, integral, summ, x
 INTEGER                                 :: actPoint
 INTEGER                                 :: get_package_model_index
 DOUBLE PRECISION                        :: tot_pop, uppper_en, lower_en
+TYPE(krates)                            :: actikrates
 
 
-
-IF(.NOT. ASSOCIATED(Lcool_fbE)) THEN
- n_phcs = 0
- DO indexe = 1, n_elements
-  n_ions = SIZE(elements(indexe)%ions)
-  DO indexi = 2, n_ions 
-   n_levels = SIZE(elements(indexe)%ions(indexi)%levels)
-   DO indexl = 1, n_levels
-    n_phcs = n_phcs + 1
-   END DO ! levels
-  END DO ! ions
- END DO ! elements
- ALLOCATE(Lcool_fbE(n_phcs), Lcool_fbind(3,n_phcs))
-END IF
 
 ! number of computed rates
 act_rate = 0
@@ -64,9 +51,9 @@ DO indexe = 1, n_elements
    nfreq = SIZE(elements(indexe)%ions(indexi - 1)%levels(indexl)%photcros(1,:))
    ! setting indexe and indexi
    act_rate = act_rate + 1
-   Lcool_fbind(1, act_rate) = indexe
-   Lcool_fbind(2, act_rate) = indexi - 1
-   Lcool_fbind(3, act_rate) = indexl
+   actikrates%Lcool_fbind(1, act_rate) = indexe
+   actikrates%Lcool_fbind(2, act_rate) = indexi - 1
+   actikrates%Lcool_fbind(3, act_rate) = indexl
    IF(nfreq /= 0) THEN
     ALLOCATE(crossfreq(nfreq), cross(nfreq))
     crossfreq(:) = elements(indexe)%ions(indexi - 1)%levels(indexl)%photcros(1,:)
@@ -86,7 +73,7 @@ DO indexe = 1, n_elements
     ! if the initial point's frequency is too large we will not be able to
     ! calculate the integral, which is equal to zero in this case
     IF(actPoint == 0) THEN
-     Lcool_fbE(act_rate) = 0.D0
+     actikrates%Lcool_fbE(act_rate) = 0.D0
      CYCLE
     END IF
     ! calculation of the integral
@@ -108,14 +95,14 @@ DO indexe = 1, n_elements
     tot_pop = model_grid(cur_mgi)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
     uppper_en = elements(indexe)%ions(indexi)%levels(1)%exci_energy
     lower_en = elements(indexe)%ions(indexi - 1)%levels(indexl)%exci_energy
-    Lcool_fbE(act_rate) = tot_pop * integral * (uppper_en - lower_en)
-    Zfb = Zfb + Lcool_fbE(act_rate)
-    !write(*,*) 'cool_fb: Zfb = ', Zfb, 'Lcool_fbE(', act_rate, ') = ', Lcool_fbE(act_rate)
+    actikrates%Lcool_fbE(act_rate) = tot_pop * integral * (uppper_en - lower_en)
+    Zfb = Zfb + actikrates%Lcool_fbE(act_rate)
+    !write(*,*) 'cool_fb: Zfb = ', Zfb, 'actikrates%Lcool_fbE(', act_rate, ') = ', actikrates%Lcool_fbE(act_rate)
     DEALLOCATE(func, crossfreq, cross)
    ELSE
-    Lcool_fbE(act_rate) = 0.D0
+    actikrates%Lcool_fbE(act_rate) = 0.D0
    END IF ! npoints == 0
-   !write(*,*) 'cool_fb: Lcool_fbE(', act_rate, ') = ', Lcool_fbE(act_rate), &
+   !write(*,*) 'cool_fb: actikrates%Lcool_fbE(', act_rate, ') = ', actikrates%Lcool_fbE(act_rate), &
    ! ' Zfb = ', Zfb
   END DO ! levels
  END DO ! ions

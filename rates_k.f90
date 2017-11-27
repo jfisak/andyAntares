@@ -1,4 +1,5 @@
 MODULE rates_k
+ USE types
  ! k-packages
  TYPE, PUBLIC :: krates
   DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE  :: Lcont
@@ -15,15 +16,48 @@ MODULE rates_k
  END INTERFACE
 
  CONTAINS
- FUNCTION krates_construct
+ FUNCTION krates_construct()
   TYPE(krates)          :: krates_construct
 
-  ALLOCATE(krates_construct%Lcool_excit(ntransitions))
-  ALLOCATE(krates_construct%Lcool_ff(n_coll))
-  ALLOCATE(krates_construct%Lcool_ion(n_phcs))
-  ALLOCATE(krates_construct%Lcool_fbE(n_phcs))
+  ! cool_excit
+  ! we expect that number of included ions does not change in the stellar wind
+  ! so we do not reallocate existing array
+  IF(.NOT. ALLOCATED(krates_construct%Lcool_ff)) THEN
+   ALLOCATE(krates_construct%Lcool_excit(ntransitions))
+  END IF
+
+  ! cool_ff
+  ! number of possible rates
+  IF(.NOT. ALLOCATED(krates_construct%Lcool_ff)) THEN
+   n_coll = 0
+   DO indexe = 1, n_elements
+    n_ions = SIZE(elements(indexe)%ions)
+    DO indexi = 1, n_ions
+     n_coll = n_coll + 1
+    END DO
+   END DO
+   !write(*,*) 'cool_ff: n_coll = ', n_coll
+   ! we expect that number of included ions does not change in the stellar wind
+   ! so we do not reallocate existing array
+   ALLOCATE(krates_construct%Lcool_ff(n_coll))
+  END IF
+
+  ! cool_ionization
+  IF(.NOT. ALLOCATED(krates_construct%Lcool_ion)) THEN
+   n_phcs = 0
+   DO indexe = 1, n_elements
+    n_ions = SIZE(elements(indexe)%ions)
+    DO indexi = 1, n_ions - 1
+     n_levels = SIZE(elements(indexe)%ions(indexi)%levels)
+     DO indexl = 1, n_levels
+      n_phcs = n_phcs + 1
+     END DO ! levels
+    END DO ! ions
+   END DO ! elements
+   ALLOCATE(krates_construct%Lcool_ion(n_phcs))
+   ALLOCATE(krates_construct%Lcool_fbE(n_phcs), krates_construct%Lcool_fbind(3,n_phcs))
+  END IF
+
  END FUNCTION krates_construct
- 
- 
 
 END MODULE rates_k

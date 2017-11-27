@@ -13,7 +13,7 @@ linkhost=$(shell hostname)
 #Objects
 OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
           random_unitvector.o ran2.o boundary3.o find_dist.o rates_i.o\
-          change_cell.o move_package.o emit_rpackage.o	rates_k.o	  \
+          change_cell.o move_package.o emit_rpackage.o	rates_k.o rates_r.o \
           init_photsphere.o random_unitvector2.o ran2_class.o 		  \
           random_unitvector1.o read_1D_model.o doppler_factor.o		  \
           vec_length.o velo.o angle_aberration.o freq_from_planck.o	  \
@@ -39,6 +39,7 @@ all : $(PROJECT)
 types.o: types.f90 
 rates_i.o: rates_i.f90
 rates_k.o: rates_k.f90
+rates_r.o: rates_r.f90
 ran2_class.o: ran2_class.f90 
 	$(F90) $(FCFLAGS) -o $@ -c $<
 

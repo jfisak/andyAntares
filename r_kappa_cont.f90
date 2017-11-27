@@ -1,7 +1,7 @@
 ! calculation of absorption coefficient in continuum
 SUBROUTINE r_kappa_cont(pack_index, kappa)
 USE types
-USE rates
+USE rates_r
 
 IMPLICIT NONE
 
@@ -34,6 +34,8 @@ INTEGER                                         :: get_package_model_index
 INTEGER                                         :: act_continuum
 DOUBLE PRECISION                                :: act_pop
 INTEGER, PARAMETER                              :: n_thompson = 1
+DOUBLE PRECISION, POINTER                       :: Lcont(:)
+
 
 !calculation of basic variables
 current_mgi = get_package_model_index(pack_index)

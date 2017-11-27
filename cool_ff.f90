@@ -1,7 +1,7 @@
 ! calculating free-free cooling rates
-SUBROUTINE cool_ff(pack_index, Zcool)
+SUBROUTINE cool_ff(pack_index, Zcool, actikrates)
 USE types
-USE rates
+USE rates_k
 IMPLICIT NONE
 ! input variables
 INTEGER                                                 :: pack_index
@@ -18,21 +18,8 @@ INTEGER                                                 :: act_pop, act_cooling
 INTEGER                                                 :: n_coll
 ! output variables
 DOUBLE PRECISION                                        :: Zcool
+TYPE(krates)                                            :: actikrates
                                                        
-! number of possible rates
-n_coll = 0
-DO indexe = 1, n_elements
- n_ions = SIZE(elements(indexe)%ions)
- DO indexi = 1, n_ions
-  n_coll = n_coll + 1
- END DO
-END DO
-!write(*,*) 'cool_ff: n_coll = ', n_coll
-! we expect that number of included ions does not change in the stellar wind
-! so we do not reallocate existing array
-IF(.NOT. ASSOCIATED(Lcool_ff)) THEN
- ALLOCATE(Lcool_ff(n_coll))
-END IF
 cur_mgi = get_package_model_index(pack_index)
 cur_temp = model_grid(cur_mgi)%t
 e_dens = model_grid(cur_mgi)%e_dens
@@ -47,11 +34,11 @@ DO indexe = 1, n_elements
   ion_charge = indexi - 1
   !CALL populations(I, J, 1, cur_mgi, act_pop)
   act_pop = model_grid(cur_mgi)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
-  Lcool_ff(act_cooling) = C0 * ion_charge * cur_temp**(1.0/2.0) &
+  actikrates%Lcool_ff(act_cooling) = C0 * ion_charge * cur_temp**(1.0/2.0) &
                           * act_pop * e_dens
-  Zcool = Zcool + Lcool_ff(act_cooling)
+  Zcool = Zcool + actikrates%Lcool_ff(act_cooling)
 !  write(*,*) 'cool_ff: ion_charge = ', ion_charge, ' cur_temp = ', cur_temp, &
-!   ' act_pop = ', act_pop, ' e_dens = ', e_dens, ' cooling rate = ', Lcool_ff(act_cooling)
+!   ' act_pop = ', act_pop, ' e_dens = ', e_dens, ' cooling rate = ', actikrates%Lcool_ff(act_cooling)
  END DO
 END DO
 

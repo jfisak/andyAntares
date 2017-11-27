@@ -37,7 +37,7 @@ INTEGER                         :: get_package_model_index, current_mgi
 DOUBLE PRECISION                :: new_freq
 ! Doppler factor
 DOUBLE PRECISION                :: D
-TYPE(irates)      :: actirates
+TYPE(irates)                    :: actirates
 INTEGER                         :: OMP_GET_THREAD_NUM, my_rank
 
 my_rank = OMP_GET_THREAD_NUM()

@@ -1,6 +1,6 @@
-SUBROUTINE cool_ionization(approximation, pack_index, Zion)
+SUBROUTINE cool_ionization(approximation, pack_index, Zion, actikrates)
 USE types
-USE rates
+USE rates_k
 IMPLICIT NONE
 
 INTEGER                         :: approximation, pack_index
@@ -29,20 +29,8 @@ DOUBLE PRECISION                :: exci_energy, pop_number
 DOUBLE PRECISION                :: stat_weight
 ! output variables
 DOUBLE PRECISION                :: Zion
+TYPE(krates)                    :: actikrates
 
-IF(.NOT. ASSOCIATED(Lcool_ion)) THEN
- n_phcs = 0
- DO indexe = 1, n_elements
-  n_ions = SIZE(elements(indexe)%ions)
-  DO indexi = 1, n_ions - 1
-   n_levels = SIZE(elements(indexe)%ions(indexi)%levels)
-   DO indexl = 1, n_levels
-    n_phcs = n_phcs + 1
-   END DO ! levels
-  END DO ! ions
- END DO ! elements
- ALLOCATE(Lcool_ion(n_phcs))
-END IF
   
 SELECT CASE(approximation)
 !_______________________________________________________________
@@ -96,7 +84,7 @@ CASE (1)
      ! the total rate will be equal to zero
      IF(actPoint == 0 .OR. actPoint == 1) THEN
       act_rate = act_rate + 1
-      Lcool_ion(act_rate) = 0.D0
+      actikrates%Lcool_ion(act_rate) = 0.D0
      ELSE
       ! now we have to do a linear interpolation between the points actPoint - 1 and actPoint
       freq1 = crossfreq(actPoint - 1)
@@ -116,20 +104,20 @@ CASE (1)
        gindex = 3.D-1
       END IF
       act_rate = act_rate + 1
-      Lcool_ion(act_rate) = act_pop * el_dens * coll_const / temp**(1.0/2.0) * gindex * &
+      actikrates%Lcool_ion(act_rate) = act_pop * el_dens * coll_const / temp**(1.0/2.0) * gindex * &
        cross_sect * exp(-x) / x * (h * freq)
       !write(*,*) 'cool_ionization: act_pop = ', act_pop, ' el_dens = ', el_dens, ' temp = ', temp,&
       ! ' cross_sect = ', cross_sect
-      !write(*,*) 'cool_ionization: Lcool_ion(', act_rate, ') = ', Lcool_ion(act_rate)
-      Zion = Zion + Lcool_ion(act_rate)
+      !write(*,*) 'cool_ionization: actikrates%Lcool_ion(', act_rate, ') = ', actikrates%Lcool_ion(act_rate)
+      Zion = Zion + actikrates%Lcool_ion(act_rate)
       !print*, 'collion_rates: Zion = ', Zion
      END IF ! actPoint == 0 or actPoint == 1
      DEALLOCATE(crossfreq)
     ELSE ! n_freq == 0
      act_rate = act_rate + 1
-     Lcool_ion(act_rate) = 0.D0
+     actikrates%Lcool_ion(act_rate) = 0.D0
     END IF ! n_freq /= 0
-    !write(*,*) 'cool_ionization: Lcool_ion(', act_rate, ') = ', Lcool_ion(act_rate)
+    !write(*,*) 'cool_ionization: actikrates%Lcool_ion(', act_rate, ') = ', actikrates%Lcool_ion(act_rate)
    END DO ! levels
   END DO ! ions
  END DO ! elements

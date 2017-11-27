@@ -1,6 +1,6 @@
-SUBROUTINE k_freq_fb(pack_index, act_proc, ran_freq)
+SUBROUTINE k_freq_fb(pack_index, act_proc, ran_freq, actikrates)
 USE types
-USE rates
+USE rates_k
 IMPLICIT NONE
 
 ! input
@@ -29,11 +29,12 @@ INTEGER                                         :: I
 ! linear interpolation
 DOUBLE PRECISION                                :: ali, bli, int1, int2, func1, func2
 INTEGER                                         :: actPoint
+TYPE(krates)                                    :: actikrates
 
 ! informations about ion
-indexe = Lcool_fbind(1, act_proc)
-indexi = Lcool_fbind(2, act_proc)
-indexl = Lcool_fbind(3, act_proc)
+indexe = actikrates%Lcool_fbind(1, act_proc)
+indexi = actikrates%Lcool_fbind(2, act_proc)
+indexl = actikrates%Lcool_fbind(3, act_proc)
 ! getting the photoionization cross section
 ! nfreq cannot be equal to zerou, because a process with a zero rate could
 ! not be chosen in the previous step

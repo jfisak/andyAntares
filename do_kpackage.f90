@@ -18,23 +18,22 @@ INTEGER                         :: n_cool_tot
 DOUBLE PRECISION                :: new_freq
 ! choosing the given process
 INTEGER                         :: act_proc, J
+TYPE(krates)                    :: actikrates
 
+actikrates = krates()
 
-package(pack_index)%typ = type_ipkt
-package(pack_index)%last_line = 1
-RETURN
 ! calculating of cooling rates
 ! collision excitation rate
-CALL cool_excit(1, pack_index,  Zexcit)
-CALL cool_ff(pack_index, Zff)
-CALL cool_ionization(1, pack_index, Zion)
-CALL cool_fb(pack_index, Zfb)
+CALL cool_excit(1, pack_index,  Zexcit, actikrates)
+CALL cool_ff(pack_index, Zff, actikrates)
+CALL cool_ionization(1, pack_index, Zion, actikrates)
+CALL cool_fb(pack_index, Zfb, actikrates)
 
 ! now we allocate an array which will include all possible transitions
-!n_cool_tot = SIZE(Lcool_excit) + SIZE(Lcool_ff)
-!ALLOCATE(cool_rates(n_cool_tot))
+! n_cool_tot = SIZE(Lcool_excit) + SIZE(Lcool_ff)
+! ALLOCATE(cool_rates(n_cool_tot))
 ! adding processes into fields
-! 1.) cooling excitationskk
+! 1.) cooling excitations
 
 ! now we have to decide which cooling process will occure
 rand = ran2(idum)
@@ -54,14 +53,14 @@ IF(rand >= 0.D0 .AND. rand <= Z0) THEN
  summ = 0.D0
  DO I = 1, ntransitions
   !print*, 'Lcool_excit(I) = ', Lcool_excit(I)
-  IF(rand >= summ .AND. rand < summ + Lcool_excit(I)) THEN
+  IF(rand >= summ .AND. rand < summ + actikrates%Lcool_excit(I)) THEN
    !print*, 'do_kpackage: packet = ', pack_index, ' a collisional excitation occures'
    !print*, 'collisional deexcitation: I = ', I, ' upper level = ', linelist(I)%upper
    package(pack_index)%last_line = I
    package(pack_index)%typ = type_ipkt
    EXIT
   END IF
-  summ = summ + Lcool_excit(I)
+  summ = summ + actikrates%Lcool_excit(I)
  END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -94,15 +93,15 @@ ELSE IF(rand >= Z1 .AND. rand <= Z2) THEN
 ELSE IF(rand > Z2 .AND. rand <= Z3) THEN
  summ = Z2
  !write(*,*) 'do_kpackage: rand = ', rand, 'Z2 = ', Z2, ' Z3 = ', Z3
- DO J = 1, SIZE(Lcool_fbE(:))
+ DO J = 1, SIZE(actikrates%Lcool_fbE(:))
   !write(*,*) 'do_kpackage: rand = ', rand, 'summ = ', summ, ' summ + Lcool_fbE = ', &
   ! summ + Lcool_fbE(J)
-  IF(rand > summ .AND. rand <= summ + Lcool_fbE(J)) THEN
+  IF(rand > summ .AND. rand <= summ + actikrates%Lcool_fbE(J)) THEN
    act_proc = J
    write(*,*) 'do_kpackage: act_proc = ', act_proc
    EXIT
   END IF
-  summ = summ + Lcool_fbE(J)
+  summ = summ + actikrates%Lcool_fbE(J)
  END DO
  ! package changes to r-packet
  package(pack_index)%typ = type_rpkt
