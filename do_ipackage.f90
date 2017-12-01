@@ -308,11 +308,11 @@ ELSE IF(rand >= Z2 .AND. rand <= Z3) THEN
 !  summ = summ + Ldowncoll(I)
 ! END DO
  !print*, 'collisional deexcitation occures...'
- count_coldeexc = count_coldeexc + 1
- !package(pack_index)%typ = type_kpkt
- ! for now 
- package(pack_index)%typ = type_kpkt
- active = 0
+! count_coldeexc = count_coldeexc + 1
+! !package(pack_index)%typ = type_kpkt
+! ! for now 
+! package(pack_index)%typ = type_kpkt
+! active = 0
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal photoionization
 ELSE IF(rand >= Z3 .AND. rand <= Z4) THEN
@@ -356,9 +356,9 @@ ELSE IF(rand >= Z5 .AND. rand <= Z6) THEN
 ! collisional recombination
 ELSE IF(rand >= Z6 .AND. rand <= Z7) THEN
  !print*, 'do_ipackage: pack_index = ', pack_index, 'radiative recombination'
- package(pack_index)%typ = type_kpkt
- count_crecombination = count_crecombination + 1
- active = 0
+! package(pack_index)%typ = type_kpkt
+! count_crecombination = count_crecombination + 1
+! active = 0
 ! no event was chosen
 ELSE
  write(*,*) 'do_ipackage, pack_index = ', pack_index, ' no event was chosen...'

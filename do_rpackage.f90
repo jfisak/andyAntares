@@ -21,11 +21,11 @@ INTEGER                                         :: n_thomson
 INTEGER                                         :: my_rank
 TYPE(rrates)                                    :: actirrates
 
-actirrates = rrates()
 ! number of thomson scattering (code must be clear)
 n_thomson = 1
 ! total number of continuum opacity sources
 n_tot_cont = n_thomson + n_photcrossect
+actirrates = rrates()
 
   CALL boundary3(pack_index, cell_dist, next_cell)
 !  WRITE(3,*) package(pack_index)%pos, dyn_cell(package(pack_index)%cell_numb)%corner, &

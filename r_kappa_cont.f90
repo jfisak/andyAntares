@@ -36,6 +36,7 @@ DOUBLE PRECISION                                :: act_pop
 INTEGER, PARAMETER                              :: n_thompson = 1
 TYPE(rrates)                                    :: actirrates
 
+!write(*,*) 'r_kappa_cont: dim(lcont) = ', SIZE(actirrates%Lcont)
 !calculation of basic variables
 current_mgi = get_package_model_index(pack_index)
 electron_density = model_grid(current_mgi)%e_dens

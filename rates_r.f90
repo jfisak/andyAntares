@@ -19,6 +19,7 @@ CONTAINS
 
   IF(.NOT. ALLOCATED(rrates_construct%Lcont)) &
    ALLOCATE(rrates_construct%Lcont(n_tot_cont))
+!   write(*,*) 'rates_r: dim(lcont) = ', SIZE(rrates_construct%Lcont)
  END FUNCTION
 
 
