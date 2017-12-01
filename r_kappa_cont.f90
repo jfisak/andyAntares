@@ -1,5 +1,5 @@
 ! calculation of absorption coefficient in continuum
-SUBROUTINE r_kappa_cont(pack_index, kappa, actikrates)
+SUBROUTINE r_kappa_cont(pack_index, kappa, actirrates)
 USE types
 USE rates_r
 
@@ -34,7 +34,7 @@ INTEGER                                         :: get_package_model_index
 INTEGER                                         :: act_continuum
 DOUBLE PRECISION                                :: act_pop
 INTEGER, PARAMETER                              :: n_thompson = 1
-TYPE(rrates)                                    :: actikrates
+TYPE(rrates)                                    :: actirrates
 
 !calculation of basic variables
 current_mgi = get_package_model_index(pack_index)
@@ -43,7 +43,7 @@ freq = package(pack_index)%freq_cmf
 IF(current_mgi .EQ. n_modelgrid + 2) electron_density = 0.D0
 !IF(.NOT. ALLOCATED(Lcont)) THEN
 !END IF
-write(*,*) 'r_kappa_cont: n_photcrossect = ', n_photcrossect
+!write(*,*) 'r_kappa_cont: n_photcrossect = ', n_photcrossect
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!  DIFFERENT OPACITY SOURCES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -51,7 +51,7 @@ write(*,*) 'r_kappa_cont: n_photcrossect = ', n_photcrossect
 ! Thomson scattering
 thomson = sigma_e * electron_density
 act_continuum = 1
-actikrates%Lcont(act_continuum) = thomson
+actirrates%Lcont(act_continuum) = thomson
 kappa = thomson
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -91,15 +91,15 @@ DO indexe = 1, n_elements
     ali = (func1 - func2) / (freq1 - freq2)
     bli = (func2 * freq1 - func1 * freq2) / (freq1 - freq2)
     cross_sect = ali * freq + bli
-    !print*, 'r_kappa_cont: cross_sect = ', cross_sect, ' act_continuum = ', act_continuum!, ' dim(Lcont) = ', SIZE(actikrates%Lcont)
+    !print*, 'r_kappa_cont: cross_sect = ', cross_sect, ' act_continuum = ', act_continuum!, ' dim(Lcont) = ', SIZE(actirrates%Lcont)
     CALL populations(indexe, indexi, indexl, current_mgi, act_pop)
     act_continuum = act_continuum + 1
-!    actikrates%Lcont(act_continuum) = cross_sect * act_pop
-    actikrates%Lcont(act_continuum) = 0.D0
+!    actirrates%Lcont(act_continuum) = cross_sect * act_pop
+    actirrates%Lcont(act_continuum) = 0.D0
     !write(*,*) 'r_kappa_cont: indexe = ', indexe, ' indexi = ', indexi, &
-    ! ' indexl = ', indexl, ' actikrates%Lcont(', act_continuum, ') = ', actikrates%Lcont(act_continuum),&
+    ! ' indexl = ', indexl, ' actirrates%Lcont(', act_continuum, ') = ', actirrates%Lcont(act_continuum),&
     ! ' population = ', act_pop
-    kappa = kappa + actikrates%Lcont(act_continuum)
+    kappa = kappa + actirrates%Lcont(act_continuum)
    END IF ! finding valid data
   END DO ! levels
  END DO ! ions

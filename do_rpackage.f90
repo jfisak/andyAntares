@@ -19,9 +19,9 @@ SUBROUTINE do_rpackage(pack_index)
 INTEGER                                         :: n_thomson
 !INTEGER                                         :: n_tot_cont
 INTEGER                                         :: my_rank
-TYPE(rrates)                                    :: actikrates
+TYPE(rrates)                                    :: actirrates
 
-actikrates = rrates()
+actirrates = rrates()
 ! number of thomson scattering (code must be clear)
 n_thomson = 1
 ! total number of continuum opacity sources
@@ -39,7 +39,7 @@ n_tot_cont = n_thomson + n_photcrossect
       e_dist = 1.D50
       !print*, 'package: ', pack_index, ' is in empty space...'
   ELSE
-      CALL event_dist(pack_index, cell_dist, e_dist, event, actikrates)
+      CALL event_dist(pack_index, cell_dist, e_dist, event, actirrates)
   END IF
 
 !  IF (debug .EQ. 1) THEN 
@@ -55,7 +55,7 @@ n_tot_cont = n_thomson + n_photcrossect
      CALL move_package(pack_index, e_dist)
      CALL update_estimators(pack_index, e_dist)
      ! print*, pack_index, freq_line, package(pack_index)%freq_cmf, package(pack_index)%freq_rf
-     CALL do_rpackage_event(pack_index, event, actikrates)
+     CALL do_rpackage_event(pack_index, event, actirrates)
      IF (debug .EQ. 1) THEN 
         print*, 'do event', opa_cell * rho_cell * cell_dist
      END IF
