@@ -1,6 +1,7 @@
-SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, Lcont)
+SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actikrates)
 
   USE types
+  USE rates_r
 
   IMPLICIT NONE    
 
@@ -21,7 +22,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, Lcont)
   INTEGER                           :: n_pack_d
   INTEGER                           :: OMP_GET_THREAD_NUM
   DOUBLE PRECISION                  :: freq_line
-  DOUBLE PRECISION, POINTER               :: Lcont(:)
+  TYPE(rrates)                      :: actikrates
 
   my_rank = OMP_GET_THREAD_NUM()
   !write(*,*)'event_dist: Thread rank: ', my_rank
@@ -56,7 +57,8 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, Lcont)
   ! For now we neglect cont. opacities, but the routine was written generally to
   ! allow for adding  cont. opacity in the future
   ! kappa_cont = 0.D0                      ! no e scattering
-  CALL r_kappa_cont(pack_index, kappa_cont)
+  !write(*,*) 'event_dist: dim(Lcont) = ', SIZE(Lcont)
+  CALL r_kappa_cont(pack_index, kappa_cont, actikrates)
   !kappa_cont = sigma_e * electron_density  ! add e scattering
 
   ! This is the opacity in co-moving frame. Must be transformed to the lab frame

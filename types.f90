@@ -127,7 +127,7 @@ MODULE types
 ! flux from existing input file
   INTEGER                            :: inputflux, inputmodel
 ! number of photoionization cross sections
-  INTEGER                               :: n_photcrossect
+  INTEGER                               :: n_photcrossect, n_tot_cont
 ! number of dummy packages
   INTEGER                            :: n_dummy_packs
 

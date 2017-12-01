@@ -1,6 +1,7 @@
-SUBROUTINE do_rpackage_event(pack_index, event, Lcont)
+SUBROUTINE do_rpackage_event(pack_index, event, actikrates)
 
   USE types
+  USE rates_r
 
   IMPLICIT NONE    
 
@@ -10,7 +11,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, Lcont)
   ! loop variables
   INTEGER                               :: I
   DOUBLE PRECISION                      :: summ, rand, ZcontTot
-  DOUBLE PRECISION, POINTER               :: Lcont(:)
+  TYPE(rrates)                                    :: actikrates
 
 
   IF (event .EQ. rpkt_eventtype_lineinteraction) THEN
@@ -39,14 +40,14 @@ SUBROUTINE do_rpackage_event(pack_index, event, Lcont)
    ! total number of continuum rates
    ZcontTot = 0.D0
    package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
-   DO I = 1, SIZE(Lcont)
-    ZcontTot = ZcontTot + Lcont(I)
-    !write(*,*) 'do_rpackage_event: I = ', I, ' Lcont = ', Lcont(I)
+   DO I = 1, SIZE(actikrates%Lcont)
+    ZcontTot = ZcontTot + actikrates%Lcont(I)
+    !write(*,*) 'do_rpackage_event: I = ', I, ' actikrates%Lcont = ', actikrates%Lcont(I)
    END DO
    ! generating a random number
    rand = ran2(idum) * ZcontTot
    summ = 0.D0
-   IF(rand >= summ .AND. rand <= Lcont(1) + summ) THEN
+   IF(rand >= summ .AND. rand <= actikrates%Lcont(1) + summ) THEN
     ! electron scattering occures
     ! changes only a direction of propagation
     count_thomson = count_thomson + 1
@@ -54,19 +55,19 @@ SUBROUTINE do_rpackage_event(pack_index, event, Lcont)
     !write(*,*) 'do_rpackage_event: electron scattering'
     RETURN
    END IF
-   summ = Lcont(1)
+   summ = actikrates%Lcont(1)
    ! photoionization
-   DO I = 2, SIZE(Lcont)
-    IF(rand >= summ .AND. rand <= Lcont(I) + summ) THEN
+   DO I = 2, SIZE(actikrates%Lcont)
+    IF(rand >= summ .AND. rand <= actikrates%Lcont(I) + summ) THEN
      ! temporary solution
-     !IF(rand >= summ .AND. rand <= Lcont(I)/2.D0 + summ) THEN
+     !IF(rand >= summ .AND. rand <= actikrates%Lcont(I)/2.D0 + summ) THEN
       package(pack_index)%typ = type_ipkt
       !write(*,*) 'do_rpackage_event: packet = ', pack_index, ' b-f process'
      !ELSE
      !  package(pack_index)%typ = type_ipkt
      EXIT
     END IF
-    summ = summ + Lcont(I)
+    summ = summ + actikrates%Lcont(I)
    END DO
 
      
