@@ -23,7 +23,7 @@ INTEGER                                         :: actIndex
 INTEGER                                         :: cur_mgi, get_package_model_index
 DOUBLE PRECISION                                :: el_dens, temp, x, act_pop
 ! random numbers
-DOUBLE PRECISION                                :: ran2, ran_num
+DOUBLE PRECISION                                :: random, ran_num
 ! loop variables
 INTEGER                                         :: I
 ! linear interpolation
@@ -52,7 +52,7 @@ temp = model_grid(cur_mgi)%T
 ! population
 CALL populations(indexe, indexi, indexl, cur_mgi, act_pop)
 ! random number
-ran_num = ran2(idum)
+ran_num = random()
 ! calculation of initial frequency
 init_freq = (elements(indexe)%ions(indexi + 1)%levels(1)%exci_energy - &
        elements(indexe)%ions(indexi)%levels(indexl)%exci_energy) / h

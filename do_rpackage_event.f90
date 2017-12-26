@@ -6,12 +6,13 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
   IMPLICIT NONE    
 
   INTEGER                           :: pack_index, event
-  DOUBLE PRECISION                  :: dist, rand_numb, ran2, tau, tau_rand
+  DOUBLE PRECISION                  :: dist, rand_numb, tau, tau_rand
   DOUBLE PRECISION, DIMENSION(3)    :: direction
   ! loop variables
   INTEGER                               :: I
   DOUBLE PRECISION                      :: summ, rand, ZcontTot
   TYPE(rrates)                                    :: actirrates
+  REAL(8)                               :: random
 
 
   IF (event .EQ. rpkt_eventtype_lineinteraction) THEN
@@ -45,7 +46,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
     !write(*,*) 'do_rpackage_event: I = ', I, ' actirrates%Lcont = ', actirrates%Lcont(I)
    END DO
    ! generating a random number
-   rand = ran2(idum) * ZcontTot
+   rand = random() * ZcontTot
    summ = 0.D0
    IF(rand >= summ .AND. rand <= actirrates%Lcont(1) + summ) THEN
     ! electron scattering occures

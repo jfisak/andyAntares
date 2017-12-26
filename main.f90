@@ -14,6 +14,8 @@ SUBROUTINE main
   DOUBLE PRECISION, ALLOCATABLE     :: current_temp(:)
   CHARACTER(1)                      :: junk
   CHARACTER                         :: n_dummy_packs_char
+  CHARACTER(2)                      :: chnum_threads
+  INTEGER                           :: num_threads, stat
 !#IFDEF MPI_ON
 !  INTEGER                               :: ierr
 !  INTEGER                               :: mpi_comm_world
@@ -80,6 +82,13 @@ INTEGER, PARAMETER                      :: max_packs = 1e7
   IF (iseed .LE. 0) THEN  
     iseed = TT(1)+70*(TT(2)+12*(TT(3)+31*(TT(5)+23*(TT(6)+59*TT(7)))))
   END IF
+  ! information about initialization random seed for the given thread
+  CALL GET_ENVIRONMENT_VARIABLE("OMP_NUM_THREADS", chnum_threads)
+  READ(chnum_threads,*) num_threads
+  ALLOCATE(initrs(num_threads))
+  DO I = 1, num_threads
+   initrs(I) = .FALSE.
+  END DO
 
 
 
@@ -115,12 +124,6 @@ INTEGER, PARAMETER                      :: max_packs = 1e7
   ALLOCATE(current_temp(n_modelgrid + add_mg))
   print*, 'model grid is set up'
 
-!  print*,'CHECK GRID SIZES'
-!  print*, xmax, R_inf, basic_cell_width
-!  print*, xmax/R_star, R_inf/R_star, basic_cell_width/R_star
-!  print*, (-xmax + nx_cell*basic_cell_width)/R_star
-  !STOP
-
   ! Set up of the propagation grid
   !CALL setup_grid()
   print*, 'setup propagation grid'
@@ -129,30 +132,6 @@ INTEGER, PARAMETER                      :: max_packs = 1e7
   print*, 'propagation grid is set up'
   CALL connection_prop_model_grid()
 
-!  L = 1
-!  DO I=1, nx_cell
-!     DO J=1, ny_cell
-!        DO K=1, nz_cell
-!           IF (I .EQ. nx_cell/2) THEN ! Only for one slice in the midle
-!              ! WRITE(3, *) cell(L)%corner, model_grid(cell(L)%model_index)%rho
-!              ! WRITE(4, *) model_grid(cell(L)%model_index)%rwind, model_grid(cell(L)%model_index)%rho
-!              ! WRITE(4, *) model_grid(cell(L)%model_index)%rho
-!           END IF
-!           L = L + 1
-!        END DO
-!     END DO
-!  END DO         
-!  print*, 'Check model grid done'
-
-  ! Checking if the analitic solution for the escape probability
-  ! (e^(-tau)) is in agreement with the calculated one using our
-  ! propagation procedure
-
-  ! Increament of opacity (for testing)
-  !  delta_opa = (upper_opa - lower_opa)/nopa
-
-  ! Update model grid properties (model will be updated after 
-  ! consistance temperature calculation from teh radiation field)
 
   current_temp = 0.D0
   iteration = 0

@@ -130,6 +130,8 @@ MODULE types
   INTEGER                               :: n_photcrossect, n_tot_cont
 ! number of dummy packages
   INTEGER                            :: n_dummy_packs
+! is the random seed initialized?
+  LOGICAL, ALLOCATABLE               :: initrs(:)
 
 
 ! Globally defined numerical constants 

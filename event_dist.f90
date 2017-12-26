@@ -8,7 +8,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
   INTEGER                           :: I, pack_index, event,do_loop, get_package_model_index
   INTEGER                           :: nextLine, indexe, indexi, lower_level, current_mgi
 ! pointer to a field of continuum rates
-  DOUBLE PRECISION                  :: e_dist, ran_numb, ran2, tau_rand, cell_dist, D
+  DOUBLE PRECISION                  :: e_dist, ran_numb, tau_rand, cell_dist, D
   DOUBLE PRECISION                  :: tau, l_dist, tau_line, constant, pop_number, tau_cont
   DOUBLE PRECISION                  :: electron_density, kappa_cont, vec_length, dist
   DOUBLE PRECISION                  :: graund_level_pop, g_gl, g_ll, e_exc
@@ -23,6 +23,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
   INTEGER                           :: OMP_GET_THREAD_NUM
   DOUBLE PRECISION                  :: freq_line
   TYPE(rrates)                      :: actirrates
+  REAL(8)                           :: random
 
   my_rank = OMP_GET_THREAD_NUM()
   !write(*,*)'event_dist: Thread rank: ', my_rank
@@ -31,7 +32,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
   dummypackage = n_pack_d - n_dummy_packs + my_rank + 1
 
 
-10  ran_numb = ran2(idum)  ! PUT IT IN SUBROUTINE - write is as do loop
+10  ran_numb = random()  ! PUT IT IN SUBROUTINE - write is as do loop
     IF (ran_numb .EQ. 0.D0) GOTO 10    
     tau_rand = -LOG(ran_numb)
 

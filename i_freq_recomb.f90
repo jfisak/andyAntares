@@ -25,7 +25,7 @@ DOUBLE PRECISION                        :: ran_frequency
 DOUBLE PRECISION, ALLOCATABLE           :: exps(:), freqs(:), css(:), ints(:)
 ! integral value
 DOUBLE  PRECISION                       :: int_value
-DOUBLE PRECISION                        :: rand_z, ran2
+DOUBLE PRECISION                        :: rand_z, random
 INTEGER                                 :: act_point
 ! linear interpolation
 DOUBLE PRECISION                        :: freq1, freq2, css1, css2, ali, bli
@@ -51,7 +51,7 @@ act_mgi = get_package_model_index(pack_index)
 temp = model_grid(act_mgi)%t
 
 ! random number
-rand_z = ran2(idum)
+rand_z = random()
 
 DO I=1,n_points
  act_freq = freqs(I)

@@ -9,7 +9,7 @@ SUBROUTINE do_rpackage(pack_index)
 
   INTEGER                           :: I, I_esc, pack_index, nc, next_cell, n_pack, event
   INTEGER                           :: get_package_model_index
-  DOUBLE PRECISION                  :: tau, xi, ran2, tau_rand, cell_dist, e_dist, r,   &
+  DOUBLE PRECISION                  :: tau, xi, tau_rand, cell_dist, e_dist, r,   &
                                        rho_cell, I_beta, opa_cell, lower_opa, delta_opa
   INTEGER                           :: check_cell
   ! DOUBLE PRECISION, PARAMETER       :: rho = 1.D0

@@ -19,7 +19,7 @@ INTEGER, ALLOCATABLE            :: linetransitions(:), transitions(:), lineuptra
                                    lineradtransitions(:) ! an array of transitions down from last_line
 INTEGER                         :: nlevslion
 DOUBLE PRECISION                :: actVal
-DOUBLE PRECISION                :: ran2, rand
+DOUBLE PRECISION                :: rand
 ! sum function
 DOUBLE PRECISION                :: Z, Ztotal, Zintdownrad, Zraddeexc, Zintuprad, Zrad, Zcoll, &
                                    Zintupcoll, Zintdowncoll, Zdown, Zup, Zintdown, Zintup, &
@@ -39,6 +39,7 @@ DOUBLE PRECISION                :: new_freq
 DOUBLE PRECISION                :: D
 TYPE(irates)                    :: actirates
 INTEGER                         :: OMP_GET_THREAD_NUM, my_rank
+REAL(8)                         :: random
 
 my_rank = OMP_GET_THREAD_NUM()
 
@@ -166,9 +167,7 @@ Zrecombination = Zphotrecom + Zcollrecom
 ! the total sum 
 Ztotal = Zintdown + Zraddeexc + Zintup + Zcoll + Zionization + Zrecombination + Zintrecombination
 ! a random number for computation, which process occurs
-rand = ran2(idum)
-!print*, 'do_ipackage: Ztotal = ', Ztotal
-rand = rand * Ztotal
+rand = DBLE(random()) * Ztotal
 ! print*, 'do_ipackage: random number: ', rand, ' Ztotal = ', Ztotal
 ! these variables are only to the whole line won't be too long
 !write(*,*) 'do_ipackage: Zintup = ', Zintup
@@ -212,7 +211,7 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
  CALL emit_rpackage(pack_index)
  ! now we will calculate new frequency of the packet
  ! we will choose this frequency from the possible radiative transitions
- rand = ran2(idum)
+ rand = random()
  Zrad = 0.D0
  nlns = 0
  DO K = 1, ntransitions
@@ -325,7 +324,7 @@ ELSE IF(rand >= Z4 .AND. rand <= Z5) THEN
  !print*, 'pack_index = ', pack_index, ' internal jump to to the lower ionization state...'
  ion_index = ion_index - 1
  summ = 0.D0
- rand = ran2(idum)
+ rand = DBLE(random())
  rand = rand * Zrecombination
  DO I = 1, nlevslion
   ! we will find the given state
