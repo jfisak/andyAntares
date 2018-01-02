@@ -20,6 +20,11 @@ DOUBLE PRECISION                :: new_freq
 INTEGER                         :: act_proc, J
 TYPE(krates)                    :: actikrates
 REAL(8)                         :: random
+! indexes for ion levels
+INTEGER                         :: indexe, indexi, indexl
+INTEGER                         :: actIndex
+INTEGER                         :: n_ions, n_levels
+INTEGER                         :: nline
 
 actikrates = krates()
 
@@ -81,11 +86,40 @@ ELSE IF(rand >= Z0 .AND. rand <= Z1) THEN
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ELSE IF(rand >= Z1 .AND. rand <= Z2) THEN
  summ = Z1
- ! free-free process
- ! package changes to r-packet
  package(pack_index)%typ = type_ipkt
- package(pack_index)%last_line = no_line
- CALL k_freq_ff(pack_index, new_freq)
+ actIndex = 0
+ DO indexe = 1, n_elements
+  n_ions = SIZE(elements(indexe)%ions)
+  DO indexi = 1, n_ions - 1
+   n_levels = SIZE(elements(indexe)%ions(indexi)%levels)
+   DO indexl = 1, n_levels
+    IF(rand > summ .AND. rand <= summ + actikrates%Lcool_ion(actIndex + 1)) THEN
+     ! we have to find any corresponding line for the given ion including the given
+     ! line in the lower or the upper level(, which must be saved as well)
+     DO nline = 1, ntransitions
+      IF(indexe == linelist(actIndex)%indexe .AND. &
+         indexi == linelist(actIndex)%indexi) THEN
+       IF(indexl == linelist(actIndex)%upper) THEN
+        package(pack_index)%last_line = nline
+        isUpperTransition = .TRUE.
+        EXIT
+       ELSE IF(indexl == linelist(actIndex)%lower) THEN
+        package(pack_index)%last_line = nline
+        isUpperTransition = .FALSE.
+        EXIT
+       ! test for level number
+       END IF
+      ! test for indexe and indexi
+      END IF
+     ! loop over lines
+     END DO
+    END IF
+   ! loop over levels
+   END DO
+  ! loop over ions
+  END DO
+ ! loop over elements
+ END DO
  write(*,*) 'do_kpackage: package = ', pack_index, ' ionization process...'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

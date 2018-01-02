@@ -49,8 +49,13 @@ my_rank = OMP_GET_THREAD_NUM()
 ! it is necessary to remember the initial conditions of a macro-atom
 !IF(.NOT. ASSOCIATED(actirates)) ALLOCATE(actirates)
 last_line = package(pack_index)%last_line
+IF(isUpperTransition .EQV. .TRUE.) THEN
+ last_level = linelist(last_line)%upper
+ELSE
+ last_level = linelist(last_line)%lower
+END IF
+ 
 last_ion = linelist(last_line)%indexi
-last_level = linelist(last_line)%upper
 linelist(last_line)%n_exc = linelist(last_line)%n_exc + 1
 element_index = linelist(last_line)%indexe
 ion_index = linelist(last_line)%indexi
