@@ -72,6 +72,8 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
   DO WHILE (do_loop .EQ. 1) 
 
  CALL next_line(1, pack_index, nextLine, n_next_lines)
+ ! in this sbr we get only excited states from the upper states
+ isUpperTransition = .TRUE.
  freq_line = linelist(nextLine)%freq
  indexe = linelist(nextLine)%indexe
  indexi = linelist(nextLine)%indexi

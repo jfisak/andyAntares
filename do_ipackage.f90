@@ -300,6 +300,7 @@ ELSE IF (rand >= Z1 .AND. rand <= Z2) THEN
 ELSE IF(rand >= Z2 .AND. rand <= Z3) THEN
  summ = Z2
  package(pack_index)%last_line = no_line
+ package(pack_index)%typ = type_kpkt
  !print*, 'pack_index = ', pack_index, ' collisional deexcitation...'
 ! DO I = 1, nlns
 !  ! we will find the given state
@@ -360,8 +361,8 @@ ELSE IF(rand >= Z5 .AND. rand <= Z6) THEN
 ! collisional recombination
 ELSE IF(rand >= Z6 .AND. rand <= Z7) THEN
  !print*, 'do_ipackage: pack_index = ', pack_index, 'radiative recombination'
-! package(pack_index)%typ = type_kpkt
-! count_crecombination = count_crecombination + 1
+ package(pack_index)%typ = type_kpkt
+ count_crecombination = count_crecombination + 1
 ! active = 0
 ! no event was chosen
 ELSE
