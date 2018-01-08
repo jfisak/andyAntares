@@ -26,8 +26,10 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
      ! freq_line,package(pack_index)%freq_cmf
 !     print*, 'photon ', pack_index, ' line interaction...'
      package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
+     ! in this sbr we get only excited states from the upper states
+     isUpperTransition = .TRUE.
      package(pack_index)%typ = type_ipkt
-     !print*, 'photon ', pack_index, ' line interaction...'
+     print*, 'photon ', pack_index, ' line interaction...'
 !     CALL emit_rpackage(pack_index)
   ELSE IF (event .EQ. rpkt_eventtype_continuum) THEN
      ! In this case the package undergoes a continuum event. In the
@@ -53,7 +55,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
     ! changes only a direction of propagation
     count_thomson = count_thomson + 1
     CALL emit_rpackage(pack_index)
-    !write(*,*) 'do_rpackage_event: electron scattering'
+    write(*,*) 'do_rpackage_event: continuum event'
     RETURN
    END IF
    summ = actirrates%Lcont(1)

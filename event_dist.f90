@@ -72,8 +72,6 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
   DO WHILE (do_loop .EQ. 1) 
 
  CALL next_line(1, pack_index, nextLine, n_next_lines)
- ! in this sbr we get only excited states from the upper states
- isUpperTransition = .TRUE.
  freq_line = linelist(nextLine)%freq
  indexe = linelist(nextLine)%indexe
  indexi = linelist(nextLine)%indexi
@@ -124,8 +122,9 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
          lower_level = linelist(nextLine + I - 1)%lower
          CALL populations(indexe, indexi, lower_level, current_mgi, pop_number)
          f_ul = linelist(nextLine + I - 1)%f_ul
-         tau_line = tau_line + light_speed / freq_line * constant * linelist(nextLine)%f_ul * pop_number * &
-          vec_length(package(dummypackage)%pos) / vec_length(vel_vec)     
+         tau_line = tau_line + light_speed / freq_line * constant * &
+                    linelist(nextLine)%f_ul * pop_number * &
+         vec_length(package(dummypackage)%pos) / vec_length(vel_vec)     
         END DO
         IF(current_mgi .EQ. n_modelgrid + 2) tau_line = 0.D0
         tau_cont = kappa_cont * l_dist
