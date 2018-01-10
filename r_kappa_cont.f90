@@ -54,7 +54,10 @@ IF(current_mgi .EQ. n_modelgrid + 2) electron_density = 0.D0
 ! Thomson scattering
 thomson = sigma_e * electron_density
 act_continuum = 1
-actirrates%Lcont(act_continuum) = thomson
+actirrates%Lcont(1, act_continuum) = 0
+actirrates%Lcont(2, act_continuum) = 0 
+actirrates%Lcont(3, act_continuum) = 0
+actirrates%Lcont(4, act_continuum) = thomson
 kappa = thomson
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -67,9 +70,8 @@ DO indexe = 1, n_elements
  DO indexi = 1, n_ions - 1
   n_levels = SIZE(elements(indexe)%ions(indexi)%levels)
   DO indexl = 1, n_levels
-   IF(.NOT. ALLOCATED(elements(indexe)%ions(indexi)%levels(indexl)%photcros)) CONTINUE
+   IF(SIZE(elements(indexe)%ions(indexi)%levels(indexl)%photcros(1,:)) == 0) CYCLE
    n_sigma = SIZE(elements(indexe)%ions(indexi)%levels(indexl)%photcros(1,:))
-!   n_sigma = 0
    actPoint = 0
    ! finding the propper index in saved photcross data
    DO I = 1, n_sigma
@@ -81,9 +83,13 @@ DO indexe = 1, n_elements
    END DO
    ! special cases
    ! frequency is lower than the first point
+   ! no
    IF(actPoint == 0 .OR. actPoint == 1) THEN ! did we find the valid data?
-    ! no
-    cross_sect = 0.D0
+    act_continuum = act_continuum + 1
+    actirrates%Lcont(1, act_continuum) = indexe
+    actirrates%Lcont(2, act_continuum) = indexi 
+    actirrates%Lcont(3, act_continuum) = indexl
+    actirrates%Lcont(4, act_continuum) = 0.D0
    ELSE
     ! yes
     ! now we can compute cross section from the data via linear interpolation
@@ -98,12 +104,16 @@ DO indexe = 1, n_elements
     CALL populations(indexe, indexi, indexl, current_mgi, act_pop)
     act_continuum = act_continuum + 1
     ! valid only for LTE approximation
-    actirrates%Lcont(act_continuum) = cross_sect * act_pop * (1-exp(-(h * freq)/(BOLK * temp)))
-    !actirrates%Lcont(act_continuum) = 0.D0
-    write(*,*) 'r_kappa_cont: indexe = ', indexe, ' indexi = ', indexi, &
-     ' indexl = ', indexl, ' actirrates%Lcont(', act_continuum, ') = ', actirrates%Lcont(act_continuum),&
-     ' population = ', act_pop
-    kappa = kappa + actirrates%Lcont(act_continuum)
+    actirrates%Lcont(1, act_continuum) = indexe
+    actirrates%Lcont(2, act_continuum) = indexi 
+    actirrates%Lcont(3, act_continuum) = indexl
+    actirrates%Lcont(4, act_continuum) = cross_sect * act_pop * (1-exp(-(h * freq)/(BOLK * temp)))
+    !write(*,*) 'r_kappa_cont: act_continuum = ', act_continuum, &
+    ! ' actirrates%Lcont(1, act_continuum) = ', actirrates%Lcont(1, act_continuum), &
+    ! ' actirrates%Lcont(2, act_continuum) = ', actirrates%Lcont(2, act_continuum), &
+    ! ' actirrates%Lcont(3, act_continuum) = ', actirrates%Lcont(3, act_continuum), &
+    ! ' actirrates%Lcont(4, act_continuum) = ', actirrates%Lcont(4, act_continuum)
+    !kappa = kappa + actirrates%Lcont(act_continuum)
    END IF ! finding valid data
   END DO ! levels
  END DO ! ions

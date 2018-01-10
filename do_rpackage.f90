@@ -21,9 +21,10 @@ INTEGER                                         :: n_thomson
 INTEGER                                         :: my_rank
 TYPE(rrates)                                    :: actirrates
 
-! number of thomson scattering (code must be clear)
+! number of thomson scattering 
 n_thomson = 1
 ! total number of continuum opacity sources
+!write(*,*) 'do_rpackage: n_photcrossect = ', n_photcrossect
 n_tot_cont = n_thomson + n_photcrossect
 actirrates = rrates()
 

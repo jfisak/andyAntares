@@ -47,10 +47,6 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
   !Get the packet's current position on the model grid
   current_mgi = get_package_model_index(pack_index)
 
-  ! Number density of hydrogen. Assuming that all hydrogen is at the ground state we can use this as population number
-  ! pop_number = model_grid(get_package_model_index(pack_index))%rho/mp_g    
-                         !cell(package(pack_index)%cell_numb)%model_index)%rho/mp_g  
-
   electron_density = model_grid(current_mgi)%e_dens
   IF(current_mgi .EQ. n_modelgrid + 2) electron_density = 0.D0
   !print*, 'electron_density = ', electron_density

@@ -5,7 +5,7 @@ IMPLICIT NONE
 
 !DOUBLE PRECISION, ALLOCATABLE           :: Lcont(:)
 TYPE rrates
- DOUBLE PRECISION, ALLOCATABLE                   :: Lcont(:)
+ DOUBLE PRECISION, ALLOCATABLE                   :: Lcont(:,:)
 
 END TYPE rrates
 
@@ -18,7 +18,7 @@ CONTAINS
   TYPE(rrates)          :: rrates_construct
 
   IF(.NOT. ALLOCATED(rrates_construct%Lcont)) &
-   ALLOCATE(rrates_construct%Lcont(n_tot_cont))
+   ALLOCATE(rrates_construct%Lcont(4, n_tot_cont))
 !   write(*,*) 'rates_r: dim(lcont) = ', SIZE(rrates_construct%Lcont)
  END FUNCTION
 

@@ -67,7 +67,7 @@ MODULE types
      CHARACTER(LEN=15)               :: elconf
      LOGICAL                         :: phcrossform
      DOUBLE PRECISION, ALLOCATABLE   :: photcros(:,:), phcrosscoeff(:)
-     !DOUBLE PRECISION                :: phfreq
+     DOUBLE PRECISION                :: phfreq
   END TYPE ion_levels
 
   TYPE element_ions 
