@@ -100,15 +100,24 @@ DO indexe = 1, n_elements
     ! valid only for LTE approximation
     actirrates%Lcont(act_continuum) = cross_sect * act_pop * (1-exp(-(h * freq)/(BOLK * temp)))
     !actirrates%Lcont(act_continuum) = 0.D0
-    write(*,*) 'r_kappa_cont: indexe = ', indexe, ' indexi = ', indexi, &
-     ' indexl = ', indexl, ' actirrates%Lcont(', act_continuum, ') = ', actirrates%Lcont(act_continuum),&
-     ' population = ', act_pop
+    !write(*,*) 'r_kappa_cont: indexe = ', indexe, ' indexi = ', indexi, &
+    ! ' indexl = ', indexl, ' actirrates%Lcont(', act_continuum, ') = ', actirrates%Lcont(act_continuum),&
+    ! ' population = ', act_pop
     kappa = kappa + actirrates%Lcont(act_continuum)
    END IF ! finding valid data
   END DO ! levels
  END DO ! ions
 END DO ! elements
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Free-free opacity
+!DO indexe = 1, n_elements
+! n_ions = SIZE(elements(indexe)%ions)
+!  DO indexi = 1, n_ions
+!   
+!  END DO
+!END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Rayleigh scattering
