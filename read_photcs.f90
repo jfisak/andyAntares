@@ -36,7 +36,13 @@ SELECT CASE(inputdata)
 ! data from the Opacity project
 ! we expect datafile in this format
 ! *
+! level index, atomic number, ion index, *, *, energy (Ryd), number of points
+! frequency/treshold frequency, cross section () ! podívat se, v jakých je to jednotkách
 CASE(2)
+  ! a user can set maximal number of cross sectionw which will be read
+  ! for the given ion, this is the reason why variables new_ion and old_ion
+  ! are defined: we have to know, how many cross sections are read for the
+  ! given ion
   old_ion = 0
   ! do 01: reading loop
   DO
@@ -45,15 +51,9 @@ CASE(2)
    !print*, 'read_photcs: ', line
    IF(ios /= 0) EXIT
    READ(line, *) indexclev, indexZ, indexI, junk, junk, energy, nofPoints
-   !print*, 'read_photcs: indexclev, indexZ, nofPoints', indexclev, indexZ, nofPoints
-   ! calculation of total energy
-!   ionstage = 0.D0
-!   DO I = 1, indexI
-!    ionstage = ionstage + elements(index)%ions(indexI)%ion_potential
-!   END DO
-!   energyFZ = rydberg * energy * e_v + ionstage
-!   print*, 'read_photcs: energyFZ = ', energyFZ / e_v / rydberg
+   ! we have to know, if the ion is different from the previous one
    new_ion = indexI
+   ! if it is different, we have to set the new variables
    IF(new_ion /= old_ion) THEN
     n_read = 0
     save_cs = .TRUE.
@@ -67,11 +67,13 @@ CASE(2)
    IF(n_read > max_levels .AND. max_levels > 0) save_cs = .FALSE.
    IF(save_cs .EQV. .TRUE.) THEN
     ALLOCATE(elements(indexe)%ions(indexI)%levels(indexclev)%photcros(2,nofPoints))
-    n_photcrossect = n_photcrossect + 1
+    IF(nofPoints /= 0) n_photcrossect = n_photcrossect + 1
+    !write(*,*) 'read_photcs: n_photcrossect = ', n_photcrossect, 'nofPoints = ', nofPoints
    END IF
    !print*, 'nofPoints = ', nofPoints
    ! we can compute a frequency treshold from these data
    freqt = abs(energy * Rydberg * e_v) / h
+   elements(indexe)%ions(indexI)%levels(indexclev)%phfreq = freqt
    !write(*,*) 'read_photcs: freqt = ', freqt
    !elements(indexe)%ions(indexI)%levels(indexclev)%phfreq = freqt
    ! now we will read the given data for the photoionization cross section

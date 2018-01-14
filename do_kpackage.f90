@@ -64,6 +64,7 @@ IF(rand >= 0.D0 .AND. rand <= Z0) THEN
    !print*, 'collisional deexcitation: I = ', I, ' upper level = ', linelist(I)%upper
    package(pack_index)%last_line = I
    package(pack_index)%typ = type_ipkt
+   write(*,*) 'do_kpackage: package = ', pack_index, ' collisional excitation process...'
    EXIT
   END IF
   summ = summ + actikrates%Lcool_excit(I)
