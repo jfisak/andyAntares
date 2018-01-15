@@ -69,7 +69,7 @@ SUBROUTINE update_grid(iteration)
            ! Ground level population number (number density of the atom at ground level)
            gl_pop = ( elements(indexe)%ions(indexi)%levels(1)%stat_waight * N_jk ) /  U 
            model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%gl_pop = gl_pop
-           model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop = N_jk
+           model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop = N_jk * frac
 !           IF(indexe == 3 .AND. indexi == 1) WRITE(31,*) model_grid(gridcell)%rwind, frac
 !           IF(indexe == 3 .AND. indexi == 2) WRITE(32,*) model_grid(gridcell)%rwind, frac
 !           IF(indexe == 3 .AND. indexi == 3) WRITE(33,*) model_grid(gridcell)%rwind, frac

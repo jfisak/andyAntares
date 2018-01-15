@@ -14,8 +14,9 @@ INTEGER                                                 :: indexi, ion_charge, n
 ! model grid information
 INTEGER                                                 :: cur_mgi, get_package_model_index
 DOUBLE PRECISION                                        :: cur_temp, e_dens
-INTEGER                                                 :: act_pop, act_cooling
+INTEGER                                                 :: act_cooling
 INTEGER                                                 :: n_coll
+DOUBLE PRECISION                                        :: act_pop
 ! output variables
 DOUBLE PRECISION                                        :: Zcool
 TYPE(krates)                                            :: actikrates
@@ -34,11 +35,11 @@ DO indexe = 1, n_elements
   ion_charge = indexi - 1
   !CALL populations(I, J, 1, cur_mgi, act_pop)
   act_pop = model_grid(cur_mgi)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
-  actikrates%Lcool_ff(act_cooling) = C0 * ion_charge * cur_temp**(1.0/2.0) &
+  actikrates%Lcool_ff(act_cooling) = C0 * DBLE(ion_charge) * cur_temp**(1.0/2.0) &
                           * act_pop * e_dens
   Zcool = Zcool + actikrates%Lcool_ff(act_cooling)
-!  write(*,*) 'cool_ff: ion_charge = ', ion_charge, ' cur_temp = ', cur_temp, &
-!   ' act_pop = ', act_pop, ' e_dens = ', e_dens, ' cooling rate = ', actikrates%Lcool_ff(act_cooling)
+  !write(*,*) 'cool_ff: ion_charge = ', ion_charge, ' cur_temp = ', cur_temp, &
+  ! ' act_pop = ', act_pop, ' e_dens = ', e_dens, ' cooling rate = ', actikrates%Lcool_ff(act_cooling)
  END DO
 END DO
 
