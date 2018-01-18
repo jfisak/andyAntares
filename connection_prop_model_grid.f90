@@ -70,6 +70,9 @@
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ELSE IF (model_type .EQ. 2) THEN
    add_mg = 2
+   !$OMP PARALLEL
+   !$DEFAULT(private)
+   !$OMP DO 
    DO I = 1, max_n_dcell
     IF(mod(I,10000) .EQ. 0) print*, 'associating propagation grid', I, REAL(I)/REAL(max_n_dcell) * 1.E2, ' % completed'
     IF(dyn_cell(I)%up_cell == 0) THEN
@@ -123,6 +126,8 @@
       !print*, I,J,M
     END IF
    END DO
+   !$OMP END DO
+   !$OMP END PARALLEL
    print*, 'number of propagation cells in vacuum: ', model_grid(n_modelgrid + add_mg)%assoc_cells
   ENDIF
 ! computing volume of model cells

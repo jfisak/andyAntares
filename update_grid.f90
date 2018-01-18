@@ -27,6 +27,10 @@ SUBROUTINE update_grid(iteration)
 !  OPEN(37, FILE='nitrogenVII.dat')
   max_n_dcell = SIZE(dyn_cell)
    print*, 'updating grid'
+  !$OMP PARALLEL
+  !$DEFAULT(private)
+  !$SHARED(dyn_cell, n_pack)
+  !$OMP DO 
   DO gridcell = 1, n_modelgrid
    !print*, 'update_grid: volume: model cell = ', gridcell, ' volume = ', volume
 
@@ -88,6 +92,8 @@ SUBROUTINE update_grid(iteration)
 !     stop
     ENDIF
   END DO
+  !$OMP END DO
+  !$OMP END PARALLEL
 !  CLOSE(31)
 !  CLOSE(32)
 !  CLOSE(33)
