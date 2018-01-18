@@ -33,13 +33,14 @@ CASE(1)
  electron_density = model_grid(current_mgi)%e_dens
  ! --
  temperature = model_grid(current_mgi)%T
- el_temperature = temperature
+ el_temperature = temperature / 1.D2
  ! print*, 'cool_excit: current_mgi = ', current_mgi
  
  DO line = 1, ntransitions
   ! population of the given state
   element_index = linelist(line)%indexe
   ion_index = linelist(line)%indexi
+  ! write(*,*) 'cool_excit: calling populations...'
   CALL populations(element_index, ion_index, linelist(line)%lower, current_mgi, pop)
   ! oscilator strength
   osc_str = linelist(line)%f_ul

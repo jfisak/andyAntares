@@ -40,6 +40,9 @@ DOUBLE PRECISION                :: D
 TYPE(irates)                    :: actirates
 INTEGER                         :: OMP_GET_THREAD_NUM, my_rank
 REAL(8)                         :: random
+! write down the processes
+LOGICAL                         :: procout = .FALSE.
+
 
 my_rank = OMP_GET_THREAD_NUM()
 
@@ -134,6 +137,8 @@ DO WHILE (active == 1)
  ! allocation of the field for recombination processes
  IF(ion_index > 1) THEN
   nlevslion = SIZE(elements(element_index)%ions(ion_index - 1)%levels)
+ ! write(*,*) 'do_ipackage: indexe = ', element_index, 'indexi - 1 = ', &
+ !  ion_index - 1, ' nlevslion = ', nlevslion
  ELSE
   nlevslion = 0
  END IF
@@ -143,16 +148,25 @@ DO WHILE (active == 1)
  !write(*,*) 'do_ipackage: loc(actirates) = ', loc(actirates)
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! calculation of the given transition probabilities
+ ! write(*,*) 'do_ipackage: calling populations...'
  CALL populations(element_index, ion_index, actual_state, current_mgi, act_pop)
  CALL i_radtrans(nlns, linetransitions, nluns, lineuptransitions, act_pop, &
   Zintdownrad, Zintuprad, Zraddeexc, actirates)
  CALL i_coltrans(1, pack_index, actual_state, nlns, linetransitions, nluns, lineuptransitions, &
   act_pop, Zintdowncoll, Zintupcoll, Zcoll, actirates)
- CALL i_radion(0, element_index, ion_index, actual_state, current_mgi, act_pop, Zphotionup, &
-  Zphotiondown, Zphotrecom, actirates)
- CALL i_colion(1, element_index, ion_index, actual_state, pack_index, act_pop, Zcollionup, &
-  Zcolliondown,Zcollrecom, actirates)
+! IONIZATION PROCESSES ARE TEMPORARY TURNED OF
+! BECAUSE OF MISTAKE IN PROCESS
+ ! CALL i_radion(0, element_index, ion_index, actual_state, current_mgi, act_pop, Zphotionup, &
+ !  Zphotiondown, Zphotrecom, actirates)
+ !CALL i_colion(1, element_index, ion_index, actual_state, pack_index, act_pop, Zcollionup, &
+ ! Zcolliondown,Zcollrecom, actirates)
  ! total rates of internal donwnward jump
+ Zphotionup = 0.D0
+ Zphotiondown = 0.D0
+ Zphotrecom = 0.D0
+ Zcollionup = 0.D0
+ Zcolliondown = 0.D0
+ Zcollrecom = 0.D0
  DO I = 1, nlns
    actirates%Lma_int_do(I) = actirates%Lma_int_dorad(I) + actirates%Lma_int_docoll(I)
  END DO
@@ -199,7 +213,7 @@ IF(rand >= 0.D0 .AND. rand < Z0) THEN
   ! we will find the given state
   IF(rand >= summ .AND. rand < summ + actirates%Lma_int_do(I)) THEN
    actual_state = linelist(linetransitions(I))%lower
-   !print*, 'do_ipackage: packet: ', pack_index, ' internal downward jump...'
+   IF(procout) write(*,*) 'do_ipackage: packet: ', pack_index, ' internal downward jump...'
    EXIT
   END IF
   summ = summ + actirates%Lma_int_do(I)
@@ -289,7 +303,7 @@ ELSE IF (rand >= Z1 .AND. rand <= Z2) THEN
   !write(*,*) 'do_ipackage: summ = ', summ, ' rand = ', rand, ' summ + actirates%Lma_int_up = ', summ + actirates%Lma_int_up(I)
   IF(rand >= summ .AND. rand < summ + actirates%Lma_int_up(I)) THEN
    actual_state = linelist(lineuptransitions(I))%upper
-   !print*, 'do_ipackage: packet: ', pack_index, ' internal upward jump...'
+   IF(procout) write(*,*) 'do_ipackage: packet: ', pack_index, ' internal upward jump...'
    EXIT
   END IF
   summ = summ + actirates%Lma_int_up(I)
@@ -301,7 +315,7 @@ ELSE IF(rand >= Z2 .AND. rand <= Z3) THEN
  summ = Z2
  package(pack_index)%last_line = no_line
  package(pack_index)%typ = type_kpkt
- !print*, 'pack_index = ', pack_index, ' collisional deexcitation...'
+ IF(procout) write(*,*)  'pack_index = ', pack_index, ' collisional deexcitation...'
 ! DO I = 1, nlns
 !  ! we will find the given state
 !  IF(rand >= summ .AND. rand < summ + Ldowncoll(I)) THEN
@@ -321,13 +335,13 @@ ELSE IF(rand >= Z2 .AND. rand <= Z3) THEN
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal photoionization
 ELSE IF(rand >= Z3 .AND. rand <= Z4) THEN
- !print*, 'pack_index = ', pack_index, ' internal jump to to the upper ionization state...'
+ IF(procout) write(*,*)  'pack_index = ', pack_index, ' internal jump to to the upper ionization state...'
  ion_index = ion_index + 1
  actual_state = 1
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal recombination
 ELSE IF(rand >= Z4 .AND. rand <= Z5) THEN
- !print*, 'pack_index = ', pack_index, ' internal jump to to the lower ionization state...'
+ IF(procout) write(*,*)  'pack_index = ', pack_index, ' internal jump to to the lower ionization state...'
  ion_index = ion_index - 1
  summ = 0.D0
  rand = DBLE(random())
@@ -338,7 +352,7 @@ ELSE IF(rand >= Z4 .AND. rand <= Z5) THEN
   IF(rand >= summ .AND. rand < summ + actirates%Lma_int_recrad(I) + actirates%Lma_int_reccol(I)) THEN
    actual_state = I
 !   print*, 'do_ipackage: changing actual state to the state I = ', I
-   !print*, 'do_ipackage: packet: ', pack_index, ' internal jump to the lower ionization state...'
+   print*, 'do_ipackage: packet: ', pack_index, ' internal jump to the lower ionization state...'
    EXIT
   END IF
   summ = summ + actirates%Lma_int_recrad(I) + actirates%Lma_int_reccol(I)
@@ -346,27 +360,34 @@ ELSE IF(rand >= Z4 .AND. rand <= Z5) THEN
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! radiative recombination
 ELSE IF(rand >= Z5 .AND. rand <= Z6) THEN
- !print*, 'do_ipackage: pack_index = ', pack_index, 'radiative recombination'
+ IF(procout) write(*,*) 'do_ipackage: pack_index = ', pack_index, 'radiative recombination'
  package(pack_index)%typ = type_rpkt
  count_rrecombination = count_rrecombination + 1
  active = 0
  ! temporary
  ! the frequency should be sampled from the photion cross section
  count_rrecombination = count_rrecombination + 1
- CALL i_freq_recomb(actual_state, pack_index, act_pop, new_freq)
- package(pack_index)%freq_cmf = new_freq
- CALL doppler_factor(pack_index, D)
- package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
+ summ = Z5
+ DO I = 1, nlevslion
+  IF( rand >= summ .AND. rand < summ + actirates%Lma_recrad(I)) THEN
+   CALL i_freq_recomb(actual_state, I, pack_index, act_pop, new_freq)
+   package(pack_index)%freq_cmf = new_freq
+   CALL doppler_factor(pack_index, D)
+   package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
+   IF(procout) write(*,*) 'do_ipackage: freq CMF = ', new_freq, ' freq rf = ', new_freq/D
+   EXIT
+  END IF
+ END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! collisional recombination
 ELSE IF(rand >= Z6 .AND. rand <= Z7) THEN
- !print*, 'do_ipackage: pack_index = ', pack_index, 'radiative recombination'
+ IF(procout) write(*,*) 'do_ipackage: pack_index = ', pack_index, 'radiative recombination'
  package(pack_index)%typ = type_kpkt
  count_crecombination = count_crecombination + 1
 ! active = 0
 ! no event was chosen
 ELSE
- write(*,*) 'do_ipackage, pack_index = ', pack_index, ' no event was chosen...'
+ IF(procout) write(*,*) 'do_ipackage, pack_index = ', pack_index, ' no event was chosen...'
 END IF
 
 DEALLOCATE(linetransitions, lineuptransitions, &

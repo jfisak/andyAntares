@@ -81,12 +81,9 @@ IF(indexi > 1) THEN
  Zintrecom = 0.D0
  Zrecom = 0.D0
  nrecom = SIZE(actirates%Lma_recrad)
- !write(*,*) 'i_radion: my_rank = ', my_rank, ' Lma_recrad = ', SIZE(actirates%Lma_recrad), &
- ! ' Lma_int_recrad = ', SIZE(actirates%Lma_int_recrad)
+ write(*,*) 'i_radion: nrecom = ', nrecom
  DO K = 1, nrecom
   IF(nrecom == 1) EXIT
-  !write(*,*) 'i_radion: K = ', K, ' my_rank = ', my_rank, ' Lma_recrad = ', SIZE(actirates%Lma_recrad), &
-  !' Lma_int_recrad = ', SIZE(actirates%Lma_int_recrad)
   npoints = SIZE(elements(indexe)%ions(indexi - 1)%levels(K)%photcros(1,:))
   IF (npoints /= 0) THEN
    ALLOCATE(freq(npoints), cross(npoints), func(npoints))
@@ -112,18 +109,19 @@ IF(indexi > 1) THEN
    ! 'freq = ', freqt
    ! looking for starting point
    DO J = 1, npoints
+    ! write(*,*) 'i_radion: J = ', J
     IF(freq(J) >= freqt) THEN
      Jstart = J
      EXIT
-    IF(J == npoints) Jstart = 1
     END IF
+    IF(J == npoints) Jstart = 1
    END DO
-   !write(*,*) 'i_radion: Jstart = ', Jstart
    summ = 0
    DO J = Jstart, npoints - 1
     summ = summ + (func(J) + func(J + 1)) / 2.D0 * (freq(J + 1) - freq(J))
    END DO
    phot_cross = 4 * pi * act_pop * summ
+   ! write(*,*) 'i_radion: calling populations...'
    CALL populations(indexe, indexi - 1, K, current_mgi, pop_number)
    exci_energy = elements(indexe)%ions(indexi - 1)%levels(K)%exci_energy
    gr_exci_energy = elements(indexe)%ions(indexi)%levels(1)%exci_energy

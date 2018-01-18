@@ -35,7 +35,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
      ! in this sbr we get only excited states from the upper states
      isUpperTransition = .TRUE.
      package(pack_index)%typ = type_ipkt
-     print*, 'photon ', pack_index, ' line interaction...'
+     ! write(*,*) 'photon ', pack_index, ' line interaction...'
 !     CALL emit_rpackage(pack_index)
   ELSE IF (event .EQ. rpkt_eventtype_continuum) THEN
      ! In this case the package undergoes a continuum event. In the
@@ -47,7 +47,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
      ! check further if it will go to a kpkt or ipkt (bf contribute to
      ! both the thermal kinetic and internal energy pools).
    ! total number of continuum rates
-   write(*,*) 'do_rpackage_event: photon ', pack_index, ' continuum interaction...'
+   ! write(*,*) 'do_rpackage_event: photon ', pack_index, ' continuum interaction...'
    ZcontTot = 0.D0
    ! just only for now
    package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
@@ -87,7 +87,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
      freq = package(pack_index)%freq_cmf
      rand = DBLE(random())
      IF(rand < freqt / freq) THEN
-      write(*,*) 'do_rpackage_event: photoionization -> i packet'
+      ! write(*,*) 'do_rpackage_event: photoionization -> i packet'
       package(pack_index)%typ = type_ipkt
       ! we have to find corresponding transition for the do_ipacket sbr
       DO nline = 1, ntransitions
@@ -108,7 +108,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
       ! loop over lines
       END DO
      ELSE
-      write(*,*) 'do_rpackage_event: photoionization -> k packet'
+      ! write(*,*) 'do_rpackage_event: photoionization -> k packet'
       package(pack_index)%typ = type_kpkt
      END IF
      EXIT

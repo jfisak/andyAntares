@@ -46,7 +46,7 @@ Zfb = 0.D0
 DO indexe = 1, n_elements
  n_ions = SIZE(elements(indexe)%ions)
  DO indexi = 2, n_ions
-  n_levels = SIZE(elements(indexe)%ions(indexi)%levels)
+  n_levels = SIZE(elements(indexe)%ions(indexi - 1)%levels)
   DO indexl = 1, n_levels
    nfreq = SIZE(elements(indexe)%ions(indexi - 1)%levels(indexl)%photcros(1,:))
    ! setting indexe and indexi

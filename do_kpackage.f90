@@ -50,7 +50,7 @@ Z3 = Z2 + Zfb
 ! total rate
 Ztot = Zexcit + Zff + Zion + Zfb
 rand = rand * Ztot
-write(*,*) 'do_kpackage: Zexcit = ', Zexcit, ' Zff = ', Zff, ' Zion = ', Zion, ' Zfb = ', Zfb
+! write(*,*) 'do_kpackage: Zexcit = ', Zexcit, ' Zff = ', Zff, ' Zion = ', Zion, ' Zfb = ', Zfb
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! collisional excitation
@@ -64,7 +64,7 @@ IF(rand >= 0.D0 .AND. rand <= Z0) THEN
    !print*, 'collisional deexcitation: I = ', I, ' upper level = ', linelist(I)%upper
    package(pack_index)%last_line = I
    package(pack_index)%typ = type_ipkt
-   write(*,*) 'do_kpackage: package = ', pack_index, ' collisional excitation process...'
+   ! write(*,*) 'do_kpackage: package = ', pack_index, ' collisional excitation process...'
    EXIT
   END IF
   summ = summ + actikrates%Lcool_excit(I)

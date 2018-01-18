@@ -67,6 +67,7 @@ CASE (1)
      x = (h * freq) / (BOLK * temp)
      ! exponential integral function (calculation of eif)
      CALL exp_int_func(1, x, eif)
+     ! write(*,*) 'cool_ionization: calling populations...'
      CALL populations(indexe, indexi, indexl, current_mgi, act_pop)
      ! photoionization cross section
      !CALL bound_free_rates(pack_index, indexl, rad_rate)
