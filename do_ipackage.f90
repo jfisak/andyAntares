@@ -156,17 +156,17 @@ DO WHILE (active == 1)
   act_pop, Zintdowncoll, Zintupcoll, Zcoll, actirates)
 ! IONIZATION PROCESSES ARE TEMPORARY TURNED OF
 ! BECAUSE OF MISTAKE IN PROCESS
- ! CALL i_radion(0, element_index, ion_index, actual_state, current_mgi, act_pop, Zphotionup, &
- !  Zphotiondown, Zphotrecom, actirates)
- !CALL i_colion(1, element_index, ion_index, actual_state, pack_index, act_pop, Zcollionup, &
- ! Zcolliondown,Zcollrecom, actirates)
+ CALL i_radion(0, element_index, ion_index, actual_state, current_mgi, act_pop, Zphotionup, &
+   Zphotiondown, Zphotrecom, actirates)
+ CALL i_colion(1, element_index, ion_index, actual_state, pack_index, act_pop, Zcollionup, &
+  Zcolliondown,Zcollrecom, actirates)
  ! total rates of internal donwnward jump
- Zphotionup = 0.D0
- Zphotiondown = 0.D0
- Zphotrecom = 0.D0
- Zcollionup = 0.D0
- Zcolliondown = 0.D0
- Zcollrecom = 0.D0
+ ! Zphotionup = 0.D0
+ ! Zphotiondown = 0.D0
+ ! Zphotrecom = 0.D0
+ ! Zcollionup = 0.D0
+ ! Zcolliondown = 0.D0
+ ! Zcollrecom = 0.D0
  DO I = 1, nlns
    actirates%Lma_int_do(I) = actirates%Lma_int_dorad(I) + actirates%Lma_int_docoll(I)
  END DO
@@ -343,16 +343,13 @@ ELSE IF(rand >= Z3 .AND. rand <= Z4) THEN
 ELSE IF(rand >= Z4 .AND. rand <= Z5) THEN
  IF(procout) write(*,*)  'pack_index = ', pack_index, ' internal jump to to the lower ionization state...'
  ion_index = ion_index - 1
- summ = 0.D0
- rand = DBLE(random())
- rand = rand * Zrecombination
+ summ = Z4
  DO I = 1, nlevslion
   ! we will find the given state
   !print*, 'summ = ', summ, ' summ + L(I) = ', summ + actirates%Lma_recrad(I) + actirates%Lma_reccol(I)
   IF(rand >= summ .AND. rand < summ + actirates%Lma_int_recrad(I) + actirates%Lma_int_reccol(I)) THEN
    actual_state = I
-!   print*, 'do_ipackage: changing actual state to the state I = ', I
-   print*, 'do_ipackage: packet: ', pack_index, ' internal jump to the lower ionization state...'
+   IF(procout) write(*,*)  'do_ipackage: packet: ', pack_index, ' internal jump to the lower ionization state...'
    EXIT
   END IF
   summ = summ + actirates%Lma_int_recrad(I) + actirates%Lma_int_reccol(I)
@@ -370,13 +367,14 @@ ELSE IF(rand >= Z5 .AND. rand <= Z6) THEN
  summ = Z5
  DO I = 1, nlevslion
   IF( rand >= summ .AND. rand < summ + actirates%Lma_recrad(I)) THEN
-   CALL i_freq_recomb(actual_state, I, pack_index, act_pop, new_freq)
+   CALL i_freq_recomb(element_index, ion_index, I, pack_index, act_pop, new_freq)
    package(pack_index)%freq_cmf = new_freq
    CALL doppler_factor(pack_index, D)
    package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
    IF(procout) write(*,*) 'do_ipackage: freq CMF = ', new_freq, ' freq rf = ', new_freq/D
    EXIT
   END IF
+  summ = summ + actirates%Lma_recrad(I)
  END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! collisional recombination
