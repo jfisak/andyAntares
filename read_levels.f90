@@ -95,7 +95,7 @@ OPEN(8,status='old',FILE=filename)
   READ(line,*) indexi, i_pot
   I = I + 1
   IF(indexi /= I) STOP 'wrong atomic data: ion indexes are not equal'
-  elements(el_index)%ions(I)%ion_potential  = i_pot * e_v
+  ! elements(el_index)%ions(I)%ion_potential  = i_pot * e_v
   IF(I == (upperion - lowerion + 1)) EXIT
  END DO
  ! number of levels for every ion
@@ -134,7 +134,7 @@ OPEN(8,status='old',FILE=filename)
   IF(nline == nions) EXIT
  END DO
  ! now we are reading atomic data for the selected ions
- DO current_ion = lowerion, upperion
+ DO current_ion = lowerion, upperion ! loop over ions
   act_index = current_ion - lowerion + 1
   act_nlevels = nlevels(act_index)
   !print*, 'n_levels = ', act_nlevels
@@ -150,7 +150,7 @@ OPEN(8,status='old',FILE=filename)
    END IF
   ! reading the levels for the given ion
   J = 0
-  DO 
+  DO  ! loop over atomic levels for the given ion
    READ(8,'(A)', IOSTAT = reading_levels) line
    !print*, line
    IF(reading_levels /= 0) EXIT
@@ -159,8 +159,10 @@ OPEN(8,status='old',FILE=filename)
    J = J + 1
    ionstage = elements(el_index)%ions(current_ion)%ion_stage
    elements(el_index)%ions(current_ion)%levels(J)%exci_energy = &
-       (l_energy + ionoffset) * e_v
-   !write(*,*) 'read_levels: exci_energy = ', elements(el_index)%ions(current_ion)%levels(J)%exci_energy
+       (l_energy * rydberg + ionoffset) * e_v
+   !write(*,*) 'read_levels: element = ', el_index, 'ion = ', current_ion, &
+   ! ' exci_energy = ', &
+   ! elements(el_index)%ions(current_ion)%levels(J)%exci_energy / e_v
    elements(el_index)%ions(current_ion)%levels(J)%stat_waight = s_weight
    elements(el_index)%ions(current_ion)%levels(J)%elconf = iconf
    ! we have to calculate l_index correctly: it should start at 1 for every ion
@@ -169,8 +171,10 @@ OPEN(8,status='old',FILE=filename)
    IF(J == 1) lowering_index = kindex
    elements(el_index)%ions(current_ion)%levels(J)%l_index = kindex - lowering_index + 1
    IF( J == act_nlevels) EXIT
-  END DO
- END DO
+  END DO ! loop over atomic levels for the given ion
+  elements(el_index)%ions(current_ion)%ion_potential = &
+   MAXVAL(elements(el_index)%ions(current_ion)%levels(:)%exci_energy)
+ END DO ! loop over ions
    ! if everything is OK, we will read from the variable line variables
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

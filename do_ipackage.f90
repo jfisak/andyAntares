@@ -148,25 +148,40 @@ DO WHILE (active == 1)
  !write(*,*) 'do_ipackage: loc(actirates) = ', loc(actirates)
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! calculation of the given transition probabilities
- ! write(*,*) 'do_ipackage: calling populations...'
+  ! write(*,*) 'do_ipackage: element_index = ', element_index, ' ion_index = ', ion_index
  CALL populations(element_index, ion_index, actual_state, current_mgi, act_pop)
+ ! write(*,*) 'do_ipackage: pop = ', act_pop
  CALL i_radtrans(nlns, linetransitions, nluns, lineuptransitions, act_pop, &
   Zintdownrad, Zintuprad, Zraddeexc, actirates)
  CALL i_coltrans(1, pack_index, actual_state, nlns, linetransitions, nluns, lineuptransitions, &
   act_pop, Zintdowncoll, Zintupcoll, Zcoll, actirates)
-! IONIZATION PROCESSES ARE TEMPORARY TURNED OF
-! BECAUSE OF MISTAKE IN PROCESS
  CALL i_radion(0, element_index, ion_index, actual_state, current_mgi, act_pop, Zphotionup, &
    Zphotiondown, Zphotrecom, actirates)
  CALL i_colion(1, element_index, ion_index, actual_state, pack_index, act_pop, Zcollionup, &
   Zcolliondown,Zcollrecom, actirates)
+  ! TEMPORARY SOLUTION !!!
+  ! Zphotrecom = 0.D0
+  ! Zcoll = 0.D0
+ Zcoll = 0.D0
+ Zphotionup = 0.D0
+ Zphotiondown = 0.D0
+ Zphotrecom = 0.D0
+ Zcollionup = 0.D0
+ Zcolliondown = 0.D0
+ Zcollrecom = 0.D0
+! controll part
+IF(Zintdownrad < 0.D0) STOP 'do_ipackage: Zintdownrad < 0'
+IF(Zintuprad < 0.D0) STOP 'do_ipackage: Zintuprad < 0'
+IF(Zraddeexc < 0.D0) STOP 'do_ipackage: Zraddeexc < 0'
+IF(Zintdowncoll < 0.D0) STOP 'do_ipackage: Zintdowncoll < 0'
+IF(Zintupcoll < 0.D0) STOP 'do_ipackage: Zintupcoll < 0'
+IF(Zcoll < 0.D0) STOP 'do_ipackage:  Zcoll < 0'
+IF(Zphotionup < 0.D0) STOP 'do_ipackage: Zphotionup < 0'
+IF(Zphotiondown < 0.D0) STOP 'do_ipackage: Zphotiondown < 0'
+IF(Zphotrecom < 0.D0) STOP 'do_ipackage: Zphotrecom < 0'
+IF(Zcolliondown < 0.D0) STOP 'do_ipackage: Zcolliondown < 0'
+IF(Zcollrecom < 0.D0) STOP 'do_ipackage: Zcollrecom < 0'
  ! total rates of internal donwnward jump
- ! Zphotionup = 0.D0
- ! Zphotiondown = 0.D0
- ! Zphotrecom = 0.D0
- ! Zcollionup = 0.D0
- ! Zcolliondown = 0.D0
- ! Zcollrecom = 0.D0
  DO I = 1, nlns
    actirates%Lma_int_do(I) = actirates%Lma_int_dorad(I) + actirates%Lma_int_docoll(I)
  END DO
@@ -175,19 +190,22 @@ DO WHILE (active == 1)
  DO I = 1, nluns
   ! internal jump up
    actirates%Lma_int_up(I) = actirates%Lma_int_uprad(I) + actirates%Lma_int_upcoll(I)
-   !print*, 'actirates%Lma_int_uprad(I) = ', actirates%Lma_int_uprad(I), ' actirates%Lma_int_upcoll(I) = ', actirates%Lma_int_upcoll(I)
+   ! write(*,*)  'actirates%Lma_int_uprad(I) = ', actirates%Lma_int_uprad(I), &
+   !  ' actirates%Lma_int_upcoll(I) = ', actirates%Lma_int_upcoll(I)
  END DO
  Zintup = Zintuprad + Zintupcoll
 ! an internal ionization sum
 Zionization = Zphotionup + Zcollionup
+ ! write(*,*) 'do_ipackage: Zphotionup = ', Zphotionup, ' Zcollionup = ', Zcollionup
 Zintrecombination = Zphotiondown + Zcolliondown
 Zrecombination = Zphotrecom + Zcollrecom
-!write(*,*) 'do_ipackage: Zcollrecom = ', Zcollrecom
+! write(*,*) 'do_ipackage: Zphotrecom = ', Zphotrecom
 ! the total sum 
-Ztotal = Zintdown + Zraddeexc + Zintup + Zcoll + Zionization + Zrecombination + Zintrecombination
+Ztotal = Zintdown + Zraddeexc + Zintup + Zcoll + &
+    Zionization + Zrecombination + Zintrecombination
 ! a random number for computation, which process occurs
 rand = DBLE(random()) * Ztotal
-! print*, 'do_ipackage: random number: ', rand, ' Ztotal = ', Ztotal
+ ! print*, 'do_ipackage: random number: ', rand, ' Ztotal = ', Ztotal
 ! these variables are only to the whole line won't be too long
 !write(*,*) 'do_ipackage: Zintup = ', Zintup
 Z0 = Zintdown
@@ -198,11 +216,12 @@ Z4 = Z3 + Zionization
 Z5 = Z4 + Zintrecombination
 Z6 = Z5 + Zphotrecom
 Z7 = Z6 + Zcollrecom
-!print*, 'Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zrecombination, Zintrecombination: ', &
-!        Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zrecombination, Zintrecombination
+!print*, 'Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zrecombination, Zintrecombination, Zphotrecom: ', &
+!        Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zrecombination, Zintrecombination, Zphotrecom
 !write(*,*) 'do_ipackage: Zrecombination = ', Zrecombination, ' Zphotrecom = ', Zphotrecom, ' Zcollrecom = ', Zcollrecom
-!write(*,*) 'do_ipackage: Z0 = ', Z0, ' Z1 = ', Z1, ' Z2 = ', Z2, ' Z3 = ', Z3, ' Z4 = ', Z4, ' Z5 = ', Z5, ' Z6 =', Z6
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! write(*,*) 'do_ipackage: Z0 = ', Z0, ' Z1 = ', Z1, ' Z2 = ', Z2, ' Z3 = ', Z3, &
+!  ' Z4 = ', Z4, ' Z5 = ', Z5, ' Z6 =', Z6, ' Z7 = ', Z7
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal downward jump
 ! in this case a macro-atom transits into a lower state without an energy emission
 IF(rand >= 0.D0 .AND. rand < Z0) THEN
@@ -271,7 +290,7 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
  ! looking for the given line
  DO line = 1, nlns
   IF(rand >= summ .AND. rand <= summ + actirates%Lma_rad(line)) THEN
-   !print*, 'do_ipackage: packet: ', pack_index, ' radiative deexcitation...'
+   IF(procout) write(*,*) 'do_ipackage: packet: ', pack_index, ' radiative deexcitation...'
    !print*, 'raddeexc: summ = ', summ, ' rand = ', rand, ' Zrad = ', Zrad
    ! we found the given cell now we have to compute only a new frequency
    new_freq = linelist(lineradtransitions(line))%freq
@@ -371,7 +390,6 @@ ELSE IF(rand >= Z5 .AND. rand <= Z6) THEN
    package(pack_index)%freq_cmf = new_freq
    CALL doppler_factor(pack_index, D)
    package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
-   IF(procout) write(*,*) 'do_ipackage: freq CMF = ', new_freq, ' freq rf = ', new_freq/D
    EXIT
   END IF
   summ = summ + actirates%Lma_recrad(I)
@@ -385,7 +403,8 @@ ELSE IF(rand >= Z6 .AND. rand <= Z7) THEN
 ! active = 0
 ! no event was chosen
 ELSE
- IF(procout) write(*,*) 'do_ipackage, pack_index = ', pack_index, ' no event was chosen...'
+ write(*,*) 'do_ipackage, pack_index = ', pack_index, ' no event was chosen...'
+ STOP
 END IF
 
 DEALLOCATE(linetransitions, lineuptransitions, &

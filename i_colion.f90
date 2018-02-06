@@ -94,13 +94,17 @@ CASE (1)
     Zion = act_pop * el_dens *coll_const / temp**(1.0/2.0) * gindex * cross_sect * exp(-x) / x 
     Zion = times * Zion
     !print*, 'collion_rates: Zion = ', Zion
+    ! write(*,*) 'i_colion: act_pop = ', act_pop, ' el_dens = ', el_dens, ' temp = ', temp, &
+    !  ' gindex = ', gindex, ' cross_sect = ', cross_sect, ' exp(-x) = ', exp(-x)/x 
    END IF
    DEALLOCATE(crossfreq)
+  ELSE ! npoints == 0
+   Zion = 0.D0
   END IF
- ELSE
+ ELSE ! indexi == atom number (atom is fully ionized)
   Zion = 0.D0
  END IF
-!print*, 'collion_rates: Zion = ', Zion
+ ! print*, 'collion_rates: Zion = ', Zion
 !_________________________________________________________________________________________
 ! recombination
  SELECT CASE(nlte)

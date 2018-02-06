@@ -10,7 +10,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
   DOUBLE PRECISION, DIMENSION(3)    :: direction
   ! loop variables
   INTEGER                               :: I
-  DOUBLE PRECISION                      :: summ, rand, ZcontTot
+  DOUBLE PRECISION                      :: summ, rand
   TYPE(rrates)                          :: actirrates
   REAL(8)                               :: random
   DOUBLE PRECISION                      :: freq, freqt
@@ -18,6 +18,10 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
   INTEGER                               :: actIndex
   INTEGER                               :: n_ions, n_levels
   INTEGER                               :: nline
+  ! total rates for the given processes
+  DOUBLE PRECISION                      :: Zthomson, Zphotion, Zff
+  DOUBLE PRECISION                      :: ZcontTot
+  LOGICAL                               :: procout = .FALSE.
 
 
 
@@ -35,7 +39,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
      ! in this sbr we get only excited states from the upper states
      isUpperTransition = .TRUE.
      package(pack_index)%typ = type_ipkt
-     ! write(*,*) 'photon ', pack_index, ' line interaction...'
+      if(procout) write(*,*) 'photon ', pack_index, ' line interaction...'
 !     CALL emit_rpackage(pack_index)
   ELSE IF (event .EQ. rpkt_eventtype_continuum) THEN
      ! In this case the package undergoes a continuum event. In the
@@ -46,28 +50,38 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
      ! the cmf. For ff it becomes a kpkt, In the case of bf we have to
      ! check further if it will go to a kpkt or ipkt (bf contribute to
      ! both the thermal kinetic and internal energy pools).
-   ! total number of continuum rates
-   ! write(*,*) 'do_rpackage_event: photon ', pack_index, ' continuum interaction...'
-   ZcontTot = 0.D0
-   ! just only for now
    package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
+   ! total number of continuum rates
+    if(procout) write(*,*) 'do_rpackage_event: photon ', pack_index, ' continuum interaction...'
+   Zff = 0.D0
+   Zthomson = actirrates%Lcont(4,1)
+   Zphotion = 0.D0
+   DO I = 2, n_photcrossect + 1
+    Zphotion = Zphotion + actirrates%Lcont(4,I)
+   END DO
+   DO I = 2 + n_photcrossect , 1 + n_photcrossect + n_ff
+    Zff = Zff + actirrates%Lcont(4,I)
+   END DO
+   ZcontTot = Zthomson + Zphotion + Zff
+   
+   ! just only for now
    DO I = 1, n_tot_cont ! three columns, we are interested in nof rows
     ZcontTot = ZcontTot + actirrates%Lcont(4, I)
-    !write(*,*) 'do_rpackage_event: I = ', I, ' actirrates%Lcont = ', actirrates%Lcont(I)
+    ! write(*,*) 'do_rpackage_event: I = ', I, ' actirrates%Lcont = ', actirrates%Lcont(4,I)
    END DO
    ! generating a random number
    rand = DBLE(random()) * ZcontTot
-   !write(*,*) 'do_rpackage_event: rand = ', rand, ' ZcontTot = ', ZcontTot
-   summ = 0.D0
+   ! write(*,*) 'do_rpackage_event: rand = ', rand, ' ZcontTot = ', ZcontTot
    !______________________________________________________________________
    !_________________ ELECTRON SCATTERING ________________________________
    !______________________________________________________________________
    I = 1
-   IF(rand >= summ .AND. rand <= actirrates%Lcont(4, I) + summ) THEN
+   summ = 0.D0
+   IF(rand >= summ .AND. rand <= Zthomson) THEN
     ! electron scattering occures
     ! changes only a direction of propagation
     count_thomson = count_thomson + 1
-    write(*,*) 'do_rpackage_event: Thomson scattering'
+      if(procout) write(*,*) 'do_rpackage_event: Thomson scattering'
     CALL emit_rpackage(pack_index)
     RETURN
    END IF
@@ -75,46 +89,58 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
    !______________________________________________________________________
    !_____________________ PHOTOIONIZATION ________________________________
    !______________________________________________________________________
-   DO I = 2, n_tot_cont ! three columns, we are interested in nof rows
-    IF(rand >= summ .AND. rand <= actirrates%Lcont(4, I) + summ) THEN
-     ! we have to choose if the packet transofrms onto i or k packet
-     ! we will get it from the treshold frequency for the given ion
-     indexe = actirrates%Lcont(1,I)
-     indexi = actirrates%Lcont(2,I)
-     indexl = actirrates%Lcont(3,I)
-     ! treshold frequency
-     freqt = elements(indexe)%ions(indexi)%levels(indexl)%phfreq
-     freq = package(pack_index)%freq_cmf
-     rand = DBLE(random())
-     IF(rand < freqt / freq) THEN
-      ! write(*,*) 'do_rpackage_event: photoionization -> i packet'
-      package(pack_index)%typ = type_ipkt
-      ! we have to find corresponding transition for the do_ipacket sbr
-      DO nline = 1, ntransitions
-       IF(indexe == linelist(nline)%indexe .AND. &
-          indexi == linelist(nline)%indexi) THEN
-        IF(indexl == linelist(nline)%upper) THEN
-         package(pack_index)%last_line = nline
-         isUpperTransition = .TRUE.
-         EXIT
-        ELSE IF(indexl == linelist(nline)%lower) THEN
-         package(pack_index)%last_line = nline
-         isUpperTransition = .FALSE.
-         EXIT
-        ! test for level number
+   summ = Zthomson
+   IF(rand > summ .AND. rand <= Zphotion + summ) THEN
+    DO I = 2, n_photcrossect + 1! three columns, we are interested in nof rows
+     IF(rand >= summ .AND. rand <= actirrates%Lcont(4, I) + summ) THEN
+      ! we have to choose if the packet transofrms onto i or k packet
+      ! we will get it from the treshold frequency for the given ion
+      indexe = actirrates%Lcont(1,I)
+      indexi = actirrates%Lcont(2,I)
+      indexl = actirrates%Lcont(3,I)
+      ! treshold frequency
+      freqt = elements(indexe)%ions(indexi)%levels(indexl)%phfreq
+      freq = package(pack_index)%freq_cmf
+      rand = DBLE(random())
+      IF(rand < freqt / freq) THEN
+         if(procout) write(*,*) 'do_rpackage_event: photoionization -> i packet'
+       package(pack_index)%typ = type_ipkt
+       ! we have to find corresponding transition for the do_ipacket sbr
+       DO nline = 1, ntransitions
+        IF(indexe == linelist(nline)%indexe .AND. &
+           indexi == linelist(nline)%indexi) THEN
+         IF(indexl == linelist(nline)%upper) THEN
+          package(pack_index)%last_line = nline
+          isUpperTransition = .TRUE.
+          EXIT
+         ELSE IF(indexl == linelist(nline)%lower) THEN
+          package(pack_index)%last_line = nline
+          isUpperTransition = .FALSE.
+          EXIT
+         ! test for level number
+         END IF
+        ! test for indexe and indexi
         END IF
-       ! test for indexe and indexi
-       END IF
-      ! loop over lines
-      END DO
-     ELSE
-      ! write(*,*) 'do_rpackage_event: photoionization -> k packet'
-      package(pack_index)%typ = type_kpkt
+       ! loop over lines
+       END DO
+      ELSE
+       if(procout) write(*,*) 'do_rpackage_event: photoionization -> k packet'
+       package(pack_index)%typ = type_kpkt
+      END IF
+      EXIT
      END IF
-     EXIT
-    END IF
-    summ = summ + actirrates%Lcont(4,I)
-   END DO
+     summ = summ + actirrates%Lcont(4,I)
+    END DO
+   END IF
+   !______________________________________________________________________
+   !_____________________ FREE-FREE PROCESS ______________________________
+   !______________________________________________________________________
+   summ = summ + Zphotion
+   IF(rand >= summ .AND. rand < summ + Zff) THEN
+    package(pack_index)%typ = type_kpkt
+     if(procout) write(*,*) 'do_rpackage_event: free-free'
+   END IF
+   !______________________________________________________________________
   ELSE
      STOP 'ERROR in do_rpackage event'
   END IF

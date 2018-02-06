@@ -95,17 +95,13 @@ CASE(1)
 !  actVal = actVal * (linelist(act_line)%upper - linelist(act_line)%lower)
  ! internal downward jump
   actirates%Lma_int_docoll(I) = actVal * exci_energy_l * stat_weight
-  actirates%Lma_int_docoll(I) = times * actirates%Lma_int_docoll(I)
   Zdown = Zdown + actirates%Lma_int_docoll(I)
  ! collisional deexcitation
   lcoll = actVal * (exci_energy_u - exci_energy_l)
-  lcoll = times * lcoll
   Zcoll = Zcoll + lcoll
 !        (linelist(act_line)%upper - linelist(act_line)%lower)
-! print*, 'cool_excit: pop = ', population, ' electron_density = ', electron_density, &
-!        ' temperature = ', temperature, ' gf = ', gf, ' osc_str = ', osc_str, &
-!        ' x = ', x
-!  print*, 'collisional_rates: Zcoll = ', Zcoll
+ !  write(*,*) 'i_coltrans: population = ', population, ' el_temperature = ', el_temperature, &
+ !   ' electron_density = ', electron_density, ' temperature = ', temperature
  END DO
 ! print*, 'collisional_rates: Ztot/pop = ', Ztot
 ! Ztot = pop * Ztot

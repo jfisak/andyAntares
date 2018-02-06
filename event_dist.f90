@@ -62,6 +62,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
   ! According to Mihalas and Mihalas Eq. 90.8 this is achieved by 
   CALL doppler_factor(pack_index, D)
   kappa_cont = D * kappa_cont
+  kappa_cont = 0.D0
 
   ! initialization of n_next_lines to be equal to one
 !  n_next_lines = 1

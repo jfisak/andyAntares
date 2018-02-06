@@ -68,20 +68,22 @@ IF(npoints /= 0) THEN
   ! ' freq(I + 1) - freq(I) = ', freq(I + 1) - freq(I)
  END DO
  phot_cross = 4.D0 * pi * summ * act_pop
- !print*, 'phot_cross = ', phot_cross, ' summ = ', summ, ' act_pop = ', act_pop
+ ! print*, 'phot_cross = ', phot_cross, ' summ = ', summ, ' act_pop = ', act_pop
+ ! write(*,*) 'exci_energy = ', elements(indexe)%ions(indexi)%levels(leveli)%exci_energy
  Zion = phot_cross * elements(indexe)%ions(indexi)%levels(leveli)%exci_energy
  DEALLOCATE(freq, cross, func)
 ELSE
  Zion = 0.D0
 END IF
- !print*, 'photion_rates: phot_cross = ', phot_cross
+ ! write(*,*) 'i_radion: Zion = ', Zion
+ ! print*, 'photion_rates: phot_cross = ', phot_cross
  !____________________________________________________________________________
  ! recombination
 IF(indexi > 1) THEN
  Zintrecom = 0.D0
  Zrecom = 0.D0
  nrecom = SIZE(actirates%Lma_recrad)
- write(*,*) 'i_radion: nrecom = ', nrecom
+ ! write(*,*) 'i_radion: nrecom = ', nrecom
  DO K = 1, nrecom
   IF(nrecom == 1) EXIT
   npoints = SIZE(elements(indexe)%ions(indexi - 1)%levels(K)%photcros(1,:))
@@ -120,16 +122,17 @@ IF(indexi > 1) THEN
    DO J = Jstart, npoints - 1
     summ = summ + (func(J) + func(J + 1)) / 2.D0 * (freq(J + 1) - freq(J))
    END DO
-   phot_cross = 4 * pi * act_pop * summ
+   phot_cross = 4.0 * pi * act_pop * summ
    ! write(*,*) 'i_radion: calling populations...'
    CALL populations(indexe, indexi - 1, K, current_mgi, pop_number)
    exci_energy = elements(indexe)%ions(indexi - 1)%levels(K)%exci_energy
    gr_exci_energy = elements(indexe)%ions(indexi)%levels(1)%exci_energy
    stat_weight = elements(indexe)%ions(indexi - 1)%levels(K)%stat_waight
    actirates%Lma_int_recrad(K) = pop_number * phot_cross * exci_energy * stat_weight
-   actirates%Lma_recrad(K) = pop_number * phot_cross * stat_weight * (gr_exci_energy - exci_energy)
-   !print*, 'photion_rates: actirates%Lma_recrad(K) = ', actirates%Lma_recrad(K), ' actirates%Lma_int_recrad = ', actirates%Lma_int_recrad(K)
-   !actirates%Lma_recrad(K) = 0.D0
+   actirates%Lma_recrad(K) = pop_number * phot_cross * stat_weight * &
+    (gr_exci_energy - exci_energy)
+   ! write(*,*) 'i_radion: indexe = ', indexe, ' indexi = ', indexi, 'indexl = ', K
+   ! write(*,*) 'i_radion: exci_energy = ', exci_energy, ' gr_exci_energy = ', gr_exci_energy
    Zintrecom = Zintrecom + actirates%Lma_int_recrad(K) 
    Zrecom = Zrecom + actirates%Lma_recrad(K)
    !print*, 'Zrecom = ', Zrecom
@@ -143,7 +146,7 @@ ELSE ! indexi > 1
  Zrecom = 0.D0
  Zintrecom = 0.D0
 END IF ! indexi > 1
- !print*, 'Zrecom = ', Zrecom
+! print*, 'Zrecom = ', Zrecom
 !print*, 'photion_rates: Zion = ', Zion, ' Zrecom = ', Zrecom
 
 END SUBROUTINE i_radion

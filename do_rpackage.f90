@@ -20,12 +20,25 @@ INTEGER                                         :: n_thomson
 !INTEGER                                         :: n_tot_cont
 INTEGER                                         :: my_rank
 TYPE(rrates)                                    :: actirrates
+! free free
+INTEGER                                 :: n_ions
+INTEGER                                 :: indexe, indexi
 
 ! number of thomson scattering 
-n_thomson = 1
 ! total number of continuum opacity sources
 !write(*,*) 'do_rpackage: n_photcrossect = ', n_photcrossect
-n_tot_cont = n_thomson + n_photcrossect
+IF(n_ff /= 0) THEN
+ELSE
+ n_ff = 0
+ DO indexe = 1, n_elements
+  n_ions = SIZE(elements(indexe)%ions)
+   DO indexi = 1, n_ions
+    n_ff = n_ff + 1
+   END DO
+  n_thomson = 1
+  n_tot_cont = n_thomson + n_photcrossect + n_ff
+ END DO
+END IF
 actirrates = rrates()
 
   CALL boundary3(pack_index, cell_dist, next_cell)
