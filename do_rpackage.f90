@@ -29,15 +29,17 @@ INTEGER                                 :: indexe, indexi
 !write(*,*) 'do_rpackage: n_photcrossect = ', n_photcrossect
 IF(n_ff /= 0) THEN
 ELSE
- n_ff = 0
- DO indexe = 1, n_elements
-  n_ions = SIZE(elements(indexe)%ions)
-   DO indexi = 1, n_ions
-    n_ff = n_ff + 1
-   END DO
-  n_thomson = 1
-  n_tot_cont = n_thomson + n_photcrossect + n_ff
- END DO
+ !$OMP CRITICAL
+  n_ff = 0
+  DO indexe = 1, n_elements
+   n_ions = SIZE(elements(indexe)%ions)
+    DO indexi = 1, n_ions
+     n_ff = n_ff + 1
+    END DO
+   n_thomson = 1
+   n_tot_cont = n_thomson + n_photcrossect + n_ff
+  END DO
+ !$OMP END CRITICAL
 END IF
 actirrates = rrates()
 
@@ -55,10 +57,6 @@ actirrates = rrates()
   ELSE
       CALL event_dist(pack_index, cell_dist, e_dist, event, actirrates)
   END IF
-
-!  IF (debug .EQ. 1) THEN 
-!      print*, cell_dist, next_cell, e_dist , cell(package(pack_index)%cell_numb)%model_index
-!  END IF
 
   !print*, 'e_dist = ', e_dist, ' cell_dist = ', cell_dist
   IF (e_dist .LT. cell_dist) THEN

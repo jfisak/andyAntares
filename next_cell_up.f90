@@ -49,7 +49,7 @@ DO
   next_cell = act_cell
   EXIT
  ELSE IF(upper_cell > 0) THEN
-  WRITE(99,*) cross_pos, dyn_cell(act_cell)%corner, dyn_cell(act_cell)%width
+!  WRITE(99,*) cross_pos, dyn_cell(act_cell)%corner, dyn_cell(act_cell)%width
   ! we have to find which cell in the higher level corresponds to the cross point
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! cross in x direction

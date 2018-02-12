@@ -45,9 +45,10 @@ dummypackage = n_pack_d - n_dummy_packs + my_rank + 1
   ! Deactivate packets which travel beyond the photosphere
   ! length=SQRT(package(pack_index)%pos(1)**2 + package(pack_index)%pos(2)**2 + package(pack_index)%pos(3)**2)  
   IF ((vec_length(package(pack_index)%pos) .LT. R_star) .AND. (pack_index .NE. dummypackage)) THEN
-      !print*, 'package ', pack_index, ' was destroyed'
-      package(pack_index)%active = 0
-      destroyed_pack = destroyed_pack + 1
+   !print*, 'package ', pack_index, ' was destroyed'
+   package(pack_index)%active = 0
+   !$OMP ATOMIC
+   destroyed_pack = destroyed_pack + 1
   END IF
 
   ! Rest frame quantities do not change while propagating without any events, 
@@ -62,21 +63,6 @@ dummypackage = n_pack_d - n_dummy_packs + my_rank + 1
    write(*,*) 'FREQUENCY IS LOWER THAN ZERO!!!'
    !STOP 
   END IF
-  IF (debug .EQ. 1) THEN 
-     print*, 'after move (pos)', package(pack_index)%pos
-  END IF
-!     print*, 'after move (pos)', package(pack_index)%pos
-
-!  IF (debug .EQ. 2) THEN 
-!     print*, package(pack_index)%pos
-!     nc=package(pack_index)%cell_numb
-!     print*, nc, cell(nc)%indexc, cell(nc)%corner, cell(nc)%corner+basic_cell_width
-!     
-!     print*, FLOOR(package(pack_index)%pos(1)/cell_width + dble(nx_cell)/2) + 1
-!     print*, FLOOR(package(pack_index)%pos(2)/cell_width + dble(ny_cell)/2) + 1
-!     print*, FLOOR(package(pack_index)%pos(3)/cell_width + dble(nz_cell)/2) + 1
-!  END IF
-
   package(pack_index)%delta_s = package(pack_index)%delta_s + dist
 
 END SUBROUTINE move_package

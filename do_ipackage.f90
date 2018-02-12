@@ -159,16 +159,16 @@ DO WHILE (active == 1)
    Zphotiondown, Zphotrecom, actirates)
  CALL i_colion(1, element_index, ion_index, actual_state, pack_index, act_pop, Zcollionup, &
   Zcolliondown,Zcollrecom, actirates)
-  ! TEMPORARY SOLUTION !!!
-  ! Zphotrecom = 0.D0
-  ! Zcoll = 0.D0
- Zcoll = 0.D0
- Zphotionup = 0.D0
- Zphotiondown = 0.D0
- Zphotrecom = 0.D0
- Zcollionup = 0.D0
- Zcolliondown = 0.D0
- Zcollrecom = 0.D0
+ ! TEMPORARY SOLUTION !!!
+ ! Zphotrecom = 0.D0
+ ! Zcoll = 0.D0
+ ! Zcoll = 0.D0
+ ! Zphotionup = 0.D0
+ ! Zphotiondown = 0.D0
+ ! Zphotrecom = 0.D0
+ ! Zcollionup = 0.D0
+ ! Zcolliondown = 0.D0
+ ! Zcollrecom = 0.D0
 ! controll part
 IF(Zintdownrad < 0.D0) STOP 'do_ipackage: Zintdownrad < 0'
 IF(Zintuprad < 0.D0) STOP 'do_ipackage: Zintuprad < 0'
@@ -216,8 +216,8 @@ Z4 = Z3 + Zionization
 Z5 = Z4 + Zintrecombination
 Z6 = Z5 + Zphotrecom
 Z7 = Z6 + Zcollrecom
-!print*, 'Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zrecombination, Zintrecombination, Zphotrecom: ', &
-!        Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zrecombination, Zintrecombination, Zphotrecom
+! write(*,*) 'Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zrecombination, Zintrecombination, Zphotrecom: ', &
+!         Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zrecombination, Zintrecombination, Zphotrecom
 !write(*,*) 'do_ipackage: Zrecombination = ', Zrecombination, ' Zphotrecom = ', Zphotrecom, ' Zcollrecom = ', Zcollrecom
 ! write(*,*) 'do_ipackage: Z0 = ', Z0, ' Z1 = ', Z1, ' Z2 = ', Z2, ' Z3 = ', Z3, &
 !  ' Z4 = ', Z4, ' Z5 = ', Z5, ' Z6 =', Z6, ' Z7 = ', Z7
@@ -225,6 +225,7 @@ Z7 = Z6 + Zcollrecom
 ! internal downward jump
 ! in this case a macro-atom transits into a lower state without an energy emission
 IF(rand >= 0.D0 .AND. rand < Z0) THEN
+ !$OMP ATOMIC
  count_intdownjump = count_intdownjump + 1
 ! next transition will be an internal downward jump
  summ = 0.D0
@@ -301,8 +302,10 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
    linelist(lineradtransitions(line))%n_deexc = linelist(lineradtransitions(line))%n_deexc + 1
    IF(linelist(lineradtransitions(line))%lower == linelist(last_line)%lower) THEN
     ! resonant scattering occures
+    !$OMP ATOMIC
     count_resscattering = count_resscattering + 1
    ELSE
+    !$OMP ATOMIC
     count_fluorescence = count_fluorescence + 1
    END IF
    EXIT
@@ -315,6 +318,7 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
 ! internal upward jump
 ! in this case a macro-atom transits into a upper state without an energy emission
 ELSE IF (rand >= Z1 .AND. rand <= Z2) THEN
+ !$OMP ATOMIC
  count_intupjump = count_intupjump + 1
  summ = Z1
  DO I = 1, nluns
@@ -335,6 +339,8 @@ ELSE IF(rand >= Z2 .AND. rand <= Z3) THEN
  package(pack_index)%last_line = no_line
  package(pack_index)%typ = type_kpkt
  IF(procout) write(*,*)  'pack_index = ', pack_index, ' collisional deexcitation...'
+ !$OMP ATOMIC
+ count_coldeexc = count_coldeexc + 1
 ! DO I = 1, nlns
 !  ! we will find the given state
 !  IF(rand >= summ .AND. rand < summ + Ldowncoll(I)) THEN
@@ -346,7 +352,6 @@ ELSE IF(rand >= Z2 .AND. rand <= Z3) THEN
 !  summ = summ + Ldowncoll(I)
 ! END DO
  !print*, 'collisional deexcitation occures...'
-! count_coldeexc = count_coldeexc + 1
 ! !package(pack_index)%typ = type_kpkt
 ! ! for now 
 ! package(pack_index)%typ = type_kpkt
@@ -378,10 +383,12 @@ ELSE IF(rand >= Z4 .AND. rand <= Z5) THEN
 ELSE IF(rand >= Z5 .AND. rand <= Z6) THEN
  IF(procout) write(*,*) 'do_ipackage: pack_index = ', pack_index, 'radiative recombination'
  package(pack_index)%typ = type_rpkt
+ !$OMP ATOMIC
  count_rrecombination = count_rrecombination + 1
  active = 0
  ! temporary
  ! the frequency should be sampled from the photion cross section
+ !$OMP ATOMIC
  count_rrecombination = count_rrecombination + 1
  summ = Z5
  DO I = 1, nlevslion
@@ -399,6 +406,7 @@ ELSE IF(rand >= Z5 .AND. rand <= Z6) THEN
 ELSE IF(rand >= Z6 .AND. rand <= Z7) THEN
  IF(procout) write(*,*) 'do_ipackage: pack_index = ', pack_index, 'radiative recombination'
  package(pack_index)%typ = type_kpkt
+ !$OMP ATOMIC
  count_crecombination = count_crecombination + 1
 ! active = 0
 ! no event was chosen
