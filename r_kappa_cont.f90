@@ -39,6 +39,7 @@ DOUBLE PRECISION                                :: temp
 ! free-free variables
 DOUBLE PRECISION, PARAMETER                     :: ffconst = 3.69255D8
 DOUBLE PRECISION                                :: alphaff, gauntff
+DOUBLE PRECISION                                :: kappaff
 
 !write(*,*) 'r_kappa_cont: dim(lcont) = ', SIZE(actirrates%Lcont)
 !calculation of basic variables
@@ -73,7 +74,7 @@ DO indexe = 1, n_elements
  DO indexi = 1, n_ions - 1
   n_levels = SIZE(elements(indexe)%ions(indexi)%levels)
   DO indexl = 1, n_levels
-   IF(SIZE(elements(indexe)%ions(indexi)%levels(indexl)%photcros(1,:)) == 0) CYCLE
+   IF(.NOT. ALLOCATED(elements(indexe)%ions(indexi)%levels(indexl)%photcros)) CYCLE
    n_sigma = SIZE(elements(indexe)%ions(indexi)%levels(indexl)%photcros(1,:))
    actPoint = 0
    ! finding the propper index in saved photcross data
@@ -125,24 +126,28 @@ END DO ! elements
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Free-free opacity
-!DO indexe = 1, n_elements
-! n_ions = SIZE(elements(indexe)%ions)
-!  DO indexi = 1, n_ions
-!   act_continuum = act_continuum + 1
-!   act_pop = model_grid(current_mgi)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
-!   ! calculation of alpha_ff
-!   gauntff = 1.D-6
-!   alphaff = ffconst * DBLE((indexi - 1)**2) * gauntff * temp**(-1.0/2.0) / &
-!    freq ** 3.0
-!   actirrates%Lcont(1, act_continuum) = indexe
-!   actirrates%Lcont(2, act_continuum) = indexi 
-!   actirrates%Lcont(3, act_continuum) = 0
-!   actirrates%Lcont(4, act_continuum) = electron_density * act_pop * alphaff * &
-!    (2 * h * freq**3.0) / light_speed ** 2.0 * &
-!    exp(-(h * freq) / (BOLK * temp))
-!    kappa = kappa + actirrates%Lcont(4, act_continuum)
-!  END DO
-!END DO
+act_continuum = act_continuum + 1
+actirrates%Lcont(1, act_continuum) = 0
+actirrates%Lcont(2, act_continuum) = 0
+actirrates%Lcont(3, act_continuum) = 0
+kappaff = 0.D0
+DO indexe = 1, n_elements
+ n_ions = SIZE(elements(indexe)%ions)
+  DO indexi = 1, n_ions
+   act_pop = model_grid(current_mgi)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
+   ! calculation of alpha_ff
+   gauntff = 1.D1
+   alphaff = ffconst * DBLE((indexi - 1)**2) * gauntff * temp**(-1.0/2.0) / &
+    freq ** 3.0 
+   kappaff = kappaff + electron_density * act_pop * alphaff * &
+    (2 * h * freq**3.0) / light_speed ** 2.0 * &
+    exp(-(h * freq) / (BOLK * temp))
+  END DO
+END DO
+kappa = kappa + kappaff
+! write(*,*) 'r_kappa_cont: kappaff = ', kappaff
+! write(*,*) 'r_kappa_cont: kappa = ', kappa
+actirrates%Lcont(4, act_continuum) = kappaff
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Rayleigh scattering

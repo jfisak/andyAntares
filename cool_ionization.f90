@@ -55,7 +55,11 @@ CASE (1)
     !write(*,*) 'cool_ionization: indexe = ', indexe, ' indexi = ', indexi, ' indexl = ', indexl, &
     ! ' act_rate = ', act_rate
     ! number of points in the photcross array
-    nfreq = SIZE(elements(indexe)%ions(indexi)%levels(indexl)%photcros(1,:))
+    IF(ALLOCATED(elements(indexe)%ions(indexi)%levels(indexl)%photcros)) THEN
+     nfreq = SIZE(elements(indexe)%ions(indexi)%levels(indexl)%photcros(1,:))
+    ELSE
+     nfreq = 0
+    END IF
     IF(nfreq /= 0) THEN
      ALLOCATE(crossfreq(nfreq))
      ! number density of a ground state of ion indexi + 1, indexe

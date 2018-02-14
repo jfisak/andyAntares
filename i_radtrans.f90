@@ -9,7 +9,6 @@ INTEGER                                 :: nlns, nluns
 INTEGER, DIMENSION(nlns)                :: linetransitions
 INTEGER, DIMENSION(nluns)               :: lineuptransitions
 DOUBLE PRECISION                        :: stat_weight, exci_energy_u, exci_energy_l
-DOUBLE PRECISION                        :: exci_energy
 DOUBLE PRECISION                        :: population
 INTEGER                                 :: element_index, ion_index
 INTEGER                                 :: act_line
@@ -56,32 +55,33 @@ DO I = 1, nlns
  ! internal downward jump
  ! calculation of a rate coefficient
  actVal = population * linelist(act_line)%A_ul * exci_energy_l
- !print*, 'i_radtrans: stat_waight, exci_energy, population, linelist(act_line)%A_ul, actVal', &
- !      stat_weight, exci_energy, population, linelist(act_line)%A_ul, actVal
+ ! write(*,*) 'i_radtrans: stat_waight, exci_energy, population, linelist(act_line)%A_ul, actVal', &
+ !  stat_weight, exci_energy_u, population, linelist(act_line)%A_ul, actVal
  actirates%Lma_int_dorad(I) = actVal * stat_weight
  Zintdown = Zintdown + actirates%Lma_int_dorad(I)
-! write(*,*) 'i_radtrans: Zintdown = ', Zintdown
+ ! write(*,*) 'i_radtrans: Zintdown = ', Zintdown
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! radiative deexcitation
  !print*, 'do_ipackage: population = ', population
  actVal = population * linelist(act_line)%A_ul * (exci_energy_u - exci_energy_l)
  Zrad = Zrad + stat_weight * actVal
+ ! write(*,*) 'i_radtrans: Zrad = ', Zrad
 END DO
+ ! STOP 'i_radtrans, testing'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal upward jump
 DO I = 1, nluns
  act_line = lineuptransitions(I)
  exci_energy_l = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy
  stat_weight = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%stat_waight
- exci_energy = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy
  ! internal jump up
  actVal = population * linelist(act_line)%A_ul * exci_energy_l * stat_weight
  actirates%Lma_int_uprad(I) = actVal
  Zintup = Zintup + actirates%Lma_int_uprad(I)
-! write(*,*) 'i_radtrans: act_line = ', act_line, ' stat_weight = ', stat_weight, &
-!  ' exci_energy_l = ', exci_energy_l, ' population = ', population, ' linelist(act_line)%A_ul = ', &
-!  linelist(act_line)%A_ul
-! write(*,*) 'i_radtrans: Zintup = ', Zintup
+ ! write(*,*) 'i_radtrans: act_line = ', act_line, ' stat_weight = ', stat_weight, &
+ !  ' exci_energy_l = ', exci_energy_l, ' population = ', population, ' linelist(act_line)%A_ul = ', &
+ !  linelist(act_line)%A_ul
+ ! write(*,*) 'i_radtrans: Zintup = ', Zintup
 END DO
 
 END SUBROUTINE i_radtrans

@@ -27,10 +27,13 @@ SUBROUTINE read_transitions(el_index, lowerion, upperion, transition_type, filen
  INTEGER                        :: n_transitions, curr_n_tran, n_line
  INTEGER                        :: current_element, current_ion
  INTEGER                        :: kindex, low_level, up_level
+ ! actual lower and upper index
+ INTEGER                        :: act_lower, act_upper
  ! counter of not included transitions
  INTEGER                        :: n_not_included
  CHARACTER (LEN=15)              :: low_conf, up_conf
  DOUBLE PRECISION               :: A, col_str, l_freq
+ INTEGER                        :: electron_number
 
 
 ! calculate the constant for the oscilator strength calculation
@@ -127,8 +130,10 @@ CASE(2)
   !print*, line
   IF(reading_transitions /= 0) EXIT
   IF(line(1:1) == '*') CYCLE
-  READ(line,*) junk, at_number, current_ion, junk, junk, junk, junk, low_conf, up_conf, junk, junk, junk 
+  READ(line,*) junk, at_number, electron_number, junk, junk, junk, junk, low_conf, up_conf, junk, junk, junk 
   CALL find_element_index(at_number,el_index)
+  current_ion = element - electron_number + 1
+  ! write(*,*) 'read_transitions: current_ion = ', current_ion
   found_low_conf = .FALSE.
   found_up_conf = .FALSE.
   n_levels = SIZE(elements(el_index)%ions(current_ion)%levels)
@@ -148,7 +153,8 @@ CASE(2)
   END DO
   !write(*,*) 'low_conf = ', low_conf, ' up_conf = ', up_conf, found_up_conf, found_low_conf
   IF((found_up_conf .EQV. .TRUE.) .AND. (found_low_conf .EQV. .TRUE.)) THEN
-   !write(*,*) 'line ', low_conf, ' -> ', up_conf, ' was accepted'
+   ! write(*,*) 'reading_transitions: el = ', el_index, ' ion = ', current_ion,&
+   !  ' line ', low_conf, ' -> ', up_conf, ' was accepted'
    ion_index = current_ion - lowerion + 1
    ntrans(current_ion) = ntrans(current_ion) + 1
    tot_ntrans = tot_ntrans + 1
@@ -181,33 +187,37 @@ CASE(2)
   ! trans is a number of read transitions 
   ! because we have tu assume, that we can comment lines in the middle of the file
   trans = 0
+  n_not_included = 0
   DO
    READ(9,'(A)',IOSTAT = reading_transitions) line
-   !print*, line
+   ! print*, line
    IF(reading_transitions /= 0) EXIT
    IF(line(1:1) == '*') CYCLE
-   READ(line,*) kindex, current_element, current_ion, junk, junk, low_level, up_level, &
+   READ(line,*) kindex, current_element, electron_number, junk, junk, low_level, up_level, &
         low_conf, up_conf, col_str, A, l_freq
-   !print*, 'I = ', I, 'i_conf = ', low_conf, 'j_conf = ', up_conf, &
-   !'l_index = ', elements(el_index)%ions(current_ion)%levels(I)%l_index
+   current_ion = element - electron_number + 1
+   ! print*, 'I = ', I, 'i_conf = ', low_conf, 'j_conf = ', up_conf, &
+   ! 'l_index = ', elements(el_index)%ions(current_ion)%levels(I)%l_index
+
    ! firstly we will check out if this is a transition which levels were really included
    ! we do not want to save lines with no probability
    IF(A == 0.D0) THEN
     !print*, 'A is equal to zero, cycling...'
     CYCLE
    END IF
+   ! because we could find all included transitions before the 
+   IF(ntransitions == SIZE(linelist)) EXIT
    found_low_conf = .FALSE.
    found_up_conf = .FALSE.
    n_levels = SIZE(elements(el_index)%ions(current_ion)%levels)
-   n_not_included = 0
    DO J = 1, n_levels
     IF(low_conf == elements(el_index)%ions(current_ion)%levels(J)%elconf) THEN
      found_low_conf = .TRUE.
      !print*, 'found electron configuration...'
      IF(col_str >= 0) THEN
-      linelist(ntransitions + 1)%upper = elements(el_index)%ions(current_ion)%levels(J)%l_index
+      act_upper = elements(el_index)%ions(current_ion)%levels(J)%l_index
      ELSE
-      linelist(ntransitions + 1)%lower = elements(el_index)%ions(current_ion)%levels(J)%l_index
+      act_lower = elements(el_index)%ions(current_ion)%levels(J)%l_index
      END IF 
      !print*, 'l_index = ', elements(el_index)%ions(current_ion)%levels(J)%l_index
     END IF
@@ -215,41 +225,45 @@ CASE(2)
      found_up_conf = .TRUE.
      !print*, 'found electron configuration...'
      IF(col_str >= 0) THEN
-      linelist(ntransitions + 1)%lower = elements(el_index)%ions(current_ion)%levels(J)%l_index
+      act_lower = elements(el_index)%ions(current_ion)%levels(J)%l_index
      ELSE
-      linelist(ntransitions + 1)%upper = elements(el_index)%ions(current_ion)%levels(J)%l_index
+      act_upper = elements(el_index)%ions(current_ion)%levels(J)%l_index
      END IF
      !print*, 'l_index = ', elements(el_index)%ions(current_ion)%levels(J)%l_index
     END IF
    END DO
    IF((found_low_conf .EQV. .FALSE.) .OR. (found_up_conf .EQV. .FALSE.)) THEN
     ! this configuration will not be taken into account and we will read the next line
-    !print*, 'element: ', element, ' ion = ', ion_index, ' line from ', low_conf, ' to ', up_conf, &
-    ! '  was not included...'
+    ! print*, 'element: ', element, ' ion = ', ion_index, ' line from ', low_conf, ' to ', up_conf, &
+    !  '  was not included...'
     n_not_included = n_not_included + 1
     CYCLE
    ELSE
     ntransitions = ntransitions + 1
+    linelist(ntransitions)%lower = act_lower
+    linelist(ntransitions)%upper = act_upper
    END IF
    IF((current_element /= element) .OR. (current_ion < lowerion) &
      .OR. (current_ion > upperion)) STOP 'WRONG ATOMIC TRANSITIONS...'
    !print*, 'indexe = ', el_index, ' indexi = ', current_ion, ' ntransitions = ', ntransitions
    linelist(ntransitions)%indexe = el_index
    linelist(ntransitions)%indexi = current_ion
-   linelist(ntransitions)%freq = 1.E+8*light_speed/l_freq
+   linelist(ntransitions)%freq = 1.E+8 * light_speed / l_freq
    linelist(ntransitions)%A_ul = abs(A)
    linelist(ntransitions)%f_ul = abs(col_str)
-   !write(*,*) 'line: ', ntransitions, 'lower level = ', linelist(ntransitions)%lower
-   !up_conf, elements(el_index)%ions(current_ion)%levels(I)%elconf, &
-   !'l_index = ', elements(el_index)%ions(current_ion)%levels(I)%l_index
+   ! write(*,*) 'line: ', ntransitions, ' el = ', el_index, ' ion = ', current_ion,&
+   !  ' lower level = ', linelist(ntransitions)%lower,& 
+   ! up_conf, elements(el_index)%ions(current_ion)%levels(I)%elconf, &
+   ! 'l_index = ', elements(el_index)%ions(current_ion)%levels(I)%l_index
    ! we have a transition between two atomic levels and we have to connect
    ! this transition with already read levels from another file, we do this
    ! connection via electron configuration in the form of string
    trans = trans + 1
+   ! write(*,*) 'read_transitions: trans = ', trans, ' ntrans(I) = ', ntrans(I)
    IF(trans == ntrans(I)) EXIT
   END DO
+  ! write(*,*) 'read_transitions: el = ', el_index, ' ion = ', current_ion, n_not_included, 'lines were not included'
  END DO
- write(*,*) n_not_included, 'lines were not included'
  ! if we did now use every transition in the file we will reallocate the array
  ! linelist so it will not be so large
  IF(ntransitions < SIZE(linelist)) THEN

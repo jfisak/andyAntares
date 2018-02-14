@@ -80,7 +80,7 @@ ELSE IF(rand >= Z0 .AND. rand <= Z1) THEN
  package(pack_index)%typ = type_rpkt
  package(pack_index)%last_line = no_line
  CALL k_freq_ff(pack_index, new_freq)
- write(*,*) 'do_kpackage: package = ', pack_index, ' free-free process...'
+ ! write(*,*) 'do_kpackage: package = ', pack_index, ' free-free process...'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! ionization
@@ -121,7 +121,7 @@ ELSE IF(rand >= Z1 .AND. rand <= Z2) THEN
   END DO
  ! loop over elements
  END DO
- write(*,*) 'do_kpackage: package = ', pack_index, ' ionization process...'
+ ! write(*,*) 'do_kpackage: package = ', pack_index, ' ionization process...'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! recombination
@@ -134,7 +134,7 @@ ELSE IF(rand > Z2 .AND. rand <= Z3) THEN
   ! summ + Lcool_fbE(J)
   IF(rand > summ .AND. rand <= summ + actikrates%Lcool_fbE(J)) THEN
    act_proc = J
-   write(*,*) 'do_kpackage: act_proc = ', act_proc
+   ! write(*,*) 'do_kpackage: act_proc = ', act_proc
    EXIT
   END IF
   summ = summ + actikrates%Lcool_fbE(J)
@@ -142,7 +142,7 @@ ELSE IF(rand > Z2 .AND. rand <= Z3) THEN
  ! package changes to r-packet
  package(pack_index)%typ = type_rpkt
  package(pack_index)%last_line = no_line
- write(*,*) 'do_kpackage: package = ', pack_index, ' recombination process...'
+ ! write(*,*) 'do_kpackage: package = ', pack_index, ' recombination process...'
  CALL k_freq_fb(pack_index, act_proc, new_freq)
 
 

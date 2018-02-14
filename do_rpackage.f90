@@ -28,17 +28,12 @@ INTEGER                                 :: indexe, indexi
 ! total number of continuum opacity sources
 !write(*,*) 'do_rpackage: n_photcrossect = ', n_photcrossect
 IF(n_ff /= 0) THEN
+! nothing to be done in this fork
 ELSE
  !$OMP CRITICAL
-  n_ff = 0
-  DO indexe = 1, n_elements
-   n_ions = SIZE(elements(indexe)%ions)
-    DO indexi = 1, n_ions
-     n_ff = n_ff + 1
-    END DO
-   n_thomson = 1
-   n_tot_cont = n_thomson + n_photcrossect + n_ff
-  END DO
+  n_ff = 1
+  n_thomson = 1
+  n_tot_cont = n_thomson + n_photcrossect + n_ff
  !$OMP END CRITICAL
 END IF
 actirrates = rrates()

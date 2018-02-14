@@ -47,7 +47,11 @@ CASE (1)
  ! temperature
  temp = model_grid(current_mgi)%T
  IF(indexi < elements(indexe)%atom_number) THEN
-  nfreq = SIZE(elements(indexe)%ions(indexi)%levels(act_level)%photcros(1,:))
+  IF(ALLOCATED(elements(indexe)%ions(indexi)%levels(act_level)%photcros)) THEN
+   nfreq = SIZE(elements(indexe)%ions(indexi)%levels(act_level)%photcros(1,:))
+  ELSE
+   nfreq = 0
+  END IF
   IF(nfreq /= 0) THEN
    ALLOCATE(crossfreq(nfreq))
    ! number density of a ground state of ion indexi + 1, indexe
@@ -115,7 +119,11 @@ CASE (1)
     nlevels = SIZE(actirates%Lma_int_reccol)
     !write(*,*) 'i_colion: number of points: ', nlevels
     DO I = 1, nlevels
-     npoints = SIZE(elements(indexe)%ions(indexi - 1)%levels(I)%photcros(1,:))
+     IF(ALLOCATED(elements(indexe)%ions(indexi - 1)%levels(I)%photcros)) THEN
+      npoints = SIZE(elements(indexe)%ions(indexi - 1)%levels(I)%photcros(1,:))
+     ELSE
+      npoints = 0
+     END IF
      IF(npoints /= 0) THEN
       ALLOCATE(crossfreq(npoints))
       crossfreq(1:npoints) = elements(indexe)%ions(indexi - 1)%levels(I)%photcros(1, 1:npoints)

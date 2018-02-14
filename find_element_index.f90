@@ -14,6 +14,6 @@ DO I = 1, n_elements
  END IF
 END DO
 
-STOP 'find_element_index: no valid element was wound'
+STOP 'find_element_index: no valid element was found'
 
 END SUBROUTINE find_element_index

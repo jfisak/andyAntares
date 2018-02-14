@@ -53,25 +53,19 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
    package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
    ! total number of continuum rates
     if(procout) write(*,*) 'do_rpackage_event: photon ', pack_index, ' continuum interaction...'
-   Zff = 0.D0
    Zthomson = actirrates%Lcont(4,1)
    Zphotion = 0.D0
    DO I = 2, n_photcrossect + 1
     Zphotion = Zphotion + actirrates%Lcont(4,I)
    END DO
-   DO I = 2 + n_photcrossect , 1 + n_photcrossect + n_ff
-    Zff = Zff + actirrates%Lcont(4,I)
-   END DO
+   Zff = actirrates%Lcont(4,n_photcrossect + 2)
+   ! write(*,*) 'do_rpackage_event: Zff = ', Zff
    ZcontTot = Zthomson + Zphotion + Zff
    
-   ! just only for now
-   DO I = 1, n_tot_cont ! three columns, we are interested in nof rows
-    ZcontTot = ZcontTot + actirrates%Lcont(4, I)
-    ! write(*,*) 'do_rpackage_event: I = ', I, ' actirrates%Lcont = ', actirrates%Lcont(4,I)
-   END DO
    ! generating a random number
    rand = DBLE(random()) * ZcontTot
-   ! write(*,*) 'do_rpackage_event: rand = ', rand, ' ZcontTot = ', ZcontTot
+   ! write(*,*) 'do_rpackage_event: rand = ', rand, ' ZcontTot = ', ZcontTot, &
+   !  ' Zthomson = ', Zthomson, ' Zphotion = ', Zphotion, ' Zff = ', Zff
    !______________________________________________________________________
    !_________________ ELECTRON SCATTERING ________________________________
    !______________________________________________________________________
@@ -90,6 +84,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
    !_____________________ PHOTOIONIZATION ________________________________
    !______________________________________________________________________
    summ = Zthomson
+   ! write(*,*) 'do_rpackage_event: summ = ', summ
    IF(rand > summ .AND. rand <= Zphotion + summ) THEN
     DO I = 2, n_photcrossect + 1! three columns, we are interested in nof rows
      IF(rand >= summ .AND. rand <= actirrates%Lcont(4, I) + summ) THEN
@@ -136,6 +131,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
    !_____________________ FREE-FREE PROCESS ______________________________
    !______________________________________________________________________
    summ = summ + Zphotion
+   ! write(*,*) 'do_rpackage_event: summ + Zff= ', summ + Zff
    IF(rand >= summ .AND. rand < summ + Zff) THEN
     package(pack_index)%typ = type_kpkt
      if(procout) write(*,*) 'do_rpackage_event: free-free'

@@ -32,7 +32,11 @@ my_rank = OMP_GET_THREAD_NUM()
 !           ' intrecrad = ', size(actirates%Lma_int_recrad), ' reccol = ', size(actirates%Lma_reccol), &
 !           ' intreccol = ', size(actirates%Lma_int_reccol)
 IF(indexi < elements(indexe)%atom_number) THEN
- npoints = SIZE(elements(indexe)%ions(indexi)%levels(leveli)%photcros(1,:))
+ IF(ALLOCATED(elements(indexe)%ions(indexi)%levels(leveli)%photcros)) THEN
+  npoints = SIZE(elements(indexe)%ions(indexi)%levels(leveli)%photcros(1,:))
+ ELSE
+  npoints = 0
+ END IF
 ELSE
  npoints = 0
 END IF
@@ -86,7 +90,11 @@ IF(indexi > 1) THEN
  ! write(*,*) 'i_radion: nrecom = ', nrecom
  DO K = 1, nrecom
   IF(nrecom == 1) EXIT
-  npoints = SIZE(elements(indexe)%ions(indexi - 1)%levels(K)%photcros(1,:))
+   IF(ALLOCATED(elements(indexe)%ions(indexi - 1)%levels(K)%photcros)) THEN
+    npoints = SIZE(elements(indexe)%ions(indexi - 1)%levels(K)%photcros(1,:))
+   ELSE
+    npoints = 0
+   END IF
   IF (npoints /= 0) THEN
    ALLOCATE(freq(npoints), cross(npoints), func(npoints))
    !print*, 'photion_rates: indexe = ', indexe, ' indexi = ', indexi

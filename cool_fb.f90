@@ -48,7 +48,11 @@ DO indexe = 1, n_elements
  DO indexi = 2, n_ions
   n_levels = SIZE(elements(indexe)%ions(indexi - 1)%levels)
   DO indexl = 1, n_levels
-   nfreq = SIZE(elements(indexe)%ions(indexi - 1)%levels(indexl)%photcros(1,:))
+   IF(ALLOCATED(elements(indexe)%ions(indexi - 1)%levels(indexl)%photcros)) THEN
+    nfreq = SIZE(elements(indexe)%ions(indexi - 1)%levels(indexl)%photcros(1,:))
+   ELSE
+    nfreq = 0
+   END IF
    ! setting indexe and indexi
    act_rate = act_rate + 1
    actikrates%Lcool_fbind(1, act_rate) = indexe
