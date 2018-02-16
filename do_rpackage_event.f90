@@ -36,6 +36,8 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
      ! freq_line,package(pack_index)%freq_cmf
 !     print*, 'photon ', pack_index, ' line interaction...'
      package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
+     linelist(package(pack_index)%last_line)%n_int = &
+      linelist(package(pack_index)%last_line)%n_int + 1
      ! in this sbr we get only excited states from the upper states
      isUpperTransition = .TRUE.
      package(pack_index)%typ = type_ipkt

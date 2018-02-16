@@ -201,6 +201,8 @@ INTEGER, PARAMETER                      :: max_packs = 1e7
         count_intdownjump, count_intupjump, count_resscattering, count_fluorescence, &
         count_coldeexc, count_thomson, count_rrecombination, count_crecombination
   print*, 'do finalize'
+  ! it will save some important output
+  CALL save_output()
 
      ! END DO
 ! DO I = 1, ntransitions

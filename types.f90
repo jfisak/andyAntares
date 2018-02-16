@@ -58,6 +58,7 @@ MODULE types
      INTEGER                         :: indexe, indexi, lower, upper
      DOUBLE PRECISION                :: freq, A_ul, f_ul
      INTEGER                         :: n_deexc, n_exc
+     INTEGER(KIND=4)                 :: n_int
   END TYPE line_list
 
   TYPE ion_levels 
