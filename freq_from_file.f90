@@ -36,7 +36,7 @@ CASE (1)
    ! it is necessary to compute number of rows of the file
    NR = 0
   DO I=1,maxrows
-    READ(11,*,IOSTAT=ios) junk, junk, junk, junk, junk
+    READ(11,*,IOSTAT=ios) junk, junk
    IF (ios /= 0) EXIT
    IF (I == maxrows) THEN
     print*, 'Error: Maximum number of records exceeded...'
@@ -47,17 +47,15 @@ CASE (1)
   END DO
   REWIND(11)
   ! now we can allocate the field flux (frequency, flux))
-  IF (DEBUG .EQ. 1) print*, 'allocation of the field incomingflux(', NR, ', 2)'
-  ALLOCATE(incomingflux(NR+1,2))
+  write(*,*) 'allocation of the field incomingflux(', NR, ', 2)'
+  ALLOCATE(incomingflux(NR,2))
   ! and read from given file
   PRINT*, 'reading the flux from input file...'
-  incomingflux(1,1) = NR
-  incomingflux(1,2) = 0
-  DO I=2,NR+1
-   READ(11,*) junk, incomingflux(I,1), junk, incomingflux(I,2), junk
+  DO I=1,NR
+   READ(11,*) incomingflux(I,1), incomingflux(I,2)
   END DO
   CLOSE(11)
-  do I=1,NR+1
+  do I=1,NR
   ! print*, 'incomingflux: ', incomingflux(I,1), ', ', incomingflux(I,2)
   end do
  END IF
