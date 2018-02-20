@@ -56,6 +56,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
 
   ! calculates all continuum opacities
   CALL r_kappa_cont(pack_index, kappa_cont, actirrates)
+  kappa_cont = 0.D0
 
   ! This is the opacity in co-moving frame. Must be transformed to the lab frame
   ! According to Mihalas and Mihalas Eq. 90.8 this is achieved by 
@@ -67,6 +68,8 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
 DO WHILE (do_loop .EQ. 1) 
 
  CALL next_line(1, pack_index, nextLine, n_next_lines)
+ ! n_next_lines = 1
+ ! write(*,*) 'event_dist: nextLine = ', nextLine, ' n_next_lines = ', n_next_lines
  freq_line = linelist(nextLine)%freq
  indexe = linelist(nextLine)%indexe
  indexi = linelist(nextLine)%indexi

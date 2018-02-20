@@ -37,34 +37,17 @@ IF (package(pack_index)%last_line .EQ. no_line) THEN
 END IF
 
 next1line = package(pack_index)%last_line + 1
-! print*, 'next_line: last_line = ', package(pack_index)%last_line, ' next1line 1 = ', next1line
-!IF(package(pack_index)%last_line == ntransitions - 1) THEN
-! next1line = package(pack_index)%last_line + 1
-!ELSE IF(package(pack_index)%last_line == ntransitions) THEN
-! next1line = ntransitions - 1
-!ELSE
- n_eqf_lines = 0
- ! if there are not other lines this variable will be equal to one 
- I = 1
- DO
-  actLine = next1line + I
-  ! print*, 'next_line: actLine = ', actLine
-  IF(actLine < ntransitions) THEN
-   ! testing a frequency of next line: if it has the same frequency we will add this line to the "list"
-   ! if the frequency differs, we will exit the loop because the rest of frequencies are totally not equal
-   IF(linelist(actLine)%freq == linelist(actLine + 1)%freq) THEN
-    n_eqf_lines = n_eqf_lines + 1
-    I = I + 1
-   ELSE
-    EXIT
-   END IF
-  ELSE
-   EXIT
-  END IF
- END DO
- next1line = package(pack_index)%last_line + n_eqf_lines
-!END IF 
-! print*, 'next_line: next1line = ', next1line
+IF(package(pack_index)%last_line == ntransitions) next1line = ntransitions
+
+n_eqf_lines = 1
+DO I = next1line + 1, ntransitions
+ IF(linelist(I)%freq == linelist(next1line)%freq) THEN
+  n_eqf_lines = n_eqf_lines + 1
+  CYCLE
+ END IF
+ EXIT
+END DO
+! print*, 'next_line: next1line = ', next1line, ' n_eqf_lines = ', n_eqf_lines
 ! number of lines with the same frequency
 CASE DEFAULT
 END SELECT
