@@ -36,6 +36,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
      ! freq_line,package(pack_index)%freq_cmf
 !     print*, 'photon ', pack_index, ' line interaction...'
      package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
+     !$OMP ATOMIC
      linelist(package(pack_index)%last_line)%n_int = &
       linelist(package(pack_index)%last_line)%n_int + 1
      ! in this sbr we get only excited states from the upper states
@@ -54,7 +55,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
      ! both the thermal kinetic and internal energy pools).
    package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
    ! total number of continuum rates
-    if(procout) write(*,*) 'do_rpackage_event: photon ', pack_index, ' continuum interaction...'
+   ! if(procout) write(*,*) 'do_rpackage_event: photon ', pack_index, ' continuum interaction...'
    Zthomson = actirrates%Lcont(4,1)
    Zphotion = 0.D0
    DO I = 2, n_photcrossect + 1
@@ -63,6 +64,10 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
    Zff = actirrates%Lcont(4,n_photcrossect + 2)
    ! write(*,*) 'do_rpackage_event: Zff = ', Zff
    ZcontTot = Zthomson + Zphotion + Zff
+
+   ! DO I = 1, SIZE(actirrates%Lcont(1,:))
+   !  write(*,*) 'do_rpackage_event: Lcont = ', actirrates%Lcont(4,I)
+   ! END DO
    
    ! generating a random number
    rand = DBLE(random()) * ZcontTot

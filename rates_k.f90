@@ -6,7 +6,8 @@ MODULE rates_k
   DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE  :: Lcool_excit
   DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE  :: Lcool_ff
   DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE  :: Lcool_ion
-  ! L(1,i): index of element, L(2,i): index of ion, L(3,i): level index
+  ! L(1, i): index of element, L(2, i): index of ion, L(3, i): level index,
+  ! L(4, i): cooling rate, L(5, i): starting frequency point
   DOUBLE PRECISION, DIMENSION(:,:), ALLOCATABLE :: Lcool_fbE
  END TYPE krates
 

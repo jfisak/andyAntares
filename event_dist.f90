@@ -24,6 +24,9 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
   DOUBLE PRECISION                  :: freq_line
   TYPE(rrates)                      :: actirrates
   REAL(8)                           :: random
+  ! looking for next line
+  INTEGER                           :: act_line
+  DOUBLE PRECISION                  :: summ, tot_lop
 
   my_rank = OMP_GET_THREAD_NUM()
   !write(*,*)'event_dist: Thread rank: ', my_rank
@@ -71,20 +74,7 @@ DO WHILE (do_loop .EQ. 1)
      
  IF (package(pack_index)%freq_cmf .GT. freq_line) THEN
   CALL resonance_distance(pack_index, freq_line, l_dist)
-  ! near future:
-  !CALL l_dist()
-  !print*, 'AAAAA', ' l_dist = ', l_dist
-  ! Calculate optical depth in the next line (Sobolev, dv/dr dependent)
-  ! and continuum optical depth accumulated up to the line
-  !CALL velo(pack_index,vel_vec)
-  !tau_line = light_speed/freq_line * constant * osc_line * pop_number * &
-  !     vec_length(package(pack_index)%pos)/vec_length(vel_vec)     
-  !tau_cont = kappa_cont * l_dist
 
-  ! Assine package(pack_index) to package(dummypackage) 
-  ! Use dummypackage to move to the l_dist only to check whether or which kind of interaction will happen at l_dist 
-  ! We move only dummypackage instead of package(pack_index) only to check whether or which kind of interaction will happen at l_dist 
-  ! 
   ! Calculate optical depth in the next line (Sobolev, dv/dr dependent)
   ! and continuum optical depth accumulated up to the line
   package(dummypackage) = package(pack_index)
@@ -122,6 +112,7 @@ DO WHILE (do_loop .EQ. 1)
 
   ! Now do a step by step analysis of which event occurs and return the 
   ! distance and corresponding event
+  ! print*, 'event_dist: cont.process happens', tau_line, tau_cont
   IF ((tau_rand - tau) .GT. tau_cont) THEN
    IF ((tau_rand - tau) .GT. (tau_cont + tau_line)) THEN
     tau = tau + tau_cont + tau_line
@@ -136,6 +127,23 @@ DO WHILE (do_loop .EQ. 1)
     e_dist = dist + l_dist
     do_loop = 0
     event = rpkt_eventtype_lineinteraction
+    ! choosing the next line
+    IF(n_next_lines > 1) THEN
+     tot_lop = 0.D0
+     DO I = 1, n_next_lines
+      tot_lop = tot_lop + linelist(nextLine + I - 1)%A_ul
+     END DO
+     ran_numb = DBLE(random()) * tot_lop
+     summ = 0.D0
+     DO I = 1, n_next_lines
+      act_line = nextLine + I - 1
+      IF(ran_numb > summ .AND. ran_numb < summ + linelist(act_line)%A_ul) THEN
+       package(pack_index)%last_line = nextLine
+      END IF
+     END DO
+    ELSE
+     package(pack_index)%last_line = nextLine
+    END IF 
    END IF
   ELSE
    ! Continuum process will happen
@@ -157,7 +165,6 @@ DO WHILE (do_loop .EQ. 1)
    e_dist = dist + (tau_rand - tau) / kappa_cont
    do_loop = 0                 
    event = rpkt_eventtype_continuum
-!   print*, 'cont.process happens' tau_line, tau_cont
   END IF
  END IF
 END DO

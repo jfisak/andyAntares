@@ -251,6 +251,7 @@ CASE(2)
    linelist(ntransitions)%freq = 1.E+8 * light_speed / l_freq
    linelist(ntransitions)%A_ul = abs(A)
    linelist(ntransitions)%f_ul = abs(col_str)
+   linelist(ntransitions)%n_int = 0
    ! write(*,*) 'line: ', ntransitions, ' el = ', el_index, ' ion = ', current_ion,&
    !  ' lower level = ', linelist(ntransitions)%lower,& 
    ! up_conf, elements(el_index)%ions(current_ion)%levels(I)%elconf, &
