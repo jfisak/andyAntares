@@ -134,7 +134,7 @@ IF(indexi > 1) THEN
    ! write(*,*) 'i_radion: calling populations...'
    CALL populations(indexe, indexi - 1, K, current_mgi, pop_number)
    exci_energy = elements(indexe)%ions(indexi - 1)%levels(K)%exci_energy
-   gr_exci_energy = elements(indexe)%ions(indexi)%levels(1)%exci_energy
+   gr_exci_energy = MINVAL(elements(indexe)%ions(indexi)%levels(:)%exci_energy)
    stat_weight = elements(indexe)%ions(indexi - 1)%levels(K)%stat_waight
    actirates%Lma_int_recrad(K) = pop_number * phot_cross * exci_energy * stat_weight
    actirates%Lma_recrad(K) = pop_number * phot_cross * stat_weight * &

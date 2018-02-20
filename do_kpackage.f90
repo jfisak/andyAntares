@@ -25,6 +25,11 @@ INTEGER                         :: indexe, indexi, indexl
 INTEGER                         :: actIndex
 INTEGER                         :: n_ions, n_levels
 INTEGER                         :: nline
+! write down the processes
+LOGICAL                         :: procout = .TRUE.
+! double precission
+DOUBLE PRECISION                :: D
+
 
 actikrates = krates()
 
@@ -64,7 +69,7 @@ IF(rand >= 0.D0 .AND. rand <= Z0) THEN
    !print*, 'collisional deexcitation: I = ', I, ' upper level = ', linelist(I)%upper
    package(pack_index)%last_line = I
    package(pack_index)%typ = type_ipkt
-   ! write(*,*) 'do_kpackage: package = ', pack_index, ' collisional excitation process...'
+   IF(procout) write(*,*) 'do_kpackage: package = ', pack_index, ' collisional excitation process...'
    EXIT
   END IF
   summ = summ + actikrates%Lcool_excit(I)
@@ -80,7 +85,10 @@ ELSE IF(rand >= Z0 .AND. rand <= Z1) THEN
  package(pack_index)%typ = type_rpkt
  package(pack_index)%last_line = no_line
  CALL k_freq_ff(pack_index, new_freq)
- ! write(*,*) 'do_kpackage: package = ', pack_index, ' free-free process...'
+ package(pack_index)%freq_cmf = new_freq
+ CALL doppler_factor(pack_index, D)
+ package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
+ IF(procout) write(*,*) 'do_kpackage: package = ', pack_index, ' free-free process...'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! ionization
@@ -98,13 +106,13 @@ ELSE IF(rand >= Z1 .AND. rand <= Z2) THEN
      ! we have to find any corresponding line for the given ion including the given
      ! line in the lower or the upper level(, which must be saved as well)
      DO nline = 1, ntransitions
-      IF(indexe == linelist(actIndex)%indexe .AND. &
-         indexi == linelist(actIndex)%indexi) THEN
-       IF(indexl == linelist(actIndex)%upper) THEN
+      IF(indexe == linelist(nline)%indexe .AND. &
+         indexi == linelist(nline)%indexi) THEN
+       IF(indexl == linelist(nline)%upper) THEN
         package(pack_index)%last_line = nline
         isUpperTransition = .TRUE.
         EXIT
-       ELSE IF(indexl == linelist(actIndex)%lower) THEN
+       ELSE IF(indexl == linelist(nline)%lower) THEN
         package(pack_index)%last_line = nline
         isUpperTransition = .FALSE.
         EXIT
@@ -121,7 +129,7 @@ ELSE IF(rand >= Z1 .AND. rand <= Z2) THEN
   END DO
  ! loop over elements
  END DO
- ! write(*,*) 'do_kpackage: package = ', pack_index, ' ionization process...'
+ IF(procout) write(*,*) 'do_kpackage: package = ', pack_index, ' ionization process...'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! recombination
@@ -129,25 +137,25 @@ ELSE IF(rand >= Z1 .AND. rand <= Z2) THEN
 ELSE IF(rand > Z2 .AND. rand <= Z3) THEN
  summ = Z2
  !write(*,*) 'do_kpackage: rand = ', rand, 'Z2 = ', Z2, ' Z3 = ', Z3
- DO J = 1, SIZE(actikrates%Lcool_fbE(:))
-  !write(*,*) 'do_kpackage: rand = ', rand, 'summ = ', summ, ' summ + Lcool_fbE = ', &
-  ! summ + Lcool_fbE(J)
-  IF(rand > summ .AND. rand <= summ + actikrates%Lcool_fbE(J)) THEN
+ DO J = 1, SIZE(actikrates%Lcool_fbE(4, :))
+  ! write(*,*) 'do_kpackage: rand = ', rand, 'summ = ', summ, ' summ + Lcool_fbE = ', &
+  !  summ + actikrates%Lcool_fbE(4, J)
+  IF(rand > summ .AND. rand <= summ + actikrates%Lcool_fbE(4, J)) THEN
    act_proc = J
    ! write(*,*) 'do_kpackage: act_proc = ', act_proc
    EXIT
   END IF
-  summ = summ + actikrates%Lcool_fbE(J)
+  summ = summ + actikrates%Lcool_fbE(4, J)
  END DO
  ! package changes to r-packet
  package(pack_index)%typ = type_rpkt
  package(pack_index)%last_line = no_line
- ! write(*,*) 'do_kpackage: package = ', pack_index, ' recombination process...'
- CALL k_freq_fb(pack_index, act_proc, new_freq)
-
-
-
-!STOP 'do_kpackage: testing'
+ IF(procout) write(*,*) 'do_kpackage: package = ', pack_index, ' recombination process...'
+ CALL k_freq_fb(pack_index, act_proc, new_freq, actikrates)
+ package(pack_index)%freq_cmf = new_freq
+ CALL doppler_factor(pack_index, D)
+ package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
+ !STOP 'do_kpackage: testing'
 END IF
 
 

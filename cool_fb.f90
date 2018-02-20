@@ -31,6 +31,8 @@ DOUBLE PRECISION                        :: tot_pop, uppper_en, lower_en
 TYPE(krates)                            :: actikrates
 
 
+! indexi - 1 -- index of an initial state
+! indexi -- index of a final state
 
 ! number of computed rates
 act_rate = 0
@@ -55,59 +57,71 @@ DO indexe = 1, n_elements
    END IF
    ! setting indexe and indexi
    act_rate = act_rate + 1
-   actikrates%Lcool_fbind(1, act_rate) = indexe
-   actikrates%Lcool_fbind(2, act_rate) = indexi - 1
-   actikrates%Lcool_fbind(3, act_rate) = indexl
+   actikrates%Lcool_fbE(1, act_rate) = indexe
+   actikrates%Lcool_fbE(2, act_rate) = indexi - 1
+   actikrates%Lcool_fbE(3, act_rate) = indexl
    IF(nfreq /= 0) THEN
     ALLOCATE(crossfreq(nfreq), cross(nfreq))
     crossfreq(:) = elements(indexe)%ions(indexi - 1)%levels(indexl)%photcros(1,:)
     cross(:) = elements(indexe)%ions(indexi - 1)%levels(indexl)%photcros(2,:)
     ! number density of a ground state of ion indexi + 1, indexe
     ! frequency
-    init_freq = (elements(indexe)%ions(indexi)%levels(1)%exci_energy - &
+    init_freq = (MINVAL(elements(indexe)%ions(indexi)%levels(:)%exci_energy) - &
              elements(indexe)%ions(indexi - 1)%levels(indexl)%exci_energy) / h
+    ! write(*,*) 'cool_fb: el = ', indexe, ' ion = ', indexi - 1, ' lev = ', indexl,&
+    !  ' init_freq = ', init_freq, ' rate = ', actikrates%Lcool_fbE(act_rate)
     ! looking for initial point
     DO I = 1, nfreq
      IF(init_freq < crossfreq(I)) THEN
-      !write(*,*) 'cool_ionization: freq = ', freq, ' crossfreq(', I, ') = ', crossfreq(I)
+      ! write(*,*) 'cool_ionization: freq = ', init_freq, ' crossfreq(', I, ') = ', crossfreq(I)
       actPoint = I
       EXIT
      END IF
     END DO
+    actikrates%Lcool_fbE(5, act_rate) = actPoint
+    ! write(*,*) 'cool_ionization: el = ', indexe, ' ion = ', indexi - 1, ' lev = ', indexl,&
+    !  ' n = ', nfreq, ' initp = ', actPoint
     ! if the initial point's frequency is too large we will not be able to
     ! calculate the integral, which is equal to zero in this case
     IF(actPoint == 0) THEN
-     actikrates%Lcool_fbE(act_rate) = 0.D0
+     actikrates%Lcool_fbE(4,act_rate) = 0.D0
+     ! write(*,*) 'cool_ionization: el = ', indexe, ' ion = ', indexi - 1, ' lev = ', indexl,&
+     !  ' n = ', nfreq, ' initp = ', actPoint, ' rate = ', actikrates%Lcool_fbE(4, act_rate)
      CYCLE
     END IF
     ! calculation of the integral
     ! filling the arrays
-    ALLOCATE(func(nfreq - actPoint + 1))
-    DO J = actPoint, nfreq
-     x = ( h * crossfreq(J) ) / ( BOLK * temp)
-     func(J - actPoint + 1) = cross(J) * crossfreq(J)**3.0 * exp(-x)
-    END DO ! calculation of the integral
-    ! calculation of integral using the trapezoid rule
-    summ = 0.D0
-    DO J = 1, SIZE(func) - 1
-     actInt = (func(J) * cross(J) + func(J + 1) * cross(J + 1)) * &
-      (crossfreq(J + 1) - crossfreq(J))
-     summ = summ + actInt
-    END DO
-    integral = 4.D0 * pi / light_speed**2 / init_freq * summ
-    ! population of the given ion
+!    ALLOCATE(func(nfreq - actPoint + 1))
+!    DO J = actPoint, nfreq
+!     x = ( h * crossfreq(J) ) / ( BOLK * temp)
+!     func(J - actPoint + 1) = cross(J) * crossfreq(J)**3.0 * exp(-x)
+!    END DO ! calculation of the integral
+!    ! calculation of integral using the trapezoid rule
+!    summ = 0.D0
+!    DO J = 1, SIZE(func) - 1
+!     actInt = (func(J) * cross(J) + func(J + 1) * cross(J + 1)) * &
+!      (crossfreq(J + 1) - crossfreq(J))
+!     summ = summ + actInt
+!    END DO
+!    integral = 4.D0 * pi / light_speed**2 / init_freq * summ
+!    ! population of the given ion
     tot_pop = model_grid(cur_mgi)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
-    uppper_en = elements(indexe)%ions(indexi)%levels(1)%exci_energy
+    uppper_en = MINVAL(elements(indexe)%ions(indexi)%levels(:)%exci_energy)
     lower_en = elements(indexe)%ions(indexi - 1)%levels(indexl)%exci_energy
-    actikrates%Lcool_fbE(act_rate) = tot_pop * integral * (uppper_en - lower_en)
-    Zfb = Zfb + actikrates%Lcool_fbE(act_rate)
+    ! actikrates%Lcool_fbE(4,act_rate) = tot_pop * integral * (uppper_en - lower_en)
+    actikrates%Lcool_fbE(4,act_rate) = tot_pop * el_dens * (uppper_en - lower_en)
+    Zfb = Zfb + actikrates%Lcool_fbE(4,act_rate)
+    ! temporary solution
+    ! Zfb = 0.D0
     !write(*,*) 'cool_fb: Zfb = ', Zfb, 'actikrates%Lcool_fbE(', act_rate, ') = ', actikrates%Lcool_fbE(act_rate)
-    DEALLOCATE(func, crossfreq, cross)
+    DEALLOCATE(crossfreq, cross)
    ELSE
-    actikrates%Lcool_fbE(act_rate) = 0.D0
+    actikrates%Lcool_fbE(4,act_rate) = 0.D0
    END IF ! npoints == 0
    !write(*,*) 'cool_fb: actikrates%Lcool_fbE(', act_rate, ') = ', actikrates%Lcool_fbE(act_rate), &
    ! ' Zfb = ', Zfb
+   ! write(*,*) 'cool_ionization: el = ', indexe, ' ion = ', indexi - 1, ' lev = ', indexl,&
+   !  ' n = ', nfreq, ' initp = ', actPoint, ' rate = ', actikrates%Lcool_fbE(4, act_rate)
   END DO ! levels
  END DO ! ions
 END DO ! elements

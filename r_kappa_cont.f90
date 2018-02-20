@@ -63,6 +63,7 @@ actirrates%Lcont(2, act_continuum) = 0
 actirrates%Lcont(3, act_continuum) = 0
 actirrates%Lcont(4, act_continuum) = thomson
 kappa = thomson
+! write(*,*) 'r_kappa_cont: thomson = ', thomson
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! bound-free processes
@@ -76,6 +77,7 @@ DO indexe = 1, n_elements
   DO indexl = 1, n_levels
    IF(.NOT. ALLOCATED(elements(indexe)%ions(indexi)%levels(indexl)%photcros)) CYCLE
    n_sigma = SIZE(elements(indexe)%ions(indexi)%levels(indexl)%photcros(1,:))
+   IF(n_sigma == 0) CYCLE
    actPoint = 0
    ! finding the propper index in saved photcross data
    DO I = 1, n_sigma
@@ -145,9 +147,10 @@ DO indexe = 1, n_elements
   END DO
 END DO
 kappa = kappa + kappaff
-! write(*,*) 'r_kappa_cont: kappaff = ', kappaff
+! write(*,*) 'r_kappa_cont: kappaff = ', kappaff, 'thomson = ', thomson
 ! write(*,*) 'r_kappa_cont: kappa = ', kappa
 actirrates%Lcont(4, act_continuum) = kappaff
+! STOP 'r_kappa_cont: testing'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Rayleigh scattering

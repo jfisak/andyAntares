@@ -7,8 +7,7 @@ MODULE rates_k
   DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE  :: Lcool_ff
   DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE  :: Lcool_ion
   ! L(1,i): index of element, L(2,i): index of ion, L(3,i): level index
-  INTEGER(KIND=2), DIMENSION(:,:), ALLOCATABLE :: Lcool_fbind
-  DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE :: Lcool_fbE
+  DOUBLE PRECISION, DIMENSION(:,:), ALLOCATABLE :: Lcool_fbE
  END TYPE krates
 
  INTERFACE krates
@@ -55,7 +54,7 @@ MODULE rates_k
     END DO ! ions
    END DO ! elements
    ALLOCATE(krates_construct%Lcool_ion(n_phcs))
-   ALLOCATE(krates_construct%Lcool_fbE(n_phcs), krates_construct%Lcool_fbind(3,n_phcs))
+   ALLOCATE(krates_construct%Lcool_fbE(5,n_phcs))
   END IF
 
  END FUNCTION krates_construct

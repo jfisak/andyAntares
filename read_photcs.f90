@@ -27,6 +27,10 @@ INTEGER                                 :: ios
 INTEGER                                 :: new_ion, old_ion
 INTEGER                                 :: lowering_index
 LOGICAL                                 :: save_cs
+INTEGER                                 :: atom_number
+INTEGER                                 :: electron_number
+
+atom_number = elements(indexe)%atom_number
 
 OPEN(13, FILE=phot_file)
 
@@ -47,12 +51,14 @@ CASE(2)
   ! do 01: reading loop
   DO
    ! the first line contains information about the given excitation state
-   READ(13, '(A)', IOSTAT=ios) line
-   !print*, 'read_photcs: ', line
+   READ(13, '(A)', IOSTAT=ios) line 
+   ! write(*,*)  'read_photcs: ', line
+   IF(line(1:1) == '*') CYCLE
    IF(ios /= 0) EXIT
-   READ(line, *) indexclev, indexZ, indexI, junk, junk, energy, nofPoints
+   READ(line, *) indexclev, indexZ, electron_number, junk, junk, energy, nofPoints
    ! we have to know, if the ion is different from the previous one
-   new_ion = indexI
+   new_ion = electron_number
+   indexI = atom_number - electron_number + 1
    ! if it is different, we have to set the new variables
    IF(new_ion /= old_ion) THEN
     n_read = 0

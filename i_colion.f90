@@ -108,7 +108,7 @@ CASE (1)
  ELSE ! indexi == atom number (atom is fully ionized)
   Zion = 0.D0
  END IF
- ! print*, 'collion_rates: Zion = ', Zion
+  ! print*, 'i_colion: Zion = ', Zion
 !_________________________________________________________________________________________
 ! recombination
  SELECT CASE(nlte)
@@ -173,12 +173,13 @@ CASE (1)
       ! populations calculation
       CALL populations(indexe, indexi - 1, I, current_mgi, pop_number)
       exci_energy = elements(indexe)%ions(indexi - 1)%levels(I)%exci_energy
-      gr_exci_energy = elements(indexe)%ions(indexi - 1)%levels(1)%exci_energy
+      gr_exci_energy = MINVAL(elements(indexe)%ions(indexi)%levels(:)%exci_energy)
       stat_weight = elements(indexe)%ions(indexi - 1)%levels(I)%stat_waight
       actirates%Lma_int_reccol(I) = pop_number * el_dens * coll_const / temp**(1.0/2.0) * gindex * cross_sect * &
         exp(-x) / x * exci_energy * stat_weight
       actirates%Lma_reccol(I) = pop_number * el_dens * coll_const / temp**(1.0/2.0) * gindex * cross_sect * &
-        exp(-x) / x * (exci_energy - gr_exci_energy) * stat_weight
+        exp(-x) / x * (gr_exci_energy - exci_energy) * stat_weight
+      !write(*,*) 'i_colion: el = ', indexe, ' ion = ', indexi, ' e - e0 = ', (exci_energy - gr_exci_energy)
       ! for now it will be equal to zero
       !actirates%Lma_reccol(I) = 0.D0
       Zintrecomb = Zintrecomb + actirates%Lma_int_reccol(I)
@@ -192,7 +193,7 @@ CASE (1)
     Zintrecomb = 0.D0
     Zrecomb = 0.D0
    END IF
-   !print*, 'collion_rates: Zion = ', Zion, ' Zrecomb = ', Zrecomb
+   ! print*, 'i_colion: Zion = ', Zion, ' Zrecomb = ', Zrecomb
  END SELECT
 
 CASE DEFAULT
