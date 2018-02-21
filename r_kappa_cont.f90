@@ -38,7 +38,7 @@ TYPE(rrates)                                    :: actirrates
 DOUBLE PRECISION                                :: temp
 ! free-free variables
 DOUBLE PRECISION, PARAMETER                     :: ffconst = 3.69255D8
-DOUBLE PRECISION                                :: alphaff, gauntff
+DOUBLE PRECISION                                :: alphaff, gff
 DOUBLE PRECISION                                :: kappaff
 
 !write(*,*) 'r_kappa_cont: dim(lcont) = ', SIZE(actirrates%Lcont)
@@ -135,15 +135,16 @@ actirrates%Lcont(3, act_continuum) = 0
 kappaff = 0.D0
 DO indexe = 1, n_elements
  n_ions = SIZE(elements(indexe)%ions)
-  DO indexi = 1, n_ions
+  DO indexi = 2, n_ions
    act_pop = model_grid(current_mgi)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
    ! calculation of alpha_ff
-   gauntff = 1.D1
-   alphaff = ffconst * DBLE((indexi - 1)**2) * gauntff * temp**(-1.0/2.0) / &
-    freq ** 3.0 
+   CALL gauntff(freq, temp, gff)
+   alphaff = ffconst * DBLE((indexi - 1)**2) * gff /sqrt(temp) / freq ** 3.0 
    kappaff = kappaff + electron_density * act_pop * alphaff * &
-    (2 * h * freq**3.0) / light_speed ** 2.0 * &
-    exp(-(h * freq) / (BOLK * temp))
+    (1.E0 - exp(-(h * freq) / (BOLK * temp)))
+   ! write(*,*) 'r_kappa_cont: electron_density = ', electron_density, ' act_pop = ', &
+   !  act_pop, ' alphaff = ', alphaff, ' 1-exp() = ', 1.E0 - exp(-(h * freq) / (BOLK * temp))
+   ! write(*,*) 'r_kappa_cont: indexe = ', indexe, ' indexi = ', indexi, ' kappaff = ', kappaff
   END DO
 END DO
 kappa = kappa + kappaff

@@ -14,18 +14,14 @@
     DOUBLE PRECISION                  :: vel_rad_norm, vel_ang_norm
 
     IF(model_type .EQ. 1) THEN
-!     vel_radial = V_inf/R_inf * vec_length(package(pack_index)%pos)
-     vel_radial = V_inf * (1.D0 - b/norm2(package(pack_index)%pos))**beta
-     !IF(pack_index == 1) print*, 'V_inf = ', V_inf, ' b = ', b, ' beta = ', beta, ' vv = ', vec_length(package(pack_index)%pos)
-     !IF(pack_index == 1) print*, 'v/c = ' ,vel_radial/light_speed
-     !IF(pack_index == 1) print*, 'velo: pack_index = ', pack_index, ' v/c = ' ,vel_radial/light_speed
-     !print*, 'V_inf = ', V_inf, ' b = ', b, ' beta = ', beta, ' vv = ', vec_length(package(pack_index)%pos)
-     !print*, 'v/c = ' ,vel_radial/light_speed
-     !print*, 'velo: pack_index = ', pack_index, ' v/c = ' ,vel_radial/light_speed
- 
+! homologous expansion
+     vel_radial = V_inf/R_inf * vec_length(package(pack_index)%pos)
+     ! we assume the beta law
+!     vel_radial = V_inf * (1.D0 - b/norm2(package(pack_index)%pos))**beta
      vel_vec = package(pack_index)%pos/vec_length(package(pack_index)%pos) * vel_radial
  
-!     print*, vec_length(package(pack_index)%pos), vel_radial, vec_length(vel_vec), V_inf, R_inf/r_sun
+     ! print*, 'velo: ', vec_length(package(pack_index)%pos), vel_radial, vec_length(vel_vec), V_inf, R_inf/r_sun
+     ! write(*,*) 'velo: V/R = ', V_inf / R_inf, ' vel_vec
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ! petr kurfurst's disk model
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -44,5 +40,8 @@
      ! and finally the velocity vector
      vel_vec = vel_rad + vel_ang
     END IF
-  IF(norm2(vel_vec) > light_speed) STOP 'velocity is larger than the speed of light'
+  IF(norm2(vel_vec) > light_speed) THEN
+   write(*,*) 'velo: position = ', vec_length(package(pack_index)%pos)
+   STOP 'velocity is larger than the speed of light'
+  END IF
  END SUBROUTINE velo

@@ -32,7 +32,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
 	  flux_function.o find_element_index.o next_line.o resonance_distance.o \
 	  r_kappa_cont.o i_freq_recomb.o cool_ff.o warning.o k_freq_ff.o  \
 	  cool_ionization.o cool_fb.o k_freq_fb.o			\
-	  save_output.o
+	  save_output.o gauntff.o
 
 #Rules
 all : $(PROJECT)

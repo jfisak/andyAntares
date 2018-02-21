@@ -27,10 +27,6 @@ SUBROUTINE update_grid(iteration)
 !  OPEN(37, FILE='nitrogenVII.dat')
   max_n_dcell = SIZE(dyn_cell)
    print*, 'updating grid'
-  !$OMP PARALLEL
-  !$DEFAULT(private)
-  !$SHARED(dyn_cell, n_pack)
-  !$OMP DO 
   DO gridcell = 1, n_modelgrid
    !print*, 'update_grid: volume: model cell = ', gridcell, ' volume = ', volume
 
@@ -58,6 +54,13 @@ SUBROUTINE update_grid(iteration)
       DO indexe = 1, n_elements
         numb_ions = elements(indexe)%nions
         DO indexi = 1, numb_ions
+           IF(indexi == numb_ions) THEN
+            model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%gl_pop = &
+             model_grid(gridcell)%grid_comp(indexe)%abund * model_grid(gridcell)%e_dens
+            model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop = &
+             model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%gl_pop
+            CYCLE 
+           END IF
            ! Calculate fraction (frac) of element indexe in ionization stage indexi
            ! relative to the total number of atoms of this element at given 
            ! electron numb.density and temperature
@@ -73,7 +76,19 @@ SUBROUTINE update_grid(iteration)
            ! Ground level population number (number density of the atom at ground level)
            gl_pop = ( elements(indexe)%ions(indexi)%levels(1)%stat_waight * N_jk ) /  U 
            model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%gl_pop = gl_pop
-           model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop = N_jk * frac
+           IF(N_jk * frac > 1.D-40) THEN
+            model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop = N_jk * frac
+           ELSE
+            model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop = 1.D-40
+           END IF
+           ! write(*,*) 'update_grid: indexe = ', indexe, ' indexi = ', indexi, &
+           !  ' tot_pop = ', N_jk * frac
+           IF(N_jk * frac > 1.D20) THEN
+            write(*,*) 'update_grid: indexe = ', indexe, ' indexi = ', indexi, &
+             ' tot_pop = ', N_jk * frac
+            STOP 'update_grid: suspiciously large number'
+           END IF
+            
 !           IF(indexe == 3 .AND. indexi == 1) WRITE(31,*) model_grid(gridcell)%rwind, frac
 !           IF(indexe == 3 .AND. indexi == 2) WRITE(32,*) model_grid(gridcell)%rwind, frac
 !           IF(indexe == 3 .AND. indexi == 3) WRITE(33,*) model_grid(gridcell)%rwind, frac
@@ -89,11 +104,8 @@ SUBROUTINE update_grid(iteration)
 !           IF(indexe == 2 .AND. indexi == 7) WRITE(37,*) model_grid(gridcell)%rwind, frac
         END DO
       END DO
-!     stop
     ENDIF
   END DO
-  !$OMP END DO
-  !$OMP END PARALLEL
 !  CLOSE(31)
 !  CLOSE(32)
 !  CLOSE(33)
@@ -103,6 +115,6 @@ SUBROUTINE update_grid(iteration)
 !  CLOSE(37)
   CLOSE(3)
 
-  
+! STOP 'update_grid: testing'  
   
 END SUBROUTINE update_grid

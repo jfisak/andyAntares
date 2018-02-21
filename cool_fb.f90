@@ -17,14 +17,14 @@ INTEGER                                 :: cur_mgi
 ! photcross info
 INTEGER                                 :: nfreq
 DOUBLE PRECISION                        :: init_freq
-DOUBLE PRECISION, ALLOCATABLE           :: crossfreq(:), cross(:), func(:)
+DOUBLE PRECISION, ALLOCATABLE           :: crossfreq(:), cross(:), func(:), func2(:)
 ! index
 INTEGER                                 :: I
 ! loop variable
 INTEGER                                 :: J
 INTEGER                                 :: act_rate
 ! integral calculation
-DOUBLE PRECISION                        :: actInt, integral, summ, x
+DOUBLE PRECISION                        :: actInt, alphEspont, alphaSpont, summ, x
 INTEGER                                 :: actPoint
 INTEGER                                 :: get_package_model_index
 DOUBLE PRECISION                        :: tot_pop, uppper_en, lower_en
@@ -89,32 +89,43 @@ DO indexe = 1, n_elements
      !  ' n = ', nfreq, ' initp = ', actPoint, ' rate = ', actikrates%Lcool_fbE(4, act_rate)
      CYCLE
     END IF
-    ! calculation of the integral
+    ! calculation of the integral alpha E spont after Kromer(), Eq. (4.34)
     ! filling the arrays
-!    ALLOCATE(func(nfreq - actPoint + 1))
-!    DO J = actPoint, nfreq
-!     x = ( h * crossfreq(J) ) / ( BOLK * temp)
-!     func(J - actPoint + 1) = cross(J) * crossfreq(J)**3.0 * exp(-x)
-!    END DO ! calculation of the integral
-!    ! calculation of integral using the trapezoid rule
-!    summ = 0.D0
-!    DO J = 1, SIZE(func) - 1
-!     actInt = (func(J) * cross(J) + func(J + 1) * cross(J + 1)) * &
-!      (crossfreq(J + 1) - crossfreq(J))
-!     summ = summ + actInt
-!    END DO
-!    integral = 4.D0 * pi / light_speed**2 / init_freq * summ
-!    ! population of the given ion
+    ALLOCATE(func(nfreq - actPoint + 1), func2(nfreq - actPoint + 1))
+    DO J = actPoint, nfreq
+     x = ( h * crossfreq(J) ) / ( BOLK * temp)
+     func(J - actPoint + 1) = cross(J) * crossfreq(J)**3.0 * exp(-x)
+     func2(J - actPoint + 1) = cross(J) * crossfreq(J)**2.0 * exp(-x)
+    END DO ! calculation of the integral
+    ! calculation of integral using the trapezoid rule
+    summ = 0.D0
+    DO J = 1, SIZE(func) - 1
+     actInt = (func(J) * cross(J) + func(J + 1) * cross(J + 1)) * &
+      (crossfreq(J + 1) - crossfreq(J))
+     summ = summ + actInt
+    END DO
+    alphEspont = 4.D0 * pi / light_speed**2 / init_freq * summ
+    ! alpha spont after Kromer() eq. (4.35)
+    summ = 0.D0
+    DO J = 1, SIZE(func) - 1
+     actInt = (func2(J) * cross(J) + func2(J + 1) * cross(J + 1)) * &
+      (crossfreq(J + 1) - crossfreq(J))
+     summ = summ + actInt
+    END DO
+    alphaSpont = 4.D0 * pi / light_speed**2 * summ
+    ! population of the given ion
     tot_pop = model_grid(cur_mgi)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
     uppper_en = MINVAL(elements(indexe)%ions(indexi)%levels(:)%exci_energy)
     lower_en = elements(indexe)%ions(indexi - 1)%levels(indexl)%exci_energy
     ! actikrates%Lcool_fbE(4,act_rate) = tot_pop * integral * (uppper_en - lower_en)
-    actikrates%Lcool_fbE(4,act_rate) = tot_pop * el_dens * (uppper_en - lower_en)
+    actikrates%Lcool_fbE(4,act_rate) = tot_pop * el_dens * &
+     (alphEspont - alphaSpont) * (uppper_en - lower_en)
     Zfb = Zfb + actikrates%Lcool_fbE(4,act_rate)
     ! temporary solution
     ! Zfb = 0.D0
     !write(*,*) 'cool_fb: Zfb = ', Zfb, 'actikrates%Lcool_fbE(', act_rate, ') = ', actikrates%Lcool_fbE(act_rate)
     DEALLOCATE(crossfreq, cross)
+    DEALLOCATE(func, func2)
    ELSE
     actikrates%Lcool_fbE(4,act_rate) = 0.D0
    END IF ! npoints == 0

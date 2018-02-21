@@ -26,7 +26,7 @@ INTEGER                         :: actIndex
 INTEGER                         :: n_ions, n_levels
 INTEGER                         :: nline
 ! write down the processes
-LOGICAL                         :: procout = .TRUE.
+LOGICAL                         :: procout = .FALSE.
 ! double precission
 DOUBLE PRECISION                :: D
 
@@ -40,6 +40,12 @@ CALL cool_ff(pack_index, Zff, actikrates)
 CALL cool_ionization(1, pack_index, Zion, actikrates)
 CALL cool_fb(pack_index, Zfb, actikrates)
 
+! debugging part
+IF(Zexcit < 0.D0) STOP 'do_kpackage: Zexcit < 0'
+IF(Zff < 0.D0) STOP 'do_kpackage: Zff < 0'
+IF(Zion < 0.D0) STOP 'do_kpackage: Zion < 0'
+IF(Zfb < 0.D0) STOP 'do_kpackage: Zfb < 0'
+
 ! now we allocate an array which will include all possible transitions
 ! n_cool_tot = SIZE(Lcool_excit) + SIZE(Lcool_ff)
 ! ALLOCATE(cool_rates(n_cool_tot))
@@ -47,7 +53,7 @@ CALL cool_fb(pack_index, Zfb, actikrates)
 ! 1.) cooling excitations
 
 ! now we have to decide which cooling process will occure
-rand = random()
+rand = DBLE(random())
 Z0 = Zexcit
 Z1 = Z0 + Zff
 Z2 = Z1 + Zion
@@ -55,7 +61,7 @@ Z3 = Z2 + Zfb
 ! total rate
 Ztot = Zexcit + Zff + Zion + Zfb
 rand = rand * Ztot
- ! write(*,*) 'do_kpackage: Zexcit = ', Zexcit, ' Zff = ', Zff, ' Zion = ', Zion, ' Zfb = ', Zfb
+! write(*,*) 'do_kpackage: Zexcit = ', Zexcit, ' Zff = ', Zff, ' Zion = ', Zion, ' Zfb = ', Zfb
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! collisional excitation

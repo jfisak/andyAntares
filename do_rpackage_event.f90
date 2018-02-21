@@ -93,7 +93,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
    summ = Zthomson
    ! write(*,*) 'do_rpackage_event: summ = ', summ
    IF(rand > summ .AND. rand <= Zphotion + summ) THEN
-    DO I = 2, n_photcrossect + 1! three columns, we are interested in nof rows
+    DO I = 2, n_photcrossect + 1
      IF(rand >= summ .AND. rand <= actirrates%Lcont(4, I) + summ) THEN
       ! we have to choose if the packet transofrms onto i or k packet
       ! we will get it from the treshold frequency for the given ion

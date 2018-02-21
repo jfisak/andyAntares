@@ -51,6 +51,7 @@ END DO
 
  !if(SUMM == 0) print*, "ionization_fraction: SUMM = 0..."
   frac = N / SUMM
+  IF(frac < 1.D-40) frac = 0
 !  print*, '   Ion.frac:', frac
 !  print*, 'END SUBROUTINE ionization_fraction' 
 

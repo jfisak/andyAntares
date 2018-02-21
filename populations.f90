@@ -11,6 +11,7 @@ DOUBLE PRECISION                :: pop_number
 ! local variables for LTE
 DOUBLE PRECISION                :: graund_level_pop, g_gstat, g_stat, e_exc
 DOUBLE PRECISION                :: abund, rho, atom_mass
+DOUBLE PRECISION, PARAMETER     :: minpop = 1.D-40
 
 SELECT CASE(nlte)
 ! LTE approximation
@@ -33,6 +34,7 @@ CASE(0)
  pop_number = graund_level_pop * g_stat / g_gstat * &
         exp(-e_exc / BOLK / model_grid(model_cell)%T )! * &
         ! rho * abund / atom_mass
+ IF(pop_number < minpop) pop_number = 1.D-40
 ! print*, 'populations: rho = ', rho, ' abund = ', abund, ' atom_mass = ', atom_mass
 ! print*, 'populations: pop_number = ', pop_number
 ! NLTE approximation
