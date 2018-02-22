@@ -111,12 +111,12 @@ INTEGER, PARAMETER                      :: max_packs = 1e7
   CALL setup_model_grid()
   ! create virtual particles for the given model cell
   IF (dyngrid /= 0) CALL virtual_particles(model_type)
-  xmax = R_inf + R_sun
-  ymax = R_inf + R_sun 
+  xmax = R_inf! + R_sun
+  ymax = R_inf! + R_sun 
   IF(model_type == 1) THEN
-   zmax = R_inf + R_sun
+   zmax = R_inf! + R_sun
   ELSE IF (model_type == 2 .AND. inputmodel == 1) THEN
-   zmax = Z_inf + R_sun
+   zmax = Z_inf! + R_sun
   ELSE
    STOP 'main: non-known model type'
   END IF
@@ -202,7 +202,8 @@ INTEGER, PARAMETER                      :: max_packs = 1e7
         count_coldeexc, count_thomson, count_rrecombination, count_crecombination
   print*, 'do finalize'
   ! it will save some important output
-  CALL save_output()
+  CALL save_output(1)
+  CALL save_output(2)
 
      ! END DO
 ! DO I = 1, ntransitions

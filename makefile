@@ -32,7 +32,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
 	  flux_function.o find_element_index.o next_line.o resonance_distance.o \
 	  r_kappa_cont.o i_freq_recomb.o cool_ff.o warning.o k_freq_ff.o  \
 	  cool_ionization.o cool_fb.o k_freq_fb.o			\
-	  save_output.o gauntff.o
+	  save_output.o gauntff.o counters.o
 
 #Rules
 all : $(PROJECT)
@@ -42,6 +42,7 @@ rates_i.o: rates_i.f90
 rates_k.o: rates_k.f90
 rates_r.o: rates_r.f90
 ran2_class.o: ran2_class.f90 
+counters.o: counters.f90
 	$(F90) $(FCFLAGS) -o $@ -c $<
 
 %.for:

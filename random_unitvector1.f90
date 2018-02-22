@@ -8,12 +8,13 @@
 !      DOUBLE PRECISION, PARAMETER      :: pi=3.1415926535897932D0 
       DOUBLE PRECISION                 :: sint, cost, sinp, cosp, phi, ran2, length
       DOUBLE PRECISION, DIMENSION(3)   :: direction
+      REAL(8)                          :: random
 !      INTEGER                          :: idum
 !      COMMON / RAN_SEED / idum
 
-      cost=2.D0*ran2(idum) - 1.D0
+      cost=2.D0 * DBLE(random(idum)) - 1.D0
       sint=SQRT(1.D0 - cost*cost)
-      phi=2.D0*pi*ran2(idum)
+      phi=2.D0*pi*DBLE(random())
       cosp=COS(phi)
       sinp=SIN(phi)
       direction(1)=sint*cosp

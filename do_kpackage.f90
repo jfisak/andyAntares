@@ -1,6 +1,7 @@
 SUBROUTINE do_kpackage(pack_index)
 USE types
 USE rates_k
+USE counters
 IMPLICIT NONE
 
 INTEGER                         :: pack_index
@@ -75,6 +76,9 @@ IF(rand >= 0.D0 .AND. rand <= Z0) THEN
    !print*, 'collisional deexcitation: I = ', I, ' upper level = ', linelist(I)%upper
    package(pack_index)%last_line = I
    package(pack_index)%typ = type_ipkt
+   isUpperTransition = .TRUE.
+   !$OMP ATOMIC
+   count_cool_ex = count_cool_ex + 1
    IF(procout) write(*,*) 'do_kpackage: package = ', pack_index, ' collisional excitation process...'
    EXIT
   END IF
@@ -94,6 +98,8 @@ ELSE IF(rand >= Z0 .AND. rand <= Z1) THEN
  package(pack_index)%freq_cmf = new_freq
  CALL doppler_factor(pack_index, D)
  package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
+ !$OMP ATOMIC
+ count_cool_ff = count_cool_ff + 1
  IF(procout) write(*,*) 'do_kpackage: package = ', pack_index, ' free-free process...'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -111,6 +117,8 @@ ELSE IF(rand >= Z1 .AND. rand <= Z2) THEN
     IF(rand > summ .AND. rand <= summ + actikrates%Lcool_ion(actIndex + 1)) THEN
      ! we have to find any corresponding line for the given ion including the given
      ! line in the lower or the upper level(, which must be saved as well)
+     !$OMP ATOMIC
+     count_cool_io = count_cool_io + 1
      DO nline = 1, ntransitions
       IF(indexe == linelist(nline)%indexe .AND. &
          indexi == linelist(nline)%indexi) THEN
@@ -148,6 +156,8 @@ ELSE IF(rand > Z2 .AND. rand <= Z3) THEN
   !  summ + actikrates%Lcool_fbE(4, J)
   IF(rand > summ .AND. rand <= summ + actikrates%Lcool_fbE(4, J)) THEN
    act_proc = J
+   !$OMP ATOMIC
+   count_cool_fb = count_cool_fb + 1
    ! write(*,*) 'do_kpackage: act_proc = ', act_proc
    EXIT
   END IF

@@ -128,6 +128,8 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
 !  END DO
 ! CLOSE(20)
  ! sorting the linelist ray 
+ write(*,*) 'read_composition: dim of linelist = ', SIZE(linelist)
+ ! STOP 'read_composition, testing'
  write(*,*) 'sorting the linelist'
  CALL sorting_new(ntransitions, linelist)
   !print*, 'ntransitions = ', ntransitions
