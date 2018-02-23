@@ -54,13 +54,13 @@ SUBROUTINE update_grid(iteration)
       DO indexe = 1, n_elements
         numb_ions = elements(indexe)%nions
         DO indexi = 1, numb_ions
-           IF(indexi == numb_ions) THEN
-            model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%gl_pop = &
-             model_grid(gridcell)%grid_comp(indexe)%abund * model_grid(gridcell)%e_dens
-            model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop = &
-             model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%gl_pop
-            CYCLE 
-           END IF
+           ! IF(indexi == numb_ions) THEN
+           !  model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%gl_pop = &
+           !   model_grid(gridcell)%grid_comp(indexe)%abund * model_grid(gridcell)%e_dens
+           !  model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop = &
+           !   model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%gl_pop
+           !  CYCLE 
+           ! END IF
            ! Calculate fraction (frac) of element indexe in ionization stage indexi
            ! relative to the total number of atoms of this element at given 
            ! electron numb.density and temperature
