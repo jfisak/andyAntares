@@ -29,12 +29,14 @@ DOUBLE PRECISION                :: Zphotionup, Zphotiondown, Zcollionup, Zcollio
 DOUBLE PRECISION                :: Zionization, Zrecombination
 ! partition function for the given process
 DOUBLE PRECISION                :: Z0, Z1, Z2, Z3, Z4, Z5, Z6, Z7
-DOUBLE PRECISION                :: summ, stat_weight, exci_energy, exci_energy_l, exci_energy_u
+DOUBLE PRECISION                :: summ, stat_weight_u, stat_weight_l, exci_energy, exci_energy_l, exci_energy_u
 ! populations
-DOUBLE PRECISION                :: act_pop
+DOUBLE PRECISION                :: act_pop, low_pop
 INTEGER                         :: get_package_model_index, current_mgi
 ! new frequency
 DOUBLE PRECISION                :: new_freq
+! beta calculation
+DOUBLE PRECISION                :: taulu, betalu
 ! Doppler factor
 DOUBLE PRECISION                :: D
 TYPE(irates)                    :: actirates
@@ -43,10 +45,7 @@ REAL(8)                         :: random
 ! write down the processes
 LOGICAL                         :: procout = .FALSE.
 
-
 my_rank = OMP_GET_THREAD_NUM()
-
-
 
 ! define the needed variables
 ! it is necessary to remember the initial conditions of a macro-atom
@@ -151,7 +150,7 @@ DO WHILE (active == 1)
   ! write(*,*) 'do_ipackage: element_index = ', element_index, ' ion_index = ', ion_index
  CALL populations(element_index, ion_index, actual_state, current_mgi, act_pop)
  ! write(*,*) 'do_ipackage: pop = ', act_pop
- CALL i_radtrans(nlns, linetransitions, nluns, lineuptransitions, act_pop, &
+ CALL i_radtrans(current_mgi, nlns, linetransitions, nluns, lineuptransitions, act_pop, &
   Zintdownrad, Zintuprad, Zraddeexc, actirates)
  CALL i_coltrans(1, pack_index, actual_state, nlns, linetransitions, nluns, lineuptransitions, &
   act_pop, Zintdowncoll, Zintupcoll, Zcoll, actirates)
@@ -159,16 +158,6 @@ DO WHILE (active == 1)
    Zphotiondown, Zphotrecom, actirates)
  CALL i_colion(1, element_index, ion_index, actual_state, pack_index, act_pop, Zcollionup, &
   Zcolliondown,Zcollrecom, actirates)
- ! TEMPORARY SOLUTION !!!
- ! Zphotrecom = 0.D0
- ! Zcoll = 0.D0
- ! Zcoll = 0.D0
- ! Zphotionup = 0.D0
- ! Zphotiondown = 0.D0
- ! Zphotrecom = 0.D0
- ! Zcollionup = 0.D0
- ! Zcolliondown = 0.D0
- ! Zcollrecom = 0.D0
 ! controll part
 IF(Zintdownrad < 0.D0) STOP 'do_ipackage: Zintdownrad < 0'
 IF(Zintuprad < 0.D0) STOP 'do_ipackage: Zintuprad < 0'
@@ -278,9 +267,16 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
      elements(element_index)%ions(last_ion)%levels(linelist(K)%upper)%exci_energy
     exci_energy_l = &
      elements(element_index)%ions(last_ion)%levels(linelist(K)%lower)%exci_energy
-    stat_weight = &
+    stat_weight_l = &
      elements(element_index)%ions(last_ion)%levels(linelist(K)%lower)%stat_waight
-    actirates%Lma_rad(J) = linelist(K)%A_ul * stat_weight * (exci_energy_u - exci_energy_l)
+    stat_weight_u = &
+     elements(element_index)%ions(last_ion)%levels(linelist(K)%upper)%stat_waight
+    CALL populations(element_index, ion_index, I, current_mgi, low_pop)
+    taulu = low_pop * linelist(K)%A_ul * h * light_speed / (4.0 * pi) *&
+     (1.D0 - (stat_weight_l * act_pop) / (stat_weight_u * act_pop))
+    betalu = 1 / taulu * (1 - exp(-taulu))
+    actirates%Lma_rad(J)  = act_pop * betalu * linelist(K)%A_ul * &
+     (exci_energy_u - exci_energy_l)
     !print*, 'do_ipackage: Lrad(J) = ', Lrad(J)
     Zrad = Zrad + actirates%Lma_rad(J)
    END IF
