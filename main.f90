@@ -204,6 +204,8 @@ INTEGER, PARAMETER                      :: max_packs = 1e7
   ! it will save some important output
   CALL save_output(1)
   CALL save_output(2)
+  ! temp structure and occupation numbers
+  CALL save_output(3)
 
      ! END DO
 ! DO I = 1, ntransitions
