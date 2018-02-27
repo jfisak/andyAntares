@@ -3,6 +3,7 @@ SUBROUTINE do_ipackage(pack_index)
 
 USE TYPES
 USE rates_i
+USE counters
 IMPLICIT NONE
 
 ! input variables
@@ -36,7 +37,7 @@ INTEGER                         :: get_package_model_index, current_mgi
 ! new frequency
 DOUBLE PRECISION                :: new_freq
 ! beta calculation
-DOUBLE PRECISION                :: taulu, betalu
+DOUBLE PRECISION                :: taulu, betalu, Blu
 ! Doppler factor
 DOUBLE PRECISION                :: D
 TYPE(irates)                    :: actirates
@@ -159,9 +160,6 @@ DO WHILE (active == 1)
  CALL i_colion(1, element_index, ion_index, actual_state, pack_index, act_pop, Zcollionup, &
   Zcolliondown,Zcollrecom, actirates)
 ! controll part
-IF(Zintdownrad < 0.D0) STOP 'do_ipackage: Zintdownrad < 0'
-IF(Zintuprad < 0.D0) STOP 'do_ipackage: Zintuprad < 0'
-IF(Zraddeexc < 0.D0) STOP 'do_ipackage: Zraddeexc < 0'
 IF(Zintdowncoll < 0.D0) STOP 'do_ipackage: Zintdowncoll < 0'
 IF(Zintupcoll < 0.D0) STOP 'do_ipackage: Zintupcoll < 0'
 IF(Zcoll < 0.D0) STOP 'do_ipackage:  Zcoll < 0'
@@ -215,7 +213,7 @@ Z7 = Z6 + Zcollrecom
 ! in this case a macro-atom transits into a lower state without an energy emission
 IF(rand >= 0.D0 .AND. rand < Z0) THEN
  !$OMP ATOMIC
- count_intdownjump = count_intdownjump + 1
+ count_i_int_down = count_i_int_down + 1
 ! next transition will be an internal downward jump
  summ = 0.D0
  DO I = 1, nlns
@@ -275,7 +273,8 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
     taulu = low_pop * linelist(K)%A_ul * h * light_speed / (4.0 * pi) *&
      (1.D0 - (stat_weight_l * act_pop) / (stat_weight_u * act_pop))
     betalu = 1 / taulu * (1 - exp(-taulu))
-    actirates%Lma_rad(J)  = act_pop * betalu * linelist(K)%A_ul * &
+    Blu = 4.0 * pi / (h * linelist(K)%freq) * linelist(K)%A_ul
+    actirates%Lma_rad(J)  = act_pop * betalu * Blu * &
      (exci_energy_u - exci_energy_l)
     !print*, 'do_ipackage: Lrad(J) = ', Lrad(J)
     Zrad = Zrad + actirates%Lma_rad(J)
@@ -299,10 +298,10 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
    IF(linelist(lineradtransitions(line))%lower == linelist(last_line)%lower) THEN
     ! resonant scattering occures
     !$OMP ATOMIC
-    count_resscattering = count_resscattering + 1
+    count_i_rad_dxrs = count_i_rad_dxrs + 1
    ELSE
     !$OMP ATOMIC
-    count_fluorescence = count_fluorescence + 1
+    count_i_rad_dxfl = count_i_rad_dxfl + 1
    END IF
    EXIT
   END IF
@@ -315,7 +314,7 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
 ! in this case a macro-atom transits into a upper state without an energy emission
 ELSE IF (rand >= Z1 .AND. rand <= Z2) THEN
  !$OMP ATOMIC
- count_intupjump = count_intupjump + 1
+ count_i_int_upwa = count_i_int_upwa + 1
  summ = Z1
  DO I = 1, nluns
   ! we will find the given state
@@ -336,7 +335,7 @@ ELSE IF(rand >= Z2 .AND. rand <= Z3) THEN
  package(pack_index)%typ = type_kpkt
  IF(procout) write(*,*)  'pack_index = ', pack_index, ' collisional deexcitation...'
  !$OMP ATOMIC
- count_coldeexc = count_coldeexc + 1
+ count_i_col_deex = count_i_col_deex + 1
 ! DO I = 1, nlns
 !  ! we will find the given state
 !  IF(rand >= summ .AND. rand < summ + Ldowncoll(I)) THEN
@@ -357,6 +356,8 @@ ELSE IF(rand >= Z2 .AND. rand <= Z3) THEN
 ELSE IF(rand >= Z3 .AND. rand <= Z4) THEN
  IF(procout) write(*,*)  'pack_index = ', pack_index, ' internal jump to to the upper ionization state...'
  ion_index = ion_index + 1
+ !$OMP ATOMIC
+ count_i_int_phot = count_i_int_phot + 1
  actual_state = 1
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal recombination
@@ -369,6 +370,8 @@ ELSE IF(rand >= Z4 .AND. rand <= Z5) THEN
   !print*, 'summ = ', summ, ' summ + L(I) = ', summ + actirates%Lma_recrad(I) + actirates%Lma_reccol(I)
   IF(rand >= summ .AND. rand < summ + actirates%Lma_int_recrad(I) + actirates%Lma_int_reccol(I)) THEN
    actual_state = I
+   !$OMP ATOMIC
+   count_i_int_reco = count_i_int_reco + 1
    IF(procout) write(*,*)  'do_ipackage: packet: ', pack_index, ' internal jump to the lower ionization state...'
    EXIT
   END IF
@@ -379,13 +382,8 @@ ELSE IF(rand >= Z4 .AND. rand <= Z5) THEN
 ELSE IF(rand >= Z5 .AND. rand <= Z6) THEN
  IF(procout) write(*,*) 'do_ipackage: pack_index = ', pack_index, 'radiative recombination'
  package(pack_index)%typ = type_rpkt
- !$OMP ATOMIC
- count_rrecombination = count_rrecombination + 1
  active = 0
- ! temporary
  ! the frequency should be sampled from the photion cross section
- !$OMP ATOMIC
- count_rrecombination = count_rrecombination + 1
  summ = Z5
  DO I = 1, nlevslion
   IF( rand >= summ .AND. rand < summ + actirates%Lma_recrad(I)) THEN
@@ -393,6 +391,8 @@ ELSE IF(rand >= Z5 .AND. rand <= Z6) THEN
    package(pack_index)%freq_cmf = new_freq
    CALL doppler_factor(pack_index, D)
    package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
+   !$OMP ATOMIC
+   count_i_rad_reco= count_i_rad_reco + 1
    EXIT
   END IF
   summ = summ + actirates%Lma_recrad(I)
@@ -403,7 +403,7 @@ ELSE IF(rand >= Z6 .AND. rand <= Z7) THEN
  IF(procout) write(*,*) 'do_ipackage: pack_index = ', pack_index, 'radiative recombination'
  package(pack_index)%typ = type_kpkt
  !$OMP ATOMIC
- count_crecombination = count_crecombination + 1
+ count_i_col_reco = count_i_col_reco + 1
 ! active = 0
 ! no event was chosen
 ELSE

@@ -188,15 +188,5 @@ MODULE types
    DOUBLE PRECISION, PARAMETER        :: nu_min = 3.D14, nu_max = 3.7D15 ! in cm (800 - 10000 A)
   !DOUBLE PRECISION, PARAMETER       :: nu_min = 2.4D15, nu_max = 2.5D15 ! in cm (1150 - 1250 A)
 
-! counters of interactions
-INTEGER                                 :: count_intdownjump, &
-                                           count_intupjump, &
-                                           count_resscattering, &
-                                           count_fluorescence, &
-                                           count_coldeexc, &
-                                           count_thomson
-INTEGER                                 :: count_rrecombination, &
-                                           count_crecombination
-
 
 END MODULE types

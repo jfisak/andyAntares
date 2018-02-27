@@ -2,6 +2,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
 
   USE types
   USE rates_r
+  USE counters
 
   IMPLICIT NONE    
 
@@ -39,6 +40,8 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
      !$OMP ATOMIC
      linelist(package(pack_index)%last_line)%n_int = &
       linelist(package(pack_index)%last_line)%n_int + 1
+     !$OMP ATOMIC
+     count_r_line = count_r_line + 1
      ! in this sbr we get only excited states from the upper states
      isUpperTransition = .TRUE.
      package(pack_index)%typ = type_ipkt
@@ -81,7 +84,8 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
    IF(rand >= summ .AND. rand <= Zthomson) THEN
     ! electron scattering occures
     ! changes only a direction of propagation
-    count_thomson = count_thomson + 1
+    !$OMP ATOMIC
+    count_r_thom = count_r_thom + 1
       if(procout) write(*,*) 'do_rpackage_event: Thomson scattering'
     CALL emit_rpackage(pack_index)
     RETURN
@@ -106,6 +110,8 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
       rand = DBLE(random())
       IF(rand < freqt / freq) THEN
          if(procout) write(*,*) 'do_rpackage_event: photoionization -> i packet'
+       !$OMP ATOMIC
+       count_r_ph_i = count_r_ph_i + 1
        package(pack_index)%typ = type_ipkt
        ! we have to find corresponding transition for the do_ipacket sbr
        DO nline = 1, ntransitions
@@ -127,6 +133,8 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
        END DO
       ELSE
        if(procout) write(*,*) 'do_rpackage_event: photoionization -> k packet'
+       !$OMP ATOMIC
+       count_r_ph_k = count_r_ph_k + 1
        package(pack_index)%typ = type_kpkt
       END IF
       EXIT
@@ -142,6 +150,8 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
    IF(rand >= summ .AND. rand < summ + Zff) THEN
     package(pack_index)%typ = type_kpkt
      if(procout) write(*,*) 'do_rpackage_event: free-free'
+     !$OMP ATOMIC
+     count_r_ff = count_r_ff + 1
    END IF
    !______________________________________________________________________
   ELSE
