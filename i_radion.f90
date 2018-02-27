@@ -49,7 +49,7 @@ IF(npoints /= 0) THEN
  T_eff = model_grid(current_mgi)%T
  freq(1:npoints) = elements(indexe)%ions(indexi)%levels(leveli)%photcros(1,1:npoints)
  cross(1:npoints) = elements(indexe)%ions(indexi)%levels(leveli)%photcros(2,1:npoints)
-  freqt = (elements(indexe)%ions(indexi + 1)%levels(1)%exci_energy - &
+  freqt = (MINVAL(elements(indexe)%ions(indexi + 1)%levels(:)%exci_energy) - &
          elements(indexe)%ions(indexi)%levels(leveli)%exci_energy) / h
  ! looking for starting point
  DO I = 1, npoints

@@ -33,7 +33,8 @@ CASE(1)
  electron_density = model_grid(current_mgi)%e_dens
  ! --
  temperature = model_grid(current_mgi)%T
- el_temperature = temperature / 1.D2
+ el_temperature = temperature
+ ! el_temperature = temperature / 1.D2
  ! print*, 'cool_excit: current_mgi = ', current_mgi
  
  DO line = 1, ntransitions

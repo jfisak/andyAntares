@@ -61,13 +61,13 @@ END IF
 last_ion = linelist(last_line)%indexi
 linelist(last_line)%n_exc = linelist(last_line)%n_exc + 1
 element_index = linelist(last_line)%indexe
-ion_index = linelist(last_line)%indexi
 current_mgi = get_package_model_index(pack_index)
 !print*, 'do_ipackage: element_index = ', element_index, 'ion_index = ', ion_index, ' level_index = ', last_level
 
 active = 1
 ! this is an initial state of the macro-atom
 actual_state = last_level
+ion_index = last_ion
 ! we will run this loop until the macro atom is deactivated
 DO WHILE (active == 1)
  !print*, 'do_ipackage: actual_state = ', actual_state, ' ion_index = ', ion_index
@@ -159,6 +159,8 @@ DO WHILE (active == 1)
    Zphotiondown, Zphotrecom, actirates)
  CALL i_colion(1, element_index, ion_index, actual_state, pack_index, act_pop, Zcollionup, &
   Zcolliondown,Zcollrecom, actirates)
+! testing
+! Zraddeexc = 0.D0
 ! controll part
 IF(Zintdowncoll < 0.D0) STOP 'do_ipackage: Zintdowncoll < 0'
 IF(Zintupcoll < 0.D0) STOP 'do_ipackage: Zintupcoll < 0'
@@ -270,11 +272,11 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
     stat_weight_u = &
      elements(element_index)%ions(last_ion)%levels(linelist(K)%upper)%stat_waight
     CALL populations(element_index, ion_index, I, current_mgi, low_pop)
-    taulu = low_pop * linelist(K)%A_ul * h * light_speed / (4.0 * pi) *&
-     (1.D0 - (stat_weight_l * act_pop) / (stat_weight_u * act_pop))
-    betalu = 1 / taulu * (1 - exp(-taulu))
     Blu = 4.0 * pi / (h * linelist(K)%freq) * linelist(K)%A_ul
-    actirates%Lma_rad(J)  = act_pop * betalu * Blu * &
+    taulu = low_pop * Blu * h * light_speed / (4.0 * pi) *&
+     (1.D0 - (stat_weight_l * act_pop) / (stat_weight_u * low_pop))
+    betalu = 1 / taulu * (1 - exp(-taulu))
+    actirates%Lma_rad(J)  = act_pop * betalu * linelist(K)%A_ul * &
      (exci_energy_u - exci_energy_l)
     !print*, 'do_ipackage: Lrad(J) = ', Lrad(J)
     Zrad = Zrad + actirates%Lma_rad(J)
@@ -290,10 +292,12 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
    !print*, 'raddeexc: summ = ', summ, ' rand = ', rand, ' Zrad = ', Zrad
    ! we found the given cell now we have to compute only a new frequency
    new_freq = linelist(lineradtransitions(line))%freq
+   CALL emit_rpackage(pack_index)
    package(pack_index)%freq_cmf = new_freq
    CALL doppler_factor(pack_index, D)
    package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
    package(pack_index)%last_line = no_line
+   !$OMP ATOMIC
    linelist(lineradtransitions(line))%n_deexc = linelist(lineradtransitions(line))%n_deexc + 1
    IF(linelist(lineradtransitions(line))%lower == linelist(last_line)%lower) THEN
     ! resonant scattering occures
@@ -334,23 +338,9 @@ ELSE IF(rand >= Z2 .AND. rand <= Z3) THEN
  package(pack_index)%last_line = no_line
  package(pack_index)%typ = type_kpkt
  IF(procout) write(*,*)  'pack_index = ', pack_index, ' collisional deexcitation...'
+ active = 0
  !$OMP ATOMIC
  count_i_col_deex = count_i_col_deex + 1
-! DO I = 1, nlns
-!  ! we will find the given state
-!  IF(rand >= summ .AND. rand < summ + Ldowncoll(I)) THEN
-!   ! now it will transform into a k-packet, we will have to decide, which k-packet it
-!   ! will be
-!   CALL col_deexcitation_event(element_index, ion_index, last_line, nlns, linetransitions)
-!   EXIT
-!  END IF
-!  summ = summ + Ldowncoll(I)
-! END DO
- !print*, 'collisional deexcitation occures...'
-! !package(pack_index)%typ = type_kpkt
-! ! for now 
-! package(pack_index)%typ = type_kpkt
-! active = 0
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal photoionization
 ELSE IF(rand >= Z3 .AND. rand <= Z4) THEN

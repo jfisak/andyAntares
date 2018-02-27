@@ -1,3 +1,9 @@
+!_________________________ i-packet rates ____________________________________________________
+! calculation of radiative transitions rates of an i-packets
+!
+! * Zintdown -- total rate of internal downward jumps
+! * Zrad -- total rate of radiative deactivations of a macro atom
+! * Zintup -- total rate of internal upward jumps
 SUBROUTINE i_radtrans(current_mgi, nlns, linetransitions, nluns, lineuptransitions, up_pop, &
 Zintdown, Zintup, Zrad, actirates)
 USE types
@@ -62,19 +68,25 @@ DO I = 1, nlns
  ! internal downward jump
  ! calculation of a rate coefficient
  CALL populations(element_index, ion_index, I, current_mgi, low_pop)
- taulu = low_pop * linelist(act_line)%A_ul * h * light_speed / (4.0 * pi) *&
+ ! Einstein Blu coefficient
+ Blu = 4.0 * pi / (h * linelist(act_line)%freq) * linelist(act_line)%A_ul
+ ! optical depth
+ taulu = low_pop * Blu * h * light_speed / (4.0 * pi) *&
   (1.D0 - (stat_weight_l * up_pop) / (stat_weight_u * up_pop))
+ ! probability of escape of the packet after scattering in line
  betalu = 1 / taulu * (1 - exp(-taulu))
- actVal = up_pop * betalu * linelist(act_line)%A_ul
- ! write(*,*) 'i_radtrans: stat_waight, exci_energy, up_pop, linelist(act_line)%A_ul, actVal', &
- !  stat_weight, exci_energy_u, up_pop, linelist(act_line)%A_ul, actVal
+ actVal = up_pop * betalu * Blu
+ ! write(*,*) 'i_radtrans: exci_energy, up_pop, Blu, actVal', exci_energy_u, up_pop, Blu, actVal
  actirates%Lma_int_dorad(I) = actVal * exci_energy_l
+ IF(actirates%Lma_int_dorad(I) < 0.D0) STOP 'i_radtrans: Lma_int_dorad < 0'
  Zintdown = Zintdown + actirates%Lma_int_dorad(I)
  ! write(*,*) 'i_radtrans: Zintdown = ', Zintdown
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! radiative deexcitation
  !print*, 'do_ipackage: up_pop = ', up_pop
+ actVal = up_pop * betalu * linelist(act_line)%A_ul
  Zrad = Zrad + actVal * (exci_energy_u - exci_energy_l)
+ IF(exci_energy_u - exci_energy_l < 0) STOP 'i_radtrans: exci_energy_u - exci_energy_l < 0'
  ! write(*,*) 'i_radtrans: Zrad = ', Zrad
 END DO
  ! STOP 'i_radtrans, testing'
@@ -84,18 +96,22 @@ low_pop = up_pop
 DO I = 1, nluns
  act_line = lineuptransitions(I)
  exci_energy_l = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy
- exci_energy_u = elements(element_index)%ions(ion_index)%levels(linelist(I)%upper)%exci_energy
+ exci_energy_u = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%upper)%exci_energy
  stat_weight_l = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%stat_waight
- stat_weight_u = elements(element_index)%ions(ion_index)%levels(linelist(I)%upper)%stat_waight
- CALL populations(element_index, ion_index, I, current_mgi, up_pop)
- Jlu = flux_function(0, linelist(I)%freq, model_grid(current_mgi)%T)
+ stat_weight_u = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%upper)%stat_waight
+! CALL populations(element_index, ion_index, linelist(act_line)%lower, current_mgi, low_pop)
+ CALL populations(element_index, ion_index, linelist(act_line)%upper, current_mgi, up_pop)
+ Jlu = flux_function(0, linelist(act_line)%freq, model_grid(current_mgi)%T)
  ! calculation of Blu and Bul
  Blu = 4.0 * pi / (h * linelist(act_line)%freq) * linelist(act_line)%A_ul
- Bul = stat_weight_u / stat_weight_l * Blu
+ Bul = stat_weight_l / stat_weight_u * Blu
  ! internal jump up
  actVal = (low_pop * Blu - up_pop * Bul) * betalu * exci_energy_l * Jlu
- write(*,*) 'i_radtrans: nB - nB = ', (low_pop * Blu - up_pop * Bul)
+ IF(actVal < 0.D0) STOP 'i_radtrans: (l_pop * Blu - u_pop * Bul) < 0'
+ ! write(*,*) 'i_radtrans: nB - nB = ', (low_pop * Blu - up_pop * Bul)
+ ! write(*,*) 'i_radtrans: low_pop = ', low_pop, ' up_pop = ', up_pop, ' up_pop / low_pop = ', up_pop / low_pop
  actirates%Lma_int_uprad(I) = actVal
+ ! write(*,*) 'i_radtrans: Lma_int_uprad = ', actVal
  Zintup = Zintup + actirates%Lma_int_uprad(I)
  ! write(*,*) 'i_radtrans: act_line = ', act_line, ' stat_weight = ', stat_weight, &
  !  ' exci_energy_l = ', exci_energy_l, ' up_pop = ', up_pop, ' linelist(act_line)%A_ul = ', &

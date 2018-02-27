@@ -64,6 +64,7 @@ actirrates%Lcont(3, act_continuum) = 0
 actirrates%Lcont(4, act_continuum) = thomson
 kappa = thomson
 ! write(*,*) 'r_kappa_cont: thomson = ', thomson
+! write(*,*) 'r_kappa_cont: electron_density = ', electron_density, ' sigma_e = ', sigma_e
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! bound-free processes
@@ -106,8 +107,9 @@ DO indexe = 1, n_elements
     ali = (func1 - func2) / (freq1 - freq2)
     bli = (func2 * freq1 - func1 * freq2) / (freq1 - freq2)
     cross_sect = ali * freq + bli
-    !print*, 'r_kappa_cont: cross_sect = ', cross_sect, ' act_continuum = ', act_continuum!, ' dim(Lcont) = ', SIZE(actirrates%Lcont)
     CALL populations(indexe, indexi, indexl, current_mgi, act_pop)
+    ! write(*,*)  'r_kappa_cont: cross_sect = ', cross_sect, ' act_continuum = ', act_continuum, &
+    !  'act_pop = ', act_pop, ' 1-exp() = ', (1-exp(-(h * freq)/(BOLK * temp)))
     act_continuum = act_continuum + 1
     ! valid only for LTE approximation
     actirrates%Lcont(1, act_continuum) = indexe

@@ -51,7 +51,7 @@ CASE(1)
    ! wavelength is in Angstroms
    wavle = 1e8 * light_speed / linelist(I)%freq
    WRITE(11,*) elements(linelist(I)%indexe)%atom_number, linelist(I)%indexi, wavle,&
-    linelist(I)%A_ul, linelist(I)%n_int
+    linelist(I)%A_ul, linelist(I)%n_int, linelist(I)%n_deexc
   END DO
  CLOSE(11)
 ! rate counters
@@ -64,6 +64,9 @@ CASE(2)
   ' count_i_col_deex = ', count_i_col_deex, ' count_i_int_phot = ', count_i_int_phot, &
   ' count_i_int_reco = ', count_i_int_reco, ' count_i_rad_reco = ', count_i_rad_reco, &
   ' count_i_col_reco = ', count_i_col_reco
+ write(*,*) 'count_r_line = ', count_r_line, ' count_r_thom = ', count_r_thom, &
+  ' count_r_ph_k = ', count_r_ph_k, ' count_r_ph_i = ', count_r_ph_i, &
+  ' count_r_ff = ', count_r_ff
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!! TEMPERATURE STRUCTURE AND IONIZATION BALANCE !!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -81,7 +84,7 @@ CASE(3)
   DO I = 1, n_modelgrid
    IF(model_grid(I)%assoc_cells == 0) CYCLE
    WRITE(13, *) '**modelCell**'
-   WRITE(13, *) I, model_grid(I)%rwind
+   WRITE(13, *) I, model_grid(I)%rwind, model_grid(I)%t, model_grid(I)%rho, model_grid(I)%e_dens
    WRITE(13, *) '**composition**'
    DO J = 1, n_elements
      WRITE(13, *) elements(J)%atom_number, elements(J)%abundance
@@ -90,6 +93,7 @@ CASE(3)
    WRITE(13, *) '**occunumbs**'
    DO act_elem = 1, n_elements
     DO act_ion = 1, SIZE(elements(act_elem)%ions)
+     WRITE(13, *) model_grid(I)%grid_comp(act_elem)%grid_ion(act_ion)%tot_pop
      DO act_lev = 1, SIZE(elements(act_elem)%ions(act_ion)%levels)
       eenergy = elements(act_elem)%ions(act_ion)%levels(act_lev)%exci_energy
       CALL populations(act_elem, act_ion, act_lev, I, act_pop)

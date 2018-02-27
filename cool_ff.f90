@@ -10,8 +10,9 @@ DOUBLE PRECISION, PARAMETER                             :: C0 = 1.426D-27 ! Oste
 ! element index
 INTEGER                                                 :: indexe
 ! ion index and other informations
-INTEGER                                                 :: indexi, ion_charge, n_ions
+INTEGER                                                 :: indexi, n_ions
 ! model grid information
+DOUBLE PRECISION                                        :: ion_charge
 INTEGER                                                 :: cur_mgi, get_package_model_index
 DOUBLE PRECISION                                        :: cur_temp, e_dens
 INTEGER                                                 :: act_cooling
@@ -30,12 +31,11 @@ act_cooling = 0
 Zcool = 0.D0
 DO indexe = 1, n_elements
  n_ions = SIZE(elements(indexe)%ions)
- DO indexi = 1, n_ions
+ DO indexi = 2, n_ions
   act_cooling = act_cooling + 1
-  ion_charge = indexi - 1
-  !CALL populations(I, J, 1, cur_mgi, act_pop)
+  ion_charge = DBLE(indexi - 1)
   act_pop = model_grid(cur_mgi)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
-  actikrates%Lcool_ff(act_cooling) = C0 * DBLE(ion_charge**2.0) * cur_temp**(1.0/2.0) &
+  actikrates%Lcool_ff(act_cooling) = C0 * ion_charge**2.0 * cur_temp**(1.0/2.0) &
                           * act_pop * e_dens
   Zcool = Zcool + actikrates%Lcool_ff(act_cooling)
   ! write(*,*) 'cool_ff: ion_charge = ', ion_charge, ' cur_temp = ', cur_temp, &

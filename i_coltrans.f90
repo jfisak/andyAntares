@@ -12,7 +12,7 @@ INTEGER                                 :: approx
 INTEGER                                 :: pack_index, level, nlns, nluns
 INTEGER, DIMENSION(nlns)                :: linetransitions
 INTEGER, DIMENSION(nluns)               :: lineuptransitions
-DOUBLE PRECISION                        :: population
+DOUBLE PRECISION                        :: population, low_pop
 ! constans
 DOUBLE PRECISION, PARAMETER             :: c0 = 5.465D-11
 DOUBLE PRECISION, PARAMETER             :: IH = 13.6 * e_v
@@ -41,7 +41,6 @@ DOUBLE PRECISION                        :: x
 DOUBLE PRECISION                        :: Zdown, Zup, Zcoll
 ! the rates for the given transitions
 DOUBLE PRECISION                        :: lcoll
-DOUBLE PRECISION                        :: stat_weight
 DOUBLE PRECISION, PARAMETER             :: times = 1.D0
 TYPE(irates)                           :: actirates
 
@@ -80,7 +79,6 @@ CASE(1)
   ! important physical quantities
   act_line = linetransitions(I)
   osc_str = linelist(act_line)%f_ul
-  stat_weight = elements(element_index)%ions(ion_index)%levels(level)%stat_waight
   exci_energy_l = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy
   exci_energy_u = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%upper)%exci_energy
   ! frequency of transition
@@ -88,22 +86,24 @@ CASE(1)
   x = (h * freq) / (BOLK * temperature)
   ! gamma function
   CALL gamma_function(x, act_line, gf)
-  ! value of the collision coefficient
-  actVal = population * electron_density * c0 * (temperature)**(1.0/2.0) * &
+  ! value of the collision coefficient c_{i, j, k -> i', j, k}
+  actVal = electron_density * c0 * (temperature)**(1.0/2.0) * &
    coll_const * (IH / (h * freq)) * osc_str * ((h * freq) / (BOLK * el_temperature)) * &
    exp(-(h * freq) / (BOLK * el_temperature)) * gf
 !  actVal = actVal * (linelist(act_line)%upper - linelist(act_line)%lower)
  ! internal downward jump
-  actirates%Lma_int_docoll(I) = actVal * exci_energy_l * stat_weight
+  CALL populations(element_index, ion_index, linelist(act_line)%lower, current_mgi, low_pop)
+  actirates%Lma_int_docoll(I) = low_pop * actVal * exci_energy_l
   Zdown = Zdown + actirates%Lma_int_docoll(I)
  ! collisional deexcitation
-  lcoll = actVal * (exci_energy_u - exci_energy_l)
+  lcoll = low_pop * actVal * (exci_energy_u - exci_energy_l)
+  ! write(*,*) 'i_coltrans: lcoll = ', lcoll, ' low_pop = ', low_pop
   Zcoll = Zcoll + lcoll
 !        (linelist(act_line)%upper - linelist(act_line)%lower)
- !  write(*,*) 'i_coltrans: population = ', population, ' el_temperature = ', el_temperature, &
- !   ' electron_density = ', electron_density, ' temperature = ', temperature
+ ! write(*,*) 'i_coltrans: low_pop = ', low_pop, ' el_temperature = ', el_temperature, &
+ !  ' electron_density = ', electron_density, ' temperature = ', temperature
  END DO
-! print*, 'collisional_rates: Ztot/pop = ', Ztot
+ ! print*, 'collisional_rates: lcoll = ', lcoll
 ! Ztot = pop * Ztot
 ! print*, 'collisional_rates: Ztot = ', Ztot
  ! upward jumps
@@ -111,7 +111,6 @@ CASE(1)
   act_line = lineuptransitions(I)
   ! important physical quantities
   osc_str = linelist(act_line)%f_ul
-  stat_weight = elements(element_index)%ions(ion_index)%levels(level)%stat_waight
   exci_energy_l = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy
   ! frequency of transition
   freq = linelist(act_line)%freq
@@ -123,8 +122,8 @@ CASE(1)
         coll_const * (IH / (h * freq)) * osc_str * &
         ((h * freq) / (BOLK * el_temperature)) * &
         exp(-(h * freq) / (BOLK * el_temperature)) * gf
-  actirates%Lma_int_upcoll(I) = actVal * exci_energy_l * stat_weight
-  actirates%Lma_int_upcoll(I) = times * actirates%Lma_int_upcoll(I)
+  actirates%Lma_int_upcoll(I) = actVal * exci_energy_l
+  ! write(*,*) 'i_coltrans: Lma_int_upcoll = ', actirates%Lma_int_upcoll(I), ' population = ', population
  END DO
 CASE DEFAULT
  STOP 'collisional_rates: this approximation is not known'
