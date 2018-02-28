@@ -86,7 +86,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
     ! changes only a direction of propagation
     !$OMP ATOMIC
     count_r_thom = count_r_thom + 1
-      if(procout) write(*,*) 'do_rpackage_event: Thomson scattering'
+      if(procout) write(*,*) 'do_rpackage_event: packet = ', pack_index, ' Thomson scattering'
     CALL emit_rpackage(pack_index)
     RETURN
    END IF
@@ -109,7 +109,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
       freq = package(pack_index)%freq_cmf
       rand = DBLE(random())
       IF(rand < freqt / freq) THEN
-         if(procout) write(*,*) 'do_rpackage_event: photoionization -> i packet'
+         if(procout) write(*,*) 'do_rpackage_event: package = ', pack_index, ' photoionization -> i packet'
        !$OMP ATOMIC
        count_r_ph_i = count_r_ph_i + 1
        package(pack_index)%typ = type_ipkt
@@ -132,7 +132,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
        ! loop over lines
        END DO
       ELSE
-       if(procout) write(*,*) 'do_rpackage_event: photoionization -> k packet'
+       if(procout) write(*,*) 'do_rpackage_event: package = ', pack_index, ' photoionization -> k packet'
        !$OMP ATOMIC
        count_r_ph_k = count_r_ph_k + 1
        package(pack_index)%typ = type_kpkt
@@ -149,7 +149,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
    ! write(*,*) 'do_rpackage_event: summ + Zff= ', summ + Zff
    IF(rand >= summ .AND. rand < summ + Zff) THEN
     package(pack_index)%typ = type_kpkt
-     if(procout) write(*,*) 'do_rpackage_event: free-free'
+     if(procout) write(*,*) 'do_rpackage_event: package = ', pack_index, ' free-free'
      !$OMP ATOMIC
      count_r_ff = count_r_ff + 1
    END IF

@@ -380,6 +380,7 @@ ELSE IF(rand >= Z5 .AND. rand <= Z6) THEN
    CALL i_freq_recomb(element_index, ion_index, I, pack_index, act_pop, new_freq)
    package(pack_index)%freq_cmf = new_freq
    CALL doppler_factor(pack_index, D)
+   CALL emit_rpackage(pack_index)
    package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
    !$OMP ATOMIC
    count_i_rad_reco= count_i_rad_reco + 1

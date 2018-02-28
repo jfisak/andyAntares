@@ -98,6 +98,7 @@ ELSE IF(rand >= Z0 .AND. rand <= Z1) THEN
  package(pack_index)%freq_cmf = new_freq
  CALL doppler_factor(pack_index, D)
  package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
+ CALL emit_rpackage(pack_index)
  !$OMP ATOMIC
  count_cool_ff = count_cool_ff + 1
  IF(procout) write(*,*) 'do_kpackage: package = ', pack_index, ' free-free process...'
@@ -170,6 +171,7 @@ ELSE IF(rand > Z2 .AND. rand <= Z3) THEN
  CALL k_freq_fb(pack_index, act_proc, new_freq, actikrates)
  package(pack_index)%freq_cmf = new_freq
  CALL doppler_factor(pack_index, D)
+ CALL emit_rpackage(pack_index)
  package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
  !STOP 'do_kpackage: testing'
 END IF
