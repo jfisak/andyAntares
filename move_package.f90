@@ -3,6 +3,7 @@ SUBROUTINE move_package(pack_index, dist)
   ! Move photon package from the curent position for some distance (update package(pack_index)%pos)
 
   USE types
+  USE counters
 
   IMPLICIT NONE    
 
@@ -17,23 +18,7 @@ my_rank = OMP_GET_THREAD_NUM()
 n_pack_d = SIZE(package)
 dummypackage = n_pack_d - n_dummy_packs + my_rank + 1
 !write(*,*) 'move_package: my_rank = ', my_rank, ' dummypackage = ', dummypackage
-!
-  IF (debug .EQ. 1) THEN 
-    ! print*, 'before move (pos, pack_index, pos)', package(pack_index)%pos, pack_index, dist
-  END IF
-!     print*, 'before move (pos, pack_index, pos)', package(pack_index)%pos, pack_index, dist
 
-  !print*, 'moving package #', pack_index
-  IF (debug .EQ. 2) THEN 
-     print*, package(pack_index)%pos, pack_index, dist
-   ! nc=package(pack_index)%cell_numb
-   ! print*, nc, cell(nc)%indexc, cell(nc)%corner, cell(nc)%corner+cell_width
-   ! print*, FLOOR(package(pack_index)%pos(1)/cell_width + nx_cell/2) + 1
-   ! print*, FLOOR(package(pack_index)%pos(2)/cell_width + ny_cell/2) + 1
-   ! print*, FLOOR(package(pack_index)%pos(3)/cell_width + nz_cell/2) + 1
-  END IF
-
-!  print*, 'move_package: moving package for dist = ', dist
   ! Calculate the position of package
   package(pack_index)%pos(1) = package(pack_index)%pos(1) + dist * package(pack_index)%dir(1) 
   package(pack_index)%pos(2) = package(pack_index)%pos(2) + dist * package(pack_index)%dir(2) 
@@ -45,10 +30,10 @@ dummypackage = n_pack_d - n_dummy_packs + my_rank + 1
   ! Deactivate packets which travel beyond the photosphere
   ! length=SQRT(package(pack_index)%pos(1)**2 + package(pack_index)%pos(2)**2 + package(pack_index)%pos(3)**2)  
   IF ((vec_length(package(pack_index)%pos) .LT. R_star) .AND. (pack_index .NE. dummypackage)) THEN
-   !print*, 'package ', pack_index, ' was destroyed'
+   ! print*, 'package ', pack_index, ' was destroyed because has come back to the photosphere'
    package(pack_index)%active = 0
    !$OMP ATOMIC
-   destroyed_pack = destroyed_pack + 1
+   count_des_phot = count_des_phot + 1
   END IF
 
   ! Rest frame quantities do not change while propagating without any events, 

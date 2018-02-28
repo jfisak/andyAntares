@@ -2,6 +2,14 @@ MODULE counters
 
 IMPLICIT NONE
 
+! r-packets destroying
+INTEGER                         :: count_des_phot = 0
+INTEGER                         :: count_des_inte = 0
+INTEGER                         :: count_des_esca = 0
+
+
+
+! interaction
 ! r-packets counters
 INTEGER                         :: count_r_line = 0
 INTEGER                         :: count_r_thom = 0

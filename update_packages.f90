@@ -1,6 +1,7 @@
  SUBROUTINE update_packages(n_pack)
 
   USE types
+  USE counters
 !  USE rand2
 
   IMPLICIT NONE    
@@ -29,9 +30,10 @@ DO pack_index = 1, n_pack
       ! print*, 'C'
       IF (package(pack_index)%typ .EQ. type_rpkt) THEN
        IF(package(pack_index)%n_interactions .EQ. 1000000) THEN
-        print*, 'package ', pack_index, ' interacted for 2000000 times and will be destroyed...'
+        ! print*, 'package ', pack_index, ' interacted for 2000000 times and will be destroyed...'
         package(pack_index)%active = 0
-        destroyed_pack = destroyed_pack + 1
+        !$OMP ATOMIC
+        count_des_inte = count_des_inte + 1
        END IF
          ! print*, 'D'
          ! If the packet is of type rpkt, it represents a photon. So it needs to be propagated.

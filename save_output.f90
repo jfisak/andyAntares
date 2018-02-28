@@ -67,6 +67,8 @@ CASE(2)
  write(*,*) 'count_r_line = ', count_r_line, ' count_r_thom = ', count_r_thom, &
   ' count_r_ph_k = ', count_r_ph_k, ' count_r_ph_i = ', count_r_ph_i, &
   ' count_r_ff = ', count_r_ff
+ write(*,*) 'count_des_phot = ', count_des_phot, ' count_des_inte = ', count_des_inte, &
+  ' count_des_esca = ', count_des_esca
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!! TEMPERATURE STRUCTURE AND IONIZATION BALANCE !!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
