@@ -39,8 +39,8 @@ END IF
 actirrates = rrates()
 
   CALL boundary3(pack_index, cell_dist, next_cell)
-!  WRITE(3,*) package(pack_index)%pos, dyn_cell(package(pack_index)%cell_numb)%corner, &
-!                dyn_cell(package(pack_index)%cell_numb)%width, get_package_model_index(pack_index)
+  ! WRITE(3,*) pack_index, package(pack_index)%pos/R_sun, dyn_cell(package(pack_index)%cell_numb)%corner/R_sun, &
+  !               dyn_cell(package(pack_index)%cell_numb)%width/R_sun, get_package_model_index(pack_index)
   IF (cell_dist .LT. 0.D0) STOP 'cell_dist < 0'
   IF (get_package_model_index(pack_index) .EQ. n_modelgrid + 1) THEN
       ! Package is outside the wind model but still inside the propagation grid qube

@@ -21,6 +21,8 @@ INTEGER                                 :: upper_cell
 DOUBLE PRECISION, DIMENSION(3)          :: subcells_width
 INTEGER                                 :: subind_x, subind_y, subind_z
 INTEGER                                         :: sub_nx, sub_ny, sub_nz
+DOUBLE PRECISION                                :: rat1, rat2, rat3
+
 
 act_cell = cell_down
 cross_pos = package(pack_index)%pos + package(pack_index)%dir * dist
@@ -161,9 +163,32 @@ CASE(2)
  END IF
  subcells_width = dyn_cell(dyn_cell(act_cell)%up_cell)%width
  subcells_width = dyn_cell(dyn_cell(act_cell)%up_cell)%width
- sub_nx = INT(dyn_cell(act_cell)%width(1) / subcells_width(1))
- sub_ny = INT(dyn_cell(act_cell)%width(2) / subcells_width(2))
- sub_nz = INT(dyn_cell(act_cell)%width(3) / subcells_width(3))
+ rat1 = dyn_cell(act_cell)%width(1) / subcells_width(1)
+ rat2 = dyn_cell(act_cell)%width(2) / subcells_width(2)
+ rat3 = dyn_cell(act_cell)%width(3) / subcells_width(3)
+!  write(*,*) 'find_dyn_cell1: rat1 = ', rat1, ' rat2 = ', rat2, ' rat3 = ', rat3
+ IF(MODULO(rat1,1.0) > 0.5) THEN
+  sub_nx = CEILING(rat1)
+ ELSE IF(MODULO(rat1,1.0) <= 0.5 .AND. MODULO(rat1,1.0) /= 0.0) THEN
+  sub_nx = FLOOR(rat1)
+ ELSE IF(MODULO(rat1,1.0) == 0.0) THEN
+  sub_nx = INT(rat1)
+ END IF
+ IF(MODULO(rat2,1.0) > 0.5) THEN
+  sub_ny = CEILING(rat2)
+ ELSE IF(MODULO(rat2,1.0) <= 0.5 .AND. MODULO(rat2,1.0) /= 0.0) THEN
+  sub_ny = FLOOR(rat2)
+ ELSE IF(MODULO(rat2,1.0) == 0.0) THEN
+  sub_ny = INT(rat2)
+ END IF
+ IF(MODULO(rat3,1.0) > 0.5) THEN
+  sub_nz = CEILING(rat3)
+ ELSE IF(MODULO(rat3,1.0) <= 0.5 .AND. MODULO(rat3,1.0) /= 0.0) THEN
+  sub_nz = FLOOR(rat3)
+ ELSE IF(MODULO(rat3,1.0) == 0.0) THEN
+  sub_nz = INT(rat3)
+ END IF
+
  subind_x = FLOOR((cross_pos(1) - dyn_cell(act_cell)%corner(1))/subcells_width(1)) + 1
  subind_y = FLOOR((cross_pos(2) - dyn_cell(act_cell)%corner(2))/subcells_width(2)) + 1
  subind_z = FLOOR((cross_pos(3) - dyn_cell(act_cell)%corner(3))/subcells_width(3)) + 1

@@ -21,7 +21,7 @@ SUBROUTINE init_photsphere(n_pack)
   !    ind_cell_numb = (ind_x-1)*ny_cell*nz_cell + (ind_y-1)*nz_cell + ind_z
   !    print*, ind_cell_numb
   !    print*, R_star
-!  OPEN(16,FILE='photon_positions.dat')
+! OPEN(16,FILE='photon_positions.dat')
   DO I = 1, n_pack
      ! Place photon on the photosphere's surface
      CALL random_unitvector1(direction, sint, cost, sinp, cosp)
@@ -47,7 +47,8 @@ SUBROUTINE init_photsphere(n_pack)
 !     END IF
      CALL find_dyn_cell1(package(I)%pos,ind_cell_numb)
      package(I)%cell_numb = ind_cell_numb
-!     write(16,*) dyn_cell(ind_cell_numb)%corner, dyn_cell(ind_cell_numb)%width, package(I)%pos
+     ! IF(I == 1) write(*,*) 'init_photsphere: WRITING AN INITIAL PACKET POSITION AND CORRESPONDING CELL INTO THE FILE'
+     ! write(16,*) dyn_cell(ind_cell_numb)%corner, dyn_cell(ind_cell_numb)%width, package(I)%pos
 
      ! Flag the packet as an active r-pkt and allow all kind of cell crossings
      package(I)%active     = 1
@@ -80,7 +81,7 @@ SUBROUTINE init_photsphere(n_pack)
      ! print*, package(I)%cell_numb,package(I)%dir !,  package(I)%pos, package(I)% e_rf
      ! e_cmf, freq_cmf, freq_rf, cell_numb, pack_numb, active
   END DO
-!  CLOSE(16)
+! CLOSE(16)
 
   ! PRINT*, ind_x, ind_y, ind_z, ind_cell_numb
 

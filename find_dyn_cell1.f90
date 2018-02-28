@@ -19,6 +19,7 @@ IMPLICIT NONE
 DOUBLE PRECISION, DIMENSION(3)                  :: subcells_width
 INTEGER                                         :: subind_x, subind_y, subind_z
 INTEGER                                         :: sub_nx, sub_ny, sub_nz
+DOUBLE PRECISION                                :: rat1, rat2, rat3
 
 
 ! firstly we can compute which basic cell this point contains
@@ -77,9 +78,38 @@ END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CASE(2)
  subcells_width = dyn_cell(dyn_cell(actCell)%up_cell)%width
- sub_nx = INT(dyn_cell(actCell)%width(1) / subcells_width(1))
- sub_ny = INT(dyn_cell(actCell)%width(2) / subcells_width(2))
- sub_nz = INT(dyn_cell(actCell)%width(3) / subcells_width(3))
+ ! write(*,*) 'find_dyn_cell1: dyn_cell(actCell)%width / subcells_width = ', dyn_cell(actCell)%width(1) / subcells_width(1), &
+ ! dyn_cell(actCell)%width(2) / subcells_width(2), dyn_cell(actCell)%width(3) / subcells_width(3)
+! write(*,*) 'find_dyn_cell1: ROUND(dyn_cell(actCell)%width(1) / subcells_width(1)) = ', &
+!  dyn_cell(actCell)%width(1) / subcells_width(1)
+!  dyn_cell(actCell)%width(2) / subcells_width(2)
+!  dyn_cell(actCell)%width(3) / subcells_width(3)
+ rat1 = dyn_cell(actCell)%width(1) / subcells_width(1)
+ rat2 = dyn_cell(actCell)%width(2) / subcells_width(2)
+ rat3 = dyn_cell(actCell)%width(3) / subcells_width(3)
+!  write(*,*) 'find_dyn_cell1: rat1 = ', rat1, ' rat2 = ', rat2, ' rat3 = ', rat3
+ IF(MODULO(rat1,1.0) > 0.5) THEN
+  sub_nx = CEILING(rat1)
+ ELSE IF(MODULO(rat1,1.0) <= 0.5 .AND. MODULO(rat1,1.0) /= 0.0) THEN
+  sub_nx = FLOOR(rat1)
+ ELSE IF(MODULO(rat1,1.0) == 0.0) THEN
+  sub_nx = INT(rat1)
+ END IF
+ IF(MODULO(rat2,1.0) > 0.5) THEN
+  sub_ny = CEILING(rat2)
+ ELSE IF(MODULO(rat2,1.0) <= 0.5 .AND. MODULO(rat2,1.0) /= 0.0) THEN
+  sub_ny = FLOOR(rat2)
+ ELSE IF(MODULO(rat2,1.0) == 0.0) THEN
+  sub_ny = INT(rat2)
+ END IF
+ IF(MODULO(rat3,1.0) > 0.5) THEN
+  sub_nz = CEILING(rat3)
+ ELSE IF(MODULO(rat3,1.0) <= 0.5 .AND. MODULO(rat3,1.0) /= 0.0) THEN
+  sub_nz = FLOOR(rat3)
+ ELSE IF(MODULO(rat3,1.0) == 0.0) THEN
+  sub_nz = INT(rat3)
+ END IF
+! write(*,*) 'find_dyn_cell1: sub_nx = ', sub_nx, ' sub_ny = ', sub_ny, ' sub_nz = ', sub_nz
  subind_x = FLOOR((pos(1) - dyn_cell(actcell)%corner(1))/subcells_width(1)) + 1
  subind_y = FLOOR((pos(2) - dyn_cell(actcell)%corner(2))/subcells_width(2)) + 1
  subind_z = FLOOR((pos(3) - dyn_cell(actcell)%corner(3))/subcells_width(3)) + 1

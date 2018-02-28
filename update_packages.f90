@@ -24,9 +24,6 @@ DO pack_index = 1, n_pack
    initrs = .TRUE.
   END IF
    IF (MODULO(pack_index,10000) .EQ. 0) print*, 'Working on packet ', pack_index,' ...'
-   !print*, 'Working on packet ', pack_index,' ...'
-   IF (debug .NE. 0) print*, 'Working on packet ', pack_index,' ...' 
-    
    ! Do this loop until something happened with package
    DO  WHILE (package(pack_index)%active .EQ. 1)
       ! print*, 'C'
