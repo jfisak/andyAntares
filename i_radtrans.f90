@@ -51,8 +51,6 @@ ELSE
  Zintup = 0.D0
  Zrad = 0.D0
 END IF 
- !write(*,*) 'ALLOCATED: i_radtrans: my_rank = ', my_rank, ' recrad = ', size(actirates%Lma_recrad), &
- !       ' intdorad = ', size(actirates%Lma_int_dorad)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal downward jump and radiative deexcitation
@@ -72,7 +70,7 @@ DO I = 1, nlns
  Blu = 4.0 * pi / (h * linelist(act_line)%freq) * linelist(act_line)%A_ul
  ! optical depth
  taulu = low_pop * Blu * h * light_speed / (4.0 * pi) *&
-  (1.D0 - (stat_weight_l * up_pop) / (stat_weight_u * up_pop))
+  (1.D0 - (stat_weight_l * up_pop) / (stat_weight_u * low_pop))
  ! probability of escape of the packet after scattering in line
  betalu = 1 / taulu * (1 - exp(-taulu))
  actVal = up_pop * betalu * Blu

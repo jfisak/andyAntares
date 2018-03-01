@@ -43,8 +43,11 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
      !$OMP ATOMIC
      count_r_line = count_r_line + 1
      ! in this sbr we get only excited states from the upper states
-     isUpperTransition = .TRUE.
      package(pack_index)%typ = type_ipkt
+     package(pack_index)%l_ele = linelist(package(pack_index)%last_line)%indexe
+     package(pack_index)%l_ion = linelist(package(pack_index)%last_line)%indexi
+     package(pack_index)%l_lev = linelist(package(pack_index)%last_line)%upper
+     
       if(procout) write(*,*) 'photon ', pack_index, ' line interaction...'
 !     CALL emit_rpackage(pack_index)
   ELSE IF (event .EQ. rpkt_eventtype_continuum) THEN
@@ -114,23 +117,10 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
        count_r_ph_i = count_r_ph_i + 1
        package(pack_index)%typ = type_ipkt
        ! we have to find corresponding transition for the do_ipacket sbr
-       DO nline = 1, ntransitions
-        IF(indexe == linelist(nline)%indexe .AND. &
-           indexi == linelist(nline)%indexi) THEN
-         IF(indexl == linelist(nline)%upper) THEN
-          package(pack_index)%last_line = nline
-          isUpperTransition = .TRUE.
-          EXIT
-         ELSE IF(indexl == linelist(nline)%lower) THEN
-          package(pack_index)%last_line = nline
-          isUpperTransition = .FALSE.
-          EXIT
-         ! test for level number
-         END IF
-        ! test for indexe and indexi
-        END IF
-       ! loop over lines
-       END DO
+       package(pack_index)%last_line = no_line
+       package(pack_index)%l_ele = indexe
+       package(pack_index)%l_ion = indexi + 1
+       package(pack_index)%l_lev = 1
       ELSE
        if(procout) write(*,*) 'do_rpackage_event: package = ', pack_index, ' photoionization -> k packet'
        !$OMP ATOMIC

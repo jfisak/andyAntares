@@ -25,6 +25,7 @@ MODULE types
      INTEGER                         :: n_interactions
      DOUBLE PRECISION, DIMENSION(3)  :: pos, dir 
      DOUBLE PRECISION                :: e_cmf, e_rf, freq_cmf, freq_rf, delta_s
+     INTEGER                         :: l_ele, l_ion, l_lev
   END TYPE photon
 
 

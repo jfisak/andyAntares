@@ -28,6 +28,7 @@ DOUBLE PRECISION                        :: actInt, alphEspont, alphaSpont, summ,
 INTEGER                                 :: actPoint
 INTEGER                                 :: get_package_model_index
 DOUBLE PRECISION                        :: tot_pop, uppper_en, lower_en
+DOUBLE PRECISION                        :: sfactor
 TYPE(krates)                            :: actikrates
 
 
@@ -113,12 +114,13 @@ DO indexe = 1, n_elements
      summ = summ + actInt
     END DO
     alphaSpont = 4.D0 * pi / light_speed**2 * summ
+    CALL saha_factor(indexe, indexi, indexl, cur_mgi, el_dens, sfactor)
     ! population of the given ion
     tot_pop = model_grid(cur_mgi)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
     uppper_en = MINVAL(elements(indexe)%ions(indexi)%levels(:)%exci_energy)
     lower_en = elements(indexe)%ions(indexi - 1)%levels(indexl)%exci_energy
     ! actikrates%Lcool_fbE(4,act_rate) = tot_pop * integral * (uppper_en - lower_en)
-    actikrates%Lcool_fbE(4,act_rate) = tot_pop * el_dens * &
+    actikrates%Lcool_fbE(4,act_rate) = tot_pop * el_dens * sfactor * &
      (alphEspont - alphaSpont) * (uppper_en - lower_en)
     Zfb = Zfb + actikrates%Lcool_fbE(4,act_rate)
     ! temporary solution

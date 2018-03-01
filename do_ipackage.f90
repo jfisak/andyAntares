@@ -48,21 +48,18 @@ LOGICAL                         :: procout = .FALSE.
 
 my_rank = OMP_GET_THREAD_NUM()
 
+last_line = package(pack_index)%last_line
 ! define the needed variables
 ! it is necessary to remember the initial conditions of a macro-atom
 !IF(.NOT. ASSOCIATED(actirates)) ALLOCATE(actirates)
-last_line = package(pack_index)%last_line
-IF(isUpperTransition .EQV. .TRUE.) THEN
- last_level = linelist(last_line)%upper
-ELSE
- last_level = linelist(last_line)%lower
-END IF
+element_index = package(pack_index)%l_ele
+last_ion = package(pack_index)%l_ion
+last_level = package(pack_index)%l_lev
+IF(package(pack_index)%last_line /= no_line) linelist(last_line)%n_exc = linelist(last_line)%n_exc + 1
  
-last_ion = linelist(last_line)%indexi
-linelist(last_line)%n_exc = linelist(last_line)%n_exc + 1
-element_index = linelist(last_line)%indexe
 current_mgi = get_package_model_index(pack_index)
-!print*, 'do_ipackage: element_index = ', element_index, 'ion_index = ', ion_index, ' level_index = ', last_level
+! write(*,*) '*********************************************************************'
+! write(*,*)  'do_ipackage: element_index = ', element_index, 'ion_index = ', last_ion, ' level_index = ', last_level
 
 active = 1
 ! this is an initial state of the macro-atom
@@ -70,7 +67,7 @@ actual_state = last_level
 ion_index = last_ion
 ! we will run this loop until the macro atom is deactivated
 DO WHILE (active == 1)
- !print*, 'do_ipackage: actual_state = ', actual_state, ' ion_index = ', ion_index
+ ! write(*,*) 'do_ipackage: actual_state = ', actual_state, ' ion_index = ', ion_index
  ! we have to find all possible downward upward transitions
  ! firstly we calculate number of these possible transitions
  ! number of transitions to a lower level
@@ -210,6 +207,7 @@ Z7 = Z6 + Zcollrecom
 !write(*,*) 'do_ipackage: Zrecombination = ', Zrecombination, ' Zphotrecom = ', Zphotrecom, ' Zcollrecom = ', Zcollrecom
 ! write(*,*) 'do_ipackage: Z0 = ', Z0, ' Z1 = ', Z1, ' Z2 = ', Z2, ' Z3 = ', Z3, &
 !  ' Z4 = ', Z4, ' Z5 = ', Z5, ' Z6 =', Z6, ' Z7 = ', Z7
+IF(Ztotal == 0.D0) STOP 'do_ipackage: Ztotal = 0'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal downward jump
 ! in this case a macro-atom transits into a lower state without an energy emission
@@ -235,6 +233,7 @@ IF(rand >= 0.D0 .AND. rand < Z0) THEN
 ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
 ! next transition will be an radiative deexcitation
  package(pack_index)%typ = type_rpkt
+ IF(package(pack_index)%last_line == no_line) CYCLE
  package(pack_index)%last_line = no_line
  CALL emit_rpackage(pack_index)
  ! now we will calculate new frequency of the packet
@@ -357,16 +356,18 @@ ELSE IF(rand >= Z4 .AND. rand <= Z5) THEN
  summ = Z4
  DO I = 1, nlevslion
   ! we will find the given state
-  !print*, 'summ = ', summ, ' summ + L(I) = ', summ + actirates%Lma_recrad(I) + actirates%Lma_reccol(I)
+  ! print*, 'summ = ', summ, ' summ + L(I) = ', summ + actirates%Lma_int_recrad(I) + actirates%Lma_int_reccol(I)
   IF(rand >= summ .AND. rand < summ + actirates%Lma_int_recrad(I) + actirates%Lma_int_reccol(I)) THEN
    actual_state = I
    !$OMP ATOMIC
    count_i_int_reco = count_i_int_reco + 1
-   IF(procout) write(*,*)  'do_ipackage: packet: ', pack_index, ' internal jump to the lower ionization state...'
+   IF(procout) write(*,*)  'do_ipackage: packet: ', pack_index, ' internal jump to the lower ionization state...', 'actual_state = &
+   ', actual_state
    EXIT
   END IF
   summ = summ + actirates%Lma_int_recrad(I) + actirates%Lma_int_reccol(I)
  END DO
+ ! write(*,*) 'do_ipackage: Z5 = ', Z5, ' summ = ', summ
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! radiative recombination
 ELSE IF(rand >= Z5 .AND. rand <= Z6) THEN

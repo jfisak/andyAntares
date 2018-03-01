@@ -76,7 +76,9 @@ IF(rand >= 0.D0 .AND. rand <= Z0) THEN
    !print*, 'collisional deexcitation: I = ', I, ' upper level = ', linelist(I)%upper
    package(pack_index)%last_line = I
    package(pack_index)%typ = type_ipkt
-   isUpperTransition = .TRUE.
+   package(pack_index)%l_ele = linelist(I)%indexe
+   package(pack_index)%l_ion = linelist(I)%indexi
+   package(pack_index)%l_lev = linelist(I)%upper
    !$OMP ATOMIC
    count_cool_ex = count_cool_ex + 1
    IF(procout) write(*,*) 'do_kpackage: package = ', pack_index, ' collisional excitation process...'
@@ -116,27 +118,11 @@ ELSE IF(rand >= Z1 .AND. rand <= Z2) THEN
    n_levels = SIZE(elements(indexe)%ions(indexi)%levels)
    DO indexl = 1, n_levels
     IF(rand > summ .AND. rand <= summ + actikrates%Lcool_ion(actIndex + 1)) THEN
-     ! we have to find any corresponding line for the given ion including the given
-     ! line in the lower or the upper level(, which must be saved as well)
      !$OMP ATOMIC
      count_cool_io = count_cool_io + 1
-     DO nline = 1, ntransitions
-      IF(indexe == linelist(nline)%indexe .AND. &
-         indexi == linelist(nline)%indexi) THEN
-       IF(indexl == linelist(nline)%upper) THEN
-        package(pack_index)%last_line = nline
-        isUpperTransition = .TRUE.
-        EXIT
-       ELSE IF(indexl == linelist(nline)%lower) THEN
-        package(pack_index)%last_line = nline
-        isUpperTransition = .FALSE.
-        EXIT
-       ! test for level number
-       END IF
-      ! test for indexe and indexi
-      END IF
-     ! loop over lines
-     END DO
+     package(pack_index)%l_ele = indexe
+     package(pack_index)%l_ion = indexi + 1
+     package(pack_index)%l_lev = 1
     END IF
    ! loop over levels
    END DO

@@ -1,5 +1,5 @@
 SUBROUTINE i_colion(approximation, indexe, indexi, act_level, pack_index, act_pop, Zion, &
-        Zrecomb, Zintrecomb, actirates)
+        Zintrecomb, Zrecomb, actirates)
 USE types
 USE rates_i
 IMPLICIT NONE
@@ -46,7 +46,7 @@ CASE (1)
  el_dens = model_grid(current_mgi)%e_dens
  ! temperature
  temp = model_grid(current_mgi)%T
- IF(indexi < elements(indexe)%atom_number) THEN
+ IF(indexi <= elements(indexe)%atom_number) THEN
   IF(ALLOCATED(elements(indexe)%ions(indexi)%levels(act_level)%photcros)) THEN
    nfreq = SIZE(elements(indexe)%ions(indexi)%levels(act_level)%photcros(1,:))
   ELSE
