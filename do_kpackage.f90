@@ -110,6 +110,7 @@ ELSE IF(rand >= Z0 .AND. rand <= Z1) THEN
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ELSE IF(rand >= Z1 .AND. rand <= Z2) THEN
  summ = Z1
+ IF(procout) write(*,*) 'do_kpackage: ionization process...'
  package(pack_index)%typ = type_ipkt
  actIndex = 0
  DO indexe = 1, n_elements
@@ -123,14 +124,16 @@ ELSE IF(rand >= Z1 .AND. rand <= Z2) THEN
      package(pack_index)%l_ele = indexe
      package(pack_index)%l_ion = indexi + 1
      package(pack_index)%l_lev = 1
+     IF(procout) write(*,*) 'do_kpackage: package = ', pack_index, ' ionization process...'
     END IF
+    summ = summ + actikrates%Lcool_ion(actIndex + 1)
+    actIndex = actIndex + 1
    ! loop over levels
    END DO
   ! loop over ions
   END DO
  ! loop over elements
  END DO
- IF(procout) write(*,*) 'do_kpackage: package = ', pack_index, ' ionization process...'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! recombination

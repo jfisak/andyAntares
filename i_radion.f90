@@ -10,12 +10,12 @@ DOUBLE PRECISION                        :: act_pop
 ! computing fields
 INTEGER                                 :: npoints
 INTEGER                                 :: I, Istart, J, Jstart, K
-DOUBLE PRECISION, ALLOCATABLE           :: freq(:), cross(:), func(:), func2(:)
+DOUBLE PRECISION, ALLOCATABLE           :: freq(:), cross(:), func(:)
 DOUBLE PRECISION                        :: gammaijk, photRate
 DOUBLE PRECISION                        :: temp
 DOUBLE PRECISION                        :: up_pop
 DOUBLE PRECISION                        :: flux
-DOUBLE PRECISION                        :: summ, summ2
+DOUBLE PRECISION                        :: summ
 DOUBLE PRECISION                        :: phot_cross
 DOUBLE PRECISION                        :: freqt
 DOUBLE PRECISION                        :: exci_energy, gr_exci_energy
@@ -53,7 +53,7 @@ END IF
 ! the rates are equal to zero
 !print*, 'photion_rates: npoints = ', npoints
 IF(npoints /= 0) THEN
- ALLOCATE(freq(npoints), cross(npoints), func(npoints), func2(npoints))
+ ALLOCATE(freq(npoints), cross(npoints), func(npoints))
  T_eff = model_grid(current_mgi)%T
  freq(1:npoints) = elements(indexe)%ions(indexi)%levels(leveli)%photcros(1,1:npoints)
  cross(1:npoints) = elements(indexe)%ions(indexi)%levels(leveli)%photcros(2,1:npoints)
@@ -67,31 +67,32 @@ IF(npoints /= 0) THEN
   END IF
  END DO
  summ = 0.D0
- summ2 = 0.D0
  DO I = Istart, npoints
    flux = flux_function(0,freq(I), T_eff)
-  func(I) = cross(I) * flux / ( h * freq(I))
-  func2(I) = flux * cross(I) / (h * freq(I)) * (1 - exp(-(h * freq(I) / (BOLK * temp))))
+  ! func(I) = cross(I) * flux / ( h * freq(I))
+  func(I) = flux * cross(I) / (h * freq(I)) * (1 - exp(-(h * freq(I) / (BOLK * temp))))
  ! print*, 'flux = ', flux, ' cross(I) = ', cross(I), ' func(I) = ', func(I), &
  !  ' h * freq = ', h * freq(I)
  END DO
  ! calculation of integral with the trapezoid rule
  DO I = Istart, npoints - 1
+  ! summ = summ + (func(I) + func(I + 1)) / 2.D0 * (freq(I + 1) - freq(I))
   summ = summ + (func(I) + func(I + 1)) / 2.D0 * (freq(I + 1) - freq(I))
-  summ2 = summ2 + (func2(I) + func2(I + 1)) / 2.D0 * (freq(I + 1) - freq(I))
   !print*, 'func(I) + func(I + 1) = ', func(I) + func(I + 1), &
   ! ' freq(I + 1) - freq(I) = ', freq(I + 1) - freq(I)
  END DO
  CALL saha_factor(indexe, indexi + 1, leveli, current_mgi, el_dens, sfactor)
  CALL populations(indexe, indexi + 1, 1, current_mgi, up_pop)
- gammaijk = 4.D0 * pi * summ2
+ gammaijk = 4.D0 * pi * summ
  phot_cross = 4.D0 * pi * summ * act_pop * sfactor
- photRate = act_pop * gammaijk - up_pop * phot_cross
- ! print*, 'i_radion: phot_cross = ', phot_cross, ' summ = ', summ, ' act_pop = ', act_pop, ' photRate = ', photRate
- ! write(*,*) 'exci_energy = ', elements(indexe)%ions(indexi)%levels(leveli)%exci_energy
+ photRate = act_pop * gammaijk
+  ! write(*,*) 'i_radion: phot_cross = ', phot_cross, ' summ = ', summ, ' act_pop = ', act_pop, ' photRate = ', photRate
+  ! write(*,*) 'i_radion: up_pop = ', up_pop
+  ! write(*,*) 'exci_energy = ', elements(indexe)%ions(indexi)%levels(leveli)%exci_energy
+ IF(photRate < 0.D0) STOP 'i_radion: photRate < 0'
  Zion = photRate * elements(indexe)%ions(indexi)%levels(leveli)%exci_energy
  ! write(*,*) 'i_radion: Zion = ', Zion
- DEALLOCATE(freq, cross, func, func2)
+ DEALLOCATE(freq, cross, func)
 ELSE
  Zion = 0.D0
 END IF
