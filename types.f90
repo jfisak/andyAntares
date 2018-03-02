@@ -156,8 +156,6 @@ MODULE types
   INTEGER, PARAMETER                 :: negz=6
   INTEGER, PARAMETER                 :: NONE = -99
   INTEGER, PARAMETER                 :: no_line = -99
-  ! describes which level could be taken as a last level
-  LOGICAL                            :: isUpperTransition
 
 !! Atomic data
  ! Total number of chemical elements in the simulation

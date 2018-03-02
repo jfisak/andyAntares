@@ -43,6 +43,7 @@ FUNCTION rates_construct(nlns, nluns, nlio)
  !write(*,*) 'construction: my_rank = ', my_rank, ' nlns = ', nlns, ' nluns = ', nluns, ' nlio = ', nlio
  ALLOCATE(rates_construct%Lma_int_dorad(nlns))
  ALLOCATE(rates_construct%Lma_int_docoll(nlns))
+ ALLOCATE(rates_construct%Lma_rad(nlns))
  ALLOCATE(rates_construct%Lma_int_uprad(nluns))
  ALLOCATE(rates_construct%Lma_int_upcoll(nluns))
  ALLOCATE(rates_construct%Lma_int_do(nlns))

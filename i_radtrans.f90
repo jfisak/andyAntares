@@ -65,16 +65,17 @@ DO I = 1, nlns
  exci_energy_l = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy
  ! internal downward jump
  ! calculation of a rate coefficient
- CALL populations(element_index, ion_index, I, current_mgi, low_pop)
+ CALL populations(element_index, ion_index, linelist(act_line)%lower, current_mgi, low_pop)
  ! Einstein Blu coefficient
  Blu = 4.0 * pi / (h * linelist(act_line)%freq) * linelist(act_line)%A_ul
  ! optical depth
  taulu = low_pop * Blu * h * light_speed / (4.0 * pi) *&
   (1.D0 - (stat_weight_l * up_pop) / (stat_weight_u * low_pop))
+ ! write(*,*) 'i_radtrans: 1-gn/ng = ', (1.D0 - (stat_weight_l * up_pop) / (stat_weight_u * low_pop))
  ! probability of escape of the packet after scattering in line
  betalu = 1 / taulu * (1 - exp(-taulu))
- actVal = up_pop * betalu * Blu
- ! write(*,*) 'i_radtrans: exci_energy, up_pop, Blu, actVal', exci_energy_u, up_pop, Blu, actVal
+ actVal = up_pop * betalu * linelist(act_line)%A_ul
+ ! write(*,*) 'i_radtrans: exci_energy, low_pop, up_pop, Blu, actVal', exci_energy_u, low_pop, up_pop, Blu, actVal
  actirates%Lma_int_dorad(I) = actVal * exci_energy_l
  IF(actirates%Lma_int_dorad(I) < 0.D0) STOP 'i_radtrans: Lma_int_dorad < 0'
  Zintdown = Zintdown + actirates%Lma_int_dorad(I)
@@ -83,7 +84,8 @@ DO I = 1, nlns
  ! radiative deexcitation
  !print*, 'do_ipackage: up_pop = ', up_pop
  actVal = up_pop * betalu * linelist(act_line)%A_ul
- Zrad = Zrad + actVal * (exci_energy_u - exci_energy_l)
+ actirates%Lma_rad(I) = actVal * (exci_energy_u - exci_energy_l)
+ Zrad = Zrad + actirates%Lma_rad(I)
  IF(exci_energy_u - exci_energy_l < 0) STOP 'i_radtrans: exci_energy_u - exci_energy_l < 0'
  ! write(*,*) 'i_radtrans: Zrad = ', Zrad
 END DO

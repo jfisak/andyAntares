@@ -236,6 +236,7 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
  ! IF(package(pack_index)%last_line == no_line) CYCLE
  package(pack_index)%last_line = no_line
  CALL emit_rpackage(pack_index)
+ IF(procout) write(*,*) 'do_ipackage: packet: ', pack_index, ' radiative deexcitation...'
  ! now we will calculate new frequency of the packet
  ! we will choose this frequency from the possible radiative transitions
  rand = random()
@@ -252,7 +253,7 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
 !  END IF
 ! END DO
 ! ALLOCATE(lineradtransitions(nlns), actirates%Lma_rad(nlns))
- ALLOCATE(actirates%Lma_rad(nlns))
+! ALLOCATE(actirates%Lma_rad(nlns))
 ! J = 0
 !  ' linelist(last_line)%indexe = ', linelist(last_line)%indexe,&
 !  ' linelist(last_line)%indexi = ', linelist(last_line)%indexi, ' last_level = ', last_level, &
@@ -262,31 +263,31 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
 !   ! transitions to a lower level
 !   IF(linelist(K)%upper == last_level) THEN
 !    J = J + 1
- DO K = 1, nlns
-  ! lineradtransitions(J) = K
-  act_line = linetransitions(K)
-  exci_energy_u = &
-   elements(element_index)%ions(ion_index)%levels(linelist(act_line)%upper)%exci_energy
-  exci_energy_l = &
-   elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy
-  stat_weight_l = &
-   elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%stat_waight
-  stat_weight_u = &
-   elements(element_index)%ions(ion_index)%levels(linelist(act_line)%upper)%stat_waight
-  CALL populations(element_index, ion_index, linelist(act_line)%lower, current_mgi, low_pop)
-  Blu = 4.0 * pi / (h * linelist(K)%freq) * linelist(act_line)%A_ul
-  taulu = low_pop * Blu * h * light_speed / (4.0 * pi) *&
-   (1.D0 - (stat_weight_l * act_pop) / (stat_weight_u * low_pop))
-  betalu = 1 / taulu * (1 - exp(-taulu))
-  actirates%Lma_rad(K)  = act_pop * betalu * linelist(K)%A_ul * &
-   (exci_energy_u - exci_energy_l)
-  !print*, 'do_ipackage: Lrad(J) = ', Lrad(J)
-  Zrad = Zrad + actirates%Lma_rad(K)
-  ! END IF
-  !END IF
- END DO
- rand = rand * Zrad
- summ = 0
+! DO K = 1, nlns
+!  ! lineradtransitions(J) = K
+!  act_line = linetransitions(K)
+!  exci_energy_u = &
+!   elements(element_index)%ions(ion_index)%levels(linelist(act_line)%upper)%exci_energy
+!  exci_energy_l = &
+!   elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy
+!  stat_weight_l = &
+!   elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%stat_waight
+!  stat_weight_u = &
+!   elements(element_index)%ions(ion_index)%levels(linelist(act_line)%upper)%stat_waight
+!  CALL populations(element_index, ion_index, linelist(act_line)%lower, current_mgi, low_pop)
+!  Blu = 4.0 * pi / (h * linelist(K)%freq) * linelist(act_line)%A_ul
+!  taulu = low_pop * Blu * h * light_speed / (4.0 * pi) *&
+!   (1.D0 - (stat_weight_l * act_pop) / (stat_weight_u * low_pop))
+!  betalu = 1 / taulu * (1 - exp(-taulu))
+!  actirates%Lma_rad(K)  = act_pop * betalu * linelist(K)%A_ul * &
+!   (exci_energy_u - exci_energy_l)
+!  !print*, 'do_ipackage: Lrad(J) = ', Lrad(J)
+!  Zrad = Zrad + actirates%Lma_rad(K)
+!  ! END IF
+!  !END IF
+! END DO
+! rand = rand * Zrad
+! summ = 0
  ! looking for the given line
  DO line = 1, nlns
   IF(rand >= summ .AND. rand <= summ + actirates%Lma_rad(line)) THEN
@@ -301,16 +302,18 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
    package(pack_index)%last_line = no_line
    !$OMP ATOMIC
    linelist(linetransitions(line))%n_deexc = linelist(linetransitions(line))%n_deexc + 1
-   IF(linelist(linetransitions(line))%lower == linelist(last_line)%lower) THEN
-    ! resonant scattering occures
-    !$OMP ATOMIC
-    count_i_rad_dxrs = count_i_rad_dxrs + 1
-   ELSE
-    !$OMP ATOMIC
-    count_i_rad_dxfl = count_i_rad_dxfl + 1
+   IF(last_line /= no_line) THEN
+    IF(linelist(linetransitions(line))%lower == linelist(last_line)%lower) THEN
+     ! resonant scattering occures
+     !$OMP ATOMIC
+     count_i_rad_dxrs = count_i_rad_dxrs + 1
+    ELSE
+     !$OMP ATOMIC
+     count_i_rad_dxfl = count_i_rad_dxfl + 1
+    END IF
    END IF
-   EXIT
   END IF
+    EXIT
   summ = summ + actirates%Lma_rad(line)
  END DO
  active = 0
@@ -374,20 +377,21 @@ ELSE IF(rand >= Z4 .AND. rand <= Z5) THEN
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! radiative recombination
 ELSE IF(rand >= Z5 .AND. rand <= Z6) THEN
- IF(procout) write(*,*) 'do_ipackage: pack_index = ', pack_index, 'radiative recombination'
  package(pack_index)%typ = type_rpkt
  active = 0
  ! the frequency should be sampled from the photion cross section
  summ = Z5
  DO I = 1, nlevslion
+  ! write(*,*) 'do_ipackage: summ = ', summ, ' rand = ', rand, ' summ + Lma_recrad = ', summ + actirates%Lma_recrad(I)
   IF( rand >= summ .AND. rand < summ + actirates%Lma_recrad(I)) THEN
+   IF(procout) write(*,*) 'do_ipackage: pack_index = ', pack_index, 'radiative recombination'
    CALL i_freq_recomb(element_index, ion_index, I, pack_index, act_pop, new_freq)
    package(pack_index)%freq_cmf = new_freq
    CALL doppler_factor(pack_index, D)
    CALL emit_rpackage(pack_index)
    package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
    !$OMP ATOMIC
-   count_i_rad_reco= count_i_rad_reco + 1
+   count_i_rad_reco = count_i_rad_reco + 1
    EXIT
   END IF
   summ = summ + actirates%Lma_recrad(I)
@@ -395,11 +399,11 @@ ELSE IF(rand >= Z5 .AND. rand <= Z6) THEN
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! collisional recombination
 ELSE IF(rand >= Z6 .AND. rand <= Z7) THEN
- IF(procout) write(*,*) 'do_ipackage: pack_index = ', pack_index, 'radiative recombination'
+ IF(procout) write(*,*) 'do_ipackage: pack_index = ', pack_index, 'collisional recombination'
  package(pack_index)%typ = type_kpkt
+ active = 0
  !$OMP ATOMIC
  count_i_col_reco = count_i_col_reco + 1
-! active = 0
 ! no event was chosen
 ELSE
  write(*,*) 'do_ipackage, pack_index = ', pack_index, ' no event was chosen...'
