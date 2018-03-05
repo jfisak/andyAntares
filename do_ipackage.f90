@@ -157,8 +157,8 @@ DO WHILE (active == 1)
  CALL i_colion(1, element_index, ion_index, actual_state, pack_index, act_pop, Zcollionup, &
   Zcolliondown,Zcollrecom, actirates)
 ! testing
-! Zraddeexc = 0.D0
 ! controll part
+!Zphotrecom = 0.D0
 IF(Zintdowncoll < 0.D0) STOP 'do_ipackage: Zintdowncoll < 0'
 IF(Zintupcoll < 0.D0) STOP 'do_ipackage: Zintupcoll < 0'
 IF(Zcoll < 0.D0) STOP 'do_ipackage:  Zcoll < 0'
@@ -202,8 +202,8 @@ Z4 = Z3 + Zionization
 Z5 = Z4 + Zintrecombination
 Z6 = Z5 + Zphotrecom
 Z7 = Z6 + Zcollrecom
-! write(*,*) 'Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zrecombination, Zintrecombination, Zphotrecom: ', &
-!         Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zrecombination, Zintrecombination, Zphotrecom
+! write(*,*) 'Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zcollrecom, Zintrecombination, Zphotrecom: ', &
+!         Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zcollrecom, Zintrecombination, Zphotrecom
 !write(*,*) 'do_ipackage: Zrecombination = ', Zrecombination, ' Zphotrecom = ', Zphotrecom, ' Zcollrecom = ', Zcollrecom
 ! write(*,*) 'do_ipackage: Z0 = ', Z0, ' Z1 = ', Z1, ' Z2 = ', Z2, ' Z3 = ', Z3, &
 !  ' Z4 = ', Z4, ' Z5 = ', Z5, ' Z6 =', Z6, ' Z7 = ', Z7
@@ -379,16 +379,18 @@ ELSE IF(rand >= Z4 .AND. rand <= Z5) THEN
 ELSE IF(rand >= Z5 .AND. rand <= Z6) THEN
  package(pack_index)%typ = type_rpkt
  active = 0
+ IF(procout) write(*,*) 'do_ipackage: radiative recombination'
  ! the frequency should be sampled from the photion cross section
  summ = Z5
  DO I = 1, nlevslion
-  ! write(*,*) 'do_ipackage: summ = ', summ, ' rand = ', rand, ' summ + Lma_recrad = ', summ + actirates%Lma_recrad(I)
   IF( rand >= summ .AND. rand < summ + actirates%Lma_recrad(I)) THEN
    IF(procout) write(*,*) 'do_ipackage: pack_index = ', pack_index, 'radiative recombination'
+   package(pack_index)%last_line = no_line
+   CALL emit_rpackage(pack_index)
    CALL i_freq_recomb(element_index, ion_index, I, pack_index, act_pop, new_freq)
    package(pack_index)%freq_cmf = new_freq
+   ! write(*,*) 'do_ipackage: new_freq = ', new_freq
    CALL doppler_factor(pack_index, D)
-   CALL emit_rpackage(pack_index)
    package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
    !$OMP ATOMIC
    count_i_rad_reco = count_i_rad_reco + 1

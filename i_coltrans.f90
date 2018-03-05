@@ -92,11 +92,11 @@ CASE(1)
    exp(-(h * freq) / (BOLK * el_temperature)) * gf
 !  actVal = actVal * (linelist(act_line)%upper - linelist(act_line)%lower)
  ! internal downward jump
-  CALL populations(element_index, ion_index, linelist(act_line)%lower, current_mgi, low_pop)
-  actirates%Lma_int_docoll(I) = low_pop * actVal * exci_energy_l
+  ! CALL populations(element_index, ion_index, linelist(act_line)%lower, current_mgi, low_pop)
+  actirates%Lma_int_docoll(I) = population * actVal * exci_energy_l
   Zdown = Zdown + actirates%Lma_int_docoll(I)
  ! collisional deexcitation
-  lcoll = low_pop * actVal * (exci_energy_u - exci_energy_l)
+  lcoll = population * actVal * (exci_energy_u - exci_energy_l)
   ! write(*,*) 'i_coltrans: lcoll = ', lcoll, ' low_pop = ', low_pop
   Zcoll = Zcoll + lcoll
 !        (linelist(act_line)%upper - linelist(act_line)%lower)

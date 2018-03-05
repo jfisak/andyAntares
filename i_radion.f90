@@ -154,13 +154,14 @@ IF(indexi > 1) THEN
    ! CALL saha_boltzmann_factor(indexe, indexi, temp, sb_factor, too_large
    exci_energy = elements(indexe)%ions(indexi - 1)%levels(K)%exci_energy
    gr_exci_energy = MINVAL(elements(indexe)%ions(indexi)%levels(:)%exci_energy)
-   actirates%Lma_int_recrad(K) = pop_number * phot_cross * sfactor * exci_energy
-   actirates%Lma_recrad(K) = pop_number * phot_cross * sfactor *&
+   actirates%Lma_int_recrad(K) = pop_number * el_dens * phot_cross * sfactor * exci_energy
+   actirates%Lma_recrad(K) = pop_number * el_dens * phot_cross * sfactor * &
     (gr_exci_energy - exci_energy)
    ! write(*,*) 'i_radion: indexe = ', indexe, ' indexi - 1 = ', indexi - 1, 'indexl = ', K
    ! write(*,*) 'i_radion: exci_energy = ', exci_energy, ' gr_exci_energy = ', gr_exci_energy
    ! write(*,*) 'i_radion: pop_number = ', pop_number, ' phot_cross = ', phot_cross
-   ! write(*,*) 'i_radion: Lma_int_recrad(', K, ') = ', actirates%Lma_int_recrad(K)
+   ! write(*,*) 'i_radion: sfactor = ', sfactor
+   ! write(*,*) 'i_radion: Lma_recrad(', K, ') = ', actirates%Lma_recrad(K)
    Zintrecom = Zintrecom + actirates%Lma_int_recrad(K) 
    Zrecom = Zrecom + actirates%Lma_recrad(K)
    ! print*, 'Zrecom = ', Zrecom
@@ -170,6 +171,7 @@ IF(indexi > 1) THEN
    actirates%Lma_int_recrad(K) = 0.D0
   END IF
  END DO
+ ! STOP 'i_radion: testing'
 ELSE ! indexi > 1
  Zrecom = 0.D0
  Zintrecom = 0.D0

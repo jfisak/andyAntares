@@ -128,7 +128,7 @@ CASE (1)
       ALLOCATE(crossfreq(npoints))
       crossfreq(1:npoints) = elements(indexe)%ions(indexi - 1)%levels(I)%photcros(1, 1:npoints)
       ! frequency
-      freq = (elements(indexe)%ions(indexi)%levels(act_level)%exci_energy - &
+      freq = (MINVAL(elements(indexe)%ions(indexi)%levels(:)%exci_energy) - &
               elements(indexe)%ions(indexi - 1)%levels(I)%exci_energy) / h
       !write(*,*) 'i_colion: excienergy1 = ', &
       ! elements(indexe)%ions(indexi)%levels(act_level)%exci_energy, &
@@ -163,11 +163,11 @@ CASE (1)
       bli = (func2 * freq1 - func1 * freq2) / (freq1 - freq2)
       cross_sect = ali * freq + bli
       ! gindex
-      IF(indexi - 1 == 1) THEN
+      IF(indexi == 1) THEN
         gindex = 0.1
-      ELSE IF(indexi - 1 == 2) THEN
+      ELSE IF(indexi == 2) THEN
         gindex = 0.2
-      ELSE IF(indexi - 1 > 2) THEN
+      ELSE IF(indexi > 2) THEN
         gindex = 0.3
       END IF
       ! populations calculation
@@ -176,9 +176,9 @@ CASE (1)
       gr_exci_energy = MINVAL(elements(indexe)%ions(indexi)%levels(:)%exci_energy)
       stat_weight = elements(indexe)%ions(indexi - 1)%levels(I)%stat_waight
       actirates%Lma_int_reccol(I) = pop_number * el_dens * coll_const / temp**(1.0/2.0) * gindex * cross_sect * &
-        exp(-x) / x * exci_energy * stat_weight
+        exp(-x) / x * exci_energy 
       actirates%Lma_reccol(I) = pop_number * el_dens * coll_const / temp**(1.0/2.0) * gindex * cross_sect * &
-        exp(-x) / x * (gr_exci_energy - exci_energy) * stat_weight
+        exp(-x) / x * (gr_exci_energy - exci_energy) 
       !write(*,*) 'i_colion: el = ', indexe, ' ion = ', indexi, ' e - e0 = ', (exci_energy - gr_exci_energy)
       ! for now it will be equal to zero
       !actirates%Lma_reccol(I) = 0.D0

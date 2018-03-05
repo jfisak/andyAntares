@@ -41,7 +41,7 @@
      vel_vec = vel_rad + vel_ang
     END IF
   IF(norm2(vel_vec) > light_speed) THEN
-   write(*,*) 'velo: pack_index = ', pack_index, ' position = ', vec_length(package(pack_index)%pos)
+   write(*,*) 'velo: pack_index = ', pack_index, ' position = ', vec_length(package(pack_index)%pos)/R_sun
    STOP 'velocity is larger than the speed of light'
   END IF
  END SUBROUTINE velo

@@ -64,7 +64,7 @@ CASE (1)
      ALLOCATE(crossfreq(nfreq))
      ! number density of a ground state of ion indexi + 1, indexe
      ! frequency
-     freq = (elements(indexe)%ions(indexi + 1)%levels(1)%exci_energy - &
+     freq = (MINVAL(elements(indexe)%ions(indexi + 1)%levels(:)%exci_energy) - &
               elements(indexe)%ions(indexi)%levels(indexl)%exci_energy) / h
      !write(*,*) 'cool_ionization: indexe = ', indexe, ' indexi = ', indexi, ' indexl = ', indexl, ' freq = ', freq
      ! argument of E_1(x)
@@ -110,7 +110,7 @@ CASE (1)
       END IF
       act_rate = act_rate + 1
       actikrates%Lcool_ion(act_rate) = act_pop * el_dens * coll_const / temp**(1.0/2.0) * gindex * &
-       cross_sect * exp(-x) / x * (h * freq)
+       cross_sect * exp(-x) / x * (h * freq) 
       !write(*,*) 'cool_ionization: act_pop = ', act_pop, ' el_dens = ', el_dens, ' temp = ', temp,&
       ! ' cross_sect = ', cross_sect
       !write(*,*) 'cool_ionization: actikrates%Lcool_ion(', act_rate, ') = ', actikrates%Lcool_ion(act_rate)
