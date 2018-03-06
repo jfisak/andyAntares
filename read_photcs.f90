@@ -78,7 +78,8 @@ CASE(2)
    END IF
    !print*, 'nofPoints = ', nofPoints
    ! we can compute a frequency treshold from these data
-   freqt = abs(energy * Rydberg * e_v) / h
+   freqt = (MINVAL(elements(indexe)%ions(indexI + 1)%levels(:)%exci_energy) - &
+    elements(indexe)%ions(indexI)%levels(indexclev)%exci_energy) / h
    elements(indexe)%ions(indexI)%levels(indexclev)%phfreq = freqt
    !write(*,*) 'read_photcs: freqt = ', freqt
    !elements(indexe)%ions(indexI)%levels(indexclev)%phfreq = freqt
@@ -92,7 +93,9 @@ CASE(2)
     !print*, freq(I), cross(I)
     IF(save_cs .EQV. .TRUE.) THEN
      !freq = freq * freqt
-     elements(indexe)%ions(indexI)%levels(indexclev)%photcros(1,I) = freq * freqt
+     ! elements(indexe)%ions(indexI)%levels(indexclev)%photcros(1,I) = freq * freqt
+     elements(indexe)%ions(indexI)%levels(indexclev)%photcros(1,I) = freq * Rydberg * e_v / h
+     ! write(*,*) 'read_photcs: photfreq = ', freq * Rydberg * e_v / h
      elements(indexe)%ions(indexI)%levels(indexclev)%photcros(2,I) = cross * 1.D-15
      ! print*, index, indexI, freq(I), cross(I)
     END IF

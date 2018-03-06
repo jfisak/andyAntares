@@ -96,7 +96,7 @@ CASE(1)
    NP = NP + 1
    CALL random_unitvector(direction)
    virtual_particle(NP)%pos = radius * direction
-   write(20,*) virtual_particle(NP)%pos(1), virtual_particle(NP)%pos(2), virtual_particle(NP)%pos(3)
+   ! write(20,*) virtual_particle(NP)%pos(1), virtual_particle(NP)%pos(2), virtual_particle(NP)%pos(3)
   END DO
  END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -122,7 +122,7 @@ CASE(2)
   nOfPoints(I) = INT(FLOAT(Nvirtpart) * (model_grid(I)%rwind / R_inf) ** delta / sumr)
  END DO
  ! printing number of points for each model grid
- OPEN(UNIT=8,FILE='vp_distribution.dat')
+ ! OPEN(UNIT=8,FILE='vp_distribution.dat')
   DO I = 1, n_modelgrid
    write(8,*) I, nOfPoints(I)
   END DO

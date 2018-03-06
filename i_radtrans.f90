@@ -83,7 +83,7 @@ DO I = 1, nlns
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! radiative deexcitation
  !print*, 'do_ipackage: up_pop = ', up_pop
- actVal = up_pop * betalu * linelist(act_line)%A_ul
+ ! actVal = up_pop * betalu * linelist(act_line)%A_ul
  actirates%Lma_rad(I) = actVal * (exci_energy_u - exci_energy_l)
  Zrad = Zrad + actirates%Lma_rad(I)
  IF(exci_energy_u - exci_energy_l < 0) STOP 'i_radtrans: exci_energy_u - exci_energy_l < 0'

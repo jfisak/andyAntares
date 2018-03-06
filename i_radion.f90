@@ -67,6 +67,12 @@ IF(npoints /= 0) THEN
   END IF
  END DO
  summ = 0.D0
+ ! ONLY TEMPORARY SOLUTION
+ IF(Istart == 0) THEN
+  Zion = 0.D0
+  Istart = npoints
+  write(*,*) 'i_radion: Istart = 0, leveli = ', leveli
+ END IF
  DO I = Istart, npoints
    flux = flux_function(0,freq(I), T_eff)
   ! func(I) = cross(I) * flux / ( h * freq(I))
@@ -151,7 +157,6 @@ IF(indexi > 1) THEN
    ! write(*,*) 'i_radion: calling populations...'
    CALL populations(indexe, indexi, 1, current_mgi, pop_number)
    CALL saha_factor(indexe, indexi, K, current_mgi, el_dens, sfactor)
-   ! CALL saha_boltzmann_factor(indexe, indexi, temp, sb_factor, too_large
    exci_energy = elements(indexe)%ions(indexi - 1)%levels(K)%exci_energy
    gr_exci_energy = MINVAL(elements(indexe)%ions(indexi)%levels(:)%exci_energy)
    actirates%Lma_int_recrad(K) = pop_number * el_dens * phot_cross * sfactor * exci_energy
