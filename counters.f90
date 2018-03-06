@@ -27,6 +27,7 @@ INTEGER                         :: count_cool_fb = 0
 INTEGER                         :: count_i_int_down = 0
 INTEGER                         :: count_i_rad_dxrs = 0
 INTEGER                         :: count_i_rad_dxfl = 0
+INTEGER                         :: count_i_rad_deex = 0
 INTEGER                         :: count_i_int_upwa = 0
 INTEGER                         :: count_i_col_deex = 0
 INTEGER                         :: count_i_int_phot = 0
