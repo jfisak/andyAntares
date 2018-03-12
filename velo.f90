@@ -15,6 +15,11 @@
 
     IF(model_type .EQ. 1) THEN
 ! homologous expansion
+     ! vel_radial = V_inf/R_inf * vec_length(package(pack_index)%pos)
+     IF(vec_length(package(pack_index)%pos) > R_inf) THEN
+      vel_vec = (/ 0.0, 0.0, 0.0/)
+      RETURN
+     END IF
      vel_radial = V_inf/R_inf * vec_length(package(pack_index)%pos)
      ! we assume the beta law
 !     vel_radial = V_inf * (1.D0 - b/norm2(package(pack_index)%pos))**beta

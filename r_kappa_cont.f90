@@ -137,18 +137,19 @@ actirrates%Lcont(3, act_continuum) = 0
 kappaff = 0.D0
 DO indexe = 1, n_elements
  n_ions = SIZE(elements(indexe)%ions)
-  DO indexi = 2, n_ions
-   act_pop = model_grid(current_mgi)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
-   ! calculation of alpha_ff
-   CALL gauntff(freq, temp, gff)
-   alphaff = ffconst * DBLE((indexi - 1)**2) * gff /sqrt(temp) / freq ** 3.0 
-   kappaff = kappaff + electron_density * act_pop * alphaff * &
-    (1.E0 - exp(-(h * freq) / (BOLK * temp)))
-   ! write(*,*) 'r_kappa_cont: electron_density = ', electron_density, ' act_pop = ', &
-   !  act_pop, ' alphaff = ', alphaff, ' 1-exp() = ', 1.E0 - exp(-(h * freq) / (BOLK * temp))
-   ! write(*,*) 'r_kappa_cont: indexe = ', indexe, ' indexi = ', indexi, ' kappaff = ', kappaff
-  END DO
+ DO indexi = 2, n_ions
+  act_pop = model_grid(current_mgi)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
+  ! calculation of alpha_ff
+  CALL gauntff(freq, temp, gff)
+  alphaff = ffconst * DBLE((indexi - 1)**2) * gff /sqrt(temp) / freq ** 3.0 
+  kappaff = kappaff + electron_density * act_pop * alphaff * &
+   (1.E0 - exp(-(h * freq) / (BOLK * temp)))
+  ! write(*,*) 'r_kappa_cont: electron_density = ', electron_density, ' act_pop = ', &
+  !  act_pop, ' alphaff = ', alphaff, ' 1-exp() = ', 1.E0 - exp(-(h * freq) / (BOLK * temp))
+  ! write(*,*) 'r_kappa_cont: indexe = ', indexe, ' indexi = ', indexi, ' kappaff = ', kappaff
+ END DO
 END DO
+kappaff = 0.D0
 kappa = kappa + kappaff
 ! write(*,*) 'r_kappa_cont: kappaff = ', kappaff, 'thomson = ', thomson
 ! write(*,*) 'r_kappa_cont: kappa = ', kappa

@@ -67,6 +67,7 @@ actual_state = last_level
 ion_index = last_ion
 ! we will run this loop until the macro atom is deactivated
 DO WHILE (active == 1)
+ !write(*,*)  'do_ipackage: element_index = ', element_index, 'ion_index = ', ion_index, ' level_index = ', actual_state
  ! write(*,*) 'do_ipackage: actual_state = ', actual_state, ' ion_index = ', ion_index
  ! we have to find all possible downward upward transitions
  ! firstly we calculate number of these possible transitions
@@ -149,7 +150,7 @@ DO WHILE (active == 1)
  CALL populations(element_index, ion_index, actual_state, current_mgi, act_pop)
  ! write(*,*) 'do_ipackage: pop = ', act_pop
  CALL i_radtrans(current_mgi, nlns, linetransitions, nluns, lineuptransitions, act_pop, &
-  Zintdownrad, Zintuprad, Zraddeexc, actirates)
+  Zintdownrad, Zintuprad, Zraddeexc, actirates, pack_index)
  CALL i_coltrans(1, pack_index, actual_state, nlns, linetransitions, nluns, lineuptransitions, &
   act_pop, Zintdowncoll, Zintupcoll, Zcoll, actirates)
  CALL i_radion(0, element_index, ion_index, actual_state, current_mgi, act_pop, Zphotionup, &
@@ -157,9 +158,14 @@ DO WHILE (active == 1)
  CALL i_colion(1, element_index, ion_index, actual_state, pack_index, act_pop, Zcollionup, &
   Zcolliondown,Zcollrecom, actirates)
 ! testing
-! Zcollrecom = 0.D0
-! Zcoll = 0.D0
-! Zphotrecom = 0.D0
+Zcollrecom = 0.D0
+Zcoll = 0.D0
+Zphotrecom = 0.D0
+! Zintupcoll = 0.D0
+! Zintdowncoll = 0.D0
+! Zintdownrad = 0.D0
+! Zphotionup = 0.D0
+! Zcollionup = 0.D0
 ! end testing
 IF(Zintdowncoll < 0.D0) STOP 'do_ipackage: Zintdowncoll < 0'
 IF(Zintupcoll < 0.D0) STOP 'do_ipackage: Zintupcoll < 0'
@@ -204,8 +210,8 @@ Z4 = Z3 + Zionization
 Z5 = Z4 + Zintrecombination
 Z6 = Z5 + Zphotrecom
 Z7 = Z6 + Zcollrecom
-! write(*,*) 'Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zcollrecom, Zintrecombination, Zphotrecom: ', &
-!         Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zcollrecom, Zintrecombination, Zphotrecom
+!write(*,*) 'Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zcollrecom, Zintrecombination, Zphotrecom: ', &
+!        Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zcollrecom, Zintrecombination, Zphotrecom
 !write(*,*) 'do_ipackage: Zrecombination = ', Zrecombination, ' Zphotrecom = ', Zphotrecom, ' Zcollrecom = ', Zcollrecom
 ! write(*,*) 'do_ipackage: Z0 = ', Z0, ' Z1 = ', Z1, ' Z2 = ', Z2, ' Z3 = ', Z3, &
 !  ' Z4 = ', Z4, ' Z5 = ', Z5, ' Z6 =', Z6, ' Z7 = ', Z7
@@ -236,31 +242,33 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
 ! next transition will be an radiative deexcitation
  package(pack_index)%typ = type_rpkt
  ! IF(package(pack_index)%last_line == no_line) CYCLE
- package(pack_index)%last_line = no_line
  CALL emit_rpackage(pack_index)
  ! now we will calculate new frequency of the packet
  ! we will choose this frequency from the possible radiative transitions
  summ = 0.D0
- rand = DBLE(random()) * Zrad
+ rand = DBLE(random()) * Zraddeexc
  IF(procout) write(*,*) 'do_ipackage: radiative deexcitation...'
  ! looking for the given line
  DO line = 1, nlns
+  ! print*, 'raddeexc: summ = ', summ, ' rand = ', rand, ' Zrad = ', Zraddeexc
   IF(rand >= summ .AND. rand <= summ + actirates%Lma_rad(line)) THEN
    IF(procout) write(*,*) 'do_ipackage: packet: ', pack_index, ' radiative deexcitation...'
-   !print*, 'raddeexc: summ = ', summ, ' rand = ', rand, ' Zrad = ', Zrad
+   ! write(*,*) 'do_ipackage: wale = ', 1.D8 * light_speed / linelist(linetransitions(line))%freq
+   ! write(*,*) 'do_ipackage: I = ', I
    ! we found the given cell now we have to compute only a new frequency
    new_freq = linelist(linetransitions(line))%freq
+   ! testing
+   ! new_freq = 8e12
    CALL emit_rpackage(pack_index)
    package(pack_index)%freq_cmf = new_freq
    CALL doppler_factor(pack_index, D)
    package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
-   package(pack_index)%last_line = no_line
    !$OMP ATOMIC
    linelist(linetransitions(line))%n_deexc = linelist(linetransitions(line))%n_deexc + 1
    !$OMP ATOMIC
    count_i_rad_deex = count_i_rad_deex + 1
    IF(last_line /= no_line) THEN
-    IF(linelist(linetransitions(line))%lower == linelist(last_line)%lower) THEN
+    IF(linetransitions(line) == last_line) THEN
      ! resonant scattering occures
      !$OMP ATOMIC
      count_i_rad_dxrs = count_i_rad_dxrs + 1
@@ -269,11 +277,14 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
      count_i_rad_dxfl = count_i_rad_dxfl + 1
     END IF
    END IF
+   package(pack_index)%last_line = linetransitions(line)
+   ! package(pack_index)%last_line = no_line
+   EXIT
   END IF
-    EXIT
   summ = summ + actirates%Lma_rad(line)
  END DO
  active = 0
+ ! STOP 'do_ipackage: testing'
  DEALLOCATE(actirates%Lma_rad)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal upward jump
@@ -348,7 +359,7 @@ ELSE IF(rand >= Z5 .AND. rand <= Z6) THEN
    package(pack_index)%freq_cmf = new_freq
    ! write(*,*) 'do_ipackage: new_freq = ', new_freq
    CALL doppler_factor(pack_index, D)
-   write(3, *) new_freq
+   ! write(3, *) new_freq
    package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
    !$OMP ATOMIC
    count_i_rad_reco = count_i_rad_reco + 1

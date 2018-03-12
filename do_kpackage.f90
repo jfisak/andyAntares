@@ -41,6 +41,9 @@ CALL cool_ff(pack_index, Zff, actikrates)
 CALL cool_ionization(1, pack_index, Zion, actikrates)
 CALL cool_fb(pack_index, Zfb, actikrates)
 
+Zion = 0.D0
+! Zfb = 0.D0
+ Zff = 0.D0
 ! debugging part
 IF(Zexcit < 0.D0) STOP 'do_kpackage: Zexcit < 0'
 IF(Zff < 0.D0) STOP 'do_kpackage: Zff < 0'

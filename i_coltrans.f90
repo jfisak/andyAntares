@@ -107,6 +107,7 @@ CASE(1)
 ! Ztot = pop * Ztot
 ! print*, 'collisional_rates: Ztot = ', Ztot
  ! upward jumps
+ Zup = 0.D0
  DO I = 1, nluns
   act_line = lineuptransitions(I)
   ! important physical quantities
@@ -123,6 +124,7 @@ CASE(1)
         ((h * freq) / (BOLK * el_temperature)) * &
         exp(-(h * freq) / (BOLK * el_temperature)) * gf
   actirates%Lma_int_upcoll(I) = actVal * exci_energy_l
+  Zup = Zup + actirates%Lma_int_upcoll(I)
   ! write(*,*) 'i_coltrans: Lma_int_upcoll = ', actirates%Lma_int_upcoll(I), ' population = ', population
  END DO
 CASE DEFAULT

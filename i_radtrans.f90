@@ -5,7 +5,7 @@
 ! * Zrad -- total rate of radiative deactivations of a macro atom
 ! * Zintup -- total rate of internal upward jumps
 SUBROUTINE i_radtrans(current_mgi, nlns, linetransitions, nluns, lineuptransitions, up_pop, &
-Zintdown, Zintup, Zrad, actirates)
+Zintdown, Zintup, Zrad, actirates, pack_index)
 USE types
 USE rates_i
 IMPLICIT NONE
@@ -13,6 +13,7 @@ IMPLICIT NONE
 ! input variables
 INTEGER                                 :: nlns, nluns
 INTEGER                                 :: current_mgi
+INTEGER                                 :: pack_index
 INTEGER, DIMENSION(nlns)                :: linetransitions
 INTEGER, DIMENSION(nluns)               :: lineuptransitions
 DOUBLE PRECISION                        :: stat_weight_l, stat_weight_u
@@ -30,8 +31,17 @@ INTEGER                                 :: I
 DOUBLE PRECISION                        :: Zintdown, Zintup, Zrad
 INTEGER                         :: OMP_GET_THREAD_NUM, my_rank
 TYPE(irates)      :: actirates
+INTEGER                                 :: dummypackage, n_pack_d
+DOUBLE PRECISION                        :: tau_line, freq_line, l_dist
+DOUBLE PRECISION                        :: vel_vec, vec_length
+DOUBLE PRECISION                        :: vel
+DOUBLE PRECISION                        :: constant
 
 my_rank = OMP_GET_THREAD_NUM()
+n_pack_d = SIZE(package)
+dummypackage = n_pack_d - n_dummy_packs + my_rank + 1
+
+constant = (pi * e_charge**2)/( me_g * light_speed)
 
 Zintdown = 0.D0
 Zrad= 0.D0
@@ -52,6 +62,8 @@ ELSE
  Zrad = 0.D0
 END IF 
 
+! write(*,*) 'i_radtrans: nlns = ', nlns
+! write(*,*) '***************************************************************************************'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal downward jump and radiative deexcitation
 DO I = 1, nlns
@@ -67,31 +79,45 @@ DO I = 1, nlns
  ! calculation of a rate coefficient
  CALL populations(element_index, ion_index, linelist(act_line)%lower, current_mgi, low_pop)
  ! Einstein Blu coefficient
- Blu = 4.0 * pi / (h * linelist(act_line)%freq) * linelist(act_line)%A_ul
+ Blu = light_speed**2.0 / (2.0 * h * linelist(act_line)%freq**3.0) * stat_weight_u / stat_weight_l &
+  * linelist(act_line)%A_ul
  ! optical depth
- taulu = low_pop * Blu * h * light_speed / (4.0 * pi) *&
-  (1.D0 - (stat_weight_l * up_pop) / (stat_weight_u * low_pop))
- ! write(*,*) 'i_radtrans: 1-gn/ng = ', (1.D0 - (stat_weight_l * up_pop) / (stat_weight_u * low_pop))
- ! probability of escape of the packet after scattering in line
- betalu = 1 / taulu * (1 - exp(-taulu))
+ package(dummypackage) = package(pack_index)
+ vel = model_grid(current_mgi)%vel
+ betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
  actVal = up_pop * betalu * linelist(act_line)%A_ul
- ! write(*,*) 'i_radtrans: exci_energy, low_pop, up_pop, Blu, actVal', exci_energy_u, low_pop, up_pop, Blu, actVal
  actirates%Lma_int_dorad(I) = actVal * exci_energy_l
  IF(actirates%Lma_int_dorad(I) < 0.D0) STOP 'i_radtrans: Lma_int_dorad < 0'
  Zintdown = Zintdown + actirates%Lma_int_dorad(I)
- ! write(*,*) 'i_radtrans: Zintdown = ', Zintdown
+ actirates%Lma_rad(I) = actVal * (exci_energy_u - exci_energy_l)
+ Zrad = Zrad + actirates%Lma_rad(I)
+ IF(exci_energy_u - exci_energy_l < 0) STOP 'i_radtrans: exci_energy_u - exci_energy_l < 0'
+ taulu = low_pop * Blu * h * light_speed / (4.0 * pi) * &
+  vec_length(package(dummypackage)%pos) / vec_length(vel_vec) *&
+  (1.D0 - (stat_weight_l * up_pop) / (stat_weight_u * low_pop))
+! ELSE 
+!  ! tau_line = 1.D50
+!  actirates%Lma_int_dorad(I) = 0.D0
+!  actirates%Lma_rad(I) = 0.D0
+! END IF
+ ! write(*,*) 'i_radtrans: taulu = ', taulu, ' tau_line = ', tau_line
+ ! probability of escape of the packet after scattering in line
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! radiative deexcitation
  !print*, 'do_ipackage: up_pop = ', up_pop
  ! actVal = up_pop * betalu * linelist(act_line)%A_ul
- actirates%Lma_rad(I) = actVal * (exci_energy_u - exci_energy_l)
- Zrad = Zrad + actirates%Lma_rad(I)
- IF(exci_energy_u - exci_energy_l < 0) STOP 'i_radtrans: exci_energy_u - exci_energy_l < 0'
- ! write(*,*) 'i_radtrans: Zrad = ', Zrad
+ ! actirates%Lma_rad(I) = actVal * (exci_energy_u - exci_energy_l)
+ ! write(*,*) 'i_radtrans: wale = ', 1.D8 * light_speed / linelist(act_line)%freq, &
+ !  ' Aul = ', linelist(act_line)%A_ul, ' Lma = ', actirates%Lma_rad(I)
+ ! write(*,*) 'i_radtrans: low_pop, up_pop, Blu, actVal', low_pop, up_pop, Blu, actVal
+ ! write(*,*) 'i_radtrans: betalu = ', betalu
+ ! write(*,*) 'eu - el = ', exci_energy_u - exci_energy_l
 END DO
- ! STOP 'i_radtrans, testing'
+! write(*,*) 'i_radtrans: Zintdown = ', Zintdown
+! write(*,*) 'i_radtrans: Zrad = ', Zrad
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal upward jump
+! write(*,*) 'i_radtrans: nluns = ', nluns
 low_pop = up_pop
 DO I = 1, nluns
  act_line = lineuptransitions(I)
@@ -106,16 +132,30 @@ DO I = 1, nluns
  Blu = 4.0 * pi / (h * linelist(act_line)%freq) * linelist(act_line)%A_ul
  Bul = stat_weight_l / stat_weight_u * Blu
  ! internal jump up
- actVal = (low_pop * Blu - up_pop * Bul) * betalu * exci_energy_l * Jlu
- IF(actVal < 0.D0) STOP 'i_radtrans: (l_pop * Blu - u_pop * Bul) < 0'
- ! write(*,*) 'i_radtrans: nB - nB = ', (low_pop * Blu - up_pop * Bul)
- ! write(*,*) 'i_radtrans: low_pop = ', low_pop, ' up_pop = ', up_pop, ' up_pop / low_pop = ', up_pop / low_pop
- actirates%Lma_int_uprad(I) = actVal
- ! write(*,*) 'i_radtrans: Lma_int_uprad = ', actVal
- Zintup = Zintup + actirates%Lma_int_uprad(I)
- ! write(*,*) 'i_radtrans: act_line = ', act_line, ' stat_weight = ', stat_weight, &
- !  ' exci_energy_l = ', exci_energy_l, ' up_pop = ', up_pop, ' linelist(act_line)%A_ul = ', &
- !  linelist(act_line)%A_ul
+ ! write(*,*) 'i_radtrans: pack_index = ', pack_index, ' freq = ', linelist(act_line)%freq
+ CALL resonance_distance(pack_index, linelist(act_line)%freq, l_dist)
+! package(dummypackage) = package(pack_index)
+! CALL move_package(dummypackage, l_dist)
+! CALL velo(dummypackage, vel_vec)
+ vel = model_grid(current_mgi)%vel
+! IF(vec_length(vel_vec) /= 0.D0) THEN
+  taulu = light_speed / linelist(act_line)%freq * constant * &
+   linelist(act_line)%f_ul * low_pop * &
+   vec_length(package(dummypackage)%pos) / vec_length(vel_vec)
+  betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
+  actVal = (low_pop * Blu - up_pop * Bul) * betalu * exci_energy_l * Jlu
+  IF(actVal < 0.D0) STOP 'i_radtrans: (l_pop * Blu - u_pop * Bul) < 0'
+  actirates%Lma_int_uprad(I) = actVal
+  ! write(*,*) 'i_radtrans: Lma_int_uprad = ', actVal
+  Zintup = Zintup + actirates%Lma_int_uprad(I)
+  ! write(*,*) 'i_radtrans: nB - nB = ', (low_pop * Blu - up_pop * Bul)
+  ! write(*,*) 'i_radtrans: low_pop = ', low_pop, ' up_pop = ', up_pop, ' up_pop / low_pop = ', up_pop / low_pop
+  ! write(*,*) 'i_radtrans: act_line = ', act_line,  &
+  !  ' exci_energy_l = ', exci_energy_l, ' up_pop = ', up_pop, ' linelist(act_line)%A_ul = ', &
+  !  linelist(act_line)%A_ul
+! ELSE
+!  actirates%Lma_int_uprad(I) = 0.D0
+! END IF
  ! write(*,*) 'i_radtrans: Zintup = ', Zintup
 END DO
 

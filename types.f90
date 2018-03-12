@@ -185,6 +185,7 @@ MODULE types
 
 ! Define the min and max wavelenght range in cm for the synthetic spectrum calculation 1A = 1.D-8 cm
    DOUBLE PRECISION, PARAMETER        :: nu_min = 3.D14, nu_max = 3.7D15 ! in cm (800 - 10000 A)
+  ! DOUBLE PRECISION, PARAMETER        :: nu_min = 7.D12, nu_max = 3.7D15 ! in cm 
   !DOUBLE PRECISION, PARAMETER       :: nu_min = 2.4D15, nu_max = 2.5D15 ! in cm (1150 - 1250 A)
 
 

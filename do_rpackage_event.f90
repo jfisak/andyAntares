@@ -23,6 +23,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
   DOUBLE PRECISION                      :: Zthomson, Zphotion, Zff
   DOUBLE PRECISION                      :: ZcontTot
   LOGICAL                               :: procout = .FALSE.
+  DOUBLE PRECISION                      :: D
 
 
 
@@ -43,7 +44,10 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
      !$OMP ATOMIC
      count_r_line = count_r_line + 1
      ! in this sbr we get only excited states from the upper states
-     package(pack_index)%typ = type_ipkt
+      package(pack_index)%typ = type_ipkt
+     ! CALL emit_rpackage(pack_index)
+     ! CALL doppler_factor(pack_index, D)
+     ! package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
      package(pack_index)%l_ele = linelist(package(pack_index)%last_line)%indexe
      package(pack_index)%l_ion = linelist(package(pack_index)%last_line)%indexi
      package(pack_index)%l_lev = linelist(package(pack_index)%last_line)%upper
@@ -139,7 +143,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
    ! write(*,*) 'do_rpackage_event: summ + Zff= ', summ + Zff
    IF(rand >= summ .AND. rand < summ + Zff) THEN
     package(pack_index)%typ = type_kpkt
-     if(procout) write(*,*) 'do_rpackage_event: package = ', pack_index, ' free-free'
+    if(procout) write(*,*) 'do_rpackage_event: package = ', pack_index, ' free-free'
      !$OMP ATOMIC
      count_r_ff = count_r_ff + 1
    END IF

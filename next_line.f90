@@ -19,24 +19,34 @@ INTEGER                                 :: next1line, n_eqf_lines
 SELECT CASE(approximation)
 ! the Sobolev approximation
 CASE(1)
-!print*, 'next_line: n_eqf_lines = ', n_eqf_lines
+! write(*,*) 'next_line: last_line = ', package(pack_index)%last_line
+! print*, 'next_line: n_eqf_lines = ', n_eqf_lines
 IF (package(pack_index)%last_line .EQ. no_line) THEN
  ! In case we have more lines
  DO I = 1, ntransitions
-    !print*, 'photon: ', pack_index, 'freq_cmf: ', package(pack_index)%freq_cmf, 'linelist:', linelist(I)%freq
-  IF (package(pack_index)%freq_cmf .GT. linelist(I)%freq) THEN
+  ! write(*,*) 'next_line: I = ', I, ' freq_cmf: ', package(pack_index)%freq_cmf, 'linelist:', linelist(I)%freq
+  IF (package(pack_index)%freq_cmf > linelist(I)%freq) THEN
+   ! write(*,*) 'next_line: new last_line = ', I - 1
    package(pack_index)%last_line = I - 1
-   !print*, 'package(pack_index)%last_line = I-1', I-1
+   next1line = I
+   EXIT
+   ! write(*,*)  'next_line: package(pack_index)%last_line = I-1', I-1
   END IF
  END DO 
  ! In case that package frequency can interact only with one more line from the line list,
  ! then index of the last line with which package interacted is ntransitions.
  ! We put (ntransitions - 1) only to be consistence with calculation of next_line, with which
  ! package may interact,should be general for any line interaction
- IF (package(pack_index)%last_line .EQ. no_line) package(pack_index)%last_line = ntransitions - 1
+ IF (package(pack_index)%last_line .EQ. no_line) THEN
+  package(pack_index)%last_line = ntransitions - 1
+  next1line = package(pack_index)%last_line + 1
+ END IF
+ELSE
+ next1line = package(pack_index)%last_line + 1
 END IF
 
-next1line = package(pack_index)%last_line + 1
+! write(*,*) 'next_line: next1line = ', next1line
+
 IF(package(pack_index)%last_line == ntransitions) next1line = ntransitions
 
 n_eqf_lines = 1
@@ -47,7 +57,7 @@ DO I = next1line + 1, ntransitions
  END IF
  EXIT
 END DO
-! print*, 'next_line: next1line = ', next1line, ' n_eqf_lines = ', n_eqf_lines
+! write(*,*) 'next_line: next1line = ', next1line, ' n_eqf_lines = ', n_eqf_lines
 ! number of lines with the same frequency
 CASE DEFAULT
 END SELECT

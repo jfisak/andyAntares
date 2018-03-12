@@ -52,7 +52,7 @@
      model_grid(I)%rwind = r  * R_star
      model_grid(I)%vel = velo * 1.D5
      model_grid(I)%rho = dens
-     model_grid(I)%T = 10000. ! should be temp 
+     model_grid(I)%T = 5000. ! should be temp 
      model_grid(I)%J = 0.D0 
      model_grid(I)%assoc_cells = 0
      !Total mass density of grid cell I
@@ -75,7 +75,7 @@
   END DO
 
   R_inf  = model_grid(n_modelgrid)%rwind
-  V_inf  = model_grid(n_modelgrid)%vel
+  V_inf  = 1.D1 * model_grid(n_modelgrid)%vel
 
   ! setting properties
 

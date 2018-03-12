@@ -35,7 +35,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
   dummypackage = n_pack_d - n_dummy_packs + my_rank + 1
 
 
-10  ran_numb = random()  ! PUT IT IN SUBROUTINE - write is as do loop
+10  ran_numb = DBLE(random())  ! PUT IT IN SUBROUTINE - write is as do loop
     IF (ran_numb .EQ. 0.D0) GOTO 10    
     tau_rand = -LOG(ran_numb)
 

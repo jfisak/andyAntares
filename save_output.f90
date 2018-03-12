@@ -20,7 +20,7 @@ DOUBLE PRECISION                        :: wavle
 INTEGER                                 :: act_elem, act_ion, act_lev
 DOUBLE PRECISION                        :: act_pop
 DOUBLE PRECISION                        :: eenergy
-CHARACTER(LEN=60)                       :: fileTempStruct, fileOccNum
+CHARACTER(LEN=60)                       :: fileTempStruct, fileOccNum, fileFreqs
 
 ! creates a folder, where an output will be saved
 ! it reads a shell variable OUTPUTFO, if it does not
@@ -106,6 +106,14 @@ CASE(3)
    END DO
   END DO
  CLOSE(13)
+ fileFreqs = 'freqs.dat'
+ OPEN(14, FILE = fileFreqs)
+  DO I = 1, SIZE(package)
+   IF(package(I)%typ == type_escaped) THEN
+    WRITE(14, *) 1.D8 * light_speed / package(I)%freq_rf
+   END IF
+  END DO
+ CLOSE(14)
 CASE DEFAULT
  write(*,*) 'save_output: this case is not known'
 END SELECT

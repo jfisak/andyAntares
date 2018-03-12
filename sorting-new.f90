@@ -54,7 +54,7 @@ SUBROUTINE sorting_new(N, ARR)
 !     print*, a, arr(j)
 !     DO WHILE (I .GE. 1 .AND. ARR(I)%freq .GT. A)
      DO WHILE (I .GE. 1)
-      IF(ARR(I)%freq .GT. A) THEN
+      IF(ARR(I)%freq .LT. A) THEN
        dummy = ARR(I+1)
        ARR(I+1) = ARR(I) 
        ARR(I) = dummy
