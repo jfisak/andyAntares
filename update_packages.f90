@@ -10,6 +10,7 @@
   INTEGER             :: my_rank, OMP_GET_THREAD_NUM
   
 
+OPEN(UNIT=36, FILE='macroatom.dat')
 !  OPEN (UNIT=3, FILE='position.dat')
 ! write(*,*) 'WARNING: positions of packets are being written into the file, if the number of &
 !                packages is large the file will be very large'
@@ -24,7 +25,9 @@ DO pack_index = 1, n_pack
    CALL init_random_seed()
    initrs = .TRUE.
   END IF
+   ! write(36, *) 'r-packet: ', pack_index
    IF (MODULO(pack_index,10000) .EQ. 0) print*, 'Working on packet ', pack_index,' ...'
+   ! print*, 'Working on packet ', pack_index,' ...'
    ! Do this loop until something happened with package
    DO  WHILE (package(pack_index)%active .EQ. 1)
       ! print*, 'C'
@@ -57,5 +60,6 @@ END DO
 !$OMP END DO
 !$OMP END PARALLEL
 !  CLOSE(UNIT=3)
+CLOSE(36)
   
 END SUBROUTINE update_packages

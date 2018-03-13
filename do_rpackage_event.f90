@@ -44,9 +44,10 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
      !$OMP ATOMIC
      count_r_line = count_r_line + 1
      ! in this sbr we get only excited states from the upper states
-      package(pack_index)%typ = type_ipkt
+     package(pack_index)%typ = type_ipkt
      ! CALL emit_rpackage(pack_index)
      ! CALL doppler_factor(pack_index, D)
+     ! D = 1.D0
      ! package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
      package(pack_index)%l_ele = linelist(package(pack_index)%last_line)%indexe
      package(pack_index)%l_ion = linelist(package(pack_index)%last_line)%indexi

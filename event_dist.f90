@@ -27,6 +27,9 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
   ! looking for next line
   INTEGER                           :: act_line
   DOUBLE PRECISION                  :: summ, tot_lop
+  DOUBLE PRECISION                  :: Blu! , exci_energy_l, exci_energy_u
+  DOUBLE PRECISION                      :: low_pop, upp_pop 
+  DOUBLE PRECISION                      :: stat_weight_l, stat_weight_u
 
   my_rank = OMP_GET_THREAD_NUM()
   !write(*,*)'event_dist: Thread rank: ', my_rank
@@ -102,11 +105,21 @@ DO WHILE (do_loop .EQ. 1)
    indexe = linelist(nextLine + I - 1)%indexe
    indexi = linelist(nextLine + I - 1)%indexi
    lower_level = linelist(nextLine + I - 1)%lower
-   CALL populations(indexe, indexi, lower_level, current_mgi, pop_number)
+   CALL populations(indexe, indexi, linelist(nextLine + I - 1)%lower, current_mgi, low_pop)
+   CALL populations(indexe, indexi, linelist(nextLine + I - I)%upper, current_mgi, upp_pop)
    f_ul = linelist(nextLine + I - 1)%f_ul
-   tau_line = tau_line + light_speed / freq_line * constant * &
-              linelist(nextLine)%f_ul * pop_number * &
-   vec_length(package(dummypackage)%pos) / vec_length(vel_vec)     
+   ! tau_line = tau_line + light_speed / freq_line * constant * &
+   !            linelist(nextLine)%f_ul * pop_number * &
+   ! vec_length(package(dummypackage)%pos) / vec_length(vel_vec)     
+   ! the basic variables
+   stat_weight_u = elements(indexe)%ions(indexi)%levels(linelist(nextLine + I - 1)%upper)%stat_waight
+   stat_weight_l = elements(indexe)%ions(indexi)%levels(linelist(nextLine + I - I)%lower)%stat_waight
+   ! exci_energy_u = elements(indexe)%ions(indexi)%levels(linelist(I)%upper)%exci_energy
+   ! exci_energy_l = elements(indexe)%ions(indexi)%levels(linelist(I)%lower)%exci_energy
+   Blu = light_speed**2.0 / (2.0 * h * linelist(I)%freq**3.0) * stat_weight_u / stat_weight_l &
+     * linelist(I)%A_ul
+   tau_line = tau_line +  low_pop * Blu * h * light_speed * (R_inf / V_inf) &
+     / (4.0 * pi) * (1.D0 - (stat_weight_l * upp_pop) / (stat_weight_u * low_pop))
   END DO
   IF(current_mgi .EQ. n_modelgrid + 2) tau_line = 0.D0
   tau_cont = kappa_cont * l_dist

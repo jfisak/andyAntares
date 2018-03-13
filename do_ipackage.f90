@@ -45,6 +45,7 @@ INTEGER                         :: OMP_GET_THREAD_NUM, my_rank
 REAL(8)                         :: random
 ! write down the processes
 LOGICAL                         :: procout = .FALSE.
+LOGICAL                         :: sstates = .FALSE.
 
 my_rank = OMP_GET_THREAD_NUM()
 
@@ -147,6 +148,8 @@ DO WHILE (active == 1)
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! calculation of the given transition probabilities
   ! write(*,*) 'do_ipackage: element_index = ', element_index, ' ion_index = ', ion_index
+  IF(sstates) write(36,*) 'element_index = ', element_index, ' ion_index = ', ion_index, ' actual_state = ',&
+   actual_state
  CALL populations(element_index, ion_index, actual_state, current_mgi, act_pop)
  ! write(*,*) 'do_ipackage: pop = ', act_pop
  CALL i_radtrans(current_mgi, nlns, linetransitions, nluns, lineuptransitions, act_pop, &
@@ -158,9 +161,9 @@ DO WHILE (active == 1)
  CALL i_colion(1, element_index, ion_index, actual_state, pack_index, act_pop, Zcollionup, &
   Zcolliondown,Zcollrecom, actirates)
 ! testing
-Zcollrecom = 0.D0
-Zcoll = 0.D0
-Zphotrecom = 0.D0
+! Zcollrecom = 0.D0
+! Zcoll = 0.D0
+! Zphotrecom = 0.D0
 ! Zintupcoll = 0.D0
 ! Zintdowncoll = 0.D0
 ! Zintdownrad = 0.D0
@@ -210,9 +213,9 @@ Z4 = Z3 + Zionization
 Z5 = Z4 + Zintrecombination
 Z6 = Z5 + Zphotrecom
 Z7 = Z6 + Zcollrecom
-!write(*,*) 'Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zcollrecom, Zintrecombination, Zphotrecom: ', &
-!        Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zcollrecom, Zintrecombination, Zphotrecom
-!write(*,*) 'do_ipackage: Zrecombination = ', Zrecombination, ' Zphotrecom = ', Zphotrecom, ' Zcollrecom = ', Zcollrecom
+! write(*,*) 'Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zcollrecom, Zintrecombination, Zphotrecom: ', &
+!  Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zcollrecom, Zintrecombination, Zphotrecom
+! write(*,*) 'do_ipackage: Zrecombination = ', Zrecombination, ' Zphotrecom = ', Zphotrecom, ' Zcollrecom = ', Zcollrecom
 ! write(*,*) 'do_ipackage: Z0 = ', Z0, ' Z1 = ', Z1, ' Z2 = ', Z2, ' Z3 = ', Z3, &
 !  ' Z4 = ', Z4, ' Z5 = ', Z5, ' Z6 =', Z6, ' Z7 = ', Z7
 IF(Ztotal == 0.D0) STOP 'do_ipackage: Ztotal = 0'
@@ -222,13 +225,16 @@ IF(Ztotal == 0.D0) STOP 'do_ipackage: Ztotal = 0'
 IF(rand >= 0.D0 .AND. rand < Z0) THEN
  !$OMP ATOMIC
  count_i_int_down = count_i_int_down + 1
+ IF(procout) write(*,*) 'do_ipackage: internal downward jump...'
 ! next transition will be an internal downward jump
  summ = 0.D0
  DO I = 1, nlns
+  ! write(*,*) 'do_ipackage: summ = ', summ, ' rand = ', rand, ' summ + actirates%Lma_int_do = ', summ + actirates%Lma_int_do(I)
   ! we will find the given state
   IF(rand >= summ .AND. rand < summ + actirates%Lma_int_do(I)) THEN
    actual_state = linelist(linetransitions(I))%lower
    IF(procout) write(*,*) 'do_ipackage: packet: ', pack_index, ' internal downward jump...'
+   IF(sstates) write(36, *) 'IDJ ->', actual_state
    EXIT
   END IF
   summ = summ + actirates%Lma_int_do(I)
@@ -242,7 +248,6 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
 ! next transition will be an radiative deexcitation
  package(pack_index)%typ = type_rpkt
  ! IF(package(pack_index)%last_line == no_line) CYCLE
- CALL emit_rpackage(pack_index)
  ! now we will calculate new frequency of the packet
  ! we will choose this frequency from the possible radiative transitions
  summ = 0.D0
@@ -252,16 +257,18 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
  DO line = 1, nlns
   ! print*, 'raddeexc: summ = ', summ, ' rand = ', rand, ' Zrad = ', Zraddeexc
   IF(rand >= summ .AND. rand <= summ + actirates%Lma_rad(line)) THEN
-   IF(procout) write(*,*) 'do_ipackage: packet: ', pack_index, ' radiative deexcitation...'
+  IF(procout) write(*,*) 'do_ipackage: packet: ', pack_index, ' radiative deexcitation...'
    ! write(*,*) 'do_ipackage: wale = ', 1.D8 * light_speed / linelist(linetransitions(line))%freq
    ! write(*,*) 'do_ipackage: I = ', I
    ! we found the given cell now we have to compute only a new frequency
    new_freq = linelist(linetransitions(line))%freq
    ! testing
-   ! new_freq = 8e12
+   ! new_freq = light_speed / (4.D3 * 1.D-8)
    CALL emit_rpackage(pack_index)
    package(pack_index)%freq_cmf = new_freq
    CALL doppler_factor(pack_index, D)
+   IF(sstates) write(36, *) 'RDEEX linewl = ', 1.D8 * light_speed / linelist(linetransitions(line))%freq
+   ! D = 1.D0
    package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
    !$OMP ATOMIC
    linelist(linetransitions(line))%n_deexc = linelist(linetransitions(line))%n_deexc + 1
@@ -290,15 +297,18 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
 ! internal upward jump
 ! in this case a macro-atom transits into a upper state without an energy emission
 ELSE IF (rand >= Z1 .AND. rand <= Z2) THEN
+ ! write(*,*) 'do_ipackage: Z1 = ', Z1, ' rand = ', rand, ' Z2 = ', Z2
  !$OMP ATOMIC
  count_i_int_upwa = count_i_int_upwa + 1
  summ = Z1
+ IF(procout) write(*,*) 'do_ipackage: internal upward jump...'
  DO I = 1, nluns
   ! we will find the given state
-  !write(*,*) 'do_ipackage: summ = ', summ, ' rand = ', rand, ' summ + actirates%Lma_int_up = ', summ + actirates%Lma_int_up(I)
+  ! write(*,*) 'do_ipackage: summ = ', summ, ' rand = ', rand, ' summ + actirates%Lma_int_up = ', summ + actirates%Lma_int_up(I)
   IF(rand >= summ .AND. rand < summ + actirates%Lma_int_up(I)) THEN
    actual_state = linelist(lineuptransitions(I))%upper
    IF(procout) write(*,*) 'do_ipackage: packet: ', pack_index, ' internal upward jump...'
+   IF(sstates) write(36, *) 'IUJ ->', actual_state
    EXIT
   END IF
   summ = summ + actirates%Lma_int_up(I)
@@ -319,6 +329,7 @@ ELSE IF(rand >= Z2 .AND. rand <= Z3) THEN
 ELSE IF(rand >= Z3 .AND. rand <= Z4) THEN
  IF(procout) write(*,*)  'pack_index = ', pack_index, ' internal jump to to the upper ionization state...'
  ion_index = ion_index + 1
+ IF(sstates) write(36, *) 'IPHO ->', actual_state
  !$OMP ATOMIC
  count_i_int_phot = count_i_int_phot + 1
  actual_state = 1
@@ -335,6 +346,7 @@ ELSE IF(rand >= Z4 .AND. rand <= Z5) THEN
    actual_state = I
    !$OMP ATOMIC
    count_i_int_reco = count_i_int_reco + 1
+   IF(sstates) write(36, *) 'IREC ->', actual_state
    IF(procout) write(*,*)  'do_ipackage: packet: ', pack_index, ' internal jump to the lower ionization state...', 'actual_state = &
    ', actual_state
    EXIT
