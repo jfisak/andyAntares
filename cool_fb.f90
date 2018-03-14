@@ -1,3 +1,14 @@
+!_________________________ k-packet rates ____________________________________________________
+! calculation of fb cooling rates for k-packets
+!
+! Zfb -- the total cooling rate
+!
+! indexi -- index of an initial state
+! indexi - 1 -- index of a final state
+!
+! the loops over ions are thus indexed 2, 3, nions
+!
+!_____________________________________________________________________________________________
 SUBROUTINE cool_fb(pack_index, Zfb, actikrates)
 USE types
 USE rates_k
@@ -32,8 +43,6 @@ DOUBLE PRECISION                        :: sfactor
 TYPE(krates)                            :: actikrates
 
 
-! indexi - 1 -- index of an initial state
-! indexi -- index of a final state
 
 ! number of computed rates
 act_rate = 0
@@ -95,34 +104,36 @@ DO indexe = 1, n_elements
     ALLOCATE(func(nfreq - actPoint + 1), func2(nfreq - actPoint + 1))
     DO J = actPoint, nfreq
      x = ( h * crossfreq(J) ) / ( BOLK * temp)
-     func(J - actPoint + 1) = cross(J) * crossfreq(J)**3.0 * exp(-x)
-     func2(J - actPoint + 1) = cross(J) * crossfreq(J)**2.0 * exp(-x)
+     func(J - actPoint + 1) = cross(J) / (h * init_freq) * h * crossfreq(J)**3.0 / light_speed**2.0 * exp(-x)
+     func2(J - actPoint + 1) = cross(J) / (h * crossfreq(J)) * h * crossfreq(J)**3.0 / light_speed**2.0 * exp(-x)
     END DO ! calculation of the integral
     ! calculation of integral using the trapezoid rule
     summ = 0.D0
     DO J = 1, SIZE(func) - 1
-     actInt = (func(J) * cross(J) + func(J + 1) * cross(J + 1)) * &
-      (crossfreq(J + 1) - crossfreq(J))
+     actInt = (func(J) + func(J + 1) ) * (crossfreq(J + 1) - crossfreq(J))
      summ = summ + actInt
     END DO
-    alphEspont = 4.D0 * pi / light_speed**2 / init_freq * summ
+    alphEspont = 4.D0 * pi * summ ! / light_speed**2 / init_freq * summ
+    ! write(*,*) 'cool_fb: summ = ', summ, ' alphEspont = ', alphEspont, ' init_freq = ', init_freq
     ! alpha spont after Kromer() eq. (4.35)
     summ = 0.D0
     DO J = 1, SIZE(func) - 1
-     actInt = (func2(J) * cross(J) + func2(J + 1) * cross(J + 1)) * &
-      (crossfreq(J + 1) - crossfreq(J))
+     actInt = (func2(J)  + func2(J + 1) ) * (crossfreq(J + 1) - crossfreq(J))
      summ = summ + actInt
     END DO
-    alphaSpont = 4.D0 * pi / light_speed**2 * summ
+    alphaSpont = 4.D0 * pi * summ ! / light_speed**2 * summ
+    ! write(*,*) 'cool_ionization: alphaSpont = ', alphaSpont, 'alphEspont = ', alphEspont
     CALL saha_factor(indexe, indexi, indexl, cur_mgi, el_dens, sfactor)
     ! population of the given ion
     tot_pop = model_grid(cur_mgi)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
     uppper_en = MINVAL(elements(indexe)%ions(indexi)%levels(:)%exci_energy)
     lower_en = elements(indexe)%ions(indexi - 1)%levels(indexl)%exci_energy
-    ! actikrates%Lcool_fbE(4,act_rate) = tot_pop * integral * (uppper_en - lower_en)
     actikrates%Lcool_fbE(4,act_rate) = tot_pop * el_dens * sfactor * &
      (alphEspont - alphaSpont) * (uppper_en - lower_en)
     Zfb = Zfb + actikrates%Lcool_fbE(4,act_rate)
+    ! write(*,*) 'cool_fb: eldens = ', el_dens, ' tot_pop = ', tot_pop
+    ! write(*,*) 'cool_fb: uppper_en = ', uppper_en, ' lower_en = ', lower_en
+    ! write(*,*) 'cool_fb: sfactor = ', sfactor, ' ales = ', alphEspont, ' als = ',  alphaSpont 
     ! temporary solution
     ! Zfb = 0.D0
     !write(*,*) 'cool_fb: Zfb = ', Zfb, 'actikrates%Lcool_fbE(', act_rate, ') = ', actikrates%Lcool_fbE(act_rate)

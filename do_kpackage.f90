@@ -41,9 +41,9 @@ CALL cool_ff(pack_index, Zff, actikrates)
 CALL cool_ionization(1, pack_index, Zion, actikrates)
 CALL cool_fb(pack_index, Zfb, actikrates)
 
-Zion = 0.D0
+! Zion = 0.D0
 ! Zfb = 0.D0
- Zff = 0.D0
+! Zff = 0.D0
 ! debugging part
 IF(Zexcit < 0.D0) STOP 'do_kpackage: Zexcit < 0'
 IF(Zff < 0.D0) STOP 'do_kpackage: Zff < 0'
@@ -106,7 +106,7 @@ ELSE IF(rand >= Z0 .AND. rand <= Z1) THEN
  CALL emit_rpackage(pack_index)
  !$OMP ATOMIC
  count_cool_ff = count_cool_ff + 1
- IF(procout) write(*,*) 'do_kpackage: package = ', pack_index, ' free-free process...'
+! IF(procout) write(*,*) 'do_kpackage: package = ', pack_index, ' free-free process...'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! ionization
@@ -115,6 +115,7 @@ ELSE IF(rand >= Z1 .AND. rand <= Z2) THEN
  summ = Z1
  IF(procout) write(*,*) 'do_kpackage: ionization process...'
  package(pack_index)%typ = type_ipkt
+ package(pack_index)%last_line = no_line
  actIndex = 0
  DO indexe = 1, n_elements
   n_ions = SIZE(elements(indexe)%ions)
