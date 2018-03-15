@@ -149,7 +149,6 @@ DO indexe = 1, n_elements
   ! write(*,*) 'r_kappa_cont: indexe = ', indexe, ' indexi = ', indexi, ' kappaff = ', kappaff
  END DO
 END DO
-kappaff = 0.D0
 kappa = kappa + kappaff
 ! write(*,*) 'r_kappa_cont: kappaff = ', kappaff, 'thomson = ', thomson
 ! write(*,*) 'r_kappa_cont: kappa = ', kappa

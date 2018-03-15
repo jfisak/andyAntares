@@ -96,6 +96,9 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
     count_r_thom = count_r_thom + 1
       if(procout) write(*,*) 'do_rpackage_event: packet = ', pack_index, ' Thomson scattering'
     CALL emit_rpackage(pack_index)
+    CALL doppler_factor(pack_index, D)
+    package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
+    package(pack_index)%e_rf = package(pack_index)%e_cmf / D
     RETURN
    END IF
    summ = actirrates%Lcont(4, I)

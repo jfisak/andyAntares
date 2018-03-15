@@ -193,7 +193,7 @@ IF(Zcollrecom < 0.D0) STOP 'do_ipackage: Zcollrecom < 0'
  Zintup = Zintuprad + Zintupcoll
 ! an internal ionization sum
 Zionization = Zphotionup + Zcollionup
- ! write(*,*) 'do_ipackage: Zphotionup = ', Zphotionup, ' Zcollionup = ', Zcollionup
+! write(*,*) 'do_ipackage: Zphotiondown = ', Zphotiondown, ' Zcolliondown = ', Zcolliondown
 Zintrecombination = Zphotiondown + Zcolliondown
 Zrecombination = Zphotrecom + Zcollrecom
 ! write(*,*) 'do_ipackage: Zphotrecom = ', Zphotrecom
@@ -270,6 +270,7 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
    IF(sstates) write(36, *) 'RDEEX linewl = ', 1.D8 * light_speed / linelist(linetransitions(line))%freq
    ! D = 1.D0
    package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
+   package(pack_index)%e_rf = package(pack_index)%e_cmf / D
    !$OMP ATOMIC
    linelist(linetransitions(line))%n_deexc = linelist(linetransitions(line))%n_deexc + 1
    !$OMP ATOMIC
@@ -373,6 +374,7 @@ ELSE IF(rand >= Z5 .AND. rand <= Z6) THEN
    CALL doppler_factor(pack_index, D)
    ! write(3, *) new_freq
    package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
+   package(pack_index)%e_rf = package(pack_index)%e_cmf / D
    !$OMP ATOMIC
    count_i_rad_reco = count_i_rad_reco + 1
    EXIT
