@@ -155,6 +155,7 @@ INTEGER, PARAMETER                      :: max_packs = 1e7
      current_temp = model_grid(:)%T
 !     PRINT*, 'iteration:', iteration, current_temp
 
+     CALL i_ion_recomb(1)
      ! Loop over the numer of different opacity (nopa)
      ! DO I=1,nopa
      ! print*, 'tau loop',  I
@@ -164,9 +165,9 @@ INTEGER, PARAMETER                      :: max_packs = 1e7
      ! print*, R_star
      ! stop
     ! n_pack will compute in several loops to save some memory
-    nphit = INT(n_pack / max_packs)
+    ! nphit = INT(n_pack / max_packs)
     ! do 03
-    nphit = 1
+    ! nphit = 1
 !    DO J = 1, nphit
      ! Initialisation of photon packages from the photosphere
      CALL init_photsphere(n_pack) 

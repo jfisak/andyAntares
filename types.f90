@@ -70,6 +70,7 @@ MODULE types
      LOGICAL                         :: phcrossform
      DOUBLE PRECISION, ALLOCATABLE   :: photcros(:,:), phcrosscoeff(:)
      DOUBLE PRECISION                :: phfreq
+     INTEGER                         :: phfreqi
   END TYPE ion_levels
 
   TYPE element_ions 

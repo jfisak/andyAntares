@@ -1,5 +1,5 @@
 ! calculating free-free cooling rates
-SUBROUTINE cool_ff(pack_index, Zcool, actikrates)
+SUBROUTINE cool_ff(pack_index, Zcool)
 USE types
 USE rates_k
 IMPLICIT NONE
@@ -17,10 +17,9 @@ INTEGER                                                 :: cur_mgi, get_package_
 DOUBLE PRECISION                                        :: cur_temp, e_dens
 INTEGER                                                 :: act_cooling
 INTEGER                                                 :: n_coll
-DOUBLE PRECISION                                        :: act_pop
+DOUBLE PRECISION                                        :: act_pop, actVal
 ! output variables
 DOUBLE PRECISION                                        :: Zcool
-TYPE(krates)                                            :: actikrates
                                                        
 cur_mgi = get_package_model_index(pack_index)
 cur_temp = model_grid(cur_mgi)%t
@@ -35,11 +34,11 @@ DO indexe = 1, n_elements
   act_cooling = act_cooling + 1
   ion_charge = DBLE(indexi - 1)
   act_pop = model_grid(cur_mgi)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
-  actikrates%Lcool_ff(act_cooling) = C0 * ion_charge**2.0 * cur_temp**(1.0/2.0) &
+  actVal = C0 * ion_charge**2.0 * cur_temp**(1.0/2.0) &
                           * act_pop * e_dens
-  Zcool = Zcool + actikrates%Lcool_ff(act_cooling)
+  Zcool = Zcool + actVal
   ! write(*,*) 'cool_ff: ion_charge = ', ion_charge, ' cur_temp = ', cur_temp, &
-  !  ' act_pop = ', act_pop, ' e_dens = ', e_dens, ' cooling rate = ', actikrates%Lcool_ff(act_cooling)
+  !  ' act_pop = ', act_pop, ' e_dens = ', e_dens, ' cooling rate = ', actVal
  END DO
 END DO
 

@@ -2,6 +2,15 @@ MODULE rates_i
 
 ! pointers
 ! i-packages
+! pre-calculated values of integrals
+! array of temperatures
+DOUBLE PRECISION, ALLOCATABLE                   :: i_temps(:)
+TYPE i_ints
+ INTEGER                                        :: indexe, indexi, indexl
+ DOUBLE PRECISION, ALLOCATABLE                  :: gammaijk(:), alphaijk(:)
+END TYPE
+TYPE(i_ints), ALLOCATABLE                       :: iints(:)
+
 ! internal radiative downward jump
 TYPE, PUBLIC :: irates
  DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE  :: Lma_int_dorad 
@@ -39,8 +48,8 @@ FUNCTION rates_construct(nlns, nluns, nlio)
  INTEGER                        :: nldo, nlup, nlio
  INTEGER                         :: OMP_GET_THREAD_NUM, my_rank
 
- my_rank = OMP_GET_THREAD_NUM()
- !write(*,*) 'construction: my_rank = ', my_rank, ' nlns = ', nlns, ' nluns = ', nluns, ' nlio = ', nlio
+ ! my_rank = OMP_GET_THREAD_NUM()
+ ! write(*,*) 'construction: my_rank = ', my_rank, ' nlns = ', nlns, ' nluns = ', nluns, ' nlio = ', nlio
  ALLOCATE(rates_construct%Lma_int_dorad(nlns))
  ALLOCATE(rates_construct%Lma_int_docoll(nlns))
  ALLOCATE(rates_construct%Lma_rad(nlns))

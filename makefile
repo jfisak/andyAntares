@@ -20,7 +20,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
           do_rpackage.o do_ipackage.o event_dist.o get_package_model_index.o  \
           do_rpackage_event.o update_packages.o do_spectrum.o do_kpackage.o \
           read_composition.o read_levels.o read_transitions.o      \
-          sorting-new.o setup_model_grid.o update_grid.o                  \
+          sorting-new.o setup_model_grid.o update_grid.o i_ion_recomb.o   \
           saha_boltzmann_factor.o ionization_fraction.o f_edens.o         \
           find_e_nd.o part_fun.o update_estimators.o freq_from_file.o     \
           acc_rej_montecarlo.o virtual_particles.o setup_grid2.o          \

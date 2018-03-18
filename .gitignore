@@ -10,3 +10,4 @@ graphs/*
 a.out
 *.mod
 *.orig
+*.gcda

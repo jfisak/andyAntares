@@ -141,7 +141,9 @@ DO indexe = 1, n_elements
   act_pop = model_grid(current_mgi)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
   ! calculation of alpha_ff
   CALL gauntff(freq, temp, gff)
-  alphaff = ffconst * DBLE((indexi - 1)**2) * gff /sqrt(temp) / freq ** 3.0 
+  alphaff = ffconst * DBLE((indexi - 1))**2 * gff /sqrt(temp) / freq ** 3.0 
+  ! write(*,*) 'r_kappa_cont: ffconst = ', ffconst, ' i - 1 ^2 = ', DBLE((indexi - 1)**2), &
+  !  ' gff = ', gff, ' sT = ', sqrt(temp), 'freq = ', freq
   kappaff = kappaff + electron_density * act_pop * alphaff * &
    (1.E0 - exp(-(h * freq) / (BOLK * temp)))
   ! write(*,*) 'r_kappa_cont: electron_density = ', electron_density, ' act_pop = ', &

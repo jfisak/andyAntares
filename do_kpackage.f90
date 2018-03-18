@@ -37,7 +37,7 @@ actikrates = krates()
 ! calculating of cooling rates
 ! collision excitation rate
 CALL cool_excit(1, pack_index,  Zexcit, actikrates)
-CALL cool_ff(pack_index, Zff, actikrates)
+CALL cool_ff(pack_index, Zff)
 CALL cool_ionization(1, pack_index, Zion, actikrates)
 CALL cool_fb(pack_index, Zfb, actikrates)
 

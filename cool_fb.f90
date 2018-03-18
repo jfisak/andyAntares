@@ -123,7 +123,7 @@ DO indexe = 1, n_elements
     END DO
     alphaSpont = 4.D0 * pi * summ ! / light_speed**2 * summ
     ! write(*,*) 'cool_ionization: alphaSpont = ', alphaSpont, 'alphEspont = ', alphEspont
-    CALL saha_factor(indexe, indexi, indexl, cur_mgi, el_dens, sfactor)
+    CALL saha_factor(indexe, indexi, indexl, temp,  sfactor)
     ! population of the given ion
     tot_pop = model_grid(cur_mgi)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
     uppper_en = MINVAL(elements(indexe)%ions(indexi)%levels(:)%exci_energy)
