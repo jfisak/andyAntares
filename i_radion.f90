@@ -34,6 +34,7 @@ INTEGER                                 :: OMP_GET_THREAD_NUM, my_rank
 INTEGER                                 :: act_index, temp_i
 DOUBLE PRECISION                        :: ali, bli, func1, func2
 DOUBLE PRECISION                        :: temp1, temp2, Tmax, Tmin
+INTEGER                                 :: Ntpoints
 
 my_rank = OMP_GET_THREAD_NUM()
 
@@ -41,8 +42,9 @@ my_rank = OMP_GET_THREAD_NUM()
 ! write(*,*) 'i_radion: indexe = ', indexe, ' indexi = ', indexi, ' leveli = ', leveli
 el_dens = model_grid(current_mgi)%e_dens
 temp = model_grid(current_mgi)%t
+Ntpoints = SIZE(i_temps)
 Tmin = i_temps(1)
-Tmax = i_temps(SIZE(i_temps))
+Tmax = i_temps(Ntpoints)
 act_index = 0
 DO I = 1, n_photcrossect
  IF(iints(I)%indexe == indexe .AND. iints(I)%indexi == indexi &
@@ -56,19 +58,25 @@ END DO
 !print*, 'photion_rates: npoints = ', npoints
 IF(act_index /= 0) THEN
  ! index of the array
- IF(SIZE(i_temps) /= 1) THEN
-  temp_i = FLOOR((temp - Tmin) / (Tmax - Tmin) * DBLE(SIZE(i_temps)))
-  ! write(*,*) 'i_radion: temp = ', temp, ' Tmin = ', Tmin, ' Tmax = ', Tmax
-  ! write(*,*) 'i_radion: temp_i = ', temp_i
-  temp1 = i_temps(temp_i)
-  temp2 = i_temps(temp_i + 1)
-  func1 = iints(act_index)%gammaijk(temp_i)
-  func2 = iints(act_index)%gammaijk(temp_i + 1)
-  ali = (func1 - func2) / (temp1 - temp2)
-  bli = (func2 * temp1 - func1 * temp2) / (temp1 - temp2)
-  actVal = ali * temp + bli
- ELSE IF(SIZE(i_temps) == 1) THEN
+ IF(temp == Tmax) THEN
+  actVal = iints(act_index)%gammaijk(Ntpoints)
+ ELSE IF(temp == Tmin) THEN
   actVal = iints(act_index)%gammaijk(1)
+ ELSE
+  IF(SIZE(i_temps) /= 1) THEN
+   temp_i = FLOOR((temp * (DBLE(Ntpoints - 1) - 1) - DBLE(Ntpoints) * Tmin + Tmax)/(Tmax - Tmin))
+   ! write(*,*) 'i_radion: temp = ', temp, ' Tmin = ', Tmin, ' Tmax = ', Tmax
+   ! write(*,*) 'i_radion: temp_i = ', temp_i
+   temp1 = i_temps(temp_i)
+   temp2 = i_temps(temp_i + 1)
+   func1 = iints(act_index)%gammaijk(temp_i)
+   func2 = iints(act_index)%gammaijk(temp_i + 1)
+   ali = (func1 - func2) / (temp1 - temp2)
+   bli = (func2 * temp1 - func1 * temp2) / (temp1 - temp2)
+   actVal = ali * temp + bli
+  ELSE IF(SIZE(i_temps) == 1) THEN
+   actVal = iints(act_index)%gammaijk(1)
+  END IF
  END IF
  photRate = act_pop * actVal
  ! write(*,*) 'i_radion: actVal = ', actVal
@@ -100,18 +108,25 @@ IF(indexi > 1) THEN
    ! write(*,*) 'i_radion: calling populations...'
    act_index = elements(indexe)%ions(indexi - 1)%levels(K)%phfreqi
    CALL populations(indexe, indexi, 1, current_mgi, pop_number)
-   IF(SIZE(i_temps) /= 1) THEN
-    temp_i = FLOOR((temp - Tmin) / (Tmax - Tmin) * DBLE(SIZE(i_temps)))
-    ! write(*,*) 'i_radion: temp = ', temp, ' Tmin = ', Tmin, ' Tmax = ', Tmax
-    temp1 = i_temps(temp_i)
-    temp2 = i_temps(temp_i + 1)
-    func1 = iints(act_index)%alphaijk(temp_i)
-    func2 = iints(act_index)%alphaijk(temp_i + 1)
-    ali = (func2 - func1) / (temp2 - temp1)
-    bli = (func1 * temp2 - func2 * temp1) / (temp2 - temp1)
-    phot_cross = ali * temp + bli
-   ELSE IF(SIZE(i_temps) == 1) THEN
-    phot_cross = iints(act_index)%alphaijk(1)
+   IF(temp == Tmax) THEN
+    actVal = iints(act_index)%gammaijk(Ntpoints)
+   ELSE IF(temp == Tmin) THEN
+    actVal = iints(act_index)%gammaijk(1)
+   ELSE
+    IF(Ntpoints /= 1) THEN
+     temp_i = FLOOR((temp * (DBLE(Ntpoints - 1) - 1) - DBLE(Ntpoints) * Tmin + Tmax)/(Tmax - Tmin))
+     ! write(*,*) 'i_radion: temp_i = ', temp_i
+     ! write(*,*) 'i_radion: temp = ', temp, ' Tmin = ', Tmin, ' Tmax = ', Tmax
+     temp1 = i_temps(temp_i)
+     temp2 = i_temps(temp_i + 1)
+     func1 = iints(act_index)%alphaijk(temp_i)
+     func2 = iints(act_index)%alphaijk(temp_i + 1)
+     ali = (func2 - func1) / (temp2 - temp1)
+     bli = (func1 * temp2 - func2 * temp1) / (temp2 - temp1)
+     phot_cross = ali * temp + bli
+    ELSE IF(SIZE(i_temps) == 1) THEN
+     phot_cross = iints(act_index)%alphaijk(1)
+    END IF
    END IF
    ! write(*,*) 'i_radion: temp1 ', temp1, ' temp2 = ', temp2, ' func1 = ', func1, &
    !  ' func2 = ', func2
