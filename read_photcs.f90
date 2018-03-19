@@ -26,7 +26,7 @@ DOUBLE PRECISION                        :: ionstage, energyFZ
 INTEGER                                 :: ios
 INTEGER                                 :: new_ion, old_ion
 INTEGER                                 :: lowering_index
-LOGICAL                                 :: save_cs, save_in
+LOGICAL                                 :: save_cs
 INTEGER                                 :: atom_number
 INTEGER                                 :: electron_number
 
@@ -84,7 +84,6 @@ CASE(2)
    !write(*,*) 'read_photcs: freqt = ', freqt
    !elements(indexe)%ions(indexI)%levels(indexclev)%phfreq = freqt
    ! now we will read the given data for the photoionization cross section
-   save_in = .TRUE.
    DO I = 1, nofPoints
     READ(13, '(A)', IOSTAT=ios) line
     if(ios /= 0) EXIT
@@ -99,13 +98,6 @@ CASE(2)
      ! write(*,*) 'read_photcs: photfreq = ', freq * Rydberg * e_v / h
      elements(indexe)%ions(indexI)%levels(indexclev)%photcros(2,I) = cross * 1.D-15
      ! print*, index, indexI, freq(I), cross(I)
-     IF(save_in .EQV. .TRUE.) THEN
-      IF(elements(indexe)%ions(indexI)%levels(indexclev)%photcros(1,I) > freqt) THEN 
-       elements(indexe)%ions(indexI)%levels(indexclev)%phfreqi = I
-       ! write(*,*) 'read_photcs: phindex = ', I
-       save_in = .FALSE.
-      END IF
-     END IF
     END IF
    END DO
    ! it would be possible to save these data in the form of fit coefficients

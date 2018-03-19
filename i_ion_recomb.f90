@@ -94,7 +94,7 @@ DO indexe = 1, n_elements
    IF(Istart == 0) THEN
     Istart = npoints
    END IF
-   write(*,*) 'i_ion_recomb: Istart = ', Istart
+   ! write(*,*) 'i_ion_recomb: Istart = ', Istart, ' npoints = ', npoints
    ! the integral calculation
    DO index_temp = 1, ntints
     cur_temp = i_temps(index_temp)
@@ -121,7 +121,7 @@ DO indexe = 1, n_elements
     iints(act_int)%indexe = indexe
     iints(act_int)%indexi = indexi
     iints(act_int)%indexl = indexl
-    iints(act_int)%gammaijk(index_temp) = 4.D0 * pi * summ1 * sfactor
+    iints(act_int)%gammaijk(index_temp) = 4.D0 * pi * summ1 
     iints(act_int)%alphaijk(index_temp) = 4.D0 * pi * summ2 * sfactor
     ! write(*,*) 'i_ion_recomb: gamma = ', iints(act_int)%gammaijk(index_temp),&
     ! ' alpha = ', iints(act_int)%alphaijk(index_temp)
@@ -129,6 +129,8 @@ DO indexe = 1, n_elements
     ! write(*,*) 'i_ion_recomb: T = ', cur_temp, ' summ1 = ', summ1, ' summ2 = ', summ2
     write(77,*) cur_temp, summ1 * sfactor, summ2 * sfactor
    END DO ! loop over temperatures
+   elements(indexe)%ions(indexi)%levels(indexl)%phfreqi = act_int
+   ! write(*,*) 'i_ion_recomb: act_int = ', act_int
    DEALLOCATE(freq, cross, func1, func2)
   END DO ! loop over ionic levels
  END DO ! loop over ions

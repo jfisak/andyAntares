@@ -46,7 +46,11 @@ REAL(8)                         :: random
 ! write down the processes
 LOGICAL                         :: procout = .FALSE.
 LOGICAL                         :: sstates = .FALSE.
+! number of processes in MA
+! INTEGER, PARAMETER              :: maxproc = 1000000
+! INTEGER                         :: n_proc
 
+n_proc = 0
 my_rank = OMP_GET_THREAD_NUM()
 
 last_line = package(pack_index)%last_line
@@ -68,7 +72,14 @@ actual_state = last_level
 ion_index = last_ion
 ! we will run this loop until the macro atom is deactivated
 DO WHILE (active == 1)
- write(*,*)  'do_ipackage: element_index = ', element_index, 'ion_index = ', ion_index, ' level_index = ', actual_state
+! write(*,*)  'do_ipackage: element_index = ', element_index, 'ion_index = ', ion_index, ' level_index = ', actual_state
+ ! IF(n_proc > maxproc) THEN
+ !  package(pack_index)%active = 0
+ !  !$OMP ATOMIC
+ !  count_des_ipack = count_des_ipack + 1
+ !  write(*,*) 'do_ipackage: destroying i-packet ', pack_index
+ !  EXIT
+ ! END IF
  ! we have to find all possible downward upward transitions
  ! firstly we calculate number of these possible transitions
  ! number of transitions to a lower level
@@ -399,6 +410,7 @@ DEALLOCATE(linetransitions, lineuptransitions, &
                 actirates%Lma_int_dorad, actirates%Lma_int_uprad, actirates%Lma_int_docoll, actirates%Lma_int_upcoll, &
                 actirates%Lma_int_up, actirates%Lma_int_do)
 IF(nlevslion /= 0) DEALLOCATE(actirates%Lma_recrad, actirates%Lma_int_recrad, actirates%Lma_reccol, actirates%Lma_int_reccol)
+! n_proc = n_proc + 1
 END DO
 
 ! deallocate rates

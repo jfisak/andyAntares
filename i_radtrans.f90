@@ -92,33 +92,10 @@ DO I = 1, nlns
  Zintdown = Zintdown + actirates%Lma_int_dorad(I)
  actirates%Lma_rad(I) = actVal * (exci_energy_u - exci_energy_l)
  Zrad = Zrad + actirates%Lma_rad(I)
+ ! write(*,*) 'i_radtrans: Lrad = ', actirates%Lma_rad(I), ' Lintdown = ', actirates%Lma_int_dorad(I)
+ ! write(*,*) 'i_radtrans: e_l = ', exci_energy_l, ' e_u - u_l = ', exci_energy_u - exci_energy_l
  IF(exci_energy_u - exci_energy_l < 0) STOP 'i_radtrans: exci_energy_u - exci_energy_l < 0'
- ! write(36,*) 'i_radtrans: betalu = ', betalu
- ! write(36, *) 'i_radtrans: ', linelist(act_line)%upper, '->',&
- !  linelist(act_line)%lower, ' Lrad = ', actirates%Lma_rad(I),&
- !  ' wale = ', 1.D8 * light_speed / linelist(act_line)%freq,&
- !  ' Aul = ', linelist(act_line)%A_ul, ' taulu = ', taulu, &
- !  ' LintRad = ', actirates%Lma_int_dorad(I)
-! ELSE 
-!  ! tau_line = 1.D50
-!  actirates%Lma_int_dorad(I) = 0.D0
-!  actirates%Lma_rad(I) = 0.D0
-! END IF
- ! write(*,*) 'i_radtrans: taulu = ', taulu, ' tau_line = ', tau_line
- ! probability of escape of the packet after scattering in line
- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- ! radiative deexcitation
- !print*, 'do_ipackage: up_pop = ', up_pop
- ! actVal = up_pop * betalu * linelist(act_line)%A_ul
- ! actirates%Lma_rad(I) = actVal * (exci_energy_u - exci_energy_l)
- ! write(*,*) 'i_radtrans: wale = ', 1.D8 * light_speed / linelist(act_line)%freq, &
- !  ' Aul = ', linelist(act_line)%A_ul, ' Lma = ', actirates%Lma_rad(I)
- ! write(*,*) 'i_radtrans: low_pop, up_pop, Blu, actVal', low_pop, up_pop, Blu, actVal
- ! write(*,*) 'i_radtrans: betalu = ', betalu
- ! write(*,*) 'eu - el = ', exci_energy_u - exci_energy_l
 END DO
-! write(*,*) 'i_radtrans: Zintdown = ', Zintdown
-! write(*,*) 'i_radtrans: Zrad = ', Zrad
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal upward jump
 ! write(36,*) 'i_radtrans: nluns = ', nluns

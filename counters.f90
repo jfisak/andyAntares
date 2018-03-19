@@ -6,6 +6,7 @@ IMPLICIT NONE
 INTEGER                         :: count_des_phot = 0
 INTEGER                         :: count_des_inte = 0
 INTEGER                         :: count_des_esca = 0
+! INTEGER                         :: count_des_ipack = 0
 
 
 
