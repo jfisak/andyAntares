@@ -9,22 +9,15 @@ INTEGER                                 :: current_mgi, nrecom
 DOUBLE PRECISION                        :: act_pop
 ! computing fields
 INTEGER                                 :: npoints
-INTEGER                                 :: I, J, K
-DOUBLE PRECISION, ALLOCATABLE           :: freq(:), cross(:), func(:)
-DOUBLE PRECISION                        :: gijk, photRate
+INTEGER                                 :: I, K
+DOUBLE PRECISION                        :: photRate
 DOUBLE PRECISION                        :: temp
 DOUBLE PRECISION                        :: up_pop
-DOUBLE PRECISION                        :: flux
-DOUBLE PRECISION                        :: summ
 DOUBLE PRECISION                        :: phot_cross
-DOUBLE PRECISION                        :: freqt
 DOUBLE PRECISION                        :: exci_energy, gr_exci_energy
 DOUBLE PRECISION                        :: pop_number
-DOUBLE PRECISION                        :: x
-DOUBLE PRECISION                        :: flux_function
 DOUBLE PRECISION                        :: stat_weight
 DOUBLE PRECISION                        :: el_dens
-DOUBLE PRECISION                        :: sfactor
 DOUBLE PRECISION                        :: actVal
 ! output variables
 DOUBLE PRECISION                        :: Zion, Zrecom, Zintrecom
@@ -58,25 +51,26 @@ END DO
 !print*, 'photion_rates: npoints = ', npoints
 IF(act_index /= 0) THEN
  ! index of the array
- IF(temp == Tmax) THEN
-  actVal = iints(act_index)%gammaijk(Ntpoints)
- ELSE IF(temp == Tmin) THEN
-  actVal = iints(act_index)%gammaijk(1)
- ELSE
-  IF(SIZE(i_temps) /= 1) THEN
+ IF(Ntpoints /= 1) THEN
+  IF(temp == Tmax) THEN
+   actVal = iints(act_index)%gammaijk(Ntpoints)
+  ELSE IF(temp == Tmin) THEN
+   actVal = iints(act_index)%gammaijk(1)
+  ELSE
    temp_i = FLOOR((temp * (DBLE(Ntpoints - 1) - 1) - DBLE(Ntpoints) * Tmin + Tmax)/(Tmax - Tmin))
-   ! write(*,*) 'i_radion: temp = ', temp, ' Tmin = ', Tmin, ' Tmax = ', Tmax
    ! write(*,*) 'i_radion: temp_i = ', temp_i
+   ! write(*,*) 'i_radion: temp = ', temp, ' Tmin = ', Tmin, ' Tmax = ', Tmax
    temp1 = i_temps(temp_i)
    temp2 = i_temps(temp_i + 1)
    func1 = iints(act_index)%gammaijk(temp_i)
    func2 = iints(act_index)%gammaijk(temp_i + 1)
-   ali = (func1 - func2) / (temp1 - temp2)
-   bli = (func2 * temp1 - func1 * temp2) / (temp1 - temp2)
-   actVal = ali * temp + bli
-  ELSE IF(SIZE(i_temps) == 1) THEN
-   actVal = iints(act_index)%gammaijk(1)
+   ali = (func2 - func1) / (temp2 - temp1)
+   bli = (func1 * temp2 - func2 * temp1) / (temp2 - temp1)
+   phot_cross = ali * temp + bli
   END IF
+ ELSE IF(Ntpoints == 1) THEN
+  phot_cross = iints(act_index)%gammaijk(1)
+  ! write(*,*) 'i_radion: act_index = ', act_index, ' phot_cross = ', phot_cross
  END IF
  photRate = act_pop * actVal
  ! write(*,*) 'i_radion: actVal = ', actVal
@@ -108,12 +102,12 @@ IF(indexi > 1) THEN
    ! write(*,*) 'i_radion: calling populations...'
    act_index = elements(indexe)%ions(indexi - 1)%levels(K)%phfreqi
    CALL populations(indexe, indexi, 1, current_mgi, pop_number)
-   IF(temp == Tmax) THEN
-    actVal = iints(act_index)%gammaijk(Ntpoints)
-   ELSE IF(temp == Tmin) THEN
-    actVal = iints(act_index)%gammaijk(1)
-   ELSE
-    IF(Ntpoints /= 1) THEN
+   IF(Ntpoints /= 1) THEN
+    IF(temp == Tmax) THEN
+     actVal = iints(act_index)%alphaijk(Ntpoints)
+    ELSE IF(temp == Tmin) THEN
+     actVal = iints(act_index)%alphaijk(1)
+    ELSE
      temp_i = FLOOR((temp * (DBLE(Ntpoints - 1) - 1) - DBLE(Ntpoints) * Tmin + Tmax)/(Tmax - Tmin))
      ! write(*,*) 'i_radion: temp_i = ', temp_i
      ! write(*,*) 'i_radion: temp = ', temp, ' Tmin = ', Tmin, ' Tmax = ', Tmax
@@ -124,9 +118,10 @@ IF(indexi > 1) THEN
      ali = (func2 - func1) / (temp2 - temp1)
      bli = (func1 * temp2 - func2 * temp1) / (temp2 - temp1)
      phot_cross = ali * temp + bli
-    ELSE IF(SIZE(i_temps) == 1) THEN
-     phot_cross = iints(act_index)%alphaijk(1)
     END IF
+   ELSE IF(Ntpoints == 1) THEN
+    phot_cross = iints(act_index)%alphaijk(1)
+    ! write(*,*) 'i_radion: act_index = ', act_index, ' phot_cross = ', phot_cross
    END IF
    ! write(*,*) 'i_radion: temp1 ', temp1, ' temp2 = ', temp2, ' func1 = ', func1, &
    !  ' func2 = ', func2
@@ -136,7 +131,8 @@ IF(indexi > 1) THEN
    actVal = pop_number * el_dens * phot_cross
    actirates%Lma_int_recrad(K) = actVal * exci_energy
    actirates%Lma_recrad(K) = actVal * (gr_exci_energy - exci_energy)
-   ! write(*,*) 'i_radion: actVal = ', actVal
+   !write(*,*) 'i_radion: actVal = ', actVal
+   ! write(*,*) 'i_radion: phot_cross = ', phot_cross
    ! write(*,*) 'i_radion: indexe = ', indexe, ' indexi - 1 = ', indexi - 1, 'K = ', K
    ! write(*,*) 'i_radion: exci_energy = ', exci_energy, ' gr_exci_energy = ', gr_exci_energy
    ! write(*,*) 'i_radion: pop_number = ', pop_number, ' el_dens = ', el_dens
@@ -152,7 +148,5 @@ IF(indexi > 1) THEN
  END DO
  ! STOP 'i_radion: testing'
 END IF ! indexi > 1
-! write(*,*) 'Zrecom = ', Zrecom
-! write(*,*)  'photion_rates: Zion = ', Zion, ' Zrecom = ', Zrecom
-! STOP 'i_radion: testing'
+! write(*,*)  'photion_rates: Zion = ', Zion, ' Zrecom = ', Zrecom, ' Zintrecom = ', Zintrecom
 END SUBROUTINE i_radion

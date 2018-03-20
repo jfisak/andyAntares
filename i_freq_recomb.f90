@@ -29,6 +29,8 @@ REAL(8)                                 :: random
 INTEGER                                 :: act_point
 ! linear interpolation
 DOUBLE PRECISION                        :: freq1, freq2, css1, css2, ali, bli
+DOUBLE PRECISION                        :: freqt
+INTEGER                                 :: Istart
 
 n_points = SIZE(elements(indexe)%ions(indexi - 1)%levels(indexl)%photcros(1,:))
 IF(n_points == 0) THEN
@@ -40,6 +42,17 @@ IF(n_points /= 0) THEN
 END IF
 freqs(:) = elements(indexe)%ions(indexi -1)%levels(indexl)%photcros(1,:)
 css(:) = elements(indexe)%ions(indexi -1)%levels(indexl)%photcros(2,:)
+
+freqt = (MINVAL(elements(indexe)%ions(indexI)%levels(:)%exci_energy) - &
+ elements(indexe)%ions(indexi - 1)%levels(indexl)%exci_energy) / h
+! ran_frequency = freqt
+! RETURN
+DO I = 1, n_points
+ IF(freqs(I) > freqt) THEN
+  Istart = I
+  EXIT
+ END IF
+END DO
 
 ! calculation of temperature
 act_mgi = get_package_model_index(pack_index)
@@ -57,8 +70,8 @@ DO I=1,n_points
 END DO
 ! calculation of the integral value
 act_sum = 0.D0
-ints(1) = 0.D0
-DO I=1,n_points - 1
+ints(Istart) = 0.D0
+DO I=Istart,n_points - 1
  act_value = 2.D0  * h / light_speed**2 *&
   (css(I + 1) * freqs(I + 1)**3 * exps( I + 1) + css(I) * freqs(I)**3 * exps(I)) &
   * (freqs(I + 1) - freqs(I)) / 2.D0
@@ -68,6 +81,7 @@ DO I=1,n_points - 1
 END DO
 ! this is the right side of equation for the random frequency calculation
 int_value = act_sum * rand_z
+! write(*,*) 'i_freq_recomb: int_value = ', int_value
 DEALLOCATE(exps)
  ! write(*,*) 'i_freq_recomb: integral value = ', int_value
 ! we can find frequency now
@@ -76,10 +90,11 @@ DEALLOCATE(exps)
 ! and if the summed up value is larger than value z*int
 ! we found interval of frequency, where the new frequency is placed
 act_sum = 0.D0
-DO I=1,n_points
+DO I=Istart + 1,n_points
  ! write(*,*) 'i_freq_recomb: act_sum = ', act_sum
  IF(ints(I) >= int_value) THEN
   act_point = I
+  ! write(*,*) 'i_freq_recomb: act_point = ', I
   EXIT
  END IF
 END DO
@@ -94,6 +109,7 @@ freq2 = freqs(act_point - 1)
 ali = (freq1 - freq2) / (css1 - css2)
 bli = (freq2 * css1 - freq1 * css2) / (css1 - css2)
 ran_frequency = ali * int_value + bli
+! write(77,*) ran_frequency
 ! write(*,*) 'i_freq_recomb: rand_z = ', rand_z
 ! write(*,*) 'i_freq_recomb: act_point = ', act_point, ' n_points = ', n_points
 ! write(*,*) 'i_freq_recomb: css1 = ', css1, ' css2 = ', css2,&

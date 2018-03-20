@@ -8,6 +8,7 @@ DOUBLE PRECISION, ALLOCATABLE                   :: i_temps(:)
 TYPE i_ints
  INTEGER                                        :: indexe, indexi, indexl
  DOUBLE PRECISION, ALLOCATABLE                  :: gammaijk(:), alphaijk(:)
+ ! DOUBLE PRECISION, ALLOCATABLE                  :: etaijk(:)
 END TYPE
 TYPE(i_ints), ALLOCATABLE                       :: iints(:)
 
