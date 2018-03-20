@@ -26,6 +26,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
   DOUBLE PRECISION                      :: D
 
 
+  package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
 
   IF (event .EQ. rpkt_eventtype_lineinteraction) THEN
      ! In this case the package interacts with a line. In the general
@@ -37,7 +38,6 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
      ! the cmf and conserve the cmf frequency print*,
      ! freq_line,package(pack_index)%freq_cmf
 !     print*, 'photon ', pack_index, ' line interaction...'
-     package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
      !$OMP ATOMIC
      linelist(package(pack_index)%last_line)%n_int = &
       linelist(package(pack_index)%last_line)%n_int + 1

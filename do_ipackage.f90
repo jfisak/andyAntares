@@ -50,7 +50,7 @@ LOGICAL                         :: sstates = .FALSE.
 ! INTEGER, PARAMETER              :: maxproc = 1000000
 ! INTEGER                         :: n_proc
 
-n_proc = 0
+! n_proc = 0
 my_rank = OMP_GET_THREAD_NUM()
 
 last_line = package(pack_index)%last_line
@@ -62,6 +62,8 @@ last_ion = package(pack_index)%l_ion
 last_level = package(pack_index)%l_lev
 IF(package(pack_index)%last_line /= no_line) linelist(last_line)%n_exc = linelist(last_line)%n_exc + 1
  
+package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
+  
 current_mgi = get_package_model_index(pack_index)
 ! write(*,*) '*********************************************************************'
 ! write(*,*)  'do_ipackage: element_index = ', element_index, 'ion_index = ', last_ion, ' level_index = ', last_level

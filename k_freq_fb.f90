@@ -58,22 +58,22 @@ temp = model_grid(cur_mgi)%T
 ! population
 CALL populations(indexe, indexi, indexl, cur_mgi, act_pop)
 ! random number
-ran_num = random()
+ran_num = DBLE(random())
 ! ! calculation of initial frequency
-! init_freq = (MINVAL(elements(indexe)%ions(indexi + 1)%levels(:)%exci_energy) - &
-!        elements(indexe)%ions(indexi)%levels(indexl)%exci_energy) / h
- ! write(*,*) 'k_freq_fb: el = ', indexe, ' ion = ', indexi, ' lev = ', indexl, &
- !  ' init_freq = ', init_freq, ' energy = ', init_freq * h / e_v
+init_freq = (MINVAL(elements(indexe)%ions(indexi + 1)%levels(:)%exci_energy) - &
+       elements(indexe)%ions(indexi)%levels(indexl)%exci_energy) / h
+! write(*,*) 'k_freq_fb: el = ', indexe, ' ion = ', indexi, ' lev = ', indexl, &
+!  ' init_freq = ', init_freq, ' energy = ', init_freq * h / e_v
 ! STOP 'k_freq_fb: testing'
 ! getting the first point
 !initPoint = 0
-! DO I = 1, nfreq
-!   ! write(*,*) 'cool_ionization: freq = ', init_freq, ' freq(', I, ') = ', freq(I)
-!  IF(init_freq < freq(I)) THEN
-!   initPoint = I
-!   EXIT
-!  END IF
-! END DO
+DO I = 1, nfreq
+  ! write(*,*) 'cool_ionization: freq = ', init_freq, ' freq(', I, ') = ', freq(I)
+ IF(init_freq < freq(I)) THEN
+  initPoint = I
+  EXIT
+ END IF
+END DO
 ! write(*,*) ' k_freq_fb: initPoint = ', initPoint, ' nfreq = ', nfreq
 IF(initPoint == 0) STOP 'k_freq_fb: initPoint = 0'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

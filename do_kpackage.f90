@@ -31,6 +31,7 @@ LOGICAL                         :: procout = .FALSE.
 ! double precission
 DOUBLE PRECISION                :: D
 
+package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
 
 actikrates = krates()
 
