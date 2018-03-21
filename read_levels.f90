@@ -129,8 +129,8 @@ OPEN(8,status='old',FILE=filename)
   ! ionindex = I + lowerion - 1
   indexi = at_index - I - lowerion + 3
   n_levels = nlevels(I)
-  ! print*, 'I = ', I, 'lowerion = ', lowerion, &
-  !  ' el_index = ', el_index, ' indexi = ', indexi
+  ! write(*,*) 'I = ', I, 'lowerion = ', lowerion, &
+  !  ' el_index = ', el_index, ' indexi = ', indexi, ' n_levels = ', n_levels
   ALLOCATE(elements(el_index)%ions(indexi)%levels(n_levels))
  END DO
  ! allocation of the given arrays
@@ -171,9 +171,9 @@ OPEN(8,status='old',FILE=filename)
    READ(line,*) kindex, junk, junk, junk, l_index, iconf, l_energy, s_weight
    J = J + 1
    elements(el_index)%ions(indexi)%levels(J)%exci_energy = l_energy * rydberg * e_v
-   ! write(*,*) 'read_levels: kindex = ', kindex, ' element = ', el_index, 'ion = ', indexi, &
-   !  ' J = ', J, ' exci_energy = ', &
-   !  elements(el_index)%ions(indexi)%levels(J)%exci_energy / e_v, ' l_energy = ', l_energy
+   !write(*,*) 'read_levels: kindex = ', kindex, ' element = ', el_index, 'ion = ', indexi, &
+   ! ' J = ', J, ' exci_energy = ', &
+   ! elements(el_index)%ions(indexi)%levels(J)%exci_energy / e_v, ' l_energy = ', l_energy
    elements(el_index)%ions(indexi)%levels(J)%stat_waight = s_weight
    elements(el_index)%ions(indexi)%levels(J)%elconf = iconf
    ! we have to calculate l_index correctly: it should start at 1 for every ion
@@ -185,6 +185,7 @@ OPEN(8,status='old',FILE=filename)
   END DO ! loop over atomic levels for the given ion
   elements(el_index)%ions(indexi)%ion_potential = &
    ABS(MINVAL(elements(el_index)%ions(indexi)%levels(:)%exci_energy))
+  ! write(*,*) 'read_levels: ion pot = ', MINVAL(elements(el_index)%ions(indexi)%levels(:)%exci_energy)/ e_v
   DO act_lev = 1, SIZE(elements(el_index)%ions(indexi)%levels)
    elements(el_index)%ions(indexi)%levels(act_lev)%exci_energy = &
     elements(el_index)%ions(indexi)%levels(act_lev)%exci_energy + &
@@ -198,10 +199,11 @@ OPEN(8,status='old',FILE=filename)
  ! this sbr recalculates excitation energies WRT of the ionization
  ! energy downloaded from the Opacity project 
  n_ions = SIZE(elements(el_index)%ions)
- ionstage = 0.D0
+ ionoffset = 0.D0
  DO I = 1, n_ions
   n_levels = SIZE(elements(el_index)%ions(I)%levels)
-  IF(I > 1) ionoffset = ionoffset + elements(el_index)%ions(cur_ion)%ion_potential
+  IF(I > 1) ionoffset = ionoffset + elements(el_index)%ions(I - 1)%ion_potential
+  ! write(*,*) 'read_levels: ion pot = ', elements(el_index)%ions(I)%ion_potential/ e_v
   DO cur_level = 1, n_levels
    cur_excien = elements(el_index)%ions(I)%levels(cur_level)%exci_energy
    elements(el_index)%ions(I)%levels(cur_level)%exci_energy = &

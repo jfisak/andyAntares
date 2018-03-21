@@ -1,6 +1,6 @@
 #Compiler settings
 F90 = gfortran
-FCFLAGS =  -g -cpp -O0 -fbounds-check -fopenmp# -pg -fprofile-arcs# -ffpe-trap=zero,overflow,invalid,underflow
+FCFLAGS =  -g -cpp -O0 -fbounds-check -fopenmp -fcheck=all -Wall# -pg -fprofile-arcs# -ffpe-trap=zero,overflow,invalid,underflow
 
 #Variables
 progname = main

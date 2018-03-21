@@ -12,6 +12,11 @@ SUBROUTINE part_fun(indexe, indexi, temp, U)
   
 !  print*, 'partition func. called for:', indexe, indexi, temp
 
+  IF(.NOT. ALLOCATED(elements(indexe)%ions(indexi)%levels)) THEN
+   write(*,*) 'part_fun: indexe = ', indexe, ' indexi = ', indexi
+   write(*,*) 'levels are not allocated'
+   STOP
+  END IF
   U = elements(indexe)%ions(indexi)%levels(1)%stat_waight
   e_gl = elements(indexe)%ions(indexi)%levels(1)%exci_energy
 !  print*, '  Part.func. initialisation:', U, e_gl

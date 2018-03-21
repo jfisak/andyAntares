@@ -42,9 +42,9 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
   n_elements = n_elements + 1
  END DO
  ! Allocate the memory to the elements(n_elements)
- print*, 'number of elements: ', n_elements
+ ! print*, 'number of elements: ', n_elements
  ALLOCATE (elements(n_elements)) 
- print*, 'dimension of elements = ', SIZE(elements)
+ ! print*, 'dimension of elements = ', SIZE(elements)
  REWIND(7)
  ! Loop over all rows involved i.e. read all other lines in the compose_adata.dat
  ! and assine these values to the elements(I)%... and elements(I)%ions(J)%...
@@ -75,7 +75,8 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
    !print*, 'upperion = ', upperion, 'lowerion = ', lowerion, 'upperion - lowerion + 1', nions
    ! Allocate the memory to the elements(I)%ions(nions)
    ALLOCATE (elements(I)%ions(nions))
-   !if(ALLOCATED(elements(I)%ions)) print*, 'allocated: elements(', I, ')%ions...', nions
+   ! if(ALLOCATED(elements(I)%ions)) print*, 'allocated: elements(', I, ')%ions...', nions, &
+   !  ' nions = ', nions
    ! Loop over all ions of given chem. element
    DO J = lowerion, upperion
       elements(I)%ions(J)%ion_stage = current_ion
@@ -98,9 +99,11 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
       EXIT
   END IF
   IF ( INDEX(line, '*') /= 0) CYCLE
+  ! write(*,*) 'read_composition: read line = ', line
   READ(line,*) atom_number, lowerion, upperion, levels_type, filename
   CALL find_element_index(atom_number, element_index)
   ! the most important is to read the file
+  ! write(*,*) 'read_composition: element_index = ', element_index
   CALL read_levels(element_index, lowerion,upperion,levels_type,filename)
  END DO
 ! now reading atomic transitions 
