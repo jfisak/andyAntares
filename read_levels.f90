@@ -29,7 +29,7 @@ SUBROUTINE read_levels(el_index, lowerion, upperion, levels_type, filename)
  DOUBLE PRECISION, PARAMETER    :: rydberg = 13.5979996 !(eV)
  ! calculation of excitation energy (OP)
  ! current excitation energy
- INTEGER                        :: cur_excien 
+ DOUBLE PRECISION               :: cur_excien 
  INTEGER                        :: cur_level
  INTEGER                        :: n_ions
  INTEGER                        :: at_index
@@ -206,11 +206,12 @@ OPEN(8,status='old',FILE=filename)
   ! write(*,*) 'read_levels: ion pot = ', elements(el_index)%ions(I)%ion_potential/ e_v
   DO cur_level = 1, n_levels
    cur_excien = elements(el_index)%ions(I)%levels(cur_level)%exci_energy
-   elements(el_index)%ions(I)%levels(cur_level)%exci_energy = &
-    ionoffset + elements(el_index)%ions(I)%levels(cur_level)%exci_energy + cur_excien
-   ! write(*,*) 'read_levels: el_index = ', el_index, 'cur_ion = ', I, &
-   !  ' cur_level = ', cur_level, 'ionoffset = ', ionoffset / e_v, 'eenergy = ', &
-   !  elements(el_index)%ions(I)%levels(cur_level)%exci_energy / e_v
+   write(*,*) 'read_levels: cur_excien = ', cur_excien,&
+    ' ee = ', elements(el_index)%ions(I)%levels(cur_level)%exci_energy
+   elements(el_index)%ions(I)%levels(cur_level)%exci_energy = ionoffset + cur_excien
+    write(*,*) 'read_levels: el_index = ', el_index, 'cur_ion = ', I, &
+     ' cur_level = ', cur_level, 'ionoffset = ', ionoffset / e_v, 'eenergy = ', &
+     elements(el_index)%ions(I)%levels(cur_level)%exci_energy / e_v
   END DO
  END DO
   
