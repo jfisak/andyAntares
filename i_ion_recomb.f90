@@ -50,14 +50,18 @@ DO I = 1, n_photcrossect
  ALLOCATE(iints(I)%alphaijk(ntints))
  ! ALLOCATE(iints(I)%etaijk(ntints))
 END DO
-write(*,*) 'i_ion_recomb: ntints = ', ntints
+! write(*,*) 'i_ion_recomb: ntints = ', ntints
 
 SELECT CASE(division_type)
 ! linear division of intervals
 CASE(1)
- DO I = 1, ntints
-  i_temps(I) = ( Tmax - Tmin ) / DBLE(ntints - 1) * DBLE(I) + (DBLE(ntints) * Tmin - Tmax) / (DBLE(ntints - 1))
- END DO
+ IF(ntints > 1) THEN
+  DO I = 1, ntints
+   i_temps(I) = ( Tmax - Tmin ) / DBLE(ntints - 1) * DBLE(I) + (DBLE(ntints) * Tmin - Tmax) / (DBLE(ntints - 1))
+  END DO
+ ELSE IF(ntints == 1) THEN
+  i_temps(1) = Tmin
+ END IF
 ! logarithmic division of intervals
 CASE(2)
 CASE DEFAULT
