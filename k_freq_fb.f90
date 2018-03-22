@@ -17,7 +17,7 @@ DOUBLE PRECISION                                :: init_freq
 ! integral calculations
 DOUBLE PRECISION, ALLOCATABLE                   :: func(:), intval(:)
 DOUBLE PRECISION                                :: summ
-DOUBLE PRECISION                                :: integral1, integral2
+DOUBLE PRECISION                                :: integral1
 INTEGER                                         :: actIndex
 ! propagation grid informations
 INTEGER                                         :: cur_mgi, get_package_model_index
@@ -28,15 +28,14 @@ DOUBLE PRECISION                                :: random, ran_num
 INTEGER                                         :: I
 ! linear interpolation
 DOUBLE PRECISION                                :: ali, bli, int1, int2, func1, func2
-INTEGER                                         :: actPoint
 TYPE(krates)                                    :: actikrates
 
 ! informations about ion
 ! write(*,*) 'k_freq_fb: act_proc = ', act_proc, ' allocated? Lcfb = ', ALLOCATED(actikrates%Lcool_fbind)
-indexe = actikrates%Lcool_fbE(1, act_proc)
-indexi = actikrates%Lcool_fbE(2, act_proc)
-indexl = actikrates%Lcool_fbE(3, act_proc)
-initPoint = actikrates%Lcool_fbE(5, act_proc)
+indexe = INT(actikrates%Lcool_fbE(1, act_proc))
+indexi = INT(actikrates%Lcool_fbE(2, act_proc))
+indexl = INT(actikrates%Lcool_fbE(3, act_proc))
+initPoint = INT(actikrates%Lcool_fbE(5, act_proc))
 ! write(*,*) 'k_freq_fb: initPoint = ', initPoint
 ! getting the photoionization cross section
 ! nfreq cannot be equal to zero, because a process with a zero rate could

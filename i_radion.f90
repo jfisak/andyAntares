@@ -57,7 +57,7 @@ IF(act_index /= 0) THEN
   ELSE IF(temp == Tmin) THEN
    actVal = iints(act_index)%gammaijk(1)
   ELSE
-   temp_i = FLOOR((temp * (DBLE(Ntpoints - 1) - 1) - DBLE(Ntpoints) * Tmin + Tmax)/(Tmax - Tmin))
+   temp_i = FLOOR((temp * DBLE(Ntpoints - 1) - DBLE(Ntpoints) * Tmin + Tmax)/(Tmax - Tmin))
    ! write(*,*) 'i_radion: temp_i = ', temp_i
    ! write(*,*) 'i_radion: temp = ', temp, ' Tmin = ', Tmin, ' Tmax = ', Tmax
    temp1 = i_temps(temp_i)
@@ -108,7 +108,11 @@ IF(indexi > 1) THEN
     ELSE IF(temp == Tmin) THEN
      actVal = iints(act_index)%alphaijk(1)
     ELSE
-     temp_i = FLOOR((temp * (DBLE(Ntpoints - 1) - 1) - DBLE(Ntpoints) * Tmin + Tmax)/(Tmax - Tmin))
+     temp_i = FLOOR((temp * DBLE(Ntpoints - 1) - DBLE(Ntpoints) * Tmin + Tmax)/(Tmax - Tmin))
+     IF(temp_i <= 0) THEN
+      write(*,*) 'i_radion: temp_i = ', temp_i
+      write(*,*) ' temp = ', temp, ' Tmin = ', Tmin, ' Tmax = ', Tmax, ' Ntpoints = ', Ntpoints
+     END IF
      ! write(*,*) 'i_radion: temp_i = ', temp_i
      ! write(*,*) 'i_radion: temp = ', temp, ' Tmin = ', Tmin, ' Tmax = ', Tmax
      temp1 = i_temps(temp_i)
@@ -142,8 +146,8 @@ IF(indexi > 1) THEN
    ! print*, 'Zrecom = ', Zrecom
    act_index = act_index + 1
   ELSE ! npoints = 0
-   actirates%Lma_int_recrad(I) = 0.D0
-   actirates%Lma_recrad(I) = 0.D0
+   actirates%Lma_int_recrad(K) = 0.D0
+   actirates%Lma_recrad(K) = 0.D0
   END IF ! npoints
  END DO
  ! STOP 'i_radion: testing'

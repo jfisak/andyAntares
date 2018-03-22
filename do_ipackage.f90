@@ -62,7 +62,6 @@ last_ion = package(pack_index)%l_ion
 last_level = package(pack_index)%l_lev
 IF(package(pack_index)%last_line /= no_line) linelist(last_line)%n_exc = linelist(last_line)%n_exc + 1
  
-package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
   
 current_mgi = get_package_model_index(pack_index)
 ! write(*,*) '*********************************************************************'
@@ -72,9 +71,10 @@ active = 1
 ! this is an initial state of the macro-atom
 actual_state = last_level
 ion_index = last_ion
+package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
 ! we will run this loop until the macro atom is deactivated
 DO WHILE (active == 1)
-! write(*,*)  'do_ipackage: element_index = ', element_index, 'ion_index = ', ion_index, ' level_index = ', actual_state
+ ! write(*,*)  'do_ipackage: element_index = ', element_index, 'ion_index = ', ion_index, ' level_index = ', actual_state
  ! IF(n_proc > maxproc) THEN
  !  package(pack_index)%active = 0
  !  !$OMP ATOMIC
@@ -100,9 +100,10 @@ DO WHILE (active == 1)
     nluns = nluns + 1
    END IF
   END IF
+  ! write(*,*) 'do_ipackage: ', linelist(I)%indexe, linelist(I)%indexi, linelist(I)%lower, linelist(I)%upper
  END DO
- 
- !print*, 'do_ipackage: number of found transitions: ', nlns
+ ! STOP 'do_ipackage: testing'
+ ! write(*,*) 'do_ipackage: number of found transitions: ', nlns, nluns
  ALLOCATE(linetransitions(nlns), lineuptransitions(nluns))
  ! we will save these possible transitions into an array
  J = 0

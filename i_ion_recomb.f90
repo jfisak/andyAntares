@@ -36,6 +36,7 @@ Tmin = MINVAL(model_grid(1:n_modelgrid)%t)
 Tmax = MAXVAL(model_grid(1:n_modelgrid)%t)
 
 ! write(*,*) 'i_ion_recomb: Tmin = ', Tmin, ' Tmax = ', Tmax
+! STOP 'i_ion_recomb: testing'
 ! write(*,*) 'i_ion_recomb: t = ', model_grid(:)%t
 IF(Tmax == Tmin) THEN
  ntints = 1
@@ -55,7 +56,7 @@ SELECT CASE(division_type)
 ! linear division of intervals
 CASE(1)
  DO I = 1, ntints
-  i_temps(I) = ( Tmax - Tmin ) / DBLE(ntints) * DBLE(I) + Tmin
+  i_temps(I) = ( Tmax - Tmin ) / DBLE(ntints - 1) * DBLE(I) + (DBLE(ntints) * Tmin - Tmax) / (DBLE(ntints - 1))
  END DO
 ! logarithmic division of intervals
 CASE(2)
@@ -76,6 +77,8 @@ DO indexe = 1, n_elements
    ELSE
     CYCLE
    END IF
+   IF(npoints == 0) CYCLE
+   ! write(*,*) 'i_ion_recomb: npoints = ', npoints
    ! func1 -- \gamma_{i, j, k}
    ! func2 -- \alpha^{spont.}_{i, j, k}
    ALLOCATE(freq(npoints), cross(npoints))
