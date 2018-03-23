@@ -157,7 +157,8 @@ CASE(2)
     IF(low_conf == elements(el_index)%ions(current_ion)%levels(J)%elconf) THEN
      found_low_conf = .TRUE.
      act_lc = elements(el_index)%ions(current_ion)%levels(J)%l_index
-     !print*, 'found electron configuration...'
+     ! write(*,*) 'reading_transitions: el_index = ', el_index, ' current_ion = ',&
+     !  current_ion, low_conf, 'found electron configuration...'
      ! IF(col_str >= 0) THEN
      !  act_upper = elements(el_index)%ions(current_ion)%levels(J)%l_index
      ! ELSE
@@ -168,6 +169,8 @@ CASE(2)
     IF(up_conf == elements(el_index)%ions(current_ion)%levels(J)%elconf) THEN
      found_up_conf = .TRUE.
      act_uc = elements(el_index)%ions(current_ion)%levels(J)%l_index
+     ! write(*,*) 'read_transitions: J = ', J, ' el_index = ', el_index, ' current_ion = ',&
+     !  current_ion, up_conf, 'found electron configuration...'
      !print*, 'found electron configuration...'
      ! IF(col_str >= 0) THEN
      !  act_lower = elements(el_index)%ions(current_ion)%levels(J)%l_index

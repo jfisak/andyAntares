@@ -55,7 +55,12 @@ CASE(2)
    ! write(*,*)  'read_photcs: ', line
    IF(line(1:1) == '*') CYCLE
    IF(ios /= 0) EXIT
-   READ(line, *) indexclev, indexZ, electron_number, junk, junk, energy, nofPoints
+   READ(line, *) junk, indexZ, electron_number, junk, junk, energy, nofPoints
+   IF(energy > 0.D0) THEN
+    ! write(*,*) 'read_photcs: nofPoints = ', nofPoints
+    DO I = 1, nofPoints
+    END DO
+   END IF
    ! we have to know, if the ion is different from the previous one
    new_ion = electron_number
    indexI = atom_number - electron_number + 1
@@ -64,14 +69,14 @@ CASE(2)
     n_read = 0
     save_cs = .TRUE.
     old_ion = new_ion
-    lowering_index = indexclev
+    indexclev = 0
     !print*, 'indexclev = ', indexclev
    END IF
-   indexclev = indexclev - lowering_index + 1
    !print*, 'indexclev = ', indexclev, ' lowering_index = ', lowering_index
    n_read = n_read + 1
    IF(n_read > max_levels .AND. max_levels > 0) save_cs = .FALSE.
    IF(save_cs .EQV. .TRUE.) THEN
+    indexclev = indexclev + 1
     ALLOCATE(elements(indexe)%ions(indexI)%levels(indexclev)%photcros(2,nofPoints))
     IF(nofPoints /= 0) n_photcrossect = n_photcrossect + 1
     !write(*,*) 'read_photcs: n_photcrossect = ', n_photcrossect, 'nofPoints = ', nofPoints

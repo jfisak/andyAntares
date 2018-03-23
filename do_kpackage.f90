@@ -67,6 +67,7 @@ Z3 = Z2 + Zfb
 Ztot = Zexcit + Zff + Zion + Zfb
 rand = rand * Ztot
 ! write(*,*) 'do_kpackage: Zexcit = ', Zexcit, ' Zff = ', Zff, ' Zion = ', Zion, ' Zfb = ', Zfb
+! write(*,*) 'do_kpackage: Z0 = ', Z0, ' Z1 = ', Z1, ' Z2 = ', Z2, ' Z3 = ', Z3
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! collisional excitation
@@ -170,6 +171,9 @@ ELSE IF(rand > Z2 .AND. rand <= Z3) THEN
  package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
  package(pack_index)%e_rf = package(pack_index)%e_cmf / D
  !STOP 'do_kpackage: testing'
+ELSE
+ write(*,*) 'do_kpackage: no process was chosen'
+ STOP
 END IF
 
 

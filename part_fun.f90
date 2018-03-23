@@ -4,7 +4,11 @@ SUBROUTINE part_fun(indexe, indexi, temp, U)
   ! stage indexi at the given temperature temp
   USE types
 
-  IMPLICIT NONE    
+IMPLICIT NONE    
+
+INTEGER             :: indexe, indexi, indexl, e_gl, nlevels
+DOUBLE PRECISION    :: U, temp, g_level, e_level
+INTEGER, DIMENSION(1)   :: indexl0
 
   INTEGER             :: indexe, indexi, indexl, e_gl, nlevels
   DOUBLE PRECISION    :: U, temp, g_level, e_level
@@ -12,23 +16,31 @@ SUBROUTINE part_fun(indexe, indexi, temp, U)
   
 !  print*, 'partition func. called for:', indexe, indexi, temp
 
-  U = elements(indexe)%ions(indexi)%levels(1)%stat_waight
-  e_gl = elements(indexe)%ions(indexi)%levels(1)%exci_energy
+IF(.NOT. ALLOCATED(elements(indexe)%ions(indexi)%levels)) THEN
+ write(*,*) 'part_fun: indexe = ', indexe, ' indexi = ', indexi
+ write(*,*) 'levels are not allocated'
+ STOP
+END IF
+
+indexl0(:) = MINLOC(elements(indexe)%ions(indexi)%levels(:)%exci_energy)
+U = elements(indexe)%ions(indexi)%levels(indexl0(1))%stat_waight
+e_gl = elements(indexe)%ions(indexi)%levels(indexl0(1))%exci_energy
 !  print*, '  Part.func. initialisation:', U, e_gl
 
-  ! Number ov levels for the given element indexe in ionisation stage indexi
-  nlevels = SIZE(elements(indexe)%ions(indexi)%levels)
+! Number of levels for the given element indexe in ionisation stage indexi
+nlevels = SIZE(elements(indexe)%ions(indexi)%levels)
 
-  DO indexl = 2, nlevels
-     ! Statistical weight of th egrpund level
-     g_level = elements(indexe)%ions(indexi)%levels(indexl)%stat_waight   
-     ! Excitation energy of the excited level
-     e_level = elements(indexe)%ions(indexi)%levels(indexl)%exci_energy
-     ! Partition function
-     IF(temp == 0 ) STOP 'part_fun: temperature = 0...'
-     U = U + g_level * EXP(-(e_level - e_gl) / BOLK / temp)  
-!     print*, '   part.func. calculation:', indexl, g_level, e_level/e_v
-  END DO
+DO indexl = 1, nlevels
+ IF(indexl == indexl0(1)) CYCLE
+ ! Statistical weight of th egrpund level
+ g_level = elements(indexe)%ions(indexi)%levels(indexl)%stat_waight   
+ ! Excitation energy of the excited level
+ e_level = elements(indexe)%ions(indexi)%levels(indexl)%exci_energy
+ ! Partition function
+ IF(temp == 0 ) STOP 'part_fun: temperature = 0...'
+ U = U + g_level * EXP(-(e_level - e_gl) / BOLK / temp)  
+!   print*, '   part.func. calculation:', indexl, g_level, e_level/e_v
+END DO
 
 !  print*, '   part.func. calculation done:', U
 

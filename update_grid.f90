@@ -11,20 +11,9 @@ SUBROUTINE update_grid(iteration)
   DOUBLE PRECISION    :: el_nd, temp, frac, U, N_jk, gl_pop
   INTEGER             :: max_n_dcell
   INTEGER             :: I
+INTEGER, DIMENSION(1)   :: indexl0
+
   
-!  OPEN(31, FILE='carbonI.dat')
-!  OPEN(32, FILE='carbonII.dat')
-!  OPEN(33, FILE='carbonIII.dat')
-!  OPEN(34, FILE='carbonIV.dat')
-!  OPEN(35, FILE='carbonV.dat')
-!  OPEN(36, FILE='carbonVI.dat')
-!  OPEN(31, FILE='nitrogenI.dat')
-!  OPEN(32, FILE='nitrogenII.dat')
-!  OPEN(33, FILE='nitrogenIII.dat')
-!  OPEN(34, FILE='nitrogenIV.dat')
-!  OPEN(35, FILE='nitrogenV.dat')
-!  OPEN(36, FILE='nitrogenVI.dat')
-!  OPEN(37, FILE='nitrogenVII.dat')
   max_n_dcell = SIZE(dyn_cell)
    print*, 'updating grid'
   DO gridcell = 1, n_modelgrid
@@ -68,53 +57,37 @@ SUBROUTINE update_grid(iteration)
            ! Total population number of the element indexe in ionization stage indexi
            ! and particular gridcell (total number of atoms in particular ionization stage)
            N_jk = frac * model_grid(gridcell)%rho * model_grid(gridcell)%grid_comp(indexe)%abund / elements(indexe)%atom_mass
-           CALL ionization_fraction(indexe, indexi, temp, el_nd, frac)
-!           print*, gridcell, indexe, indexi, N_jk/1d10, frac
+           ! CALL ionization_fraction(indexe, indexi, temp, el_nd, frac)
+           ! print*, gridcell, indexe, indexi, N_jk/1d10, frac
            ! Calculate partition function (U) of element indexe in ionization stage 
            ! indexi at given temperature temp
            CALL part_fun(indexe, indexi, temp, U)
            ! Ground level population number (number density of the atom at ground level)
-           gl_pop = ( elements(indexe)%ions(indexi)%levels(1)%stat_waight * N_jk ) /  U 
+           ! write(*,*) 'update_grid: U = ', U
+           indexl0(:) = MINLOC(elements(indexe)%ions(indexi)%levels(:)%exci_energy)
+           gl_pop = ( elements(indexe)%ions(indexi)%levels(indexl0(1))%stat_waight * N_jk ) /  U 
+           ! write(*,*) 'update_grid: gl_pop = ', gl_pop, ' N_jk = ', N_jk,&
+           !  ' U = ', U, ' temp = ', temp
            model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%gl_pop = gl_pop
-           IF(N_jk * frac > 1.D-40) THEN
-            model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop = N_jk * frac
+           IF(N_jk > 1.D-40) THEN
+            model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop = N_jk
            ELSE
             model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop = 1.D-40
            END IF
            ! write(*,*) 'update_grid: indexe = ', indexe, ' indexi = ', indexi, &
            !  ' tot_pop = ', N_jk * frac
-           IF(N_jk * frac > 1.D20) THEN
+           IF(N_jk  > 1.D20) THEN
             write(*,*) 'update_grid: indexe = ', indexe, ' indexi = ', indexi, &
-             ' tot_pop = ', N_jk * frac
+             ' tot_pop = ', N_jk 
             STOP 'update_grid: suspiciously large number'
            END IF
-            
-!           IF(indexe == 3 .AND. indexi == 1) WRITE(31,*) model_grid(gridcell)%rwind, frac
-!           IF(indexe == 3 .AND. indexi == 2) WRITE(32,*) model_grid(gridcell)%rwind, frac
-!           IF(indexe == 3 .AND. indexi == 3) WRITE(33,*) model_grid(gridcell)%rwind, frac
-!           IF(indexe == 3 .AND. indexi == 4) WRITE(34,*) model_grid(gridcell)%rwind, frac
-!           IF(indexe == 3 .AND. indexi == 5) WRITE(35,*) model_grid(gridcell)%rwind, frac
-!           IF(indexe == 3 .AND. indexi == 6) WRITE(36,*) model_grid(gridcell)%rwind, frac
-!           IF(indexe == 2 .AND. indexi == 1) WRITE(31,*) model_grid(gridcell)%rwind, frac
-!           IF(indexe == 2 .AND. indexi == 2) WRITE(32,*) model_grid(gridcell)%rwind, frac
-!           IF(indexe == 2 .AND. indexi == 3) WRITE(33,*) model_grid(gridcell)%rwind, frac
-!           IF(indexe == 2 .AND. indexi == 4) WRITE(34,*) model_grid(gridcell)%rwind, frac
-!           IF(indexe == 2 .AND. indexi == 5) WRITE(35,*) model_grid(gridcell)%rwind, frac
-!           IF(indexe == 2 .AND. indexi == 6) WRITE(36,*) model_grid(gridcell)%rwind, frac
-!           IF(indexe == 2 .AND. indexi == 7) WRITE(37,*) model_grid(gridcell)%rwind, frac
         END DO
       END DO
     ENDIF
   END DO
-!  CLOSE(31)
-!  CLOSE(32)
-!  CLOSE(33)
-!  CLOSE(34)
-!  CLOSE(35)
-!  CLOSE(36)
-!  CLOSE(37)
+  CALL check_pop()
+  STOP 'update_grid: testing'
   CLOSE(3)
 
-! STOP 'update_grid: testing'  
   
 END SUBROUTINE update_grid

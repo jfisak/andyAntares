@@ -45,14 +45,25 @@ css(:) = elements(indexe)%ions(indexi -1)%levels(indexl)%photcros(2,:)
 
 freqt = (MINVAL(elements(indexe)%ions(indexI)%levels(:)%exci_energy) - &
  elements(indexe)%ions(indexi - 1)%levels(indexl)%exci_energy) / h
+! write(*,*) 'i_freq_recomb: phfreq1 = ', elements(indexe)%ions(indexi - 1)%levels(indexl)%phfreq,&
+! ' phfreq2 = ', freqt
 ! ran_frequency = freqt
 ! RETURN
+Istart = 0
 DO I = 1, n_points
  IF(freqs(I) > freqt) THEN
   Istart = I
   EXIT
  END IF
 END DO
+
+IF(Istart == 0) THEN
+ write(*,*) 'i_freq_recomb: indexe = ', indexe, ' indexi = ', indexi
+ write(*,*) ' indexl = ', indexl
+ write(*,*) ' initial point was not found'
+ STOP
+END IF
+
 
 ! calculation of temperature
 act_mgi = get_package_model_index(pack_index)
