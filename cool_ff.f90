@@ -16,7 +16,6 @@ DOUBLE PRECISION                                        :: ion_charge
 INTEGER                                                 :: cur_mgi, get_package_model_index
 DOUBLE PRECISION                                        :: cur_temp, e_dens
 INTEGER                                                 :: act_cooling
-INTEGER                                                 :: n_coll
 DOUBLE PRECISION                                        :: act_pop, actVal
 ! output variables
 DOUBLE PRECISION                                        :: Zcool

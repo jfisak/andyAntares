@@ -31,7 +31,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
 	  read_photcs.o i_radtrans.o i_radion.o i_colion.o \
 	  flux_function.o find_element_index.o next_line.o resonance_distance.o \
 	  r_kappa_cont.o i_freq_recomb.o cool_ff.o warning.o k_freq_ff.o  \
-	  cool_ionization.o cool_fb.o k_freq_fb.o			\
+	  cool_ionization.o cool_fb.o k_freq_fb.o check_pop.o		\
 	  save_output.o gauntff.o counters.o saha_factor.o
 
 #Rules

@@ -12,7 +12,7 @@ INTEGER                         :: indexe, indexi
 INTEGER                         :: nlevels
 ! grid informations
 INTEGER                         :: current_mgi
-DOUBLE PRECISION                :: el_dens, temp, gl_pop_ip1e, x
+DOUBLE PRECISION                :: el_dens, temp, x
 INTEGER                         :: nfreq
 DOUBLE PRECISION                :: gindex
 INTEGER                         :: get_package_model_index

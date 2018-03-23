@@ -5,7 +5,7 @@
 ! * Zrad -- total rate of radiative deactivations of a macro atom
 ! * Zintup -- total rate of internal upward jumps
 SUBROUTINE i_radtrans(current_mgi, nlns, linetransitions, nluns, lineuptransitions, act_pop, &
-Zintdown, Zintup, Zrad, actirates, pack_index)
+Zintdown, Zintup, Zrad, actirates)
 USE types
 USE rates_i
 IMPLICIT NONE
@@ -13,7 +13,6 @@ IMPLICIT NONE
 ! input variables
 INTEGER                                 :: nlns, nluns
 INTEGER                                 :: current_mgi
-INTEGER                                 :: pack_index
 INTEGER, DIMENSION(nlns)                :: linetransitions
 INTEGER, DIMENSION(nluns)               :: lineuptransitions
 DOUBLE PRECISION                        :: stat_weight_l, stat_weight_u
@@ -32,9 +31,6 @@ DOUBLE PRECISION                        :: Zintdown, Zintup, Zrad
 INTEGER                         :: OMP_GET_THREAD_NUM, my_rank
 TYPE(irates)      :: actirates
 INTEGER                                 :: dummypackage, n_pack_d
-DOUBLE PRECISION                        :: tau_line, freq_line, l_dist
-DOUBLE PRECISION                        :: vel_vec, vec_length
-DOUBLE PRECISION                        :: vel
 DOUBLE PRECISION                        :: constant
 
 my_rank = OMP_GET_THREAD_NUM()

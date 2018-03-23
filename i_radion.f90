@@ -1,10 +1,10 @@
-SUBROUTINE i_radion(approx, indexe, indexi, leveli, current_mgi, act_pop, Zion, Zintrecom, Zrecom, actirates)
+SUBROUTINE i_radion(indexe, indexi, leveli, current_mgi, act_pop, Zion, Zintrecom, Zrecom, actirates)
 USE types
 USE rates_i
 IMPLICIT NONE
 
 ! input variables
-INTEGER                                 :: approx, indexe, indexi, leveli
+INTEGER                                 :: indexe, indexi, leveli
 INTEGER                                 :: current_mgi, nrecom
 DOUBLE PRECISION                        :: act_pop
 ! computing fields
@@ -12,11 +12,9 @@ INTEGER                                 :: npoints
 INTEGER                                 :: I, K
 DOUBLE PRECISION                        :: photRate
 DOUBLE PRECISION                        :: temp
-DOUBLE PRECISION                        :: up_pop
 DOUBLE PRECISION                        :: phot_cross
 DOUBLE PRECISION                        :: exci_energy, gr_exci_energy
 DOUBLE PRECISION                        :: pop_number
-DOUBLE PRECISION                        :: stat_weight
 DOUBLE PRECISION                        :: el_dens
 DOUBLE PRECISION                        :: actVal
 ! output variables

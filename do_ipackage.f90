@@ -166,10 +166,10 @@ DO WHILE (active == 1)
  CALL populations(element_index, ion_index, actual_state, current_mgi, act_pop)
  ! write(*,*) 'do_ipackage: pop = ', act_pop
  CALL i_radtrans(current_mgi, nlns, linetransitions, nluns, lineuptransitions, act_pop, &
-  Zintdownrad, Zintuprad, Zraddeexc, actirates, pack_index)
+  Zintdownrad, Zintuprad, Zraddeexc, actirates)
  CALL i_coltrans(1, pack_index, actual_state, nlns, linetransitions, nluns, lineuptransitions, &
   act_pop, Zintdowncoll, Zintupcoll, Zcoll, actirates)
- CALL i_radion(0, element_index, ion_index, actual_state, current_mgi, act_pop, Zphotionup, &
+ CALL i_radion(element_index, ion_index, actual_state, current_mgi, act_pop, Zphotionup, &
    Zphotiondown, Zphotrecom, actirates)
  CALL i_colion(1, element_index, ion_index, actual_state, pack_index, act_pop, Zcollionup, &
   Zcolliondown,Zcollrecom, actirates)
@@ -382,7 +382,7 @@ ELSE IF(rand >= Z5 .AND. rand <= Z6) THEN
    IF(procout) write(*,*) 'do_ipackage: pack_index = ', pack_index, 'radiative recombination'
    package(pack_index)%last_line = no_line
    CALL emit_rpackage(pack_index)
-   CALL i_freq_recomb(element_index, ion_index, I, pack_index, act_pop, new_freq)
+   CALL i_freq_recomb(element_index, ion_index, I, pack_index, new_freq)
    package(pack_index)%freq_cmf = new_freq
    ! write(*,*) 'do_ipackage: new_freq = ', new_freq
    CALL doppler_factor(pack_index, D)
