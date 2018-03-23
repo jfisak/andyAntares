@@ -15,7 +15,7 @@ SUBROUTINE read_levels(el_index, lowerion, upperion, levels_type, filename)
  ! reading from file variables
  INTEGER                        :: ios, reading_levels
  INTEGER                        :: current_element, current_ion, ions
- INTEGER                        :: n_levels, kindex, l_numb, l_index
+ INTEGER                        :: n_levels, l_numb, l_index
  INTEGER                        :: indexi, act_index
  INTEGER                        :: lowering_index
  ! saves number of levels for the ions (lowerion, upperion)
@@ -127,7 +127,6 @@ OPEN(8,status='old',FILE=filename)
 !   END IF
   ! reading the levels for the given ion
   J = 0
-  kindex = 0
   DO  ! loop over atomic levels for the given ion
    READ(8,'(A)', IOSTAT = reading_levels) line
    ! print*, 'reading_levels: ', line
@@ -137,16 +136,15 @@ OPEN(8,status='old',FILE=filename)
    IF(l_energy > 0.D0) CYCLE
    J = J + 1
    elements(el_index)%ions(indexi)%levels(J)%exci_energy = l_energy * rydberg * e_v
-   !write(*,*) 'read_levels: kindex = ', kindex, ' element = ', el_index, 'ion = ', indexi, &
-   ! ' J = ', J, ' exci_energy = ', &
-   ! elements(el_index)%ions(indexi)%levels(J)%exci_energy / e_v, ' l_energy = ', l_energy
+   ! write(*,*) 'read_levels: element = ', el_index, 'ion = ', indexi, &
+   !  ' J = ', J, ' exci_energy = ', &
+    elements(el_index)%ions(indexi)%levels(J)%exci_energy / e_v, ' l_energy = ', l_energy
    elements(el_index)%ions(indexi)%levels(J)%stat_waight = s_weight
    elements(el_index)%ions(indexi)%levels(J)%elconf = iconf
    ! we have to calculate l_index correctly: it should start at 1 for every ion
    ! this condition is not satisfied in the input files thus we have to substract
    ! the total number of levels of the lower ions from the number kindex
-   kindex = kindex + 1
-   elements(el_index)%ions(indexi)%levels(J)%l_index = kindex
+   ! elements(el_index)%ions(indexi)%levels(J)%l_index = J
    IF( J == act_nlevels) EXIT
   END DO ! loop over atomic levels for the given ion
   elements(el_index)%ions(indexi)%ion_potential = &
@@ -172,12 +170,14 @@ OPEN(8,status='old',FILE=filename)
   ! write(*,*) 'read_levels: ion pot = ', elements(el_index)%ions(I)%ion_potential/ e_v
   DO cur_level = 1, n_levels
    cur_excien = elements(el_index)%ions(I)%levels(cur_level)%exci_energy
-   write(*,*) 'read_levels: cur_excien = ', cur_excien,&
-    ' ee = ', elements(el_index)%ions(I)%levels(cur_level)%exci_energy
+   ! write(*,*) 'read_levels: cur_excien = ', cur_excien,&
+   !  ' ee = ', elements(el_index)%ions(I)%levels(cur_level)%exci_energy
    elements(el_index)%ions(I)%levels(cur_level)%exci_energy = ionoffset + cur_excien
-   write(*,*) 'read_levels: el_index = ', el_index, 'cur_ion = ', I, &
-    ' cur_level = ', cur_level, 'ionoffset = ', ionoffset / e_v, 'eenergy = ', &
-    elements(el_index)%ions(I)%levels(cur_level)%exci_energy / e_v
+   ! IF(el_index == 3) write(*,*) 'read_levels: el_index = ', el_index, 'cur_ion = ', I, &
+   !  ' cur_level = ', cur_level, 'ionoffset = ', ionoffset / e_v, 'eenergy = ', &
+   !  elements(el_index)%ions(I)%levels(cur_level)%exci_energy / e_v
+  END DO
+ END DO
   
    ! if everything is OK, we will read from the variable line variables
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

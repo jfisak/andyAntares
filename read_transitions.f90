@@ -156,7 +156,7 @@ CASE(2)
    DO J = 1, n_levels
     IF(TRIM(low_conf) == TRIM(elements(el_index)%ions(current_ion)%levels(J)%elconf)) THEN
      found_low_conf = .TRUE.
-     act_lc = elements(el_index)%ions(current_ion)%levels(J)%l_index
+     act_lc = J
      ! write(*,*) 'reading_transitions: el_index = ', el_index, ' current_ion = ',&
      !  current_ion, low_conf, 'found electron configuration...'
      ! IF(col_str >= 0) THEN
@@ -168,7 +168,7 @@ CASE(2)
     END IF
     IF(TRIM(up_conf) == TRIM(elements(el_index)%ions(current_ion)%levels(J)%elconf)) THEN
      found_up_conf = .TRUE.
-     act_uc = elements(el_index)%ions(current_ion)%levels(J)%l_index
+     act_uc = J
      ! write(*,*) 'read_transitions: J = ', J, ' el_index = ', el_index, ' current_ion = ',&
      !  current_ion, up_conf, 'found electron configuration...'
      !print*, 'found electron configuration...'
