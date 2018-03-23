@@ -36,6 +36,7 @@ Tmin = MINVAL(model_grid(1:n_modelgrid)%t)
 Tmax = MAXVAL(model_grid(1:n_modelgrid)%t)
 
 ! write(*,*) 'i_ion_recomb: Tmin = ', Tmin, ' Tmax = ', Tmax
+! STOP 'i_ion_recomb: testing'
 ! write(*,*) 'i_ion_recomb: t = ', model_grid(:)%t
 IF(Tmax == Tmin) THEN
  ntints = 1
@@ -49,14 +50,18 @@ DO I = 1, n_photcrossect
  ALLOCATE(iints(I)%alphaijk(ntints))
  ! ALLOCATE(iints(I)%etaijk(ntints))
 END DO
-write(*,*) 'i_ion_recomb: ntints = ', ntints
+! write(*,*) 'i_ion_recomb: ntints = ', ntints
 
 SELECT CASE(division_type)
 ! linear division of intervals
 CASE(1)
- DO I = 1, ntints
-  i_temps(I) = ( Tmax - Tmin ) / DBLE(ntints) * DBLE(I) + Tmin
- END DO
+ IF(ntints > 1) THEN
+  DO I = 1, ntints
+   i_temps(I) = ( Tmax - Tmin ) / DBLE(ntints - 1) * DBLE(I) + (DBLE(ntints) * Tmin - Tmax) / (DBLE(ntints - 1))
+  END DO
+ ELSE IF(ntints == 1) THEN
+  i_temps(1) = Tmin
+ END IF
 ! logarithmic division of intervals
 CASE(2)
 CASE DEFAULT
@@ -76,6 +81,8 @@ DO indexe = 1, n_elements
    ELSE
     CYCLE
    END IF
+   IF(npoints == 0) CYCLE
+   ! write(*,*) 'i_ion_recomb: npoints = ', npoints
    ! func1 -- \gamma_{i, j, k}
    ! func2 -- \alpha^{spont.}_{i, j, k}
    ALLOCATE(freq(npoints), cross(npoints))

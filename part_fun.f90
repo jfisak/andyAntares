@@ -1,8 +1,8 @@
 SUBROUTINE part_fun(indexe, indexi, temp, U)
 
-  ! Calculate partition function of element indexe in th egiven ionization
-  ! stage indexi at the given temperature temp
-  USE types
+! Calculate partition function of element indexe in th egiven ionization
+! stage indexi at the given temperature temp
+USE types
 
 IMPLICIT NONE    
 
@@ -10,9 +10,6 @@ INTEGER             :: indexe, indexi, indexl, e_gl, nlevels
 DOUBLE PRECISION    :: U, temp, g_level, e_level
 INTEGER, DIMENSION(1)   :: indexl0
 
-  INTEGER             :: indexe, indexi, indexl, e_gl, nlevels
-  DOUBLE PRECISION    :: U, temp, g_level, e_level
- 
   
 !  print*, 'partition func. called for:', indexe, indexi, temp
 
@@ -56,4 +53,3 @@ END DO
 !    }
  
 END SUBROUTINE part_fun
-

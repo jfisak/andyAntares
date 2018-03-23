@@ -34,8 +34,12 @@ e0 = elements(indexe)%ions(indexi)%levels(indexl0(1))%exci_energy
 
 sfactor = gijk / g0 * sahaconst / temp**(3.0/2.0) * exp((e0 - eijk) / (BOLK * temp))
 
-! write(*,*) 'saha_factor: gijk = ', gijk, ' g0 = ', g0, ' temp = ', temp,&
-!  ' e0 = ', e0, ' eijk = ', eijk
-! write(*,*) 'saha_factor: sfactor = ', sfactor
+
+IF(isnan(sfactor)) THEN
+ write(*,*) 'saha_factor: gijk = ', gijk, ' g0 = ', g0, ' temp = ', temp,&
+  ' e0 = ', e0, ' eijk = ', eijk
+ write(*,*) 'saha_factor: sfactor = ', sfactor
+ STOP
+END IF
 
 END SUBROUTINE saha_factor

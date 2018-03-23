@@ -4,14 +4,13 @@
 ! (number of photoionization data) does exist, because if it does not
 ! exist, the total rate is equal to zero thus no recombination deactivation
 ! is possible to happen
-SUBROUTINE i_freq_recomb(indexe, indexi, indexl, pack_index, population, ran_frequency)
+SUBROUTINE i_freq_recomb(indexe, indexi, indexl, pack_index, ran_frequency)
 USE types
 IMPLICIT NONE
 
 INTEGER                                 :: indexl, pack_index
 INTEGER                                 :: indexe, indexi
 INTEGER                                 :: n_points
-DOUBLE PRECISION                        :: population
 ! model grid information
 INTEGER                                 :: act_mgi
 DOUBLE PRECISION                        :: temp

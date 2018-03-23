@@ -178,8 +178,6 @@ OPEN(8,status='old',FILE=filename)
    write(*,*) 'read_levels: el_index = ', el_index, 'cur_ion = ', I, &
     ' cur_level = ', cur_level, 'ionoffset = ', ionoffset / e_v, 'eenergy = ', &
     elements(el_index)%ions(I)%levels(cur_level)%exci_energy / e_v
-  END DO
- END DO
   
    ! if everything is OK, we will read from the variable line variables
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

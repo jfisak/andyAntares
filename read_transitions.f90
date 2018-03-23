@@ -154,7 +154,7 @@ CASE(2)
    found_up_conf = .FALSE.
    n_levels = SIZE(elements(el_index)%ions(current_ion)%levels)
    DO J = 1, n_levels
-    IF(low_conf == elements(el_index)%ions(current_ion)%levels(J)%elconf) THEN
+    IF(TRIM(low_conf) == TRIM(elements(el_index)%ions(current_ion)%levels(J)%elconf)) THEN
      found_low_conf = .TRUE.
      act_lc = elements(el_index)%ions(current_ion)%levels(J)%l_index
      ! write(*,*) 'reading_transitions: el_index = ', el_index, ' current_ion = ',&
@@ -166,7 +166,7 @@ CASE(2)
      ! END IF 
      !print*, 'l_index = ', elements(el_index)%ions(current_ion)%levels(J)%l_index
     END IF
-    IF(up_conf == elements(el_index)%ions(current_ion)%levels(J)%elconf) THEN
+    IF(TRIM(up_conf) == TRIM(elements(el_index)%ions(current_ion)%levels(J)%elconf)) THEN
      found_up_conf = .TRUE.
      act_uc = elements(el_index)%ions(current_ion)%levels(J)%l_index
      ! write(*,*) 'read_transitions: J = ', J, ' el_index = ', el_index, ' current_ion = ',&
@@ -179,24 +179,26 @@ CASE(2)
      ! END IF
      !print*, 'l_index = ', elements(el_index)%ions(current_ion)%levels(J)%l_index
     END IF
-    IF((found_low_conf .EQV. .TRUE.) .AND. (found_up_conf .EQV. .TRUE.)) THEN
-     ee_lc = elements(el_index)%ions(current_ion)%levels(act_lc)%exci_energy
-     ee_uc = elements(el_index)%ions(current_ion)%levels(act_uc)%exci_energy
-     IF(ee_lc < ee_uc) THEN
-      act_lower = act_lc
-      act_upper = act_uc
-     ELSE IF(ee_uc < ee_lc) THEN
-      act_lower = act_uc
-      act_upper = act_lc
-     ELSE
-      STOP 'read_transitions: ee_lc == ee_uc'
-     END IF
-    END IF
    END DO
+   IF((found_low_conf .EQV. .TRUE.) .AND. (found_up_conf .EQV. .TRUE.)) THEN
+    ! write(*,*) 'read_transitions: J = ', J, ' element: ', element, ' ion = ', ion_index,&
+    !  ' line from ', low_conf, ' to ', up_conf, ' was included...'
+    ee_lc = elements(el_index)%ions(current_ion)%levels(act_lc)%exci_energy
+    ee_uc = elements(el_index)%ions(current_ion)%levels(act_uc)%exci_energy
+    IF(ee_lc < ee_uc) THEN
+     act_lower = act_lc
+     act_upper = act_uc
+    ELSE IF(ee_uc < ee_lc) THEN
+     act_lower = act_uc
+     act_upper = act_lc
+    ELSE
+     STOP 'read_transitions: ee_lc == ee_uc'
+    END IF
+   END IF
    IF((found_low_conf .EQV. .FALSE.) .OR. (found_up_conf .EQV. .FALSE.)) THEN
     ! this configuration will not be taken into account and we will read the next line
-    ! print*, 'element: ', element, ' ion = ', ion_index, ' line from ', low_conf, ' to ', up_conf, &
-    !  '  was not included...'
+    ! write(*,*) 'read_transitions: J = ', J, ' element: ', element, ' ion = ', ion_index,&
+    !  ' line from ', low_conf, ' to ', up_conf, ' was not included...'
     n_not_included = n_not_included + 1
     CYCLE
    ELSE

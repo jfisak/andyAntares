@@ -62,7 +62,6 @@ last_ion = package(pack_index)%l_ion
 last_level = package(pack_index)%l_lev
 IF(package(pack_index)%last_line /= no_line) linelist(last_line)%n_exc = linelist(last_line)%n_exc + 1
  
-package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
   
 current_mgi = get_package_model_index(pack_index)
 ! write(*,*) '*********************************************************************'
@@ -72,9 +71,10 @@ active = 1
 ! this is an initial state of the macro-atom
 actual_state = last_level
 ion_index = last_ion
+package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
 ! we will run this loop until the macro atom is deactivated
 DO WHILE (active == 1)
-! write(*,*)  'do_ipackage: element_index = ', element_index, 'ion_index = ', ion_index, ' level_index = ', actual_state
+ ! write(*,*)  'do_ipackage: element_index = ', element_index, 'ion_index = ', ion_index, ' level_index = ', actual_state
  ! IF(n_proc > maxproc) THEN
  !  package(pack_index)%active = 0
  !  !$OMP ATOMIC
@@ -100,9 +100,10 @@ DO WHILE (active == 1)
     nluns = nluns + 1
    END IF
   END IF
+  ! write(*,*) 'do_ipackage: ', linelist(I)%indexe, linelist(I)%indexi, linelist(I)%lower, linelist(I)%upper
  END DO
- 
- !print*, 'do_ipackage: number of found transitions: ', nlns
+ ! STOP 'do_ipackage: testing'
+ ! write(*,*) 'do_ipackage: number of found transitions: ', nlns, nluns
  ALLOCATE(linetransitions(nlns), lineuptransitions(nluns))
  ! we will save these possible transitions into an array
  J = 0
@@ -165,10 +166,10 @@ DO WHILE (active == 1)
  CALL populations(element_index, ion_index, actual_state, current_mgi, act_pop)
  ! write(*,*) 'do_ipackage: pop = ', act_pop
  CALL i_radtrans(current_mgi, nlns, linetransitions, nluns, lineuptransitions, act_pop, &
-  Zintdownrad, Zintuprad, Zraddeexc, actirates, pack_index)
+  Zintdownrad, Zintuprad, Zraddeexc, actirates)
  CALL i_coltrans(1, pack_index, actual_state, nlns, linetransitions, nluns, lineuptransitions, &
   act_pop, Zintdowncoll, Zintupcoll, Zcoll, actirates)
- CALL i_radion(0, element_index, ion_index, actual_state, current_mgi, act_pop, Zphotionup, &
+ CALL i_radion(element_index, ion_index, actual_state, current_mgi, act_pop, Zphotionup, &
    Zphotiondown, Zphotrecom, actirates)
  CALL i_colion(1, element_index, ion_index, actual_state, pack_index, act_pop, Zcollionup, &
   Zcolliondown,Zcollrecom, actirates)
@@ -381,7 +382,7 @@ ELSE IF(rand >= Z5 .AND. rand <= Z6) THEN
    IF(procout) write(*,*) 'do_ipackage: pack_index = ', pack_index, 'radiative recombination'
    package(pack_index)%last_line = no_line
    CALL emit_rpackage(pack_index)
-   CALL i_freq_recomb(element_index, ion_index, I, pack_index, act_pop, new_freq)
+   CALL i_freq_recomb(element_index, ion_index, I, pack_index, new_freq)
    package(pack_index)%freq_cmf = new_freq
    ! write(*,*) 'do_ipackage: new_freq = ', new_freq
    CALL doppler_factor(pack_index, D)
