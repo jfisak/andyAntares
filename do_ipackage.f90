@@ -232,7 +232,10 @@ Z7 = Z6 + Zcollrecom
 ! write(*,*) 'do_ipackage: Zrecombination = ', Zrecombination, ' Zphotrecom = ', Zphotrecom, ' Zcollrecom = ', Zcollrecom
 ! write(*,*) 'do_ipackage: Z0 = ', Z0, ' Z1 = ', Z1, ' Z2 = ', Z2, ' Z3 = ', Z3, &
 !  ' Z4 = ', Z4, ' Z5 = ', Z5, ' Z6 =', Z6, ' Z7 = ', Z7
-IF(Ztotal == 0.D0) STOP 'do_ipackage: Ztotal = 0'
+IF(Ztotal == 0.D0) THEN
+ write(*,*) 'do_ipackage: Ztotal = 0'
+ CALL abort()
+END IF!STOP 'do_ipackage: Ztotal = 0'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal downward jump
 ! in this case a macro-atom transits into a lower state without an energy emission

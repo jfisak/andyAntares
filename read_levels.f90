@@ -56,8 +56,8 @@ OPEN(8,status='old',FILE=filename)
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  CASE(2)
  ! we now read ionization potentials for the given ions
- nions = upperion - lowerion + 1
  at_index = elements(el_index)%atom_number
+ nions = at_index + 1! upperion - lowerion + 1
 ! I = 0
 ! DO 
 !  READ(8,'(A)') line
@@ -76,7 +76,6 @@ OPEN(8,status='old',FILE=filename)
   nlevels(I) = 0
  END DO
  ! computing number of energy levels for the given ions
- current_ion = lowerion
  DO
   READ(8,'(A)', iostat = reading_levels) line
   IF(reading_levels /= 0) EXIT
@@ -85,14 +84,14 @@ OPEN(8,status='old',FILE=filename)
   READ(line,*) junk, junk, cur_ion, junk, junk, junk, l_energy, junk
   ! calculation of index of the given ion of the array nlevels(:)
   IF(l_energy > 0.D0) CYCLE
-  act_index = cur_ion - lowerion + 2
+  act_index = at_index - cur_ion + 1
   nlevels(act_index) = nlevels(act_index) + 1
  END DO
  !print*, 'number of levels: ', nlevels
  DO I = 1, nions
   ! ionindex = I + lowerion - 1
-  indexi = at_index - I - lowerion + 3
-  n_levels = nlevels(I)
+  indexi = at_index - I  + 2
+  n_levels = nlevels(indexi)
   ! write(*,*) 'I = ', I, 'lowerion = ', lowerion, &
   !  ' el_index = ', el_index, ' indexi = ', indexi, ' n_levels = ', n_levels
   ALLOCATE(elements(el_index)%ions(indexi)%levels(n_levels))
@@ -108,11 +107,11 @@ OPEN(8,status='old',FILE=filename)
 !  IF(nline == nions) EXIT
 ! END DO
  ! now we are reading atomic data for the selected ions
- DO current_ion = lowerion, upperion ! loop over ions
+ DO current_ion = 1, at_index + 1 ! loop over ions
   ! index in the array elements%ions(indexi) ordered from
   ! neutrals to most ionized ions
   indexi = at_index - current_ion + 2
-  act_index = current_ion - lowerion + 1
+  act_index = indexi 
   act_nlevels = nlevels(act_index)
   !print*, 'n_levels = ', act_nlevels
    ! we have to calculate ionoffset
@@ -135,10 +134,8 @@ OPEN(8,status='old',FILE=filename)
    READ(line,*) junk, junk, junk, junk, l_index, iconf, l_energy, s_weight
    IF(l_energy > 0.D0) CYCLE
    J = J + 1
+   ! write(*,*) 'read_levels: element = ', el_index, 'ion = ', indexi, ' J = ', J, ' iconf = ', iconf
    elements(el_index)%ions(indexi)%levels(J)%exci_energy = l_energy * rydberg * e_v
-   ! write(*,*) 'read_levels: element = ', el_index, 'ion = ', indexi, &
-   !  ' J = ', J, ' exci_energy = ', &
-    elements(el_index)%ions(indexi)%levels(J)%exci_energy / e_v, ' l_energy = ', l_energy
    elements(el_index)%ions(indexi)%levels(J)%stat_waight = s_weight
    elements(el_index)%ions(indexi)%levels(J)%elconf = iconf
    ! we have to calculate l_index correctly: it should start at 1 for every ion

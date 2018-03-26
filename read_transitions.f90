@@ -96,7 +96,7 @@ CASE(2)
   END DO
   !write(*,*) 'low_conf = ', low_conf, ' up_conf = ', up_conf, found_up_conf, found_low_conf
   IF((found_up_conf .EQV. .TRUE.) .AND. (found_low_conf .EQV. .TRUE.)) THEN
-   ! write(*,*) 'reading_transitions: el = ', el_index, ' ion = ', current_ion,&
+   ! write(*,*) 'read_transitions: el = ', el_index, ' ion = ', current_ion,&
    !  ' line ', low_conf, ' -> ', up_conf, ' was accepted'
    ion_index = current_ion - lowerion + 1
    ntrans(current_ion) = ntrans(current_ion) + 1
@@ -159,11 +159,6 @@ CASE(2)
      act_lc = J
      ! write(*,*) 'reading_transitions: el_index = ', el_index, ' current_ion = ',&
      !  current_ion, low_conf, 'found electron configuration...'
-     ! IF(col_str >= 0) THEN
-     !  act_upper = elements(el_index)%ions(current_ion)%levels(J)%l_index
-     ! ELSE
-     !  act_lower = elements(el_index)%ions(current_ion)%levels(J)%l_index
-     ! END IF 
      !print*, 'l_index = ', elements(el_index)%ions(current_ion)%levels(J)%l_index
     END IF
     IF(TRIM(up_conf) == TRIM(elements(el_index)%ions(current_ion)%levels(J)%elconf)) THEN
@@ -172,17 +167,13 @@ CASE(2)
      ! write(*,*) 'read_transitions: J = ', J, ' el_index = ', el_index, ' current_ion = ',&
      !  current_ion, up_conf, 'found electron configuration...'
      !print*, 'found electron configuration...'
-     ! IF(col_str >= 0) THEN
-     !  act_lower = elements(el_index)%ions(current_ion)%levels(J)%l_index
-     ! ELSE
-     !  act_upper = elements(el_index)%ions(current_ion)%levels(J)%l_index
-     ! END IF
      !print*, 'l_index = ', elements(el_index)%ions(current_ion)%levels(J)%l_index
     END IF
    END DO
    IF((found_low_conf .EQV. .TRUE.) .AND. (found_up_conf .EQV. .TRUE.)) THEN
-    ! write(*,*) 'read_transitions: J = ', J, ' element: ', element, ' ion = ', ion_index,&
-    !  ' line from ', low_conf, ' to ', up_conf, ' was included...'
+    ! write(*,*) 'read_transitions: el = ', el_index, ' ion = ', current_ion,&
+    !  ' line ', low_conf, ' -> ', up_conf, ' was included'
+    ! write(*,*) 'read_transitions: act_lc = ', act_lc, ' act_uc = ', act_uc
     ee_lc = elements(el_index)%ions(current_ion)%levels(act_lc)%exci_energy
     ee_uc = elements(el_index)%ions(current_ion)%levels(act_uc)%exci_energy
     IF(ee_lc < ee_uc) THEN
@@ -215,10 +206,8 @@ CASE(2)
    linelist(ntransitions)%A_ul = abs(A)
    linelist(ntransitions)%f_ul = abs(col_str)
    linelist(ntransitions)%n_int = 0
-   ! write(*,*) 'line: ', ntransitions, ' el = ', el_index, ' ion = ', current_ion,&
-   !  ' lower level energy = ', &
-   !  elements(el_index)%ions(ion_index)%levels(linelist(ntransitions)%lower)%exci_energy / e_v,& 
-   !  elements(el_index)%ions(ion_index)%levels(linelist(ntransitions)%upper)%exci_energy / e_v
+   ! write(*,*) 'read_transitions: line: ', ntransitions, ' el = ', el_index, ' ion = ', current_ion,&
+   !  ' act_lower = ', act_lower, ' act_upper = ', act_upper
    ! we have a transition between two atomic levels and we have to connect
    ! this transition with already read levels from another file, we do this
    ! connection via electron configuration in the form of string
