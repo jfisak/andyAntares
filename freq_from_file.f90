@@ -19,7 +19,7 @@ SUBROUTINE freq_from_file(n_packs,freq)
   DOUBLE PRECISION              :: junk
   INTEGER                       :: ios
 ! (2) PoWR testing model
-DOUBLE PRECISION                        :: logwv
+DOUBLE PRECISION                        :: logwv, Iflux
 CHARACTER(100)                  :: fluxfile
 !  DOUBLE PRECISION              :: sinseed, cosseed
 !  ! the linear interpolation parameters
@@ -81,9 +81,12 @@ CASE (1)
    write(*,*) 'freq_from_file: NR = ', NR
    DO I=1,NR
     ! wl in log(Angstroms), flux in erg / cm^2 / s / Hz
-    READ(11,*) logwv, incomingflux(I,2)
-    ! write(*,*) 'freq_from_file: I = ', I, ' logwv = ', logwv, ' I = ', incomingflux(I, 2)
-    incomingflux(I, 1) = light_speed / (1.D-10 * exp(logwv))
+    READ(11,*) logwv, Iflux
+    ! CHECK ONCE MORE !!!!!!!!!!!!!!!!!
+    incomingflux(NR - I + 1, 1) = 1.D6 * light_speed * exp(- logwv)
+    ! incomingflux(I, 2) = light_speed * Iflux / (incomingflux(I, 1) ** 2.0)
+    incomingflux(I, 2) = Iflux
+    ! write(*,*) 'freq_from_file: I = ', I, ' logwv = ', logwv, ' freq = ', incomingflux(I, 1), ' flux = ', incomingflux(I, 2)
    END DO
    CLOSE(11)
   END IF
@@ -93,6 +96,7 @@ CASE (1)
 END SELECT
 
 CALL acc_rej_montecarlo(n_packs,freq)
+! STOP 'freq_from_file: testing'
   if ((MODULO(n_packet,10000) .EQ. 0)) print*, 'Generating the frequency packet ', n_packet, ' ...'
  IF(n_packet .EQ. n_packs) DEALLOCATE(incomingflux)
 END SUBROUTINE freq_from_file
