@@ -64,7 +64,7 @@ MODULE types
 
   TYPE ion_levels 
      INTEGER                         :: nuptrans, ndowtrans
-     INTEGER                         :: l_index
+     ! INTEGER                         :: l_index
      DOUBLE PRECISION                :: exci_energy, stat_waight
      CHARACTER(LEN=15)               :: elconf
      LOGICAL                         :: phcrossform
