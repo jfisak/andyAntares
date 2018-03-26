@@ -25,6 +25,7 @@ SUBROUTINE init_photsphere(n_pack)
   DO I = 1, n_pack
      ! Place photon on the photosphere's surface
      CALL random_unitvector1(direction, sint, cost, sinp, cosp)
+     ! write(*,*) 'init_photsphere: R_star = ', R_star
      package(I)%pos = R_star * direction
 
      ! Then give it a random direction outward from the photosphere
@@ -62,7 +63,7 @@ SUBROUTINE init_photsphere(n_pack)
      IF ((inputflux .EQ. 0) ) THEN
       CALL freq_from_planck(freq)   ! here the frequency is sampled from a Planck law
       package(I)%freq_rf = freq
-     ELSE IF ((inputflux .EQ. 1) .AND. (I==1)) THEN
+     ELSE IF ((inputflux .EQ. 1 .OR. inputflux == 2) .AND. (I==1)) THEN
       CALL freq_from_file(n_pack,frequencies) ! frequency is sampled using an existing emergent flux
       DO J = 1,n_pack
        package(J)%freq_rf = frequencies(J)

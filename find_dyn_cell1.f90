@@ -21,7 +21,7 @@ INTEGER                                         :: subind_x, subind_y, subind_z
 INTEGER                                         :: sub_nx, sub_ny, sub_nz
 DOUBLE PRECISION                                :: rat1, rat2, rat3
 
-
+! write(*,*) 'find_dyn_cell1: pos = ', pos / R_inf
 ! firstly we can compute which basic cell this point contains
 bcell(1) = FLOOR(pos(1)/basic_cell_width(1) + dble(nx_cell)/2.D0) + 1
 bcell(2) = FLOOR(pos(2)/basic_cell_width(2) + dble(ny_cell)/2.D0) + 1
