@@ -18,6 +18,7 @@
 !$OMP PARALLEL
 !$DEFAULT(private)
 !$SHARED(dyn_cell, n_pack)
+!$SCHEDULE (dynamic)
 !$OMP DO 
 DO pack_index = 1, n_pack
  my_rank = OMP_GET_THREAD_NUM()
