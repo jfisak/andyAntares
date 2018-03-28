@@ -4,20 +4,17 @@ USE rates_k
 IMPLICIT NONE
 
 INTEGER                         :: approximation, pack_index
-INTEGER                         :: n_phcs
 DOUBLE PRECISION                :: act_pop
 INTEGER                         :: indexe, indexi, indexl
 ! informations about ions and levels
 INTEGER                         :: n_ions, n_levels
-INTEGER                         :: nrecom
 ! grid informations
 INTEGER                         :: current_mgi
-DOUBLE PRECISION                :: el_dens, temp, gl_pop_ip1e, x
+DOUBLE PRECISION                :: el_dens, temp, x
 INTEGER                         :: nfreq
 DOUBLE PRECISION                :: gindex
 INTEGER                         :: get_package_model_index
 INTEGER                         :: I, act_rate
-INTEGER                         :: npoints
 DOUBLE PRECISION, PARAMETER     :: coll_const = 1.55D13
 DOUBLE PRECISION, ALLOCATABLE   :: crossfreq(:)
 DOUBLE PRECISION                :: eif, freq
@@ -25,8 +22,6 @@ DOUBLE PRECISION                :: eif, freq
 DOUBLE PRECISION                :: ali, bli, freq1, freq2, func1, func2
 INTEGER                         :: actPoint
 DOUBLE PRECISION                :: cross_sect
-DOUBLE PRECISION                :: exci_energy, pop_number
-DOUBLE PRECISION                :: stat_weight
 ! output variables
 DOUBLE PRECISION                :: Zion
 TYPE(krates)                    :: actikrates

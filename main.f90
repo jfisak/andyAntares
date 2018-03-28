@@ -195,6 +195,7 @@ INTEGER, PARAMETER                      :: max_packs = 1e7
   CALL save_output(2)
   ! temp structure and occupation numbers
   CALL save_output(3)
+  CALL save_output(4)
 
      ! END DO
 ! DO I = 1, ntransitions

@@ -21,11 +21,18 @@ INTEGER                                 :: act_elem, act_ion, act_lev
 DOUBLE PRECISION                        :: act_pop
 DOUBLE PRECISION                        :: eenergy
 CHARACTER(LEN=60)                       :: fileTempStruct, fileOccNum, fileFreqs
+CHARACTER(LEN=60)                       :: fileHydrogenFrac, fileHeliumFrac
+! ionization fraction files
+DOUBLE PRECISION                        :: frac, N_jk, totElPop
+DOUBLE PRECISION                        :: frac1, N_jk1, totElPop1
+DOUBLE PRECISION                        :: frac2, N_jk2, totElPop2
+DOUBLE PRECISION                        :: frac3, N_jk3, totElPop3
+INTEGER                                 :: indexe, indexi
 
 ! creates a folder, where an output will be saved
 ! it reads a shell variable OUTPUTFO, if it does not
 ! exist, it will create (or not, if it already exists)
-! a directory 3dwindmodel
+!,  a directory 3dwindmodel
 CALL GET_ENVIRONMENT_VARIABLE("OUTPUTFO", outputfolder)
 IF(outputfolder(:) == '') THEN
  outputfolder = '3dwindmodel'
@@ -77,7 +84,8 @@ CASE(3)
  fileTempStruct = trim(outputfolder)//'/tempStruct.dat'
  OPEN(12, FILE=fileTempStruct)
   DO I = 1, n_modelgrid
-   WRITE(12, *) model_grid(I)%rwind, model_grid(I)%T
+   IF(model_grid(I)%assoc_cells == 0) CYCLE
+   WRITE(12, *) model_grid(I)%rwind / R_inf, model_grid(I)%T, model_grid(I)%e_dens
   END DO
  CLOSE(12)
  ! saving population numbers
@@ -114,6 +122,41 @@ CASE(3)
    END IF
   END DO
  CLOSE(14)
+! saving ionization balance for hydrogen and helium
+CASE(4)
+ fileHydrogenFrac = trim(outputfolder)//'/hydrogenFrac.dat'
+ OPEN(14, FILE=fileHydrogenFrac)
+  DO I = 1, n_modelgrid
+   indexe = 1
+   indexi = 1
+   IF(model_grid(I)%assoc_cells == 0) CYCLE
+   totElPop = model_grid(I)%rho * model_grid(I)%grid_comp(indexe)%abund / &
+    elements(indexe)%atom_mass
+   N_jk = model_grid(I)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
+   frac = N_jk / totElPop
+   write(14,*) model_grid(I)%rwind / R_inf, frac
+  END DO
+ CLOSE(14)
+ fileHeliumFrac = trim(outputfolder)//'/heliumFrac.dat'
+ OPEN(15, FILE=fileHeliumFrac)
+  DO I = 1, n_modelgrid
+  IF(model_grid(I)%assoc_cells == 0) CYCLE
+  indexe = 2
+   totElPop1 = model_grid(I)%rho * model_grid(I)%grid_comp(indexe)%abund / &
+    elements(indexe)%atom_mass
+   N_jk1 = model_grid(I)%grid_comp(indexe)%grid_ion(1)%tot_pop
+   frac1 = N_jk1 / totElPop1
+   totElPop2 = model_grid(I)%rho * model_grid(I)%grid_comp(indexe)%abund / &
+    elements(indexe)%atom_mass
+   N_jk2 = model_grid(I)%grid_comp(indexe)%grid_ion(2)%tot_pop
+   frac2 = N_jk2 / totElPop2
+   totElPop3 = model_grid(I)%rho * model_grid(I)%grid_comp(indexe)%abund / &
+    elements(indexe)%atom_mass
+   N_jk3 = model_grid(I)%grid_comp(indexe)%grid_ion(3)%tot_pop
+   frac3 = N_jk3 / totElPop3
+  write(15,*) model_grid(I)%rwind / R_inf, frac1, frac2, frac3
+  END DO
+ CLOSE(15)
 CASE DEFAULT
  write(*,*) 'save_output: this case is not known'
 END SELECT

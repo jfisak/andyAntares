@@ -1,7 +1,6 @@
 ! this subroutine calculates collisional rates for the given energy
 ! level
-SUBROUTINE i_coltrans(approx, pack_index, level, nlns, linetransitions, nluns, &
-lineuptransitions, population, Zdown, Zup, Zcoll, actirates)
+SUBROUTINE i_coltrans(approx, pack_index, indexe, indexi, level, population, Zdown, Zup, Zcoll, actirates)
 USE types
 USE rates_i
 IMPLICIT NONE
@@ -10,8 +9,9 @@ IMPLICIT NONE
 INTEGER                                 :: approx
 ! line -- number of line in the linelist field
 INTEGER                                 :: pack_index, level, nlns, nluns
-INTEGER, DIMENSION(nlns)                :: linetransitions
-INTEGER, DIMENSION(nluns)               :: lineuptransitions
+INTEGER                                 :: indexe, indexi
+INTEGER, ALLOCATABLE                    :: linetransitions(:)
+INTEGER, ALLOCATABLE                    :: lineuptransitions(:)
 DOUBLE PRECISION                        :: population, low_pop
 ! constans
 DOUBLE PRECISION, PARAMETER             :: c0 = 5.465D-11
@@ -19,8 +19,6 @@ DOUBLE PRECISION, PARAMETER             :: IH = 13.6 * e_v
 DOUBLE PRECISION, PARAMETER             :: coll_const = 14.5
 ! indexes
 INTEGER                                 :: act_line
-! atomic data
-INTEGER                                 :: element_index, ion_index
 ! value of collision rate
 DOUBLE PRECISION                        :: actVal
 INTEGER                                 :: current_mgi
@@ -47,6 +45,7 @@ TYPE(irates)                           :: actirates
 !IF(times /= 1.D0) THEN
 ! CALL warning('collisional rates are multiplied by a non-one factor')
 !END IF
+
 SELECT CASE(approx)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! van Regemorter approximation
@@ -64,13 +63,11 @@ CASE(1)
  ! we will use the knowledge of lines and assume that at it is
  ! possible at least one transition upwards or downwards and from
  ! the first element we get the element and the ion informations
- IF(SIZE(linetransitions) /= 0) THEN
-  element_index = linelist(linetransitions(1))%indexe
-  ion_index = linelist(linetransitions(1))%indexi
- ELSE IF(SIZE(lineuptransitions) /= 0) THEN
-  element_index = linelist(lineuptransitions(1))%indexe
-  ion_index = linelist(lineuptransitions(1))%indexi
- END IF 
+nlns = SIZE(elements(indexe)%ions(indexi)%levels(level)%linetransitions)
+nluns = SIZE(elements(indexe)%ions(indexi)%levels(level)%lineuptransitions)
+ALLOCATE(linetransitions(nlns), lineuptransitions(nluns))
+linetransitions = elements(indexe)%ions(indexi)%levels(level)%linetransitions
+lineuptransitions = elements(indexe)%ions(indexi)%levels(level)%lineuptransitions
  ! initialization of rate values
  Zup = 0.D0
  Zdown = 0.D0
@@ -79,8 +76,8 @@ CASE(1)
   ! important physical quantities
   act_line = linetransitions(I)
   osc_str = linelist(act_line)%f_ul
-  exci_energy_l = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy
-  exci_energy_u = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%upper)%exci_energy
+  exci_energy_l = elements(indexe)%ions(indexi)%levels(linelist(act_line)%lower)%exci_energy
+  exci_energy_u = elements(indexe)%ions(indexi)%levels(linelist(act_line)%upper)%exci_energy
   ! frequency of transition
   freq = linelist(act_line)%freq
   x = (h * freq) / (BOLK * temperature)
@@ -92,7 +89,7 @@ CASE(1)
    exp(-(h * freq) / (BOLK * el_temperature)) * gf
 !  actVal = actVal * (linelist(act_line)%upper - linelist(act_line)%lower)
  ! internal downward jump
-  ! CALL populations(element_index, ion_index, linelist(act_line)%lower, current_mgi, low_pop)
+  ! CALL populations(indexe, indexi, linelist(act_line)%lower, current_mgi, low_pop)
   actirates%Lma_int_docoll(I) = population * actVal * exci_energy_l
   Zdown = Zdown + actirates%Lma_int_docoll(I)
  ! collisional deexcitation
@@ -112,7 +109,7 @@ CASE(1)
   act_line = lineuptransitions(I)
   ! important physical quantities
   osc_str = linelist(act_line)%f_ul
-  exci_energy_l = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy
+  exci_energy_l = elements(indexe)%ions(indexi)%levels(linelist(act_line)%lower)%exci_energy
   ! frequency of transition
   freq = linelist(act_line)%freq
   x = (h * freq) / (BOLK * temperature)

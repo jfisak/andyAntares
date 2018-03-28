@@ -29,6 +29,10 @@ DOUBLE PRECISION                                :: int1, int2
 DOUBLE PRECISION                                :: sfactor
 DOUBLE PRECISION                                :: summ1, summ2! , summ3
 
+INTEGER                                         :: nlns, nluns
+INTEGER                                         :: actual_state
+INTEGER                                         :: J, K
+
 
 ! temperature grid
 ! starting and ending point
@@ -41,7 +45,7 @@ Tmax = MAXVAL(model_grid(1:n_modelgrid)%t)
 IF(Tmax == Tmin) THEN
  ntints = 1
 ELSE
- ntints = INT((Tmax - Tmin)/200)
+ntints = INT((Tmax - Tmin)/200)
 END IF
 ALLOCATE(i_temps(ntints))
 ALLOCATE(iints(n_photcrossect))
@@ -150,6 +154,55 @@ DO indexe = 1, n_elements
    DEALLOCATE(freq, cross, func1, func2)
   ! DEALLOCATE(freq, cross, func1, func2, func3)
   END DO ! loop over ionic levels
+ END DO ! loop over ions
+END DO ! loop over elements
+
+! calculation of possible upper and lower transitions for every energy level
+DO indexe = 1, n_elements
+ n_ions = SIZE(elements(indexe)%ions)
+ DO indexi = 1, n_ions
+  n_levels = SIZE(elements(indexe)%ions(indexi)%levels)
+  DO actual_state = 1, n_levels
+   ! number of transitions up and down
+   nlns = 0
+   nluns = 0
+    DO I = 1, ntransitions
+     IF(linelist(I)%indexe == indexe .AND. linelist(I)%indexi == indexi) THEN
+      ! transitions to a lower level
+      IF(linelist(I)%upper == actual_state) THEN
+       nlns = nlns + 1
+      END IF
+      ! transitions to a upper level
+      IF(linelist(I)%lower == actual_state) THEN
+       nluns = nluns + 1
+      END IF
+     END IF
+    ! write(*,*) 'do_ipackage: ', linelist(I)%indexe, linelist(I)%indexi, linelist(I)%lower, linelist(I)%upper
+    END DO
+    ! STOP 'do_ipackage: testing'
+    ! write(*,*) 'do_ipackage: number of found transitions: ', nlns, nluns
+    ALLOCATE(elements(indexe)%ions(indexi)%levels(actual_state)%linetransitions(nlns))
+    ALLOCATE(elements(indexe)%ions(indexi)%levels(actual_state)%lineuptransitions(nluns))
+    ! we will save these possible transitions into an array
+    J = 0
+    K = 0
+    DO I = 1, ntransitions
+     IF(linelist(I)%indexe == indexe .AND. linelist(I)%indexi == indexi) THEN
+      ! transitions to a lower level
+      IF(linelist(I)%upper == actual_state) THEN
+       J = J + 1
+       elements(indexe)%ions(indexi)%levels(actual_state)%linetransitions(J) = I
+      END IF
+      ! transitions to a upper level
+      IF(linelist(I)%lower == actual_state) THEN
+       K = K + 1
+       elements(indexe)%ions(indexi)%levels(actual_state)%lineuptransitions(K) = I
+      END IF
+     END IF
+    END DO
+   ! write(*,*) 'i_ion_recomb: el = ', indexe, ' ion = ', indexi, ' l = ', actual_state, ' nlns = ', nlns, &
+   ! ' linetransitions = ', elements(indexe)%ions(indexi)%levels(actual_state)%linetransitions
+  END DO ! loop over levels
  END DO ! loop over ions
 END DO ! loop over elements
 

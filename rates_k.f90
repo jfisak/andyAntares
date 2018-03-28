@@ -1,5 +1,6 @@
 MODULE rates_k
  USE types
+ IMPLICIT NONE
  ! k-packages
  TYPE, PUBLIC :: krates
   DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE  :: Lcont
@@ -18,6 +19,8 @@ MODULE rates_k
  CONTAINS
  FUNCTION krates_construct()
   TYPE(krates)          :: krates_construct
+  INTEGER               :: indexe, indexi, indexl
+  INTEGER               :: n_ions, n_levels, n_phcs
 
   ! cool_excit
   ! we expect that number of included ions does not change in the stellar wind

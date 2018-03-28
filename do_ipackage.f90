@@ -85,44 +85,11 @@ DO WHILE (active == 1)
  ! we have to find all possible downward upward transitions
  ! firstly we calculate number of these possible transitions
  ! number of transitions to a lower level
- nlns = 0
- ! number of transitions to a upper level
- nluns = 0
- DO I = 1, ntransitions
-  ! we are interested only in the transitions for the given atom
-  IF(linelist(I)%indexe == element_index .AND. linelist(I)%indexi == ion_index) THEN
-   ! transitions to a lower level
-   IF(linelist(I)%upper == actual_state) THEN
-    nlns = nlns + 1
-   END IF
-   ! transitions to a upper level
-   IF(linelist(I)%lower == actual_state) THEN
-    nluns = nluns + 1
-   END IF
-  END IF
-  ! write(*,*) 'do_ipackage: ', linelist(I)%indexe, linelist(I)%indexi, linelist(I)%lower, linelist(I)%upper
- END DO
- ! STOP 'do_ipackage: testing'
- ! write(*,*) 'do_ipackage: number of found transitions: ', nlns, nluns
+ nlns = SIZE(elements(element_index)%ions(ion_index)%levels(actual_state)%linetransitions)
+ nluns = SIZE(elements(element_index)%ions(ion_index)%levels(actual_state)%lineuptransitions)
  ALLOCATE(linetransitions(nlns), lineuptransitions(nluns))
- ! we will save these possible transitions into an array
- J = 0
- K = 0
- DO I = 1, ntransitions
-  IF(linelist(I)%indexe == element_index .AND. linelist(I)%indexi == ion_index) THEN
-   ! transitions to a lower level
-   IF(linelist(I)%upper == actual_state) THEN
-    J = J + 1
-    linetransitions(J) = I
-   END IF
-   ! transitions to a upper level
-   IF(linelist(I)%lower == actual_state) THEN
-    K = K + 1
-    lineuptransitions(K) = I
-   END IF
-  END IF
- END DO
- 
+ linetransitions = elements(element_index)%ions(ion_index)%levels(actual_state)%linetransitions
+ lineuptransitions = elements(element_index)%ions(ion_index)%levels(actual_state)%lineuptransitions
  ! total rates of procedure
  ! 0.) internal downward jump within the current ion
  !ALLOCATE(actirates%Lma_int_dorad(nlns))
@@ -165,11 +132,11 @@ DO WHILE (active == 1)
    actual_state
  CALL populations(element_index, ion_index, actual_state, current_mgi, act_pop)
  ! write(*,*) 'do_ipackage: pop = ', act_pop
- CALL i_radtrans(current_mgi, nlns, linetransitions, nluns, lineuptransitions, act_pop, &
-  Zintdownrad, Zintuprad, Zraddeexc, actirates, pack_index)
- CALL i_coltrans(1, pack_index, actual_state, nlns, linetransitions, nluns, lineuptransitions, &
-  act_pop, Zintdowncoll, Zintupcoll, Zcoll, actirates)
- CALL i_radion(0, element_index, ion_index, actual_state, current_mgi, act_pop, Zphotionup, &
+ CALL i_radtrans(current_mgi, element_index, ion_index, actual_state, act_pop,&
+  Zintdownrad, Zintuprad, Zraddeexc, actirates)
+ CALL i_coltrans(1, pack_index, element_index, ion_index, actual_state, act_pop, &
+  Zintdowncoll, Zintupcoll, Zcoll, actirates)
+ CALL i_radion(element_index, ion_index, actual_state, current_mgi, act_pop, Zphotionup, &
    Zphotiondown, Zphotrecom, actirates)
  CALL i_colion(1, element_index, ion_index, actual_state, pack_index, act_pop, Zcollionup, &
   Zcolliondown,Zcollrecom, actirates)
@@ -382,7 +349,7 @@ ELSE IF(rand >= Z5 .AND. rand <= Z6) THEN
    IF(procout) write(*,*) 'do_ipackage: pack_index = ', pack_index, 'radiative recombination'
    package(pack_index)%last_line = no_line
    CALL emit_rpackage(pack_index)
-   CALL i_freq_recomb(element_index, ion_index, I, pack_index, act_pop, new_freq)
+   CALL i_freq_recomb(element_index, ion_index, I, pack_index, new_freq)
    package(pack_index)%freq_cmf = new_freq
    ! write(*,*) 'do_ipackage: new_freq = ', new_freq
    CALL doppler_factor(pack_index, D)
@@ -409,10 +376,10 @@ ELSE
  STOP
 END IF
 
-DEALLOCATE(linetransitions, lineuptransitions, &
-                actirates%Lma_int_dorad, actirates%Lma_int_uprad, actirates%Lma_int_docoll, actirates%Lma_int_upcoll, &
+DEALLOCATE(actirates%Lma_int_dorad, actirates%Lma_int_uprad, actirates%Lma_int_docoll, actirates%Lma_int_upcoll, &
                 actirates%Lma_int_up, actirates%Lma_int_do)
 IF(nlevslion /= 0) DEALLOCATE(actirates%Lma_recrad, actirates%Lma_int_recrad, actirates%Lma_reccol, actirates%Lma_int_reccol)
+DEALLOCATE(linetransitions, lineuptransitions)
 ! n_proc = n_proc + 1
 END DO
 

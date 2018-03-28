@@ -37,15 +37,4 @@ END DO
 
 !  print*, '   part.func. calculation done:', U
 
-!  Only for testing
-!  IF (!finite(U)) 
-!    {
-!      printout("element %d ion %d\n",element,ion);
-!      printout("modelgridindex %d\n",modelgridindex);
-!      printout("level %d, nlevels %d\n",level,nlevels);
-!      printout("sw %g\n",stat_weight(element,ion,0));
-!      printout("T_exc %g \n",T_exc);
-!      abort();
-!    }
- 
 END SUBROUTINE part_fun

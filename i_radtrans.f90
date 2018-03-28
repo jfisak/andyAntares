@@ -4,18 +4,17 @@
 ! * Zintdown -- total rate of internal downward jumps
 ! * Zrad -- total rate of radiative deactivations of a macro atom
 ! * Zintup -- total rate of internal upward jumps
-SUBROUTINE i_radtrans(current_mgi, nlns, linetransitions, nluns, lineuptransitions, act_pop, &
-Zintdown, Zintup, Zrad, actirates, pack_index)
+SUBROUTINE i_radtrans(current_mgi, indexe, indexi, indexl, act_pop, Zintdown, Zintup, Zrad, actirates)
 USE types
 USE rates_i
 IMPLICIT NONE
 
 ! input variables
 INTEGER                                 :: nlns, nluns
+INTEGER                                 :: indexe, indexi, indexl
 INTEGER                                 :: current_mgi
-INTEGER                                 :: pack_index
-INTEGER, DIMENSION(nlns)                :: linetransitions
-INTEGER, DIMENSION(nluns)               :: lineuptransitions
+INTEGER, ALLOCATABLE                    :: linetransitions(:)
+INTEGER, ALLOCATABLE                    :: lineuptransitions(:)
 DOUBLE PRECISION                        :: stat_weight_l, stat_weight_u
 DOUBLE PRECISION                        :: exci_energy_u, exci_energy_l
 DOUBLE PRECISION                        :: act_pop, up_pop, low_pop
@@ -23,7 +22,6 @@ DOUBLE PRECISION                        :: act_pop, up_pop, low_pop
 DOUBLE PRECISION                        :: taulu, betalu
 DOUBLE PRECISION                        :: Bul, Blu, Jlu
 DOUBLE PRECISION                        :: flux_function
-INTEGER                                 :: element_index, ion_index
 INTEGER                                 :: act_line
 DOUBLE PRECISION                        :: actVal
 INTEGER                                 :: I
@@ -32,9 +30,6 @@ DOUBLE PRECISION                        :: Zintdown, Zintup, Zrad
 INTEGER                         :: OMP_GET_THREAD_NUM, my_rank
 TYPE(irates)      :: actirates
 INTEGER                                 :: dummypackage, n_pack_d
-DOUBLE PRECISION                        :: tau_line, freq_line, l_dist
-DOUBLE PRECISION                        :: vel_vec, vec_length
-DOUBLE PRECISION                        :: vel
 DOUBLE PRECISION                        :: constant
 
 my_rank = OMP_GET_THREAD_NUM()
@@ -46,21 +41,15 @@ constant = (pi * e_charge**2)/( me_g * light_speed)
 Zintdown = 0.D0
 Zrad= 0.D0
 Zintup = 0.D0
+nlns = SIZE(elements(indexe)%ions(indexi)%levels(indexl)%linetransitions)
+nluns = SIZE(elements(indexe)%ions(indexi)%levels(indexl)%lineuptransitions)
+ALLOCATE(linetransitions(nlns), lineuptransitions(nluns))
+linetransitions = elements(indexe)%ions(indexi)%levels(indexl)%linetransitions
+lineuptransitions = elements(indexe)%ions(indexi)%levels(indexl)%lineuptransitions
 ! we have to know which element and ion we are calculating data for
 ! we will use the knowledge of lines and assume that at it is
 ! possible at least one transition upwards or downwards and from
 ! the first element we get the element and the ion informations
-IF(SIZE(linetransitions) /= 0) THEN
- element_index = linelist(linetransitions(1))%indexe
- ion_index = linelist(linetransitions(1))%indexi
-ELSE IF(SIZE(lineuptransitions) /= 0) THEN
- element_index = linelist(lineuptransitions(1))%indexe
- ion_index = linelist(lineuptransitions(1))%indexi
-ELSE
- Zintdown = 0.D0
- Zintup = 0.D0
- Zrad = 0.D0
-END IF 
 
 up_pop = act_pop
 ! write(36,*) '***************************************************************************************'
@@ -72,13 +61,13 @@ DO I = 1, nlns
  ! 1.) internal downward jump
  act_line = linetransitions(I)
  ! the basic variables
- stat_weight_u = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%upper)%stat_waight
- stat_weight_l = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%stat_waight
- exci_energy_u = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%upper)%exci_energy
- exci_energy_l = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy
+ stat_weight_u = elements(indexe)%ions(indexi)%levels(linelist(act_line)%upper)%stat_waight
+ stat_weight_l = elements(indexe)%ions(indexi)%levels(linelist(act_line)%lower)%stat_waight
+ exci_energy_u = elements(indexe)%ions(indexi)%levels(linelist(act_line)%upper)%exci_energy
+ exci_energy_l = elements(indexe)%ions(indexi)%levels(linelist(act_line)%lower)%exci_energy
  ! internal downward jump
  ! calculation of a rate coefficient
- CALL populations(element_index, ion_index, linelist(act_line)%lower, current_mgi, low_pop)
+ CALL populations(indexe, indexi, linelist(act_line)%lower, current_mgi, low_pop)
  ! Einstein Blu coefficient
  Blu = light_speed**2.0 / (2.0 * h * linelist(act_line)%freq**3.0) * stat_weight_u / stat_weight_l &
   * linelist(act_line)%A_ul
@@ -102,12 +91,12 @@ END DO
 low_pop = act_pop
 DO I = 1, nluns
  act_line = lineuptransitions(I)
- exci_energy_l = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%exci_energy
- exci_energy_u = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%upper)%exci_energy
- stat_weight_l = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%lower)%stat_waight
- stat_weight_u = elements(element_index)%ions(ion_index)%levels(linelist(act_line)%upper)%stat_waight
-! CALL populations(element_index, ion_index, linelist(act_line)%lower, current_mgi, low_pop)
- CALL populations(element_index, ion_index, linelist(act_line)%upper, current_mgi, up_pop)
+ exci_energy_l = elements(indexe)%ions(indexi)%levels(linelist(act_line)%lower)%exci_energy
+ exci_energy_u = elements(indexe)%ions(indexi)%levels(linelist(act_line)%upper)%exci_energy
+ stat_weight_l = elements(indexe)%ions(indexi)%levels(linelist(act_line)%lower)%stat_waight
+ stat_weight_u = elements(indexe)%ions(indexi)%levels(linelist(act_line)%upper)%stat_waight
+! CALL populations(indexe, indexi, linelist(act_line)%lower, current_mgi, low_pop)
+ CALL populations(indexe, indexi, linelist(act_line)%upper, current_mgi, up_pop)
  Jlu = flux_function(0, linelist(act_line)%freq, model_grid(current_mgi)%T)
  ! calculation of Blu and Bul
  Blu = light_speed ** 2.0 / (2.0 * h * linelist(act_line)%freq**3.0) * stat_weight_u / stat_weight_l &

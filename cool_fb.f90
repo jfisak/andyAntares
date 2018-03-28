@@ -21,7 +21,6 @@ DOUBLE PRECISION                        :: Zfb
 ! ion informations
 INTEGER                                 :: indexe, indexi, indexl
 INTEGER                                 :: n_ions, n_levels
-INTEGER                                 :: n_phcs
 ! physical parameters
 DOUBLE PRECISION                        :: el_dens, temp
 INTEGER                                 :: cur_mgi
