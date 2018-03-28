@@ -11,6 +11,8 @@ SUBROUTINE update_grid(iteration)
   DOUBLE PRECISION    :: el_nd, temp, frac, U, N_jk, gl_pop
   INTEGER             :: max_n_dcell
   INTEGER             :: I
+INTEGER, DIMENSION(1)   :: indexl0
+
   
 max_n_dcell = SIZE(dyn_cell)
  print*, 'updating grid'
@@ -90,6 +92,5 @@ CALL check_pop()
 ! STOP 'update_grid: testing'
 CLOSE(3)
 
-! STOP 'update_grid: testing'  
   
 END SUBROUTINE update_grid

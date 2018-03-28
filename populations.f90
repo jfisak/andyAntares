@@ -33,9 +33,9 @@ CASE(0)
  pop_number = ground_level_pop * g_stat / g_gstat * &
         exp(-e_exc / BOLK / model_grid(model_cell)%T )! * &
         ! rho * abund / atom_mass
- ! print*, 'populations: indexe = ', indexe, ' indexi = ', indexi, 'populations: e_exc = ', e_exc, &
- ! ' g_stat = ', g_stat, ' g_gstat = ', g_gstat, ' ground_level_pop = ', ground_level_pop, &
- ! ' pop_number = ', pop_number, ' exp() = ', exp(-e_exc / BOLK / model_grid(model_cell)%T )
+  ! print*, 'populations: indexe = ', indexe, ' indexi = ', indexi, ' e_exc = ', e_exc, &
+  ! ' g_stat = ', g_stat, ' g_gstat = ', g_gstat, 'tpop = ', model_grid(model_cell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop, &
+  ! ' gpop = ', ground_level_pop, ' pop_number = ', pop_number
  IF(pop_number < minpop) pop_number = 1.D-40
 ! print*, 'populations: rho = ', rho, ' abund = ', abund, ' atom_mass = ', atom_mass
 ! print*, 'populations: pop_number = ', pop_number

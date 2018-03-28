@@ -8,8 +8,6 @@ IMPLICIT NONE
 INTEGER                                 :: approximation, pack_index
 ! loop variables
 INTEGER                                 :: I
-! the next first line
-INTEGER                                 :: actLine
 ! line which we are now computing
 
 ! output variables

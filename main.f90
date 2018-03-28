@@ -84,7 +84,12 @@ INTEGER, PARAMETER                      :: max_packs = 1e7
   END IF
   ! information about initialization random seed for the given thread
   CALL GET_ENVIRONMENT_VARIABLE("OMP_NUM_THREADS", chnum_threads)
-  READ(chnum_threads,*) num_threads
+  IF(chnum_threads == '') THEN
+   CALL execute_command_line('export OMP_NUM_THREADS=1')
+   num_threads = 1
+  ELSE
+   READ(chnum_threads,*) num_threads
+  END IF
   ALLOCATE(initrs(num_threads))
   DO I = 1, num_threads
    initrs(I) = .FALSE.
