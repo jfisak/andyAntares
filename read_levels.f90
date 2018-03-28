@@ -136,6 +136,9 @@ OPEN(8,status='old',FILE=filename)
    J = J + 1
    ! write(*,*) 'read_levels: element = ', el_index, 'ion = ', indexi, ' J = ', J, ' iconf = ', iconf
    elements(el_index)%ions(indexi)%levels(J)%exci_energy = l_energy * rydberg * e_v
+   ! write(*,*) 'read_levels: element = ', el_index, 'ion = ', indexi, &
+   !  ' J = ', J, ' exci_energy = ', &
+   ! elements(el_index)%ions(indexi)%levels(J)%exci_energy / e_v, ' l_energy = ', l_energy
    elements(el_index)%ions(indexi)%levels(J)%stat_waight = s_weight
    elements(el_index)%ions(indexi)%levels(J)%elconf = iconf
    ! we have to calculate l_index correctly: it should start at 1 for every ion

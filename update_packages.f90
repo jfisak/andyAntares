@@ -28,7 +28,6 @@ DO pack_index = 1, n_pack
  END IF
  ! write(36, *) 'r-packet: ', pack_index
  IF (MODULO(pack_index,10000) .EQ. 0) write(*,*) 'Working on packet ', pack_index,' ...'
- ! write(*,*) 'Working on packet ', pack_index,' ...'
  ! Do this loop until something happened with package
  DO  WHILE (package(pack_index)%active .EQ. 1)
   IF(package(pack_index)%n_interactions >= 1000000) THEN

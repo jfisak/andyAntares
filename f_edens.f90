@@ -1,13 +1,13 @@
-  SUBROUTINE f_edens(model_grid_index, el_nd, func)
-  
-  ! Function to calculate the root of the electron number density
+SUBROUTINE f_edens(model_grid_index, el_nd, func)
 
-  USE types
+! Function to calculate the root of the electron number density
 
-  IMPLICIT NONE
-  INTEGER            :: model_grid_index
-  INTEGER            :: indexe, indexi, numb_ions
-  DOUBLE PRECISION   :: temp, el_nd, func, SUMME, SUMMI, frac
+USE types
+
+IMPLICIT NONE
+INTEGER            :: model_grid_index
+INTEGER            :: indexe, indexi, numb_ions
+DOUBLE PRECISION   :: temp, el_nd, func, SUMME, SUMMI, frac
 
 !  print*, 'function FIND_EDENS.F90 start'
 !  print*, 'f_edens is called for:', model_grid_index, el_nd
@@ -23,10 +23,10 @@
      numb_ions = elements(indexe)%nions
 !     print*, '  numb.ions', indexe, numb_ions
      DO indexi = 1, numb_ions
-        CALL ionization_fraction(indexe, indexi, temp, el_nd, frac)
-       ! print*, 'f_edens: frac = ', frac
-        SUMMI = SUMMI + (indexi - 1) * frac
-!        print*, '  Ion.frac:', indexi, frac, SUMMI
+      CALL ionization_fraction(indexe, indexi, temp, el_nd, frac)
+      ! print*, 'f_edens: frac = ', frac
+      SUMMI = SUMMI + DBLE(indexi - 1) * frac
+!     print*, '  Ion.frac:', indexi, frac, SUMMI
      END DO
 !     print*, model_grid(model_grid_index)%grid_comp(indexe)%abund, elements(indexe)%atom_mass
      SUMME = SUMME + (model_grid(model_grid_index)%grid_comp(indexe)%abund / elements(indexe)%atom_mass) * SUMMI
