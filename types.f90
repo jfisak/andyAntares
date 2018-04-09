@@ -103,6 +103,8 @@ MODULE types
   INTEGER                            :: dyngrid
 ! NLTE
   INTEGER                            :: nlte
+! velocity structure approximation
+  INTEGER                            :: velapprox
 ! properties of a central star
   DOUBLE PRECISION                   :: R_star, R_inf, V_inf, M_dot, T_eff
   DOUBLE PRECISION                   :: Z_inf

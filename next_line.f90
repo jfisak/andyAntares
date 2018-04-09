@@ -55,7 +55,7 @@ DO I = next1line + 1, ntransitions
  END IF
  EXIT
 END DO
-! write(*,*) 'next_line: next1line = ', next1line, ' n_eqf_lines = ', n_eqf_lines
+ ! write(*,*) 'next_line: next1line = ', next1line, ' n_eqf_lines = ', n_eqf_lines
 ! number of lines with the same frequency
 CASE DEFAULT
 END SELECT

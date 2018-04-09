@@ -159,7 +159,6 @@ CASE(2)
  IF(upper_cell == 0) THEN
   next_cell = act_cell
   RETURN
- ELSE IF(upper_cell > 0) THEN
  END IF
  subcells_width = dyn_cell(dyn_cell(act_cell)%up_cell)%width
  subcells_width = dyn_cell(dyn_cell(act_cell)%up_cell)%width
