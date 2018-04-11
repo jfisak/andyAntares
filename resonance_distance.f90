@@ -30,7 +30,7 @@ package(dummypackage) = package(pack_index)
 
 f_line = linelist(nextLine)%freq
 
-write(*,*) 'resonance_distance: nextLine = ', nextLine
+! write(*,*) 'resonance_distance: nextLine = ', nextLine
 
 minint = 1.D-1 / linelist(1)%freq
 ! Calculate distance the photon needs to travel to come to
@@ -49,7 +49,7 @@ minint = 1.D-1 / linelist(1)%freq
    ( ( package(pack_index)%freq_cmf - f_line ) / package(pack_index)%freq_rf)
  END IF
   ! boundary coordinate
- write(*,*) 'resonance_distance: cell_dist = ', cell_dist
+ ! write(*,*) 'resonance_distance: cell_dist = ', cell_dist
  rbound = package(pack_index)%pos + package(pack_index)%dir * cell_dist
  ! frequency in the propagation cell boundary
  package(dummypackage)%pos = rbound
@@ -62,7 +62,7 @@ minint = 1.D-1 / linelist(1)%freq
  ! lower and upper boundary
  lowbond = package(pack_index)%pos
  upbond = rbound
- write(*,*) 'bfreq / f_line = ', bfreq / f_line
+ ! write(*,*) 'bfreq / f_line = ', bfreq / f_line
  IF(bfreq < f_line) THEN
   outOfCell = .FALSE.
   ! write(*,*) 'resonance_distance: line res in prop cell'
@@ -92,11 +92,11 @@ minint = 1.D-1 / linelist(1)%freq
   END DO ! until the calculation is active
   IF(TESTING .EQV. .TRUE.) write(*,*) 'resonance_distance: ldist_analyt = ',&
    ldist_analyt, ' ldist = ', ldist, abs(1.0 - ldist_analyt / ldist)
-  write(*,*) 'resonance_distance: f_line = ', f_line / 1.D14, &
-   ' halffreq = ', halffreq/1.D14, ' fl / hf = ', abs(halffreq - f_line) / f_line
+  ! write(*,*) 'resonance_distance: f_line = ', f_line / 1.D14, &
+  !  ' halffreq = ', halffreq/1.D14, ' fl / hf = ', abs(halffreq - f_line) / f_line
   ! STOP 'resonance_distance: testing'
  ELSE
-  write(*,*) 'resonance_distance: line res out off prop cell'
+  ! write(*,*) 'resonance_distance: line res out off prop cell'
   ! only continnum process could happen
   outOfCell = .TRUE.
   ldist = 1.D20

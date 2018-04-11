@@ -139,8 +139,6 @@ CASE(2)
    READ(line,*) kindex, current_element, electron_number, junk, junk, low_level, up_level, &
         low_conf, up_conf, col_str, A, l_freq
    current_ion = element - electron_number + 1
-   ! print*, 'I = ', I, 'i_conf = ', low_conf, 'j_conf = ', up_conf, &
-   ! 'l_index = ', elements(el_index)%ions(current_ion)%levels(I)%l_index
 
    ! firstly we will check out if this is a transition which levels were really included
    ! we do not want to save lines with no probability
@@ -148,6 +146,7 @@ CASE(2)
     !print*, 'A is equal to zero, cycling...'
     CYCLE
    END IF
+   ! write(*,*) 'I = ', I, 'i_conf = ', low_conf, 'j_conf = ', up_conf
    ! because we could find all included transitions before the 
    IF(ntransitions == SIZE(linelist)) EXIT
    found_low_conf = .FALSE.
@@ -157,32 +156,15 @@ CASE(2)
     IF(TRIM(low_conf) == TRIM(elements(el_index)%ions(current_ion)%levels(J)%elconf)) THEN
      found_low_conf = .TRUE.
      act_lc = J
-     ! write(*,*) 'reading_transitions: el_index = ', el_index, ' current_ion = ',&
-     !  current_ion, low_conf, 'found electron configuration...'
-     ! IF(col_str >= 0) THEN
-     !  act_upper = elements(el_index)%ions(current_ion)%levels(J)%l_index
-     ! ELSE
-     !  act_lower = elements(el_index)%ions(current_ion)%levels(J)%l_index
-     ! END IF 
-     !print*, 'l_index = ', elements(el_index)%ions(current_ion)%levels(J)%l_index
     END IF
     IF(TRIM(up_conf) == TRIM(elements(el_index)%ions(current_ion)%levels(J)%elconf)) THEN
      found_up_conf = .TRUE.
      act_uc = J
-     ! write(*,*) 'read_transitions: J = ', J, ' el_index = ', el_index, ' current_ion = ',&
-     !  current_ion, up_conf, 'found electron configuration...'
-     !print*, 'found electron configuration...'
-     ! IF(col_str >= 0) THEN
-     !  act_lower = elements(el_index)%ions(current_ion)%levels(J)%l_index
-     ! ELSE
-     !  act_upper = elements(el_index)%ions(current_ion)%levels(J)%l_index
-     ! END IF
-     !print*, 'l_index = ', elements(el_index)%ions(current_ion)%levels(J)%l_index
     END IF
    END DO
    IF((found_low_conf .EQV. .TRUE.) .AND. (found_up_conf .EQV. .TRUE.)) THEN
-    ! write(*,*) 'read_transitions: J = ', J, ' element: ', element, ' ion = ', ion_index,&
-    !  ' line from ', low_conf, ' to ', up_conf, ' was included...'
+    ! write(*,*) 'read_transitions: element: ', element, ' ion = ', ion_index, &
+    !  ' line from ', low_conf, ' to ', up_conf, 'lc = ', act_lc, 'uc = ', act_uc, ' was included...'
     ee_lc = elements(el_index)%ions(current_ion)%levels(act_lc)%exci_energy
     ee_uc = elements(el_index)%ions(current_ion)%levels(act_uc)%exci_energy
     IF(ee_lc < ee_uc) THEN

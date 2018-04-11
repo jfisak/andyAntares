@@ -59,7 +59,7 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
    END IF
    IF ( line(1:1) == '*') CYCLE
    READ(line,*) Z, abundance, lowerion, upperion, mass
-   PRINT*, Z, abundance, lowerion, upperion, mass
+   write(*,*) Z, abundance, lowerion, upperion, mass
    elements(I)%atom_number = Z
    elements(I)%atom_mass = mass * mp_g
    ! Number of ions 
@@ -75,7 +75,7 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
    !print*, 'upperion = ', upperion, 'lowerion = ', lowerion, 'upperion - lowerion + 1', nions
    ! Allocate the memory to the elements(I)%ions(nions)
    ALLOCATE (elements(I)%ions(nions))
-   ! if(ALLOCATED(elements(I)%ions)) print*, 'allocated: elements(', I, ')%ions...', nions, &
+   ! if(ALLOCATED(elements(I)%ions)) write(*,*) 'allocated: elements(', I, ')%ions...', nions, &
    !  ' nions = ', nions
    ! Loop over all ions of given chem. element
    DO J = lowerion, upperion
@@ -160,8 +160,10 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
   DO I = 1, ntransitions
    linelist(I)%n_deexc = 0
    linelist(I)%n_exc = 0
+   ! write(*,*) 'read_composition: line = ', I, ' lower = ', linelist(I)%lower, ' upper = ', linelist(I)%upper
 !   write(20,*) elements(linelist(I)%indexe)%atom_number, linelist(I)%indexi, linelist(I)%freq, linelist(I)%f_ul
   END DO
 ! CLOSE(20)
+! STOP 'read_composition: testing'
 
 END SUBROUTINE read_composition
