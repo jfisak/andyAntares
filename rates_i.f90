@@ -37,9 +37,7 @@ CONTAINS
 FUNCTION rates_construct(nlns, nluns, nlio)
  TYPE(irates)                   :: rates_construct
  INTEGER                        :: nldo, nlup, nlio
- INTEGER                         :: OMP_GET_THREAD_NUM, my_rank
 
- my_rank = OMP_GET_THREAD_NUM()
  !write(*,*) 'construction: my_rank = ', my_rank, ' nlns = ', nlns, ' nluns = ', nluns, ' nlio = ', nlio
  ALLOCATE(rates_construct%Lma_int_dorad(nlns))
  ALLOCATE(rates_construct%Lma_int_docoll(nlns))

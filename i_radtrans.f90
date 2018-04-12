@@ -29,7 +29,6 @@ DOUBLE PRECISION                        :: actVal
 INTEGER                                 :: I
 ! output variables
 DOUBLE PRECISION                        :: Zintdown, Zintup, Zrad
-INTEGER                         :: OMP_GET_THREAD_NUM, my_rank
 TYPE(irates)      :: actirates
 INTEGER                                 :: dummypackage, n_pack_d
 DOUBLE PRECISION                        :: tau_line, freq_line, l_dist
@@ -37,9 +36,8 @@ DOUBLE PRECISION                        :: vel_vec, vec_length
 DOUBLE PRECISION                        :: vel
 DOUBLE PRECISION                        :: constant
 
-my_rank = OMP_GET_THREAD_NUM()
 n_pack_d = SIZE(package)
-dummypackage = n_pack_d - n_dummy_packs + my_rank + 1
+! dummypackage = n_pack_d - n_dummy_packs + my_rank + 1
 
 constant = (pi * e_charge**2)/( me_g * light_speed)
 
@@ -63,7 +61,7 @@ ELSE
 END IF 
 
 up_pop = act_pop
-! write(36,*) '***************************************************************************************'
+! write(36,*) '********************************************************'
 ! write(36,*) 'i_radtrans: nlns = ', nlns
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal downward jump and radiative deexcitation

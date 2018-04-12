@@ -7,7 +7,6 @@
   IMPLICIT NONE    
 
   INTEGER             :: n_pack, pack_index
-  INTEGER             :: my_rank, OMP_GET_THREAD_NUM
   
 
 OPEN(UNIT=36, FILE='macroatom.dat')
@@ -20,11 +19,10 @@ OPEN(UNIT=36, FILE='macroatom.dat')
 !$SHARED(dyn_cell, n_pack)
 !$OMP DO 
 DO pack_index = 1, n_pack
-  my_rank = OMP_GET_THREAD_NUM()
-  IF(initrs(my_rank + 1) .EQV. .FALSE.) THEN
-   CALL init_random_seed()
-   initrs = .TRUE.
-  END IF
+  ! IF(initrs(my_rank + 1) .EQV. .FALSE.) THEN
+  !  CALL init_random_seed()
+  !  initrs = .TRUE.
+  ! END IF
    ! write(36, *) 'r-packet: ', pack_index
    IF (MODULO(pack_index,10000) .EQ. 0) write(*,*) 'Working on packet ', pack_index,' ...'
    ! write(*,*) 'Working on packet ', pack_index,' ...'

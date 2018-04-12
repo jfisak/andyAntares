@@ -21,6 +21,10 @@ INTEGER                                 :: act_elem, act_ion, act_lev
 DOUBLE PRECISION                        :: act_pop
 DOUBLE PRECISION                        :: eenergy
 CHARACTER(LEN=60)                       :: fileTempStruct, fileOccNum, fileFreqs
+CHARACTER(LEN=60)                       :: filePackets
+#if mpi==1
+CHARACTER(LEN=60)                       :: chmy_rank
+#endif
 
 ! creates a folder, where an output will be saved
 ! it reads a shell variable OUTPUTFO, if it does not
@@ -44,7 +48,11 @@ END IF
 SELECT CASE(otype)
 CASE(1)
  ! line rates
+#if mpi==1
+ lineOutput = trim(outputfolder)//'/linevar.'//CHAR(my_rank)//'.dat'
+#else
  lineOutput = trim(outputfolder)//'/linevar.dat'
+#endif
  write(*,*) 'save_output: lineOutput = ', TRIM(lineOutput)
  OPEN(11,FILE=lineOutput)
   DO I = 1, ntransitions
@@ -54,7 +62,9 @@ CASE(1)
     linelist(I)%A_ul, linelist(I)%n_int, linelist(I)%n_deexc
   END DO
  CLOSE(11)
-! rate counters
+!________________________________________________________________________________
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! RATE COUNTERS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!________________________________________________________________________________
 CASE(2)
  write(*,*) 'save_output'
  write(*,*) 'count_cool_ex = ', count_cool_ex, ' count_cool_ff = ', count_cool_ff, &
@@ -117,7 +127,18 @@ CASE(3)
 CASE DEFAULT
  write(*,*) 'save_output: this case is not known'
 END SELECT
-
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! PACKETS INFORMATIONS
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+write(chmy_rank, "(A)"), my_rank
+write(*,*) 'save_output: chmy_rank = ', chmy_rank, my_rank
+filePackets = trim(outputfolder)//'/packets.'//chmy_rank//'.dat'
+write(*,*) 'save_output: filePackets = ', filePackets
+OPEN(98, FILE=filePackets)
+ DO I = 1, SIZE(package)
+  WRITE(98,*) package(I)
+ END DO
+CLOSE(98)
 
 
 

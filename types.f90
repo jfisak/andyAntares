@@ -1,8 +1,8 @@
 MODULE types
 
-!#ifdef MPI_ON
-!  include 'mpif.h'
-!#endif
+#if mpi==1
+ include 'mpif.h'
+#endif
 
 
   IMPLICIT NONE
@@ -157,6 +157,9 @@ MODULE types
   INTEGER, PARAMETER                 :: NONE = -99
   INTEGER, PARAMETER                 :: no_line = -99
 
+  INTEGER                            :: my_rank
+ INTEGER                            :: ierr
+ INTEGER                            :: n_tasks
 !! Atomic data
  ! Total number of chemical elements in the simulation
   INTEGER                            :: n_elements

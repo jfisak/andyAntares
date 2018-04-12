@@ -28,9 +28,7 @@ DOUBLE PRECISION                        :: sfactor
 ! output variables
 DOUBLE PRECISION                        :: Zion, Zrecom, Zintrecom
 TYPE(irates)                           :: actirates
-INTEGER                                 :: OMP_GET_THREAD_NUM, my_rank
 
-my_rank = OMP_GET_THREAD_NUM()
 
 
 !write(*,*) 'i_radion: my_rank = ', my_rank, ' recrad = ', size(actirates%Lma_recrad), &

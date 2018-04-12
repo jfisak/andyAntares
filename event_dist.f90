@@ -1,41 +1,41 @@
 SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
 
-  USE types
-  USE rates_r
+ USE types
+ USE rates_r
 
-  IMPLICIT NONE    
+ IMPLICIT NONE    
 
-  INTEGER                           :: I, pack_index, event,do_loop, get_package_model_index
-  INTEGER                           :: nextLine, indexe, indexi, lower_level, current_mgi
-! pointer to a field of continuum rates
-  DOUBLE PRECISION                  :: e_dist, ran_numb, tau_rand, cell_dist, D
-  DOUBLE PRECISION                  :: tau, l_dist, tau_line, constant, pop_number, tau_cont
-  DOUBLE PRECISION                  :: electron_density, kappa_cont, vec_length, dist
-  DOUBLE PRECISION                  :: graund_level_pop, g_gl, g_ll, e_exc
-  DOUBLE PRECISION                  :: f_ul
-  DOUBLE PRECISION, PARAMETER       :: largeNumber = 1.D20
-  ! number of lines with the same frequencies
-  INTEGER                           :: n_next_lines
-  DOUBLE PRECISION, DIMENSION(3)    :: vel_vec
-  INTEGER                           :: approximation
-  INTEGER                           :: my_rank, dummypackage
-  INTEGER                           :: n_pack_d
-  INTEGER                           :: OMP_GET_THREAD_NUM
-  DOUBLE PRECISION                  :: freq_line
-  TYPE(rrates)                      :: actirrates
-  REAL(8)                           :: random
-  ! looking for next line
-  INTEGER                           :: act_line
-  DOUBLE PRECISION                  :: summ, tot_lop
-  DOUBLE PRECISION                  :: Blu! , exci_energy_l, exci_energy_u
-  DOUBLE PRECISION                      :: low_pop, upp_pop 
-  DOUBLE PRECISION                      :: stat_weight_l, stat_weight_u
+ INTEGER                           :: I, pack_index, event,do_loop, get_package_model_index
+ INTEGER                           :: nextLine, indexe, indexi, lower_level, current_mgi
+!pointer to a field of continuum rates
+ DOUBLE PRECISION                  :: e_dist, ran_numb, tau_rand, cell_dist, D
+ DOUBLE PRECISION                  :: tau, l_dist, tau_line, constant, pop_number, tau_cont
+ DOUBLE PRECISION                  :: electron_density, kappa_cont, vec_length, dist
+ DOUBLE PRECISION                  :: graund_level_pop, g_gl, g_ll, e_exc
+ DOUBLE PRECISION                  :: f_ul
+ DOUBLE PRECISION, PARAMETER       :: largeNumber = 1.D20
+ ! number of lines with the same frequencies
+ INTEGER                           :: n_next_lines
+ DOUBLE PRECISION, DIMENSION(3)    :: vel_vec
+ INTEGER                           :: approximation
+ INTEGER                           :: dummypackage
+ INTEGER                           :: n_pack_d
+ ! INTEGER                           :: OMP_GET_THREAD_NUM
+ DOUBLE PRECISION                  :: freq_line
+ TYPE(rrates)                      :: actirrates
+ REAL(8)                           :: random
+ ! looking for next line
+ INTEGER                           :: act_line
+ DOUBLE PRECISION                  :: summ, tot_lop
+ DOUBLE PRECISION                  :: Blu! , exci_energy_l, exci_energy_u
+ DOUBLE PRECISION                      :: low_pop, upp_pop 
+ DOUBLE PRECISION                      :: stat_weight_l, stat_weight_u
 
-  my_rank = OMP_GET_THREAD_NUM()
-  !write(*,*)'event_dist: Thread rank: ', my_rank
-       
-  n_pack_d = SIZE(package)
-  dummypackage = n_pack_d - n_dummy_packs + my_rank + 1
+ ! my_rank = OMP_GET_THREAD_NUM()
+ !write(*,*)'event_dist: Thread rank: ', my_rank
+      
+ n_pack_d = SIZE(package)
+ dummypackage = SIZE(package)
 
 
 10  ran_numb = DBLE(random())  ! PUT IT IN SUBROUTINE - write is as do loop
@@ -114,8 +114,6 @@ DO WHILE (do_loop .EQ. 1)
    ! the basic variables
    stat_weight_u = elements(indexe)%ions(indexi)%levels(linelist(nextLine + I - 1)%upper)%stat_waight
    stat_weight_l = elements(indexe)%ions(indexi)%levels(linelist(nextLine + I - I)%lower)%stat_waight
-   ! exci_energy_u = elements(indexe)%ions(indexi)%levels(linelist(I)%upper)%exci_energy
-   ! exci_energy_l = elements(indexe)%ions(indexi)%levels(linelist(I)%lower)%exci_energy
    Blu = light_speed**2.0 / (2.0 * h * linelist(I)%freq**3.0) * stat_weight_u / stat_weight_l &
      * linelist(I)%A_ul
    tau_line = tau_line +  low_pop * Blu * h * light_speed * (R_inf / V_inf) &

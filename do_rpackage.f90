@@ -18,7 +18,6 @@ SUBROUTINE do_rpackage(pack_index)
   ! DOUBLE PRECISION, PARAMETER       :: opa_cell=5.D-3, rho=5.D-2
 INTEGER                                         :: n_thomson
 !INTEGER                                         :: n_tot_cont
-INTEGER                                         :: my_rank
 TYPE(rrates)                                    :: actirrates
 ! free free
 INTEGER                                 :: n_ions

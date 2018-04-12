@@ -41,13 +41,13 @@ DOUBLE PRECISION                :: taulu, betalu, Blu
 ! Doppler factor
 DOUBLE PRECISION                :: D
 TYPE(irates)                    :: actirates
-INTEGER                         :: OMP_GET_THREAD_NUM, my_rank
+! INTEGER                         :: OMP_GET_THREAD_NUM, my_rank
 REAL(8)                         :: random
 ! write down the processes
 LOGICAL                         :: procout = .FALSE.
 LOGICAL                         :: sstates = .FALSE.
 
-my_rank = OMP_GET_THREAD_NUM()
+! my_rank = OMP_GET_THREAD_NUM()
 
 last_line = package(pack_index)%last_line
 ! define the needed variables
