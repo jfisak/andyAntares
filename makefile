@@ -1,7 +1,7 @@
 #Compiler settings
 #F90 = gfortran
-F90 = mpif90
-FCFLAGS =  -g -cpp -O0 -fbounds-check -Dmpi=1# -pg -fprofile-arcs# -ffpe-trap=zero,overflow,invalid,underflow
+F90 = mpifort.mpich
+FCFLAGS = -g -cpp -O0 -fbounds-check -Dmpi=1# -pg -fprofile-arcs# -ffpe-trap=zero,overflow,invalid,underflow
 
 #Variables
 progname = main

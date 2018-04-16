@@ -35,68 +35,57 @@ INTEGER, PARAMETER                   :: max_packs = 1e7
 ! Link data to identify program version
 CHARACTER LINK_DATE*30, LINK_USER*10, LINK_HOST*60
 COMMON / COM_LINKINFO / LINK_DATE, LINK_USER, LINK_HOST
-!  COMMON / RAN_SEED / idum
-#if mpi==1
- include 'mpif.h'
-#endif
+! COMMON / RAN_SEED / idum
 
-  ! CALL EXECUTE_COMMAND_LINE('figlet "3D WIND CODE"')
+! CALL EXECUTE_COMMAND_LINE('figlet "3D WIND CODE"')
+my_rank = 0
 #if mpi==1
  CALL MPI_INIT(ierr)
  CALL MPI_COMM_RANK(MPI_COMM_WORLD, my_rank, ierr)
  CALL MPI_COMM_SIZE(MPI_COMM_WORLD, n_tasks, ierr)
- write(*,*) 'mpi initialization', ' my_rank = ', my_rank, &
-  ' n_tasks = ', n_tasks
- ! outputfile = 'output.'//CHAR(my_rank)
+ ! write(*,*) 'mpi initialization', ' my_rank = ', my_rank, &
+ !  ' n_tasks = ', n_tasks
  ! write(*,*) 'main: my_rank = ', my_rank
- write(outputfile,"(A6,I3)") "output", my_rank
- ! write(*,*)  outputfile
+ ! write(*,*) outputfile
  ! write(chnum_threads, "(A)"), my_rank
  ! outputfile = '/packets.'//chnum_threads
  ! write(*,*) 'main: outputfile = ', outputfile
  ! write(*,*) 'main: outputfile = ', outputfile
- OPEN(99, FILE=outputfile) 
-  write(99,*) 'mpi initialization', ' my_rank = ', my_rank, &
-   ' n_tasks = ', n_tasks
 #endif
- CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
- STOP
-#if mpi==1
+write(outputfile,"(A6,I3.3)") "output", my_rank
+OPEN(99, FILE=outputfile) 
+write(*,*) 'mpi initialization: my_rank = ', my_rank, &
+ ' n_tasks = ', n_tasks
+! CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
+! STOP
  WRITE(99,'(2A)') '>>> Program started: Program Version from ',  &
   LINK_DATE ! tag which returns the date the link was created as text
  WRITE(99,'(4A)') '>>> created by ', LINK_USER(:IDX(LINK_USER)), &
   ' at host ', LINK_HOST(:IDX(LINK_HOST))
-#else
-  WRITE(*,'(2A)') '>>> Program started: Program Version from ',  &
-   LINK_DATE ! tag which returns the date the link was created as text
-  WRITE(*,'(4A)') '>>> created by ', LINK_USER(:IDX(LINK_USER)), &
-   ' at host ', LINK_HOST(:IDX(LINK_HOST))
+
+ ! Read input  
+ write(99,*) 'read input'
+ CALL read_input(n_pack, iseed)
+ ! Read composition
+ write(99,*) 'read_composition'
+ CALL read_composition()
+
+ ! Initialing seed from the system time
+ ! If we set iseed < 0 in input.dat then iseed
+ ! will be randomly initializing from the system time
+ ! otherwise, iseed will take a fix value given in
+ ! the input file
+ CALL DATE_AND_TIME(VALUES = TT)
+ IF (iseed .LE. 0) THEN  
+  iseed = TT(1)+70*(TT(2)+12*(TT(3)+31*(TT(5)+23*(TT(6)+59*TT(7)))))
  END IF
-#endif
-
-! Read input  
-write(99,*) 'read input'
-CALL read_input(n_pack, iseed)
-! Read composition
-write(99,*) 'read_composition'
-CALL read_composition()
-
-! Initialing seed from the system time
-! If we set iseed < 0 in input.dat then iseed
-! will be randomly initializing from the system time
-! otherwise, iseed will take a fix value given in
-! the input file
-CALL DATE_AND_TIME(VALUES = TT)
-IF (iseed .LE. 0) THEN  
- iseed = TT(1)+70*(TT(2)+12*(TT(3)+31*(TT(5)+23*(TT(6)+59*TT(7)))))
-END IF
 
 
-! The initial value of iseed (idum) should be set to different
-! NEGATIVE integer values in order to obtain different random
-! sequences. Seed is updated by ran2 once for each random number
-! generated.
-idum = -iseed
+ ! The initial value of iseed (idum) should be set to different
+ ! NEGATIVE integer values in order to obtain different random
+ ! sequences. Seed is updated by ran2 once for each random number
+ ! generated.
+ idum = -iseed
 
 ! Only for debuging; if set the values > 0 then variou print out statement 
 ! will give information on a packet's history (depending on the actual value of debug)
@@ -109,8 +98,8 @@ ALLOCATE (package(n_pack + 1))
 CALL setup_model_grid()
 ! create virtual particles for the given model cell
 IF (dyngrid /= 0) CALL virtual_particles(model_type)
-xmax = R_inf! + R_sun
-ymax = R_inf! + R_sun 
+ xmax = R_inf! + R_sun
+ ymax = R_inf! + R_sun 
 IF(model_type == 1) THEN
  zmax = R_inf! + R_sun
 ELSE IF (model_type == 2 .AND. inputmodel == 1) THEN
@@ -183,13 +172,14 @@ END DO
 
  
  print*, 'do spectrum'
- CALL do_spectrum(n_pack)
+ ! CALL do_spectrum(n_pack)
  print*, 'do finalize'
  ! it will save some important output
  CALL save_output(1)
  CALL save_output(2)
  ! temp structure and occupation numbers
- CALL save_output(3)
+! CALL save_output(3)
+ CALL save_output(4)
 
 #ifdef MPI_ON
  call MPI_FINALIZE(ierr)

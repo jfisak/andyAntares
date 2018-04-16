@@ -22,9 +22,6 @@ DOUBLE PRECISION                        :: act_pop
 DOUBLE PRECISION                        :: eenergy
 CHARACTER(LEN=60)                       :: fileTempStruct, fileOccNum, fileFreqs
 CHARACTER(LEN=60)                       :: filePackets
-#if mpi==1
-CHARACTER(LEN=60)                       :: chmy_rank
-#endif
 
 ! creates a folder, where an output will be saved
 ! it reads a shell variable OUTPUTFO, if it does not
@@ -48,11 +45,10 @@ END IF
 SELECT CASE(otype)
 CASE(1)
  ! line rates
-#if mpi==1
- lineOutput = trim(outputfolder)//'/linevar.'//CHAR(my_rank)//'.dat'
-#else
- lineOutput = trim(outputfolder)//'/linevar.dat'
-#endif
+ write(lineOutput,"(A, A9, I3.3, A4)") trim(outputfolder), '/linevar.', my_rank, '.dat'
+ write(*,*) lineOutput!trim(outputfolder), '/linevar.', my_rank, '.dat'
+! CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
+! STOP
  write(*,*) 'save_output: lineOutput = ', TRIM(lineOutput)
  OPEN(11,FILE=lineOutput)
   DO I = 1, ntransitions
@@ -83,8 +79,10 @@ CASE(2)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!! TEMPERATURE STRUCTURE AND IONIZATION BALANCE !!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! NOT WORKING FOR MPI YET
 CASE(3)
  fileTempStruct = trim(outputfolder)//'/tempStruct.dat'
+ ! write(fileTempStruct,"(A6,I3.3)") trim(outputfolder), tem
  OPEN(12, FILE=fileTempStruct)
   DO I = 1, n_modelgrid
    WRITE(12, *) model_grid(I)%rwind, model_grid(I)%T
@@ -124,21 +122,26 @@ CASE(3)
    END IF
   END DO
  CLOSE(14)
-CASE DEFAULT
- write(*,*) 'save_output: this case is not known'
-END SELECT
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! PACKETS INFORMATIONS
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-write(chmy_rank, "(A)"), my_rank
-write(*,*) 'save_output: chmy_rank = ', chmy_rank, my_rank
-filePackets = trim(outputfolder)//'/packets.'//chmy_rank//'.dat'
-write(*,*) 'save_output: filePackets = ', filePackets
-OPEN(98, FILE=filePackets)
- DO I = 1, SIZE(package)
-  WRITE(98,*) package(I)
- END DO
-CLOSE(98)
+CASE(4)
+ write(filePackets,"(A, A7, I3.3, A4)") trim(outputfolder),&
+  "/packets", my_rank, '.dat'
+ write(*,*) 'save_output: filePackets = ', filePackets
+ OPEN(98, FILE=filePackets)
+  DO I = 1, SIZE(package) - 1
+   write(98,*) package(I)%typ, package(I)%freq_rf, package(I)%e_rf
+  END DO
+ CLOSE(98)
+#if mpi==1
+ CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
+ ! CALL SLEEP(120)
+#endif
+ CALL do_spectrum(SIZE(package), outputfolder)
+CASE DEFAULT
+ write(*,*) 'save_output: this case is not known'
+END SELECT
 
 
 
