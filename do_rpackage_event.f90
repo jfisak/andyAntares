@@ -13,12 +13,12 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
   INTEGER                               :: I
   DOUBLE PRECISION                      :: summ, rand
   TYPE(rrates)                          :: actirrates
-  REAL(8)                               :: random
   DOUBLE PRECISION                      :: freq, freqt
   INTEGER                               :: indexe, indexi, indexl
   INTEGER                               :: actIndex
   INTEGER                               :: n_ions, n_levels
   INTEGER                               :: nline
+ DOUBLE PRECISION                       :: ran2
   ! total rates for the given processes
   DOUBLE PRECISION                      :: Zthomson, Zphotion, Zff
   DOUBLE PRECISION                      :: ZcontTot
@@ -81,7 +81,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
    ! END DO
    
    ! generating a random number
-   rand = DBLE(random()) * ZcontTot
+   rand = ran2(idum) * ZcontTot
    ! write(*,*) 'do_rpackage_event: rand = ', rand, ' ZcontTot = ', ZcontTot, &
    !  ' Zthomson = ', Zthomson, ' Zphotion = ', Zphotion, ' Zff = ', Zff
    !______________________________________________________________________
@@ -118,7 +118,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
       ! treshold frequency
       freqt = elements(indexe)%ions(indexi)%levels(indexl)%phfreq
       freq = package(pack_index)%freq_cmf
-      rand = DBLE(random())
+      rand = ran2(idum)
       IF(rand < freqt / freq) THEN
          if(procout) write(*,*) 'do_rpackage_event: package = ', pack_index, ' photoionization -> i packet'
        !$OMP ATOMIC

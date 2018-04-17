@@ -38,7 +38,7 @@ inquire( file=trim(outputfolder)//'/.', exist=dirExists )
 IF(.NOT. dirExists) THEN
  mkdirCMD = 'mkdir '//TRIM(outputfolder)
  CALL SYSTEM(mkdirCMD)
- write(99,*) 'save_output: creating a folder: ', outputfolder
+ ! write(99,*) 'save_output: creating a folder: ', outputfolder
 END IF
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -60,10 +60,10 @@ CASE(0)
 CASE(1)
  ! line rates
  write(lineOutput,"(A, A9, I3.3, A4)") trim(outputfolder), '/linevar.', my_rank, '.dat'
- write(99,*) lineOutput!trim(outputfolder), '/linevar.', my_rank, '.dat'
+ write(98,*) lineOutput!trim(outputfolder), '/linevar.', my_rank, '.dat'
 ! CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
 ! STOP
- write(99,*) 'save_output: lineOutput = ', TRIM(lineOutput)
+ write(98,*) 'save_output: lineOutput = ', TRIM(lineOutput)
  OPEN(11,FILE=lineOutput)
   DO I = 1, ntransitions
    ! wavelength is in Angstroms
@@ -76,19 +76,19 @@ CASE(1)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! RATE COUNTERS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !________________________________________________________________________________
 CASE(2)
- write(99,*) 'save_output'
- write(99,*) 'count_cool_ex = ', count_cool_ex, ' count_cool_ff = ', count_cool_ff, &
+ write(97,*) 'save_output'
+ write(97,*) 'count_cool_ex = ', count_cool_ex, ' count_cool_ff = ', count_cool_ff, &
   ' count_cool_io = ', count_cool_io, ' count_cool_fb = ', count_cool_fb
- write(99,*) 'count_i_int_down = ', count_i_int_down, ' count_i_rad_dxrs = ', count_i_rad_dxrs,&
+ write(97,*) 'count_i_int_down = ', count_i_int_down, ' count_i_rad_dxrs = ', count_i_rad_dxrs,&
   ' count_i_rad_deex = ', count_i_rad_deex, &
   ' count_i_rad_dxfl = ', count_i_rad_dxfl, ' count_i_int_upwa = ', count_i_int_upwa, &
   ' count_i_col_deex = ', count_i_col_deex, ' count_i_int_phot = ', count_i_int_phot, &
   ' count_i_int_reco = ', count_i_int_reco, ' count_i_rad_reco = ', count_i_rad_reco, &
   ' count_i_col_reco = ', count_i_col_reco
- write(99,*) 'count_r_line = ', count_r_line, ' count_r_thom = ', count_r_thom, &
+ write(97,*) 'count_r_line = ', count_r_line, ' count_r_thom = ', count_r_thom, &
   ' count_r_ph_k = ', count_r_ph_k, ' count_r_ph_i = ', count_r_ph_i, &
   ' count_r_ff = ', count_r_ff
- write(99,*) 'count_des_phot = ', count_des_phot, ' count_des_inte = ', count_des_inte, &
+ write(97,*) 'count_des_phot = ', count_des_phot, ' count_des_inte = ', count_des_inte, &
   ' count_des_esca = ', count_des_esca
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!! TEMPERATURE STRUCTURE AND IONIZATION BALANCE !!!!!!!!

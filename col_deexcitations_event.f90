@@ -9,7 +9,7 @@ INTEGER, ALLOCATABLE            :: linecoltransitions(:), Lcoldeex(:)
 
 ! firstly we have to compute number of possible collisional transitions from last_line
 nlns = 0
-rand = random()
+rand = ran2(idum)
 DO I = 1, ntransitions
  ! we are interested only in the transitions for the given atom
  IF(linelist(I)%indexe == element_index .AND. linelist(I)%indexi == ion_index) THEN

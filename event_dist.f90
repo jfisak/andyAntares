@@ -23,7 +23,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
  ! INTEGER                           :: OMP_GET_THREAD_NUM
  DOUBLE PRECISION                  :: freq_line
  TYPE(rrates)                      :: actirrates
- REAL(8)                           :: random
+ DOUBLE PRECISION                       :: ran2
  ! looking for next line
  INTEGER                           :: act_line
  DOUBLE PRECISION                  :: summ, tot_lop
@@ -38,7 +38,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
  dummypackage = SIZE(package)
 
 
-10  ran_numb = DBLE(random())  ! PUT IT IN SUBROUTINE - write is as do loop
+10  ran_numb = ran2(idum)  ! PUT IT IN SUBROUTINE - write is as do loop
     IF (ran_numb .EQ. 0.D0) GOTO 10    
     tau_rand = -LOG(ran_numb)
 
@@ -147,7 +147,7 @@ DO WHILE (do_loop .EQ. 1)
      DO I = 1, n_next_lines
       tot_lop = tot_lop + linelist(nextLine + I - 1)%A_ul
      END DO
-     ran_numb = DBLE(random()) * tot_lop
+     ran_numb = ran2(idum) * tot_lop
      summ = 0.D0
      DO I = 1, n_next_lines
       act_line = nextLine + I - 1

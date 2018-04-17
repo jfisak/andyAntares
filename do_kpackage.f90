@@ -12,6 +12,7 @@ DOUBLE PRECISION                :: Zexcit, Ztot, Zff, Zion, Zfb
 DOUBLE PRECISION                :: Z0, Z1, Z2, Z3
 DOUBLE PRECISION                :: summ
 DOUBLE PRECISION                :: rand
+ DOUBLE PRECISION                       :: ran2
 !package(pack_index)%typ = type_rpkt
 ! total number of possible cooling processes
 INTEGER                         :: n_cool_tot
@@ -20,7 +21,6 @@ DOUBLE PRECISION                :: new_freq
 ! choosing the given process
 INTEGER                         :: act_proc, J
 TYPE(krates)                    :: actikrates
-REAL(8)                         :: random
 ! indexes for ion levels
 INTEGER                         :: indexe, indexi, indexl
 INTEGER                         :: actIndex
@@ -57,7 +57,7 @@ IF(Zfb < 0.D0) STOP 'do_kpackage: Zfb < 0'
 ! 1.) cooling excitations
 
 ! now we have to decide which cooling process will occure
-rand = DBLE(random())
+rand = ran2(idum)
 Z0 = Zexcit
 Z1 = Z0 + Zff
 Z2 = Z1 + Zion

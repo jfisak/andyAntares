@@ -31,6 +31,7 @@ DOUBLE PRECISION                :: Zionization, Zrecombination
 ! partition function for the given process
 DOUBLE PRECISION                :: Z0, Z1, Z2, Z3, Z4, Z5, Z6, Z7
 DOUBLE PRECISION                :: summ, stat_weight_u, stat_weight_l, exci_energy, exci_energy_l, exci_energy_u
+DOUBLE PRECISION                :: ran2
 ! populations
 DOUBLE PRECISION                :: act_pop, low_pop
 INTEGER                         :: get_package_model_index, current_mgi
@@ -41,8 +42,6 @@ DOUBLE PRECISION                :: taulu, betalu, Blu
 ! Doppler factor
 DOUBLE PRECISION                :: D
 TYPE(irates)                    :: actirates
-! INTEGER                         :: OMP_GET_THREAD_NUM, my_rank
-REAL(8)                         :: random
 ! write down the processes
 LOGICAL                         :: procout = .FALSE.
 LOGICAL                         :: sstates = .FALSE.
@@ -201,7 +200,7 @@ Zrecombination = Zphotrecom + Zcollrecom
 Ztotal = Zintdown + Zraddeexc + Zintup + Zcoll + &
     Zionization + Zrecombination + Zintrecombination
 ! a random number for computation, which process occurs
-rand = DBLE(random()) * Ztotal
+rand = ran2(idum) * Ztotal
  ! print*, 'do_ipackage: random number: ', rand, ' Ztotal = ', Ztotal
 ! these variables are only to the whole line won't be too long
 !write(*,*) 'do_ipackage: Zintup = ', Zintup
@@ -251,7 +250,7 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
  ! now we will calculate new frequency of the packet
  ! we will choose this frequency from the possible radiative transitions
  summ = 0.D0
- rand = DBLE(random()) * Zraddeexc
+ rand = ran2(idum) * Zraddeexc
  IF(procout) write(*,*) 'do_ipackage: radiative deexcitation...'
  ! looking for the given line
  DO line = 1, nlns

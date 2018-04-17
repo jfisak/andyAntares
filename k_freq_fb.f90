@@ -11,6 +11,7 @@ INTEGER                                         :: indexe, indexi, indexl
 ! photoionization data
 INTEGER                                         :: nfreq
 DOUBLE PRECISION, ALLOCATABLE                   :: freq(:), cross(:)
+DOUBLE PRECISION                                :: ran2
 ! initial point and frequency
 INTEGER                                         :: initPoint
 DOUBLE PRECISION                                :: init_freq
@@ -23,7 +24,7 @@ INTEGER                                         :: actIndex
 INTEGER                                         :: cur_mgi, get_package_model_index
 DOUBLE PRECISION                                :: el_dens, temp, x, act_pop
 ! random numbers
-DOUBLE PRECISION                                :: random, ran_num
+DOUBLE PRECISION                                :: ran_num
 ! loop variables
 INTEGER                                         :: I
 ! linear interpolation
@@ -58,7 +59,7 @@ temp = model_grid(cur_mgi)%T
 ! population
 CALL populations(indexe, indexi, indexl, cur_mgi, act_pop)
 ! random number
-ran_num = random()
+ran_num = ran2(idum)
 ! ! calculation of initial frequency
 ! init_freq = (MINVAL(elements(indexe)%ions(indexi + 1)%levels(:)%exci_energy) - &
 !        elements(indexe)%ions(indexi)%levels(indexl)%exci_energy) / h

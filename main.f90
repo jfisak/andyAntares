@@ -43,9 +43,9 @@ my_rank = 0
  CALL MPI_COMM_RANK(MPI_COMM_WORLD, my_rank, ierr)
  CALL MPI_COMM_SIZE(MPI_COMM_WORLD, n_tasks, ierr)
 #endif
+ CALL save_output(0)
  write(99,*) 'mpi initialization: my_rank = ', my_rank, &
   ' n_tasks = ', n_tasks
- CALL save_output(0)
 ! CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
 ! STOP
  WRITE(99,'(2A)') '>>> Program started: Program Version from ',  &
@@ -69,6 +69,7 @@ my_rank = 0
  IF (iseed .LE. 0) THEN  
   iseed = TT(1)+70*(TT(2)+12*(TT(3)+31*(TT(5)+23*(TT(6)+59*TT(7)))))
  END IF
+ iseed = iseed + my_rank * 17 ! add + threadID * primeNumber
 
 
  ! The initial value of iseed (idum) should be set to different
@@ -76,7 +77,7 @@ my_rank = 0
  ! sequences. Seed is updated by ran2 once for each random number
  ! generated.
  idum = -iseed
- write(90,*) 'main: iseed = ', iseed, ' idum = ', idum
+ write(99,*) 'main: iseed = ', iseed, ' idum = ', idum
 
 ! Only for debuging; if set the values > 0 then variou print out statement 
 ! will give information on a packet's history (depending on the actual value of debug)
@@ -172,11 +173,10 @@ END DO
 ! CALL save_output(3)
  CALL save_output(4)
 
+CLOSE(2)
+CLOSE(99)
 #if mpi==1
  call MPI_FINALIZE(ierr)
 #endif
-CLOSE(2)
-CLOSE(99)
-! CALL save_output(0)
 
 END SUBROUTINE main
