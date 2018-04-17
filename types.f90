@@ -160,6 +160,7 @@ IMPLICIT NONE
   INTEGER                            :: my_rank
   INTEGER                            :: ierr
   INTEGER                            :: n_tasks
+  CHARACTER(80)                      :: outputfile
 !! Atomic data
  ! Total number of chemical elements in the simulation
   INTEGER                            :: n_elements

@@ -12,15 +12,15 @@ SUBROUTINE init_photsphere(n_pack)
 
   destroyed_pack = 0
   L_star = 4.D0*pi*(R_star)**2*sigma*T_eff**4
-  print*, 'init photsphere...'
+  write(99,*) 'init photsphere...'
   !print*, L_star, pi, R_star/r_sun,sigma, T_eff
 
   !    ind_x = nx_cell/2 + 1
   !    ind_y = ny_cell/2 + 1
   !    ind_z = nz_cell/2 + 1
   !    ind_cell_numb = (ind_x-1)*ny_cell*nz_cell + (ind_y-1)*nz_cell + ind_z
-  !    print*, ind_cell_numb
-  !    print*, R_star
+  !    write(99,*) ind_cell_numb
+  !    write(99,*) R_star
 ! OPEN(16,FILE='photon_positions.dat')
   DO I = 1, n_pack
      ! Place photon on the photosphere's surface

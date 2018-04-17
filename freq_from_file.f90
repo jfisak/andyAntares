@@ -39,8 +39,8 @@ CASE (1)
     READ(11,*,IOSTAT=ios) junk, junk
    IF (ios /= 0) EXIT
    IF (I == maxrows) THEN
-    print*, 'Error: Maximum number of records exceeded...'
-    print*, 'Exiting program now...'
+    write(99,*) 'Error: Maximum number of records exceeded...'
+    write(99,*) 'Exiting program now...'
     STOP
    END IF
    NR = NR + 1
@@ -56,16 +56,16 @@ CASE (1)
   END DO
   CLOSE(11)
   do I=1,NR
-  ! print*, 'incomingflux: ', incomingflux(I,1), ', ', incomingflux(I,2)
+  ! write(99,*) 'incomingflux: ', incomingflux(I,1), ', ', incomingflux(I,2)
   end do
  END IF
  CASE DEFAULT
-  print*, 'the choice of variable inputflux = ', inputflux, 'is not known...'
+  write(99,*) 'the choice of variable inputflux = ', inputflux, 'is not known...'
   STOP 'ENDING PROGRAM NOW...'
 END SELECT
 
 CALL acc_rej_montecarlo(n_packs,freq)
-  if ((MODULO(n_packet,10000) .EQ. 0)) print*, 'Generating the frequency packet ', n_packet, ' ...'
+  if ((MODULO(n_packet,10000) .EQ. 0)) write(99,*) 'Generating the frequency packet ', n_packet, ' ...'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! now we have the field incomingflux allocated and defined values...now we can
 ! generate the photonic frequencies

@@ -26,9 +26,9 @@ SUBROUTINE update_grid(iteration)
 !  OPEN(36, FILE='nitrogenVI.dat')
 !  OPEN(37, FILE='nitrogenVII.dat')
   max_n_dcell = SIZE(dyn_cell)
-   print*, 'updating grid'
+   write(99,*) 'updating grid'
   DO gridcell = 1, n_modelgrid
-   !print*, 'update_grid: volume: model cell = ', gridcell, ' volume = ', volume
+   !write(99,*) 'update_grid: volume: model cell = ', gridcell, ' volume = ', volume
 
     IF (model_grid(gridcell)%assoc_cells .GT. 0) THEN
       IF (iteration .EQ. 1) THEN
@@ -38,19 +38,19 @@ SUBROUTINE update_grid(iteration)
         ! Energy density contribeted to the model grid cell 
          model_grid(gridcell)%J = model_grid(gridcell)%J / model_grid(gridcell)%volume / (4 * pi)
          temp = (model_grid(gridcell)%J * pi / sigma )**(1./4.) 
-!         print*, 'model cell: ', gridcell, ' temperature = ', temp, ' flux = ', model_grid(gridcell)%J, &
+!         write(99,*) 'model cell: ', gridcell, ' temperature = ', temp, ' flux = ', model_grid(gridcell)%J, &
 !                ' volume = ', model_grid(gridcell)%volume
-!         print*, 'update_grid: temperature: I = ', I, ' T = ', temp
+!         write(99,*) 'update_grid: temperature: I = ', I, ' T = ', temp
          model_grid(gridcell)%T = temp
          ! Calculate electron number density for every model grid cell gridcell
-         !print*, gridcell, model_grid(gridcell)%J, temp
+         !write(99,*) gridcell, model_grid(gridcell)%J, temp
          CALL find_e_nd(gridcell, el_nd)
          model_grid(gridcell)%J = 0.D0   
       END IF
       model_grid(gridcell)%e_dens = el_nd 
       temp = model_grid(gridcell)%T
 
-      !     print*, 'temp and e_nd:', gridcell,  model_grid(gridcell)%rho, temp, el_nd/6.1D14
+      !     write(99,*) 'temp and e_nd:', gridcell,  model_grid(gridcell)%rho, temp, el_nd/6.1D14
       DO indexe = 1, n_elements
         numb_ions = elements(indexe)%nions
         DO indexi = 1, numb_ions
@@ -69,7 +69,7 @@ SUBROUTINE update_grid(iteration)
            ! and particular gridcell (total number of atoms in particular ionization stage)
            N_jk = frac * model_grid(gridcell)%rho * model_grid(gridcell)%grid_comp(indexe)%abund / elements(indexe)%atom_mass
            CALL ionization_fraction(indexe, indexi, temp, el_nd, frac)
-!           print*, gridcell, indexe, indexi, N_jk/1d10, frac
+!           write(99,*) gridcell, indexe, indexi, N_jk/1d10, frac
            ! Calculate partition function (U) of element indexe in ionization stage 
            ! indexi at given temperature temp
            CALL part_fun(indexe, indexi, temp, U)

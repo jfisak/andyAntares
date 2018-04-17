@@ -10,16 +10,16 @@ SUBROUTINE do_spectrum(n_pack)
  INTEGER, DIMENSION(n_nubin)           :: escs
 
  ! Set up the frequency grid to extract spectrum
- print*, 'SETUP FREQ GRID'
+ write(99,*) 'SETUP FREQ GRID'
  delta_nu = (nu_max - nu_min) / n_nubin
  DO I= 1, n_nubin 
     freqs(I) = nu_min + (I - 1) * delta_nu
     escs = 0
-    !print*, i, spectrum(i)%freq, spectrum(i)%flux
+    !write(99,*) i, spectrum(i)%freq, spectrum(i)%flux
  END DO
    
  ! Loop over all packets
- print*, 'BIN PACKETS' 
+ write(99,*) 'BIN PACKETS' 
  DO pack_index = 1, n_pack
   ! And take all which actually escaped
   IF (package(pack_index)%typ .EQ. type_escaped) THEN
@@ -28,7 +28,7 @@ SUBROUTINE do_spectrum(n_pack)
    IF ((freq .GT. nu_min) .AND. (freq .LT. nu_max)) THEN
     nubin = floor( (freq - nu_min) / delta_nu ) + 1
     ! put the star to 100 parsecs
-    delta_e = (package(pack_index)%e_rf / delta_nu) / (4.D0 * pi * (100.D0 * parsec)**2)
+    delta_e = (package(pack_index)%e_rf / delta_nu) / (4.D0 * pi * (1.D2 * parsec)**2)
     specflux(nubin) = specflux(nubin) + delta_e
     escs(nubin) = escs(nubin) + 1
    ENDIF
@@ -42,7 +42,7 @@ SUBROUTINE do_spectrum(n_pack)
 !     WRITE(19,*)  frequency, spectrum(I)%flux, spectrum(I)%esc, planck
 ! END DO
 
- print*, 'WRITE TO FILE'
+ write(99,*) 'WRITE TO FILE'
  
  ls_A = light_speed * 1.D8
 
@@ -53,8 +53,8 @@ SUBROUTINE do_spectrum(n_pack)
  ! END IF
  IF(my_rank == 0) THEN
   DO I = 1, n_nubin
-   ! write(*,*) 'do_spectrum: specflux(I) = ', specflux(I)
-   specflux(I) = specflux(I) / DBLE(n_tasks)
+   ! write(99,*) 'do_spectrum: specflux(I) = ', specflux(I)
+   specflux(I) = redspecflux(I) / DBLE(n_tasks)
   END DO
 #endif
   OPEN (UNIT=19, FILE='spec.dat')     
@@ -63,7 +63,7 @@ SUBROUTINE do_spectrum(n_pack)
     flambda = specflux(I) * ( ls_A / lambda**2 )
     planck = ( 2.D0 * h * ls_A**2 / lambda**5 ) * &
      ( 1.D0 / ( EXP( h * ls_A / (lambda * BOLK * T_eff) ) - 1.D0) )
-    ! write(*,*) 'do_spectrum: lambda = ', lambda, ' flux = ', flambda
+    ! write(99,*) 'do_spectrum: lambda = ', lambda, ' flux = ', flambda
     write(19,*) lambda, flambda, planck, flambda/planck, escs(I)
    END DO
   CLOSE(19)

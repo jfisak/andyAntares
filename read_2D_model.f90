@@ -32,7 +32,7 @@ IMPLICIT NONE
   ! 6. temperature / K
   CASE(1)
    add_mg = 2
-   print*, 'we will read input input data from Petr Kurfurst model of stellar disc'
+   write(99,*) 'we will read input input data from Petr Kurfurst model of stellar disc'
    ! firstly we calculate number of rows in the file
    n_modelgrid = 0
     T_eff = 30000
@@ -41,13 +41,13 @@ IMPLICIT NONE
      READ(15,*,IOSTAT = ios) junk, junk, junk, junk, junk, junk
      if(ios /= 0) EXIT
      if(I == maxrows) THEN
-      print*, 'maximum number of records exceeded in subroutine read_2d_model'
-      print*, 'exiting program now...'
+      write(99,*) 'maximum number of records exceeded in subroutine read_2d_model'
+      write(99,*) 'exiting program now...'
       STOP
      end if
     n_modelgrid = n_modelgrid + 1
    END DO
-   print*, 'mumber of model grids: ', n_modelgrid
+   write(99,*) 'mumber of model grids: ', n_modelgrid
    IF (n_modelgrid .EQ. 0) STOP 'no model grid cells were found...'
    ! n_modelgrid + 1 ... for dummy cells
    ! n_modelgrid + 2 ... for cells with r < R_inf but too far from some model grid point
@@ -102,7 +102,7 @@ IMPLICIT NONE
      max_z = act_z
     END IF
    END DO
-   print*, 'R_star = ', R_star
+   write(99,*) 'R_star = ', R_star
    R_inf = max_radius
    Z_inf = max_z
    V_inf = model_grid(max_radius_index)%vel
@@ -110,7 +110,7 @@ IMPLICIT NONE
    !R_inf = (model_grid(n_modelgrid)%rwind + model_grid(n_modelgrid)%rwind/1.D2) * 1.D2
    !R_inf = model_grid(n_modelgrid)%rwind * 1.D2
    !V_inf = model_grid(n_modelgrid)%rwind * 1.D2
-   print*, 'computed R_star = ', R_star, ' R_inf = ', R_inf
+   write(99,*) 'computed R_star = ', R_star, ' R_inf = ', R_inf
    model_grid(n_modelgrid + 1)%assoc_cells = 0
    model_grid(n_modelgrid + 1)%rwind = 0.D0
    model_grid(n_modelgrid + 1)%zwind = 0.D0

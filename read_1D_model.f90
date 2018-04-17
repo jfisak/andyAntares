@@ -30,7 +30,7 @@
  
 
   add_mg = 1
-!  print*, T_eff, R_star, R_inf, V_inf, M_dot, n_modelgrid
+!  write(*,*) T_eff, R_star, R_inf, V_inf, M_dot, n_modelgrid
 
   R_star = R_star * r_sun
   ! WRITE(15, *) 0.D0, 0.D0, R_star/R_star
@@ -39,7 +39,7 @@
 !  V_inf  = V_inf  * 1.D5
 !  M_dot  = M_dot  * m_sun / (3600.D0*24.D0*365.25D0)
 
-!  print*, '   ', T_eff, R_star, R_inf, V_inf, M_dot, n_modelgrid
+!  write(*,*) '   ', T_eff, R_star, R_inf, V_inf, M_dot, n_modelgrid
 
  ! Allocate array for model grid structure.
   ! Cell n_modelgrid+1 is associated to propagation grid cells 
@@ -58,8 +58,8 @@
      !Total mass density of grid cell I
 !     tot_md = M_dot / (4.D0 * pi * (model_grid(I)%rwind)**2 * model_grid(I)%vel)     
      !WRITE(15, *) 0.D0, 0.D0, model_grid(I)%rwind/R_star, model_grid(I)%rho
-!     print*, I, model_grid(I)%rwind, model_grid(I)%vel, model_grid(I)%rho, model_grid(I)%T
-!     print*, I, model_grid(I)%rwind, model_grid(I)%vel, model_grid(I)%rho, tot_md
+!     write(*,*) I, model_grid(I)%rwind, model_grid(I)%vel, model_grid(I)%rho, model_grid(I)%T
+!     write(*,*) I, model_grid(I)%rwind, model_grid(I)%vel, model_grid(I)%rho, tot_md
 
      ALLOCATE (model_grid(I)%grid_comp(n_elements))
      DO J = 1, n_elements      
@@ -95,7 +95,7 @@
 !   r =SQRT( (cell(I)%corner(1) + cell_width/2.D0)**2 + &
 !              (cell(I)%corner(2) + cell_width/2.D0)**2 + &
 !              (cell(I)%corner(3) + cell_width/2.D0)**2)
-!   print*, r, model_grid(cell(I)%model_index)%rwind, R_inf,  model_grid(cell(I)%model_index)%rho
+!   write(*,*) r, model_grid(cell(I)%model_index)%rwind, R_inf,  model_grid(cell(I)%model_index)%rho
 ! END DO
  ! in this case we read input model from Jiri Krticka program...
  ! these files are in this form
@@ -107,7 +107,7 @@
  ! 6. q (?)
  ! 7. mass loss rate
  CASE(1)
-  print*, 'we will read a model from Jiri Krticka program...'
+  write(*,*) 'we will read a model from Jiri Krticka program...'
   add_mg = 1
   CALL GET_ENVIRONMENT_VARIABLE("JIKRMODEL", jikrfile)
   IF(TRIM(jikrfile) == "") STOP "no input model file selected, &
@@ -124,9 +124,9 @@
     READ(11,*,IOSTAT=ios) junk, junk, junk, junk, junk, junk, junk
    IF (ios /= 0) EXIT
    IF (I == maxrows) THEN
-    print*, 'Subroutine read_1D_model:'
-    print*, 'Error: Maximum number of records exceeded...'
-    print*, 'Exiting program now...'
+    write(*,*) 'Subroutine read_1D_model:'
+    write(*,*) 'Error: Maximum number of records exceeded...'
+    write(*,*) 'Exiting program now...'
     STOP
    END IF
    n_modelgrid = n_modelgrid + 1
@@ -142,11 +142,11 @@
      model_grid(I)%J = 0.D0 
      model_grid(I)%assoc_cells = 0
      model_grid(I)%T = model_grid(I)%T / temp_factor
-!     print*, 'testing model grid...'
-!     print*, model_grid(I)%rwind, model_grid(I)%vel, &
+!     write(*,*) 'testing model grid...'
+!     write(*,*) model_grid(I)%rwind, model_grid(I)%vel, &
 !        model_grid(I)%rho, model_grid(I)%T, model_grid(I)%J, &
 !        model_grid(I)%assoc_cells
-     !IF (I /= 1) print*, 'delta r: ', model_grid(I)%rwind - model_grid(I-1)%rwind
+     !IF (I /= 1) write(*,*) 'delta r: ', model_grid(I)%rwind - model_grid(I-1)%rwind
      ALLOCATE (model_grid(I)%grid_comp(n_elements))
      DO J = 1, n_elements      
         numbions = elements(J)%nions
@@ -159,7 +159,7 @@
      END DO
    END DO
   CLOSE(11)
-  IF(temp_factor /= 1.0) write(*,*) 'Warning, temperature structure is divided &
+  IF(temp_factor /= 1.0) write(99,*) 'Warning, temperature structure is divided &
    by a temperature factor = ', temp_factor
   R_star = model_grid(1)%rwind
   R_inf  = model_grid(n_modelgrid)%rwind
@@ -173,7 +173,7 @@
   ! calculating virtual particles from the selected input model
   !CALL virtual_particles(1)
  CASE DEFAULT
-  print*, 'the choice of the variable inputModel = ', inputModel, 'is not known...'
+  write(*,*) 'the choice of the variable inputModel = ', inputModel, 'is not known...'
   STOP 'ENDING PROGRAM NOW...'
  END SELECT
   END SUBROUTINE read_1D_model

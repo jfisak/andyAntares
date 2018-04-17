@@ -42,40 +42,40 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
   n_elements = n_elements + 1
  END DO
  ! Allocate the memory to the elements(n_elements)
- print*, 'number of elements: ', n_elements
+ write(99,*) 'number of elements: ', n_elements
  ALLOCATE (elements(n_elements)) 
- print*, 'dimension of elements = ', SIZE(elements)
+ write(99,*) 'dimension of elements = ', SIZE(elements)
  REWIND(7)
  ! Loop over all rows involved i.e. read all other lines in the compose_adata.dat
  ! and assine these values to the elements(I)%... and elements(I)%ions(J)%...
   I=1
-  write(*,*) 'reading chemical composition'
+  write(99,*) 'reading chemical composition'
  DO 
   READ(7,'(A)',iostat=ios) line
   IF (ios /= 0) EXIT
    IF ( TRIM(line) == '**levels**' ) THEN
-      !print*, 'read_composition: we have found the string **levels**...'
+      !write(99,*) 'read_composition: we have found the string **levels**...'
       EXIT
    END IF
    IF ( line(1:1) == '*') CYCLE
    READ(line,*) Z, abundance, lowerion, upperion, mass
-   PRINT*, Z, abundance, lowerion, upperion, mass
+   write(99,*) Z, abundance, lowerion, upperion, mass
    elements(I)%atom_number = Z
    elements(I)%atom_mass = mass * mp_g
    ! Number of ions 
    nions =  upperion - lowerion + 1
-   !print*, 'Z = ', Z, ' nions = ', nions
+   !write(99,*) 'Z = ', Z, ' nions = ', nions
    elements(I)%nions = nions
    elements(I)%abundance = abundance
    tot_abundance = tot_abundance + abundance
    ! Assine lowerion to the current ion which we will use to caunt number of ions
    ! This is important because we can play only with 3 and 4 ion.stage of some element
    current_ion = lowerion
-   !print*, 'current ion =', current_ion
-   !print*, 'upperion = ', upperion, 'lowerion = ', lowerion, 'upperion - lowerion + 1', nions
+   !write(99,*) 'current ion =', current_ion
+   !write(99,*) 'upperion = ', upperion, 'lowerion = ', lowerion, 'upperion - lowerion + 1', nions
    ! Allocate the memory to the elements(I)%ions(nions)
    ALLOCATE (elements(I)%ions(nions))
-   !if(ALLOCATED(elements(I)%ions)) print*, 'allocated: elements(', I, ')%ions...', nions
+   !if(ALLOCATED(elements(I)%ions)) write(99,*) 'allocated: elements(', I, ')%ions...', nions
    ! Loop over all ions of given chem. element
    DO J = lowerion, upperion
       elements(I)%ions(J)%ion_stage = current_ion
@@ -88,13 +88,13 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
   elements(I)%abundance = elements(I)%abundance / tot_abundance
  END DO
  ! now reading atomic levels
- write(*,*) 'reading atomic levels'
+ write(99,*) 'reading atomic levels'
  DO 
     READ(7,'(A)',iostat=ios) line
-    ! print*, line
+    ! write(99,*) line
   IF (ios /= 0) EXIT
   IF ( TRIM(line) == '**transitions**' ) THEN
-      !print*, 'we have found **transitions**...'
+      !write(99,*) 'we have found **transitions**...'
       EXIT
   END IF
   IF ( INDEX(line, '*') /= 0) CYCLE
@@ -105,20 +105,20 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
  END DO
 ! now reading atomic transitions 
 ! ! now we can read informations if the files
- write(*,*) 'reading atomic transitions'
+ write(99,*) 'reading atomic transitions'
  DO 
   READ(7,'(A)',iostat=ios) line
   IF (ios /= 0) EXIT
   IF ( INDEX(line, '*') /= 0) CYCLE
   READ(line,*) atom_number, lowerion, upperion, transition_type, filename, &
         phcs_type, photn, photfile
-  !print*, 'calling subroutine read_transitions...'
+  !write(99,*) 'calling subroutine read_transitions...'
   CALL find_element_index(atom_number, element_index)
   CALL read_transitions(element_index, lowerion, upperion, transition_type, filename)
   IF(photn == 0) THEN
-   print*, 'no valid data for potoionization cross sections'
+   write(99,*) 'no valid data for potoionization cross sections'
   ELSE
-   print*, 'calling subroutine read_photcs... for element index = ', element_index
+   write(99,*) 'calling subroutine read_photcs... for element index = ', element_index
    CALL read_photcs(phcs_type, element_index, photn, photfile)
   END IF
  END DO
@@ -128,11 +128,11 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
 !  END DO
 ! CLOSE(20)
  ! sorting the linelist ray 
- write(*,*) 'read_composition: dim of linelist = ', SIZE(linelist)
+ write(99,*) 'read_composition: dim of linelist = ', SIZE(linelist)
  ! STOP 'read_composition, testing'
- write(*,*) 'sorting the linelist'
+ write(99,*) 'sorting the linelist'
  CALL sorting_new(ntransitions, linelist)
-  !print*, 'ntransitions = ', ntransitions
+  !write(99,*) 'ntransitions = ', ntransitions
  !!! Only for testing
 ! PRINT*, 'testing'
 ! DO I = 1, n_elements
@@ -149,7 +149,7 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
 !   n_levels = SIZE(elements(I)%ions(J)%levels)
 !   DO K = 1, n_levels
 !    n_points = SIZE(elements(I)%ions(J)%levels(K)%photcros)
-!    print*, 'element = ', I, ' ion = ', J, ' level = ', K, ' n_points = ', n_points
+!    write(99,*) 'element = ', I, ' ion = ', J, ' level = ', K, ' n_points = ', n_points
 !   END DO
 !  END DO
 ! END DO

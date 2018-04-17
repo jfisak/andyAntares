@@ -53,13 +53,13 @@ OPEN(8,status='old',FILE=filename)
    ! firstly we read the whole line
    READ(8,'(A)',IOSTAT=reading_levels) line
    IF (ios /= 0) THEN
-    print*, 'the subroutine read_atomic data:'
+    write(99,*) 'the subroutine read_atomic data:'
     STOP 'ERROR: NO VALID ATOMIC DATA...'
    END IF
    IF(line(1:1) == '*') CYCLE
    ! if everything is OK, we will read from the variable line variables
    READ(line,*) current_element, current_ion, n_levels, i_pot
-   print*, 'current element: ', current_element, 'current_ion: ', current_ion, &
+   write(99,*) 'current element: ', current_element, 'current_ion: ', current_ion, &
         'number of levels: ', n_levels, 'i_pot: ', i_pot
    ! do we read the right file?
    IF((current_element /= element).OR. (current_ion < lowerion) .OR. (current_ion > upperion)) STOP 'WRONG ATOMIC DATA...'
@@ -73,12 +73,12 @@ OPEN(8,status='old',FILE=filename)
     READ(8,*,IOSTAT=reading_levels) l_numb, l_energy, s_weight, junk
     ! did we read anything?
     IF(reading_levels /= 0) STOP 'WRONG NUMBER OF LEVELS IN THE FILE...'
-    print*, 'from the level file: ', l_numb, l_energy, s_weight, junk
+    write(99,*) 'from the level file: ', l_numb, l_energy, s_weight, junk
     ! increase the level energy l_e (multiply with e_v) by ionoffset i. e.
     ! for the ion. potential of the ground level
     elements(current_element)%ions(current_ion)%levels(J)%exci_energy = l_energy * e_v + ionoffset
     elements(current_element)%ions(current_ion)%levels(J)%stat_waight = s_weight
-    print*, 'exci_energy = ', elements(current_element)%ions(current_ion)%levels(J)%exci_energy/e_v
+    write(99,*) 'exci_energy = ', elements(current_element)%ions(current_ion)%levels(J)%exci_energy/e_v
    END DO
     ! we can increase number of read ions :-)
     ions = ions + 1
@@ -98,7 +98,7 @@ OPEN(8,status='old',FILE=filename)
 ! I = 0
 ! DO 
 !  READ(8,'(A)') line
-!  !print*, line
+!  !write(99,*) line
 !  IF(line(1:1) == '*') CYCLE
 !  READ(line,*) indexi, i_pot
 !  I = I + 1
@@ -117,19 +117,19 @@ OPEN(8,status='old',FILE=filename)
  DO
   READ(8,'(A)', iostat = reading_levels) line
   IF(reading_levels /= 0) EXIT
-  !print*, line
+  !write(99,*) line
   IF(line(1:1) .EQ. '*') CYCLE
   READ(line,*) junk, junk, cur_ion, junk, junk, junk, junk, junk
   ! calculation of index of the given ion of the array nlevels(:)
   act_index = cur_ion - lowerion + 2
   nlevels(act_index) = nlevels(act_index) + 1
  END DO
- !print*, 'number of levels: ', nlevels
+ !write(99,*) 'number of levels: ', nlevels
  DO I = 1, nions
   ! ionindex = I + lowerion - 1
   indexi = at_index - I - lowerion + 3
   n_levels = nlevels(I)
-  ! print*, 'I = ', I, 'lowerion = ', lowerion, &
+  ! write(99,*) 'I = ', I, 'lowerion = ', lowerion, &
   !  ' el_index = ', el_index, ' indexi = ', indexi
   ALLOCATE(elements(el_index)%ions(indexi)%levels(n_levels))
  END DO
@@ -150,7 +150,7 @@ OPEN(8,status='old',FILE=filename)
   indexi = at_index - current_ion + 2
   act_index = current_ion - lowerion + 1
   act_nlevels = nlevels(act_index)
-  !print*, 'n_levels = ', act_nlevels
+  !write(99,*) 'n_levels = ', act_nlevels
    ! we have to calculate ionoffset
 !   ionoffset = 0
 !   IF(current_ion > 1) THEN
@@ -165,13 +165,13 @@ OPEN(8,status='old',FILE=filename)
   J = 0
   DO  ! loop over atomic levels for the given ion
    READ(8,'(A)', IOSTAT = reading_levels) line
-   ! print*, 'reading_levels: ', line
+   ! write(99,*) 'reading_levels: ', line
    IF(reading_levels /= 0) EXIT
    IF(line(1:1) .EQ. '*') CYCLE
    READ(line,*) kindex, junk, junk, junk, l_index, iconf, l_energy, s_weight
    J = J + 1
    elements(el_index)%ions(indexi)%levels(J)%exci_energy = l_energy * rydberg * e_v
-   ! write(*,*) 'read_levels: kindex = ', kindex, ' element = ', el_index, 'ion = ', indexi, &
+   ! write(99,*) 'read_levels: kindex = ', kindex, ' element = ', el_index, 'ion = ', indexi, &
    !  ' J = ', J, ' exci_energy = ', &
    !  elements(el_index)%ions(indexi)%levels(J)%exci_energy / e_v, ' l_energy = ', l_energy
    elements(el_index)%ions(indexi)%levels(J)%stat_waight = s_weight
@@ -189,7 +189,7 @@ OPEN(8,status='old',FILE=filename)
    elements(el_index)%ions(indexi)%levels(act_lev)%exci_energy = &
     elements(el_index)%ions(indexi)%levels(act_lev)%exci_energy + &
     elements(el_index)%ions(indexi)%ion_potential
-    ! write(*,*) 'read_levels: el = ', el_index, ' ion = ', indexi, &
+    ! write(99,*) 'read_levels: el = ', el_index, ' ion = ', indexi, &
     !  ' J = ', J, ' act_lev = ', act_lev, ' excie = ', &
     !  elements(el_index)%ions(indexi)%levels(act_lev)%exci_energy
   END DO
@@ -206,7 +206,7 @@ OPEN(8,status='old',FILE=filename)
    cur_excien = elements(el_index)%ions(I)%levels(cur_level)%exci_energy
    elements(el_index)%ions(I)%levels(cur_level)%exci_energy = &
     ionoffset + elements(el_index)%ions(I)%levels(cur_level)%exci_energy + cur_excien
-   ! write(*,*) 'read_levels: el_index = ', el_index, 'cur_ion = ', I, &
+   ! write(99,*) 'read_levels: el_index = ', el_index, 'cur_ion = ', I, &
    !  ' cur_level = ', cur_level, 'ionoffset = ', ionoffset / e_v, 'eenergy = ', &
    !  elements(el_index)%ions(I)%levels(cur_level)%exci_energy / e_v
   END DO
@@ -219,8 +219,8 @@ OPEN(8,status='old',FILE=filename)
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  CASE DEFAULT
-  print*, 'choice has not been found'
-  print*, 'reading only hydrogen data inluded in the code...'
+  write(99,*) 'choice has not been found'
+  write(99,*) 'reading only hydrogen data inluded in the code...'
   STOP 'with no valid atomic data...'
  END SELECT
 CLOSE(8)

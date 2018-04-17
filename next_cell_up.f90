@@ -41,7 +41,6 @@ SELECT CASE(dyngrid)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CASE(1)
 !print*, 'next_cell_up: act_cell = ', act_cell, ' cross_pos = ', cross_pos, 'cross = ', cross
-!OPEN(UNIT=99,FILE='cells_up.dat')
 DO
  corner = dyn_cell(act_cell)%corner
  width = dyn_cell(act_cell)%width
@@ -51,7 +50,6 @@ DO
   next_cell = act_cell
   EXIT
  ELSE IF(upper_cell > 0) THEN
-!  WRITE(99,*) cross_pos, dyn_cell(act_cell)%corner, dyn_cell(act_cell)%width
   ! we have to find which cell in the higher level corresponds to the cross point
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! cross in x direction
@@ -210,7 +208,6 @@ CASE(2)
         sub_ny * sub_nz * (subind_x - 1) + &
         sub_nz * (subind_y - 1) + subind_z - 1
 ! print*, 'next_cell_up: next_cell = ', next_cell
-!CLOSE(99)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! default case

@@ -47,27 +47,27 @@ actirrates = rrates()
       e_dist = cell_dist + 1.D10
   ELSE IF(get_package_model_index(pack_index) .EQ. n_modelgrid + 2) THEN
       e_dist = 1.D50
-      !print*, 'package: ', pack_index, ' is in empty space...'
+      !write(99,*) 'package: ', pack_index, ' is in empty space...'
   ELSE
       CALL event_dist(pack_index, cell_dist, e_dist, event, actirrates)
   END IF
 
-  !print*, 'e_dist = ', e_dist, ' cell_dist = ', cell_dist
+  !write(99,*) 'e_dist = ', e_dist, ' cell_dist = ', cell_dist
   IF (e_dist .LT. cell_dist) THEN
-     ! print*, 'photon interacts'   
+     ! write(99,*) 'photon interacts'   
      ! Move photon package from the current position for some distance
-     ! print*, pack_index, freq_line, package(pack_index)%freq_cmf, package(pack_index)%freq_rf
-     !print*, 'before moving package #', pack_index
+     ! write(99,*) pack_index, freq_line, package(pack_index)%freq_cmf, package(pack_index)%freq_rf
+     !write(99,*) 'before moving package #', pack_index
      CALL move_package(pack_index, e_dist)
      CALL update_estimators(pack_index, e_dist)
-     ! print*, pack_index, freq_line, package(pack_index)%freq_cmf, package(pack_index)%freq_rf
+     ! write(99,*) pack_index, freq_line, package(pack_index)%freq_cmf, package(pack_index)%freq_rf
      CALL do_rpackage_event(pack_index, event, actirrates)
      IF (debug .EQ. 1) THEN 
-        print*, 'do event', opa_cell * rho_cell * cell_dist
+        write(99,*) 'do event', opa_cell * rho_cell * cell_dist
      END IF
   ELSE     
      ! Move package from the curent position for the cell_dist
-     !print*, 'before moving package #', pack_index
+     !write(99,*) 'before moving package #', pack_index
      CALL move_package(pack_index, cell_dist)     
      CALL update_estimators(pack_index, cell_dist)
      ! If package escaped the calculation volume (next_cell=-99) then
@@ -75,7 +75,7 @@ actirrates = rrates()
      ! type_escaped, else the cell number is updated
      CALL change_cell(pack_index, next_cell)
      IF (debug .EQ. 1) THEN 
-        print*, 'propagate ', opa_cell * rho_cell * cell_dist
+        write(99,*) 'propagate ', opa_cell * rho_cell * cell_dist
      END IF
   END IF
   

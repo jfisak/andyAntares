@@ -46,8 +46,8 @@ CASE(1)
  ! Ntheta =  angleParam
  ! Nphi = 2* angleParam
  !Npart = n_modelgrid * (Ntheta - 2) * Nphi + 2 * n_modelgrid
- print*, 'number of virtual particles: ', Nvirtpart
- print*, 'computing positions of virtual particles...'
+ write(99,*) 'number of virtual particles: ', Nvirtpart
+ write(99,*) 'computing positions of virtual particles...'
  ALLOCATE (virtual_particle(Nvirtpart))
  ! computing number of points on a shell from a density
  ! firstly we compute a total number of density
@@ -61,7 +61,7 @@ CASE(1)
 ! DO I = 1, n_modelgrid
 !  actbound = bound - log10(model_grid(I)%rho) / rhotot
 !  bounds(I) = actbound
-!  !print*, actbound, model_grid(I)%rho
+!  !write(99,*) actbound, model_grid(I)%rho
 !  bound = actbound
 !  nOfPoints(I) = 0
 ! END DO
@@ -108,8 +108,8 @@ CASE(1)
 CASE(2)
  delta = 1.D-1
  ALLOCATE (virtual_particle(Nvirtpart))
- print*, 'number of particles: ', Nvirtpart
- print*, 'computing positions of virtual particles...'
+ write(99,*) 'number of particles: ', Nvirtpart
+ write(99,*) 'computing positions of virtual particles...'
  rhomax = MAXVAL(model_grid(:)%rho)
  NP = 0
  ! computing number of points on a shell from a density

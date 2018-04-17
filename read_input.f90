@@ -121,25 +121,25 @@ SUBROUTINE read_input(n_pack, iseed)
 99 CONTINUE
   CLOSE (1)
 
-  WRITE (*,'(A,I10)')   'npackages        = ', n_pack
-  WRITE (*,'(A,I10)')   'n_nubin          = ', n_nubin
-  WRITE (*,'(A,I10)')   'nx_cell          = ', nx_cell
-  WRITE (*,'(A,I10)')   'ny_cell          = ', ny_cell  
-  WRITE (*,'(A,I10)')   'nz_cell          = ', nz_cell
-  WRITE (*,'(A,I10)')   'model_type       = ', model_type
-  WRITE (*,'(A,F10.3)') 'grid_xmax (Rsun) = ', xmax
-  WRITE (*,'(A,F10.3)') 'grid_ymax (Rsun) = ', ymax
-  WRITE (*,'(A,F10.3)') 'grid_zmax (Rsun) = ', zmax
-  WRITE (*,'(A,I10)') 'inputflux = ', inputflux
-  WRITE (*,'(A,I10)') 'inputmodel = ', inputmodel
-  WRITE (*,'(A,I10)') 'dyngrid = ', dyngrid
-  WRITE (*,'(A,I10)') 'nlte = ', nlte
+  WRITE (99,'(A,I10)')   'npackages        = ', n_pack
+  WRITE (99,'(A,I10)')   'n_nubin          = ', n_nubin
+  WRITE (99,'(A,I10)')   'nx_cell          = ', nx_cell
+  WRITE (99,'(A,I10)')   'ny_cell          = ', ny_cell  
+  WRITE (99,'(A,I10)')   'nz_cell          = ', nz_cell
+  WRITE (99,'(A,I10)')   'model_type       = ', model_type
+  WRITE (99,'(A,F10.3)') 'grid_xmax (Rsun) = ', xmax
+  WRITE (99,'(A,F10.3)') 'grid_ymax (Rsun) = ', ymax
+  WRITE (99,'(A,F10.3)') 'grid_zmax (Rsun) = ', zmax
+  WRITE (99,'(A,I10)') 'inputflux = ', inputflux
+  WRITE (99,'(A,I10)') 'inputmodel = ', inputmodel
+  WRITE (99,'(A,I10)') 'dyngrid = ', dyngrid
+  WRITE (99,'(A,I10)') 'nlte = ', nlte
   IF (iseed .LE. 0) THEN 
-     WRITE (*,'(A)') 'Random-seed value is random '
+     WRITE (99,'(A)') 'Random-seed value is random '
   ELSE
-     WRITE (*,'(A,I6)') 'random_seed = ', iseed
+     WRITE (99,'(A,I6)') 'random_seed = ', iseed
   ENDIF
-  WRITE (*,'(3/)')
+  WRITE (99,'(3/)')
 
   ! Convert quantities to cgs 
 !  xmax = xmax * r_sun
@@ -147,44 +147,44 @@ SUBROUTINE read_input(n_pack, iseed)
 !  zmax = zmax * r_sun
 !!
 !
-!  WRITE (*,'(A,I10)')   'npackages    = ', n_pack
-!  WRITE (*,'(A,I10)')   'n_nubin      = ', n_nubin
-!  WRITE (*,'(A,I10)')   'nx_cell      = ', nx_cell
-!  WRITE (*,'(A,I10)')   'ny_cell      = ', ny_cell  
-!  WRITE (*,'(A,I10)')   'nz_cell      = ', nz_cell
-!  WRITE (*,'(A,I10)')   'model_type   = ', model_type
-!  WRITE (*,'(A,G10.3)') 'grid_xmax    = ', xmax
-!  WRITE (*,'(A,G10.3)') 'grid_ymax    = ', ymax
-!  WRITE (*,'(A,G10.3)') 'grid_zmax    = ', zmax
+!  WRITE (99,'(A,I10)')   'npackages    = ', n_pack
+!  WRITE (99,'(A,I10)')   'n_nubin      = ', n_nubin
+!  WRITE (99,'(A,I10)')   'nx_cell      = ', nx_cell
+!  WRITE (99,'(A,I10)')   'ny_cell      = ', ny_cell  
+!  WRITE (99,'(A,I10)')   'nz_cell      = ', nz_cell
+!  WRITE (99,'(A,I10)')   'model_type   = ', model_type
+!  WRITE (99,'(A,G10.3)') 'grid_xmax    = ', xmax
+!  WRITE (99,'(A,G10.3)') 'grid_ymax    = ', ymax
+!  WRITE (99,'(A,G10.3)') 'grid_zmax    = ', zmax
 !  IF (iseed .le. 0) then 
-!     WRITE (*,'(A)') 'Random-seed value is random '
+!     WRITE (99,'(A)') 'Random-seed value is random '
 !  ELSE
-!     WRITE (*,'(A,I6)') 'random_seed = ', iseed
+!     WRITE (99,'(A,I6)') 'random_seed = ', iseed
 !  ENDIF
-!  WRITE (*,'(3/)')
+!  WRITE (99,'(3/)')
 
 RETURN
 
 !! Error branches
-90 WRITE (*,*) '*** Not enough parameters'
-   WRITE (*,*) '*** The error occured in the following line:'
-   WRITE (*,*) LINE(:IDX(LINE))
+90 WRITE (99,*) '*** Not enough parameters'
+   WRITE (99,*) '*** The error occured in the following line:'
+   WRITE (99,*) LINE(:IDX(LINE))
    GOTO 100
 
-91 WRITE (*,*) '*** Error when decoding floating point number'
-   WRITE (*,*) '*** The error occured in the following line:'
-   WRITE (*,*) LINE(:IDX(LINE))
+91 WRITE (99,*) '*** Error when decoding floating point number'
+   WRITE (99,*) '*** The error occured in the following line:'
+   WRITE (99,*) LINE(:IDX(LINE))
    GOTO 100
 
-92 WRITE (*,*) '*** Error: vel_dopp not given in input file'
+92 WRITE (99,*) '*** Error: vel_dopp not given in input file'
    GOTO 100
 
-93 WRITE (*,*) '*** Error: L0 not given in input file'
+93 WRITE (99,*) '*** Error: L0 not given in input file'
    GOTO 100
 
-94 WRITE (*,*) '*** Error when decoding integer number'
-   WRITE (*,*) '*** The error occured in the following line:'
-   WRITE (*,*) LINE(:IDX(LINE))
+94 WRITE (99,*) '*** Error when decoding integer number'
+   WRITE (99,*) '*** The error occured in the following line:'
+   WRITE (99,*) LINE(:IDX(LINE))
    GOTO 100
 
 100 STOP '**** FATAL ERROR in READ_INPUT'

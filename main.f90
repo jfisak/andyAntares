@@ -21,7 +21,6 @@ SUBROUTINE main
 ! #if mpi==1
  INTEGER                            :: numtasks
  INTEGER                            :: rc
- CHARACTER(20)                      :: outputfile
 ! #endif
 !  DOUBLE PRECISION, PARAMETER       :: upper_opa=2.D0/5.D0, lower_opa=0.01D0         ! Opacity for photons sent from the photosphere R_star = 10
 !  DOUBLE PRECISION, PARAMETER       :: upper_opa=2.D0/9.D0, lower_opa=0.1D0/18.D0    ! Opacity for photons sent from the photosphere R_star = 2
@@ -43,19 +42,10 @@ my_rank = 0
  CALL MPI_INIT(ierr)
  CALL MPI_COMM_RANK(MPI_COMM_WORLD, my_rank, ierr)
  CALL MPI_COMM_SIZE(MPI_COMM_WORLD, n_tasks, ierr)
- ! write(*,*) 'mpi initialization', ' my_rank = ', my_rank, &
- !  ' n_tasks = ', n_tasks
- ! write(*,*) 'main: my_rank = ', my_rank
- ! write(*,*) outputfile
- ! write(chnum_threads, "(A)"), my_rank
- ! outputfile = '/packets.'//chnum_threads
- ! write(*,*) 'main: outputfile = ', outputfile
- ! write(*,*) 'main: outputfile = ', outputfile
 #endif
-write(outputfile,"(A6,I3.3)") "output", my_rank
-OPEN(99, FILE=outputfile) 
-write(*,*) 'mpi initialization: my_rank = ', my_rank, &
- ' n_tasks = ', n_tasks
+ write(99,*) 'mpi initialization: my_rank = ', my_rank, &
+  ' n_tasks = ', n_tasks
+ CALL save_output(0)
 ! CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
 ! STOP
  WRITE(99,'(2A)') '>>> Program started: Program Version from ',  &
@@ -86,6 +76,7 @@ write(*,*) 'mpi initialization: my_rank = ', my_rank, &
  ! sequences. Seed is updated by ran2 once for each random number
  ! generated.
  idum = -iseed
+ write(90,*) 'main: iseed = ', iseed, ' idum = ', idum
 
 ! Only for debuging; if set the values > 0 then variou print out statement 
 ! will give information on a packet's history (depending on the actual value of debug)
@@ -127,26 +118,26 @@ iteration = 0
 DO iteration = 1,1
  ! definition of counters
  ! iteration = iteration + 1
- IF (iteration .GE. 10) print*, 'No convergency'
+ IF (iteration .GE. 10) write(99,*) 'No convergency'
  CALL update_grid(iteration)
  IF(iteration == 100) STOP 'too many iteration in the subroutine main'
- write(*,*) 'Update grid finished' 
+ write(99,*) 'Update grid finished' 
 ! WRITE(20,*) '# ITERATION: ', iteration
  DO I = 1, n_modelgrid
 ! WRITE(20,*) I, model_grid(I)%T
  END DO
-!   print*, 'model_grid(:)%T = ', model_grid(:)%T
+!   write(99,*) 'model_grid(:)%T = ', model_grid(:)%T
 !   IF ( MAXVAL(abs(model_grid(:)%T - current_temp) / model_grid(:)%T) .LT. 0.05D-1) EXIT
   current_temp = model_grid(:)%T
 !  PRINT*, 'iteration:', iteration, current_temp
 
 ! Loop over the numer of different opacity (nopa)
 ! DO I=1,nopa
-! print*, 'tau loop',  I
+! write(99,*) 'tau loop',  I
 ! Opacity for tau calculation
 ! opa_cell = lower_opa  +  (I-1)*delta_opa
-! print*,   opa_cell * (xmax-R_star)
-! print*, R_star
+! write(99,*)   opa_cell * (xmax-R_star)
+! write(99,*) R_star
 ! stop
 ! n_pack will compute in several loops to save some memory
  nphit = INT(n_pack / max_packs)
@@ -155,25 +146,25 @@ DO iteration = 1,1
 !  DO J = 1, nphit
 ! Initialisation of photon packages from the photosphere
  CALL init_photsphere(n_pack) 
- write(*,*) 'photons initialised'
+ write(99,*) 'photons initialised'
 
 ! Initalisation of photon packages from point source
 ! CALL init_photonpack(n_pack)
 
 ! Propagation of the photon in 3D grid
 ! CALL propagation(n_pack, opa_cell, lower_opa, delta_opa)
- write(*,*) 'update packages'
+ write(99,*) 'update packages'
  CALL update_packages(n_pack)
- write(*,*) 'Number of destoyed packages =', destroyed_pack
+ write(99,*) 'Number of destoyed packages =', destroyed_pack
 ! end do 03
 !  END DO
 END DO 
 ! CLOSE(20)
 
  
- print*, 'do spectrum'
+ write(99,*) 'do spectrum'
  ! CALL do_spectrum(n_pack)
- print*, 'do finalize'
+ write(99,*) 'do finalize'
  ! it will save some important output
  CALL save_output(1)
  CALL save_output(2)
@@ -181,9 +172,11 @@ END DO
 ! CALL save_output(3)
  CALL save_output(4)
 
-#ifdef MPI_ON
+#if mpi==1
  call MPI_FINALIZE(ierr)
 #endif
 CLOSE(2)
+CLOSE(99)
+! CALL save_output(0)
 
 END SUBROUTINE main
