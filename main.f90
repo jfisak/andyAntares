@@ -124,24 +124,7 @@ DO iteration = 1,1
  IF(iteration == 100) STOP 'too many iteration in the subroutine main'
  write(99,*) 'Update grid finished' 
 ! WRITE(20,*) '# ITERATION: ', iteration
- DO I = 1, n_modelgrid
-! WRITE(20,*) I, model_grid(I)%T
- END DO
-!   write(99,*) 'model_grid(:)%T = ', model_grid(:)%T
-!   IF ( MAXVAL(abs(model_grid(:)%T - current_temp) / model_grid(:)%T) .LT. 0.05D-1) EXIT
   current_temp = model_grid(:)%T
-!  PRINT*, 'iteration:', iteration, current_temp
-
-! Loop over the numer of different opacity (nopa)
-! DO I=1,nopa
-! write(99,*) 'tau loop',  I
-! Opacity for tau calculation
-! opa_cell = lower_opa  +  (I-1)*delta_opa
-! write(99,*)   opa_cell * (xmax-R_star)
-! write(99,*) R_star
-! stop
-! n_pack will compute in several loops to save some memory
- nphit = INT(n_pack / max_packs)
 ! do 03
  nphit = 1
 !  DO J = 1, nphit
@@ -157,9 +140,10 @@ DO iteration = 1,1
  write(99,*) 'update packages'
  CALL update_packages(n_pack)
  write(99,*) 'Number of destoyed packages =', destroyed_pack
-! end do 03
-!  END DO
-END DO 
+#if mpi==1
+ CALL mpi_distribute_estimators()
+#endif
+END DO ! iteration (now of temperature structure)
 ! CLOSE(20)
 
  
