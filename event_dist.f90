@@ -109,7 +109,7 @@ DO WHILE (do_loop .EQ. 1)
  DO I = 1, n_next_lines
   tau_line = tau_line + Lline(I)
  END DO
- write(*,*) 'event_dist: tau_line = ', tau_line
+ ! write(*,*) 'event_dist: tau_line = ', tau_line
 !  DO I = 1, n_next_lines
 !   indexe = linelist(nextLine + I - 1)%indexe
 !   indexi = linelist(nextLine + I - 1)%indexi

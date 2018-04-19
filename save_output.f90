@@ -138,25 +138,25 @@ CASE(4)
   END DO
  CLOSE(14)
  fileHeliumFrac = trim(outputfolder)//'/heliumFrac.dat'
- OPEN(15, FILE=fileHeliumFrac)
-  DO I = 1, n_modelgrid
-  IF(model_grid(I)%assoc_cells == 0) CYCLE
-  indexe = 2
-   totElPop1 = model_grid(I)%rho * model_grid(I)%grid_comp(indexe)%abund / &
-    elements(indexe)%atom_mass
-   N_jk1 = model_grid(I)%grid_comp(indexe)%grid_ion(1)%tot_pop
-   frac1 = N_jk1 / totElPop1
-   totElPop2 = model_grid(I)%rho * model_grid(I)%grid_comp(indexe)%abund / &
-    elements(indexe)%atom_mass
-   N_jk2 = model_grid(I)%grid_comp(indexe)%grid_ion(2)%tot_pop
-   frac2 = N_jk2 / totElPop2
-   totElPop3 = model_grid(I)%rho * model_grid(I)%grid_comp(indexe)%abund / &
-    elements(indexe)%atom_mass
-   N_jk3 = model_grid(I)%grid_comp(indexe)%grid_ion(3)%tot_pop
-   frac3 = N_jk3 / totElPop3
-  write(15,*) model_grid(I)%rwind / R_inf, frac1, frac2, frac3
-  END DO
- CLOSE(15)
+ ! OPEN(15, FILE=fileHeliumFrac)
+ !  DO I = 1, n_modelgrid
+ !  IF(model_grid(I)%assoc_cells == 0) CYCLE
+ !  indexe = 2
+ !   totElPop1 = model_grid(I)%rho * model_grid(I)%grid_comp(indexe)%abund / &
+ !    elements(indexe)%atom_mass
+ !   N_jk1 = model_grid(I)%grid_comp(indexe)%grid_ion(1)%tot_pop
+ !   frac1 = N_jk1 / totElPop1
+ !   totElPop2 = model_grid(I)%rho * model_grid(I)%grid_comp(indexe)%abund / &
+ !    elements(indexe)%atom_mass
+ !   N_jk2 = model_grid(I)%grid_comp(indexe)%grid_ion(2)%tot_pop
+ !   frac2 = N_jk2 / totElPop2
+ !   totElPop3 = model_grid(I)%rho * model_grid(I)%grid_comp(indexe)%abund / &
+ !    elements(indexe)%atom_mass
+ !   N_jk3 = model_grid(I)%grid_comp(indexe)%grid_ion(3)%tot_pop
+ !   frac3 = N_jk3 / totElPop3
+ !  write(15,*) model_grid(I)%rwind / R_inf, frac1, frac2, frac3
+ !  END DO
+ ! CLOSE(15)
 CASE DEFAULT
  write(*,*) 'save_output: this case is not known'
 END SELECT

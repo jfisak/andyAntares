@@ -5,23 +5,23 @@ USE types
 IMPLICIT NONE
 
 
-    ! input variables
-    INTEGER                         :: pack_index, cell_numb
-    ! output variable
-    DOUBLE PRECISION                :: dist
-    ! variables for dynamic cells
-    DOUBLE PRECISION                :: t1, t2, t3, t4, t5, t6
-    DOUBLE PRECISION, DIMENSION(3)  :: corner, width
-    DOUBLE PRECISION, DIMENSION(3)  :: dir, pos
-    INTEGER                         :: forbidden
+ ! input variables
+ INTEGER                         :: pack_index, cell_numb
+ ! output variable
+ DOUBLE PRECISION                :: dist
+ ! variables for dynamic cells
+ DOUBLE PRECISION                :: t1, t2, t3, t4, t5, t6
+ DOUBLE PRECISION, DIMENSION(3)  :: corner, width
+ DOUBLE PRECISION, DIMENSION(3)  :: dir, pos
+ INTEGER                         :: forbidden
 
-  cell_numb = package(pack_index)%cell_numb
-  corner = dyn_cell(cell_numb)%corner
-  width = dyn_cell(cell_numb)%width
-  dir = package(pack_index)%dir
-  pos = package(pack_index)%pos
-  forbidden = package(pack_index)%next_cross
- ! we will calculate parameters t1,...,t6
+ cell_numb = package(pack_index)%cell_numb
+ corner = dyn_cell(cell_numb)%corner
+ width = dyn_cell(cell_numb)%width
+ dir = package(pack_index)%dir
+ pos = package(pack_index)%pos
+ forbidden = package(pack_index)%next_cross
+ ! we will calculate parameters t1, ..., t6
  IF(dir(1) /= 0) THEN
   t1 = (corner(1) - pos(1))/(dir(1))
   t4 = (corner(1) + width(1) - pos(1))/(dir(1))

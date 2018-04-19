@@ -46,6 +46,10 @@ SUBROUTINE init_photsphere(n_pack)
 !      STOP 'Subroutine init_photsphere: ERROR in cell_number'
 !     END IF
      CALL find_dyn_cell1(package(I)%pos,ind_cell_numb)
+     IF(ind_cell_numb > SIZE(dyn_cell)) THEN
+      write(*,*) 'init_photsphere: wrong cell number'
+      CALL abort()
+     END IF
      package(I)%cell_numb = ind_cell_numb
      ! IF(I == 1) write(*,*) 'init_photsphere: WRITING AN INITIAL PACKET POSITION AND CORRESPONDING CELL INTO THE FILE'
      ! write(16,*) dyn_cell(ind_cell_numb)%corner, dyn_cell(ind_cell_numb)%width, package(I)%pos

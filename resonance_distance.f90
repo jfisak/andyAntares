@@ -20,10 +20,10 @@ INTEGER                         :: my_rank, n_pack_d, dummypackage
 DOUBLE PRECISION                :: bfreq, halffreq, D
 INTEGER                         :: OMP_GET_THREAD_NUM
 DOUBLE PRECISION                :: ufreq, lfreq
-LOGICAL                         :: TESTING = .TRUE.
+LOGICAL                         :: TESTING = .FALSE.
 LOGICAL                         :: outOfCell
 
-my_rank = OMP_GET_THREAD_NUM()
+! dummypackage = SIZE(package)
 n_pack_d = SIZE(package)
 dummypackage = n_pack_d - n_dummy_packs + my_rank + 1
 package(dummypackage) = package(pack_index)

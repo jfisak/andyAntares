@@ -26,6 +26,9 @@ DO
   act_cell = dyn_cell(act_cell)%down_cell
  ELSE 
   next_cell = n_cell
+  IF(next_cell > SIZE(dyn_cell)) THEN
+   CALL abort()
+  END IF
   EXIT
  END IF
 END DO

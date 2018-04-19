@@ -32,6 +32,10 @@ IF(act_cell < 0) THEN
  next_cell = act_cell
  RETURN
 END IF
+IF(act_cell > SIZE(dyn_cell)) THEN
+ write(*,*) 'next_cell_up: act_cell = ', act_cell
+ CALL abort()
+END IF
 
 SELECT CASE(dyngrid)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
