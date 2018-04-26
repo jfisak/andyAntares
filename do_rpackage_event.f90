@@ -6,27 +6,28 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
 
  IMPLICIT NONE    
 
- INTEGER                           :: pack_index, event
- DOUBLE PRECISION                  :: dist, rand_numb, tau, tau_rand
- DOUBLE PRECISION, DIMENSION(3)    :: direction
- ! loop variables
- INTEGER                               :: I
- DOUBLE PRECISION                      :: summ, rand
- TYPE(rrates)                          :: actirrates
- REAL(8)                               :: random
- DOUBLE PRECISION                      :: freq, freqt
- INTEGER                               :: indexe, indexi, indexl
- INTEGER                               :: actIndex
- INTEGER                               :: n_ions, n_levels
- INTEGER                               :: nline
- ! total rates for the given processes
- DOUBLE PRECISION                      :: Zthomson, Zphotion, Zff
- DOUBLE PRECISION                      :: ZcontTot
- LOGICAL                               :: procout = .TRUE.
- DOUBLE PRECISION                      :: D
+  INTEGER                           :: pack_index, event
+  DOUBLE PRECISION                  :: dist, rand_numb, tau, tau_rand
+  DOUBLE PRECISION, DIMENSION(3)    :: direction
+  ! loop variables
+  INTEGER                               :: I
+  DOUBLE PRECISION                      :: summ, rand
+  TYPE(rrates)                          :: actirrates
+  DOUBLE PRECISION                      :: freq, freqt
+  INTEGER                               :: indexe, indexi, indexl
+  INTEGER                               :: actIndex
+  INTEGER                               :: n_ions, n_levels
+  INTEGER                               :: nline
+ DOUBLE PRECISION                       :: ran2
+  ! total rates for the given processes
+  DOUBLE PRECISION                      :: Zthomson, Zphotion, Zff
+  DOUBLE PRECISION                      :: ZcontTot
+  LOGICAL                               :: procout = .FALSE.
+  DOUBLE PRECISION                      :: D
 
 
  package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
+ ! write(*,*) 'do_rpackage_event: chosing an interaction'
 
  IF (event .EQ. rpkt_eventtype_lineinteraction) THEN
     ! In this case the package interacts with a line. In the general
@@ -66,7 +67,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
     ! both the thermal kinetic and internal energy pools).
   package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
   ! total number of continuum rates
-  ! if(procout) write(*,*) 'do_rpackage_event: photon ', pack_index, ' continuum interaction...'
+  if(procout) write(*,*) 'do_rpackage_event: photon ', pack_index, ' continuum interaction...'
   Zthomson = actirrates%Lcont(4,1)
   Zphotion = 0.D0
   DO I = 2, n_photcrossect + 1
@@ -81,7 +82,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
   ! END DO
   
   ! generating a random number
-  rand = DBLE(random()) * ZcontTot
+  rand = ran2(idum) * ZcontTot
   ! write(*,*) 'do_rpackage_event: rand = ', rand, ' ZcontTot = ', ZcontTot, &
   !  ' Zthomson = ', Zthomson, ' Zphotion = ', Zphotion, ' Zff = ', Zff
   !______________________________________________________________________
@@ -118,7 +119,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
      ! treshold frequency
      freqt = elements(indexe)%ions(indexi)%levels(indexl)%phfreq
      freq = package(pack_index)%freq_cmf
-     rand = DBLE(random())
+     rand = ran2(idum)
      IF(rand < freqt / freq) THEN
         if(procout) write(*,*) 'do_rpackage_event: package = ', pack_index, ' photoionization -> i packet'
       !$OMP ATOMIC
@@ -139,12 +140,12 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
     END IF
     summ = summ + actirrates%Lcont(4,I)
    END DO
- END IF
+  END IF
   !______________________________________________________________________
   !_____________________ FREE-FREE PROCESS ______________________________
   !______________________________________________________________________
   summ = summ + Zphotion
-  ! write(*,*) 'do_rpackage_event: summ + Zff= ', summ + Zff
+  ! write(*,*) 'do_rpackage_event: summ = ', summ, ' summ + Zff= ', summ + Zff
   IF(rand >= summ .AND. rand < summ + Zff) THEN
    package(pack_index)%typ = type_kpkt
    if(procout) write(*,*) 'do_rpackage_event: package = ', pack_index, ' free-free'

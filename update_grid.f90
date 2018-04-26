@@ -15,7 +15,7 @@ INTEGER, DIMENSION(1)   :: indexl0
 
   
 max_n_dcell = SIZE(dyn_cell)
- print*, 'updating grid'
+ write(99,*) 'updating grid'
 DO gridcell = 1, n_modelgrid
  !print*, 'update_grid: volume: model cell = ', gridcell, ' volume = ', volume
   IF (model_grid(gridcell)%assoc_cells .GT. 0) THEN

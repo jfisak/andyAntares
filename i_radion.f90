@@ -20,14 +20,12 @@ DOUBLE PRECISION                        :: actVal
 ! output variables
 DOUBLE PRECISION                        :: Zion, Zrecom, Zintrecom
 TYPE(irates)                           :: actirates
-INTEGER                                 :: OMP_GET_THREAD_NUM, my_rank
 ! linear interpolation
 INTEGER                                 :: act_index, temp_i
 DOUBLE PRECISION                        :: ali, bli, func1, func2
 DOUBLE PRECISION                        :: temp1, temp2, Tmax, Tmin
 INTEGER                                 :: Ntpoints
 
-my_rank = OMP_GET_THREAD_NUM()
 
 
 ! write(*,*) 'i_radion: indexe = ', indexe, ' indexi = ', indexi, ' leveli = ', leveli

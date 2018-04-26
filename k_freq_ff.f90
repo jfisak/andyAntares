@@ -7,14 +7,15 @@ INTEGER                         :: pack_index
 ! output
 DOUBLE PRECISION                :: ran_freq
 ! random number
-DOUBLE PRECISION                :: ran_z, random
+DOUBLE PRECISION                :: ran_z
+DOUBLE PRECISION                       :: ran2
 ! properties of model grid
 INTEGER                         :: cur_mgi
 INTEGER                         :: get_package_model_index
 DOUBLE PRECISION                :: e_dens, temp
 DOUBLE PRECISION, PARAMETER     :: ff_const = 3.6955e8
 ! generate a random number
-ran_z = random()
+ran_z = ran2(idum)
 ! calculate variables of free-free emission coefficient
 cur_mgi = get_package_model_index(pack_index)
 e_dens = model_grid(cur_mgi)%e_dens

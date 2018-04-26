@@ -31,6 +31,7 @@ DOUBLE PRECISION                :: Zionization, Zrecombination
 ! partition function for the given process
 DOUBLE PRECISION                :: Z0, Z1, Z2, Z3, Z4, Z5, Z6, Z7
 DOUBLE PRECISION                :: summ, stat_weight_u, stat_weight_l, exci_energy, exci_energy_l, exci_energy_u
+DOUBLE PRECISION                :: ran2
 ! populations
 DOUBLE PRECISION                :: act_pop, low_pop
 INTEGER                         :: get_package_model_index, current_mgi
@@ -41,8 +42,6 @@ DOUBLE PRECISION                :: taulu, betalu, Blu
 ! Doppler factor
 DOUBLE PRECISION                :: D
 TYPE(irates)                    :: actirates
-INTEGER                         :: OMP_GET_THREAD_NUM, my_rank
-REAL(8)                         :: random
 ! write down the processes
 LOGICAL                         :: procout = .FALSE.
 LOGICAL                         :: sstates = .FALSE.
@@ -50,8 +49,6 @@ LOGICAL                         :: sstates = .FALSE.
 ! INTEGER, PARAMETER              :: maxproc = 1000000
 ! INTEGER                         :: n_proc
 
-! n_proc = 0
-my_rank = OMP_GET_THREAD_NUM()
 
 last_line = package(pack_index)%last_line
 ! define the needed variables
@@ -62,7 +59,6 @@ last_ion = package(pack_index)%l_ion
 last_level = package(pack_index)%l_lev
 IF(package(pack_index)%last_line /= no_line) linelist(last_line)%n_exc = linelist(last_line)%n_exc + 1
  
-  
 current_mgi = get_package_model_index(pack_index)
 ! write(*,*) '*********************************************************************'
 ! write(*,*)  'do_ipackage: element_index = ', element_index, 'ion_index = ', last_ion, ' level_index = ', last_level
@@ -85,11 +81,16 @@ DO WHILE (active == 1)
  ! we have to find all possible downward upward transitions
  ! firstly we calculate number of these possible transitions
  ! number of transitions to a lower level
- nlns = SIZE(elements(element_index)%ions(ion_index)%levels(actual_state)%linetransitions)
- nluns = SIZE(elements(element_index)%ions(ion_index)%levels(actual_state)%lineuptransitions)
+ nlns = &
+  SIZE(elements(element_index)%ions(ion_index)%levels(actual_state)%linetransitions)
+ nluns = &
+  SIZE(elements(element_index)%ions(ion_index)%levels(actual_state)%lineuptransitions)
+ ! write(*,*) 'do_ipackage: nlns = ', nlns, ' nluns = ', nluns
  ALLOCATE(linetransitions(nlns), lineuptransitions(nluns))
- linetransitions = elements(element_index)%ions(ion_index)%levels(actual_state)%linetransitions
- lineuptransitions = elements(element_index)%ions(ion_index)%levels(actual_state)%lineuptransitions
+ linetransitions = &
+  elements(element_index)%ions(ion_index)%levels(actual_state)%linetransitions
+ lineuptransitions = &
+  elements(element_index)%ions(ion_index)%levels(actual_state)%lineuptransitions
  ! total rates of procedure
  ! 0.) internal downward jump within the current ion
  !ALLOCATE(actirates%Lma_int_dorad(nlns))
@@ -181,7 +182,7 @@ Zrecombination = Zphotrecom + Zcollrecom
 Ztotal = Zintdown + Zraddeexc + Zintup + Zcoll + &
     Zionization + Zrecombination + Zintrecombination
 ! a random number for computation, which process occurs
-rand = DBLE(random()) * Ztotal
+rand = ran2(idum) * Ztotal
  ! print*, 'do_ipackage: random number: ', rand, ' Ztotal = ', Ztotal
 ! these variables are only to the whole line won't be too long
 !write(*,*) 'do_ipackage: Zintup = ', Zintup
@@ -232,7 +233,7 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
  ! now we will calculate new frequency of the packet
  ! we will choose this frequency from the possible radiative transitions
  summ = 0.D0
- rand = DBLE(random()) * Zraddeexc
+ rand = ran2(idum) * Zraddeexc
  IF(procout) write(*,*) 'do_ipackage: radiative deexcitation...'
  ! looking for the given line
  DO line = 1, nlns

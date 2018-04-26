@@ -28,6 +28,8 @@ DOUBLE PRECISION                        :: frac1, N_jk1, totElPop1
 DOUBLE PRECISION                        :: frac2, N_jk2, totElPop2
 DOUBLE PRECISION                        :: frac3, N_jk3, totElPop3
 INTEGER                                 :: indexe, indexi
+CHARACTER(LEN=60)                       :: filePackets
+LOGICAL                                 :: itsopen
 
 ! creates a folder, where an output will be saved
 ! it reads a shell variable OUTPUTFO, if it does not
@@ -43,16 +45,32 @@ inquire( file=trim(outputfolder)//'/.', exist=dirExists )
 IF(.NOT. dirExists) THEN
  mkdirCMD = 'mkdir '//TRIM(outputfolder)
  CALL SYSTEM(mkdirCMD)
- write(*,*) 'save_output: creating a folder: ', outputfolder
+ ! write(99,*) 'save_output: creating a folder: ', outputfolder
 END IF
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! now will save important variables
 SELECT CASE(otype)
+
+CASE(0)
+ ! write(*,*) 'save_output: outpfol = ', trim(outputfolder), ' my_rank = ', my_rank
+ write(outputfile,"(A, A7, I3.3, A4)") trim(outputfolder), "/output", my_rank, '.dat'
+ write(*,*) 'save_output: outputfile = ', outputfile
+ ! inquire(unit=99, opened=itsopen)
+ ! write(*,*) 'save_output: itsopen = ', itsopen
+ ! IF(itsopen) THEN
+ !  CLOSE(99)
+ ! ELSE
+  OPEN(99, FILE=outputfile) 
+  write(*,*) 'save_output: opening the file ', outputfile
+ ! END IF
 CASE(1)
  ! line rates
- lineOutput = trim(outputfolder)//'/linevar.dat'
- write(*,*) 'save_output: lineOutput = ', TRIM(lineOutput)
+ write(lineOutput,"(A, A9, I3.3, A4)") trim(outputfolder), '/linevar.', my_rank, '.dat'
+ write(98,*) lineOutput!trim(outputfolder), '/linevar.', my_rank, '.dat'
+! CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
+! STOP
+ write(98,*) 'save_output: lineOutput = ', TRIM(lineOutput)
  OPEN(11,FILE=lineOutput)
   DO I = 1, ntransitions
    ! wavelength is in Angstroms
@@ -61,27 +79,31 @@ CASE(1)
     linelist(I)%A_ul, linelist(I)%n_int, linelist(I)%n_deexc
   END DO
  CLOSE(11)
-! rate counters
+!________________________________________________________________________________
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! RATE COUNTERS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!________________________________________________________________________________
 CASE(2)
- write(*,*) 'save_output'
- write(*,*) 'count_cool_ex = ', count_cool_ex, ' count_cool_ff = ', count_cool_ff, &
+ write(97,*) 'save_output'
+ write(97,*) 'count_cool_ex = ', count_cool_ex, ' count_cool_ff = ', count_cool_ff, &
   ' count_cool_io = ', count_cool_io, ' count_cool_fb = ', count_cool_fb
- write(*,*) 'count_i_int_down = ', count_i_int_down, ' count_i_rad_dxrs = ', count_i_rad_dxrs,&
+ write(97,*) 'count_i_int_down = ', count_i_int_down, ' count_i_rad_dxrs = ', count_i_rad_dxrs,&
   ' count_i_rad_deex = ', count_i_rad_deex, &
   ' count_i_rad_dxfl = ', count_i_rad_dxfl, ' count_i_int_upwa = ', count_i_int_upwa, &
   ' count_i_col_deex = ', count_i_col_deex, ' count_i_int_phot = ', count_i_int_phot, &
   ' count_i_int_reco = ', count_i_int_reco, ' count_i_rad_reco = ', count_i_rad_reco, &
   ' count_i_col_reco = ', count_i_col_reco
- write(*,*) 'count_r_line = ', count_r_line, ' count_r_thom = ', count_r_thom, &
+ write(97,*) 'count_r_line = ', count_r_line, ' count_r_thom = ', count_r_thom, &
   ' count_r_ph_k = ', count_r_ph_k, ' count_r_ph_i = ', count_r_ph_i, &
   ' count_r_ff = ', count_r_ff
- write(*,*) 'count_des_phot = ', count_des_phot, ' count_des_inte = ', count_des_inte, &
-  ' count_des_esca = ', count_des_esca! , ' count_des_ipack = ', count_des_ipack
+ write(97,*) 'count_des_phot = ', count_des_phot, ' count_des_inte = ', count_des_inte, &
+  ' count_des_esca = ', count_des_esca
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!! TEMPERATURE STRUCTURE AND IONIZATION BALANCE !!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! NOT WORKING FOR MPI YET
 CASE(3)
  fileTempStruct = trim(outputfolder)//'/tempStruct.dat'
+ ! write(fileTempStruct,"(A6,I3.3)") trim(outputfolder), tem
  OPEN(12, FILE=fileTempStruct)
   DO I = 1, n_modelgrid
    IF(model_grid(I)%assoc_cells == 0) CYCLE
@@ -157,10 +179,26 @@ CASE(4)
  !  write(15,*) model_grid(I)%rwind / R_inf, frac1, frac2, frac3
  !  END DO
  ! CLOSE(15)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! PACKETS INFORMATIONS
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CASE(5)
+ write(filePackets,"(A, A7, I3.3, A4)") trim(outputfolder),&
+  "/packets", my_rank, '.dat'
+ write(99,*) 'save_output: filePackets = ', filePackets
+ OPEN(98, FILE=filePackets)
+  DO I = 1, SIZE(package) - 1
+   write(98,*) package(I)%typ, package(I)%freq_rf, package(I)%e_rf
+  END DO
+ CLOSE(98)
+#if mpi==1
+ CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
+ ! CALL SLEEP(120)
+#endif
+ CALL do_spectrum(SIZE(package), outputfolder)
 CASE DEFAULT
- write(*,*) 'save_output: this case is not known'
+ write(99,*) 'save_output: this case is not known'
 END SELECT
-
 
 
 

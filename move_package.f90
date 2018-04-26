@@ -9,11 +9,9 @@ SUBROUTINE move_package(pack_index, dist)
 
   INTEGER                           :: pack_index, nc
   DOUBLE PRECISION                  :: dist, length, D, vec_length
-  INTEGER                           :: my_rank, dummypackage
+  INTEGER                           :: dummypackage
   INTEGER                           :: n_pack_d
-  INTEGER                           :: OMP_GET_THREAD_NUM
 
-my_rank = OMP_GET_THREAD_NUM()
 !write(*,*)'move_package: Thread rank: ', my_rank
 n_pack_d = SIZE(package)
 dummypackage = n_pack_d - n_dummy_packs + my_rank + 1

@@ -9,30 +9,33 @@ DOUBLE PRECISION                :: f_line
 ! output variables
 DOUBLE PRECISION                :: ldist
 ! beta law 
-LOGICAL                         :: active = .TRUE.
+LOGICAL                         :: active
 DOUBLE PRECISION, DIMENSION(3)  :: halfpos, lowbond, upbond, rbound
 ! DOUBLE PRECISION, PARAMETER     :: minint = 1.D-15
 DOUBLE PRECISION                :: minint
 DOUBLE PRECISION                :: chint
 ! testing
 DOUBLE PRECISION                :: ldist_analyt
-INTEGER                         :: my_rank, n_pack_d, dummypackage
+INTEGER                         :: n_pack_d, dummypackage
 DOUBLE PRECISION                :: bfreq, halffreq, D
 INTEGER                         :: OMP_GET_THREAD_NUM
 DOUBLE PRECISION                :: ufreq, lfreq
 LOGICAL                         :: TESTING = .FALSE.
 LOGICAL                         :: outOfCell
 
-! dummypackage = SIZE(package)
-n_pack_d = SIZE(package)
-dummypackage = n_pack_d - n_dummy_packs + my_rank + 1
+dummypackage = SIZE(package)
 package(dummypackage) = package(pack_index)
 
 f_line = linelist(nextLine)%freq
 
-! write(*,*) 'resonance_distance: nextLine = ', nextLine
 
-minint = 1.D-1 / linelist(1)%freq
+! write(*,*) 'resonance_distance***************************************'
+minint = 1.D0 / linelist(1)%freq
+! write(*,*) 'resonance_distance: minint = ', minint
+! write(*,*) 'resonance_distance: pack_index = ', pack_index,&
+!  ' nextLine = ', nextLine, ' cell_dist = ', cell_dist 
+! write(*,*) 'resonance_distance: nextLine = ', nextLine
+! write(*,*) 'resonance_distance: minint = ', minint
 ! Calculate distance the photon needs to travel to come to
 ! resonance with the next line. This assumes homologous
 ! expansion i.e. velocity is proportional to r. Projected
@@ -55,31 +58,41 @@ minint = 1.D-1 / linelist(1)%freq
  package(dummypackage)%pos = rbound
  CALL doppler_factor(dummypackage, D)
  bfreq = package(pack_index)%freq_rf * D
- ! write(*,*) 'resonance_distance: rbound = ', rbound
  lfreq = package(pack_index)%freq_cmf
  ufreq = bfreq
  ! we can calculate the line_dist
  ! lower and upper boundary
  lowbond = package(pack_index)%pos
  upbond = rbound
- ! write(*,*) 'bfreq / f_line = ', bfreq / f_line
+ ! write(*,*) 'resonance_distance: bfreq / f_line = ', bfreq / f_line
  IF(bfreq < f_line) THEN
+  active = .TRUE.
   outOfCell = .FALSE.
   ! write(*,*) 'resonance_distance: line res in prop cell'
   DO WHILE(active .EQV. .TRUE.)
    ! what is the value in the half of the interval
+   ! write(*,*) 'resonance_distance: lowbond = ', lowbond, ' upbond = ', upbond
    halfpos = (upbond + lowbond) / 2.D0
    ! write(*,*) 'resonance_distance: upbond = ', upbond, 'lowbond = ', lowbond, ' halfpos = ', halfpos
    package(dummypackage)%pos = halfpos
    CALL doppler_factor(dummypackage, D)
    halffreq = package(pack_index)%freq_rf * D
+   ! write(*,*) 'resonance_distance: halffreq = ', halffreq
    ! decision which interval should we test next
+   IF(halfpos(1) == lowbond(1) .AND. halfpos(2) == lowbond(2) &
+    .AND. halfpos(3) == lowbond(3)) THEN
+    STOP 'resonance_distance: halfpos == lowbond'
+   END IF
    IF(halffreq > f_line) THEN
     chint = abs(halffreq - f_line) / f_line
     ! write(*,*) 'resonance_distance: chint = ', chint
     lowbond = halfpos
     ! write(*,*) 'resonance_distance: lowbond = ', lowbond
    ELSE
+    IF(upbond(1) == halfpos(1) .AND. upbond(2) == halfpos(2) &
+     .AND. upbond(3) == halfpos(3)) THEN
+     STOP 'resonance_distance: upbond == halfpos'
+    END IF
     chint = abs(halffreq - f_line) / f_line
     ! write(*,*) 'resonance_distance: chint = ', chint
     upbond = halfpos
@@ -88,15 +101,16 @@ minint = 1.D-1 / linelist(1)%freq
    IF( chint < minint ) THEN
     active = .FALSE.
     ldist = norm2(package(pack_index)%pos - halfpos)
+    ! write(*,*) 'resonance_distance: ldist = ', ldist
    END IF
+   ! STOP 'resonance_distance: testing'
   END DO ! until the calculation is active
   IF(TESTING .EQV. .TRUE.) write(*,*) 'resonance_distance: ldist_analyt = ',&
    ldist_analyt, ' ldist = ', ldist, abs(1.0 - ldist_analyt / ldist)
   ! write(*,*) 'resonance_distance: f_line = ', f_line / 1.D14, &
-  !  ' halffreq = ', halffreq/1.D14, ' fl / hf = ', abs(halffreq - f_line) / f_line
-  ! STOP 'resonance_distance: testing'
+  ! ' halffreq = ', halffreq/1.D14, ' fl / hf = ', abs(halffreq - f_line) / f_line
  ELSE
-  ! write(*,*) 'resonance_distance: line res out off prop cell'
+  !write(*,*) 'resonance_distance: line res out off prop cell'
   ! only continnum process could happen
   outOfCell = .TRUE.
   ldist = 1.D20

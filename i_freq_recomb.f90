@@ -14,6 +14,7 @@ INTEGER                                 :: n_points
 ! model grid information
 INTEGER                                 :: act_mgi
 DOUBLE PRECISION                        :: temp
+DOUBLE PRECISION                       :: ran2
 ! loop variables
 INTEGER                                 :: I
 INTEGER                                 :: get_package_model_index
@@ -24,7 +25,6 @@ DOUBLE PRECISION, ALLOCATABLE           :: exps(:), freqs(:), css(:), ints(:)
 ! integral value
 DOUBLE  PRECISION                       :: int_value
 DOUBLE PRECISION                        :: rand_z
-REAL(8)                                 :: random
 INTEGER                                 :: act_point
 ! linear interpolation
 DOUBLE PRECISION                        :: freq1, freq2, css1, css2, ali, bli
@@ -69,7 +69,7 @@ act_mgi = get_package_model_index(pack_index)
 temp = model_grid(act_mgi)%t
 
 ! random number
-rand_z = DBLE(random())
+rand_z = ran2(idum)
 ! write(*,*) 'i_freq_recomb: rand_z = ', rand_z
 
 ! saving field of exponentials, it will speed up the calculation procedure

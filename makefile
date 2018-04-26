@@ -1,6 +1,7 @@
 #Compiler settings
-F90 = gfortran
-FCFLAGS =  -g -cpp -O0 -fbounds-check -fopenmp -fcheck=all -Wall# -pg -fprofile-arcs# -ffpe-trap=zero,overflow,invalid,underflow
+#F90 = gfortran
+F90 = mpifort.mpich
+FCFLAGS = -g -cpp -O0 -fbounds-check -Dmpi=1 -fcheck=all -Wall# -pg -fprofile-arcs# -ffpe-trap=zero,overflow,invalid,underflow
 
 #Variables
 progname = main
@@ -15,7 +16,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
           random_unitvector.o ran2.o boundary3.o find_dist.o rates_i.o\
           change_cell.o move_package.o emit_rpackage.o	rates_k.o rates_r.o \
           init_photsphere.o random_unitvector2.o ran2_class.o init_random_seed.o \
-          random_unitvector1.o read_1D_model.o doppler_factor.o	random.o \
+          random_unitvector1.o read_1D_model.o doppler_factor.o	\
           vec_length.o velo.o angle_aberration.o freq_from_planck.o	  \
           do_rpackage.o do_ipackage.o event_dist.o get_package_model_index.o  \
           do_rpackage_event.o update_packages.o do_spectrum.o do_kpackage.o \
@@ -32,7 +33,8 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
 	  flux_function.o find_element_index.o next_line.o resonance_distance.o \
 	  r_kappa_cont.o i_freq_recomb.o cool_ff.o warning.o k_freq_ff.o  \
 	  cool_ionization.o cool_fb.o k_freq_fb.o check_pop.o r_kappa_line.o \
-	  save_output.o gauntff.o counters.o saha_factor.o 
+	  save_output.o gauntff.o counters.o saha_factor.o \
+	  mpi_distribute_estimators.o
 
 #Rules
 all : $(PROJECT)
