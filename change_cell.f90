@@ -23,6 +23,11 @@ SUBROUTINE change_cell(pack_index, next_cell)
 !     print*, 'change cell: package = ', pack_index, ' package escaped...'
   ELSE
 !     print*, 'change cell: next_cell = ', next_cell
+     IF(next_cell > SIZE(dyn_cell)) THEN
+      write(99,*) 'change_cell: pack_index = ', pack_index, &
+       ' next_cell = ', next_cell, ' is larger then total number of cells'
+      CALL abort()
+     END IF
      package(pack_index)%cell_numb = next_cell
   END IF
  

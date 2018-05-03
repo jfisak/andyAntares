@@ -112,6 +112,8 @@ IMPLICIT NONE
   INTEGER                            :: add_mg
   ! number of virtual particles
   INTEGER                            :: Nvirtpart
+  ! velocity approximation
+  INTEGER                            :: velApprox
 
 ! fields for the given types
   TYPE(modelgrid), ALLOCATABLE       :: model_grid(:)

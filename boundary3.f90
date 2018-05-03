@@ -33,5 +33,10 @@ DOUBLE PRECISION, DIMENSION(3)  :: cross_pos
 !cross_pos = package(pack_index)%pos + package(pack_index)%dir * dist
 if(dyngrid /= 0) CALL next_cell_up(pack_index, dist, n_cell, next_cell)
 if(dyngrid == 0) next_cell = n_cell
+IF(next_cell > SIZE(dyn_cell)) THEN
+ write(*,*) 'boundary3: pack_index = ', pack_index, ' dist = ', dist, &
+  ' next_cell = ', next_cell, ' is larger than the size of dyn_cell'
+  CALL abort()
+END IF
 
 END SUBROUTINE boundary3

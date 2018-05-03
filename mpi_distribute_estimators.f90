@@ -5,7 +5,7 @@ IMPLICIT NONE
 
 INTEGER                                         :: I
 DOUBLE PRECISION, DIMENSION(n_modelgrid)        :: Jarray, recJarray
-
+#if mpi==1
 DO I = 1, n_modelgrid
  Jarray(I) = model_grid(I)%J
  write(99,*) 'mpi_distribute_estimators: Jarray(I) = ', Jarray(I)
@@ -21,5 +21,6 @@ DO I = 1, n_modelgrid
  model_grid(I)%J = recJarray(I)
  write(99,*) 'mpi_distribute_estimators: J(I) = ', model_grid(I)%J
 END DO
+#endif
 
 END SUBROUTINE mpi_distribute_estimators

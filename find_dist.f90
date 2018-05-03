@@ -16,6 +16,11 @@ IMPLICIT NONE
     INTEGER                         :: forbidden
 
   cell_numb = package(pack_index)%cell_numb
+  IF(cell_numb > SIZE(dyn_cell)) THEN
+   write(*,*) 'find_dist: wrong cell number cell_numb = ', cell_numb,&
+    ' SIZE(dyn_cell) = ', SIZE(dyn_cell), ' pack_index = ', pack_index
+   CALL abort()
+  END IF
   corner = dyn_cell(cell_numb)%corner
   width = dyn_cell(cell_numb)%width
   dir = package(pack_index)%dir
