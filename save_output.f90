@@ -83,19 +83,19 @@ CASE(1)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! RATE COUNTERS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !________________________________________________________________________________
 CASE(2)
- write(97,*) 'save_output'
- write(97,*) 'count_cool_ex = ', count_cool_ex, ' count_cool_ff = ', count_cool_ff, &
+ write(99,*) 'save_output'
+ write(99,*) 'count_cool_ex = ', count_cool_ex, ' count_cool_ff = ', count_cool_ff, &
   ' count_cool_io = ', count_cool_io, ' count_cool_fb = ', count_cool_fb
- write(97,*) 'count_i_int_down = ', count_i_int_down, ' count_i_rad_dxrs = ', count_i_rad_dxrs,&
+ write(99,*) 'count_i_int_down = ', count_i_int_down, ' count_i_rad_dxrs = ', count_i_rad_dxrs,&
   ' count_i_rad_deex = ', count_i_rad_deex, &
   ' count_i_rad_dxfl = ', count_i_rad_dxfl, ' count_i_int_upwa = ', count_i_int_upwa, &
   ' count_i_col_deex = ', count_i_col_deex, ' count_i_int_phot = ', count_i_int_phot, &
   ' count_i_int_reco = ', count_i_int_reco, ' count_i_rad_reco = ', count_i_rad_reco, &
   ' count_i_col_reco = ', count_i_col_reco
- write(97,*) 'count_r_line = ', count_r_line, ' count_r_thom = ', count_r_thom, &
+ write(99,*) 'count_r_line = ', count_r_line, ' count_r_thom = ', count_r_thom, &
   ' count_r_ph_k = ', count_r_ph_k, ' count_r_ph_i = ', count_r_ph_i, &
   ' count_r_ff = ', count_r_ff
- write(97,*) 'count_des_phot = ', count_des_phot, ' count_des_inte = ', count_des_inte, &
+ write(99,*) 'count_des_phot = ', count_des_phot, ' count_des_inte = ', count_des_inte, &
   ' count_des_esca = ', count_des_esca
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!! TEMPERATURE STRUCTURE AND IONIZATION BALANCE !!!!!!!!

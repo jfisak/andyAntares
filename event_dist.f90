@@ -32,6 +32,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
  DOUBLE PRECISION                      :: stat_weight_l, stat_weight_u
  DOUBLE PRECISION, ALLOCATABLE          :: Lline(:)
  LOGICAL                                :: procout=.FALSE.
+ LOGICAL                                :: inCell
       
  n_pack_d = SIZE(package)
  dummypackage = SIZE(package)
@@ -63,12 +64,14 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
  ! According to Mihalas and Mihalas Eq. 90.8 this is achieved by 
  CALL doppler_factor(pack_index, D)
  kappa_cont = D * kappa_cont
+ ! write(*,*) 'event_dist: kappa_cont = ', kappa_cont
 
  ! initialization of n_next_lines to be equal to one
   n_next_lines = 1
 DO WHILE (do_loop .EQ. 1) 
 
 CALL next_line(1, pack_index, nextLine, n_next_lines)
+!IF(linelist(nextLine)%freq > package(pack_index)
 ALLOCATE(Lline(n_next_lines))
 ! n_next_lines = 1
 ! write(*,*) 'event_dist: nextLine = ', nextLine, ' n_next_lines = ', n_next_lines
@@ -76,12 +79,13 @@ freq_line = linelist(nextLine)%freq
 indexe = linelist(nextLine)%indexe
 indexi = linelist(nextLine)%indexi
 lower_level = linelist(nextLine)%lower
+! write(*,*) 'event_dist: calling resonance_distance'
+CALL resonance_distance(pack_index, nextLine, cell_dist, l_dist, inCell)
+! write(*,*) 'event_dist: l_dist = ', l_dist
+CALL r_kappa_line(pack_index, current_mgi, nextLine, n_next_lines, l_dist, Lline)
     
-IF (package(pack_index)%freq_cmf .GT. freq_line) THEN
- ! write(*,*) 'event_dist: calling resonance_distance'
- CALL resonance_distance(pack_index, nextLine, cell_dist, l_dist)
- ! write(*,*) 'event_dist: calling r_kappa_line'
- CALL r_kappa_line(pack_index, current_mgi, nextLine, n_next_lines, l_dist, Lline)
+! write(*,*) 'event_dist: inCell = ', inCell
+IF (package(pack_index)%freq_cmf .GT. freq_line .AND. inCell) THEN
 
  ! Calculate optical depth in the next line (Sobolev, dv/dr dependent)
  ! and continuum optical depth accumulated up to the line
@@ -92,24 +96,14 @@ IF (package(pack_index)%freq_cmf .GT. freq_line) THEN
 
  tau_line = 0.D0
  DO I = 1, n_next_lines
-  tau_line = tau_line + Lline(I)
+  tau_line = tau_line + Lline(I) * l_dist
  END DO
-
- ! Total mass density 
- ! pop_number = M_dot / (4.D0 * pi * & 
- !  vec_length(package(dummypackage)%pos)**2 * vec_length(vel_vec))     
- ! Total number density of hydrogen
- ! pop_number = pop_number/mp_g
-
- ! Current model grid cell
- ! Be sure to get the proper connection between element and elementindex, dito for ion
-  ! print*, 'ABC', current_mgi, element, package(pack_index)%pos, &
-  ! SQRT(package(pack_index)%pos(1)**2 + package(pack_index)%pos(2)**2 + package(pack_index)%pos(3)**2)/R_star
-
- !print*, 'event_dist: n_next_lines = ', n_next_lines
-
- ! write(*,*) 'event_dist: kappa_cont = ', kappa_cont, ' l_dist = ', l_dist
  tau_cont = kappa_cont * l_dist
+ ! write(*,*) 'event_dist: l_dist = ', l_dist, ' tau_line = ',&
+ ! tau_line, ' tau_cont = ', tau_cont
+
+
+
  IF(current_mgi .EQ. n_modelgrid + 2) tau_cont = 0.D0
  ! write(*,*) 'event_dist:', tau_line, tau_cont, tau_rand, tau
 
@@ -132,11 +126,11 @@ IF (package(pack_index)%freq_cmf .GT. freq_line) THEN
    do_loop = 0
    event = rpkt_eventtype_lineinteraction
    if(procout) write(*,*) 'event_dist: rpkt_eventtype_lineinteraction'
-   ! choosing the next line
+   ! choosing the line
    IF(n_next_lines > 1) THEN
     tot_lop = 0.D0
     DO I = 1, n_next_lines
-     tot_lop = tot_lop + linelist(nextLine + I - 1)%A_ul
+     tot_lop = tot_lop + Lline(I)
     END DO
     ran_numb = ran2(idum) * tot_lop
     summ = 0.D0
@@ -144,14 +138,14 @@ IF (package(pack_index)%freq_cmf .GT. freq_line) THEN
     DO I = 1, n_next_lines
      act_line = nextLine + I - 1
      IF(ran_numb > summ .AND. ran_numb < summ + Lline(I)) THEN
-      package(pack_index)%last_line = nextLine
+      package(pack_index)%last_line = nextLine + I
+      if(procout) write(*,*) 'event_dist: #1 chosen line = ', nextLine + I
      END IF
      summ = summ + Lline(I)
     END DO
-    if(procout) write(*,*) 'event_dist: choosing next line'
    ELSE
     package(pack_index)%last_line = nextLine + n_next_lines
-    if(procout) write(*,*) 'event_dist: choosing next line'
+    if(procout) write(*,*) 'event_dist: #2 choosing chosen line: ', nextLine 
    END IF 
   END IF
  ELSE
@@ -161,8 +155,8 @@ IF (package(pack_index)%freq_cmf .GT. freq_line) THEN
   event = rpkt_eventtype_continuum
   if(procout) write(*,*) 'event_dist: rpkt_eventtype_continuum 1'
 !   print*, 'cont.process happens',  tau_line, tau_cont
-  END IF
- ELSE    
+ END IF
+ELSE    
   ! The package cmf frequency is too red to interact to another
   ! line - No line interact anymore
   tau_cont = kappa_cont * (cell_dist - dist)
@@ -180,6 +174,7 @@ IF (package(pack_index)%freq_cmf .GT. freq_line) THEN
   END IF
  END IF
  DEALLOCATE(Lline)
+ ! write(*,*) 'event_dist: eofloop, do_loop = ', do_loop
 END DO
 ! STOP 'event_dist: testing'  
 END SUBROUTINE event_dist

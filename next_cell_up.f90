@@ -210,6 +210,11 @@ CASE(2)
  next_cell = dyn_cell(act_cell)%up_cell + &
         sub_ny * sub_nz * (subind_x - 1) + &
         sub_nz * (subind_y - 1) + subind_z - 1
+! this case occurs also when the SBR resonance distance is
+! looking for another boundary
+IF(next_cell > SIZE(dyn_cell)) THEN
+ next_cell = -99
+END IF
 ! print*, 'next_cell_up: next_cell = ', next_cell
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
