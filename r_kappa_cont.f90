@@ -160,7 +160,7 @@ DO indexe = 1, n_elements
  END DO
 END DO
 kappa = kappa + kappaff
-! write(*,*) 'r_kappa_cont: kappaff = ', kappaff! , 'thomson = ', thomson
+! write(*,*) 'r_kappa_cont: kappaff = ', kappaff , 'thomson = ', thomson
 ! write(*,*) 'r_kappa_cont: kappa = ', kappa
 actirrates%Lcont(4, act_continuum) = kappaff
 ! STOP 'r_kappa_cont: testing'

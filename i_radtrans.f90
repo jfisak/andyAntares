@@ -4,7 +4,7 @@
 ! * Zintdown -- total rate of internal downward jumps
 ! * Zrad -- total rate of radiative deactivations of a macro atom
 ! * Zintup -- total rate of internal upward jumps
-SUBROUTINE i_radtrans(current_mgi, indexe, indexi, indexl, act_pop, Zintdown, Zintup, Zrad, actirates)
+SUBROUTINE i_radtrans(current_mgi, indexe, indexi, indexl, act_pop, Zintdown, Zintup, Zrad, actirates, pack_index)
 USE types
 USE rates_i
 IMPLICIT NONE
@@ -28,11 +28,17 @@ INTEGER                                 :: I
 ! output variables
 DOUBLE PRECISION                        :: Zintdown, Zintup, Zrad
 TYPE(irates)      :: actirates
-INTEGER                                 :: dummypackage, n_pack_d
+INTEGER                                 :: dummypackage, pack_index
 DOUBLE PRECISION                        :: constant
+DOUBLE PRECISION                        :: costheta
+DOUBLE PRECISION                        :: dV_res, ldist, V_res, R_res
+DOUBLE PRECISION                        :: ROverV
+DOUBLE PRECISION, DIMENSION(3)          :: V_res_vec
+DOUBLE PRECISION                        :: cell_dist
+LOGICAL                                 :: inCell
+INTEGER                                 :: next_cell
 
-n_pack_d = SIZE(package)
-! dummypackage = n_pack_d - n_dummy_packs + my_rank + 1
+dummypackage = SIZE(package)
 
 constant = (pi * e_charge**2)/( me_g * light_speed)
 
@@ -69,8 +75,34 @@ DO I = 1, nlns
  ! Einstein Blu coefficient
  Blu = light_speed**2.0 / (2.0 * h * linelist(act_line)%freq**3.0) * stat_weight_u / stat_weight_l &
   * linelist(act_line)%A_ul
+ ! calculation of R/V
+ IF(velapprox == 0) THEN
+  ROverV = R_inf / V_inf
+  ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * ROverV &
+  ! / (4.0 * pi) * corrFactor * ldist
+  ! write(*,*) 'r_kappa_line: actirrates%Lline(I) = ', actirrates%Lline(I)
+ ELSE IF(velapprox == 1) THEN
+  package(dummypackage) = package(pack_index)
+  CALL emit_rpackage(dummypackage)
+  CALL boundary3(pack_index, cell_dist, next_cell)
+  CALL resonance_distance(pack_index, act_line, cell_dist, ldist, inCell)
+  ! according to (10) in Abbot & Lucy (1985)
+  ! r
+  R_res = norm2(package(dummypackage)%pos + package(dummypackage)%dir * ldist)
+  ! ||v||
+  V_res = V_inf * (1.0 - R_star / R_res ) ** beta
+  ! v = (v_x, v_y, v_z)
+  V_res_vec = V_res_vec * package(pack_index)%pos / norm2(package(pack_index)%pos)
+  ! \mu
+  costheta = dot_product(package(pack_index)%dir, V_res_vec) / V_res
+  ! dv/dr
+  dV_res = beta * R_star * V_inf / R_res**2 * (1.0 - R_star / R_res)**(beta-1)
+  ROverV = 1.0 / (costheta**2.0 * dV_res + (1.0 - costheta**2.0)* V_res / R_res)
+  ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * &
+  !  ROverV / (4.0 * pi) * corrFactor 
+ END IF
  ! optical depth
- taulu = low_pop * Blu * h * light_speed * (R_inf / V_inf) / (4.0 * pi) * &
+ taulu = low_pop * Blu * h * light_speed * ROverV / (4.0 * pi) * &
   (1.D0 - (stat_weight_l * up_pop) / (stat_weight_u * low_pop))
  betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
  actVal = up_pop * betalu * linelist(act_line)%A_ul

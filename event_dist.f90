@@ -30,7 +30,6 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
  DOUBLE PRECISION                  :: Blu! , exci_energy_l, exci_energy_u
  DOUBLE PRECISION                      :: low_pop, upp_pop 
  DOUBLE PRECISION                      :: stat_weight_l, stat_weight_u
- DOUBLE PRECISION, ALLOCATABLE          :: Lline(:)
  LOGICAL                                :: procout=.FALSE.
  LOGICAL                                :: inCell
       
@@ -72,7 +71,7 @@ DO WHILE (do_loop .EQ. 1)
 
 CALL next_line(1, pack_index, nextLine, n_next_lines)
 !IF(linelist(nextLine)%freq > package(pack_index)
-ALLOCATE(Lline(n_next_lines))
+ALLOCATE(actirrates%Lline(n_next_lines))
 ! n_next_lines = 1
 ! write(*,*) 'event_dist: nextLine = ', nextLine, ' n_next_lines = ', n_next_lines
 freq_line = linelist(nextLine)%freq
@@ -82,7 +81,7 @@ lower_level = linelist(nextLine)%lower
 ! write(*,*) 'event_dist: calling resonance_distance'
 CALL resonance_distance(pack_index, nextLine, cell_dist, l_dist, inCell)
 ! write(*,*) 'event_dist: l_dist = ', l_dist
-CALL r_kappa_line(pack_index, current_mgi, nextLine, n_next_lines, l_dist, Lline)
+CALL r_kappa_line(pack_index, current_mgi, nextLine, n_next_lines, l_dist, actirrates, tau_line)
     
 ! write(*,*) 'event_dist: inCell = ', inCell
 IF (package(pack_index)%freq_cmf .GT. freq_line .AND. inCell) THEN
@@ -94,10 +93,6 @@ IF (package(pack_index)%freq_cmf .GT. freq_line .AND. inCell) THEN
  CALL move_package(dummypackage, l_dist)
  CALL velo(dummypackage,vel_vec)
 
- tau_line = 0.D0
- DO I = 1, n_next_lines
-  tau_line = tau_line + Lline(I) * l_dist
- END DO
  tau_cont = kappa_cont * l_dist
  ! write(*,*) 'event_dist: l_dist = ', l_dist, ' tau_line = ',&
  ! tau_line, ' tau_cont = ', tau_cont
@@ -130,18 +125,18 @@ IF (package(pack_index)%freq_cmf .GT. freq_line .AND. inCell) THEN
    IF(n_next_lines > 1) THEN
     tot_lop = 0.D0
     DO I = 1, n_next_lines
-     tot_lop = tot_lop + Lline(I)
+     tot_lop = tot_lop + actirrates%Lline(I)
     END DO
     ran_numb = ran2(idum) * tot_lop
     summ = 0.D0
     ! this looks suspiciously
     DO I = 1, n_next_lines
      act_line = nextLine + I - 1
-     IF(ran_numb > summ .AND. ran_numb < summ + Lline(I)) THEN
+     IF(ran_numb > summ .AND. ran_numb < summ + actirrates%Lline(I)) THEN
       package(pack_index)%last_line = nextLine + I
       if(procout) write(*,*) 'event_dist: #1 chosen line = ', nextLine + I
      END IF
-     summ = summ + Lline(I)
+     summ = summ + actirrates%Lline(I)
     END DO
    ELSE
     package(pack_index)%last_line = nextLine + n_next_lines
@@ -173,7 +168,7 @@ ELSE
    if(procout) write(*,*) 'event_dist: rpkt_eventtype_continuum 2'
   END IF
  END IF
- DEALLOCATE(Lline)
+ DEALLOCATE(actirrates%Lline)
  ! write(*,*) 'event_dist: eofloop, do_loop = ', do_loop
 END DO
 ! STOP 'event_dist: testing'  

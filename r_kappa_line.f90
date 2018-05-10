@@ -1,15 +1,16 @@
-SUBROUTINE r_kappa_line(pack_index, current_mgi, nextLine, nnextlines, ldist, Lline)
+SUBROUTINE r_kappa_line(pack_index, current_mgi, nextLine, nnextlines, ldist, actirrates, tau_line)
 
 USE types
+USE rates_r
 IMPLICIT NONE
 
+TYPE(rrates)                    :: actirrates
 INTEGER                         :: nextLine, nnextlines, pack_index
 INTEGER                         :: current_mgi
 DOUBLE PRECISION                :: ldist
 DOUBLE PRECISION                :: Blu, exci_energy_l, exci_energy_u
 DOUBLE PRECISION                :: stat_weight_l, stat_weight_u
 INTEGER                         :: I
-DOUBLE PRECISION, DIMENSION(nnextlines)         :: Lline
 INTEGER                         :: indexe, indexi, indexline
 DOUBLE PRECISION                :: R_res, V_res
 DOUBLE PRECISION, DIMENSION(3)  :: V_res_vec
@@ -48,22 +49,32 @@ DO I = 1, nnextlines
  ! write(*,*) 'r_kappa_line: lower = ', linelist(indexline)%lower,&
  !  ' upper = ', linelist(indexline)%upper
  ! write(*,*) 'r_kappa_line: low_pop = ', low_pop, ' upp_pop = ', upp_pop
+ corrFactor = 1.D0 - (stat_weight_l * upp_pop) / (stat_weight_u * low_pop)
+ IF(corrFactor < 0.D0) write(*,*) 'WARNING: correction factor 1 - (gl nu) / (gu nl) < 0'
  IF(velapprox == 0) THEN
-  R_res = R_inf
-  V_res = V_inf
-  corrFactor = 1.D0 - (stat_weight_l * upp_pop) / (stat_weight_u * low_pop)
-  IF(corrFactor < 0.D0) write(*,*) 'WARNING: correction factor 1 - (gl nu) / (gu nl) < 0'
-  Lline(I) = low_pop * Blu * h * light_speed * (R_res / V_res) &
-  / (4.0 * pi) * corrFactor
-  ! write(*,*) 'r_kappa_line: Lline(I) = ', Lline(I)
+  ROverV = R_inf / V_inf
+  ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * ROverV &
+  ! / (4.0 * pi) * corrFactor * ldist
+  ! write(*,*) 'r_kappa_line: actirrates%Lline(I) = ', actirrates%Lline(I)
  ELSE IF(velapprox == 1) THEN
+  ! according to (10) in Abbot & Lucy (1985)
+  ! r
   R_res = norm2(package(pack_index)%pos + package(pack_index)%dir * ldist)
+  ! ||v||
   V_res = V_inf * (1.0 - R_star / R_res ) ** beta
+  ! v = (v_x, v_y, v_z)
+  V_res_vec = V_res_vec * package(pack_index)%pos / norm2(package(pack_index)%pos)
+  ! \mu
   costheta = dot_product(package(pack_index)%dir, V_res_vec) / V_res
-  dV_res = beta * R_star * V_res / R_res * (1.0 - R_star / R_res)**(-1)
+  ! dv/dr
+  dV_res = beta * R_star * V_inf / R_res**2 * (1.0 - R_star / R_res)**(beta-1)
   ROverV = 1.0 / (costheta**2.0 * dV_res + (1.0 - costheta**2.0)* V_res / R_res)
+  ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * &
+  !  ROverV / (4.0 * pi) * corrFactor 
  END IF
- tau_line = tau_line + Lline(I)
+ actirrates%Lline(I) = low_pop * Blu * h * light_speed * ROverV &
+ / (4.0 * pi) * corrFactor * ldist
+ tau_line = tau_line + actirrates%Lline(I)
 END DO
 
 END SUBROUTINE
