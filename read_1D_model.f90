@@ -75,7 +75,8 @@
   END DO
 
   R_inf  = model_grid(n_modelgrid)%rwind
-  V_inf  = 1.D1 * model_grid(n_modelgrid)%vel
+  ! V_inf  = 1.D1 * model_grid(n_modelgrid)%vel
+  V_inf = 3.075734D8
 
   ! setting properties
 

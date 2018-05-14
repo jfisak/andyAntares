@@ -20,7 +20,7 @@ INTEGER                         :: n_pack_d, dummypackage
 DOUBLE PRECISION                :: bfreq, halffreq, D
 INTEGER                         :: OMP_GET_THREAD_NUM
 DOUBLE PRECISION                :: ufreq, lfreq
-LOGICAL                         :: TESTING = .TRUE.
+LOGICAL                         :: TESTING = .FALSE.
 LOGICAL                         :: outOfCell
 LOGICAL                         :: inCell
 INTEGER                         :: I
@@ -41,7 +41,7 @@ END IF
 
 ! write(*,*) 'resonance_distance***************************************'
 ! minint = 1.D0 / linelist(1)%freq
-minint = 1.D-5
+minint = 1.D-4
 ! Calculate distance the photon needs to travel to come to
 ! resonance with the next line. This assumes homologous
 ! expansion i.e. velocity is proportional to r. Projected
@@ -52,6 +52,8 @@ minint = 1.D-5
  IF(TESTING .EQV. .TRUE.) THEN
   ldist_analyt = light_speed * ( R_inf / V_inf ) * &
    ( ( package(pack_index)%freq_cmf - f_line ) / package(pack_index)%freq_rf)
+  ldist = ldist_analyt
+  RETURN
   ! write(*,*) 'resonance_distance: ldist_analyt = ', ldist_analyt / R_inf
  END IF
   ! boundary coordinate
@@ -82,12 +84,13 @@ DO WHILE(outOfCell .EQV. .TRUE.)
   DO WHILE(active .EQV. .TRUE.)
    I = I + 1
    ! write(*,*) 'resonance_distance: I = ', I
-   IF(I == 1000) THEN
+   IF(I == 10000) THEN
     IF(chint < 1D1 * minint) THEN
      ldist = norm2(package(pack_index)%pos - halfpos)
      ! write(*,*) 'resonance_distance: #1 ldist = ', ldist/R_inf
      RETURN
     ELSE
+     ! write(*,*) 'resonance_distance: pack_index = ', pack_index
      CALL abort()
     END IF
    END IF
@@ -95,6 +98,9 @@ DO WHILE(outOfCell .EQV. .TRUE.)
    package(dummypackage)%pos = halfpos
    CALL doppler_factor(dummypackage, D)
    halffreq = package(pack_index)%freq_rf * D
+   ! IF(pack_index == 669) THEN
+   !  write(*,*) 'resonance_distance: halfpos = ', halfpos, 'halffreq = ', halffreq
+   ! END IF
    ! write(*,*) 'resonance_distance: halffreq = ', halffreq
    ! decision which interval should we test next
    IF(upbond(1) == lowbond(1) .AND. upbond(2) == lowbond(2) &
@@ -114,6 +120,12 @@ DO WHILE(outOfCell .EQV. .TRUE.)
     ufreq = halffreq
     ! write(*,*) 'resonance_distance: upbond = ', upbond
    END IF
+   IF(halffreq < bfreq .OR. halffreq > lfreq) THEN
+    STOP 'resonance_distance: halffreq < bfreq or halffreq > lfreq'
+   END IF
+   ! IF(pack_index == 669) THEN
+   !  write(*,*) 'resonance_distance: chint = ', chint, ' hf/bf = ', halffreq/bfreq
+   ! END IF
    IF( chint <= minint ) THEN
     active = .FALSE.
     ldist = norm2(package(pack_index)%pos - halfpos)

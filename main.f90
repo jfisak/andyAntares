@@ -65,6 +65,7 @@ my_rank = 0
  ! will be randomly initializing from the system time
  ! otherwise, iseed will take a fix value given in
  ! the input file
+ IF(iseed > 0 .AND. n_tasks > 1) STOP 'iseed > 0 & n_tasks > 1'
  CALL DATE_AND_TIME(VALUES = TT)
  IF (iseed .LE. 0) THEN  
   iseed = TT(1)+70*(TT(2)+12*(TT(3)+31*(TT(5)+23*(TT(6)+59*TT(7)))))

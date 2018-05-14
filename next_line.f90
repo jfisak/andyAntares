@@ -59,4 +59,10 @@ END DO
 ! number of lines with the same frequency
 CASE DEFAULT
 END SELECT
+IF(next1line > SIZE(linelist)) THEN
+ write(*,*) 'next_line: dim(linelist) = ', SIZE(linelist)
+ write(*,*) 'next_line: next1line = ', next1line, ' n_eqf_lines = ', n_eqf_lines
+ write(*,*) 'next_line: pack_index = ', pack_index
+ STOP
+END IF
 END SUBROUTINE

@@ -80,7 +80,7 @@ indexi = linelist(nextLine)%indexi
 lower_level = linelist(nextLine)%lower
 ! write(*,*) 'event_dist: calling resonance_distance'
 CALL resonance_distance(pack_index, nextLine, cell_dist, l_dist, inCell)
-! write(*,*) 'event_dist: l_dist = ', l_dist
+! write(*,*) 'event_dist: l_dist = ', l_dist/R_inf
 CALL r_kappa_line(pack_index, current_mgi, nextLine, n_next_lines, l_dist, actirrates, tau_line)
     
 ! write(*,*) 'event_dist: inCell = ', inCell

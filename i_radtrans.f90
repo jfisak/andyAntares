@@ -89,12 +89,17 @@ DO I = 1, nlns
   ! according to (10) in Abbot & Lucy (1985)
   ! r
   R_res = norm2(package(dummypackage)%pos + package(dummypackage)%dir * ldist)
+  IF(R_res > R_inf .OR. R_res < R_star) THEN
+   actirates%Lma_int_dorad(I) = 0.D0
+   actirates%Lma_rad(I) = 0.D0
+   CYCLE
+  END IF
   ! ||v||
   V_res = V_inf * (1.0 - R_star / R_res ) ** beta
   ! v = (v_x, v_y, v_z)
-  V_res_vec = V_res_vec * package(pack_index)%pos / norm2(package(pack_index)%pos)
+  V_res_vec = V_res * package(pack_index)%pos / norm2(package(pack_index)%pos)
   ! \mu
-  costheta = dot_product(package(pack_index)%dir, V_res_vec) / V_res
+  costheta = dot_product(package(pack_index)%dir, V_res_vec) / norm2(V_res_vec)
   ! dv/dr
   dV_res = beta * R_star * V_inf / R_res**2 * (1.0 - R_star / R_res)**(beta-1)
   ROverV = 1.0 / (costheta**2.0 * dV_res + (1.0 - costheta**2.0)* V_res / R_res)
