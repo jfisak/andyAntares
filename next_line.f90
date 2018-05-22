@@ -78,9 +78,9 @@ CASE DEFAULT
 END SELECT
 
 ! final checks
-IF(package(pack_index)%freq_cmf < linelist(next1line)%freq) THEN
- STOP 'next_line: f_cmf < f_line'
-END IF
+! IF(package(pack_index)%freq_cmf < linelist(next1line)%freq) THEN
+!  STOP 'next_line: f_cmf < f_line'
+! END IF
 IF(next1line > SIZE(linelist)) THEN
  write(*,*) 'next_line: dim(linelist) = ', SIZE(linelist)
  write(*,*) 'next_line: next1line = ', next1line, ' n_eqf_lines = ', n_eqf_lines

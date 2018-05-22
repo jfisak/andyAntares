@@ -20,7 +20,7 @@ INTEGER                         :: n_pack_d, dummypackage
 DOUBLE PRECISION                :: bfreq, halffreq, D
 INTEGER                         :: OMP_GET_THREAD_NUM
 DOUBLE PRECISION                :: ufreq, lfreq
-LOGICAL                         :: TESTING = .TRUE.
+LOGICAL                         :: TESTING = .FALSE.
 LOGICAL                         :: inCell
 INTEGER                         :: I
 INTEGER                         :: cell_number
@@ -70,7 +70,11 @@ lowbond = package(pack_index)%pos
 lfreq = package(pack_index)%freq_cmf
 upbond = rbound
 ! cmf frequency on boundary
-IF(lfreq < f_line) STOP 'resonance_distance: lfreq < f_line'
+IF(lfreq < f_line) THEN
+ ldist = R_inf
+ inCell = .FALSE.
+ RETURN
+END IF
 ufreq = bfreq
 ! we can calculate the line_dist
 ! lower and upper boundary
