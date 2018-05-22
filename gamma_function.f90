@@ -29,7 +29,6 @@ CHARACTER(LEN=2)                        :: sconf_l, sconf_u
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! now we choose only one value
 ! WORKS ONLY FOR THE OPACITY PROJECT DATA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-value_1 = 0.7
 indexe = linelist(transition)%indexe
 indexi = linelist(transition)%indexi
 el_conf_lower = elements(indexe)%ions(indexi)%levels(linelist(transition)%lower)%elconf

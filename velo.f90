@@ -16,12 +16,6 @@ SUBROUTINE velo(pack_index,vel_vec)
  SELECT CASE(velApprox)
  ! homologous expansion
  CASE(0)
-  ! vel_radial = V_inf/R_inf * vec_length(package(pack_index)%pos)
-  ! IF(vec_length(package(pack_index)%pos) > R_inf .OR. &
-  !  norm2(package(pack_index)%pos) < R_star) THEN
-  !  vel_vec = (/ 0.0, 0.0, 0.0/)
-  !  RETURN
-  ! END IF
   vel_radial = V_inf/R_inf * vec_length(package(pack_index)%pos)
   vel_vec = package(pack_index)%pos/vec_length(package(pack_index)%pos) * vel_radial
  ! the beta velocity law
@@ -33,10 +27,10 @@ SUBROUTINE velo(pack_index,vel_vec)
   write(*,*) 'velo: this velocity structure is not known'
   CALL abort()
  END SELECT
+ ! check if the packet is located inside the model grid
  IF(vec_length(package(pack_index)%pos) > R_inf .OR. &
   norm2(package(pack_index)%pos) < R_star) THEN
   vel_vec = (/ 0.0, 0.0, 0.0/)
-  RETURN
  END IF
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! petr kurfurst's disk model

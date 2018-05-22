@@ -12,7 +12,7 @@ INTEGER                                 :: I
 
 ! output variables
 INTEGER                                 :: next1line, n_eqf_lines
-
+INTEGER                                 :: lastline
 
 SELECT CASE(approximation)
 ! the Sobolev approximation
@@ -26,6 +26,7 @@ IF (package(pack_index)%last_line .EQ. no_line) THEN
   IF (package(pack_index)%freq_cmf > linelist(I)%freq) THEN
    ! write(*,*) 'next_line: new last_line = ', I - 1
    package(pack_index)%last_line = I - 1
+   IF(I - 1 == 0) package(pack_index)%last_line = no_line
    next1line = I
    EXIT
    ! write(*,*)  'next_line: package(pack_index)%last_line = I-1', I-1
@@ -39,13 +40,27 @@ IF (package(pack_index)%last_line .EQ. no_line) THEN
   package(pack_index)%last_line = ntransitions - 1
   next1line = package(pack_index)%last_line + 1
  END IF
-ELSE
- next1line = package(pack_index)%last_line + 1
+ELSE ! the last line /= no_line
+ lastline = package(pack_index)%last_line
+ ! write(*,*) 'next1line: lastline = ', lastline
+ IF(lastline == 0) lastline = 1
+ DO I = lastline, ntransitions
+  ! write(*,*) 'next_line: I = ', I, ' freq / f_line = ', package(pack_index)%freq_cmf / linelist(I)%freq
+  IF(package(pack_index)%freq_cmf > linelist(I)%freq) THEN
+   next1line = I
+   ! write(*,*) 'next_line: next1line = ', I
+   EXIT
+  END IF
+  IF(I == ntransitions) package(pack_index)%last_line = ntransitions
+ END DO
 END IF
 
-! write(*,*) 'next_line: next1line = ', next1line
+! write(*,*) 'next_line: after next1line = ', next1line
 
-IF(package(pack_index)%last_line == ntransitions) next1line = ntransitions
+IF(package(pack_index)%last_line == ntransitions) THEN
+ ! write(*,*) 'next_line: last line == ntransitions'
+ next1line = ntransitions
+END IF
 
 n_eqf_lines = 1
 DO I = next1line + 1, ntransitions
@@ -56,9 +71,16 @@ DO I = next1line + 1, ntransitions
  EXIT
 END DO
  ! write(*,*) 'next_line: next1line = ', next1line, ' n_eqf_lines = ', n_eqf_lines
+ ! write(*,*) 'next_line: f_cmf / f_line = ', package(pack_index)%freq_cmf / linelist(next1line)%freq
+ ! write(*,*) 'next_line: f_cmf / f_line(n1 - 1) = ', package(pack_index)%freq_cmf / linelist(next1line - 1)%freq
 ! number of lines with the same frequency
 CASE DEFAULT
 END SELECT
+
+! final checks
+IF(package(pack_index)%freq_cmf < linelist(next1line)%freq) THEN
+ STOP 'next_line: f_cmf < f_line'
+END IF
 IF(next1line > SIZE(linelist)) THEN
  write(*,*) 'next_line: dim(linelist) = ', SIZE(linelist)
  write(*,*) 'next_line: next1line = ', next1line, ' n_eqf_lines = ', n_eqf_lines

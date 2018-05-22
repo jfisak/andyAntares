@@ -84,7 +84,8 @@ DO
      if(cross == posx) act_cell = upper_cell + 6
      if(cross == negx) act_cell = upper_cell + 7
     ELSE
-     STOP 'next_cell_up: no cell was found'
+     write(*,*) 'next_cell_up: no cell was found'
+     CALL abort()
     END IF
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! cross in y direction
@@ -115,7 +116,8 @@ DO
     if(cross == posy) act_cell = upper_cell + 5
     if(cross == negy) act_cell = upper_cell + 7
    ELSE
-    STOP 'next_cell_up: no cell was found'
+    write(*,*) 'next_cell_up: no cell was found'
+    CALL abort()
    END IF
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! cross in z direction
@@ -146,7 +148,8 @@ DO
     if(cross == posz) act_cell = upper_cell + 3
     if(cross == negz) act_cell = upper_cell + 7
    ELSE
-    STOP 'next_cell_up: no cell was found'
+    write(*,*) 'next_cell_up: no cell was found'
+    CALL abort()
    END IF
   END IF
  END IF  

@@ -32,6 +32,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
  DOUBLE PRECISION                      :: stat_weight_l, stat_weight_u
  LOGICAL                                :: procout=.FALSE.
  LOGICAL                                :: inCell
+ INTEGER                           :: last_line
       
  n_pack_d = SIZE(package)
  dummypackage = SIZE(package)
@@ -75,11 +76,8 @@ ALLOCATE(actirrates%Lline(n_next_lines))
 ! n_next_lines = 1
 ! write(*,*) 'event_dist: nextLine = ', nextLine, ' n_next_lines = ', n_next_lines
 freq_line = linelist(nextLine)%freq
-indexe = linelist(nextLine)%indexe
-indexi = linelist(nextLine)%indexi
-lower_level = linelist(nextLine)%lower
 ! write(*,*) 'event_dist: calling resonance_distance'
-CALL resonance_distance(pack_index, nextLine, cell_dist, l_dist, inCell)
+CALL resonance_distance(pack_index, freq_line, cell_dist, l_dist, inCell)
 ! write(*,*) 'event_dist: l_dist = ', l_dist/R_inf
 CALL r_kappa_line(pack_index, current_mgi, nextLine, n_next_lines, l_dist, actirrates, tau_line)
     
@@ -129,17 +127,23 @@ IF (package(pack_index)%freq_cmf .GT. freq_line .AND. inCell) THEN
     END DO
     ran_numb = ran2(idum) * tot_lop
     summ = 0.D0
-    ! this looks suspiciously
     DO I = 1, n_next_lines
      act_line = nextLine + I - 1
      IF(ran_numb > summ .AND. ran_numb < summ + actirrates%Lline(I)) THEN
-      package(pack_index)%last_line = nextLine + I
+      package(pack_index)%last_line = act_line
+      ! write(*,*) 'event_dist: last_line = ', act_line
       if(procout) write(*,*) 'event_dist: #1 chosen line = ', nextLine + I
+      EXIT
      END IF
      summ = summ + actirrates%Lline(I)
     END DO
-   ELSE
-    package(pack_index)%last_line = nextLine + n_next_lines
+   ELSE ! we have only one line
+    last_line = package(pack_index)%last_line
+    IF(last_line < ntransitions) THEN
+     package(pack_index)%last_line = package(pack_index)%last_line + 1
+     last_line = last_line + 1
+     ! write(*,*) 'event_dist: last_line = ', last_line
+    END IF
     if(procout) write(*,*) 'event_dist: #2 choosing chosen line: ', nextLine 
    END IF 
   END IF
@@ -155,6 +159,7 @@ ELSE
   ! The package cmf frequency is too red to interact to another
   ! line - No line interact anymore
   tau_cont = kappa_cont * (cell_dist - dist)
+  ! write(*,*) 'event_dist:', tau_line, tau_cont, tau_rand, tau
   IF ((tau_rand - tau) .GT. tau_cont) THEN
    e_dist = cell_dist + 1.D20
    do_loop = 0   
