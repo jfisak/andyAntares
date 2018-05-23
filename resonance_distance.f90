@@ -1,5 +1,6 @@
 SUBROUTINE resonance_distance(pack_index, f_line, cell_dist, ldist, inCell)
 USE types
+USE counters
 IMPLICIT NONE
 
 ! input variables
@@ -20,8 +21,9 @@ INTEGER                         :: n_pack_d, dummypackage
 DOUBLE PRECISION                :: bfreq, halffreq, D
 INTEGER                         :: OMP_GET_THREAD_NUM
 DOUBLE PRECISION                :: ufreq, lfreq
-LOGICAL                         :: TESTING = .FALSE.
+LOGICAL                         :: TESTING = .TRUE.
 LOGICAL                         :: inCell
+LOGICAL                         :: calculate
 INTEGER                         :: I
 INTEGER                         :: cell_number
 DOUBLE PRECISION                :: dist
@@ -38,10 +40,10 @@ package(dummypackage) = package(pack_index)
 
 ! write(*,*) 'resonance_distance***************************************'
 minint = 1.D0 / linelist(1)%freq
+calculate = .TRUE.
 ! minint = 1.D-4
 IF(package(pack_index)%freq_cmf < f_line) THEN
- ldist = R_inf
- RETURN
+ calculate = .FALSE.
 END IF
 ! Calculate distance the photon needs to travel to come to
 ! resonance with the next line. This assumes homologous
@@ -55,6 +57,7 @@ IF(TESTING .EQV. .TRUE.) THEN
   ( ( package(pack_index)%freq_cmf / package(pack_index)%freq_rf)-&
    f_line / package(pack_index)%freq_rf)
  package(dummypackage) = package(pack_index)
+ inCell = .TRUE.
  ldist = ldist_analyt
  RETURN
  ! write(*,*) 'resonance_distance: ldist_analyt = ', ldist_analyt / R_inf
@@ -71,15 +74,13 @@ lfreq = package(pack_index)%freq_cmf
 upbond = rbound
 ! cmf frequency on boundary
 IF(lfreq < f_line) THEN
- ldist = R_inf
- inCell = .FALSE.
- RETURN
+ calculate = .FALSE.
 END IF
 ufreq = bfreq
 ! we can calculate the line_dist
 ! lower and upper boundary
 ! write(*,*) 'resonance_distance: bfreq / f_line = ', bfreq / f_line
-IF(bfreq < f_line) THEN
+IF(bfreq < f_line .AND. calculate .EQV. .TRUE.) THEN
  active = .TRUE.
  inCell = .TRUE.
  ! write(*,*) 'resonance_distance: line res in prop cell'
@@ -90,6 +91,7 @@ IF(bfreq < f_line) THEN
   IF(I == 1000) THEN
    package(pack_index)%active = 0
    ! write(49, *) package(pack_index)%freq_cmf
+   count_des_resd = count_des_resd + 1
    ldist = R_inf
    inCell = .FALSE.
    active = .FALSE.
@@ -142,11 +144,11 @@ IF(bfreq < f_line) THEN
   END IF
   IF(lfreq < f_line .OR. ufreq > f_line) STOP 'resonance_distance: freq do not fit'
  END DO ! until the calculation is active
- ! write(*,*) 'resonance_distance: I = ', I
- ! write(*,*) 'resonance_distance: ldista = ', light_speed * ( R_inf / V_inf ) * &
+ ! write(99,*) 'resonance_distance: I = ', I
+ ! write(99,*) 'resonance_distance: ldista = ', light_speed * ( R_inf / V_inf ) * &
  !  ( ( package(pack_index)%freq_cmf / package(pack_index)%freq_rf)-&
  !   f_line / package(pack_index)%freq_rf) / R_star, ' cell_dist = ', cell_dist/R_star
- ! write(*,*) 'resonance_distance: #4 ldist = ', ldist/R_star
+ ! write(99,*) 'resonance_distance: ldist = ', ldist/R_star
 ! if the resonance point is not located in the actual propagation cell
 ! we have to go along the package path to the next cross boundary to
 ! realize if the resonant point is in this neighboor cell
@@ -154,5 +156,10 @@ ELSE
  inCell = .FALSE.
  ldist = R_inf
 END IF
+
+! write(*,*) 'resonance_distance: ldista = ', light_speed * ( R_inf / V_inf ) * &
+!  ( ( package(pack_index)%freq_cmf / package(pack_index)%freq_rf)-&
+!   f_line / package(pack_index)%freq_rf) / R_star, ' cell_dist = ', cell_dist/R_star
+! write(*,*) 'resonance_distance: ldist = ', ldist/R_star
 
 END SUBROUTINE resonance_distance
