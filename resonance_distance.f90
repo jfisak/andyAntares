@@ -21,7 +21,7 @@ INTEGER                         :: n_pack_d, dummypackage
 DOUBLE PRECISION                :: bfreq, halffreq, D
 INTEGER                         :: OMP_GET_THREAD_NUM
 DOUBLE PRECISION                :: ufreq, lfreq
-LOGICAL                         :: TESTING = .TRUE.
+LOGICAL                         :: TESTING = .FALSE.
 LOGICAL                         :: inCell
 LOGICAL                         :: calculate
 INTEGER                         :: I
@@ -57,7 +57,12 @@ IF(TESTING .EQV. .TRUE.) THEN
   ( ( package(pack_index)%freq_cmf / package(pack_index)%freq_rf)-&
    f_line / package(pack_index)%freq_rf)
  package(dummypackage) = package(pack_index)
- inCell = .TRUE.
+ CALL move_package(dummypackage, ldist_analyt)
+ IF(ldist_analyt <= cell_dist) THEN
+  inCell = .TRUE.
+ ELSE
+  inCell = .FALSE.
+ END IF
  ldist = ldist_analyt
  RETURN
  ! write(*,*) 'resonance_distance: ldist_analyt = ', ldist_analyt / R_inf
@@ -89,7 +94,7 @@ IF(bfreq < f_line .AND. calculate .EQV. .TRUE.) THEN
   I = I + 1
   ! write(*,*) 'resonance_distance: I = ', I
   IF(I == 1000) THEN
-   package(pack_index)%active = 0
+   ! package(pack_index)%active = 0
    ! write(49, *) package(pack_index)%freq_cmf
    count_des_resd = count_des_resd + 1
    ldist = R_inf
