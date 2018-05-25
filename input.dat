@@ -13,4 +13,4 @@ Nvirtpart = 10
 random_seed = -1
 inputflux = 0
 nlte = 0
-velapprox = 0
+velApprox = 0

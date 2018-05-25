@@ -1,21 +1,26 @@
-  SUBROUTINE read_1D_model() 
+SUBROUTINE read_1D_model() 
 
-  ! Read 1D model data and allocet that data to the corresponding values of teh model grid cells
+! Read 1D model data and allocet that data to the corresponding values of teh model grid cells
 
-  USE types
+USE types
 
-  IMPLICIT NONE    
+IMPLICIT NONE    
 
-  INTEGER                                   :: I, J, M, numbions, indexg, atom_number
-  ! for reading from files
-  DOUBLE PRECISION                          :: junk
-  INTEGER                                   :: ios
-  INTEGER, PARAMETER                        :: maxrows = 6000000
-  DOUBLE PRECISION                          :: r, velo, dens, temp
-  DOUBLE PRECISION, DIMENSION(n_elements)   :: massfrac
-  CHARACTER(20)                             :: modelfile, jikrfile
-  ! variables which are not needed in the code
-  !DOUBLE PRECISION                          :: delta_r, delta, delta2, tot_nd, tot_md
+INTEGER                                   :: I, J, M, numbions, indexg, atom_number
+! for reading from files
+DOUBLE PRECISION                          :: junk
+INTEGER                                   :: ios
+INTEGER, PARAMETER                        :: maxrows = 6000000
+DOUBLE PRECISION                          :: r, velo, dens, temp
+DOUBLE PRECISION, DIMENSION(n_elements)   :: massfrac
+CHARACTER(20)                             :: modelfile, jikrfile
+! variables which are not needed in the code
+!DOUBLE PRECISION                          :: delta_r, delta, delta2, tot_nd, tot_md
+! (2) PoWR model
+CHARACTER(100)                             :: powrfile
+CHARACTER(100)                             :: line
+DOUBLE PRECISION, PARAMETER                     :: meanAtMass = 1.33
+
 
  SELECT CASE (inputModel)
   CASE(0)
@@ -52,7 +57,7 @@
      model_grid(I)%rwind = r  * R_star
      model_grid(I)%vel = velo * 1.D5
      model_grid(I)%rho = dens
-     model_grid(I)%T = 5000. ! should be temp 
+     model_grid(I)%T = 20000. ! should be temp 
      model_grid(I)%J = 0.D0 
      model_grid(I)%assoc_cells = 0
      !Total mass density of grid cell I
@@ -98,6 +103,9 @@
 !              (cell(I)%corner(3) + cell_width/2.D0)**2)
 !   write(*,*) r, model_grid(cell(I)%model_index)%rwind, R_inf,  model_grid(cell(I)%model_index)%rho
 ! END DO
+ !______________________________________________________________________________________________
+ ! (1) JIKR model
+ !______________________________________________________________________________________________
  ! in this case we read input model from Jiri Krticka program...
  ! these files are in this form
  ! 1. number of row
@@ -124,12 +132,6 @@
   DO I=1,maxrows
     READ(11,*,IOSTAT=ios) junk, junk, junk, junk, junk, junk, junk
    IF (ios /= 0) EXIT
-   IF (I == maxrows) THEN
-    write(*,*) 'Subroutine read_1D_model:'
-    write(*,*) 'Error: Maximum number of records exceeded...'
-    write(*,*) 'Exiting program now...'
-    STOP
-   END IF
    n_modelgrid = n_modelgrid + 1
   END DO
    ALLOCATE (model_grid(n_modelgrid + add_mg))
@@ -168,11 +170,75 @@
   ! Dummy cell to associate to propagation grid cells which have no representation on the model grid.
   ! All cells out of model grid set to 0 and associate to n_modelgrid. 
   ! Other cells will obtainde particular values with memory
-  model_grid(n_modelgrid + add_mg)%rwind = 0.D0
-  model_grid(n_modelgrid+1)%vel   = 0.D0
-  model_grid(n_modelgrid+1)%rho   = 0.D0     
+  model_grid(n_modelgrid + 1)%rwind = 0.D0
+  model_grid(n_modelgrid + 1)%vel   = 0.D0
+  model_grid(n_modelgrid + 1)%rho   = 0.D0     
   ! calculating virtual particles from the selected input model
   !CALL virtual_particles(1)
+ !______________________________________________________________________________________________
+ ! (2) PoWR model
+ !______________________________________________________________________________________________
+ !
+ ! 1. radius / R_*
+ ! 2. radial velocity / km * s^(-1)
+ ! 3. total numerical mass density
+ ! 4. temperature / K
+ CASE(2)
+  write(*,*) 'we will read the TESTCASE from the PoWR code...'
+  R_star = 2006.56 * R_sun
+  T_eff = 37000
+  add_mg = 1
+  CALL GET_ENVIRONMENT_VARIABLE("POWRMODEL", powrfile)
+  IF(TRIM(powrfile) == "") STOP "no input model file selected, &
+                                   please set the variable POWRMODEL"
+  write(*,*) 'read_1D_model: powrfile = ', powrfile
+  n_modelgrid = 0
+  OPEN(UNIT=11, STATUS="old", FILE=TRIM(powrfile))
+   DO
+    read(11, *, IOSTAT=ios) line
+    IF (ios /= 0) EXIT
+    n_modelgrid = n_modelgrid + 1
+   END DO
+   ALLOCATE (model_grid(n_modelgrid + add_mg))
+   write(*,*) 'read_1D_model: n_modelgrid = ', n_modelgrid
+   REWIND(11)
+   DO I=1,n_modelgrid
+    READ(11,*) r, velo, dens, temp
+    ! write(*,*) 'read_1D_model: I = ', I, ' r = ', r, ' velo = ', velo, ' dens = ', dens, ' temp = ', temp
+    model_grid(I)%rwind = r * R_star
+    model_grid(I)%vel = velo * 1.E5
+    model_grid(I)%rho = dens * meanAtMass * mp_g
+    model_grid(I)%T = temp ! should be temp 
+    model_grid(I)%J = 0.D0 
+    model_grid(I)%assoc_cells = 0
+    ! print*, 'read_1D_model: testing model grid...'
+    ! print*, 'read_1D_model: ', I, model_grid(I)%rwind, model_grid(I)%vel, &
+    !  model_grid(I)%rho, model_grid(I)%T, model_grid(I)%J, &
+    !  model_grid(I)%assoc_cells
+    !IF (I /= 1) print*, 'delta r: ', model_grid(I)%rwind - model_grid(I-1)%rwind
+    ALLOCATE (model_grid(I)%grid_comp(n_elements))
+    DO J = 1, n_elements      
+     numbions = elements(J)%nions
+     ALLOCATE (model_grid(I)%grid_comp(J)%grid_ion(numbions))
+     atom_number = elements(J)%atom_number
+     model_grid(I)%grid_comp(J)%abund = elements(J)%abundance
+     !Calculate total number density for included species
+     !tot_nd = model_grid(I)%grid_comp(J)%abund / elements(J)%atom_mass 
+     !model_grid(I)%grid_comp(J)%numb_den = tot_nd
+    END DO
+   END DO
+  R_inf  = model_grid(1)%rwind
+  V_inf  = model_grid(1)%vel
+  write(*,*) 'read_1D_model: R_star = ', R_star, ' R_inf = ', R_inf
+  ! Dummy cell to associate to propagation grid cells which have no
+  ! representation on the model grid. All cells out of model grid
+  ! set to 0 and associate to n_modelgrid. Other cells will obtainde
+  ! particular values with memory
+  model_grid(n_modelgrid + 1)%rwind = 0.D0
+  model_grid(n_modelgrid + 1)%vel   = 0.D0
+  model_grid(n_modelgrid + 1)%rho   = 0.D0     
+  CLOSE(11)
+  ! STOP 'read_1D_model: testing...'
  CASE DEFAULT
   write(*,*) 'the choice of the variable inputModel = ', inputModel, 'is not known...'
   STOP 'ENDING PROGRAM NOW...'
