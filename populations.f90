@@ -13,6 +13,19 @@ DOUBLE PRECISION                :: ground_level_pop, g_gstat, g_stat, e_exc
 DOUBLE PRECISION                :: abund, rho, atom_mass
 DOUBLE PRECISION, PARAMETER     :: minpop = 1.D-50
 
+IF(indexe <= 0) THEN
+ write(*,*) 'populations: indexe < 0'
+ CALL abort()
+END IF
+IF(indexi <= 0) THEN
+ write(*,*) 'populations: indexi < 0'
+ CALL abort()
+END IF
+IF(level <= 0) THEN
+ write(*,*) 'populations: level < 0'
+ CALL abort()
+END IF
+
 SELECT CASE(nlte)
 ! LTE approximation
 CASE(0)

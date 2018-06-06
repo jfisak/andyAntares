@@ -23,6 +23,8 @@ INTEGER                                 :: subind_x, subind_y, subind_z
 INTEGER                                         :: sub_nx, sub_ny, sub_nz
 DOUBLE PRECISION                                :: rat1, rat2, rat3
 
+! IF(package(pack_index)%pos > R_inf .OR. package(pack_index)%pos < R_star) THEN
+!  next_cell = 
 
 act_cell = cell_down
 cross_pos = package(pack_index)%pos + package(pack_index)%dir * dist
@@ -43,6 +45,7 @@ SELECT CASE(dyngrid)
 ! dynamical grid type 8
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! there is a bug in this type of cells
 CASE(1)
 !print*, 'next_cell_up: act_cell = ', act_cell, ' cross_pos = ', cross_pos, 'cross = ', cross
 DO
@@ -117,6 +120,7 @@ DO
     if(cross == negy) act_cell = upper_cell + 7
    ELSE
     write(*,*) 'next_cell_up: no cell was found'
+    write(*,*) 'pos = ', norm2(package(pack_index)%pos) / R_inf
     CALL abort()
    END IF
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -149,6 +153,9 @@ DO
     if(cross == negz) act_cell = upper_cell + 7
    ELSE
     write(*,*) 'next_cell_up: no cell was found'
+    write(*,*) 'pos = ', norm2(package(pack_index)%pos) / R_star
+    write(*,*) 'cor_z = ', corner(3)/R_star, ' pos_z = ', package(pack_index)%pos(3)/R_star, ' cor_z+w = ', (corner(3) + &
+    width(3))/R_star
     CALL abort()
    END IF
   END IF

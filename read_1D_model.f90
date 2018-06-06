@@ -116,7 +116,7 @@ DOUBLE PRECISION, PARAMETER                     :: meanAtMass = 1.33
  ! 6. q (?)
  ! 7. mass loss rate
  CASE(1)
-  write(*,*) 'we will read a model from Jiri Krticka program...'
+  write(99,*) 'we will read a model from Jiri Krticka program...'
   add_mg = 1
   CALL GET_ENVIRONMENT_VARIABLE("JIKRMODEL", jikrfile)
   IF(TRIM(jikrfile) == "") STOP "no input model file selected, &
@@ -184,14 +184,14 @@ DOUBLE PRECISION, PARAMETER                     :: meanAtMass = 1.33
  ! 3. total numerical mass density
  ! 4. temperature / K
  CASE(2)
-  write(*,*) 'we will read the TESTCASE from the PoWR code...'
+  write(99,*) 'we will read the TESTCASE from the PoWR code...'
   R_star = 2006.56 * R_sun
   T_eff = 37000
   add_mg = 1
   CALL GET_ENVIRONMENT_VARIABLE("POWRMODEL", powrfile)
   IF(TRIM(powrfile) == "") STOP "no input model file selected, &
                                    please set the variable POWRMODEL"
-  write(*,*) 'read_1D_model: powrfile = ', powrfile
+  write(99,*) 'read_1D_model: powrfile = ', powrfile
   n_modelgrid = 0
   OPEN(UNIT=11, STATUS="old", FILE=TRIM(powrfile))
    DO
@@ -200,7 +200,7 @@ DOUBLE PRECISION, PARAMETER                     :: meanAtMass = 1.33
     n_modelgrid = n_modelgrid + 1
    END DO
    ALLOCATE (model_grid(n_modelgrid + add_mg))
-   write(*,*) 'read_1D_model: n_modelgrid = ', n_modelgrid
+   write(99,*) 'read_1D_model: n_modelgrid = ', n_modelgrid
    REWIND(11)
    DO I=1,n_modelgrid
     READ(11,*) r, velo, dens, temp
@@ -229,7 +229,7 @@ DOUBLE PRECISION, PARAMETER                     :: meanAtMass = 1.33
    END DO
   R_inf  = model_grid(1)%rwind
   V_inf  = model_grid(1)%vel
-  write(*,*) 'read_1D_model: R_star = ', R_star, ' R_inf = ', R_inf
+  write(99,*) 'read_1D_model: R_star = ', R_star, ' R_inf = ', R_inf
   ! Dummy cell to associate to propagation grid cells which have no
   ! representation on the model grid. All cells out of model grid
   ! set to 0 and associate to n_modelgrid. Other cells will obtainde
@@ -240,7 +240,7 @@ DOUBLE PRECISION, PARAMETER                     :: meanAtMass = 1.33
   CLOSE(11)
   ! STOP 'read_1D_model: testing...'
  CASE DEFAULT
-  write(*,*) 'the choice of the variable inputModel = ', inputModel, 'is not known...'
+  write(99,*) 'the choice of the variable inputModel = ', inputModel, 'is not known...'
   STOP 'ENDING PROGRAM NOW...'
  END SELECT
   END SUBROUTINE read_1D_model

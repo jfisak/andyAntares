@@ -249,24 +249,19 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
    new_freq = linelist(linetransitions(line))%freq
    ! testing
    ! new_freq = light_speed / (4.D3 * 1.D-8)
-   CALL emit_rpackage(pack_index)
    package(pack_index)%freq_cmf = new_freq
    CALL doppler_factor(pack_index, D)
    IF(sstates) write(36, *) 'RDEEX linewl = ', 1.D8 * light_speed / linelist(linetransitions(line))%freq
    ! D = 1.D0
    package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
    package(pack_index)%e_rf = package(pack_index)%e_cmf / D
-   !$OMP ATOMIC
    linelist(linetransitions(line))%n_deexc = linelist(linetransitions(line))%n_deexc + 1
-   !$OMP ATOMIC
    count_i_rad_deex = count_i_rad_deex + 1
    IF(last_line /= no_line) THEN
     IF(linetransitions(line) == last_line) THEN
      ! resonant scattering occures
-     !$OMP ATOMIC
      count_i_rad_dxrs = count_i_rad_dxrs + 1
     ELSE
-     !$OMP ATOMIC
      count_i_rad_dxfl = count_i_rad_dxfl + 1
     END IF
    END IF
