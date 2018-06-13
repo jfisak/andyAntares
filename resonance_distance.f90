@@ -1,4 +1,4 @@
-SUBROUTINE resonance_distance(pack_index, f_line, cell_dist, ldist, inCell)
+SUBROUTINE resonance_distance(pack_index, f_line, cell_dist, ldist, inCell, isLdist)
 USE types
 USE counters
 IMPLICIT NONE
@@ -23,6 +23,7 @@ DOUBLE PRECISION                :: ufreq, lfreq
 LOGICAL                         :: TESTING = .FALSE.
 LOGICAL                         :: iteration
 LOGICAL                         :: inCell
+LOGICAL                         :: isLdist
 LOGICAL                         :: calculate
 INTEGER                         :: I
 INTEGER                         :: cell_number
@@ -157,6 +158,11 @@ DO WHILE(iteration)
  ELSE
   !write(*,*) 'resonance_distance: line res out off prop cell'
   ! only continnum process could happen
+  IF(isLdist) THEN
+   ldist = R_inf
+   inCell = .FALSE.
+   RETURN
+  END IF
   package(dummypackage)%pos = rbound
   lowbond = rbound
   CALL boundary3(dummypackage, dist, cell_number)

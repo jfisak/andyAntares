@@ -16,6 +16,7 @@ SUBROUTINE main
   CHARACTER                         :: n_dummy_packs_char
   CHARACTER(2)                      :: chnum_threads
   INTEGER                           :: num_threads, stat
+  CHARACTER(30)                     :: cmdcommand
 ! parallelized part
 ! definition of MPI variables
 ! #if mpi==1
@@ -111,7 +112,6 @@ CALL setup_grid2()
 write(99,*) 'propagation grid is set up'
 CALL connection_prop_model_grid()
 
-
 current_temp = 0.D0
 iteration = 0
 
@@ -144,6 +144,7 @@ DO iteration = 1,1
  write(99,*) 'Number of destoyed packages =', destroyed_pack
 #if mpi==1
  CALL mpi_distribute_estimators()
+ CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
 #endif
 END DO ! iteration (now of temperature structure)
 ! CLOSE(20)
@@ -158,11 +159,20 @@ END DO ! iteration (now of temperature structure)
  ! temp structure and occupation numbers
 ! CALL save_output(3)
  CALL save_output(5)
+ ! erase all temporary files with photons
 
 CLOSE(2)
 CLOSE(99)
 #if mpi==1
- call MPI_FINALIZE(ierr)
+ ! will delete all temporary files
+ IF(my_rank == 0) THEN
+  cmdcommand = 'rm '//TRIM(temp_filename)//'*.dat'
+  ! write(*,*) 'main: cmdcommand = ', cmdcommand
+  CALL SYSTEM(cmdcommand)
+ END IF
+ CALL MPI_FINALIZE(ierr)
+#else
+ CALL SYSTEM('rm temp_packet*')
 #endif
 
 END SUBROUTINE main

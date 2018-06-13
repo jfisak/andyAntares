@@ -92,7 +92,7 @@ DO I = 1, nlns
   ! r
   ! write(*,*) 'i_radtrans: pack_index = ', pack_index, ' f = ', fr_line, ' cell_dist = ',&
   ! cell_dist
-  CALL resonance_distance(pack_index, fr_line, cell_dist, ldist, inCell)
+  CALL resonance_distance(pack_index, fr_line, cell_dist, ldist, inCell, .FALSE.)
   ! write(*,*) 'i_radtrans: ldist = ', ldist/R_inf
   R_res = norm2(package(dummypackage)%pos + package(dummypackage)%dir * ldist)
   ! write(*,*) 'i_radtrans: R_res = ', R_res / R_inf, ' inCell = ', inCell

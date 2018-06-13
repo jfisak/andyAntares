@@ -8,7 +8,6 @@
 
   INTEGER             :: n_pack, pack_index
   
-
 ! OPEN(UNIT=36, FILE='macroatom.dat')
 !  OPEN (UNIT=3, FILE='position.dat')
 ! write(*,*) 'WARNING: positions of packets are being written into the file, if the number of &
@@ -21,6 +20,7 @@ DO pack_index = 1, n_pack
  ! END IF
   ! write(36, *) 'r-packet: ', pack_index
  IF (MODULO(pack_index,100000) .EQ. 0) write(99,*) 'Working on packet ', pack_index,' ...'
+ ! IF (MODULO(pack_index,100000) .EQ. 0) write(*,*) 'Working on packet ', pack_index,' ...'
  ! write(*,*) 'Working on packet ', pack_index,' ...'
  ! Do this loop until something happened with package
  DO  WHILE (package(pack_index)%active .EQ. 1)
@@ -52,7 +52,10 @@ DO pack_index = 1, n_pack
      STOP 'ERROR unknown package typ'
   END IF
  END DO
-
+ ! saving temporary packet data
+ IF(MODULO(pack_index, n_pack_save) == 0) THEN
+  CALL save_temp_packs(pack_index)
+ END IF
 END DO
   
 END SUBROUTINE update_packages

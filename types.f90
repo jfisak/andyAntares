@@ -173,6 +173,10 @@ IMPLICIT NONE
   INTEGER                            :: model_type
   ! Specify minimal size of dynamic cell
   DOUBLE PRECISION, PARAMETER          :: minwidth = 1E8
+  ! number of packets which will be saved into a file
+  INTEGER                               :: n_pack_save
+  ! temporary file name
+  CHARACTER(30)                     :: temp_filename = 'temp_packet'
 
 
 

@@ -120,6 +120,12 @@ SUBROUTINE read_input(n_pack, iseed)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I20)', ERR=94) velApprox
+
+    ELSE IF (ACTPAR .EQ. 'n_pack_save') THEN
+    CALL SARGC (LINE, NPAR)
+    IF (NPAR .LT. 2) GOTO 90
+    CALL SARGV(LINE,2,ACTPAR)
+    READ (ACTPAR, '(I20)', ERR=94) n_pack_save
     ENDIF
   END DO
 

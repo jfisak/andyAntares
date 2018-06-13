@@ -89,7 +89,7 @@ ALLOCATE(actirrates%Lline(n_next_lines))
 ! write(*,*) 'event_dist: nextLine = ', nextLine, ' n_next_lines = ', n_next_lines
 freq_line = linelist(nextLine)%freq
 ! write(*,*) 'event_dist: calling resonance_distance'
-CALL resonance_distance(pack_index, freq_line, cell_dist, l_dist, inCell)
+CALL resonance_distance(pack_index, freq_line, cell_dist, l_dist, inCell, .TRUE.)
 ! write(*,*) 'event_dist: l_dist = ', l_dist/R_inf, ' inCell = ', inCell
 IF(inCell) THEN
  CALL r_kappa_line(pack_index, current_mgi, nextLine, n_next_lines, l_dist, actirrates, tau_line)
