@@ -44,6 +44,8 @@ my_rank = 0
  CALL MPI_COMM_RANK(MPI_COMM_WORLD, my_rank, ierr)
  CALL MPI_COMM_SIZE(MPI_COMM_WORLD, n_tasks, ierr)
 #endif
+
+
  CALL save_output(0)
  write(99,*) 'mpi initialization: my_rank = ', my_rank, &
   ' n_tasks = ', n_tasks
@@ -57,6 +59,11 @@ my_rank = 0
  ! Read input  
  write(99,*) 'read input'
  CALL read_input(n_pack, iseed)
+ ! Allocate array for photon packages.
+ ALLOCATE (package(n_pack + 1))
+ ! write(*,*) 'main: |package| = ', SIZE(package)
+
+ CALL find_unfinished_run()
  ! Read composition
  write(99,*) 'read_composition'
  CALL read_composition()
@@ -84,9 +91,6 @@ my_rank = 0
 ! Only for debuging; if set the values > 0 then variou print out statement 
 ! will give information on a packet's history (depending on the actual value of debug)
 debug = 0
-
-! Allocate array for photon packages.
-ALLOCATE (package(n_pack + 1))
 
 ! Set up outflow (model grid)
 CALL setup_model_grid()
@@ -168,11 +172,13 @@ CLOSE(99)
  IF(my_rank == 0) THEN
   cmdcommand = 'rm '//TRIM(temp_filename)//'*.dat'
   ! write(*,*) 'main: cmdcommand = ', cmdcommand
-  CALL SYSTEM(cmdcommand)
+  ! CALL SYSTEM(cmdcommand)
  END IF
  CALL MPI_FINALIZE(ierr)
 #else
- CALL SYSTEM('rm temp_packet*')
+ cmdcommand = 'rm '//TRIM(temp_filename)//'*.dat'
+ ! write(*,*) 'main: cmdcommand = ', cmdcommand
+ CALL SYSTEM(cmdcommand)
 #endif
 
 END SUBROUTINE main
