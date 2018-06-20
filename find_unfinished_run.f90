@@ -29,6 +29,7 @@ DO
     READ(21, iostat=reading_packets) cur_package
     IF(reading_packets /= 0) EXIT
     cur_pack = cur_pack + 1
+    IF(cur_pack > SIZE(package) - 1) STOP 'number of loaded packets is larger than number of packets for a computation'
     package(cur_pack) = cur_package
     tot_saved_packets = tot_saved_packets + 1
    END DO
