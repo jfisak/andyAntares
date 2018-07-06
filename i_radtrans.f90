@@ -31,9 +31,9 @@ TYPE(irates)      :: actirates
 INTEGER                                 :: dummypackage, pack_index
 DOUBLE PRECISION                        :: constant
 DOUBLE PRECISION                        :: costheta
-DOUBLE PRECISION                        :: dV_res, ldist, V_res, R_res
+DOUBLE PRECISION                        :: dV_pos, ldist, V_pos, R_pos
 DOUBLE PRECISION                        :: ROverV
-DOUBLE PRECISION, DIMENSION(3)          :: V_res_vec
+DOUBLE PRECISION, DIMENSION(3)          :: V_pos_vec
 DOUBLE PRECISION                        :: fr_line
 DOUBLE PRECISION                        :: cell_dist
 LOGICAL                                 :: inCell
@@ -62,7 +62,6 @@ up_pop = act_pop
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 package(dummypackage) = package(pack_index)
 CALL emit_rpackage(dummypackage)
-CALL boundary3(pack_index, cell_dist, next_cell)
 ! write(*,*) 'i_radtrans: dir = ', package(dummypackage)%dir
 ! internal downward jump and radiative deexcitation
 DO I = 1, nlns
@@ -79,7 +78,7 @@ DO I = 1, nlns
  ! calculation of a rate coefficient
  CALL populations(indexe, indexi, linelist(act_line)%lower, current_mgi, low_pop)
  ! Einstein Blu coefficient
- Blu = light_speed**2.0 / (2.0 * h * fr_line*3.0) * stat_weight_u / stat_weight_l &
+ Blu = light_speed**2.0 / (2.0 * h * fr_line*3.0) * DBLE(stat_weight_u) / DBLE(stat_weight_l) &
   * linelist(act_line)%A_ul
  ! calculation of R/V
  IF(velapprox == 0) THEN
@@ -90,26 +89,24 @@ DO I = 1, nlns
  ELSE IF(velapprox == 1) THEN
   ! according to (10) in Abbot & Lucy (1985)
   ! r
-  ! write(*,*) 'i_radtrans: pack_index = ', pack_index, ' f = ', fr_line, ' cell_dist = ',&
-  ! cell_dist
-  CALL resonance_distance(pack_index, fr_line, cell_dist, ldist, inCell, .FALSE.)
-  ! write(*,*) 'i_radtrans: ldist = ', ldist/R_inf
-  R_res = norm2(package(dummypackage)%pos + package(dummypackage)%dir * ldist)
-  ! write(*,*) 'i_radtrans: R_res = ', R_res / R_inf, ' inCell = ', inCell
-  IF(R_res > R_inf .OR. R_res < R_star) THEN
-   actirates%Lma_int_dorad(I) = 0.D0
-   actirates%Lma_rad(I) = 0.D0
-   CYCLE
-  END IF
+  R_pos = norm2(package(dummypackage)%pos)
+  ! write(*,*) 'i_radtrans: R_pos = ', R_pos / R_inf
   ! ||v||
-  V_res = V_inf * (1.0 - R_star / R_res ) ** beta
+  V_pos = V_inf * (1.D0 - R_star / R_pos ) ** beta
+  ! write(*,*) 'i_radtrans: V_pos = ', V_pos / V_inf
   ! v = (v_x, v_y, v_z)
-  V_res_vec = V_res * package(pack_index)%pos / norm2(package(pack_index)%pos)
+  V_pos_vec = V_pos * package(dummypackage)%pos / norm2(package(dummypackage)%pos)
+  ! write(*,*) 'i_radtrans: V_pos_vec = ', V_pos_vec / V_inf
+  ! write(*,*) 'i_radtrans: V_pos = ', V_pos
   ! \mu
-  costheta = dot_product(package(pack_index)%dir, V_res_vec) / norm2(V_res_vec)
+  costheta = dot_product(package(dummypackage)%dir, V_pos_vec) / norm2(V_pos_vec)
+  ! write(*,*) 'i_radtrans: costheta = ', costheta
   ! dv/dr
-  dV_res = beta * R_star * V_inf / R_res**2 * (1.0 - R_star / R_res) ** (beta - 1)
-  ROverV = 1.0 / (costheta ** 2.0 * dV_res + (1.0 - costheta**2.0) * V_res / R_res)
+  dV_pos = beta * R_star * V_inf / ( R_pos ** 2.0 ) * (1.0 - R_star / R_pos) ** (beta - 1.0)
+  ! write(*,*) 'i_radtrans: dV_pos = ', dV_pos
+  ROverV = 1.0 / ( costheta ** 2.0 * dV_pos + ( 1.0 - costheta ** 2.0 ) * V_pos / R_pos )
+  ! write(*,*) 'i_radtrans: V_pos_vec = ', V_pos_vec, ' costheta = ', costheta, &
+  !  ' dV_pos = ', dV_pos, ' ROverV = ', ROverV
   ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * &
   !  ROverV / (4.0 * pi) * corrFactor 
  END IF
@@ -121,14 +118,16 @@ DO I = 1, nlns
  actirates%Lma_int_dorad(I) = actVal * exci_energy_l
  ! write(*,*) 'i_radtrans: betalu = ', betalu
  IF(actirates%Lma_int_dorad(I) < 0.D0) STOP 'i_radtrans: Lma_int_dorad < 0'
- Zintdown = Zintdown + actirates%Lma_int_dorad(I)
  actirates%Lma_rad(I) = actVal * (exci_energy_u - exci_energy_l)
+ ! write(*,*) 'i_radtrans: e_l = ', exci_energy_l, ' e_u - e_l = ', exci_energy_u - exci_energy_l
+ Zintdown = Zintdown + actirates%Lma_int_dorad(I)
  Zrad = Zrad + actirates%Lma_rad(I)
-  write(99,*) 'i_radtrans: taulu = ', taulu, ' betalu = ', betalu
-  write(99,*) 'i_radtrans: low_pop = ', low_pop, ' up_pop = ', up_pop, ' Blu = ', Blu, ' ROverV = ', ROverV
-  write(99,*) 'i_radtrans: ROverV = ', ROverV
-  write(99,*) 'i_radtrans: Lrad = ', actirates%Lma_rad(I), ' Lintdown = ', actirates%Lma_int_dorad(I)
-  ! write(*,*) 'i_radtrans: e_l = ', exci_energy_l, ' e_u - u_l = ', exci_energy_u - exci_energy_l
+ ! write(*,*) 'i_radtrans: taulu = ', taulu, ' betalu = ', betalu
+ ! write(*,*) 'i_radtrans: low_pop = ', low_pop, ' up_pop = ', up_pop, ' Blu = ', Blu, ' ROverV = ', ROverV
+ ! write(*,*) 'i_radtrans: ROverV = ', ROverV
+ ! write(*,*) 'i_radtrans: Lma_rad = ', actirates%Lma_rad(I), actirates%Lma_int_dorad(I)
+ ! write(99,*) 'i_radtrans: Lrad = ', actirates%Lma_rad(I), ' Lintdown = ', actirates%Lma_int_dorad(I)
+ ! write(*,*) 'i_radtrans: e_l = ', exci_energy_l, ' e_u - u_l = ', exci_energy_u - exci_energy_l
  IF(exci_energy_u - exci_energy_l < 0) STOP 'i_radtrans: exci_energy_u - exci_energy_l < 0'
 END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -162,23 +161,18 @@ DO I = 1, nluns
   package(dummypackage) = package(pack_index)
   CALL emit_rpackage(dummypackage)
   CALL boundary3(pack_index, cell_dist, next_cell)
-  CALL resonance_distance(pack_index, fr_line, cell_dist, ldist, inCell)
   ! according to (10) in Abbot & Lucy (1985)
   ! r
-  R_res = norm2(package(dummypackage)%pos + package(dummypackage)%dir * ldist)
-  IF(R_res > R_inf .OR. R_res < R_star) THEN
-   actirates%Lma_int_uprad(I) = 0.D0
-   CYCLE
-  END IF
+  R_pos = norm2(package(dummypackage)%pos)
   ! ||v||
-  V_res = V_inf * (1.0 - R_star / R_res ) ** beta
+  V_pos = V_inf * (1.0 - R_star / R_pos ) ** beta
   ! v = (v_x, v_y, v_z)
-  V_res_vec = V_res * package(pack_index)%pos / norm2(package(pack_index)%pos)
+  V_pos_vec = V_pos * package(pack_index)%pos / norm2(package(pack_index)%pos)
   ! \mu
-  costheta = dot_product(package(pack_index)%dir, V_res_vec) / norm2(V_res_vec)
+  costheta = dot_product(package(pack_index)%dir, V_pos_vec) / norm2(V_pos_vec)
   ! dv/dr
-  dV_res = beta * R_star * V_inf / R_res**2 * (1.0 - R_star / R_res)**(beta-1)
-  ROverV = 1.0 / (costheta**2.0 * dV_res + (1.0 - costheta**2.0)* V_res / R_res)
+  dV_pos = beta * R_star * V_inf / R_pos**2 * (1.0 - R_star / R_pos)**(beta-1)
+  ROverV = 1.0 / (costheta**2.0 * dV_pos + (1.0 - costheta**2.0)* V_pos / R_pos)
   ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * &
   !  ROverV / (4.0 * pi) * corrFactor 
  END IF
