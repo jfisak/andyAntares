@@ -111,8 +111,8 @@ DO I = 1, nlns
   !  ROverV / (4.0 * pi) * corrFactor 
  END IF
  ! optical depth
- taulu = low_pop * Blu * h * light_speed * ROverV / (4.0 * pi) * &
-  (1.D0 - (stat_weight_l * up_pop) / (stat_weight_u * low_pop))
+ taulu = up_pop * model_grid(current_mgi)%rho * linelist(act_line)%A_ul * h * light_speed * ROverV / &
+  (4.0 * pi * linelist(act_line)%freq)
  betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
  actVal = up_pop * betalu * linelist(act_line)%A_ul
  actirates%Lma_int_dorad(I) = actVal * exci_energy_l

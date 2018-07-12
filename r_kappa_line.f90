@@ -67,8 +67,8 @@ DO I = 1, nnextlines
   ! \mu
   costheta = dot_product(package(pack_index)%dir, V_res_vec) / norm2(V_res_vec)
   ! dv/dr
-  dV_res = beta * R_star * V_inf / R_res**2 * (1.0 - R_star / R_res)**(beta-1)
-  ROverV = 1.0 / (costheta**2.0 * dV_res + (1.0 - costheta**2.0)* V_res / R_res)
+  dV_res = beta * R_star * V_inf / R_res**2 * (1.0 - R_star / R_res)**(beta - 1)
+  ROverV = 1.0 / (costheta**2.0 * dV_res + (1.0 - costheta**2.0) * V_res / R_res)
   ! write(*,*) 'r_kappa_line: R_res/R_inf = ', R_res/R_inf, ' costheta = ', costheta
   ! write(*,*) 'dV_res = ', dV_res
   ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * &

@@ -39,12 +39,12 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
 #Rules
 all : $(PROJECT)
 
+types.o: types.f90 
 rates_i.o: rates_i.f90
 rates_k.o: rates_k.f90
 rates_r.o: rates_r.f90
 ran2_class.o: ran2_class.f90 
 counters.o: counters.f90
-types.o: types.f90 
 	$(F90) $(FCFLAGS) -o $@ -c $<
 
 %.for:
