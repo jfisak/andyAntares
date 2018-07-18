@@ -14,7 +14,7 @@
    ! number of new created cells in cell
    INTEGER                              :: no_dcells
    ! variables for boundaries
-   INTEGER                              :: up_bound, bound, newbound
+   INTEGER                              :: up_bound, newbound
    ! maximal number of particles in one cell
    INTEGER, PARAMETER                   :: maxPart = 2
    DOUBLE PRECISION, DIMENSION(3)       :: corner, cell_width_2

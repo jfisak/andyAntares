@@ -25,7 +25,6 @@ INTEGER                                         :: n_ions, n_levels, npoints
 DOUBLE PRECISION                                :: flux, flux_function
 ! x = h\nu / (k_B * T)
 DOUBLE PRECISION                                :: x
-DOUBLE PRECISION                                :: int1, int2
 DOUBLE PRECISION                                :: sfactor
 DOUBLE PRECISION                                :: summ1, summ2! , summ3
 

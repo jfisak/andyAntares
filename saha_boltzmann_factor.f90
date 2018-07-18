@@ -6,7 +6,7 @@ USE types
 
 IMPLICIT NONE
 
-INTEGER                              :: indexe, indexi, model_grid_index
+INTEGER                              :: indexe, indexi
 DOUBLE PRECISION                     :: temp, sb_factor, U1, U2
 DOUBLE PRECISION, PARAMETER          :: large_number = 1.D150
 LOGICAL                              :: too_large

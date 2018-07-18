@@ -12,7 +12,7 @@ INTEGER                                 :: pack_index, level, nlns, nluns
 INTEGER                                 :: indexe, indexi
 INTEGER, ALLOCATABLE                    :: linetransitions(:)
 INTEGER, ALLOCATABLE                    :: lineuptransitions(:)
-DOUBLE PRECISION                        :: population, low_pop
+DOUBLE PRECISION                        :: population
 ! constans
 DOUBLE PRECISION, PARAMETER             :: c0 = 5.465D-11
 DOUBLE PRECISION, PARAMETER             :: IH = 13.6 * e_v

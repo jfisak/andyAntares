@@ -31,12 +31,11 @@ TYPE(irates)      :: actirates
 INTEGER                                 :: dummypackage, pack_index
 DOUBLE PRECISION                        :: constant
 DOUBLE PRECISION                        :: costheta
-DOUBLE PRECISION                        :: dV_pos, ldist, V_pos, R_pos
+DOUBLE PRECISION                        :: dV_pos, V_pos, R_pos
 DOUBLE PRECISION                        :: ROverV
 DOUBLE PRECISION, DIMENSION(3)          :: V_pos_vec
 DOUBLE PRECISION                        :: fr_line
 DOUBLE PRECISION                        :: cell_dist
-LOGICAL                                 :: inCell
 INTEGER                                 :: next_cell
 
 dummypackage = SIZE(package)

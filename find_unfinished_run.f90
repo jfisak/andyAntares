@@ -7,7 +7,6 @@ CHARACTER(30)                   :: temp_file_name
 INTEGER                         :: n_file, cur_pack
 LOGICAL                         :: file_exists
 INTEGER                         :: reading_packets
-CHARACTER(100)                  :: line
 TYPE(photon)                    :: cur_package
 
 

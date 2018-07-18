@@ -40,10 +40,15 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
 all : $(PROJECT)
 
 types.o: types.f90 
+	$(F90) $(FCFLAGS) -o $@ -c $<
 rates_i.o: rates_i.f90
+	$(F90) $(FCFLAGS) -o $@ -c $<
 rates_k.o: rates_k.f90
+	$(F90) $(FCFLAGS) -o $@ -c $<
 rates_r.o: rates_r.f90
+	$(F90) $(FCFLAGS) -o $@ -c $<
 ran2_class.o: ran2_class.f90 
+	$(F90) $(FCFLAGS) -o $@ -c $<
 counters.o: counters.f90
 	$(F90) $(FCFLAGS) -o $@ -c $<
 

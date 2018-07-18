@@ -6,23 +6,21 @@ USE types
 
 IMPLICIT NONE 
 
-INTEGER                       :: NR,n_packet,n_packs
+INTEGER                       :: NR, n_packs
 INTEGER                       :: I,J, K, lw_index, lg_index
-LOGICAL                       :: found, linint
+LOGICAL                       :: found
 INTEGER, PARAMETER            :: maxrows = 6000000
-DOUBLE PRECISION              :: seed
 DOUBLE PRECISION, DIMENSION(n_packs) :: freq
 DOUBLE PRECISION              :: freq_min, freq_max, flux_max
 DOUBLE PRECISION              :: ran_freq, ran_flux, bound_flux
-DOUBLE PRECISION              :: junk
 ! INTEGER                       :: ios
 DOUBLE PRECISION              :: sinseed, cosseed
 ! the linear interpolation parameters
 DOUBLE PRECISION              :: a_linint, b_linint
 DOUBLE PRECISION              :: x1, x2, fx1, fx2
 ! division on several intervals
-DOUBLE PRECISION                :: summ, summ2
-DOUBLE PRECISION                :: tot_int_val, tot_int_val2
+DOUBLE PRECISION                :: summ
+DOUBLE PRECISION                :: tot_int_val
 INTEGER                         :: low_bound, upp_bound
 INTEGER                         :: Nints, Npoints
 DOUBLE PRECISION, ALLOCATABLE   :: int_val(:)
@@ -94,7 +92,7 @@ DO I = 1, Nints
  low_bound = 1 + Npoints * (I - 1)
  upp_bound = 1 + Npoints * I
  IF(I == Nints) upp_bound = NR
- loc_npacks = int_val(I) / tot_int_val * DBLE(n_packs)
+ loc_npacks = INT(int_val(I) / DBLE(tot_int_val) * n_packs)
  ! write(*,*) 'acc_rej_montecarlo: loc_npacks = ', loc_npacks
  IF(loc_npacks == 0) CYCLE
  ! we generate now loc_npacks on the given interval

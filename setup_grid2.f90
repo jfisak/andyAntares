@@ -7,10 +7,9 @@
   IMPLICIT NONE    
 
   ! loop variables
-  INTEGER                                :: I, J, K, L, M
+  INTEGER                                :: I, J, K, L
   INTEGER, PARAMETER                     :: Nmax = 1000000000               
   ! variables describing dynamic cells
-  DOUBLE PRECISION, DIMENSION(3)         :: cell_width2
   INTEGER                                :: max_n_dcell, N_dyn_grid
   INTEGER                                :: xp, xm, yp, ym, zp, zm
   TYPE(dyn_grid_cell), ALLOCATABLE       :: pom2(:)

@@ -8,26 +8,22 @@ SUBROUTINE virtual_particles(dimIM)
  ! input variables
  INTEGER                        :: dimIM
  ! 
- INTEGER                        :: I,J,K,NP
+ INTEGER                        :: I,J,NP
  ! 1D model: intervals for particles distribution
- INTEGER                        :: Ntheta, Nphi
- DOUBLE PRECISION               :: radius, phi, theta
- DOUBLE PRECISION               :: angle
+ DOUBLE PRECISION               :: radius, phi
  DOUBLE PRECISION, DIMENSION(3) :: direction
- INTEGER                        :: angleParam, np_shell
+ INTEGER                        :: np_shell
  ! division of an interval [0, 1] into parts corresponding to a density
- DOUBLE PRECISION               :: rhotot, rhomax
+ DOUBLE PRECISION               :: rhomax
  ! virtual particles distribution
  DOUBLE PRECISION               :: sumr
  DOUBLE PRECISION               :: delta
  ! bound of the division
- DOUBLE PRECISION               :: bound, actbound
  DOUBLE PRECISION, DIMENSION(n_modelgrid) :: bounds
  INTEGER, DIMENSION(n_modelgrid) :: nOfPoints
  ! a random point
  DOUBLE PRECISION               :: point
- DOUBLE PRECISION               :: ran2, rand_rho, rand_r
- INTEGER                        :: loc_rad
+ DOUBLE PRECISION               :: ran2
 
 
 !OPEN(20,FILE="virtual_particles.dat")

@@ -4,7 +4,7 @@ IMPLICIT NONE
 
 ! input variables
 CHARACTER(LEN=20)                       :: phot_file
-INTEGER                                 :: indexe, ion, max_levels
+INTEGER                                 :: indexe, max_levels
 INTEGER                                 :: inputdata
 CHARACTER(LEN=20)                       :: junk
 ! loop index
@@ -20,12 +20,9 @@ DOUBLE PRECISION                        :: freqt
 DOUBLE PRECISION                        :: freq, cross
 INTEGER                                 :: n_read
 DOUBLE PRECISION, PARAMETER             :: rydberg = 13.5979996 !(eV)
-! energy calculation
-DOUBLE PRECISION                        :: ionstage, energyFZ
 ! reading files
 INTEGER                                 :: ios
 INTEGER                                 :: new_ion, old_ion
-INTEGER                                 :: lowering_index
 LOGICAL                                 :: save_cs
 INTEGER                                 :: atom_number
 INTEGER                                 :: electron_number

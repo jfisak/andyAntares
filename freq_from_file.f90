@@ -9,10 +9,9 @@ SUBROUTINE freq_from_file(n_packs,freq)
   IMPLICIT NONE 
 
   INTEGER                       :: NR,n_packet,n_packs
-  INTEGER                       :: I,J, lw_index, lg_index
+  INTEGER                       :: I
 !  LOGICAL                       :: found, linint
   INTEGER, PARAMETER            :: maxrows = 6000000
-  DOUBLE PRECISION              :: seed
   DOUBLE PRECISION, DIMENSION(n_packs) :: freq
 !  DOUBLE PRECISION              :: freq, freq_min, freq_max, flux_max
 !  DOUBLE PRECISION              :: ran_freq, ran_flux, bound_flux

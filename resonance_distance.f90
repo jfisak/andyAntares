@@ -17,7 +17,7 @@ DOUBLE PRECISION                :: minint
 DOUBLE PRECISION                :: chint
 ! testing
 DOUBLE PRECISION                :: ldist_analyt
-INTEGER                         :: n_pack_d, dummypackage
+INTEGER                         :: dummypackage
 DOUBLE PRECISION                :: bfreq, halffreq, D
 DOUBLE PRECISION                :: ufreq, lfreq
 LOGICAL                         :: TESTING = .FALSE.
@@ -28,7 +28,6 @@ LOGICAL                         :: calculate
 INTEGER                         :: I
 INTEGER                         :: cell_number
 DOUBLE PRECISION                :: dist
-DOUBLE PRECISION                :: f_res
 
 dummypackage = SIZE(package)
 package(dummypackage) = package(pack_index)

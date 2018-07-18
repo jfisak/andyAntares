@@ -12,7 +12,6 @@ REAL(kind=16)                        :: N, D, SUMM
 !DOUBLE PRECISION                        :: N, D, SUMM
 DOUBLE PRECISION                        :: sb_factor
 LOGICAL                                 :: too_large
-DOUBLE PRECISION                        :: divide_factor
 
 !  print*, 'START SUBROUTINE ionization_fraction' 
 !  print*, 'Ion.frac. is called for:',indexe, indexi, temp, el_nd

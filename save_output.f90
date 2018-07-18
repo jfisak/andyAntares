@@ -24,12 +24,11 @@ CHARACTER(LEN=60)                       :: fileTempStruct, fileOccNum, fileFreqs
 CHARACTER(LEN=60)                       :: fileHydrogenFrac, fileHeliumFrac
 ! ionization fraction files
 DOUBLE PRECISION                        :: frac, N_jk, totElPop
-DOUBLE PRECISION                        :: frac1, N_jk1, totElPop1
-DOUBLE PRECISION                        :: frac2, N_jk2, totElPop2
-DOUBLE PRECISION                        :: frac3, N_jk3, totElPop3
+! DOUBLE PRECISION                        :: frac1, N_jk1, totElPop1
+! DOUBLE PRECISION                        :: frac2, N_jk2, totElPop2
+! DOUBLE PRECISION                        :: frac3, N_jk3, totElPop3
 INTEGER                                 :: indexe, indexi
 CHARACTER(LEN=60)                       :: filePackets
-LOGICAL                                 :: itsopen
 
 ! creates a folder, where an output will be saved
 ! it reads a shell variable OUTPUTFO, if it does not

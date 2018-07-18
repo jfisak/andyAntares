@@ -6,10 +6,8 @@ IMPLICIT NONE
 
 DOUBLE PRECISION                        :: temp
 INTEGER                                 :: indexe, indexi, indexl
-INTEGER                                 :: dimind
 ! INTEGER, ALLOCATABLE                    :: indexl0(:)
 INTEGER, DIMENSION(1)                   :: indexl0
-DOUBLE PRECISION                        :: popj, popjp1
 DOUBLE PRECISION                        :: sfactor
 DOUBLE PRECISION                        :: sahaconst, gijk, g0, eijk, e0
 
