@@ -7,8 +7,8 @@ SUBROUTINE move_package(pack_index, dist)
 
   IMPLICIT NONE    
 
-  INTEGER                           :: pack_index, nc
-  DOUBLE PRECISION                  :: dist, length, D, vec_length
+  INTEGER                           :: pack_index
+  DOUBLE PRECISION                  :: dist, D, vec_length
   INTEGER                           :: dummypackage
   INTEGER                           :: n_pack_d
 

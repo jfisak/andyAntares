@@ -8,7 +8,6 @@ DOUBLE PRECISION FUNCTION  ran2(idum)
  INTEGER                     :: j,k
  INTEGER                     :: iy, idum2
  INTEGER, DIMENSION(NTAB)    :: iv
- DOUBLE PRECISION            :: out_ran
 
  IF(.NOT. ASSOCIATED(ranum)) THEN
   !write(*,*) 'ran2: allocating ranum'

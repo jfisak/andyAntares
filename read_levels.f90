@@ -10,22 +10,21 @@ SUBROUTINE read_levels(el_index, lowerion, upperion, levels_type, filename)
  INTEGER                        :: element, lowerion, upperion, levels_type, el_index
  CHARACTER (LEN=20)             :: filename
  ! loop variables
- INTEGER                        :: I, J, K
+ INTEGER                        :: I, J
  INTEGER                        :: act_lev
  ! reading from file variables
- INTEGER                        :: ios, reading_levels
- INTEGER                        :: current_element, current_ion, ions
- INTEGER                        :: n_levels, l_numb, l_index
+ INTEGER                        :: reading_levels
+ INTEGER                        :: current_ion, ions
+ INTEGER                        :: n_levels, l_index
  INTEGER                        :: indexi, act_index
- INTEGER                        :: lowering_index
  ! saves number of levels for the ions (lowerion, upperion)
  INTEGER, ALLOCATABLE           :: nlevels(:)
- INTEGER                        :: act_nlevels, nions, nline
- INTEGER                        :: cur_ion, ionindex
+ INTEGER                        :: act_nlevels, nions
+ INTEGER                        :: cur_ion
  CHARACTER (LEN=200)            :: line
  CHARACTER (LEN=15)              :: iconf
  CHARACTER (LEN=15)              :: junk
- DOUBLE PRECISION               :: i_pot, l_energy, ionoffset, ionstage, s_weight
+ DOUBLE PRECISION               :: l_energy, ionoffset, s_weight
  DOUBLE PRECISION, PARAMETER    :: rydberg = 13.5979996 !(eV)
  ! calculation of excitation energy (OP)
  ! current excitation energy

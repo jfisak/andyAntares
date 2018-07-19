@@ -14,8 +14,6 @@ DOUBLE PRECISION                :: summ
 DOUBLE PRECISION                :: rand
  DOUBLE PRECISION                       :: ran2
 !package(pack_index)%typ = type_rpkt
-! total number of possible cooling processes
-INTEGER                         :: n_cool_tot
 ! new frequency
 DOUBLE PRECISION                :: new_freq
 ! choosing the given process
@@ -25,7 +23,6 @@ TYPE(krates)                    :: actikrates
 INTEGER                         :: indexe, indexi, indexl
 INTEGER                         :: actIndex
 INTEGER                         :: n_ions, n_levels
-INTEGER                         :: nline
 ! write down the processes
 LOGICAL                         :: procout = .FALSE.
 ! double precission
@@ -65,7 +62,7 @@ Z2 = Z1 + Zion
 Z3 = Z2 + Zfb
 ! total rate
 Ztot = Zexcit + Zff + Zion + Zfb
-rand = rand * Ztot
+rand = rand   * Ztot
 ! write(*,*) 'do_kpackage: Zexcit = ', Zexcit, ' Zff = ', Zff, ' Zion = ', Zion, ' Zfb = ', Zfb
 ! write(*,*) 'do_kpackage: Z0 = ', Z0, ' Z1 = ', Z1, ' Z2 = ', Z2, ' Z3 = ', Z3
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

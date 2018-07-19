@@ -14,10 +14,6 @@ INTEGER                         :: pack_index, next_cell, n_cell
 DOUBLE PRECISION                :: dist
 ! dynamic cell variables
 INTEGER                         :: act_cell
-! photon properties
-DOUBLE PRECISION, DIMENSION(3)  :: dir, phot_pos
-! position of the cross point
-DOUBLE PRECISION, DIMENSION(3)  :: cross_pos
 
 ! calculation of a distance from the basic cell
 ! firstly we have to know which basic cell photon occupies

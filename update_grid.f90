@@ -10,7 +10,6 @@ SUBROUTINE update_grid(iteration)
   INTEGER             :: gridcell, indexe, indexi, numb_ions, iteration
   DOUBLE PRECISION    :: el_nd, temp, frac, U, N_jk, gl_pop
   INTEGER             :: max_n_dcell
-  INTEGER             :: I
 INTEGER, DIMENSION(1)   :: indexl0
 
   

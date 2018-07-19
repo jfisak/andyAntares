@@ -7,17 +7,12 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
  IMPLICIT NONE    
 
   INTEGER                           :: pack_index, event
-  DOUBLE PRECISION                  :: dist, rand_numb, tau, tau_rand
-  DOUBLE PRECISION, DIMENSION(3)    :: direction
   ! loop variables
   INTEGER                               :: I
   DOUBLE PRECISION                      :: summ, rand
   TYPE(rrates)                          :: actirrates
   DOUBLE PRECISION                      :: freq, freqt
   INTEGER                               :: indexe, indexi, indexl
-  INTEGER                               :: actIndex
-  INTEGER                               :: n_ions, n_levels
-  INTEGER                               :: nline
  DOUBLE PRECISION                       :: ran2
   ! total rates for the given processes
   DOUBLE PRECISION                      :: Zthomson, Zphotion, Zff

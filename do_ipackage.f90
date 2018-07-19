@@ -13,32 +13,28 @@ INTEGER                         :: last_line, last_level, last_ion
 ! is a macro atom active?
 INTEGER                         :: active
 ! number of line transitions
-INTEGER                         :: nlns, nluns, act_line
+INTEGER                         :: nlns, nluns
 INTEGER                         :: element_index, ion_index
-INTEGER                         :: I, J, K, line
-INTEGER, ALLOCATABLE            :: linetransitions(:), transitions(:), lineuptransitions(:), &
-                                   lineradtransitions(:) ! an array of transitions down from last_line
+INTEGER                         :: I, line
+INTEGER, ALLOCATABLE            :: linetransitions(:), lineuptransitions(:)
 INTEGER                         :: nlevslion
-DOUBLE PRECISION                :: actVal
 DOUBLE PRECISION                :: rand
 ! sum function
-DOUBLE PRECISION                :: Z, Ztotal, Zintdownrad, Zraddeexc, Zintuprad, Zrad, Zcoll, &
-                                   Zintupcoll, Zintdowncoll, Zdown, Zup, Zintdown, Zintup, &
+DOUBLE PRECISION                :: Ztotal, Zintdownrad, Zraddeexc, Zintuprad, Zcoll, &
+                                   Zintupcoll, Zintdowncoll, Zintdown, Zintup, &
                                    Zphotrecom, Zintrecombination, Zcollrecom
 ! B-F internal processes
 DOUBLE PRECISION                :: Zphotionup, Zphotiondown, Zcollionup, Zcolliondown
 DOUBLE PRECISION                :: Zionization, Zrecombination
 ! partition function for the given process
 DOUBLE PRECISION                :: Z0, Z1, Z2, Z3, Z4, Z5, Z6, Z7
-DOUBLE PRECISION                :: summ, stat_weight_u, stat_weight_l, exci_energy, exci_energy_l, exci_energy_u
+DOUBLE PRECISION                :: summ
 DOUBLE PRECISION                :: ran2
 ! populations
-DOUBLE PRECISION                :: act_pop, low_pop
+DOUBLE PRECISION                :: act_pop
 INTEGER                         :: get_package_model_index, current_mgi
 ! new frequency
 DOUBLE PRECISION                :: new_freq
-! beta calculation
-DOUBLE PRECISION                :: taulu, betalu, Blu
 ! Doppler factor
 DOUBLE PRECISION                :: D
 TYPE(irates)                    :: actirates
@@ -164,6 +160,7 @@ IF(Zcollrecom < 0.D0) STOP 'do_ipackage: Zcollrecom < 0'
    actirates%Lma_int_do(I) = actirates%Lma_int_dorad(I) + actirates%Lma_int_docoll(I)
  END DO
  Zintdown = Zintdownrad + Zintdowncoll
+ ! write(*,*) 'do_ipackage: Zintdowncoll = ', Zintdowncoll
  ! total rates of internal upward jump
  DO I = 1, nluns
   ! internal jump up

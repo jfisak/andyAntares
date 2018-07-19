@@ -5,7 +5,7 @@ SUBROUTINE do_spectrum(n_pack)
  IMPLICIT NONE    
 
  INTEGER                               :: I, n_pack, pack_index, nubin
- DOUBLE PRECISION                      :: delta_nu, delta_e, freq, lambda, flambda, planck, ls_A, frequency
+ DOUBLE PRECISION                      :: delta_nu, delta_e, freq, lambda, flambda, planck, ls_A
  DOUBLE PRECISION, DIMENSION(n_nubin)  :: specflux, redspecflux, freqs
  INTEGER, DIMENSION(n_nubin)           :: escs
 

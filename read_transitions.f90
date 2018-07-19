@@ -23,8 +23,7 @@ SUBROUTINE read_transitions(el_index, lowerion, upperion, transition_type, filen
  ! reading from the file
  CHARACTER (LEN=200)            :: line
  INTEGER                        :: at_number
- INTEGER                        :: ios, reading_transitions, linereading, n_levels, tot_ntrans
- INTEGER                        :: n_transitions, curr_n_tran, n_line
+ INTEGER                        :: reading_transitions, n_levels, tot_ntrans
  INTEGER                        :: current_element, current_ion
  INTEGER                        :: kindex, low_level, up_level
  ! actual lower and upper index

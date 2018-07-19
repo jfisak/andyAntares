@@ -8,7 +8,7 @@ USE types
 IMPLICIT NONE    
 
 INTEGER                           :: pack_index
-DOUBLE PRECISION                  :: D_gamma, D, vel_radial, vec_length
+DOUBLE PRECISION                  :: D_gamma, D
 DOUBLE PRECISION, DIMENSION(3)    :: vel_vec
   
 D_gamma = 1.D0 ! For non-relativistic case    

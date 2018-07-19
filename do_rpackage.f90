@@ -7,11 +7,10 @@ SUBROUTINE do_rpackage(pack_index)
 
   IMPLICIT NONE    
 
-  INTEGER                           :: I, I_esc, pack_index, nc, next_cell, n_pack, event
+  INTEGER                           :: pack_index, next_cell, event
   INTEGER                           :: get_package_model_index
-  DOUBLE PRECISION                  :: tau, xi, tau_rand, cell_dist, e_dist, r,   &
-                                       rho_cell, I_beta, opa_cell, lower_opa, delta_opa
-  INTEGER                           :: check_cell
+  DOUBLE PRECISION                  :: cell_dist, e_dist, &
+                                       rho_cell, opa_cell
   ! DOUBLE PRECISION, PARAMETER       :: rho = 1.D0
 
   ! DOUBLE PRECISION, PARAMETER       :: opa_cell=1.D0/20.D0, rho=1.D0
@@ -20,8 +19,6 @@ INTEGER                                         :: n_thomson
 !INTEGER                                         :: n_tot_cont
 TYPE(rrates)                                    :: actirrates
 ! free free
-INTEGER                                 :: n_ions
-INTEGER                                 :: indexe, indexi
 
 ! number of thomson scattering 
 ! total number of continuum opacity sources

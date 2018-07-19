@@ -4,8 +4,8 @@ SUBROUTINE init_photsphere(n_pack)
 
   IMPLICIT NONE
 
-  INTEGER                           :: I, J, n_pack, ind_cell_numb, ind_x, ind_y, ind_z 
-  DOUBLE PRECISION                  :: L_star, sint, cost, sinp, cosp, length, freq, D
+  INTEGER                           :: I, J, n_pack, ind_cell_numb
+  DOUBLE PRECISION                  :: L_star, sint, cost, sinp, cosp, freq, D
   !   DOUBLE PRECISION, PARAMETER       :: delta_t=1.D0
   DOUBLE PRECISION, DIMENSION(3)    :: direction, directionn
   DOUBLE PRECISION, DIMENSION(n_pack) :: frequencies

@@ -6,18 +6,15 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
  IMPLICIT NONE    
 
  INTEGER                           :: I, pack_index, event,do_loop, get_package_model_index
- INTEGER                           :: nextLine, indexe, indexi, lower_level, current_mgi
+ INTEGER                           :: nextLine, current_mgi
 !pointer to a field of continuum rates
  DOUBLE PRECISION                  :: e_dist, ran_numb, tau_rand, cell_dist, D
- DOUBLE PRECISION                  :: tau, l_dist, tau_line, constant, pop_number, tau_cont
- DOUBLE PRECISION                  :: electron_density, kappa_cont, vec_length, dist
- DOUBLE PRECISION                  :: graund_level_pop, g_gl, g_ll, e_exc
- DOUBLE PRECISION                  :: f_ul
+ DOUBLE PRECISION                  :: tau, l_dist, tau_line, constant, tau_cont
+ DOUBLE PRECISION                  :: electron_density, kappa_cont, dist
  DOUBLE PRECISION, PARAMETER       :: largeNumber = 1.D20
  ! number of lines with the same frequencies
  INTEGER                           :: n_next_lines
  DOUBLE PRECISION, DIMENSION(3)    :: vel_vec
- INTEGER                           :: approximation
  INTEGER                           :: dummypackage
  INTEGER                           :: n_pack_d
  ! INTEGER                           :: OMP_GET_THREAD_NUM
@@ -27,9 +24,6 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
  ! looking for next line
  INTEGER                           :: act_line
  DOUBLE PRECISION                  :: summ, tot_lop
- DOUBLE PRECISION                  :: Blu! , exci_energy_l, exci_energy_u
- DOUBLE PRECISION                      :: low_pop, upp_pop 
- DOUBLE PRECISION                      :: stat_weight_l, stat_weight_u
  LOGICAL                                :: procout=.FALSE.
  LOGICAL                                :: inCell
  LOGICAL                                :: raninit

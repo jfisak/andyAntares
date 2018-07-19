@@ -11,20 +11,18 @@ SUBROUTINE read_composition()
 
   IMPLICIT NONE    
 
-  INTEGER                            :: I, J, flag
+  INTEGER                            :: I, J
   INTEGER                            :: element_index, Z, lowerion, upperion
   INTEGER                            :: photn
   INTEGER                            :: levels_type, transition_type
   INTEGER                            :: atom_number
   DOUBLE PRECISION                   :: abundance
-  INTEGER                            :: current_element,current_ion, nions,ios, NR
+  INTEGER                            :: current_ion, nions,ios
   CHARACTER (20)                     :: filename, photfile
   CHARACTER (LEN=200)                    :: line
-  CHARACTER (1)                      :: junk
   DOUBLE PRECISION                   :: mass, tot_abundance
   ! photon cross section data type
   INTEGER                            :: phcs_type
-  INTEGER                            :: K, n_levels, n_ions, n_points
 
 ! initialization the toal number of photoionization cross section
 n_photcrossect = 0

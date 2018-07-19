@@ -6,7 +6,7 @@
       IMPLICIT NONE 
 
 !      DOUBLE PRECISION, PARAMETER      :: pi=3.1415926535897932D0 
-      DOUBLE PRECISION                 :: sint, cost, sinp, cosp, phi, ran2, length
+      DOUBLE PRECISION                 :: sint, cost, sinp, cosp, phi, ran2
       DOUBLE PRECISION, DIMENSION(3)   :: direction
 !      INTEGER                          :: idum
 !      COMMON / RAN_SEED / idum
