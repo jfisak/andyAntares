@@ -36,6 +36,7 @@ DOUBLE PRECISION                        :: ROverV
 DOUBLE PRECISION, DIMENSION(3)          :: V_pos_vec
 DOUBLE PRECISION                        :: fr_line
 DOUBLE PRECISION                        :: cell_dist
+DOUBLE PRECISION                        :: corrFactor
 INTEGER                                 :: next_cell
 
 dummypackage = SIZE(package)
@@ -72,10 +73,12 @@ DO I = 1, nlns
  stat_weight_l = elements(indexe)%ions(indexi)%levels(linelist(act_line)%lower)%stat_waight
  exci_energy_u = elements(indexe)%ions(indexi)%levels(linelist(act_line)%upper)%exci_energy
  exci_energy_l = elements(indexe)%ions(indexi)%levels(linelist(act_line)%lower)%exci_energy
+ CALL populations(indexe, indexi, linelist(act_line)%lower, current_mgi, low_pop)
+ corrFactor = 1.D0 - (DBLE(stat_weight_l) * up_pop) / (DBLE(stat_weight_u) * low_pop)
+ IF(corrFactor < 0.D0) write(*,*) 'WARNING: correction factor 1 - (gl nu) / (gu nl) < 0'
  fr_line = linelist(act_line)%freq
  ! internal downward jump
  ! calculation of a rate coefficient
- CALL populations(indexe, indexi, linelist(act_line)%lower, current_mgi, low_pop)
  ! Einstein Blu coefficient
  Blu = light_speed**2.0 / (2.0 * h * fr_line*3.0) * DBLE(stat_weight_u) / DBLE(stat_weight_l) &
   * linelist(act_line)%A_ul
@@ -110,8 +113,11 @@ DO I = 1, nlns
   !  ROverV / (4.0 * pi) * corrFactor 
  END IF
  ! optical depth
- taulu = up_pop * model_grid(current_mgi)%rho * linelist(act_line)%A_ul * h * light_speed * ROverV / &
-  (4.0 * pi * linelist(act_line)%freq)
+ ! taulu = up_pop * linelist(act_line)%A_ul * h * light_speed * ROverV / &
+ !  (4.0 * pi * linelist(act_line)%freq)
+ taulu = low_pop * Blu * h * light_speed * ROverV / &
+  (4.0 * pi ) * corrFactor
+ ! write(*,*) 'i_radtrans: corrFactor = ', corrFactor, ' taulu = ', taulu
  betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
  actVal = up_pop * betalu * linelist(act_line)%A_ul
  actirates%Lma_int_dorad(I) = actVal * exci_energy_l
