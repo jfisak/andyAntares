@@ -36,6 +36,7 @@ DOUBLE PRECISION                        :: ROverV
 DOUBLE PRECISION, DIMENSION(3)          :: V_pos_vec
 DOUBLE PRECISION                        :: fr_line
 DOUBLE PRECISION                        :: cell_dist
+DOUBLE PRECISION                        :: corrFactor
 INTEGER                                 :: next_cell
 
 dummypackage = SIZE(package)
@@ -76,6 +77,8 @@ DO I = 1, nlns
  ! internal downward jump
  ! calculation of a rate coefficient
  CALL populations(indexe, indexi, linelist(act_line)%lower, current_mgi, low_pop)
+ corrFactor = 1.D0 - (stat_weight_l * up_pop) / (stat_weight_u * low_pop)
+ IF(corrFactor < 0.D0) write(*,*) 'WARNING: correction factor 1 - (gl nu) / (gu nl) < 0'
  ! Einstein Blu coefficient
  Blu = light_speed**2.0 / (2.0 * h * fr_line*3.0) * DBLE(stat_weight_u) / DBLE(stat_weight_l) &
   * linelist(act_line)%A_ul
@@ -110,8 +113,8 @@ DO I = 1, nlns
   !  ROverV / (4.0 * pi) * corrFactor 
  END IF
  ! optical depth
- taulu = up_pop * model_grid(current_mgi)%rho * linelist(act_line)%A_ul * h * light_speed * ROverV / &
-  (4.0 * pi * linelist(act_line)%freq)
+ taulu = up_pop * pi * e_v ** 2.0  * ROverV / (me_g * light_speed * linelist(act_line)%freq) &
+  * linelist(act_line)%f_ul * corrFactor
  betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
  actVal = up_pop * betalu * linelist(act_line)%A_ul
  actirates%Lma_int_dorad(I) = actVal * exci_energy_l
@@ -125,7 +128,7 @@ DO I = 1, nlns
  ! write(*,*) 'i_radtrans: low_pop = ', low_pop, ' up_pop = ', up_pop, ' Blu = ', Blu, ' ROverV = ', ROverV
  ! write(*,*) 'i_radtrans: ROverV = ', ROverV
  ! write(*,*) 'i_radtrans: Lma_rad = ', actirates%Lma_rad(I), actirates%Lma_int_dorad(I)
- ! write(99,*) 'i_radtrans: Lrad = ', actirates%Lma_rad(I), ' Lintdown = ', actirates%Lma_int_dorad(I)
+ ! write(*,*) 'i_radtrans: Lrad = ', actirates%Lma_rad(I), ' Lintdown = ', actirates%Lma_int_dorad(I)
  ! write(*,*) 'i_radtrans: e_l = ', exci_energy_l, ' e_u - u_l = ', exci_energy_u - exci_energy_l
  IF(exci_energy_u - exci_energy_l < 0) STOP 'i_radtrans: exci_energy_u - exci_energy_l < 0'
 END DO
@@ -176,8 +179,8 @@ DO I = 1, nluns
   !  ROverV / (4.0 * pi) * corrFactor 
  END IF
  ! optical depth
- taulu = low_pop * Blu * h * light_speed * ROverV / (4.0 * pi) * &
-  (1.D0 - (stat_weight_l * up_pop) / (stat_weight_u * low_pop))
+ taulu = low_pop * pi * e_v ** 2.0  * ROverV / (me_g * light_speed * linelist(act_line)%freq) &
+  * linelist(act_line)%f_ul * corrFactor
  betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
  actVal = (low_pop * Blu - up_pop * Bul) * betalu  * Jlu
  IF(actVal < 0.D0) STOP 'i_radtrans: (l_pop * Blu - u_pop * Bul) < 0'

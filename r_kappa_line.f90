@@ -74,13 +74,13 @@ DO I = 1, nnextlines
   ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * &
   !  ROverV / (4.0 * pi) * corrFactor 
  END IF
- write(*,*) 'r_kappa_line: ROverV = ', ROverV, ' low_pop = ', low_pop, &
-  ' Blu = ', Blu, ' corrFactor = ', corrFactor, ' ldist = ', ldist / R_star
+ ! write(*,*) 'r_kappa_line: ROverV = ', ROverV, ' low_pop = ', low_pop, &
+ !  ' Blu = ', Blu, ' corrFactor = ', corrFactor, ' ldist = ', ldist / R_star
  ! calculation of optical depth and rates
  ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * ROverV &
  ! / (4.0 * pi) * corrFactor * ldist
  actirrates%Lline(I) = low_pop * pi * e_v ** 2.0  * ROverV &
- / (me_g * light_speed * linelist(indexline)%freq) * linelist(indexline)%f_ul * corrFactor * ldist
+  / (me_g * light_speed * linelist(indexline)%freq) * linelist(indexline)%f_ul * corrFactor
  tau_line = tau_line + actirrates%Lline(I)
 END DO
 
