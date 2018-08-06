@@ -73,6 +73,9 @@ DO I = 1, nlns
  stat_weight_l = elements(indexe)%ions(indexi)%levels(linelist(act_line)%lower)%stat_waight
  exci_energy_u = elements(indexe)%ions(indexi)%levels(linelist(act_line)%upper)%exci_energy
  exci_energy_l = elements(indexe)%ions(indexi)%levels(linelist(act_line)%lower)%exci_energy
+ CALL populations(indexe, indexi, linelist(act_line)%lower, current_mgi, low_pop)
+ corrFactor = 1.D0 - (DBLE(stat_weight_l) * up_pop) / (DBLE(stat_weight_u) * low_pop)
+ IF(corrFactor < 0.D0) write(*,*) 'WARNING: correction factor 1 - (gl nu) / (gu nl) < 0'
  fr_line = linelist(act_line)%freq
  ! internal downward jump
  ! calculation of a rate coefficient
