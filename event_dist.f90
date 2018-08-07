@@ -74,7 +74,7 @@ nloop = 0
 DO WHILE (do_loop .EQ. 1) 
 
 nloop = nloop + 1
-IF(nloop == 100) STOP 'event_dist: nloop == 100'
+IF(nloop == 1000) STOP 'event_dist: nloop == 100'
 
 CALL next_line(1, pack_index, lastLine, nextLine, n_next_lines)
 !IF(linelist(nextLine)%freq > package(pack_index)

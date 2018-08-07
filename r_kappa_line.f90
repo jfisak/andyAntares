@@ -20,9 +20,13 @@ INTEGER                         :: lower_level, upper_level
 DOUBLE PRECISION                :: ROverV
 DOUBLE PRECISION                :: low_pop, upp_pop
 DOUBLE PRECISION                :: corrFactor
+DOUBLE PRECISION                :: constant
  
 ! calculation of optical depth
 ! the basic variables
+
+constant = (pi * e_charge**2)/( me_g * light_speed)
+
 tau_line = 0.D0
 DO I = 1, nnextlines
  indexline = nextLine + I - 1
@@ -79,8 +83,10 @@ DO I = 1, nnextlines
  ! calculation of optical depth and rates
  ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * ROverV &
  ! / (4.0 * pi) * corrFactor * ldist
- actirrates%Lline(I) = low_pop * pi * e_v ** 2.0  * ROverV &
-  / (me_g * light_speed * linelist(indexline)%freq) * linelist(indexline)%f_ul * corrFactor
+ ! actirrates%Lline(I) = low_pop * pi * e_v ** 2.0  * ROverV &
+ !  / (me_g * linelist(indexline)%freq) * linelist(indexline)%f_ul * corrFactor
+ actirrates%Lline(I) = light_speed / linelist(indexline)%freq * constant * &
+  linelist(indexline)%f_ul * low_pop * corrFactor * ROverV
  tau_line = tau_line + actirrates%Lline(I)
 END DO
 
