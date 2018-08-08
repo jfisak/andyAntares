@@ -1,39 +1,41 @@
 SUBROUTINE do_spectrum(n_pack)
 
- USE types
- 
- IMPLICIT NONE    
+USE types
 
- INTEGER                               :: I, n_pack, pack_index, nubin
- DOUBLE PRECISION                      :: delta_nu, delta_e, freq, lambda, flambda, planck, ls_A
- DOUBLE PRECISION, DIMENSION(n_nubin)  :: specflux, redspecflux, freqs
- INTEGER, DIMENSION(n_nubin)           :: escs
+IMPLICIT NONE    
 
- ! Set up the frequency grid to extract spectrum
- write(99,*) 'SETUP FREQ GRID'
- delta_nu = (nu_max - nu_min) / n_nubin
- DO I= 1, n_nubin 
-    freqs(I) = nu_min + (I - 1) * delta_nu
-    escs = 0
-    !write(99,*) i, spectrum(i)%freq, spectrum(i)%flux
- END DO
-   
- ! Loop over all packets
- write(99,*) 'BIN PACKETS' 
- DO pack_index = 1, n_pack
-  ! And take all which actually escaped
-  IF (package(pack_index)%typ .EQ. type_escaped) THEN
-   freq = package(pack_index)%freq_rf
-   ! Only bin those packets which are in the allowed frequency range
-   IF ((freq .GT. nu_min) .AND. (freq .LT. nu_max)) THEN
-    nubin = floor( (freq - nu_min) / delta_nu ) + 1
-    ! put the star to 100 parsecs
-    delta_e = (package(pack_index)%e_rf / delta_nu) / (4.D0 * pi * (1.D2 * parsec)**2)
-    specflux(nubin) = specflux(nubin) + delta_e
-    escs(nubin) = escs(nubin) + 1
-   ENDIF
-  END IF
- END DO
+INTEGER                               :: I, n_pack, pack_index, nubin
+DOUBLE PRECISION                      :: delta_nu, delta_e, freq, lambda, flambda, planck, ls_A
+DOUBLE PRECISION, DIMENSION(n_nubin)  :: specflux, redspecflux, freqs
+INTEGER, DIMENSION(n_nubin)           :: escs
+CHARACTER(LEN=80)                       :: outputspecfile
+
+write(outputspecfile, "(A, A9)") trim(outputfolder), "/spec.dat"
+! Set up the frequency grid to extract spectrum
+write(99,*) 'SETUP FREQ GRID'
+delta_nu = (nu_max - nu_min) / n_nubin
+DO I= 1, n_nubin 
+   freqs(I) = nu_min + (I - 1) * delta_nu
+   escs = 0
+   !write(99,*) i, spectrum(i)%freq, spectrum(i)%flux
+END DO
+  
+! Loop over all packets
+write(99,*) 'BIN PACKETS' 
+DO pack_index = 1, n_pack
+ ! And take all which actually escaped
+ IF (package(pack_index)%typ .EQ. type_escaped) THEN
+  freq = package(pack_index)%freq_rf
+  ! Only bin those packets which are in the allowed frequency range
+  IF ((freq .GT. nu_min) .AND. (freq .LT. nu_max)) THEN
+   nubin = floor( (freq - nu_min) / delta_nu ) + 1
+   ! put the star to 100 parsecs
+   delta_e = (package(pack_index)%e_rf / delta_nu) / (4.D0 * pi * (1.D2 * parsec)**2)
+   specflux(nubin) = specflux(nubin) + delta_e
+   escs(nubin) = escs(nubin) + 1
+  ENDIF
+ END IF
+END DO
 
 
 ! DO I = 1, n_nubin
@@ -57,16 +59,16 @@ SUBROUTINE do_spectrum(n_pack)
    specflux(I) = redspecflux(I) / DBLE(n_tasks)
   END DO
 #endif
-  OPEN (UNIT=19, FILE='spec.dat')     
-   DO I = 1, n_nubin  
-    lambda = ls_A / freqs(I)
-    flambda = specflux(I) * ( ls_A / lambda**2 )
-    planck = ( 2.D0 * h * ls_A**2 / lambda**5 ) * &
-     ( 1.D0 / ( EXP( h * ls_A / (lambda * BOLK * T_eff) ) - 1.D0) )
-    ! write(99,*) 'do_spectrum: lambda = ', lambda, ' flux = ', flambda
-    write(19,*) lambda, flambda, planck, flambda/planck, escs(I)
-   END DO
-  CLOSE(19)
+ OPEN (UNIT=19, FILE=outputspecfile)     
+  DO I = 1, n_nubin  
+   lambda = ls_A / freqs(I)
+   flambda = specflux(I) * ( ls_A / lambda**2 )
+   planck = ( 2.D0 * h * ls_A**2 / lambda**5 ) * &
+    ( 1.D0 / ( EXP( h * ls_A / (lambda * BOLK * T_eff) ) - 1.D0) )
+   ! write(99,*) 'do_spectrum: lambda = ', lambda, ' flux = ', flambda
+   write(19,*) lambda, flambda, planck, flambda/planck, escs(I)
+  END DO
+ CLOSE(19)
 #if mpi==1
  END IF
 #endif

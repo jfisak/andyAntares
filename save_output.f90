@@ -7,8 +7,10 @@ IMPLICIT NONE
 
 ! type of output
 INTEGER                                 :: otype
+! date and time info
+INTEGER, DIMENSION (9)            :: TT
 ! folder variables
-CHARACTER(LEN=30)                       :: outputfolder
+! CHARACTER(LEN=30)                       :: outputfolder
 LOGICAL                                 :: dirExists
 CHARACTER(LEN=30)                       :: mkdirCMD
 CHARACTER(LEN=60)                       :: lineOutput
@@ -28,15 +30,24 @@ DOUBLE PRECISION                        :: frac, N_jk, totElPop
 ! DOUBLE PRECISION                        :: frac2, N_jk2, totElPop2
 ! DOUBLE PRECISION                        :: frac3, N_jk3, totElPop3
 INTEGER                                 :: indexe, indexi
+INTEGER                                 :: status
 CHARACTER(LEN=60)                       :: filePackets
 
+#if mpi==1
+IF(my_rank == 0) THEN
+#endif
 ! creates a folder, where an output will be saved
 ! it reads a shell variable OUTPUTFO, if it does not
 ! exist, it will create (or not, if it already exists)
-!,  a directory 3dwindmodel
-CALL GET_ENVIRONMENT_VARIABLE("OUTPUTFO", outputfolder)
 IF(outputfolder(:) == '') THEN
- outputfolder = '3dwindmodel'
+ CALL GET_ENVIRONMENT_VARIABLE("OUTPUTFO", outputfolder)
+END IF
+IF(outputfolder(:) == '') THEN
+ CALL DATE_AND_TIME(VALUES = TT)
+ ! write(*,*) 'save_output: ', TT(1), TT(2), TT(3), TT(4), TT(5), TT(6), TT(7)
+ write(outputfolder, "(A6, I4.4, I2.2, I2.2, I2.2, I2.2, I2.2)") "3Dwind", &
+  TT(1), TT(2), TT(3), TT(5), TT(6), TT(7)
+ ! write(*,*) 'save_output: outputfolder = ', outputfolder
 END IF
 
 inquire( file=trim(outputfolder)//'/.', exist=dirExists )
@@ -46,22 +57,38 @@ IF(.NOT. dirExists) THEN
  CALL SYSTEM(mkdirCMD)
  ! write(99,*) 'save_output: creating a folder: ', outputfolder
 END IF
+#if mpi==1
+ DO I = 1, n_tasks - 1
+  CALL MPI_SEND(outputfolder, 80, MPI_CHAR, I, 6, MPI_COMM_WORLD, ierr)
+ END DO
+ELSE IF (outputfolder == '') THEN
+! CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
+ ! write(*,*) 'save_output: my_rank = ', my_rank, ' outputfolder = ', outputfolder
+ CALL MPI_RECV(outputfolder, 80, MPI_CHAR, 0, 6, MPI_COMM_WORLD, status, ierr)
+! CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
+! CALL MPI_SCATTER(outputfolder, 80, MPI_CHAR, my_rank, 80, MPI_CHAR, 0, MPI_COMM_WORLD)
+! write(*,*) 'save_output: my_rank = ', my_rank, ' outputfolder = ', outputfolder
+END IF
+#endif
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! now will save important variables
 SELECT CASE(otype)
 
+!____________________________________________________________
+! 0.) 
+!____________________________________________________________
 CASE(0)
  ! write(*,*) 'save_output: outpfol = ', trim(outputfolder), ' my_rank = ', my_rank
  write(outputfile,"(A, A7, I3.3, A4)") trim(outputfolder), "/output", my_rank, '.dat'
- write(*,*) 'save_output: outputfile = ', outputfile
+ ! write(*,*) 'save_output: outputfile = ', outputfile
  ! inquire(unit=99, opened=itsopen)
  ! write(*,*) 'save_output: itsopen = ', itsopen
  ! IF(itsopen) THEN
  !  CLOSE(99)
  ! ELSE
   OPEN(99, FILE=outputfile) 
-  write(*,*) 'save_output: opening the file ', outputfile
+  ! write(*,*) 'save_output: opening the file ', outputfile
  ! END IF
 CASE(1)
  ! line rates
@@ -194,7 +221,7 @@ CASE(5)
  CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
  ! CALL SLEEP(120)
 #endif
- CALL do_spectrum(SIZE(package), outputfolder)
+ CALL do_spectrum(SIZE(package))
 CASE DEFAULT
  write(99,*) 'save_output: this case is not known'
 END SELECT
