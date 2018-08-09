@@ -16,7 +16,8 @@ tot_saved_packets = 0
 
 DO
  n_file = n_file + 1
- write(temp_file_name,"(A, I3.3, A1, I6.6, A4)") TRIM(temp_filename), my_rank, "_", n_file, ".dat"
+ write(temp_file_name,"(A, A1, A, I3.3, A1, I6.6, A4)") TRIM(outputfolder), '/', TRIM(temp_filename), my_rank, "_", n_file, ".dat"
+ !write(temp_file_name,"(A, I3.3, A1, I6.6, A4)") TRIM(temp_filename), my_rank, "_", n_file, ".dat"
  inquire(FILE=temp_file_name, EXIST=file_exists)
  ! write(*,*) 'find_unfinished_run: my_rank = ', my_rank, ' n_file = ', n_file
  ! write(*,*) 'find_unfinished_run: filename = ', temp_file_name, ' E? = ', file_exists

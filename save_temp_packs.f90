@@ -11,12 +11,12 @@ IMPLICIT NONE
 
 INTEGER                         :: pack_index
 INTEGER                         :: n_file
-CHARACTER(30)                   :: temp_file_name
+CHARACTER(50)                   :: temp_file_name
 INTEGER                         :: I
 
 n_file = pack_index / n_pack_save
 
-write(temp_file_name,"(A, I3.3, A1, I6.6, A4)") TRIM(temp_filename), my_rank, "_", n_file, ".dat"
+write(temp_file_name,"(A, A1, A, I3.3, A1, I6.6, A4)") TRIM(outputfolder), '/', TRIM(temp_filename), my_rank, "_", n_file, ".dat"
  
 #if mpi!=1
  my_rank = 0
