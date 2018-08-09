@@ -29,7 +29,7 @@ INTEGER                                 :: I
 DOUBLE PRECISION                        :: Zintdown, Zintup, Zrad
 TYPE(irates)      :: actirates
 INTEGER                                 :: dummypackage, pack_index
-DOUBLE PRECISION                        :: constant
+DOUBLE PRECISION                        :: constanta
 DOUBLE PRECISION                        :: costheta
 DOUBLE PRECISION                        :: dV_pos, V_pos, R_pos
 DOUBLE PRECISION                        :: ROverV
@@ -41,7 +41,7 @@ INTEGER                                 :: next_cell
 
 dummypackage = SIZE(package)
 
-constant = (pi * e_charge**2)/( me_g * light_speed)
+constanta = (pi * e_charge**2)/( me_g * light_speed)
 
 Zintdown = 0.D0
 Zrad= 0.D0
@@ -118,8 +118,8 @@ DO I = 1, nlns
  ! optical depth
  ! taulu = up_pop * pi * e_v ** 2.0  * ROverV / (me_g * light_speed * linelist(act_line)%freq) &
  !  * linelist(act_line)%f_ul * corrFactor
- taulu = light_speed / linelist(act_line)%freq * constant * &
-   linelist(act_line)%f_ul * up_pop * corrFactor * ROverV
+ taulu = light_speed / linelist(act_line)%freq * constanta * &
+   linelist(act_line)%f_ul * low_pop * corrFactor * ROverV
  betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
  actVal = up_pop * betalu * linelist(act_line)%A_ul
  actirates%Lma_int_dorad(I) = actVal * exci_energy_l
@@ -186,7 +186,7 @@ DO I = 1, nluns
  ! optical depth
  ! taulu = low_pop * pi * e_v ** 2.0  * ROverV / (me_g * light_speed * linelist(act_line)%freq) &
  !  * linelist(act_line)%f_ul * corrFactor
- taulu = light_speed / linelist(act_line)%freq * constant * &
+ taulu = light_speed / linelist(act_line)%freq * constanta * &
    linelist(act_line)%f_ul * up_pop * corrFactor * ROverV
  betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
  actVal = (low_pop * Blu - up_pop * Bul) * betalu  * Jlu
