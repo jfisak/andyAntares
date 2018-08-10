@@ -14,7 +14,7 @@ INTEGER                         :: n_file
 CHARACTER(50)                   :: temp_file_name
 INTEGER                         :: I
 
-n_file = pack_index / n_pack_save
+n_file = INT(FLOAT(pack_index) / FLOAT(n_pack_save))
 
 write(temp_file_name,"(A, A1, A, I3.3, A1, I6.6, A4)") TRIM(outputfolder), '/', TRIM(temp_filename), my_rank, "_", n_file, ".dat"
  

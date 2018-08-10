@@ -16,7 +16,7 @@ SUBROUTINE main
   CHARACTER                         :: n_dummy_packs_char
   CHARACTER(2)                      :: chnum_threads
   INTEGER                           :: num_threads, stat
-  CHARACTER(30)                     :: cmdcommand
+  CHARACTER(50)                     :: cmdcommand
 ! parallelized part
 ! definition of MPI variables
 ! #if mpi==1
