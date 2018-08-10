@@ -3,7 +3,7 @@ SUBROUTINE find_unfinished_run()
 USE types
 IMPLICIT NONE
 
-CHARACTER(30)                   :: temp_file_name
+CHARACTER(50)                   :: temp_file_name
 INTEGER                         :: n_file, cur_pack
 LOGICAL                         :: file_exists
 INTEGER                         :: reading_packets
