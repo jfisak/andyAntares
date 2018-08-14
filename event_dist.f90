@@ -74,13 +74,16 @@ nloop = 0
 DO WHILE (do_loop .EQ. 1) 
 
 nloop = nloop + 1
-IF(nloop == 1000) STOP 'event_dist: nloop == 100'
+IF(nloop == 100) THEN
+ write(*,*) 'event_dist: packet = ', pack_index
+ STOP 'nloop == 100'
+END IF
 
 CALL next_line(1, pack_index, lastLine, nextLine, n_next_lines)
 !IF(linelist(nextLine)%freq > package(pack_index)
 ALLOCATE(actirrates%Lline(n_next_lines))
 ! n_next_lines = 1
-! write(*,*) 'event_dist: nextLine = ', nextLine, ' n_next_lines = ', n_next_lines
+! IF(pack_index == 2222) write(*,*) 'event_dist: nextLine = ', nextLine, ' n_next_lines = ', n_next_lines, ' lastLine = ', lastLine
 freq_line = linelist(nextLine)%freq
 ! write(*,*) 'event_dist: calling resonance_distance'
 CALL resonance_distance(pack_index, freq_line, cell_dist, l_dist, inCell, .TRUE.)
@@ -90,6 +93,7 @@ IF(inCell) THEN
 END IF
     
 ! write(*,*) 'event_dist: inCell = ', inCell
+! IF(lastLine > ntransitions) inCell = .FALSE.
 IF (package(pack_index)%freq_cmf .GT. freq_line .AND. inCell) THEN
 
  ! Calculate optical depth in the next line (Sobolev, dv/dr dependent)
@@ -101,7 +105,7 @@ IF (package(pack_index)%freq_cmf .GT. freq_line .AND. inCell) THEN
 
  tau_cont = kappa_cont * l_dist
  ! write(*,*) 'event_dist: l_dist = ', l_dist, ' tau_line = ',&
- ! tau_line, ' tau_cont = ', tau_cont
+ !  tau_line, ' tau_cont = ', tau_cont
 
 
 
@@ -110,7 +114,7 @@ IF (package(pack_index)%freq_cmf .GT. freq_line .AND. inCell) THEN
 
  ! Now do a step by step analysis of which event occurs and return the 
  ! distance and corresponding event
- ! write(*,*) 'event_dist: #1', tau_line, tau_cont, tau, tau_rand
+ ! IF(pack_index == 2222) write(*,*) 'event_dist: #1', tau_line, tau_cont, tau, tau_rand
  IF ((tau_rand - tau) .GT. tau_cont) THEN
   IF ((tau_rand - tau) .GT. (tau_cont + tau_line)) THEN
    dist = dist + l_dist
@@ -124,12 +128,15 @@ IF (package(pack_index)%freq_cmf .GT. freq_line .AND. inCell) THEN
     ! choosing next line
     tau = tau + tau_cont + tau_line
     lastLine = lastLine + n_next_lines
+    ! IF(pack_index == 2222) write(*,*) 'event_dist: lastLine = ', lastLine, ' nn_lines = ', n_next_lines
     ! write(*,*) 'event_dist: recalculating next line: ', lastLine
    END IF
   ELSE
    e_dist = dist + l_dist
    do_loop = 0
    event = rpkt_eventtype_lineinteraction
+   ! write(*,*) 1.D8 * light_speed / package(pack_index)%freq_cmf, &
+   !  1.D8 * light_speed / package(pack_index)%freq_rf
    if(procout) write(*,*) 'event_dist: rpkt_eventtype_lineinteraction'
    ! choosing the line
    IF(n_next_lines > 1) THEN
@@ -171,7 +178,7 @@ ELSE
   ! The package cmf frequency is too red to interact to another
   ! line - No line interact anymore
   tau_cont = kappa_cont * (cell_dist - dist)
-  ! write(*,*) 'event_dist: #2', tau_cont, tau_rand, tau
+  ! IF(pack_index == 2222) write(*,*) 'event_dist: #2', tau_cont, tau_rand, tau
   IF ((tau_rand - tau) .GT. tau_cont) THEN
    e_dist = cell_dist + 1.D20
    do_loop = 0   

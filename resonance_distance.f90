@@ -36,7 +36,7 @@ package(dummypackage) = package(pack_index)
 
 ! write(*,*) '*****************************************************'
 ! 
-! write(*,*) 'resonance_distance: fcmf / f_line = ', package(pack_index)%freq_cmf / f_line
+! IF(pack_index == 549) write(*,*) 'resonance_distance: fcmf / f_line = ', package(pack_index)%freq_cmf / f_line
 
 ! write(*,*) 'resonance_distance***************************************'
 minint = 1.D0 / linelist(1)%freq
@@ -87,7 +87,7 @@ DO WHILE(iteration)
  ufreq = bfreq
  ! we can calculate the line_dist
  ! lower and upper boundary
- ! write(*,*) 'resonance_distance: bfreq / f_line = ', bfreq / f_line
+ ! IF(pack_index == 549) write(*,*) 'resonance_distance: bfreq / f_line = ', bfreq / f_line
  IF(bfreq < f_line .AND. calculate .EQV. .TRUE.) THEN
   active = .TRUE.
   inCell = .TRUE.
@@ -119,13 +119,20 @@ DO WHILE(iteration)
    package(dummypackage)%pos = halfpos
    CALL doppler_factor(dummypackage, D)
    halffreq = package(pack_index)%freq_rf * D
-   ! write(*,*) 'resonance_distance: lfreq / f = ', lfreq / f_line, &
-   ! ' halffreq / f = ', halffreq / f_line, ' ufreq / f = ', ufreq / f_line
+   ! IF(pack_index == 549) write(*,*) 'resonance_distance: lfreq / f = ', lfreq / f_line, &
+   !  ' halffreq / f = ', halffreq / f_line, ' ufreq / f = ', ufreq / f_line
+   ! write(*,*) 'resonance_distance: upbond = ', norm2(upbond), ' lowbond = ', norm2(lowbond)
    ! write(*,*) 'resonance_distance: halffreq = ', halffreq
    ! decision which interval should we test next
    IF(upbond(1) == lowbond(1) .AND. upbond(2) == lowbond(2) &
     .AND. upbond(3) == lowbond(3)) THEN
-    STOP 'resonance_distance: upbond == lowbond'
+    write(*,*) 'resonance_distance: package = ', pack_index
+    ! STOP 'upbond == lowbond'
+    active = .FALSE.
+    iteration = .FALSE.
+    ! inCell = .FALSE.
+    ldist = norm2(package(pack_index)%pos - halfpos)
+    ! ldist = R_inf
    END IF
    IF(halffreq > f_line) THEN
     chint = abs(halffreq - f_line) / f_line
