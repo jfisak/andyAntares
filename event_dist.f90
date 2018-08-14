@@ -93,7 +93,7 @@ IF(inCell) THEN
 END IF
     
 ! write(*,*) 'event_dist: inCell = ', inCell
-! IF(lastLine > ntransitions) inCell = .FALSE.
+IF(lastLine > ntransitions) inCell = .FALSE.
 IF (package(pack_index)%freq_cmf .GT. freq_line .AND. inCell) THEN
 
  ! Calculate optical depth in the next line (Sobolev, dv/dr dependent)
