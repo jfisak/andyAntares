@@ -80,15 +80,16 @@ CASE(2)
      END DO
      CYCLE
     END IF
+    ! write(*,*) 'read_photcs: indexclev = ', indexclev
     ALLOCATE(elements(indexe)%ions(indexI)%levels(indexclev)%photcros(2,nofPoints))
     IF(nofPoints /= 0) n_photcrossect = n_photcrossect + 1
     !write(*,*) 'read_photcs: n_photcrossect = ', n_photcrossect, 'nofPoints = ', nofPoints
+    ! we can compute a frequency treshold from these data
+    freqt = (MINVAL(elements(indexe)%ions(indexI + 1)%levels(:)%exci_energy) - &
+     elements(indexe)%ions(indexI)%levels(indexclev)%exci_energy) / h
+    elements(indexe)%ions(indexI)%levels(indexclev)%phfreq = freqt
    END IF
    !print*, 'nofPoints = ', nofPoints
-   ! we can compute a frequency treshold from these data
-   freqt = (MINVAL(elements(indexe)%ions(indexI + 1)%levels(:)%exci_energy) - &
-    elements(indexe)%ions(indexI)%levels(indexclev)%exci_energy) / h
-   elements(indexe)%ions(indexI)%levels(indexclev)%phfreq = freqt
    ! write(*,*) 'read_photcs: freqt = ', freqt
    !elements(indexe)%ions(indexI)%levels(indexclev)%phfreq = freqt
    ! now we will read the given data for the photoionization cross section
