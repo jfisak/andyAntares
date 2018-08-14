@@ -64,13 +64,13 @@ IMPLICIT NONE
 
   TYPE ion_levels 
      INTEGER(KIND=2), ALLOCATABLE    :: linetransitions(:), lineuptransitions(:)
-     ! INTEGER                         :: l_index
      DOUBLE PRECISION                :: exci_energy, stat_waight
      CHARACTER(LEN=15)               :: elconf
      LOGICAL                         :: phcrossform
      DOUBLE PRECISION, ALLOCATABLE   :: photcros(:,:), phcrosscoeff(:)
      DOUBLE PRECISION                :: phfreq
      INTEGER                         :: phfreqi
+     INTEGER                         :: levelindex
   END TYPE ion_levels
 
   TYPE element_ions 
@@ -197,9 +197,9 @@ IMPLICIT NONE
 !  DOUBLE PRECISION, PARAMETER       :: nu_min= 2.14286D15, nu_max=3.D15
 
 ! Define the min and max wavelenght range in cm for the synthetic spectrum calculation 1A = 1.D-8 cm
-   DOUBLE PRECISION, PARAMETER        :: nu_min = 3.D14, nu_max = 3.7D15 ! in cm (800 - 10000 A)
-  ! DOUBLE PRECISION, PARAMETER        :: nu_min = 7.D12, nu_max = 3.7D15 ! in cm 
-  !DOUBLE PRECISION, PARAMETER       :: nu_min = 2.4D15, nu_max = 2.5D15 ! in cm (1150 - 1250 A)
+DOUBLE PRECISION, PARAMETER        :: nu_min = 3.D14, nu_max = 3.7D15 ! in cm (800 - 10000 A)
+! DOUBLE PRECISION, PARAMETER        :: nu_min = 7.D12, nu_max = 3.7D15 ! in cm 
+! DOUBLE PRECISION, PARAMETER       :: nu_min = 2.4D15, nu_max = 2.5D15 ! in cm (1150 - 1250 A)
 
 
 END MODULE types

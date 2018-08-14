@@ -8,6 +8,7 @@ SUBROUTINE read_levels(el_index, lowerion, upperion, levels_type, filename)
 
  ! input parameters
  INTEGER                        :: element, lowerion, upperion, levels_type, el_index
+ INTEGER                        :: levelindex
  CHARACTER (LEN=20)             :: filename
  ! loop variables
  INTEGER                        :: I, J
@@ -131,10 +132,11 @@ OPEN(8,status='old',FILE=filename)
    ! write(99,*) 'reading_levels: ', line
    IF(reading_levels /= 0) EXIT
    IF(line(1:1) .EQ. '*') CYCLE
-   READ(line,*) junk, junk, junk, junk, l_index, iconf, l_energy, s_weight
+   READ(line,*) levelindex, junk, junk, junk, l_index, iconf, l_energy, s_weight
    IF(l_energy > 0.D0) CYCLE
    J = J + 1
    elements(el_index)%ions(indexi)%levels(J)%exci_energy = l_energy * rydberg * e_v
+   elements(el_index)%ions(indexi)%levels(J)%levelindex = levelindex
    ! write(99,*) 'read_levels: kindex = ', kindex, ' element = ', el_index, 'ion = ', indexi, &
    !  ' J = ', J, ' exci_energy = ', &
    ! elements(el_index)%ions(indexi)%levels(J)%exci_energy / e_v, ' l_energy = ', l_energy
