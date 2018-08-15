@@ -116,12 +116,11 @@ DO I = 1, nlns
   !  ROverV / (4.0 * pi) * corrFactor 
  END IF
  ! optical depth
- ! taulu = up_pop * pi * e_v ** 2.0  * ROverV / (me_g * light_speed * linelist(act_line)%freq) &
  !  * linelist(act_line)%f_ul * corrFactor
  taulu = light_speed / linelist(act_line)%freq * constanta * &
-   linelist(act_line)%f_ul * low_pop * corrFactor * ROverV
+   linelist(act_line)%f_ul * up_pop * ROverV * corrFactor
  betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
- actVal = up_pop * betalu * linelist(act_line)%A_ul
+ actVal = up_pop * betalu * linelist(act_line)%A_ul * corrFactor 
  actirates%Lma_int_dorad(I) = actVal * exci_energy_l
  ! write(*,*) 'i_radtrans: betalu = ', betalu
  IF(actirates%Lma_int_dorad(I) < 0.D0) STOP 'i_radtrans: Lma_int_dorad < 0'
@@ -188,8 +187,8 @@ DO I = 1, nluns
  !  * linelist(act_line)%f_ul * corrFactor
  taulu = light_speed / linelist(act_line)%freq * constanta * &
    linelist(act_line)%f_ul * up_pop * corrFactor * ROverV
- betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
- actVal = (low_pop * Blu - up_pop * Bul) * betalu  * Jlu
+ betalu = 1.D0 / taulu * (1.D0 - exp(- taulu)) * corrFactor
+ actVal = (low_pop * Blu - up_pop * Bul) * betalu  * Jlu * corrFactor
  IF(actVal < 0.D0) STOP 'i_radtrans: (l_pop * Blu - u_pop * Bul) < 0'
  actirates%Lma_int_uprad(I) = actVal * exci_energy_l
  ! write(36,*) 'i_radtrans: nB - nB = ', (low_pop * Blu - up_pop * Bul)
