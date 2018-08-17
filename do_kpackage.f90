@@ -98,13 +98,12 @@ ELSE IF(rand >= Z0 .AND. rand <= Z1) THEN
  ! package changes to r-packet
  package(pack_index)%typ = type_rpkt
  package(pack_index)%last_line = no_line
- CALL emit_rpackage(pack_index)
  CALL k_freq_ff(pack_index, new_freq)
  package(pack_index)%freq_cmf = new_freq
- CALL doppler_factor(pack_index, D)
- package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
- package(pack_index)%e_rf = package(pack_index)%e_cmf / D
- !$OMP ATOMIC
+ CALL emit_rpackage(pack_index)
+ ! CALL doppler_factor(pack_index, D)
+ ! package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
+ ! package(pack_index)%e_rf = package(pack_index)%e_cmf / D
  count_cool_ff = count_cool_ff + 1
 ! IF(procout) write(*,*) 'do_kpackage: package = ', pack_index, ' free-free process...'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -161,12 +160,12 @@ ELSE IF(rand > Z2 .AND. rand <= Z3) THEN
  package(pack_index)%typ = type_rpkt
  package(pack_index)%last_line = no_line
  IF(procout) write(*,*) 'do_kpackage: package = ', pack_index, ' recombination process...'
- CALL emit_rpackage(pack_index)
  CALL k_freq_fb(pack_index, act_proc, new_freq, actikrates)
  package(pack_index)%freq_cmf = new_freq
- CALL doppler_factor(pack_index, D)
- package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
- package(pack_index)%e_rf = package(pack_index)%e_cmf / D
+ CALL emit_rpackage(pack_index)
+ ! CALL doppler_factor(pack_index, D)
+ ! package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
+ ! package(pack_index)%e_rf = package(pack_index)%e_cmf / D
  !STOP 'do_kpackage: testing'
 ELSE
  write(*,*) 'do_kpackage: no process was chosen'

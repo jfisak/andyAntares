@@ -185,7 +185,7 @@ DOUBLE PRECISION, PARAMETER                     :: meanAtMass = 1.33
  ! 4. temperature / K
  CASE(2)
   write(99,*) 'we will read the TESTCASE from the PoWR code...'
-  R_star = 2006.56 * R_sun
+  R_star = 20.066 * R_sun
   T_eff = 37000
   add_mg = 1
   CALL GET_ENVIRONMENT_VARIABLE("POWRMODEL", powrfile)

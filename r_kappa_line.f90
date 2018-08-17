@@ -21,11 +21,14 @@ DOUBLE PRECISION                :: ROverV
 DOUBLE PRECISION                :: low_pop, upp_pop
 DOUBLE PRECISION                :: corrFactor
 DOUBLE PRECISION                :: constanta
+INTEGER                         :: dummypackage
  
 ! calculation of optical depth
 ! the basic variables
 
 constanta = (pi * e_charge**2)/( me_g * light_speed)
+dummypackage = SIZE(package)
+package(dummypackage) = package(pack_index)
 
 tau_line = 0.D0
 DO I = 1, nnextlines
@@ -63,13 +66,13 @@ DO I = 1, nnextlines
  ELSE IF(velapprox == 1) THEN
   ! according to (10) in Abbot & Lucy (1985)
   ! r
-  R_res = norm2(package(pack_index)%pos + package(pack_index)%dir * ldist)
+  R_res = norm2(package(dummypackage)%pos + package(dummypackage)%dir * ldist)
   ! ||v||
   V_res = V_inf * (1.0 - R_star / R_res ) ** beta
   ! v = (v_x, v_y, v_z)
-  V_res_vec = V_res * package(pack_index)%pos / norm2(package(pack_index)%pos)
+  V_res_vec = V_res * package(dummypackage)%pos / norm2(package(dummypackage)%pos)
   ! \mu
-  costheta = dot_product(package(pack_index)%dir, V_res_vec) / norm2(V_res_vec)
+  costheta = dot_product(package(dummypackage)%dir, V_res_vec) / norm2(V_res_vec)
   ! dv/dr
   dV_res = beta * R_star * V_inf / R_res**2 * (1.0 - R_star / R_res)**(beta - 1)
   ROverV = 1.0 / (costheta**2.0 * dV_res + (1.0 - costheta**2.0) * V_res / R_res)

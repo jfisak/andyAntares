@@ -344,15 +344,14 @@ ELSE IF(rand >= Z5 .AND. rand <= Z6) THEN
   IF( rand >= summ .AND. rand < summ + actirates%Lma_recrad(I)) THEN
    IF(procout) write(*,*) 'do_ipackage: pack_index = ', pack_index, 'radiative recombination'
    package(pack_index)%last_line = no_line
-   CALL emit_rpackage(pack_index)
    CALL i_freq_recomb(element_index, ion_index, I, pack_index, new_freq)
    package(pack_index)%freq_cmf = new_freq
+   CALL emit_rpackage(pack_index)
    ! write(*,*) 'do_ipackage: new_freq = ', new_freq
-   CALL doppler_factor(pack_index, D)
+   ! CALL doppler_factor(pack_index, D)
    ! write(3, *) new_freq
-   package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
-   package(pack_index)%e_rf = package(pack_index)%e_cmf / D
-   !$OMP ATOMIC
+   ! package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
+   ! package(pack_index)%e_rf = package(pack_index)%e_cmf / D
    count_i_rad_reco = count_i_rad_reco + 1
    EXIT
   END IF
@@ -394,5 +393,6 @@ IF(ALLOCATED(actirates%Lma_int_recrad)) DEALLOCATE(actirates%Lma_int_recrad)
 IF(ALLOCATED(actirates%Lma_int_reccol)) DEALLOCATE(actirates%Lma_int_reccol)
 IF(ALLOCATED(actirates%Lma_int_dorad)) DEALLOCATE(actirates%Lma_int_reccol)
 
+! write(*,*) 'do_ipackage: e_rf = ', package(pack_index)%e_rf
 
 END SUBROUTINE do_ipackage

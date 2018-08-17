@@ -39,7 +39,6 @@ DOUBLE PRECISION                        :: cell_dist
 DOUBLE PRECISION                        :: corrFactor
 INTEGER                                 :: next_cell
 
-dummypackage = SIZE(package)
 
 constanta = (pi * e_charge**2)/( me_g * light_speed)
 
@@ -60,6 +59,7 @@ up_pop = act_pop
 ! write(36,*) '********************************************************'
 ! write(36,*) 'i_radtrans: nlns = ', nlns
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+dummypackage = SIZE(package)
 package(dummypackage) = package(pack_index)
 CALL emit_rpackage(dummypackage)
 ! write(*,*) 'i_radtrans: dir = ', package(dummypackage)%dir
@@ -118,7 +118,7 @@ DO I = 1, nlns
  ! optical depth
  !  * linelist(act_line)%f_ul * corrFactor
  taulu = light_speed / linelist(act_line)%freq * constanta * &
-   linelist(act_line)%f_ul * up_pop * ROverV * corrFactor
+   linelist(act_line)%f_ul * up_pop * ROverV! * corrFactor
  betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
  actVal = up_pop * betalu * linelist(act_line)%A_ul * corrFactor 
  actirates%Lma_int_dorad(I) = actVal * exci_energy_l

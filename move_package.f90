@@ -13,8 +13,7 @@ SUBROUTINE move_package(pack_index, dist)
   INTEGER                           :: n_pack_d
 
 !write(*,*)'move_package: Thread rank: ', my_rank
-n_pack_d = SIZE(package)
-dummypackage = n_pack_d - n_dummy_packs + my_rank + 1
+dummypackage = SIZE(package)
 !write(*,*) 'move_package: my_rank = ', my_rank, ' dummypackage = ', dummypackage
 
   ! Calculate the position of package
@@ -30,7 +29,6 @@ dummypackage = n_pack_d - n_dummy_packs + my_rank + 1
   IF ((vec_length(package(pack_index)%pos) .LT. R_star) .AND. (pack_index .NE. dummypackage)) THEN
    ! print*, 'package ', pack_index, ' was destroyed because has come back to the photosphere'
    package(pack_index)%active = 0
-   !$OMP ATOMIC
    count_des_phot = count_des_phot + 1
   END IF
 

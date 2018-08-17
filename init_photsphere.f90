@@ -13,6 +13,7 @@ SUBROUTINE init_photsphere(n_pack)
   destroyed_pack = 0
   L_star = 4.D0*pi*(R_star)**2*sigma*T_eff**4
   write(99,*) 'init photsphere...'
+  write(99,*) 'init_photsphere: R_star = ', R_star, ' T_eff = ', T_eff
   !print*, L_star, pi, R_star/r_sun,sigma, T_eff
 
   !    ind_x = nx_cell/2 + 1
