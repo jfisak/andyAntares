@@ -15,6 +15,7 @@ write(outputspecfile, "(A, A9)") trim(outputfolder), "/spec.dat"
 write(99,*) 'SETUP FREQ GRID'
 delta_nu = (nu_max - nu_min) / n_nubin
 DO I= 1, n_nubin 
+   specflux(I) = 0.D0
    freqs(I) = nu_min + (I - 1) * delta_nu
    escs = 0
    !write(99,*) i, spectrum(i)%freq, spectrum(i)%flux
@@ -32,6 +33,7 @@ DO pack_index = 1, n_pack
    nubin = floor( (freq - nu_min) / delta_nu ) + 1
    ! put the star to 100 parsecs
    delta_e = (package(pack_index)%e_rf / delta_nu) / (4.D0 * pi * (1.D2 * parsec)**2)
+   ! write(*,*) 'do_spectrum: e_rf = ', package(pack_index)%e_rf
    specflux(nubin) = specflux(nubin) + delta_e
    escs(nubin) = escs(nubin) + 1
   ENDIF
