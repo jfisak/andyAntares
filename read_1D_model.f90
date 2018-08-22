@@ -208,7 +208,7 @@ DOUBLE PRECISION, PARAMETER                     :: meanAtMass = 1.33
     model_grid(I)%rwind = r * R_star
     model_grid(I)%vel = velo * 1.E5
     model_grid(I)%rho = dens * meanAtMass * mp_g
-    model_grid(I)%T = temp ! should be temp 
+    model_grid(I)%T = temp 
     model_grid(I)%J = 0.D0 
     model_grid(I)%assoc_cells = 0
     ! print*, 'read_1D_model: testing model grid...'

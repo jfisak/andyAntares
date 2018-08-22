@@ -105,10 +105,11 @@ ELSE IF (model_type == 2 .AND. inputmodel == 1) THEN
 ELSE
  STOP 'main: non-known model type'
 END IF
- 
-ALLOCATE(current_temp(n_modelgrid + add_mg))
 write(99,*) 'model grid is set up'
 write(99,*) 'setup propagation grid'
+write(99,*) 'xmax = ', xmax, ' ymax = ', ymax, ' zmax = ', zmax
+ 
+ALLOCATE(current_temp(n_modelgrid + add_mg))
 
 ! Set up of the propagation grid
 CALL setup_grid2()
@@ -157,12 +158,15 @@ END DO ! iteration (now of temperature structure)
  write(99,*) 'do spectrum'
  ! CALL do_spectrum(n_pack)
  write(99,*) 'do finalize'
+ write(*,*) 'do finalize'
  ! it will save some important output
  CALL save_output(1)
  CALL save_output(2)
  ! temp structure and occupation numbers
- ! CALL save_output(3)
+ IF(my_rank == 0) CALL save_output(3)
  CALL save_output(5)
+ IF(my_rank == 0) CALL save_output(6)
+ write(*,*) 'output was saved...'
  ! erase all temporary files with photons
 
 CLOSE(2)
@@ -170,9 +174,9 @@ CLOSE(99)
 #if mpi==1
  ! will delete all temporary files
  IF(my_rank == 0) THEN
-  cmdcommand = 'rm '//TRIM(outputfolder)//'/'//TRIM(temp_filename)//'*.dat'
+  cmdcommand = 'rm -v'//TRIM(outputfolder)//'/'//TRIM(temp_filename)//'*.dat'
   ! write(*,*) 'main: cmdcommand = ', cmdcommand
-  CALL SYSTEM(cmdcommand)
+ ! CALL SYSTEM(cmdcommand)
  END IF
  CALL MPI_FINALIZE(ierr)
 #else

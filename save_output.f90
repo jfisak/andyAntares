@@ -1,3 +1,12 @@
+! saving output
+! 
+! #00 OUTPUT FOLDER
+! #01 STANDARD OUTPUT
+! #02 SPECTRAL LINES
+! #03 COUNTERS
+! #04 TEMPERATURE STRUCTURE AND IONIZATION BALANCE
+! #06 PACKETS INFORMATION
+! #07 IONIZATION FRACTIONS
 SUBROUTINE save_output(otype)
 
 USE types
@@ -32,7 +41,23 @@ DOUBLE PRECISION                        :: frac, N_jk, totElPop
 INTEGER                                 :: indexe, indexi
 INTEGER                                 :: status
 CHARACTER(LEN=60)                       :: filePackets
-
+! testing PoWR ionization fractions
+DOUBLE PRECISION                        :: ntot, nhi
+INTEGER, PARAMETER                      :: indexH = 1, indexHI = 1, indexHII = 2
+INTEGER, PARAMETER                      :: indexHe = 2, indexHeI = 1, indexHeII = 2, indexHeIII = 3
+DOUBLE PRECISION                        :: abundance, density
+CHARACTER(LEN=60)                       :: fileHI, fileHII, fileHeI, fileHeII, fileHeIII
+CHARACTER(LEN=60)                       :: fileEldens, fileRho
+INTEGER                                 :: cell_index
+DOUBLE PRECISION                        :: num_tot_pop
+!________________________________________________________________________________
+! #00 output folder
+!
+! realizes if the output folder exists
+!
+! * if the output folder exists do nothing
+! * if the output folder does not exist create a new one
+!________________________________________________________________________________
 #if mpi==1
 IF(my_rank == 0) THEN
 #endif
@@ -76,7 +101,9 @@ END IF
 SELECT CASE(otype)
 
 !____________________________________________________________
-! 0.) 
+! #01 standard output of procedures
+!
+! saves standard output into the file 99
 !____________________________________________________________
 CASE(0)
  ! write(*,*) 'save_output: outpfol = ', trim(outputfolder), ' my_rank = ', my_rank
@@ -90,6 +117,14 @@ CASE(0)
   OPEN(99, FILE=outputfile) 
   ! write(*,*) 'save_output: opening the file ', outputfile
  ! END IF
+!____________________________________________________________
+! #02 spectral lines
+!
+! saves info about spectral lines into the file 98
+!
+! atomic number, ion index, wavelength, lifetime, number of absorption in line,
+! number of deexcitations in line
+!____________________________________________________________
 CASE(1)
  ! line rates
  write(lineOutput,"(A, A9, I3.3, A4)") trim(outputfolder), '/linevar.', my_rank, '.dat'
@@ -106,25 +141,41 @@ CASE(1)
   END DO
  CLOSE(11)
 !________________________________________________________________________________
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! RATE COUNTERS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! #03 rate counters
+! 
+! saves number of processes for r, i and k packets
+!
+! 
 !________________________________________________________________________________
 CASE(2)
- write(99,*) 'save_output'
+ write(99,*) 'number of processes'
+ write(99,*) 'r-packets deactivation:'
+ write(99,*) 'count_des_phot = ', count_des_phot, ' count_des_inte = ', count_des_inte, &
+  ' count_des_esca = ', count_des_esca, ' count_des_resd = ', count_des_resd
+ write(99,*) 'r-packets'
+ write(99,*) 'count_r_line = ', count_r_line, ' count_r_thom = ', count_r_thom, &
+  ' count_r_ph_k = ', count_r_ph_k, ' count_r_ph_i = ', count_r_ph_i, &
+  ' count_r_ff = ', count_r_ff
+ write(99,*) 'k-packets'
  write(99,*) 'count_cool_ex = ', count_cool_ex, ' count_cool_ff = ', count_cool_ff, &
   ' count_cool_io = ', count_cool_io, ' count_cool_fb = ', count_cool_fb
+ write(99,*) 'i-packets'
  write(99,*) 'count_i_int_down = ', count_i_int_down, ' count_i_rad_dxrs = ', count_i_rad_dxrs,&
   ' count_i_rad_deex = ', count_i_rad_deex, &
   ' count_i_rad_dxfl = ', count_i_rad_dxfl, ' count_i_int_upwa = ', count_i_int_upwa, &
   ' count_i_col_deex = ', count_i_col_deex, ' count_i_int_phot = ', count_i_int_phot, &
   ' count_i_int_reco = ', count_i_int_reco, ' count_i_rad_reco = ', count_i_rad_reco, &
   ' count_i_col_reco = ', count_i_col_reco
- write(99,*) 'count_r_line = ', count_r_line, ' count_r_thom = ', count_r_thom, &
-  ' count_r_ph_k = ', count_r_ph_k, ' count_r_ph_i = ', count_r_ph_i, &
-  ' count_r_ff = ', count_r_ff
- write(99,*) 'count_des_phot = ', count_des_phot, ' count_des_inte = ', count_des_inte, &
-  ' count_des_esca = ', count_des_esca, ' count_des_resd = ', count_des_resd
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!! TEMPERATURE STRUCTURE AND IONIZATION BALANCE !!!!!!!!
+! #04 temperature structure and ionization balance
+!
+! temperature structure into file 12
+!
+! radius, temperature
+!
+! ionization structure into file 13
+!
+!  
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! NOT WORKING FOR MPI YET
 CASE(3)
@@ -152,12 +203,19 @@ CASE(3)
    WRITE(13, *) '**occunumbs**'
    DO act_elem = 1, n_elements
     DO act_ion = 1, SIZE(elements(act_elem)%ions)
-     WRITE(13, *) model_grid(I)%grid_comp(act_elem)%grid_ion(act_ion)%tot_pop
+     ! WRITE(13, *) model_grid(I)%grid_comp(act_elem)%grid_ion(act_ion)%tot_pop
+     num_tot_pop = 0.D0
      DO act_lev = 1, SIZE(elements(act_elem)%ions(act_ion)%levels)
       eenergy = elements(act_elem)%ions(act_ion)%levels(act_lev)%exci_energy
       CALL populations(act_elem, act_ion, act_lev, I, act_pop)
-      WRITE(13, *) elements(act_elem)%atom_number, act_ion, act_lev, eenergy, act_pop
+      num_tot_pop = num_tot_pop + act_pop
+      WRITE(13, *) elements(act_elem)%atom_number, act_ion, act_lev, &
+      elements(act_elem)%ions(act_ion)%levels(act_lev)%stat_waight, &
+      eenergy / e_v, act_pop
      END DO
+     WRITE(13, *) elements(act_elem)%atom_number, act_ion, ' TOT ', &
+     model_grid(I)%grid_comp(act_elem)%grid_ion(act_ion)%tot_pop / num_tot_pop, &
+      model_grid(I)%grid_comp(act_elem)%grid_ion(act_ion)%tot_pop
     END DO
    END DO
   END DO
@@ -170,7 +228,12 @@ CASE(3)
    END IF
   END DO
  CLOSE(14)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! #05 IONIZATION BALANCE
+!
 ! saving ionization balance for hydrogen and helium
+!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CASE(4)
  fileHydrogenFrac = trim(outputfolder)//'/hydrogenFrac.dat'
  OPEN(14, FILE=fileHydrogenFrac)
@@ -206,7 +269,9 @@ CASE(4)
  !  END DO
  ! CLOSE(15)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! PACKETS INFORMATIONS
+! #06 packets informations
+! 
+! saves rf frequency and energy for the spectrum generation
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CASE(5)
  write(filePackets,"(A, A7, I3.3, A4)") trim(outputfolder),&
@@ -222,6 +287,91 @@ CASE(5)
  ! CALL SLEEP(120)
 #endif
  CALL do_spectrum(SIZE(package))
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! #07 ionization fractions
+!
+! only for testing 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CASE(6)
+ fileHI = trim(outputfolder)//'/HI.dat'
+ write(*,*) 'save_output: fileHI'
+ OPEN(40, FILE=fileHI)
+  DO I = 1, n_modelgrid
+   IF(model_grid(I)%assoc_cells == 0) CYCLE
+   abundance = model_grid(I)%grid_comp(indexH)%abund
+   density = model_grid(I)%rho
+   ntot = abundance * density / elements(indexH)%atom_mass
+   nhi = model_grid(I)%grid_comp(indexH)%grid_ion(indexHI)%gl_pop
+   cell_index = n_modelgrid - I + 1
+   write(40,*) I, log10(ntot), log10(nhi/ntot)
+  END DO
+ CLOSE(40)
+ write(*,*) 'save_output: fileHII'
+ fileHII = trim(outputfolder)//'/HII.dat'
+ OPEN(40, FILE=fileHII)
+  DO I = 1, n_modelgrid
+   IF(model_grid(I)%assoc_cells == 0) CYCLE
+   abundance = model_grid(I)%grid_comp(indexH)%abund
+   density = model_grid(I)%rho
+   ntot = abundance * density / elements(indexH)%atom_mass
+   nhi = model_grid(I)%grid_comp(indexH)%grid_ion(indexHII)%gl_pop
+   cell_index = n_modelgrid - I + 1
+   write(40,*) I, log10(ntot), log10(nhi/ntot)
+  END DO
+ CLOSE(40)
+ write(*,*) 'save_output: fileHeI'
+ fileHeI = trim(outputfolder)//'/HeI.dat'
+ OPEN(40, FILE=fileHeI)
+  DO I = 1, n_modelgrid
+   IF(model_grid(I)%assoc_cells == 0) CYCLE
+   abundance = model_grid(I)%grid_comp(indexHe)%abund
+   density = model_grid(I)%rho
+   ntot = abundance * density / elements(indexHe)%atom_mass
+   nhi = model_grid(I)%grid_comp(indexHe)%grid_ion(indexHeI)%gl_pop
+   cell_index = n_modelgrid - I + 1
+   write(40,*) I, log10(ntot), log10(nhi/ntot)
+  END DO
+ CLOSE(40)
+ write(*,*) 'save_output: fileHeII'
+ fileHeII = trim(outputfolder)//'/HeII.dat'
+ OPEN(40, FILE=fileHeII)
+  DO I = 1, n_modelgrid
+   IF(model_grid(I)%assoc_cells == 0) CYCLE
+   abundance = model_grid(I)%grid_comp(indexHe)%abund
+   density = model_grid(I)%rho
+   ntot = abundance * density / elements(indexHe)%atom_mass
+   nhi = model_grid(I)%grid_comp(indexHe)%grid_ion(indexHeII)%gl_pop
+   cell_index = n_modelgrid - I + 1
+   write(40,*) I, log10(ntot), log10(nhi/ntot)
+  END DO
+ CLOSE(40)
+ write(*,*) 'save_output: fileHeIII'
+ fileHeIII = trim(outputfolder)//'/HeIII.dat'
+ OPEN(40, FILE=fileHeIII)
+  DO I = 1, n_modelgrid
+   IF(model_grid(I)%assoc_cells == 0) CYCLE
+   abundance = model_grid(I)%grid_comp(indexHe)%abund
+   density = model_grid(I)%rho
+   ntot = abundance * density / elements(indexHe)%atom_mass
+   ! nhi = model_grid(I)%grid_comp(indexHe)%grid_ion(indexHeIII)%gl_pop
+   nhi = model_grid(I)%grid_comp(indexHe)%grid_ion(indexHeIII)%tot_pop
+   cell_index = n_modelgrid - I + 1
+   write(40,*) I, log10(ntot), log10(nhi/ntot)
+  END DO
+ fileEldens = trim(outputfolder)//'/elDens.dat'
+ OPEN(40, FILE=fileEldens)
+  DO I = 1, n_modelgrid
+   IF(model_grid(I)%assoc_cells == 0) CYCLE
+   write(40,*) I, model_grid(I)%e_dens
+  END DO
+ CLOSE(40)
+ fileRho = trim(outputfolder)//'/rho.dat'
+ OPEN(40, FILE=fileRho)
+  DO I = 1, n_modelgrid
+   IF(model_grid(I)%assoc_cells == 0) CYCLE
+   write(40,*) I, model_grid(I)%rho
+  END DO
+ CLOSE(40)
 CASE DEFAULT
  write(99,*) 'save_output: this case is not known'
 END SELECT

@@ -1,6 +1,6 @@
+! Set up propagation grid cells using dynamic cells
   SUBROUTINE setup_grid2() 
  
-  ! Set up propagation grid cells using dynamic cells
 
   USE types
 
