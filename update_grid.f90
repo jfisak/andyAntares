@@ -7,16 +7,13 @@ SUBROUTINE update_grid(iteration)
 
   IMPLICIT NONE    
 
-  INTEGER             :: gridcell, indexe, indexi, numb_ions, iteration
-  DOUBLE PRECISION    :: el_nd, temp, frac, U, N_jk, gl_pop
-  INTEGER             :: max_n_dcell
-INTEGER, DIMENSION(1)   :: indexl0
+INTEGER             :: gridcell, indexe, indexi, numb_ions, iteration
+DOUBLE PRECISION    :: el_nd, temp, frac, U, N_jk, gl_pop
+LOGICAL                 :: wasFound
 
   
-max_n_dcell = SIZE(dyn_cell)
- write(99,*) 'updating grid'
+write(99,*) 'updating grid'
 DO gridcell = 1, n_modelgrid
- !print*, 'update_grid: volume: model cell = ', gridcell, ' volume = ', volume
   IF (model_grid(gridcell)%assoc_cells .GT. 0) THEN
     IF (iteration .EQ. 1) THEN
       ! Calculate electron number density for every model grid cell gridcell
@@ -38,55 +35,20 @@ DO gridcell = 1, n_modelgrid
     temp = model_grid(gridcell)%T
 
     !     print*, 'temp and e_nd:', gridcell,  model_grid(gridcell)%rho, temp, el_nd/6.1D14
-    DO indexe = 1, n_elements
-      numb_ions = elements(indexe)%nions
-      DO indexi = 1, numb_ions
-         ! IF(indexi == numb_ions) THEN
-         !  model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%gl_pop = &
-         !   model_grid(gridcell)%grid_comp(indexe)%abund * model_grid(gridcell)%e_dens
-         !  model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop = &
-         !   model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%gl_pop
-         !  CYCLE 
-         ! END IF
-         ! Calculate fraction (frac) of element indexe in ionization stage indexi
-         ! relative to the total number of atoms of this element at given 
-         ! electron numb.density and temperature
-         CALL ionization_fraction(indexe, indexi, temp, el_nd, frac)
-         ! Total population number of the element indexe in ionization stage indexi
-         ! and particular gridcell (total number of atoms in particular ionization stage)
-         N_jk = frac * model_grid(gridcell)%rho * model_grid(gridcell)%grid_comp(indexe)%abund / elements(indexe)%atom_mass
-         ! CALL ionization_fraction(indexe, indexi, temp, el_nd, frac)
-         ! print*, gridcell, indexe, indexi, N_jk/1d10, frac
-         ! Calculate partition function (U) of element indexe in ionization stage 
-         ! indexi at given temperature temp
-         CALL part_fun(indexe, indexi, temp, U)
-         ! Ground level population number (number density of the atom at ground level)
-         ! write(*,*) 'update_grid: U = ', U
-         indexl0(:) = MINLOC(elements(indexe)%ions(indexi)%levels(:)%exci_energy)
-         gl_pop = ( elements(indexe)%ions(indexi)%levels(indexl0(1))%stat_waight * N_jk ) /  U 
-         ! IF(indexe == 1 .AND. indexi == 1) write(*,*) 'update_grid: H I = ', frac
-         ! IF(indexe == 1 .AND. indexi == 2) write(*,*) 'update_grid: H II = ', frac
-         ! write(*,*) 'update_grid: gl_pop = ', gl_pop, ' N_jk = ', N_jk,&
-         !  ' U = ', U, ' temp = ', temp
-         model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%gl_pop = gl_pop
-         IF(N_jk > 1.D-40) THEN
-          model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop = N_jk
-         ELSE
-          model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop = 1.D-40
-         END IF
-         ! write(*,*) 'update_grid: indexe = ', indexe, ' indexi = ', indexi, &
-         !  ' tot_pop = ', N_jk * frac
-         IF(N_jk  > 1.D20) THEN
-          write(*,*) 'update_grid: indexe = ', indexe, ' indexi = ', indexi, &
-           ' tot_pop = ', N_jk 
-          STOP 'update_grid: suspiciously large number'
-         END IF
-      END DO
-    END DO
-   ! write(*,*) 'update_grid: gridcell = ', gridcell, ' t = ', model_grid(gridcell)%t, ' rho = ', model_grid(gridcell)%rho, &
-   !  ' eld = ', model_grid(gridcell)%e_dens
   ENDIF
 END DO
+! calculation of population numbers
+ IF(iteration == 1) THEN
+  CALL find_populations(wasFound)
+ END IF
+ IF(.NOT. wasFound .OR. iteration > 1) THEN
+  DO indexe = 1, n_elements
+   numb_ions = elements(indexe)%nions
+   DO indexi = 1, numb_ions
+    CALL lte_pops(indexe, indexi)
+   END DO
+  END DO
+ END IF
 CALL check_pop()
 ! STOP 'update_grid: testing'
 CLOSE(3)

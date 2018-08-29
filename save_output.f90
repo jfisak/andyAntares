@@ -87,12 +87,7 @@ END IF
   CALL MPI_SEND(outputfolder, 80, MPI_CHAR, I, 6, MPI_COMM_WORLD, ierr)
  END DO
 ELSE IF (outputfolder == '') THEN
-! CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
- ! write(*,*) 'save_output: my_rank = ', my_rank, ' outputfolder = ', outputfolder
  CALL MPI_RECV(outputfolder, 80, MPI_CHAR, 0, 6, MPI_COMM_WORLD, status, ierr)
-! CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
-! CALL MPI_SCATTER(outputfolder, 80, MPI_CHAR, my_rank, 80, MPI_CHAR, 0, MPI_COMM_WORLD)
-! write(*,*) 'save_output: my_rank = ', my_rank, ' outputfolder = ', outputfolder
 END IF
 #endif
 
@@ -294,7 +289,7 @@ CASE(5)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CASE(6)
  fileHI = trim(outputfolder)//'/HI.dat'
- write(*,*) 'save_output: fileHI'
+ ! write(*,*) 'save_output: fileHI'
  OPEN(40, FILE=fileHI)
   DO I = 1, n_modelgrid
    IF(model_grid(I)%assoc_cells == 0) CYCLE
@@ -306,7 +301,7 @@ CASE(6)
    write(40,*) I, log10(ntot), log10(nhi/ntot)
   END DO
  CLOSE(40)
- write(*,*) 'save_output: fileHII'
+ ! write(*,*) 'save_output: fileHII'
  fileHII = trim(outputfolder)//'/HII.dat'
  OPEN(40, FILE=fileHII)
   DO I = 1, n_modelgrid
@@ -319,7 +314,7 @@ CASE(6)
    write(40,*) I, log10(ntot), log10(nhi/ntot)
   END DO
  CLOSE(40)
- write(*,*) 'save_output: fileHeI'
+ ! write(*,*) 'save_output: fileHeI'
  fileHeI = trim(outputfolder)//'/HeI.dat'
  OPEN(40, FILE=fileHeI)
   DO I = 1, n_modelgrid
@@ -332,7 +327,7 @@ CASE(6)
    write(40,*) I, log10(ntot), log10(nhi/ntot)
   END DO
  CLOSE(40)
- write(*,*) 'save_output: fileHeII'
+ ! write(*,*) 'save_output: fileHeII'
  fileHeII = trim(outputfolder)//'/HeII.dat'
  OPEN(40, FILE=fileHeII)
   DO I = 1, n_modelgrid
@@ -345,7 +340,7 @@ CASE(6)
    write(40,*) I, log10(ntot), log10(nhi/ntot)
   END DO
  CLOSE(40)
- write(*,*) 'save_output: fileHeIII'
+ ! write(*,*) 'save_output: fileHeIII'
  fileHeIII = trim(outputfolder)//'/HeIII.dat'
  OPEN(40, FILE=fileHeIII)
   DO I = 1, n_modelgrid

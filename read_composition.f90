@@ -97,6 +97,7 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
   IF ( INDEX(line, '*') /= 0) CYCLE
   ! write(*,*) 'read_composition: read line = ', line
   READ(line,*) atom_number, lowerion, upperion, levels_type, filename
+  ! write(*,*) 'read_composition: filename = ', filename
   CALL find_element_index(atom_number, element_index)
   ! the most important is to read the file
   ! write(*,*) 'read_composition: element_index = ', element_index

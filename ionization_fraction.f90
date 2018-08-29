@@ -8,7 +8,8 @@ IMPLICIT NONE
 
 INTEGER                                 :: I, J, numb_ions, indexe, indexi
 DOUBLE PRECISION                        :: temp, el_nd, frac
-REAL(kind=16)                        :: N, D, SUMM
+! REAL(kind=16)                        :: N, D, SUMM
+DOUBLE PRECISION                        :: N, D, SUMM
 !DOUBLE PRECISION                        :: N, D, SUMM
 DOUBLE PRECISION                        :: sb_factor
 LOGICAL                                 :: too_large
@@ -17,9 +18,9 @@ LOGICAL                                 :: too_large
 !  print*, 'Ion.frac. is called for:',indexe, indexi, temp, el_nd
 
 numb_ions = elements(indexe)%nions
-!  print*, '  numb.ions:', numb_ions
+! write(*,*) '  numb.ions:', numb_ions
 
-N = 1.Q0
+N = 1.D0
 DO I = indexi, numb_ions - 1
  CALL saha_boltzmann_factor(indexe, I, temp, sb_factor, too_large)
 !  print*, 'el_nd: ', el_nd
@@ -32,7 +33,7 @@ END DO
 
 SUMM = 0.D0
 DO I = 1, numb_ions
- D = 1.Q0
+ D = 1.D0
  DO J = I, numb_ions - 1
   CALL saha_boltzmann_factor(indexe, J, temp, sb_factor, too_large)
   IF(too_large .EQV. .TRUE.) CYCLE
