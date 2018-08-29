@@ -55,19 +55,24 @@ OPEN(51,FILE=inputfile)
  REWIND(51)
  ALLOCATE(inpIon(num_rows))
  I = 0
+ line = ' '
  DO
   READ(51,'(A)', IOSTAT = reading_populations) line
   IF(reading_populations /= 0) EXIT
-  ! write(*,*) 'find_populations: line = ', line
+  ! write(*,*) 'find_populations: #1 line = ', line
   IF(line(1:1) .EQ. '*') CYCLE
   READ(line,*) Z, indexi, dataType, popInpFile
-  IF(Z == 1 .AND. indexi == 1) popInpFile = '/home/jakub/Documents/PhD/3dwind/PoWRtestCase/H_I.dat'
-  IF(Z == 1 .AND. indexi == 2) popInpFile = '/home/jakub/Documents/PhD/3dwind/PoWRtestCase/H_II.dat'
-  IF(Z == 2 .AND. indexi == 1) popInpFile = '/home/jakub/Documents/PhD/3dwind/PoWRtestCase/He_I.dat'
-  IF(Z == 2 .AND. indexi == 2) popInpFile = '/home/jakub/Documents/PhD/3dwind/PoWRtestCase/He_II.dat'
-  IF(Z == 2 .AND. indexi == 3) popInpFile = '/home/jakub/Documents/PhD/3dwind/PoWRtestCase/He_III.dat'
-  ! write(*,*) 'find_populations: Z = ', Z, ' indexi = ', indexi,&
-  !  'dataType = ', dataType, ' popInpFile = ', TRIM(popInpFile)
+  ! write(*,*) 'find_populations: #2 popInpFile = ', popInpFile, LEN(popInpFile)
+  ! write(*,*) 'find_populations: #3 Z = ', Z, ' indexi = ', indexi,&
+  !  'dataType = ', dataType 
+  ! write(*,*) 'find_populations: #4 popInpFile = ', popInpFile, LEN(popInpFile)
+  ! IF(Z == 1 .AND. indexi == 1) popInpFile = '/home/jakub/Documents/PhD/3dwind/PoWRtestCase/H_I.dat'
+  ! IF(Z == 1 .AND. indexi == 2) popInpFile = '/home/jakub/Documents/PhD/3dwind/PoWRtestCase/H_II.dat'
+  ! IF(Z == 2 .AND. indexi == 1) popInpFile = '/home/jakub/Documents/PhD/3dwind/PoWRtestCase/He_I.dat'
+  ! IF(Z == 2 .AND. indexi == 2) popInpFile = '/home/jakub/Documents/PhD/3dwind/PoWRtestCase/He_II.dat'
+  ! IF(Z == 2 .AND. indexi == 3) popInpFile = '/home/jakub/Documents/PhD/3dwind/PoWRtestCase/He_III.dat'
+  write(*,*) 'find_populations: Z = ', Z, ' indexi = ', indexi,&
+   'dataType = ', dataType, ' popInpFile = ', TRIM(popInpFile)
   I = I + 1
   inpIon(I)%indexe = Z
   inpIon(I)%indexi = indexi
@@ -82,6 +87,7 @@ DO I = 1, num_rows
  indexi = inpIon(I)%indexi
  popInpFile = inpIon(I)%fileName
  dataType = inpIon(I)%inpType
+ ! write(*,*) 'find_populations: indexe = ', indexe, ' indexi = ', indexi
  SELECT CASE(dataType)
   ! PoWR test case
   CASE(3)
