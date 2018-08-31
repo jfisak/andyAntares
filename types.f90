@@ -106,7 +106,7 @@ IMPLICIT NONE
 ! velocity structure approximation
   INTEGER                            :: velApprox
 ! properties of a central star
-  DOUBLE PRECISION                   :: R_star, R_inf, V_inf, M_dot, T_eff
+  DOUBLE PRECISION                   :: R_star, R_inf, V_inf, V_0, M_dot, T_eff
   DOUBLE PRECISION                   :: Z_inf
 ! lower boundary condition
   DOUBLE PRECISION, ALLOCATABLE      :: incomingflux(:,:)

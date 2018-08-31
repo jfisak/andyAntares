@@ -69,6 +69,7 @@ DOUBLE PRECISION, PARAMETER                     :: meanAtMass = 1.33
      ALLOCATE (model_grid(I)%grid_comp(n_elements))
      DO J = 1, n_elements      
         numbions = elements(J)%nions
+        ! write(*,*) 'read_1D_model: numbions = ', numbions
         ALLOCATE (model_grid(I)%grid_comp(J)%grid_ion(numbions))
         atom_number = elements(J)%atom_number
         !model_grid(I)%grid_comp(J)%abund = massfrac(atom_number)        
@@ -81,7 +82,8 @@ DOUBLE PRECISION, PARAMETER                     :: meanAtMass = 1.33
 
   R_inf  = model_grid(n_modelgrid)%rwind
   ! V_inf  = 1.D1 * model_grid(n_modelgrid)%vel
-  V_inf = 3.075734D8
+  V_inf = 4.D9
+  V_0 = 2.D9
 
   ! setting properties
 

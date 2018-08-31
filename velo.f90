@@ -23,6 +23,11 @@ SUBROUTINE velo(pack_index,vel_vec)
   vel_radial = V_inf * (1.D0 - R_star / norm2(package(pack_index)%pos))**beta
   vel_vec = package(pack_index)%pos/vec_length(package(pack_index)%pos) * vel_radial
   ! write(*,*) 'velo: pos = ', package(pack_index)%pos 
+ CASE(2)
+  vel_radial = (V_inf - V_0)/(R_inf - R_star) * &
+   vec_length(package(pack_index)%pos) + &
+   (V_0 * R_inf - V_inf * R_star) / (R_inf - R_star)
+  vel_vec = package(pack_index)%pos/vec_length(package(pack_index)%pos) * vel_radial
  CASE DEFAULT
   write(*,*) 'velo: this velocity structure is not known'
   CALL abort()

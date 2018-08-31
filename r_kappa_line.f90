@@ -63,6 +63,17 @@ DO I = 1, nnextlines
   ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * ROverV &
   ! / (4.0 * pi) * corrFactor * ldist
   ! write(*,*) 'r_kappa_line: actirrates%Lline(I) = ', actirrates%Lline(I)
+ ELSE IF(velapprox == 2) THEN
+  ! according to (10) in Abbot & Lucy (1985)
+  ! r
+  R_res = norm2(package(dummypackage)%pos + package(dummypackage)%dir * ldist)
+  ! ||v||
+  V_res = V_inf * (1.0 - R_star / R_res ) ** beta
+  ! v = (v_x, v_y, v_z)
+  V_res_vec = V_res * package(dummypackage)%pos / norm2(package(dummypackage)%pos)
+  costheta = dot_product(package(dummypackage)%dir, V_res_vec) / norm2(V_res_vec)
+  ROverV = (V_inf - V_0) / (R_inf - R_star) + 1 / R_res * (1 - costheta**2.0) *&
+   (V_0 * R_inf - V_inf * R_star) / (R_inf - R_star)
  ELSE IF(velapprox == 1) THEN
   ! according to (10) in Abbot & Lucy (1985)
   ! r
