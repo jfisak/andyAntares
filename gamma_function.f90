@@ -37,9 +37,11 @@ el_conf_upper = elements(indexe)%ions(indexi)%levels(linelist(transition)%upper)
 conf_len_lower = LEN_TRIM(el_conf_lower)
 conf_len_upper = LEN_TRIM(el_conf_upper)
 
-!write(*,*) 'gamma_function: testing configurations'
-!write(*,*) 'elclower: ', el_conf_lower(conf_len_lower - 2:conf_len_lower - 1)
-!write(*,*) 'elclower: ', el_conf_upper(conf_len_upper - 2:conf_len_upper - 1)
+! write(*,*) 'gamma_function: testing configurations'
+! write(*,*) 'elclower: conf_len_lower = ', conf_len_lower
+! write(*,*) 'el_conf_lower = ', el_conf_lower, ' el_conf_upper = ', el_conf_upper
+! write(*,*) 'elclower: ', el_conf_lower(conf_len_lower - 2:conf_len_lower - 1)
+! write(*,*) 'elclower: ', el_conf_upper(conf_len_upper - 2:conf_len_upper - 1)
 
 sconf_l = el_conf_lower(conf_len_lower - 2:conf_len_lower - 1)
 sconf_u = el_conf_upper(conf_len_upper - 2:conf_len_upper - 1)

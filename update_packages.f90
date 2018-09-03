@@ -12,7 +12,6 @@
 !  OPEN (UNIT=3, FILE='position.dat')
 ! write(*,*) 'WARNING: positions of packets are being written into the file, if the number of &
 !                packages is large the file will be very large'
-  ! write(*,*) 'A'
 DO pack_index = tot_saved_packets + 1, n_pack
  ! IF(initrs(my_rank + 1) .EQV. .FALSE.) THEN
  !  CALL init_random_seed()

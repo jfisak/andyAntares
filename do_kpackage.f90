@@ -28,6 +28,7 @@ LOGICAL                         :: procout = .FALSE.
 ! double precission
 DOUBLE PRECISION                :: D
 
+! write(*,*) 'do_kpackage: pack_index = ', pack_index
 package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
 
 actikrates = krates()
@@ -101,11 +102,11 @@ ELSE IF(rand >= Z0 .AND. rand <= Z1) THEN
  CALL k_freq_ff(pack_index, new_freq)
  package(pack_index)%freq_cmf = new_freq
  CALL emit_rpackage(pack_index)
+IF(procout) write(*,*) 'do_kpackage: package = ', pack_index, ' free-free process...'
  ! CALL doppler_factor(pack_index, D)
  ! package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
  ! package(pack_index)%e_rf = package(pack_index)%e_cmf / D
  count_cool_ff = count_cool_ff + 1
-! IF(procout) write(*,*) 'do_kpackage: package = ', pack_index, ' free-free process...'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! ionization
