@@ -52,12 +52,20 @@ DO I = 1, nnextlines
   current_mgi, low_pop)
  CALL populations(indexe, indexi, linelist(indexline)%upper,&
   current_mgi, upp_pop)
+ IF(low_pop <= 1.E-20 .OR. upp_pop == 1.E-20) THEN
+  actirrates%Lline(I) = 0.E0
+  CYCLE
+ END IF
  ! write(*,*) 'r:r_kappa_line: indexline = ', nextLine + I - 1
  ! write(*,*) 'r_kappa_line: lower = ', linelist(indexline)%lower,&
  !  ' upper = ', linelist(indexline)%upper
  ! write(*,*) 'r_kappa_line: low_pop = ', low_pop, ' upp_pop = ', upp_pop
  corrFactor = 1.D0 - (stat_weight_l * upp_pop) / (stat_weight_u * low_pop)
- IF(corrFactor < 0.D0) write(*,*) 'WARNING: correction factor 1 - (gl nu) / (gu nl) < 0'
+ IF(corrFactor < 0.D0) THEN
+  write(*,*) 'r_kappa_line: upp_pop / low_pop = ', upp_pop / low_pop
+  write(*,*) 'low_pop = ', low_pop, ' upp_pop = ', upp_pop
+  write(*,*) 'WARNING: correction factor 1 - (gl nu) / (gu nl) < 0'
+ END IF
  IF(velapprox == 0) THEN
   ROverV = R_inf / V_inf
   ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * ROverV &

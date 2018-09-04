@@ -199,7 +199,10 @@ CASE(2)
       act_lower = act_uc
       act_upper = act_lc
      ELSE
-      STOP 'read_transitions: ee_lc == ee_uc'
+      write(*,*) 'read_transitions: act_lc = ', act_lc, ' act_uc = ', act_uc
+      write(*,*) 'conf_l = ', TRIM(low_conf), ' conf_u = ', up_conf
+      write(*,*) 'ee_lc = ', ee_lc, ' ee_uc = ', ee_uc
+      STOP 'ee_lc == ee_uc'
      END IF
     END IF
    END DO

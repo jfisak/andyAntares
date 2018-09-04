@@ -36,7 +36,7 @@ DO gridcell = 1, n_modelgrid
   IF(N_jk > 1.D-40) THEN
    model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop = N_jk
   ELSE
-   model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop = 1.D-40
+   model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop = 0.E0
   END IF
   ! write(*,*) 'update_grid: indexe = ', indexe, ' indexi = ', indexi, &
   !  ' tot_pop = ', N_jk * frac
