@@ -144,8 +144,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
   IF(rand >= summ .AND. rand < summ + Zff) THEN
    package(pack_index)%typ = type_kpkt
    if(procout) write(*,*) 'do_rpackage_event: package = ', pack_index, ' free-free'
-    !$OMP ATOMIC
-    count_r_ff = count_r_ff + 1
+   count_r_ff = count_r_ff + 1
   END IF
   !______________________________________________________________________
  ELSE

@@ -12,7 +12,6 @@
 !  OPEN (UNIT=3, FILE='position.dat')
 ! write(*,*) 'WARNING: positions of packets are being written into the file, if the number of &
 !                packages is large the file will be very large'
-  ! write(*,*) 'A'
 DO pack_index = tot_saved_packets + 1, n_pack
  ! IF(initrs(my_rank + 1) .EQV. .FALSE.) THEN
  !  CALL init_random_seed()
@@ -21,6 +20,7 @@ DO pack_index = tot_saved_packets + 1, n_pack
   ! write(36, *) 'r-packet: ', pack_index
  IF (MODULO(pack_index,100000) .EQ. 0) write(99,*) 'Working on packet ', pack_index,' ...'
  ! IF (MODULO(pack_index,100000) .EQ. 0) write(*,*) 'Working on packet ', pack_index,' ...'
+ ! write(*,*) 'Working on packet ', pack_index,' ...'
  ! write(*,*) 'Working on packet ', pack_index,' ...'
  ! Do this loop until something happened with package
  DO  WHILE (package(pack_index)%active .EQ. 1)

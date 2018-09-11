@@ -38,8 +38,8 @@ DO indexl = 1, nlevels
  ! Partition function
  IF(temp == 0 ) STOP 'part_fun: temperature = 0...'
  U = U + g_level * EXP(-(e_level - e_gl) / BOLK / temp)  
- IF(indexe == 3 .AND. indexi == 2) write(*,*) '   part.func. calculation:', indexl, g_level, U,&
-  e_level/e_V, e_gl/e_V
+! IF(indexe == 3 .AND. indexi == 2) write(*,*) '   part.func. calculation:', indexl, g_level, U,&
+!  e_level/e_V, e_gl/e_V
 END DO
 
 !  print*, '   part.func. calculation done:', U

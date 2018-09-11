@@ -9,6 +9,8 @@ SUBROUTINE read_transitions(el_index, lowerion, upperion, transition_type, filen
  INTEGER                        :: element, lowerion, upperion, transition_type, el_index
  INTEGER                        :: n_ions
  CHARACTER (LEN=20)             :: filename, junk
+ INTEGER                        :: jint
+ DOUBLE PRECISION               :: jdble
  ! used constants
  DOUBLE PRECISION               :: oconstant
  ! loop variables
@@ -30,12 +32,14 @@ SUBROUTINE read_transitions(el_index, lowerion, upperion, transition_type, filen
  INTEGER                        :: act_lower, act_upper
  ! counter of not included transitions
  INTEGER                        :: n_not_included
- CHARACTER (LEN=15)              :: low_conf, up_conf
+ CHARACTER (LEN=16)             :: low_conf
+ CHARACTER (LEN=16)             :: up_conf
  DOUBLE PRECISION               :: A, col_str, l_freq
  INTEGER                        :: electron_number
  DOUBLE PRECISION               :: ee_lc, ee_uc
  INTEGER                        :: act_lc, act_uc
 
+992 format(I7, I3, I3, I5, I5, I4, I4, Tr1, A16, A16, e9.2, e10.2, e10.2, f5.1, f5.1)
 
 ! calculate the constant for the oscilator strength calculation
 oconstant = (me_g * light_speed ** 3)/(8.D0 * pi ** 2 * e_charge**2)
@@ -68,11 +72,14 @@ CASE(2)
  END DO
  tot_ntrans = 0
  DO
-  READ(9,'(A)',IOSTAT = reading_transitions) line
+  READ(9,992, IOSTAT = reading_transitions) jint, at_number, electron_number,&
+   jint, jint, jint, jint, low_conf, up_conf, jdble, jdble
+  ! write(*,*) 'read_transitions: low_conf = ', TRIM(low_conf), ' up_conf = ', TRIM(up_conf)
+  ! write(*,*) 'read_transitions: at_number = ', at_number
+  ! READ(9,'(A)',IOSTAT = reading_transitions) line
   !print*, line
   IF(reading_transitions /= 0) EXIT
-  IF(line(1:1) == '*') CYCLE
-  READ(line,*) junk, at_number, electron_number, junk, junk, junk, junk, low_conf, up_conf, junk, junk, junk 
+  ! IF(line(1:1) == '*') CYCLE
   CALL find_element_index(at_number,el_index)
   current_ion = element - electron_number + 1
   ! write(99,*) 'read_transitions: current_ion = ', current_ion
@@ -80,28 +87,30 @@ CASE(2)
   found_up_conf = .FALSE.
   n_levels = SIZE(elements(el_index)%ions(current_ion)%levels)
   DO J = 1, n_levels
+   ! write(*,*) 'read_transitions: low_conf = ', low_conf, ' up_conf = ', up_conf, &
+   !  ' elconf = ', elements(el_index)%ions(current_ion)%levels(J)%elconf
    IF(low_conf .EQ. elements(el_index)%ions(current_ion)%levels(J)%elconf) THEN
     found_low_conf = .TRUE.
-    !write(99,*) 'found low_conf ', low_conf
-    !write(99,*) 'found electron configuration...'
+    ! write(*,*) 'found low_conf ', low_conf
+    ! write(*,*) 'found electron configuration...'
    END IF
-   IF(up_conf .EQ. elements(el_index)%ions(current_ion)%levels(J)%elconf) THEN
+   IF(TRIM(up_conf) .EQ. TRIM(elements(el_index)%ions(current_ion)%levels(J)%elconf)) THEN
     found_up_conf = .TRUE.
-    !write(99,*) 'found up_conf ', up_conf
-    !write(99,*) 'found electron configuration...'
+    ! write(*,*) 'found up_conf ', up_conf
+    ! write(*,*) 'found electron configuration...'
    END IF
    !IF(found_up_conf .EQV. .TRUE. .AND. found_low_conf .EQV. .TRUE.) EXIT
    IF((found_up_conf .EQV. .TRUE.) .AND. (found_low_conf .EQV. .TRUE.)) EXIT
   END DO
   !write(99,*) 'low_conf = ', low_conf, ' up_conf = ', up_conf, found_up_conf, found_low_conf
   IF((found_up_conf .EQV. .TRUE.) .AND. (found_low_conf .EQV. .TRUE.)) THEN
-   ! write(99,*) 'reading_transitions: el = ', el_index, ' ion = ', current_ion,&
+   ! write(*,*) 'reading_transitions: el = ', el_index, ' ion = ', current_ion,&
    !  ' line ', low_conf, ' -> ', up_conf, ' was accepted'
    ion_index = current_ion - lowerion + 1
    ntrans(current_ion) = ntrans(current_ion) + 1
    tot_ntrans = tot_ntrans + 1
   END IF
-  !write(99,*) 'tot_ntrans = ', tot_ntrans
+  ! write(*,*) 'tot_ntrans = ', tot_ntrans
  END DO
  ! we have to treat the linelist array
  ! 1.) if it is allocated we add to this array tot_ntrans new fields
@@ -131,12 +140,16 @@ CASE(2)
   trans = 0
   n_not_included = 0
   DO
-   READ(9,'(A)',IOSTAT = reading_transitions) line
+   READ(9,992, IOSTAT = reading_transitions) kindex, current_element, electron_number,&
+   jint, jint, low_level, up_level, low_conf, up_conf, col_str, A, l_freq
+   ! write(*,*) 'read_transitions: col_str = ', col_str, ' A = ', A, &
+   !  ' l_freq = ', l_freq
+   ! READ(9,'(A)',IOSTAT = reading_transitions) line
    ! write(99,*) line
    IF(reading_transitions /= 0) EXIT
-   IF(line(1:1) == '*') CYCLE
-   READ(line,*) kindex, current_element, electron_number, junk, junk, low_level, up_level, &
-        low_conf, up_conf, col_str, A, l_freq
+   ! IF(line(1:1) == '*') CYCLE
+   ! READ(line,*) kindex, current_element, electron_number, junk, junk, low_level, up_level, &
+   !      low_conf, up_conf, col_str, A, l_freq
    current_ion = element - electron_number + 1
    ! write(99,*) 'I = ', I, 'i_conf = ', low_conf, 'j_conf = ', up_conf, &
    ! 'l_index = ', elements(el_index)%ions(current_ion)%levels(I)%l_index
@@ -186,7 +199,10 @@ CASE(2)
       act_lower = act_uc
       act_upper = act_lc
      ELSE
-      STOP 'read_transitions: ee_lc == ee_uc'
+      write(*,*) 'read_transitions: act_lc = ', act_lc, ' act_uc = ', act_uc
+      write(*,*) 'conf_l = ', TRIM(low_conf), ' conf_u = ', up_conf
+      write(*,*) 'ee_lc = ', ee_lc, ' ee_uc = ', ee_uc
+      STOP 'ee_lc == ee_uc'
      END IF
     END IF
    END DO

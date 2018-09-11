@@ -114,6 +114,7 @@ DO indexe = 1, n_elements
     ali = (func1 - func2) / (freq1 - freq2)
     bli = (func2 * freq1 - func1 * freq2) / (freq1 - freq2)
     cross_sect = ali * freq + bli
+    ! write(33,*) freq, cross_sect
     CALL populations(indexe, indexi, indexl, current_mgi, act_pop)
     ! write(*,*)  'r_kappa_cont: cross_sect = ', cross_sect, ' act_continuum = ', act_continuum, &
     !  'act_pop = ', act_pop, ' 1-exp() = ', (1-exp(-(h * freq)/(BOLK * temp)))

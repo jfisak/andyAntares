@@ -158,7 +158,6 @@ END DO ! iteration (now of temperature structure)
  write(99,*) 'do spectrum'
  ! CALL do_spectrum(n_pack)
  write(99,*) 'do finalize'
- write(*,*) 'do finalize'
  ! it will save some important output
  CALL save_output(1)
  CALL save_output(2)
@@ -166,7 +165,6 @@ END DO ! iteration (now of temperature structure)
  IF(my_rank == 0) CALL save_output(3)
  CALL save_output(5)
  IF(my_rank == 0) CALL save_output(6)
- write(*,*) 'output was saved...'
  ! erase all temporary files with photons
 
 CLOSE(2)
@@ -174,9 +172,9 @@ CLOSE(99)
 #if mpi==1
  ! will delete all temporary files
  IF(my_rank == 0) THEN
-  cmdcommand = 'rm -v'//TRIM(outputfolder)//'/'//TRIM(temp_filename)//'*.dat'
-  ! write(*,*) 'main: cmdcommand = ', cmdcommand
- ! CALL SYSTEM(cmdcommand)
+  cmdcommand = 'rm '//TRIM(outputfolder)//TRIM(temp_filename)//'*.dat'
+ write(*,*) 'main: cmdcommand = ', cmdcommand
+ CALL SYSTEM(cmdcommand)
  END IF
  CALL MPI_FINALIZE(ierr)
 #else
