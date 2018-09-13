@@ -172,7 +172,7 @@ CLOSE(99)
 #if mpi==1
  ! will delete all temporary files
  IF(my_rank == 0) THEN
-  cmdcommand = 'rm '//TRIM(outputfolder)//TRIM(temp_filename)//'*.dat'
+  cmdcommand = 'rm '//TRIM(outputfolder)//'/'//TRIM(temp_filename)//'*.dat'
  write(*,*) 'main: cmdcommand = ', cmdcommand
  CALL SYSTEM(cmdcommand)
  END IF

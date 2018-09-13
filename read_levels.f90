@@ -96,7 +96,7 @@ OPEN(8,status='old',FILE=filename)
   act_index = cur_ion - lowerion + 2
   nlevels(act_index) = nlevels(act_index) + 1
  END DO
- !write(99,*) 'number of levels: ', nlevels
+ ! write(*,*) 'number of levels: ', nlevels(act_index)
  DO I = 1, nions
   ! ionindex = I + lowerion - 1
   indexi = at_index - I - lowerion + 3
@@ -148,6 +148,9 @@ OPEN(8,status='old',FILE=filename)
    elements(el_index)%ions(indexi)%levels(J)%exci_energy = l_energy * rydberg * e_v
    elements(el_index)%ions(indexi)%levels(J)%levelindex = levelindex
    ! write(99,*) 'read_levels: kindex = ', kindex, ' element = ', el_index, 'ion = ', indexi, &
+   !  ' J = ', J, ' exci_energy = ', &
+   ! elements(el_index)%ions(indexi)%levels(J)%exci_energy / e_v, ' l_energy = ', l_energy
+   ! write(*,*) 'read_levels: element = ', el_index, 'ion = ', indexi, &
    !  ' J = ', J, ' exci_energy = ', &
    ! elements(el_index)%ions(indexi)%levels(J)%exci_energy / e_v, ' l_energy = ', l_energy
    elements(el_index)%ions(indexi)%levels(J)%stat_waight = s_weight

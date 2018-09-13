@@ -34,10 +34,8 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
     ! the cmf and conserve the cmf frequency print*,
     ! freq_line,package(pack_index)%freq_cmf
 !     print*, 'photon ', pack_index, ' line interaction...'
-    !$OMP ATOMIC
     linelist(package(pack_index)%last_line)%n_int = &
      linelist(package(pack_index)%last_line)%n_int + 1
-    !$OMP ATOMIC
     count_r_line = count_r_line + 1
     ! in this sbr we get only excited states from the upper states
     package(pack_index)%typ = type_ipkt

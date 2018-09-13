@@ -29,7 +29,8 @@ SUBROUTINE velo(pack_index,vel_vec)
    (V_0 * R_inf - V_inf * R_star) / (R_inf - R_star)
   vel_vec = package(pack_index)%pos/vec_length(package(pack_index)%pos) * vel_radial
  CASE DEFAULT
-  write(*,*) 'velo: this velocity structure is not known'
+  write(*,*) 'velo: velApprox = ', velApprox
+  write(*,*) 'this velocity structure is not known'
   CALL abort()
  END SELECT
  ! check if the packet is located inside the model grid

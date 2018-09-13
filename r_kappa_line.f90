@@ -76,7 +76,8 @@ DO I = 1, nnextlines
   ! r
   R_res = norm2(package(dummypackage)%pos + package(dummypackage)%dir * ldist)
   ! ||v||
-  V_res = V_inf * (1.0 - R_star / R_res ) ** beta
+  V_res = (V_inf - V_0) / (R_inf - R_star) * R_res + &
+   (V_0 * R_inf - V_inf * R_star) / (R_inf - R_star)
   ! v = (v_x, v_y, v_z)
   V_res_vec = V_res * package(dummypackage)%pos / norm2(package(dummypackage)%pos)
   costheta = dot_product(package(dummypackage)%dir, V_res_vec) / norm2(V_res_vec)

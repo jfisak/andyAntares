@@ -96,7 +96,8 @@ DO I = 1, nlns
   ! r
   R_pos = norm2(package(dummypackage)%pos)
   ! ||v||
-  V_pos = V_inf * (1.0 - R_star / R_pos ) ** beta
+  V_pos = (V_inf - V_0) / (R_inf - R_star) * norm2(package(pack_index)%pos) + &
+   (V_0 * R_inf - V_inf * R_star) / (R_inf - R_star)
   ! v = (v_x, v_y, v_z)
   V_pos_vec = V_pos * package(dummypackage)%pos / norm2(package(dummypackage)%pos)
   costheta = dot_product(package(dummypackage)%dir, V_pos_vec) / norm2(V_pos_vec)
@@ -129,22 +130,15 @@ DO I = 1, nlns
  ! optical depth
  !  * linelist(act_line)%f_ul * corrFactor
  taulu = light_speed / linelist(act_line)%freq * constanta * &
-   linelist(act_line)%f_ul * up_pop * ROverV! * corrFactor
+   linelist(act_line)%f_ul * up_pop * ROverV * corrFactor
  betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
  actVal = up_pop * betalu * linelist(act_line)%A_ul * corrFactor 
+ ! write(*,*) 'i_radtrans: actVal = ', actVal, ' e_l = ', exci_energy_l, ' e_u - e_l = ', exci_energy_u - exci_energy_l
  actirates%Lma_int_dorad(I) = actVal * exci_energy_l
- ! write(*,*) 'i_radtrans: betalu = ', betalu
  IF(actirates%Lma_int_dorad(I) < 0.D0) STOP 'i_radtrans: Lma_int_dorad < 0'
  actirates%Lma_rad(I) = actVal * (exci_energy_u - exci_energy_l)
- ! write(*,*) 'i_radtrans: e_l = ', exci_energy_l, ' e_u - e_l = ', exci_energy_u - exci_energy_l
  Zintdown = Zintdown + actirates%Lma_int_dorad(I)
  Zrad = Zrad + actirates%Lma_rad(I)
- ! write(*,*) 'i_radtrans: taulu = ', taulu, ' betalu = ', betalu
- ! write(*,*) 'i_radtrans: low_pop = ', low_pop, ' up_pop = ', up_pop, ' Blu = ', Blu, ' ROverV = ', ROverV
- ! write(*,*) 'i_radtrans: ROverV = ', ROverV
- ! write(*,*) 'i_radtrans: Lma_rad = ', actirates%Lma_rad(I), actirates%Lma_int_dorad(I)
- ! write(*,*) 'i_radtrans: Lrad = ', actirates%Lma_rad(I), ' Lintdown = ', actirates%Lma_int_dorad(I)
- ! write(*,*) 'i_radtrans: e_l = ', exci_energy_l, ' e_u - u_l = ', exci_energy_u - exci_energy_l
  IF(exci_energy_u - exci_energy_l < 0) STOP 'i_radtrans: exci_energy_u - exci_energy_l < 0'
 END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

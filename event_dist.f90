@@ -74,7 +74,7 @@ nloop = 0
 DO WHILE (do_loop .EQ. 1) 
 
 nloop = nloop + 1
-IF(nloop == 100) THEN
+IF(nloop == 1000) THEN
  write(*,*) 'event_dist: packet = ', pack_index
  STOP 'nloop == 100'
 END IF
