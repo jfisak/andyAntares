@@ -8,6 +8,15 @@ SUBROUTINE freq_from_planck(freq)
   DOUBLE PRECISION, PARAMETER   :: wien_const = 5.879D10 
   DOUBLE PRECISION              :: freq, freq_max, planck, ran_freq, ran_planck, planck_max, ran2
   DOUBLE PRECISION              :: planck_numax, planck_numin
+DOUBLE PRECISION                      :: wale_start, wale_end 
+DOUBLE PRECISION                      :: nu_max, nu_min
+
+wale_start = 500   ! in Angstroms
+wale_end = 20000   ! in Angstroms
+
+nu_max = light_speed / (wale_start * 1.D-8)
+nu_min = light_speed / (wale_end * 1.D-8)
+! write(*,*) 'freq_from_planck: nu_max = ', nu_max, ' nu_min = ', nu_min
  
 ! OPEN (UNIT=25, FILE='gauss-3.dat') 
   

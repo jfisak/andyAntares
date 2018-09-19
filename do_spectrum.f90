@@ -8,7 +8,16 @@ INTEGER                               :: I, n_pack, pack_index, nubin
 DOUBLE PRECISION                      :: delta_nu, delta_e, freq, lambda, flambda, planck, ls_A
 DOUBLE PRECISION, DIMENSION(n_nubin)  :: specflux, redspecflux, freqs
 INTEGER, DIMENSION(n_nubin)           :: escs
-CHARACTER(LEN=80)                       :: outputspecfile
+CHARACTER(LEN=80)                     :: outputspecfile
+INTEGER                               :: distribution = 0
+DOUBLE PRECISION                      :: wale_start, wale_end 
+DOUBLE PRECISION                      :: nu_max, nu_min
+
+wale_start = 500   ! in Angstroms
+wale_end = 20000   ! in Angstroms
+
+nu_max = light_speed / (wale_start * 1.D-8)
+nu_min = light_speed / (wale_end * 1.D-8)
 
 write(outputspecfile, "(A, A9)") trim(outputfolder), "/spec.dat"
 ! Set up the frequency grid to extract spectrum
@@ -16,7 +25,12 @@ write(99,*) 'SETUP FREQ GRID'
 delta_nu = (nu_max - nu_min) / n_nubin
 DO I= 1, n_nubin 
    specflux(I) = 0.D0
-   freqs(I) = nu_min + (I - 1) * delta_nu
+   SELECT CASE(distribution)
+   CASE(0)
+    freqs(I) = nu_min + (I - 1) * delta_nu
+   CASE(1)
+    ! freqs(I) = 
+   END SELECT
    escs = 0
    !write(99,*) i, spectrum(i)%freq, spectrum(i)%flux
 END DO

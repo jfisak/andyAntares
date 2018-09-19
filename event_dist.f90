@@ -58,7 +58,7 @@ END DO
 
  ! calculates all continuum opacities
  CALL r_kappa_cont(pack_index, kappa_cont, actirrates)
- ! kappa_cont = 0.D0
+ kappa_cont = 0.D0
 
  ! This is the opacity in co-moving frame. Must be transformed to the lab frame
  ! According to Mihalas and Mihalas Eq. 90.8 this is achieved by 
@@ -80,14 +80,9 @@ IF(nloop == 1000) THEN
 END IF
 
 CALL next_line(1, pack_index, lastLine, nextLine, n_next_lines)
-!IF(linelist(nextLine)%freq > package(pack_index)
 ALLOCATE(actirrates%Lline(n_next_lines))
-! n_next_lines = 1
-! IF(pack_index == 2222) write(*,*) 'event_dist: nextLine = ', nextLine, ' n_next_lines = ', n_next_lines, ' lastLine = ', lastLine
 freq_line = linelist(nextLine)%freq
-! write(*,*) 'event_dist: calling resonance_distance'
 CALL resonance_distance(pack_index, freq_line, cell_dist, l_dist, inCell, .TRUE.)
-! write(*,*) 'event_dist: l_dist = ', l_dist/R_inf, ' inCell = ', inCell
 IF(inCell) THEN
  CALL r_kappa_line(pack_index, current_mgi, nextLine, n_next_lines, l_dist, actirrates, tau_line)
 END IF
@@ -139,6 +134,7 @@ IF (package(pack_index)%freq_cmf .GT. freq_line .AND. inCell) THEN
    !  1.D8 * light_speed / package(pack_index)%freq_rf
    if(procout) write(*,*) 'event_dist: rpkt_eventtype_lineinteraction'
    ! choosing the line
+   package(pack_index)%last_line = nextLine + n_next_lines - 1
    IF(n_next_lines > 1) THEN
     tot_lop = 0.D0
     DO I = 1, n_next_lines
@@ -149,8 +145,10 @@ IF (package(pack_index)%freq_cmf .GT. freq_line .AND. inCell) THEN
     DO I = 1, n_next_lines
      act_line = nextLine + I - 1
      IF(ran_numb > summ .AND. ran_numb < summ + actirrates%Lline(I)) THEN
-      package(pack_index)%last_line = act_line
       ! write(*,*) 'event_dist: last_line = ', act_line
+      package(pack_index)%l_ele = linelist(act_line)%indexe
+      package(pack_index)%l_ion = linelist(act_line)%indexi
+      package(pack_index)%l_lev = linelist(act_line)%upper
       if(procout) write(*,*) 'event_dist: #1 chosen line = ', act_line
       ! write(*,*) 'event_dist: #1 chosen line = ', act_line
       EXIT
@@ -158,9 +156,10 @@ IF (package(pack_index)%freq_cmf .GT. freq_line .AND. inCell) THEN
      summ = summ + actirrates%Lline(I)
     END DO
    ELSE ! we have only one line
-    last_line = package(pack_index)%last_line
     IF(last_line < ntransitions) THEN
-     package(pack_index)%last_line = nextLine
+     package(pack_index)%l_ele = linelist(nextLine)%indexe
+     package(pack_index)%l_ion = linelist(nextLine)%indexi
+     package(pack_index)%l_lev = linelist(nextLine)%upper
      ! write(*,*) 'event_dist: #2 last_line = ', nextLine
     END IF
     if(procout) write(*,*) 'event_dist: #2 choosing chosen line: ', nextLine 

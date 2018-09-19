@@ -59,14 +59,10 @@ DOUBLE PRECISION, PARAMETER                     :: meanAtMass = 1.33
      model_grid(I)%rwind = r  * R_star
      model_grid(I)%vel = velo * 1.D5
      model_grid(I)%rho = dens
-     model_grid(I)%T = 10000. ! should be temp 
+     model_grid(I)%T = temp ! should be temp 
      model_grid(I)%J = 0.D0 
      model_grid(I)%assoc_cells = 0
-     !Total mass density of grid cell I
-!     tot_md = M_dot / (4.D0 * pi * (model_grid(I)%rwind)**2 * model_grid(I)%vel)     
-     !WRITE(15, *) 0.D0, 0.D0, model_grid(I)%rwind/R_star, model_grid(I)%rho
-!     write(*,*) I, model_grid(I)%rwind, model_grid(I)%vel, model_grid(I)%rho, model_grid(I)%T
-!     write(*,*) I, model_grid(I)%rwind, model_grid(I)%vel, model_grid(I)%rho, tot_md
+     ! write(*,'(A23, d14.5)') 'read_1D_model: rwind = ', r * R_star
 
      ALLOCATE (model_grid(I)%grid_comp(n_elements))
      DO J = 1, n_elements      

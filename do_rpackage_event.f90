@@ -19,6 +19,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
   DOUBLE PRECISION                      :: ZcontTot
   LOGICAL                               :: procout = .FALSE.
   DOUBLE PRECISION                      :: D
+  LOGICAL                               :: ellastic_scattering = .TRUE.
 
 
  package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
@@ -34,15 +35,17 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
     ! the cmf and conserve the cmf frequency print*,
     ! freq_line,package(pack_index)%freq_cmf
 !     print*, 'photon ', pack_index, ' line interaction...'
+    IF(ellastic_scattering) THEN
+     CALL emit_rpackage(pack_index)
+     ! package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
+    ELSE
+     package(pack_index)%typ = type_ipkt
+    END IF
     linelist(package(pack_index)%last_line)%n_int = &
      linelist(package(pack_index)%last_line)%n_int + 1
     count_r_line = count_r_line + 1
     ! in this sbr we get only excited states from the upper states
-    package(pack_index)%typ = type_ipkt
-    ! CALL emit_rpackage(pack_index)
-    ! CALL doppler_factor(pack_index, D)
     ! D = 1.D0
-    ! package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
     package(pack_index)%l_ele = linelist(package(pack_index)%last_line)%indexe
     package(pack_index)%l_ion = linelist(package(pack_index)%last_line)%indexi
     package(pack_index)%l_lev = linelist(package(pack_index)%last_line)%upper

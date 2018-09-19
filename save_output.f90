@@ -353,11 +353,17 @@ CASE(6)
    cell_index = n_modelgrid - I + 1
    write(40,*) I, log10(ntot), log10(nhi/ntot)
   END DO
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! #08 electron density and mass density
+!
+! 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CASE(7)
  fileEldens = trim(outputfolder)//'/elDens.dat'
  OPEN(40, FILE=fileEldens)
   DO I = 1, n_modelgrid
    IF(model_grid(I)%assoc_cells == 0) CYCLE
-   write(40,*) I, model_grid(I)%e_dens
+   write(40,'(I3,d12.4)') I, model_grid(I)%e_dens
   END DO
  CLOSE(40)
  fileRho = trim(outputfolder)//'/rho.dat'

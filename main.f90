@@ -164,7 +164,8 @@ END DO ! iteration (now of temperature structure)
  ! temp structure and occupation numbers
  IF(my_rank == 0) CALL save_output(3)
  CALL save_output(5)
- IF(my_rank == 0) CALL save_output(6)
+ ! IF(my_rank == 0) CALL save_output(6)
+ IF(my_rank == 0) CALL save_output(7)
  ! erase all temporary files with photons
 
 CLOSE(2)
@@ -173,7 +174,7 @@ CLOSE(99)
  ! will delete all temporary files
  IF(my_rank == 0) THEN
   cmdcommand = 'rm '//TRIM(outputfolder)//'/'//TRIM(temp_filename)//'*.dat'
- write(*,*) 'main: cmdcommand = ', cmdcommand
+ ! write(*,*) 'main: cmdcommand = ', cmdcommand
  CALL SYSTEM(cmdcommand)
  END IF
  CALL MPI_FINALIZE(ierr)
