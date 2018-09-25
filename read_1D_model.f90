@@ -19,15 +19,12 @@ CHARACTER(20)                             :: modelfile, jikrfile
 ! (2) PoWR model
 CHARACTER(100)                             :: powrfile
 CHARACTER(100)                             :: line
-DOUBLE PRECISION, PARAMETER                     :: meanAtMass = 1.33
+DOUBLE PRECISION, PARAMETER                :: meanAtMass = 1.33
 
 
  SELECT CASE (inputModel)
   CASE(0)
   OPEN (UNIT=11, FILE='model_data.dat')
-  V_inf = 4.D9
-  V_0 = 2.D9
-
   READ(11,*) T_eff
   READ(11,*) R_star
   READ(11,*) R_inf

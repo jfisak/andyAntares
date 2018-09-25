@@ -38,6 +38,7 @@ SUBROUTINE read_transitions(el_index, lowerion, upperion, transition_type, filen
  INTEGER                        :: electron_number
  DOUBLE PRECISION               :: ee_lc, ee_uc
  INTEGER                        :: act_lc, act_uc
+ DOUBLE PRECISION               :: g_lower
 
 992 format(I7, I3, I3, I5, I5, I4, I4, Tr1, A16, A16, e9.2, e10.2, e10.2, f5.1, f5.1)
 
@@ -235,11 +236,12 @@ CASE(2)
    IF((current_element /= element) .OR. (current_ion < lowerion) &
      .OR. (current_ion > upperion)) STOP 'WRONG ATOMIC TRANSITIONS...'
    !write(99,*) 'indexe = ', el_index, ' indexi = ', current_ion, ' ntransitions = ', ntransitions
+   g_lower = elements(el_index)%ions(current_ion)%levels(act_lower)%stat_waight
    linelist(ntransitions)%indexe = el_index
    linelist(ntransitions)%indexi = current_ion
    linelist(ntransitions)%freq = 1.E+8 * light_speed / l_freq
-   linelist(ntransitions)%A_ul = abs(A)
-   linelist(ntransitions)%f_ul = abs(col_str)
+   linelist(ntransitions)%A_ul = abs(A) / g_lower
+   linelist(ntransitions)%f_ul = abs(col_str) / g_lower
    linelist(ntransitions)%n_int = 0
    ! write(99,*) 'line: ', ntransitions, ' el = ', el_index, ' ion = ', current_ion,&
    !  ' lower level energy = ', &
