@@ -143,6 +143,7 @@ DO WHILE (do_loop .EQ. 1)
      END DO
      ran_numb = ran2(idum) * tot_lop
      summ = 0.D0
+     ! write(*,*) 'event_dist: tot_lop = ', tot_lop, ' ran_numb = ', ran_numb
      DO I = 1, n_next_lines
       act_line = nextLine + I - 1
       IF(ran_numb > summ .AND. ran_numb < summ + actirrates%Lline(I)) THEN
@@ -157,12 +158,10 @@ DO WHILE (do_loop .EQ. 1)
       summ = summ + actirrates%Lline(I)
      END DO
     ELSE ! we have only one line
-     IF(last_line < ntransitions) THEN
-      package(pack_index)%l_ele = linelist(nextLine)%indexe
-      package(pack_index)%l_ion = linelist(nextLine)%indexi
-      package(pack_index)%l_lev = linelist(nextLine)%upper
-      ! write(*,*) 'event_dist: #2 last_line = ', nextLine
-     END IF
+     package(pack_index)%l_ele = linelist(nextLine)%indexe
+     package(pack_index)%l_ion = linelist(nextLine)%indexi
+     package(pack_index)%l_lev = linelist(nextLine)%upper
+     ! write(*,*) 'event_dist: #2 last_line = ', nextLine
      if(procout) write(*,*) 'event_dist: #2 choosing chosen line: ', nextLine 
     END IF 
    END IF

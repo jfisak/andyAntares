@@ -53,6 +53,9 @@ last_line = package(pack_index)%last_line
 element_index = package(pack_index)%l_ele
 last_ion = package(pack_index)%l_ion
 last_level = package(pack_index)%l_lev
+package(pack_index)%l_ele = 0
+package(pack_index)%l_ion = 0
+package(pack_index)%l_lev = 0
 IF(package(pack_index)%last_line /= no_line) linelist(last_line)%n_exc = linelist(last_line)%n_exc + 1
  
 current_mgi = get_package_model_index(pack_index)
@@ -77,6 +80,9 @@ DO WHILE (active == 1)
  ! we have to find all possible downward upward transitions
  ! firstly we calculate number of these possible transitions
  ! number of transitions to a lower level
+ IF(element_index == 0) THEN
+  write(*,*) 'pack_index = ', pack_index
+ END IF
  nlns = &
   SIZE(elements(element_index)%ions(ion_index)%levels(actual_state)%linetransitions)
  nluns = &
@@ -138,14 +144,15 @@ DO WHILE (active == 1)
  CALL i_colion(1, element_index, ion_index, actual_state, pack_index, act_pop, Zcollionup, &
   Zcolliondown,Zcollrecom, actirates)
 ! testing
-! Zcollrecom = 0.D0
-! Zcoll = 0.D0
-! Zphotrecom = 0.D0
-! Zintupcoll = 0.D0
-! Zintdowncoll = 0.D0
-! Zintdownrad = 0.D0
-! Zphotionup = 0.D0
-! Zcollionup = 0.D0
+Zcollrecom = 0.D0
+Zcoll = 0.D0
+Zphotrecom = 0.D0
+Zintupcoll = 0.D0
+Zintdowncoll = 0.D0
+Zintdownrad = 0.D0
+Zintuprad = 0.D0
+Zphotionup = 0.D0
+Zcollionup = 0.D0
 ! end testing
 IF(Zintdowncoll < 0.D0) STOP 'do_ipackage: Zintdowncoll < 0'
 IF(Zintupcoll < 0.D0) STOP 'do_ipackage: Zintupcoll < 0'

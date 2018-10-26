@@ -155,7 +155,7 @@ END DO ! iteration (now of temperature structure)
 ! CLOSE(20)
 
  
- write(99,*) 'do spectrum'
+ ! write(99,*) 'do spectrum'
  ! CALL do_spectrum(n_pack)
  write(99,*) 'do finalize'
  ! it will save some important output
