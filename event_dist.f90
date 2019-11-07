@@ -5,8 +5,9 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
 
  IMPLICIT NONE    
 
- INTEGER                           :: I, pack_index, event,do_loop, get_package_model_index
+ INTEGER                           :: I, pack_index, event, get_package_model_index
  INTEGER                           :: nextLine, current_mgi
+ LOGICAL                           :: do_loop
 !pointer to a field of continuum rates
  DOUBLE PRECISION                  :: e_dist, ran_numb, tau_rand, cell_dist, D
  DOUBLE PRECISION                  :: tau, l_dist, tau_line, constant, tau_cont
@@ -25,9 +26,9 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
  INTEGER                           :: act_line
  DOUBLE PRECISION                  :: summ, tot_lop
  LOGICAL                                :: procout=.FALSE.
- LOGICAL                                :: inCell
+ LOGICAL                                :: inCell, tooRed
  LOGICAL                                :: raninit
- INTEGER                           :: last_line, lastLine
+ INTEGER                           :: lastLine
  INTEGER                           :: nloop
       
  n_pack_d = SIZE(package)
@@ -46,7 +47,7 @@ END DO
  ! Initialize optical depth and distance
  tau = 0.D0
  dist = 0.D0
- do_loop = 1
+ do_loop = .TRUE.
  constant = (pi * e_charge**2)/( me_g * light_speed)
 
  !Get the packet's current position on the model grid
@@ -71,33 +72,34 @@ END DO
  lastLine = package(pack_index)%last_line
 
 nloop = 0
-nextLine = lastLine
-DO WHILE (do_loop .EQ. 1) 
+DO WHILE (do_loop) 
 
  nloop = nloop + 1
  IF(nloop == 1000) THEN
-  write(*,*) 'event_dist: packet = ', pack_index
+ !  write(*,*) 'event_dist: packet = ', pack_index
   STOP 'nloop == 100'
  END IF
+
+ IF(nloop > 1) lastLine = nextLine
+ write(*,*) 'event_dist: nloop = ', nloop, ' lastLine = ', lastLine, ' ntransitions = ', ntransitions
  
- CALL next_line(1, pack_index, nextLine, n_next_lines)
+ CALL next_line(1, pack_index, lastLine, nextLine, n_next_lines, tooRed)
+ write(*,*) 'event_dist: nextLine = ', nextLine
  ALLOCATE(actirrates%Lline(n_next_lines))
- freq_line = linelist(nextLine)%freq
- CALL resonance_distance(pack_index, freq_line, cell_dist, l_dist, inCell, .TRUE.)
- IF(inCell) THEN
-  CALL r_kappa_line(pack_index, current_mgi, nextLine, n_next_lines, l_dist, actirrates, tau_line)
+ IF(nextLine /= ntransitions + 1) THEN
+  freq_line = linelist(nextLine)%freq
+  CALL resonance_distance(pack_index, freq_line, cell_dist, l_dist, inCell, .TRUE.)
+  IF(inCell) THEN
+   CALL r_kappa_line(pack_index, current_mgi, nextLine, n_next_lines, l_dist, actirrates, tau_line)
+  END IF
  END IF
-     
+
  ! write(*,*) 'event_dist: inCell = ', inCell
- IF(nextLine == no_line) inCell = .FALSE.
- IF(package(pack_index)%freq_cmf .GT. freq_line .AND. inCell) THEN
+ IF(inCell .AND. nextLine /= ntransitions + 1 .AND. .NOT. tooRed) THEN
  
   ! Calculate optical depth in the next line (Sobolev, dv/dr dependent)
   ! and continuum optical depth accumulated up to the line
-  package(dummypackage) = package(pack_index)
   !print*, 'before moving package #', pack_index
-  CALL move_package(dummypackage, l_dist)
-  CALL velo(dummypackage,vel_vec)
  
   tau_cont = kappa_cont * l_dist
   ! write(*,*) 'event_dist: l_dist = ', l_dist, ' tau_line = ',&
@@ -117,7 +119,7 @@ DO WHILE (do_loop .EQ. 1)
     IF (dist .GT. cell_dist) THEN
      ! In this case the package propagates to the next cell
      e_dist = cell_dist + largeNumber
-     do_loop = 0
+     do_loop = .FALSE.
      event = rpkt_eventtype_changecell
      if(procout) write(*,*) 'event_dist: rpkt_eventtype_changecell'
     ELSE
@@ -129,7 +131,7 @@ DO WHILE (do_loop .EQ. 1)
     END IF
    ELSE
     e_dist = dist + l_dist
-    do_loop = 0
+    do_loop = .FALSE.
     event = rpkt_eventtype_lineinteraction
     ! write(*,*) 1.D8 * light_speed / package(pack_index)%freq_cmf, &
     !  1.D8 * light_speed / package(pack_index)%freq_rf
@@ -168,7 +170,7 @@ DO WHILE (do_loop .EQ. 1)
   ELSE
    ! Continuum process will happen
    e_dist = dist + (tau_rand - tau) / kappa_cont
-   do_loop = 0 
+   do_loop = .FALSE. 
    event = rpkt_eventtype_continuum
    if(procout) write(*,*) 'event_dist: rpkt_eventtype_continuum 1'
  !   print*, 'cont.process happens',  tau_line, tau_cont
@@ -180,13 +182,13 @@ DO WHILE (do_loop .EQ. 1)
   ! IF(pack_index == 2222) write(*,*) 'event_dist: #2', tau_cont, tau_rand, tau
   IF ((tau_rand - tau) .GT. tau_cont) THEN
    e_dist = cell_dist + 1.D20
-   do_loop = 0   
+   do_loop = .FALSE.   
    event = rpkt_eventtype_changecell
    if(procout) write(*,*) 'event_dist: rpkt_eventtype_changecell'
   ELSE
    ! Continuum absorption happens
    e_dist = dist + (tau_rand - tau) / kappa_cont
-   do_loop = 0                 
+   do_loop = .FALSE.                 
    event = rpkt_eventtype_continuum
    if(procout) write(*,*) 'event_dist: rpkt_eventtype_continuum 2'
   END IF

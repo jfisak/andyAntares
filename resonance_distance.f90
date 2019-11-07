@@ -20,7 +20,7 @@ DOUBLE PRECISION                :: ldist_analyt
 INTEGER                         :: dummypackage
 DOUBLE PRECISION                :: bfreq, halffreq, D
 DOUBLE PRECISION                :: ufreq, lfreq
-LOGICAL                         :: TESTING = .FALSE.
+LOGICAL                         :: TESTING = .TRUE.
 LOGICAL                         :: iteration
 LOGICAL                         :: inCell
 LOGICAL                         :: isLdist
@@ -57,6 +57,7 @@ IF(TESTING .EQV. .TRUE.) THEN
  ldist_analyt = light_speed * ( R_inf / V_inf ) * &
   ( ( package(pack_index)%freq_cmf / package(pack_index)%freq_rf)-&
   f_line / package(pack_index)%freq_rf)
+  ldist_analyt = 1.D-2 * ldist_analyt
  package(dummypackage) = package(pack_index)
  CALL move_package(dummypackage, ldist_analyt)
  IF(ldist_analyt <= cell_dist) THEN

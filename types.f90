@@ -25,7 +25,7 @@ IMPLICIT NONE
      INTEGER                         :: typ, next_cross, last_line
      INTEGER                         :: n_interactions
      DOUBLE PRECISION, DIMENSION(3)  :: pos, dir 
-     INTEGER                         :: l_ele, l_ion, l_lev
+     INTEGER                         :: l_ele, l_ion, l_lev, n_int = 0
   END TYPE photon
 
 

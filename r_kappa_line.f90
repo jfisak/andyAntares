@@ -110,6 +110,7 @@ DO I = 1, nnextlines
  !  / (me_g * linelist(indexline)%freq) * linelist(indexline)%f_ul * corrFactor
  actirrates%Lline(I) = light_speed / linelist(indexline)%freq * constanta * &
   linelist(indexline)%f_ul * low_pop * corrFactor * ROverV
+ actirrates%Lline(I) = actirrates%Lline(I) * 1.D4
  tau_line = tau_line + actirrates%Lline(I)
 END DO
 
