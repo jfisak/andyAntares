@@ -66,6 +66,8 @@ DO I = 1, nnextlines
   write(*,*) 'low_pop = ', low_pop, ' upp_pop = ', upp_pop
   write(*,*) 'WARNING: correction factor 1 - (gl nu) / (gu nl) < 0'
  END IF
+ !!!!!!!!!!!
+ ! ROverV
  IF(velapprox == 0) THEN
   ROverV = R_inf / V_inf
   ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * ROverV &
@@ -102,7 +104,9 @@ DO I = 1, nnextlines
   !  ROverV / (4.0 * pi) * corrFactor 
  END IF
  ! write(*,*) 'r_kappa_line: ROverV = ', ROverV, ' low_pop = ', low_pop, &
- !  ' Blu = ', Blu, ' corrFactor = ', corrFactor, ' ldist = ', ldist / R_star
+ !  ' Blu = ', Blu, ' corrFactor = ', corrFactor, ' ldist = ', ldist / R_star, &
+ !  ' freq = ', linelist(indexline)%freq
+ ! write(*,*) 'r_kappa_line: rho = ', model_grid(current_mgi)%rho, ' t = ', model_grid(current_mgi)%T
  ! calculation of optical depth and rates
  ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * ROverV &
  ! / (4.0 * pi) * corrFactor * ldist
@@ -110,7 +114,7 @@ DO I = 1, nnextlines
  !  / (me_g * linelist(indexline)%freq) * linelist(indexline)%f_ul * corrFactor
  actirrates%Lline(I) = light_speed / linelist(indexline)%freq * constanta * &
   linelist(indexline)%f_ul * low_pop * corrFactor * ROverV
- actirrates%Lline(I) = actirrates%Lline(I) * 1.D4
+ ! actirrates%Lline(I) = actirrates%Lline(I) * 1.D4
  tau_line = tau_line + actirrates%Lline(I)
 END DO
 

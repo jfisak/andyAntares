@@ -54,7 +54,7 @@ DOUBLE PRECISION, PARAMETER                :: meanAtMass = 1.33
      ! Maybe better to calculate at the midle of the grid cell rather then at the outer boundary 
      READ(11,*) indexg, r, velo, dens, temp, massfrac
      model_grid(I)%rwind = r  * R_star
-     model_grid(I)%vel = velo * 1.D5
+     model_grid(I)%vel = velo
      model_grid(I)%rho = dens
      model_grid(I)%T = temp ! should be temp 
      model_grid(I)%J = 0.D0 
@@ -76,7 +76,7 @@ DOUBLE PRECISION, PARAMETER                :: meanAtMass = 1.33
   END DO
 
   ! R_inf  = model_grid(n_modelgrid)%rwind
-  ! V_inf  = 1.D1 * model_grid(n_modelgrid)%vel
+  V_inf  = model_grid(n_modelgrid)%vel
 
   ! setting properties
 

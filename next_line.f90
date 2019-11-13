@@ -21,6 +21,7 @@ IF(init_line == ntransitions .OR. init_line == ntransitions + 1) THEN
  RETURN
 END IF
 
+
 SELECT CASE(approximation)
 ! the Sobolev approximation: line profiles are delta functions
 CASE(1)
@@ -41,9 +42,16 @@ IF(package(pack_index)%freq_cmf > linelist(ntransitions)%freq)THEN
    END IF
   END DO 
  ELSE IF(init_line <= ntransitions .AND. init_line > 0) THEN! the last line /= no_line
+  n_eqf_lines = 1
+  DO I = init_line + 1, ntransitions
+   IF(package(pack_index)%freq_cmf >= linelist(I)%freq) THEN
+    next1line = I
+    EXIT
+   END IF
+  END DO
   !IF(package(pack_index)%freq_cmf > linelist(I)%freq) THEN
   ! write(*,*) 'next1line: lastline = ', lastline
-  next1line = init_line + n_eqf_lines
+  ! next1line = init_line + n_eqf_lines
  ELSE
   next1line = ntransitions + 1
   tooRed = .TRUE.
@@ -80,6 +88,8 @@ END SELECT
 ! final checks
 IF(next1line /= ntransitions + 1) THEN
  IF(package(pack_index)%freq_cmf < linelist(next1line)%freq) THEN
+  write(*,*) 'next_line: init_line = ', init_line, ' next1line = ', next1line
+  write(*,*) 'next1line: f_cmf / f_line = ', package(pack_index)%freq_cmf / linelist(next1line)%freq
   STOP 'next_line: f_cmf < f_line'
  END IF
 END IF

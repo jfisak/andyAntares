@@ -81,10 +81,11 @@ DO WHILE (do_loop)
  END IF
 
  IF(nloop > 1) lastLine = nextLine
- write(*,*) 'event_dist: nloop = ', nloop, ' lastLine = ', lastLine, ' ntransitions = ', ntransitions
+ ! write(*,*) 'event_dist: pack_index = ', pack_index, ' n_next_lines = ', n_next_lines
+ ! write(*,*) 'event_dist: nloop = ', nloop, ' lastLine = ', lastLine, ' ntransitions = ', ntransitions
  
  CALL next_line(1, pack_index, lastLine, nextLine, n_next_lines, tooRed)
- write(*,*) 'event_dist: nextLine = ', nextLine
+ ! write(*,*) 'event_dist: nextLine = ', nextLine, ' n_next_lines = ', n_next_lines
  ALLOCATE(actirrates%Lline(n_next_lines))
  IF(nextLine /= ntransitions + 1) THEN
   freq_line = linelist(nextLine)%freq
@@ -125,9 +126,9 @@ DO WHILE (do_loop)
     ELSE
      ! choosing next line
      tau = tau + tau_cont + tau_line
-     nextLine = nextLine + n_next_lines
-     ! IF(pack_index == 2222) write(*,*) 'event_dist: lastLine = ', lastLine, ' nn_lines = ', n_next_lines
-     ! write(*,*) 'event_dist: recalculating next line: ', nextLine
+     ! nextLine = nextLine + n_next_lines
+     package(pack_index)%last_line = nextLine
+     ! write(*,*) 'event_dist: choosing next line nextLine = ', nextLine
     END IF
    ELSE
     e_dist = dist + l_dist
