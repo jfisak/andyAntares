@@ -20,7 +20,7 @@ DOUBLE PRECISION                :: ldist_analyt
 INTEGER                         :: dummypackage
 DOUBLE PRECISION                :: bfreq, halffreq, D
 DOUBLE PRECISION                :: ufreq, lfreq
-LOGICAL                         :: TESTING = .FALSE.
+LOGICAL                         :: TESTING = .false.
 LOGICAL                         :: iteration
 LOGICAL                         :: inCell
 LOGICAL                         :: isLdist

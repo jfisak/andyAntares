@@ -31,7 +31,7 @@ dummypackage = SIZE(package)
    package(pack_index)%active = 0
    count_des_phot = count_des_phot + 1
   END IF
-
+  ! write(78,*) pack_index, package(pack_index)%freq_rf, package(pack_index)%freq_cmf, package(pack_index)%freq_cmf / linelist(1)%freq
   ! Rest frame quantities do not change while propagating without any events, 
   ! but cmf quantities need to be updated
   CALL doppler_factor(pack_index, D)
