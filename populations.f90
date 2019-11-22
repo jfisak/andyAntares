@@ -44,7 +44,7 @@ CASE(0)
  abund = model_grid(model_cell)%grid_comp(indexe)%abund
  atom_mass = elements(indexe)%atom_mass
  
- pop_number = 1.E7 * ground_level_pop * g_stat / g_gstat * &
+ pop_number = ground_level_pop * g_stat / g_gstat * &
         exp(-e_exc / BOLK / model_grid(model_cell)%T )! * &
  IF(pop_number < minpop) pop_number = 1.D-50
 CASE(1)

@@ -1,10 +1,10 @@
-SUBROUTINE resonance_distance(pack_index, f_line, cell_dist, ldist, inCell, isLdist)
+SUBROUTINE resonance_distance(pack_index, nextLine, f_line, cell_dist, ldist, inCell, isLdist)
 USE types
 USE counters
 IMPLICIT NONE
 
 ! input variables
-INTEGER                         :: pack_index
+INTEGER                         :: pack_index, nextLine
 DOUBLE PRECISION                :: cell_dist
 DOUBLE PRECISION                :: f_line
 ! output variables
@@ -57,7 +57,6 @@ IF(TESTING .EQV. .TRUE.) THEN
  ldist_analyt = light_speed * ( R_inf / V_inf ) * &
   ( ( package(pack_index)%freq_cmf / package(pack_index)%freq_rf)-&
   f_line / package(pack_index)%freq_rf)
-  ldist_analyt = 1.D-2 * ldist_analyt
  package(dummypackage) = package(pack_index)
  CALL move_package(dummypackage, ldist_analyt)
  IF(ldist_analyt <= cell_dist) THEN
@@ -127,8 +126,10 @@ DO WHILE(iteration)
    ! decision which interval should we test next
    IF(upbond(1) == lowbond(1) .AND. upbond(2) == lowbond(2) &
     .AND. upbond(3) == lowbond(3)) THEN
+    ! write(78,*) 1.D8 * light_speed / package(pack_index)%freq_cmf
     write(*,*) 'resonance_distance: package = ', pack_index
-    ! STOP 'upbond == lowbond'
+    write(*,*) package(pack_index)%freq_cmf / linelist(nextLine)%freq
+    STOP 'upbond == lowbond'
     active = .FALSE.
     iteration = .FALSE.
     ! inCell = .FALSE.

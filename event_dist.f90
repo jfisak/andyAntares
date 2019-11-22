@@ -89,7 +89,7 @@ DO WHILE (do_loop)
  ALLOCATE(actirrates%Lline(n_next_lines))
  IF(nextLine /= ntransitions + 1) THEN
   freq_line = linelist(nextLine)%freq
-  CALL resonance_distance(pack_index, freq_line, cell_dist, l_dist, inCell, .TRUE.)
+  CALL resonance_distance(pack_index, nextLine, freq_line, cell_dist, l_dist, inCell, .TRUE.)
   IF(inCell) THEN
    CALL r_kappa_line(pack_index, current_mgi, nextLine, n_next_lines, l_dist, actirrates, tau_line)
   END IF

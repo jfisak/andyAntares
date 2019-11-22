@@ -15,6 +15,8 @@ INTEGER                                 :: I
 INTEGER                                 :: next1line, n_eqf_lines
 LOGICAL                                 :: tooRed
 
+INTEGER, PARAMETER                      :: test_pi = 0
+
 IF(init_line == ntransitions .OR. init_line == ntransitions + 1) THEN
  next1line = ntransitions + 1
  tooRed = .TRUE.
@@ -44,7 +46,7 @@ IF(package(pack_index)%freq_cmf > linelist(ntransitions)%freq)THEN
  ELSE IF(init_line <= ntransitions .AND. init_line > 0) THEN! the last line /= no_line
   n_eqf_lines = 1
   DO I = init_line + 1, ntransitions
-   IF(package(pack_index)%freq_cmf >= linelist(I)%freq) THEN
+   IF(package(pack_index)%freq_cmf > linelist(I)%freq) THEN
     next1line = I
     EXIT
    END IF
@@ -99,7 +101,10 @@ IF(package(pack_index)%freq_cmf < linelist(ntransitions)%freq) THEN
  tooRed = .TRUE.
 END IF
 
-! write(*,*) 'next_line: init_line = ', init_line, ' next1line = ', next1line
+IF(pack_index == test_pi) THEN
+ write(*,*) 'next_line: init_line = ', init_line, ' next1line = ', next1line
+END IF
+! write(*,*) 'next_line: f_cmf / f_line = ', package(pack_index)%freq_cmf / linelist(next1line)%freq
 
 IF(next1line > SIZE(linelist) + 1) THEN
  write(*,*) 'next_line: dim(linelist) = ', SIZE(linelist)
