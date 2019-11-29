@@ -46,6 +46,7 @@ actirrates = rrates()
       !write(99,*) 'package: ', pack_index, ' is in empty space...'
   ELSE
       ! write(*,*) 'do_rpackage: calling event_dist'
+      IF(cell_dist > 1.D20) write(*,*) 'do_rpackage: pack_index = ', pack_index, ' cell_dist = ', cell_dist
       CALL event_dist(pack_index, cell_dist, e_dist, event, actirrates)
   END IF
 

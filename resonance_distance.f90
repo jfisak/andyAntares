@@ -28,6 +28,13 @@ LOGICAL                         :: calculate
 INTEGER                         :: I
 INTEGER                         :: cell_number
 DOUBLE PRECISION                :: dist
+LOGICAL                         :: endit = .false.
+
+! IF(package(pack_index)%freq_cmf <= linelist(next1line)%freq) THEN
+!  write(*,*) 'pack_index = ', pack_index
+!  write(*,*) ' f_cmf / f_line = ', package(pack_index)%freq_cmf / linelist(next1line)%freq
+!  STOP 'next_line'
+! END IF
 
 dummypackage = SIZE(package)
 package(dummypackage) = package(pack_index)
@@ -149,8 +156,23 @@ DO WHILE(iteration)
     ufreq = halffreq
     ! write(*,*) 'resonance_distance: upbond = ', upbond
    END IF
-   IF(halffreq < bfreq .OR. halffreq > lfreq) THEN
-    STOP 'resonance_distance: halffreq < bfreq or halffreq > lfreq'
+   IF(halffreq < bfreq) THEN
+    write(*,*) 'resonance_distance: halffreq < bfreq'
+    endit = .TRUE.
+   END IF
+   IF(halffreq > lfreq) THEN
+    write(*,*) 'resonance_distance: halffreq > lfreq'
+    endit = .TRUE.
+   END IF
+   if(endit) THEN
+    write(*,*) 'resonance_distance: pack_index = ', pack_index, ' f_line = ', f_line,&
+     ' cell_dist = ', cell_dist/ R_inf
+    write(*,*) 'resonance_distance: r / R_inf = ', norm2(lowbond) / R_inf
+    write(*,*) 'resonance_distance: r_r / R_inf = ', norm2(upbond) / R_inf
+    ! write(*,*) 'resonance_distance: r / R_star = ', norm2(halfpos) / R_star
+    CALL doppler_factor(dummypackage, D)
+    write(*,*) 'resonance_distance: D = ', D
+    STOP 'resonance_distance'
    END IF
    IF( chint <= minint ) THEN
     active = .FALSE.

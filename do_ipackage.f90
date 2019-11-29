@@ -33,6 +33,7 @@ DOUBLE PRECISION                :: ran2
 ! populations
 DOUBLE PRECISION                :: act_pop
 INTEGER                         :: get_package_model_index, current_mgi
+INTEGER                         :: dummypackage
 ! new frequency
 DOUBLE PRECISION                :: new_freq
 ! Doppler factor
@@ -46,6 +47,7 @@ LOGICAL                         :: sstates = .FALSE.
 ! INTEGER                         :: n_proc
 
 
+dummypackage = SIZE(package)
 last_line = package(pack_index)%last_line
 ! define the needed variables
 ! it is necessary to remember the initial conditions of a macro-atom
@@ -236,6 +238,7 @@ IF(rand >= 0.D0 .AND. rand < Z0) THEN
 ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
 ! next transition will be an radiative deexcitation
  package(pack_index)%typ = type_rpkt
+ package(pack_index)%dir = package(dummypackage)%dir
  ! IF(package(pack_index)%last_line == no_line) CYCLE
  ! now we will calculate new frequency of the packet
  ! we will choose this frequency from the possible radiative transitions

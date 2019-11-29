@@ -71,6 +71,15 @@ IMPLICIT NONE
    dist = t6
    package(pack_index)%next_cross = posz
   END IF
-   !print*, 'find_dist: t1 = ', t1, ' t2 = ', t2, ' t3 = ', t3, ' t4 = ', t4, ' t5 = ', t5, ' t6 = ', t6
 
+  IF(dist > sqrt(width(1)**2 + width(2)**2 + width(3))) THEN
+   write(*,*) 'find_dist: pack_index = ', pack_index
+   write(*,*) 'find_dist: pos = ', pos/R_inf, ' corner = ', corner / R_inf
+   write(*,*) 'find_dist: width = ', width/R_inf
+   write(*,*) 'find_dist: t1 = ', t1/R_inf, ' t2 = ', t2/R_inf, ' t3 = ', t3/R_inf,&
+    ' t4 = ', t4/R_inf, ' t5 = ', t5/R_inf, ' t6 = ', t6/R_inf
+   write(*,*) 'find_dist: n = ', dir
+   write(*,*) 'find_dist: dist = ', dist/R_inf
+   STOP 'find_dist'
+  END IF
 END SUBROUTINE find_dist

@@ -100,6 +100,13 @@ IF(package(pack_index)%freq_cmf < linelist(ntransitions)%freq) THEN
  next1line = ntransitions + 1
  tooRed = .TRUE.
 END IF
+IF(package(pack_index)%freq_cmf <= linelist(next1line)%freq) THEN
+ write(*,*) 'pack_index = ', pack_index
+ write(*,*) ' f_cmf / f_line = ', package(pack_index)%freq_cmf / linelist(next1line)%freq
+ STOP 'next_line'
+ next1line = ntransitions + 1
+ tooRed = .TRUE.
+END IF
 
 IF(pack_index == test_pi) THEN
  write(*,*) 'next_line: init_line = ', init_line, ' next1line = ', next1line
