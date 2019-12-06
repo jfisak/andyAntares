@@ -36,6 +36,8 @@ LOGICAL                         :: endit = .false.
 !  STOP 'next_line'
 ! END IF
 
+! write(78,*) pack_index, package(pack_index)%freq_rf, package(pack_index)%freq_cmf, &
+!  package(pack_index)%freq_cmf / linelist(nextLine)%freq
 dummypackage = SIZE(package)
 package(dummypackage) = package(pack_index)
 ! write(*,*) 'resonance_distance: pack_index = ', pack_index, ' f_line = ', f_line,&

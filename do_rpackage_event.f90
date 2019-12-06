@@ -19,7 +19,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
   DOUBLE PRECISION                      :: ZcontTot
   LOGICAL                               :: procout = .FALSE.
   DOUBLE PRECISION                      :: D
-  LOGICAL                               :: ellastic_scattering = .true.
+  LOGICAL                               :: ellastic_scattering = .TRUE.
 
 
  package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
@@ -40,6 +40,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
      CALL emit_rpackage(pack_index)
      ! write(78,*) 'line interaction'
     ELSE
+     write(37,*) 1.D8 * light_speed / package(pack_index)%freq_rf
      package(pack_index)%typ = type_ipkt
     END IF
     package(pack_index)%n_int = package(pack_index)%n_int + 1

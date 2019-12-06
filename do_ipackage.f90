@@ -148,12 +148,12 @@ DO WHILE (active == 1)
 ! testing
 Zcollrecom = 0.D0
 Zcoll = 0.D0
-Zphotrecom = 0.D0
+! Zphotrecom = 0.D0
 Zintupcoll = 0.D0
 Zintdowncoll = 0.D0
-Zintdownrad = 0.D0
-Zintuprad = 0.D0
-Zphotionup = 0.D0
+! Zintdownrad = 0.D0
+! Zintuprad = 0.D0
+! Zphotionup = 0.D0
 Zcollionup = 0.D0
 ! end testing
 IF(Zintdowncoll < 0.D0) STOP 'do_ipackage: Zintdowncoll < 0'
@@ -239,6 +239,7 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
 ! next transition will be an radiative deexcitation
  package(pack_index)%typ = type_rpkt
  package(pack_index)%dir = package(dummypackage)%dir
+ package(pack_index)%next_cross = NONE
  ! IF(package(pack_index)%last_line == no_line) CYCLE
  ! now we will calculate new frequency of the packet
  ! we will choose this frequency from the possible radiative transitions
@@ -262,6 +263,7 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
    ! D = 1.D0
    package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
    package(pack_index)%e_rf = package(pack_index)%e_cmf / D
+   ! save the emitted frequency
    linelist(linetransitions(line))%n_deexc = linelist(linetransitions(line))%n_deexc + 1
    count_i_rad_deex = count_i_rad_deex + 1
    IF(last_line /= no_line) THEN
