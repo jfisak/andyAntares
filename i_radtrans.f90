@@ -138,6 +138,7 @@ DO I = 1, nlns
  IF(actirates%Lma_int_dorad(I) < 0.D0) STOP 'i_radtrans: Lma_int_dorad < 0'
  actirates%Lma_rad(I) = actVal * (exci_energy_u - exci_energy_l)
  Zintdown = Zintdown + actirates%Lma_int_dorad(I)
+ ! write(*,*) 'i_radtrans: Zintdown = ', Zintdown
  Zrad = Zrad + actirates%Lma_rad(I)
  IF(exci_energy_u - exci_energy_l < 0) STOP 'i_radtrans: exci_energy_u - exci_energy_l < 0'
 END DO
@@ -152,7 +153,10 @@ DO I = 1, nluns
  stat_weight_l = elements(indexe)%ions(indexi)%levels(linelist(act_line)%lower)%stat_waight
  stat_weight_u = elements(indexe)%ions(indexi)%levels(linelist(act_line)%upper)%stat_waight
 ! CALL populations(indexe, indexi, linelist(act_line)%lower, current_mgi, low_pop)
+ ! calculation of up_pop
  CALL populations(indexe, indexi, linelist(act_line)%upper, current_mgi, up_pop)
+ corrFactor = 1.D0 - (stat_weight_l * up_pop) / (stat_weight_u * low_pop)
+ IF(corrFactor < 0.D0) write(*,*) 'WARNING: correction factor 1 - (gl nu) / (gu nl) < 0'
  Jlu = flux_function(0, linelist(act_line)%freq, model_grid(current_mgi)%T)
  ! calculation of Blu and Bul
  Blu = light_speed ** 2.0 / (2.0 * h * linelist(act_line)%freq**3.0) * stat_weight_u / stat_weight_l &
@@ -180,8 +184,8 @@ DO I = 1, nluns
   ROverV = (V_inf - V_0) / (R_inf - R_star) + 1 / R_pos * (1 - costheta**2.0) *&
    (V_0 * R_inf - V_inf * R_star) / (R_inf - R_star)
  ELSE IF(velapprox == 1) THEN
-  package(dummypackage) = package(pack_index)
-  CALL emit_rpackage(dummypackage)
+  ! package(dummypackage) = package(pack_index)
+  ! CALL emit_rpackage(dummypackage)
   CALL boundary3(pack_index, cell_dist, next_cell)
   ! according to (10) in Abbot & Lucy (1985)
   ! r
@@ -207,12 +211,16 @@ DO I = 1, nluns
  actVal = (low_pop * Blu - up_pop * Bul) * betalu  * Jlu * corrFactor
  IF(actVal < 0.D0) STOP 'i_radtrans: (l_pop * Blu - u_pop * Bul) < 0'
  actirates%Lma_int_uprad(I) = actVal * exci_energy_l
- ! write(36,*) 'i_radtrans: nB - nB = ', (low_pop * Blu - up_pop * Bul)
- ! write(36,*) 'i_radtrans: betalu = ', betalu, ' Jlu = ', Jlu
+!  write(*,*) 'i_radtrans: up_pop = ', up_pop, 'low_pop = ', low_pop
+!  write(*,*) 'i_radtrans: nB - nB = ', (low_pop * Blu - up_pop * Bul)
+!  write(*,*) 'i_radtrans: taulu = ', taulu, ' corrFactor = ', corrFactor
+!  write(*,*) 'i_radtrans: betalu = ', betalu, ' Jlu = ', Jlu
  ! write(36, *) 'i_radtrans: ', linelist(act_line)%lower, '->',&
  !  linelist(act_line)%upper, ' Lup = ', actirates%Lma_int_uprad(I),&
  !  ' wale = ', 1.D8 * light_speed / linelist(act_line)%freq
  Zintup = Zintup + actirates%Lma_int_uprad(I)
+!  write(*,*) 'i_radtrans: Lma_int_uprad = ', actirates%Lma_int_uprad(I)
+!  write(*,*) 'i_radtrans: Zintup = ', Zintup
  ! write(*,*) 'i_radtrans: wale = ', 1.D8 * light_speed / linelist(act_line)%freq
  ! write(*,*) 'i_radtrans: low_pop = ', low_pop, ' up_pop = ', up_pop, ' up_pop / low_pop = ', up_pop / low_pop
  ! write(*,*) 'i_radtrans: act_line = ', act_line, ' exci_energy_l = ', exci_energy_l, ' up_pop = ',&

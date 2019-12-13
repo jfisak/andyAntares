@@ -149,11 +149,11 @@ DO WHILE (active == 1)
 Zcollrecom = 0.D0
 Zcoll = 0.D0
 ! Zphotrecom = 0.D0
-Zintupcoll = 0.D0
-Zintdowncoll = 0.D0
+! Zintupcoll = 0.D0
+! Zintdowncoll = 0.D0
 ! Zintdownrad = 0.D0
 ! Zintuprad = 0.D0
-! Zphotionup = 0.D0
+Zphotionup = 0.D0
 Zcollionup = 0.D0
 ! end testing
 IF(Zintdowncoll < 0.D0) STOP 'do_ipackage: Zintdowncoll < 0'
@@ -207,6 +207,10 @@ Z7 = Z6 + Zcollrecom
 ! write(*,*) 'do_ipackage: Z0 = ', Z0, ' Z1 = ', Z1, ' Z2 = ', Z2, ' Z3 = ', Z3, &
 !  ' Z4 = ', Z4, ' Z5 = ', Z5, ' Z6 =', Z6, ' Z7 = ', Z7
 IF(Ztotal == 0.D0) THEN
+ write(*,*) 'Zintuprad = ', Zintuprad, ' Zintdownrad = ', Zintdownrad
+ write(*,*) 'Lma_int_do = ', actirates%Lma_int_do
+ write(*,*) 'Lma_int_up = ', actirates%Lma_int_up
+ write(*,*) 'actual_state = ', actual_state, ' ion_index = ', ion_index, ' element_index = ', element_index
  write(*,*) 'do_ipackage: Ztotal = 0'
  CALL abort()
 END IF!STOP 'do_ipackage: Ztotal = 0'
