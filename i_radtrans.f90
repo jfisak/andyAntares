@@ -38,7 +38,8 @@ DOUBLE PRECISION                        :: fr_line
 DOUBLE PRECISION                        :: cell_dist
 DOUBLE PRECISION                        :: corrFactor
 INTEGER                                 :: next_cell
-
+! stimulated emission as negative absorption
+LOGICAL                                 :: stmasnab=.true.
 
 constanta = (pi * e_charge**2)/( me_g * light_speed)
 
@@ -127,12 +128,21 @@ DO I = 1, nlns
   ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * &
   !  ROverV / (4.0 * pi) * corrFactor 
  END IF
+ IF(stmasnab) THEN
+  actVal = up_pop * betalu * linelist(act_line)%A_ul! * corrFactor 
+ ELSE
+  Jlu = flux_function(0, linelist(act_line)%freq, model_grid(current_mgi)%T)
+  ! calculation of Blu and Bul
+  Blu = light_speed ** 2.0 / (2.0 * h * linelist(act_line)%freq**3.0) * stat_weight_u / stat_weight_l &
+   * linelist(act_line)%A_ul
+  Bul = stat_weight_l / stat_weight_u * Blu
+  actVal = up_pop * betalu * (linelist(act_line)%A_ul + Bul * Jlu)! * corrFactor 
+ END IF
  ! optical depth
  !  * linelist(act_line)%f_ul * corrFactor
  taulu = light_speed / linelist(act_line)%freq * constanta * &
    linelist(act_line)%f_ul * up_pop * ROverV * corrFactor
  betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
- actVal = up_pop * betalu * linelist(act_line)%A_ul * corrFactor 
  ! write(*,*) 'i_radtrans: actVal = ', actVal, ' e_l = ', exci_energy_l, ' e_u - e_l = ', exci_energy_u - exci_energy_l
  actirates%Lma_int_dorad(I) = actVal * exci_energy_l
  IF(actirates%Lma_int_dorad(I) < 0.D0) STOP 'i_radtrans: Lma_int_dorad < 0'
@@ -206,9 +216,9 @@ DO I = 1, nluns
  ! taulu = low_pop * pi * e_v ** 2.0  * ROverV / (me_g * light_speed * linelist(act_line)%freq) &
  !  * linelist(act_line)%f_ul * corrFactor
  taulu = light_speed / linelist(act_line)%freq * constanta * &
-   linelist(act_line)%f_ul * up_pop * corrFactor * ROverV
- betalu = 1.D0 / taulu * (1.D0 - exp(- taulu)) * corrFactor
- actVal = (low_pop * Blu - up_pop * Bul) * betalu  * Jlu * corrFactor
+   linelist(act_line)%f_ul * up_pop * corrFactor * ROverV!  * corrFactor
+ betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
+ actVal = (low_pop * Blu - up_pop * Bul) * betalu  * Jlu! * corrFactor
  IF(actVal < 0.D0) STOP 'i_radtrans: (l_pop * Blu - u_pop * Bul) < 0'
  actirates%Lma_int_uprad(I) = actVal * exci_energy_l
 !  write(*,*) 'i_radtrans: up_pop = ', up_pop, 'low_pop = ', low_pop

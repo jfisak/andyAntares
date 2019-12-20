@@ -146,15 +146,15 @@ DO WHILE (active == 1)
  CALL i_colion(1, element_index, ion_index, actual_state, pack_index, act_pop, Zcollionup, &
   Zcolliondown,Zcollrecom, actirates)
 ! testing
-Zcollrecom = 0.D0
-Zcoll = 0.D0
+! Zcollrecom = 0.D0
+! Zcoll = 0.D0
 ! Zphotrecom = 0.D0
 ! Zintupcoll = 0.D0
 ! Zintdowncoll = 0.D0
 ! Zintdownrad = 0.D0
 ! Zintuprad = 0.D0
-Zphotionup = 0.D0
-Zcollionup = 0.D0
+! Zphotionup = 0.D0
+! Zcollionup = 0.D0
 ! end testing
 IF(Zintdowncoll < 0.D0) STOP 'do_ipackage: Zintdowncoll < 0'
 IF(Zintupcoll < 0.D0) STOP 'do_ipackage: Zintupcoll < 0'
@@ -249,11 +249,14 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
  ! we will choose this frequency from the possible radiative transitions
  summ = 0.D0
  rand = ran2(idum) * Zraddeexc
+ ! write(*,*) 'do_ipackage: lines = ', linetransitions(:)
+ write(*,*) 'do_ipackage: radRate = ', actirates%Lma_rad(:)
  IF(procout) write(*,*) 'do_ipackage: radiative deexcitation...'
  ! looking for the given line
  DO line = 1, nlns
   ! print*, 'raddeexc: summ = ', summ, ' rand = ', rand, ' Zrad = ', Zraddeexc
   IF(rand >= summ .AND. rand <= summ + actirates%Lma_rad(line)) THEN
+  ! write(*,*) 'do_ipackage: summ = ', summ, ' rand = ', rand, ' summ + act = ', summ + actirates%Lma_rad(line)
   IF(procout) write(*,*) 'do_ipackage: packet: ', pack_index, ' radiative deexcitation...'
    ! write(*,*) 'do_ipackage: wale = ', 1.D8 * light_speed / linelist(linetransitions(line))%freq
    ! write(*,*) 'do_ipackage: I = ', I
