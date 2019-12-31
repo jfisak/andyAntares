@@ -23,6 +23,7 @@ DOUBLE PRECISION                        :: taulu, betalu
 DOUBLE PRECISION                        :: Bul, Blu, Jlu
 DOUBLE PRECISION                        :: flux_function
 INTEGER                                 :: act_line
+INTEGER                                 :: lower_level, upper_level
 DOUBLE PRECISION                        :: actVal
 INTEGER                                 :: I
 ! output variables
@@ -43,19 +44,22 @@ LOGICAL                                 :: stmasnab=.true.
 
 constanta = (pi * e_charge**2)/( me_g * light_speed)
 
+! initialization of total rates
 Zintdown = 0.D0
 Zrad= 0.D0
 Zintup = 0.D0
+
+! number of transitions up and down
 nlns = SIZE(elements(indexe)%ions(indexi)%levels(indexl)%linetransitions)
 nluns = SIZE(elements(indexe)%ions(indexi)%levels(indexl)%lineuptransitions)
 ALLOCATE(linetransitions(nlns), lineuptransitions(nluns))
 linetransitions = elements(indexe)%ions(indexi)%levels(indexl)%linetransitions
 lineuptransitions = elements(indexe)%ions(indexi)%levels(indexl)%lineuptransitions
 ! we have to know which element and ion we are calculating data for
-! we will use the knowledge of lines and assume that at it is
-! possible at least one transition upwards or downwards and from
-! the first element we get the element and the ion informations
+! we will use the knowledge of lines
 
+! transitions down
+! the actual population is now the upper population
 up_pop = act_pop
 ! write(36,*) '********************************************************'
 ! write(36,*) 'i_radtrans: nlns = ', nlns
@@ -69,20 +73,21 @@ DO I = 1, nlns
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! 1.) internal downward jump
  act_line = linetransitions(I)
+ lower_level = linelist(act_line)%lower
+ upper_level = linelist(act_line)%upper
  ! the basic variables
- stat_weight_u = elements(indexe)%ions(indexi)%levels(linelist(act_line)%upper)%stat_waight
- stat_weight_l = elements(indexe)%ions(indexi)%levels(linelist(act_line)%lower)%stat_waight
- exci_energy_u = elements(indexe)%ions(indexi)%levels(linelist(act_line)%upper)%exci_energy
- exci_energy_l = elements(indexe)%ions(indexi)%levels(linelist(act_line)%lower)%exci_energy
- CALL populations(indexe, indexi, linelist(act_line)%lower, current_mgi, low_pop)
+ stat_weight_u = elements(indexe)%ions(indexi)%levels(upper_level)%stat_waight
+ stat_weight_l = elements(indexe)%ions(indexi)%levels(lower_level)%stat_waight
+ exci_energy_u = elements(indexe)%ions(indexi)%levels(upper_level)%exci_energy
+ exci_energy_l = elements(indexe)%ions(indexi)%levels(lower_level)%exci_energy
+ ! population of lower level
+ CALL populations(indexe, indexi, lower_level, current_mgi, low_pop)
  corrFactor = 1.D0 - (DBLE(stat_weight_l) * up_pop) / (DBLE(stat_weight_u) * low_pop)
  IF(corrFactor < 0.D0) write(*,*) 'WARNING: correction factor 1 - (gl nu) / (gu nl) < 0'
  fr_line = linelist(act_line)%freq
  ! internal downward jump
  ! calculation of a rate coefficient
- CALL populations(indexe, indexi, linelist(act_line)%lower, current_mgi, low_pop)
- corrFactor = 1.D0 - (stat_weight_l * up_pop) / (stat_weight_u * low_pop)
- IF(corrFactor < 0.D0) write(*,*) 'WARNING: correction factor 1 - (gl nu) / (gu nl) < 0'
+ ! corrFactor = 1.D0 - (stat_weight_l * up_pop) / (stat_weight_u * low_pop)
  ! Einstein Blu coefficient
  Blu = light_speed**2.0 / (2.0 * h * fr_line*3.0) * DBLE(stat_weight_u) / DBLE(stat_weight_l) &
   * linelist(act_line)%A_ul
@@ -133,7 +138,7 @@ DO I = 1, nlns
  ELSE
   Jlu = flux_function(0, linelist(act_line)%freq, model_grid(current_mgi)%T)
   ! calculation of Blu and Bul
-  Blu = light_speed ** 2.0 / (2.0 * h * linelist(act_line)%freq**3.0) * stat_weight_u / stat_weight_l &
+  Blu = light_speed ** 2.0 / (2.0 * h * linelist(act_line)%freq**3.0) * DBLE(stat_weight_u) / DBLE(stat_weight_l) &
    * linelist(act_line)%A_ul
   Bul = stat_weight_l / stat_weight_u * Blu
   actVal = up_pop * betalu * (linelist(act_line)%A_ul + Bul * Jlu)! * corrFactor 

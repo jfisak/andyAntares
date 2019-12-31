@@ -250,7 +250,7 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
  summ = 0.D0
  rand = ran2(idum) * Zraddeexc
  ! write(*,*) 'do_ipackage: lines = ', linetransitions(:)
- write(*,*) 'do_ipackage: radRate = ', actirates%Lma_rad(:)
+ ! write(*,*) 'do_ipackage: radRate = ', actirates%Lma_rad(:)
  IF(procout) write(*,*) 'do_ipackage: radiative deexcitation...'
  ! looking for the given line
  DO line = 1, nlns
