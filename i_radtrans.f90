@@ -41,6 +41,7 @@ DOUBLE PRECISION                        :: corrFactor
 INTEGER                                 :: next_cell
 ! stimulated emission as negative absorption
 LOGICAL                                 :: stmasnab=.true.
+DOUBLE PRECISION, DIMENSION(3)          :: vel_vec
 
 constanta = (pi * e_charge**2)/( me_g * light_speed)
 
@@ -133,25 +134,27 @@ DO I = 1, nlns
   ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * &
   !  ROverV / (4.0 * pi) * corrFactor 
  END IF
+ ! optical depth
+ !  * linelist(act_line)%f_ul * corrFactor
+ Blu = light_speed ** 2.0 / (2.0 * h * fr_line**3.0) * DBLE(stat_weight_u) / DBLE(stat_weight_l) &
+  * linelist(act_line)%A_ul
+ Bul = stat_weight_l / stat_weight_u * Blu
+ ! taulu = light_speed / fr_line * constanta * &
+ !   linelist(act_line)%f_ul * up_pop * ROverV * corrFactor
+ taulu = low_pop * Blu * h * ROverV * corrFactor / (4.0 * pi)
+ betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
  IF(stmasnab) THEN
   actVal = up_pop * betalu * linelist(act_line)%A_ul! * corrFactor 
+  ! actVal = betalu * linelist(act_line)%A_ul! * corrFactor 
  ELSE
   Jlu = flux_function(0, linelist(act_line)%freq, model_grid(current_mgi)%T)
   ! calculation of Blu and Bul
-  Blu = light_speed ** 2.0 / (2.0 * h * linelist(act_line)%freq**3.0) * DBLE(stat_weight_u) / DBLE(stat_weight_l) &
-   * linelist(act_line)%A_ul
-  Bul = stat_weight_l / stat_weight_u * Blu
   actVal = up_pop * betalu * (linelist(act_line)%A_ul + Bul * Jlu)! * corrFactor 
  END IF
- ! optical depth
- !  * linelist(act_line)%f_ul * corrFactor
- taulu = light_speed / linelist(act_line)%freq * constanta * &
-   linelist(act_line)%f_ul * up_pop * ROverV * corrFactor
- betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
  ! write(*,*) 'i_radtrans: actVal = ', actVal, ' e_l = ', exci_energy_l, ' e_u - e_l = ', exci_energy_u - exci_energy_l
  actirates%Lma_int_dorad(I) = actVal * exci_energy_l
  IF(actirates%Lma_int_dorad(I) < 0.D0) STOP 'i_radtrans: Lma_int_dorad < 0'
- actirates%Lma_rad(I) = actVal * (exci_energy_u - exci_energy_l)
+ ! actirates%Lma_rad(I) = actVal * (exci_energy_u - exci_energy_l)
  Zintdown = Zintdown + actirates%Lma_int_dorad(I)
  ! write(*,*) 'i_radtrans: Zintdown = ', Zintdown
  Zrad = Zrad + actirates%Lma_rad(I)
