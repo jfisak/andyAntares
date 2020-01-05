@@ -135,9 +135,8 @@ DO WHILE (active == 1)
   ! write(*,*) 'do_ipackage: element_index = ', element_index, ' ion_index = ', ion_index
   IF(sstates) write(36,*) 'element_index = ', element_index, ' ion_index = ', ion_index, ' actual_state = ',&
    actual_state
- CALL populations(element_index, ion_index, actual_state, current_mgi, act_pop)
  ! write(*,*) 'do_ipackage: pop = ', act_pop
- CALL i_radtrans(current_mgi, element_index, ion_index, actual_state, act_pop,&
+ CALL i_radtrans(current_mgi, element_index, ion_index, actual_state, &
   Zintdownrad, Zintuprad, Zraddeexc, actirates, pack_index)
  CALL i_coltrans(1, pack_index, element_index, ion_index, actual_state, act_pop, &
   Zintdowncoll, Zintupcoll, Zcoll, actirates)

@@ -4,7 +4,7 @@
 ! * Zintdown -- total rate of internal downward jumps
 ! * Zrad -- total rate of radiative deactivations of a macro atom
 ! * Zintup -- total rate of internal upward jumps
-SUBROUTINE i_radtrans(current_mgi, indexe, indexi, indexl, act_pop, Zintdown, Zintup, Zrad, actirates, pack_index)
+SUBROUTINE i_radtrans(current_mgi, indexe, indexi, indexl, Zintdown, Zintup, Zrad, actirates, pack_index)
 USE types
 USE rates_i
 IMPLICIT NONE
@@ -50,6 +50,8 @@ Zintdown = 0.D0
 Zrad= 0.D0
 Zintup = 0.D0
 
+CALL populations(indexe, indexi, indexl, current_mgi, act_pop)
+
 ! number of transitions up and down
 nlns = SIZE(elements(indexe)%ions(indexi)%levels(indexl)%linetransitions)
 nluns = SIZE(elements(indexe)%ions(indexi)%levels(indexl)%lineuptransitions)
@@ -81,23 +83,17 @@ DO I = 1, nlns
  stat_weight_l = elements(indexe)%ions(indexi)%levels(lower_level)%stat_waight
  exci_energy_u = elements(indexe)%ions(indexi)%levels(upper_level)%exci_energy
  exci_energy_l = elements(indexe)%ions(indexi)%levels(lower_level)%exci_energy
+ fr_line = linelist(act_line)%freq
  ! population of lower level
  CALL populations(indexe, indexi, lower_level, current_mgi, low_pop)
  corrFactor = 1.D0 - (DBLE(stat_weight_l) * up_pop) / (DBLE(stat_weight_u) * low_pop)
  IF(corrFactor < 0.D0) write(*,*) 'WARNING: correction factor 1 - (gl nu) / (gu nl) < 0'
- fr_line = linelist(act_line)%freq
- ! internal downward jump
- ! calculation of a rate coefficient
- ! corrFactor = 1.D0 - (stat_weight_l * up_pop) / (stat_weight_u * low_pop)
- ! Einstein Blu coefficient
- Blu = light_speed**2.0 / (2.0 * h * fr_line*3.0) * DBLE(stat_weight_u) / DBLE(stat_weight_l) &
-  * linelist(act_line)%A_ul
+ !______________________________________________________________________
+ ! internal downward jump & radiative deexcitation
  ! calculation of R/V
+ ! homologous approximation
  IF(velapprox == 0) THEN
   ROverV = R_inf / V_inf
-  ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * ROverV &
-  ! / (4.0 * pi) * corrFactor * ldist
-  ! write(*,*) 'r_kappa_line: actirrates%Lline(I) = ', actirrates%Lline(I)
  ELSE IF(velapprox == 2) THEN
   ! according to (10) in Abbot & Lucy (1985)
   ! r
@@ -131,22 +127,18 @@ DO I = 1, nlns
   ROverV = 1.0 / ( costheta ** 2.0 * dV_pos + ( 1.0 - costheta ** 2.0 ) * V_pos / R_pos )
   ! write(*,*) 'i_radtrans: V_pos_vec = ', V_pos_vec, ' costheta = ', costheta, &
   !  ' dV_pos = ', dV_pos, ' ROverV = ', ROverV
-  ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * &
-  !  ROverV / (4.0 * pi) * corrFactor 
  END IF
  ! optical depth
  !  * linelist(act_line)%f_ul * corrFactor
- Blu = light_speed ** 2.0 / (2.0 * h * fr_line**3.0) * DBLE(stat_weight_u) / DBLE(stat_weight_l) &
-  * linelist(act_line)%A_ul
- Bul = stat_weight_l / stat_weight_u * Blu
- ! taulu = light_speed / fr_line * constanta * &
- !   linelist(act_line)%f_ul * up_pop * ROverV * corrFactor
- taulu = low_pop * Blu * h * ROverV * corrFactor / (4.0 * pi)
+ taulu = light_speed / fr_line * constanta * &
+   linelist(act_line)%f_ul * low_pop * ROverV * corrFactor
  betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
  IF(stmasnab) THEN
   actVal = up_pop * betalu * linelist(act_line)%A_ul! * corrFactor 
-  ! actVal = betalu * linelist(act_line)%A_ul! * corrFactor 
  ELSE
+  Blu = light_speed ** 2.0 / (2.0 * h * fr_line**3.0) * DBLE(stat_weight_u) / DBLE(stat_weight_l) &
+   * linelist(act_line)%A_ul
+  Bul = stat_weight_l / stat_weight_u * Blu
   Jlu = flux_function(0, linelist(act_line)%freq, model_grid(current_mgi)%T)
   ! calculation of Blu and Bul
   actVal = up_pop * betalu * (linelist(act_line)%A_ul + Bul * Jlu)! * corrFactor 
@@ -154,7 +146,8 @@ DO I = 1, nlns
  ! write(*,*) 'i_radtrans: actVal = ', actVal, ' e_l = ', exci_energy_l, ' e_u - e_l = ', exci_energy_u - exci_energy_l
  actirates%Lma_int_dorad(I) = actVal * exci_energy_l
  IF(actirates%Lma_int_dorad(I) < 0.D0) STOP 'i_radtrans: Lma_int_dorad < 0'
- ! actirates%Lma_rad(I) = actVal * (exci_energy_u - exci_energy_l)
+ ! write(*,*) 'i_radtrans: exci_energy_u = ', exci_energy_u
+ actirates%Lma_rad(I) = actVal * (exci_energy_u - exci_energy_l)
  Zintdown = Zintdown + actirates%Lma_int_dorad(I)
  ! write(*,*) 'i_radtrans: Zintdown = ', Zintdown
  Zrad = Zrad + actirates%Lma_rad(I)
