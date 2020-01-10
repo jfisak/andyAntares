@@ -108,7 +108,7 @@ CASE(2)
      ! write(*,*) 'read_photcs: photfreq = ', freq * Rydberg * e_v / h
      elements(indexe)%ions(indexI)%levels(indexclev)%photcros(2,I) = cross * 1.D-18
      ! write(32,*) indexe, indexI, indexclev, freq * Rydberg * e_v / h, cross * 1.D-15
-     write(32,*) indexe, indexI, indexclev, freq, cross
+     ! write(32,*) indexe, indexI, indexclev, freq, cross
      ! print*, index, indexI, freq(I), cross(I)
     END IF
    END DO

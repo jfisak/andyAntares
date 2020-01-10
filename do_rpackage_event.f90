@@ -36,11 +36,11 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
     ! freq_line,package(pack_index)%freq_cmf
 !     print*, 'photon ', pack_index, ' line interaction...'
     IF(ellastic_scattering) THEN
-     write(37,*) 1.D8 * light_speed / package(pack_index)%freq_rf
+     ! write(37,*) 1.D8 * light_speed / package(pack_index)%freq_rf
      CALL emit_rpackage(pack_index)
      ! write(78,*) 'line interaction'
     ELSE
-     write(37,*) 1.D8 * light_speed / package(pack_index)%freq_rf
+     ! write(37,*) 1.D8 * light_speed / package(pack_index)%freq_rf
      package(pack_index)%typ = type_ipkt
     END IF
     package(pack_index)%n_int = package(pack_index)%n_int + 1
