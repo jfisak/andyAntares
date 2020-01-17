@@ -47,7 +47,13 @@ SUBROUTINE read_transitions(el_index, lowerion, upperion, transition_type, filen
 oconstant = (me_g * light_speed ** 3)/(8.D0 * pi ** 2 * e_charge**2)
 n_ions = 0
 element = elements(el_index)%atom_number
+simpleTrans = .FALSE.
 OPEN (UNIT=9, status='old', FILE=filename)
+IF(transition_type == 9) THEN
+ simpleTrans = .TRUE.
+ transition_type = 2
+END IF
+
 SELECT CASE(transition_type)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -106,8 +112,8 @@ CASE(2)
   END DO
   !write(99,*) 'low_conf = ', low_conf, ' up_conf = ', up_conf, found_up_conf, found_low_conf
   IF((found_up_conf .EQV. .TRUE.) .AND. (found_low_conf .EQV. .TRUE.)) THEN
-   ! write(*,*) 'reading_transitions: el = ', el_index, ' ion = ', current_ion,&
-   !  ' line ', low_conf, ' -> ', up_conf, ' was accepted'
+   write(*,*) 'reading_transitions: el = ', el_index, ' ion = ', current_ion,&
+    ' line ', low_conf, ' -> ', up_conf, ' was accepted'
    ion_index = current_ion - lowerion + 1
    ntrans(current_ion) = ntrans(current_ion) + 1
    tot_ntrans = tot_ntrans + 1
@@ -225,8 +231,8 @@ CASE(2)
    END IF
    IF((found_low_conf .EQV. .FALSE.) .OR. (found_up_conf .EQV. .FALSE.)) THEN
     ! this configuration will not be taken into account and we will read the next line
-    ! write(99,*) 'element: ', element, ' ion = ', ion_index, ' line from ', low_conf, ' to ', up_conf, &
-    !  '  was not included...'
+    ! write(*,*) 'element: ', element, ' ion = ', ion_index, ' line from ', low_conf, ' to ', up_conf, &
+    !   '  was not included...'
     n_not_included = n_not_included + 1
     CYCLE
    ELSE
@@ -244,8 +250,14 @@ CASE(2)
    deltaE = elements(el_index)%ions(current_ion)%levels(act_upper)%exci_energy - &
     elements(el_index)%ions(current_ion)%levels(act_lower)%exci_energy
    linelist(ntransitions)%freq =  deltaE / h
-   linelist(ntransitions)%A_ul = abs(A) / g_lower
-   linelist(ntransitions)%f_ul = abs(col_str) / g_lower
+   write(*,*) 'read_transitions: lambda = ', light_speed / linelist(ntransitions)%freq * 1.E8
+   IF(simpleTrans) THEN
+    linelist(ntransitions)%A_ul = abs(A)
+    linelist(ntransitions)%f_ul = abs(col_str)
+   ELSE
+    linelist(ntransitions)%A_ul = abs(A) / g_lower
+    linelist(ntransitions)%f_ul = abs(col_str) / g_lower
+   END IF
    linelist(ntransitions)%n_int = 0
    ! write(99,*) 'line: ', ntransitions, ' el = ', el_index, ' ion = ', current_ion,&
    !  ' lower level energy = ', &

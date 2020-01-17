@@ -28,6 +28,7 @@ dummypackage = SIZE(package)
   ! length=SQRT(package(pack_index)%pos(1)**2 + package(pack_index)%pos(2)**2 + package(pack_index)%pos(3)**2)  
   IF ((vec_length(package(pack_index)%pos) .LT. R_star) .AND. (pack_index .NE. dummypackage)) THEN
    ! print*, 'package ', pack_index, ' was destroyed because has come back to the photosphere'
+   write(37,*) 1.D8 * light_speed / package(pack_index)%freq_rf
    package(pack_index)%active = 0
    count_des_phot = count_des_phot + 1
   END IF

@@ -146,7 +146,7 @@ DO WHILE (active == 1)
   Zcolliondown,Zcollrecom, actirates)
 ! testing
 ! Zcollrecom = 0.D0
-! Zcoll = 0.D0
+Zcoll = 0.D0
 ! Zphotrecom = 0.D0
 ! Zintupcoll = 0.D0
 ! Zintdowncoll = 0.D0
@@ -269,6 +269,7 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
    ! D = 1.D0
    package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
    package(pack_index)%e_rf = package(pack_index)%e_cmf / D
+   write(37,*) 1.D8 * light_speed / package(pack_index)%freq_rf
    ! save the emitted frequency
    linelist(linetransitions(line))%n_deexc = linelist(linetransitions(line))%n_deexc + 1
    count_i_rad_deex = count_i_rad_deex + 1

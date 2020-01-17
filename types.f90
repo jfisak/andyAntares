@@ -179,6 +179,8 @@ IMPLICIT NONE
   ! temporary file name
   CHARACTER(30)                     :: temp_filename = 'temp_packet'
   INTEGER                               :: tot_saved_packets
+  ! for testing case
+  LOGICAL                               :: simpleTrans
 
 
 
