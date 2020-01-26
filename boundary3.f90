@@ -18,13 +18,13 @@ INTEGER                         :: act_cell
 ! calculation of a distance from the basic cell
 ! firstly we have to know which basic cell photon occupies
 !   Number of the current cell
- act_cell = package(pack_index)%cell_numb
+act_cell = package(pack_index)%cell_numb
 !  print*, 'boundary3: pack index = ', pack_index, ' actCell = ', actCell
 !  print*, 'boundary3: basic_cell_numb = ', basic_cell_numb
 ! now we are computing the nearest distance to the actuall dynamic cell
- CALL find_dist(pack_index, act_cell, dist)
+CALL find_dist(pack_index, act_cell, dist)
 ! now we look for the next cell given by indexes
- CALL next_cell_down(pack_index, n_cell)
+CALL next_cell_down(pack_index, n_cell)
 ! position of the point
 !cross_pos = package(pack_index)%pos + package(pack_index)%dir * dist
 if(dyngrid /= 0) CALL next_cell_up(pack_index, dist, n_cell, next_cell)

@@ -88,13 +88,14 @@ IMPLICIT NONE
 
   IF(dist > sqrt(width(1)**2 + width(2)**2 + width(3)**2)) THEN
    write(*,*) 'find_dist: pack_index = ', pack_index
-   write(*,*) 'find_dist: pos/corner = ', pos(:)/corner(:)!, ' corner = ', corner / R_inf
-   write(*,*) 'find_dist: pos/R_inf = ', pos/R_inf, ' corner/R_inf = ', corner/R_inf,&
+   write(*,*) 'pos/corner = ', pos(:)/corner(:)!, ' corner = ', corner / R_inf
+   write(*,*) 'pos/R_inf = ', pos/R_inf, ' corner/R_inf = ', corner/R_inf,&
     ' width/R_inf = ', width/R_inf
-   write(*,*) 'find_dist: t1 = ', t1/R_inf, ' t2 = ', t2/R_inf, ' t3 = ', t3/R_inf,&
+   write(*,*) 't1 = ', t1/R_inf, ' t2 = ', t2/R_inf, ' t3 = ', t3/R_inf,&
     ' t4 = ', t4/R_inf, ' t5 = ', t5/R_inf, ' t6 = ', t6/R_inf
-   write(*,*) 'find_dist: n = ', dir
-   write(*,*) 'find_dist: dist = ', dist/R_inf
-   STOP 'find_dist'
+   write(*,*) 'n = ', dir
+   write(*,*) 'dist = ', dist/R_inf
+   write(*,*) 'cell_index = ', package(pack_index)%cell_numb
+   STOP 
   END IF
 END SUBROUTINE find_dist

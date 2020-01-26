@@ -166,7 +166,7 @@ DO WHILE(iteration)
     write(*,*) 'resonance_distance: halffreq > lfreq'
     endit = .TRUE.
    END IF
-   if(endit) THEN
+   IF(endit) THEN
     write(*,*) 'resonance_distance: pack_index = ', pack_index, ' f_line = ', f_line,&
      ' cell_dist = ', cell_dist/ R_inf
     write(*,*) 'resonance_distance: r / R_inf = ', norm2(lowbond) / R_inf

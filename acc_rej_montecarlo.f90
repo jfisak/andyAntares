@@ -210,11 +210,11 @@ DO K=n_created_packs + 1, n_packs
   ! if ((MODULO(K,10000) .EQ. 0) .AND. (FOUND .EQV. .TRUE.)) print*, 'Generating the frequency packet ', K, ' ...'
  END DO
 END DO
-OPEN(37, FILE='freq_dist_test.dat')
- DO I = 1, n_packs
-  WRITE(37, *) freq(I)
- END DO
-CLOSE(37)
+! OPEN(37, FILE='freq_dist_test.dat')
+!  DO I = 1, n_packs
+!   WRITE(37, *) freq(I)
+!  END DO
+! CLOSE(37)
 ! STOP 'acc_rej_montecarlo, testing'
  ! after the last photon is calculated we erase the field incomingflux'
 ! IF(n_packet .EQ. n_packs) DEALLOCATE(incomingflux)

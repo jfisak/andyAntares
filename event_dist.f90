@@ -10,7 +10,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
  LOGICAL                           :: do_loop
 !pointer to a field of continuum rates
  DOUBLE PRECISION                  :: e_dist, ran_numb, tau_rand, cell_dist, D
- DOUBLE PRECISION                  :: tau, l_dist, tau_line, constant, tau_cont
+ DOUBLE PRECISION                  :: tau, l_dist, tau_line, constanta, tau_cont
  DOUBLE PRECISION                  :: electron_density, kappa_cont, dist
  DOUBLE PRECISION, PARAMETER       :: largeNumber = 1.D20
  ! number of lines with the same frequencies
@@ -48,7 +48,7 @@ END DO
  tau = 0.D0
  dist = 0.D0
  do_loop = .TRUE.
- constant = (pi * e_charge**2)/( me_g * light_speed)
+ constanta = (pi * e_charge**2)/( me_g * light_speed)
 
  !Get the packet's current position on the model grid
  current_mgi = get_package_model_index(pack_index)
@@ -138,7 +138,6 @@ DO WHILE (do_loop)
     !  1.D8 * light_speed / package(pack_index)%freq_rf
     if(procout) write(*,*) 'event_dist: rpkt_eventtype_lineinteraction'
     ! choosing the line
-    package(pack_index)%last_line = nextLine
     IF(n_next_lines > 1) THEN
      tot_lop = 0.D0
      DO I = 1, n_next_lines
@@ -150,6 +149,7 @@ DO WHILE (do_loop)
      DO I = 1, n_next_lines
       act_line = nextLine + I - 1
       IF(ran_numb > summ .AND. ran_numb < summ + actirrates%Lline(I)) THEN
+       package(pack_index)%last_line = act_line
        ! write(*,*) 'event_dist: last_line = ', act_line
        package(pack_index)%l_ele = linelist(act_line)%indexe
        package(pack_index)%l_ion = linelist(act_line)%indexi
@@ -164,6 +164,7 @@ DO WHILE (do_loop)
      package(pack_index)%l_ele = linelist(nextLine)%indexe
      package(pack_index)%l_ion = linelist(nextLine)%indexi
      package(pack_index)%l_lev = linelist(nextLine)%upper
+     package(pack_index)%last_line = nextLine
      ! write(*,*) 'event_dist: #2 last_line = ', nextLine
      if(procout) write(*,*) 'event_dist: #2 choosing chosen line: ', nextLine 
     END IF 

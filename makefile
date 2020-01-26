@@ -35,7 +35,8 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
 	  cool_ionization.o cool_fb.o k_freq_fb.o check_pop.o r_kappa_line.o \
 	  save_output.o gauntff.o counters.o saha_factor.o find_photion_elindex.o \
 	  mpi_distribute_estimators.o save_temp_packs.o find_unfinished_run.o \
-	  lte_pops.o
+	  lte_pops.o photosphere_interaction.o roverw.o
+# end of procedures
 
 #Rules
 all : $(PROJECT)

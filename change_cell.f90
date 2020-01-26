@@ -16,6 +16,7 @@ SUBROUTINE change_cell(pack_index, next_cell)
 ! become no-active and update into type_escaped, else it update the
 ! cell number
 !  if(next_cell > 0) write(22,*) next_cell, dyn_cell(next_cell)%corner, dyn_cell(next_cell)%width
+! write(*,*) 'change_cell: pack_index = ', pack_index
  IF (next_cell .LT. 0) THEN 
   package(pack_index)%typ = type_escaped
   package(pack_index)%active = 0
@@ -25,7 +26,7 @@ SUBROUTINE change_cell(pack_index, next_cell)
 ! print*, 'change cell: next_cell = ', next_cell
   package(pack_index)%cell_numb = next_cell
   IF(next_cell > SIZE(dyn_cell)) THEN
-   write(*,*) 'change_cell: the cell ', next_cell, ' does not exist...'
+   ! write(*,*) 'change_cell: the cell ', next_cell, ' does not exist...'
    CALL abort()
   END IF
   ! check if the next cell si chosen correctly

@@ -131,7 +131,7 @@ CASE(1)
   DO I = 1, ntransitions
    ! wavelength is in Angstroms
    wavle = 1e8 * light_speed / linelist(I)%freq
-   WRITE(11,*) elements(linelist(I)%indexe)%atom_number, linelist(I)%indexi, wavle,&
+   WRITE(11,*) I, elements(linelist(I)%indexe)%atom_number, linelist(I)%indexi, wavle,&
     linelist(I)%A_ul, linelist(I)%n_int, linelist(I)%n_deexc
   END DO
  CLOSE(11)

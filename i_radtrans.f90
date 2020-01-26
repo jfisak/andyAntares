@@ -33,7 +33,7 @@ INTEGER                                 :: dummypackage, pack_index
 DOUBLE PRECISION                        :: constanta
 DOUBLE PRECISION                        :: costheta
 DOUBLE PRECISION                        :: dV_pos, V_pos, R_pos
-DOUBLE PRECISION                        :: ROverV
+DOUBLE PRECISION                        :: ROverV, roverw
 DOUBLE PRECISION, DIMENSION(3)          :: V_pos_vec
 DOUBLE PRECISION                        :: fr_line
 DOUBLE PRECISION                        :: cell_dist
@@ -92,42 +92,7 @@ DO I = 1, nlns
  ! internal downward jump & radiative deexcitation
  ! calculation of R/V
  ! homologous approximation
- IF(velapprox == 0) THEN
-  ROverV = R_inf / V_inf
- ELSE IF(velapprox == 2) THEN
-  ! according to (10) in Abbot & Lucy (1985)
-  ! r
-  R_pos = norm2(package(dummypackage)%pos)
-  ! ||v||
-  V_pos = (V_inf - V_0) / (R_inf - R_star) * norm2(package(pack_index)%pos) + &
-   (V_0 * R_inf - V_inf * R_star) / (R_inf - R_star)
-  ! v = (v_x, v_y, v_z)
-  V_pos_vec = V_pos * package(dummypackage)%pos / norm2(package(dummypackage)%pos)
-  costheta = dot_product(package(dummypackage)%dir, V_pos_vec) / norm2(V_pos_vec)
-  ROverV = (V_inf - V_0) / (R_inf - R_star) + 1 / R_pos * (1 - costheta**2.0) *&
-   (V_0 * R_inf - V_inf * R_star) / (R_inf - R_star)
- ELSE IF(velapprox == 1) THEN
-  ! according to (10) in Abbot & Lucy (1985)
-  ! r
-  R_pos = norm2(package(dummypackage)%pos)
-  ! write(*,*) 'i_radtrans: R_pos = ', R_pos / R_inf
-  ! ||v||
-  V_pos = V_inf * (1.D0 - R_star / R_pos ) ** beta
-  ! write(*,*) 'i_radtrans: V_pos = ', V_pos / V_inf
-  ! v = (v_x, v_y, v_z)
-  V_pos_vec = V_pos * package(dummypackage)%pos / norm2(package(dummypackage)%pos)
-  ! write(*,*) 'i_radtrans: V_pos_vec = ', V_pos_vec / V_inf
-  ! write(*,*) 'i_radtrans: V_pos = ', V_pos
-  ! \mu
-  costheta = dot_product(package(dummypackage)%dir, V_pos_vec) / norm2(V_pos_vec)
-  ! write(*,*) 'i_radtrans: costheta = ', costheta
-  ! dv/dr
-  dV_pos = beta * R_star * V_inf / ( R_pos ** 2.0 ) * (1.0 - R_star / R_pos) ** (beta - 1.0)
-  ! write(*,*) 'i_radtrans: dV_pos = ', dV_pos
-  ROverV = 1.0 / ( costheta ** 2.0 * dV_pos + ( 1.0 - costheta ** 2.0 ) * V_pos / R_pos )
-  ! write(*,*) 'i_radtrans: V_pos_vec = ', V_pos_vec, ' costheta = ', costheta, &
-  !  ' dV_pos = ', dV_pos, ' ROverV = ', ROverV
- END IF
+ ROverV = roverw()
  ! optical depth
  !  * linelist(act_line)%f_ul * corrFactor
  taulu = light_speed / fr_line * constanta * &
@@ -136,8 +101,9 @@ DO I = 1, nlns
  IF(stmasnab) THEN
   actVal = up_pop * betalu * linelist(act_line)%A_ul! * corrFactor 
  ELSE
-  Blu = light_speed ** 2.0 / (2.0 * h * fr_line**3.0) * DBLE(stat_weight_u) / DBLE(stat_weight_l) &
-   * linelist(act_line)%A_ul
+  ! Blu = light_speed ** 2.0 / (2.0 * h * fr_line**3.0) * DBLE(stat_weight_u) / DBLE(stat_weight_l) &
+  !  * linelist(act_line)%A_ul
+  Blu = 4 * pi**2 * e_charge**2 / (me_g * light_speed * h * fr_line) * linelist(act_line)%f_ul
   Bul = stat_weight_l / stat_weight_u * Blu
   Jlu = flux_function(0, linelist(act_line)%freq, model_grid(current_mgi)%T)
   ! calculation of Blu and Bul
@@ -166,54 +132,19 @@ DO I = 1, nluns
 ! CALL populations(indexe, indexi, linelist(act_line)%lower, current_mgi, low_pop)
  ! calculation of up_pop
  CALL populations(indexe, indexi, linelist(act_line)%upper, current_mgi, up_pop)
- corrFactor = 1.D0 - (stat_weight_l * up_pop) / (stat_weight_u * low_pop)
+ corrFactor = 1.D0 - (DBLE(stat_weight_l) * up_pop) / (DBLE(stat_weight_u) * low_pop)
  IF(corrFactor < 0.D0) write(*,*) 'WARNING: correction factor 1 - (gl nu) / (gu nl) < 0'
  Jlu = flux_function(0, linelist(act_line)%freq, model_grid(current_mgi)%T)
  ! calculation of Blu and Bul
- Blu = light_speed ** 2.0 / (2.0 * h * linelist(act_line)%freq**3.0) * stat_weight_u / stat_weight_l &
-  * linelist(act_line)%A_ul
- Bul = stat_weight_l / stat_weight_u * Blu
+ ! Blu = light_speed ** 2.0 / (2.0 * h * linelist(act_line)%freq**3.0) * DBLE(stat_weight_u) / DBLE(stat_weight_l) &
+ !  * linelist(act_line)%A_ul
+ fr_line = linelist(act_line)%freq
+ Blu = 4 * pi**2 * e_charge**2 / (me_g * light_speed * h * fr_line) * linelist(act_line)%f_ul
+ Bul = DBLE(stat_weight_l) / DBLE(stat_weight_u) * Blu
 ! internal jump up
 ! write(*,*) 'i_radtrans: pack_index = ', pack_index, ' freq = ', linelist(act_line)%freq
-! CALL move_package(dummypackage, l_dist)
-! CALL velo(dummypackage, vel_vec)
 ! IF(vec_length(vel_vec) /= 0.D0) THEN
- ! ROverV = roverv()
- IF(velapprox == 0) THEN
-  ROverV = R_inf / V_inf
-  ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * ROverV &
-  ! / (4.0 * pi) * corrFactor * ldist
-  ! write(*,*) 'r_kappa_line: actirrates%Lline(I) = ', actirrates%Lline(I)
- ELSE IF(velapprox == 2) THEN
-  ! according to (10) in Abbot & Lucy (1985)
-  ! r
-  R_pos = norm2(package(dummypackage)%pos)
-  ! ||v||
-  V_pos = V_inf * (1.0 - R_star / R_pos ) ** beta
-  ! v = (v_x, v_y, v_z)
-  V_pos_vec = V_pos * package(dummypackage)%pos / norm2(package(dummypackage)%pos)
-  costheta = dot_product(package(dummypackage)%dir, V_pos_vec) / norm2(V_pos_vec)
-  ROverV = (V_inf - V_0) / (R_inf - R_star) + 1 / R_pos * (1 - costheta**2.0) *&
-   (V_0 * R_inf - V_inf * R_star) / (R_inf - R_star)
- ELSE IF(velapprox == 1) THEN
-  ! package(dummypackage) = package(pack_index)
-  ! CALL emit_rpackage(dummypackage)
-  CALL boundary3(pack_index, cell_dist, next_cell)
-  ! according to (10) in Abbot & Lucy (1985)
-  ! r
-  R_pos = norm2(package(dummypackage)%pos)
-  ! ||v||
-  V_pos = V_inf * (1.0 - R_star / R_pos ) ** beta
-  ! v = (v_x, v_y, v_z)
-  V_pos_vec = V_pos * package(pack_index)%pos / norm2(package(pack_index)%pos)
-  ! \mu
-  costheta = dot_product(package(pack_index)%dir, V_pos_vec) / norm2(V_pos_vec)
-  ! dv/dr
-  dV_pos = beta * R_star * V_inf / R_pos**2 * (1.0 - R_star / R_pos)**(beta-1)
-  ROverV = 1.0 / (costheta**2.0 * dV_pos + (1.0 - costheta**2.0)* V_pos / R_pos)
-  ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * &
-  !  ROverV / (4.0 * pi) * corrFactor 
- END IF
+ ROverV = roverw()
  ! optical depth
  ! taulu = low_pop * pi * e_v ** 2.0  * ROverV / (me_g * light_speed * linelist(act_line)%freq) &
  !  * linelist(act_line)%f_ul * corrFactor

@@ -105,6 +105,7 @@ IMPLICIT NONE
   INTEGER                            :: nlte
 ! velocity structure approximation
   INTEGER                            :: velApprox
+  INTEGER                            :: refr_surface=0
 ! properties of a central star
   DOUBLE PRECISION                   :: R_star, R_inf, V_inf, V_0, M_dot, T_eff
   DOUBLE PRECISION                   :: Z_inf

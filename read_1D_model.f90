@@ -22,33 +22,31 @@ CHARACTER(100)                             :: line
 DOUBLE PRECISION, PARAMETER                :: meanAtMass = 1.33
 
 
- SELECT CASE (inputModel)
-  CASE(0)
-  OPEN (UNIT=11, FILE='model_data.dat')
-  READ(11,*) T_eff
-  READ(11,*) R_star
-  READ(11,*) R_inf
-  READ(11,*) V_inf
+SELECT CASE (inputModel)
+ CASE(0)
+ OPEN (UNIT=11, FILE='model_data.dat')
+ READ(11,*) T_eff
+ READ(11,*) R_star
+ READ(11,*) R_inf
+ READ(11,*) V_inf
 !  READ(11,*) M_dot
-  READ(11,*) n_modelgrid
+ READ(11,*) n_modelgrid
  
-
-  add_mg = 1
-!  write(*,*) T_eff, R_star, R_inf, V_inf, M_dot, n_modelgrid
-
-  R_star = R_star * r_sun
-  ! WRITE(15, *) 0.D0, 0.D0, R_star/R_star
-
-  R_inf  = R_inf  * R_star
-  V_inf  = V_inf  * 1.D5
-!  M_dot  = M_dot  * m_sun / (3600.D0*24.D0*365.25D0)
-
-!  write(*,*) '   ', T_eff, R_star, R_inf, V_inf, M_dot, n_modelgrid
-
+ 
+ add_mg = 1
+  ! write(*,*) T_eff, R_star, R_inf, V_inf, M_dot, n_modelgrid
+ 
+ ! R_star = R_star * r_sun
+ ! WRITE(15, *) 0.D0, 0.D0, R_star/R_star
+ 
+ R_inf  = R_inf!  * R_star
+ V_inf  = V_inf  * 1.D5
+ ! write(*,*) '   ', T_eff, R_star, R_inf, V_inf, M_dot, n_modelgrid
+ 
  ! Allocate array for model grid structure.
-  ! Cell n_modelgrid+1 is associated to propagation grid cells 
-  ! which have no counterpart on the modelgrid  
-  ALLOCATE (model_grid(n_modelgrid + add_mg))
+ ! Cell n_modelgrid+1 is associated to propagation grid cells 
+ ! which have no counterpart on the modelgrid  
+ ALLOCATE (model_grid(n_modelgrid + add_mg))
 
   DO I = 1, n_modelgrid
      ! Maybe better to calculate at the midle of the grid cell rather then at the outer boundary 
@@ -76,7 +74,7 @@ DOUBLE PRECISION, PARAMETER                :: meanAtMass = 1.33
   END DO
 
   ! R_inf  = model_grid(n_modelgrid)%rwind
-  V_inf  = model_grid(n_modelgrid)%vel
+  ! V_inf  = model_grid(n_modelgrid)%vel
 
   ! setting properties
 

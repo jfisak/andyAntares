@@ -19,7 +19,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
   DOUBLE PRECISION                      :: ZcontTot
   LOGICAL                               :: procout = .FALSE.
   DOUBLE PRECISION                      :: D
-  LOGICAL                               :: ellastic_scattering = .TRUE.
+  LOGICAL                               :: ellastic_scattering = .FALSE.
 
 
  package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
@@ -38,7 +38,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
     IF(ellastic_scattering) THEN
      ! write(37,*) 1.D8 * light_speed / package(pack_index)%freq_rf
      CALL emit_rpackage(pack_index)
-     ! write(78,*) 'line interaction'
+     IF(package(pack_index)%last_line == 71) write(44,*) norm2(package(pack_index)%pos)/R_star
     ELSE
      ! write(37,*) 1.D8 * light_speed / package(pack_index)%freq_rf
      package(pack_index)%typ = type_ipkt
@@ -47,6 +47,8 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
     IF(package(pack_index)%n_int > ntransitions) STOP 'n_int > ntransitions'
     linelist(package(pack_index)%last_line)%n_int = &
      linelist(package(pack_index)%last_line)%n_int + 1
+    linelist(package(pack_index)%last_line)%n_deexc = &
+     linelist(package(pack_index)%last_line)%n_deexc + 1
     count_r_line = count_r_line + 1
     ! in this sbr we get only excited states from the upper states
     ! D = 1.D0

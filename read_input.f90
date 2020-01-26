@@ -21,9 +21,28 @@ SUBROUTINE read_input(n_pack, iseed)
   zmax = 50. 
   iseed = -1  
 
+! 001 n_pack
+! 002 n_nubin
+! 003 nx_cell
+! 004 ny_cell
+! 005 nz_cell
+! 006 model_type
+! 007 xmax
+! 008 ymax
+! 009 zmax
+! 010 iseed
+! 011 inputflux
+! 012 inputmodel
+! 013 Nvirtpart
+! 014 dyngrid
+! 015 nlte
+! 016 velApprox
+! 017 n_pack_save
+! 018 refr_surface
   DO
     READ (1, '(A)', END=99) LINE
 
+    ! 001 n_pack
     CALL SARGV(LINE,1,ACTPAR)
     IF (ACTPAR .EQ. 'n_pack') THEN
     CALL SARGC (LINE, NPAR)
@@ -31,102 +50,125 @@ SUBROUTINE read_input(n_pack, iseed)
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I20)', ERR=91) n_pack
 
+    ! 002 n_nubin
     ELSE IF (ACTPAR .EQ. 'n_nubin') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I20)', ERR=91) n_nubin
 
+    ! 003 nx_cell
     ELSE IF (ACTPAR .EQ. 'nx_cell') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I20)', ERR=91) nx_cell
 
+    ! 004 ny_cell
     ELSE IF (ACTPAR .EQ. 'ny_cell') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I20)', ERR=91) ny_cell
 
+    ! 005 nz_cell
     ELSE IF (ACTPAR .EQ. 'nz_cell') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I20)', ERR=91) nz_cell
 
+    ! 006 model_type
     ELSE IF (ACTPAR .EQ. 'model_type') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I20)', ERR=91) model_type
 
+    ! 007 xmax
     ELSE IF (ACTPAR .EQ. 'xmax') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(F20.0)', ERR=91) xmax
 
+    ! 008 ymax
     ELSE IF (ACTPAR .EQ. 'ymax') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(F20.0)', ERR=91) ymax
 
+    ! 009 zmax
     ELSE IF (ACTPAR .EQ. 'zmax') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(F20.0)', ERR=91) zmax
 
+    ! 010 iseed
     ELSE IF (ACTPAR .EQ. 'random_seed') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I20)', ERR=94) iseed
 
+    ! 011 inputflux
     ELSE IF (ACTPAR .EQ. 'inputflux') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I20)', ERR=94) inputflux 
 
+    ! 012 inputmodel
     ELSE IF (ACTPAR .EQ. 'inputmodel') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I20)', ERR=94) inputmodel
 
+    ! 013 Nvirtpart
     ELSE IF (ACTPAR .EQ. 'Nvirtpart') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I20)', ERR=94) Nvirtpart
 
+    ! 014 dyngrid
     ELSE IF (ACTPAR .EQ. 'dyngrid') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I20)', ERR=94) dyngrid
 
+    ! 015 nlte
     ELSE IF (ACTPAR .EQ. 'nlte') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I20)', ERR=94) nlte
 
+    ! 016 velApprox
     ELSE IF (ACTPAR .EQ. 'velApprox') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I20)', ERR=94) velApprox
 
+    ! 017 n_pack_save
     ELSE IF (ACTPAR .EQ. 'n_pack_save') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I20)', ERR=94) n_pack_save
-    ENDIF
+
+    ! 018 refr_surface
+    ELSE IF (ACTPAR .EQ. 'refr_surface') THEN
+    CALL SARGC (LINE, NPAR)
+    IF (NPAR .LT. 2) GOTO 90
+    CALL SARGV(LINE,2,ACTPAR)
+    READ (ACTPAR, '(I20)', ERR=94) refr_surface
+    END IF
   END DO
 
 99 CONTINUE

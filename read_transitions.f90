@@ -112,8 +112,8 @@ CASE(2)
   END DO
   !write(99,*) 'low_conf = ', low_conf, ' up_conf = ', up_conf, found_up_conf, found_low_conf
   IF((found_up_conf .EQV. .TRUE.) .AND. (found_low_conf .EQV. .TRUE.)) THEN
-   write(*,*) 'reading_transitions: el = ', el_index, ' ion = ', current_ion,&
-    ' line ', low_conf, ' -> ', up_conf, ' was accepted'
+   ! write(*,*) 'reading_transitions: el = ', el_index, ' ion = ', current_ion,&
+   !  ' line ', low_conf, ' -> ', up_conf, ' was accepted'
    ion_index = current_ion - lowerion + 1
    ntrans(current_ion) = ntrans(current_ion) + 1
    tot_ntrans = tot_ntrans + 1
@@ -250,7 +250,7 @@ CASE(2)
    deltaE = elements(el_index)%ions(current_ion)%levels(act_upper)%exci_energy - &
     elements(el_index)%ions(current_ion)%levels(act_lower)%exci_energy
    linelist(ntransitions)%freq =  deltaE / h
-   write(*,*) 'read_transitions: lambda = ', light_speed / linelist(ntransitions)%freq * 1.E8
+   ! write(*,*) 'read_transitions: lambda = ', light_speed / linelist(ntransitions)%freq * 1.E8
    IF(simpleTrans) THEN
     linelist(ntransitions)%A_ul = abs(A)
     linelist(ntransitions)%f_ul = abs(col_str)

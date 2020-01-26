@@ -1,13 +1,19 @@
-DOUBLE PRECISION FUNCTION roverv()
+DOUBLE PRECISION FUNCTION roverw(pack_index)
 
 USE types
 IMPLICIT NONE
 
-DOUBLE PRECISION                               :: R_pos
+DOUBLE PRECISION                               :: R_pos, V_pos
+DOUBLE PRECISION, DIMENSION(3)                  :: V_pos_vec
+DOUBLE PRECISION                                :: costheta
+DOUBLE PRECISION                                :: dV_pos
+DOUBLE PRECISION                                :: cell_dist
+INTEGER                                         :: dummypackage, next_cell, pack_index
 
+dummypackage = SIZE(package)
 
 IF(velapprox == 0) THEN
- ROverV = R_inf / V_inf
+ ROverW = R_inf / V_inf
  ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * ROverV &
  ! / (4.0 * pi) * corrFactor * ldist
  ! write(*,*) 'r_kappa_line: actirrates%Lline(I) = ', actirrates%Lline(I)
@@ -20,7 +26,7 @@ ELSE IF(velapprox == 2) THEN
  ! v = (v_x, v_y, v_z)
  V_pos_vec = V_pos * package(dummypackage)%pos / norm2(package(dummypackage)%pos)
  costheta = dot_product(package(dummypackage)%dir, V_pos_vec) / norm2(V_pos_vec)
- ROverV = (V_inf - V_0) / (R_inf - R_star) + 1 / R_pos * (1 - costheta**2.0) *&
+ ROverW = (V_inf - V_0) / (R_inf - R_star) + 1 / R_pos * (1 - costheta**2.0) *&
   (V_0 * R_inf - V_inf * R_star) / (R_inf - R_star)
 ELSE IF(velapprox == 1) THEN
  ! package(dummypackage) = package(pack_index)
@@ -37,11 +43,9 @@ ELSE IF(velapprox == 1) THEN
  costheta = dot_product(package(pack_index)%dir, V_pos_vec) / norm2(V_pos_vec)
  ! dv/dr
  dV_pos = beta * R_star * V_inf / R_pos**2 * (1.0 - R_star / R_pos)**(beta-1)
- ROverV = 1.0 / (costheta**2.0 * dV_pos + (1.0 - costheta**2.0)* V_pos / R_pos)
+ ROverW = 1.0 / (costheta**2.0 * dV_pos + (1.0 - costheta**2.0)* V_pos / R_pos)
  ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * &
- !  ROverV / (4.0 * pi) * corrFactor 
+ !  ROverW / (4.0 * pi) * corrFactor 
 END IF
-
-return ROverV
 
 END FUNCTION
