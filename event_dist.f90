@@ -10,7 +10,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
  LOGICAL                           :: do_loop
 !pointer to a field of continuum rates
  DOUBLE PRECISION                  :: e_dist, ran_numb, tau_rand, cell_dist, D
- DOUBLE PRECISION                  :: tau, l_dist, tau_line, constanta, tau_cont
+ DOUBLE PRECISION                  :: tau, l_dist, tau_line, tau_cont
  DOUBLE PRECISION                  :: electron_density, kappa_cont, dist
  DOUBLE PRECISION, PARAMETER       :: largeNumber = 1.D20
  ! number of lines with the same frequencies
@@ -48,7 +48,6 @@ END DO
  tau = 0.D0
  dist = 0.D0
  do_loop = .TRUE.
- constanta = (pi * e_charge**2)/( me_g * light_speed)
 
  !Get the packet's current position on the model grid
  current_mgi = get_package_model_index(pack_index)

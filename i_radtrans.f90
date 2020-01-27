@@ -98,8 +98,11 @@ DO I = 1, nlns
  taulu = light_speed / fr_line * constanta * &
    linelist(act_line)%f_ul * low_pop * ROverV * corrFactor
  betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
+ Blu = 4 * pi**2 * e_charge**2 / (me_g * light_speed * h * fr_line) * linelist(act_line)%f_ul
+ Bul = stat_weight_l / stat_weight_u * Blu
+ Jlu = flux_function(0, linelist(act_line)%freq, model_grid(current_mgi)%T)
  IF(stmasnab) THEN
-  actVal = up_pop * betalu * linelist(act_line)%A_ul! * corrFactor 
+  actVal = (low_pop * Blu - up_pop * Bul) * betalu * Jlu
  ELSE
   ! Blu = light_speed ** 2.0 / (2.0 * h * fr_line**3.0) * DBLE(stat_weight_u) / DBLE(stat_weight_l) &
   !  * linelist(act_line)%A_ul
@@ -151,7 +154,7 @@ DO I = 1, nluns
  taulu = light_speed / linelist(act_line)%freq * constanta * &
   linelist(act_line)%f_ul * up_pop * corrFactor * ROverV!  * corrFactor
  betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
- actVal = (low_pop * Blu - up_pop * Bul) * betalu  * Jlu! * corrFactor
+ actVal = up_pop * betalu * linelist(act_line)%A_ul
  IF(actVal < 0.D0) STOP 'i_radtrans: (l_pop * Blu - u_pop * Bul) < 0'
  actirates%Lma_int_uprad(I) = actVal * exci_energy_l
 !  write(*,*) 'i_radtrans: up_pop = ', up_pop, 'low_pop = ', low_pop

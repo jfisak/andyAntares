@@ -41,7 +41,7 @@ DOUBLE PRECISION                :: D
 TYPE(irates)                    :: actirates
 ! write down the processes
 LOGICAL                         :: procout = .FALSE.
-LOGICAL                         :: sstates = .TRUE.
+LOGICAL                         :: sstates = .FALSE.
 ! number of processes in MA
 ! INTEGER, PARAMETER              :: maxproc = 1000000
 ! INTEGER                         :: n_proc

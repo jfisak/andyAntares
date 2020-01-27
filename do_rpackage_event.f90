@@ -38,7 +38,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
     IF(ellastic_scattering) THEN
      ! write(37,*) 1.D8 * light_speed / package(pack_index)%freq_rf
      CALL emit_rpackage(pack_index)
-     IF(package(pack_index)%last_line == 71) write(44,*) norm2(package(pack_index)%pos)/R_star
+     ! IF(package(pack_index)%last_line == 71) write(44,*) norm2(package(pack_index)%pos)/R_star
     ELSE
      ! write(37,*) 1.D8 * light_speed / package(pack_index)%freq_rf
      package(pack_index)%typ = type_ipkt
