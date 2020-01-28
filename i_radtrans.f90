@@ -40,7 +40,7 @@ DOUBLE PRECISION                        :: cell_dist
 DOUBLE PRECISION                        :: corrFactor
 INTEGER                                 :: next_cell
 ! stimulated emission as negative absorption
-LOGICAL                                 :: stmasnab=.true.
+LOGICAL                                 :: stmasnab=.false.
 DOUBLE PRECISION, DIMENSION(3)          :: vel_vec
 
 constanta = (pi * e_charge**2)/( me_g * light_speed)
@@ -152,9 +152,13 @@ DO I = 1, nluns
  ! taulu = low_pop * pi * e_v ** 2.0  * ROverV / (me_g * light_speed * linelist(act_line)%freq) &
  !  * linelist(act_line)%f_ul * corrFactor
  taulu = light_speed / linelist(act_line)%freq * constanta * &
-  linelist(act_line)%f_ul * up_pop * corrFactor * ROverV!  * corrFactor
+  linelist(act_line)%f_ul * low_pop * corrFactor * ROverV!  * corrFactor
  betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
- actVal = up_pop * betalu * linelist(act_line)%A_ul
+ IF(stmasnab) THEN
+  actVal = up_pop * betalu * linelist(act_line)%A_ul
+ ELSE
+  actVal = up_pop * betalu * (linelist(act_line)%A_ul + Bul * Jlu)
+ END IF
  IF(actVal < 0.D0) STOP 'i_radtrans: (l_pop * Blu - u_pop * Bul) < 0'
  actirates%Lma_int_uprad(I) = actVal * exci_energy_l
 !  write(*,*) 'i_radtrans: up_pop = ', up_pop, 'low_pop = ', low_pop
