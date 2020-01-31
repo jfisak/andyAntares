@@ -148,8 +148,8 @@ DO WHILE (active == 1)
 ! Zcollrecom = 0.D0
 Zcoll = 0.D0
 ! Zphotrecom = 0.D0
-! Zintupcoll = 0.D0
-! Zintdowncoll = 0.D0
+Zintupcoll = 0.D0
+Zintdowncoll = 0.D0
 ! Zintdownrad = 0.D0
 ! Zintuprad = 0.D0
 ! Zphotionup = 0.D0
