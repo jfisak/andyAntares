@@ -23,6 +23,9 @@ IF(init_line == ntransitions .OR. init_line == ntransitions + 1) THEN
  RETURN
 END IF
 
+IF(ntransitions == 0) THEN
+ STOP 'ntransitions = 0'
+END IF
 
 SELECT CASE(approximation)
 ! the Sobolev approximation: line profiles are delta functions

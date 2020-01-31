@@ -281,7 +281,7 @@ CASE(5)
  CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
  ! CALL SLEEP(120)
 #endif
- CALL do_spectrum(SIZE(package))
+! CALL do_spectrum(SIZE(package))
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! #07 ionization fractions
 !

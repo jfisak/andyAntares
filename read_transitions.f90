@@ -231,12 +231,13 @@ CASE(2)
    END IF
    IF((found_low_conf .EQV. .FALSE.) .OR. (found_up_conf .EQV. .FALSE.)) THEN
     ! this configuration will not be taken into account and we will read the next line
-    ! write(*,*) 'element: ', element, ' ion = ', ion_index, ' line from ', low_conf, ' to ', up_conf, &
-    !   '  was not included...'
+    write(*,*) 'element: ', element, ' ion = ', ion_index, ' line from ', low_conf, ' to ', up_conf, &
+      '  was not included...'
     n_not_included = n_not_included + 1
     CYCLE
    ELSE
     ntransitions = ntransitions + 1
+    ! write(*,*) 'reading_transitions: ntransitions = ', ntransitions
     linelist(ntransitions)%lower = act_lower
     linelist(ntransitions)%upper = act_upper
    END IF

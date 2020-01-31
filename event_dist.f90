@@ -159,6 +159,11 @@ DO WHILE (do_loop)
       END IF
       summ = summ + actirrates%Lline(I)
      END DO
+     IF(package(pack_index)%last_line == no_line) THEN
+      write(*,*) 'n_next_lines = ', n_next_lines, ' Lline = ', actirrates%Lline(:)
+      write(*,*) 'tot_lop = ', tot_lop
+      STOP 'event_dist: no line was chosen'
+     END IF
     ELSE ! we have only one line
      package(pack_index)%l_ele = linelist(nextLine)%indexe
      package(pack_index)%l_ion = linelist(nextLine)%indexi
