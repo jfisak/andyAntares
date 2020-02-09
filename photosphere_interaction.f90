@@ -7,11 +7,10 @@ USE types
 IMPLICIT NONE
 
 INTEGER                                         :: pack_index, n_pack
-DOUBLE PRECISION, DIMENSION(3)                  :: n_vec, pack_pos, directionn, direction
+DOUBLE PRECISION, DIMENSION(3)                  :: directionn, direction
 DOUBLE PRECISION                                :: D, L_star
 DOUBLE PRECISION                                :: sint, cost, sinp, cosp
 INTEGER                                         :: ind_cell_numb
-INTEGER                                         :: I
 DOUBLE PRECISION, DIMENSION(3)                  :: corner, width, pos
 DOUBLE PRECISION                                :: freq
 n_pack = SIZE(package) - 1

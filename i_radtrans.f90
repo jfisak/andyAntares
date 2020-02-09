@@ -31,17 +31,11 @@ DOUBLE PRECISION                        :: Zintdown, Zintup, Zrad
 TYPE(irates)      :: actirates
 INTEGER                                 :: dummypackage, pack_index
 DOUBLE PRECISION                        :: constanta
-DOUBLE PRECISION                        :: costheta
-DOUBLE PRECISION                        :: dV_pos, V_pos, R_pos
 DOUBLE PRECISION                        :: ROverV, roverw
-DOUBLE PRECISION, DIMENSION(3)          :: V_pos_vec
 DOUBLE PRECISION                        :: fr_line
-DOUBLE PRECISION                        :: cell_dist
 DOUBLE PRECISION                        :: corrFactor
-INTEGER                                 :: next_cell
 ! stimulated emission as negative absorption
 LOGICAL                                 :: stmasnab=.false.
-DOUBLE PRECISION, DIMENSION(3)          :: vel_vec
 
 constanta = (pi * e_charge**2)/( me_g * light_speed)
 

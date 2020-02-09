@@ -10,7 +10,6 @@ IMPLICIT NONE
 INTEGER                           :: pack_index
 DOUBLE PRECISION                  :: dist, D, vec_length
 INTEGER                           :: dummypackage
-INTEGER                           :: n_pack_d
 
 !write(*,*)'move_package: Thread rank: ', my_rank
 dummypackage = SIZE(package)

@@ -9,28 +9,12 @@ SUBROUTINE main
   IMPLICIT NONE
 
   INTEGER                           :: n_pack, iteration!, nx_cell, ny_cell, nz_cell
-  INTEGER                           :: I, J, K, L, iseed, idx
+  INTEGER                           :: iseed, idx
   INTEGER, DIMENSION (9)            :: TT
   DOUBLE PRECISION, ALLOCATABLE     :: current_temp(:)
-  CHARACTER(1)                      :: junk
-  CHARACTER                         :: n_dummy_packs_char
-  CHARACTER(2)                      :: chnum_threads
-  INTEGER                           :: num_threads, stat
-  CHARACTER(50)                     :: cmdcommand
 ! parallelized part
 ! definition of MPI variables
-! #if mpi==1
- INTEGER                            :: numtasks
- INTEGER                            :: rc
-! #endif
-!  DOUBLE PRECISION, PARAMETER       :: upper_opa=2.D0/5.D0, lower_opa=0.01D0         ! Opacity for photons sent from the photosphere R_star = 10
-!  DOUBLE PRECISION, PARAMETER       :: upper_opa=2.D0/9.D0, lower_opa=0.1D0/18.D0    ! Opacity for photons sent from the photosphere R_star = 2
-!  DOUBLE PRECISION, PARAMETER       :: upper_opa=0.2, lower_opa=1.d0/200.d0          ! Opacity for photons sent from point sours
-!  DOUBLE PRECISION                  :: xmax, ymax, zmax, deltax, deltay, deltaz 
-!  DOUBLE PRECISION                  :: delta_cellx, delta_celly, delta_cellz 
-!  DOUBLE PRECISION                  :: delta_opa, opa_cell
-INTEGER                              :: nphit, loc_n_pack
-INTEGER, PARAMETER                   :: max_packs = 1e7
+INTEGER                              :: nphit
 
 ! Link data to identify program version
 CHARACTER LINK_DATE*30, LINK_USER*10, LINK_HOST*60

@@ -15,7 +15,6 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
  DOUBLE PRECISION, PARAMETER       :: largeNumber = 1.D20
  ! number of lines with the same frequencies
  INTEGER                           :: n_next_lines
- DOUBLE PRECISION, DIMENSION(3)    :: vel_vec
  INTEGER                           :: dummypackage
  INTEGER                           :: n_pack_d
  ! INTEGER                           :: OMP_GET_THREAD_NUM
@@ -90,7 +89,7 @@ DO WHILE (do_loop)
   freq_line = linelist(nextLine)%freq
   CALL resonance_distance(pack_index, nextLine, freq_line, cell_dist, l_dist, inCell, .TRUE.)
   IF(inCell) THEN
-   CALL r_kappa_line(pack_index, current_mgi, nextLine, n_next_lines, l_dist, actirrates, tau_line)
+   CALL r_kappa_line(pack_index, current_mgi, nextLine, n_next_lines, actirrates, tau_line)
   END IF
  END IF
 

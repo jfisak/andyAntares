@@ -10,11 +10,8 @@ SUBROUTINE do_rpackage(pack_index)
   INTEGER                           :: pack_index, next_cell, event
   INTEGER                           :: get_package_model_index
   DOUBLE PRECISION                  :: cell_dist, e_dist, &
-                                       rho_cell, opa_cell
-  ! DOUBLE PRECISION, PARAMETER       :: rho = 1.D0
+                                       rho_cell
 
-  ! DOUBLE PRECISION, PARAMETER       :: opa_cell=1.D0/20.D0, rho=1.D0
-  ! DOUBLE PRECISION, PARAMETER       :: opa_cell=5.D-3, rho=5.D-2
 INTEGER                                         :: n_thomson
 !INTEGER                                         :: n_tot_cont
 TYPE(rrates)                                    :: actirrates
@@ -65,9 +62,6 @@ actirrates = rrates()
     ! write(99,*) pack_index, freq_line, package(pack_index)%freq_cmf, package(pack_index)%freq_rf
     CALL do_rpackage_event(pack_index, event, actirrates)
    END IF
-   IF (debug .EQ. 1) THEN 
-      write(99,*) 'do event', opa_cell * rho_cell * cell_dist
-   END IF
   ELSE     
      ! Move package from the curent position for the cell_dist
      ! write(*,*) 'before moving package ##', pack_index
@@ -80,9 +74,6 @@ actirrates = rrates()
      ! write(*,*) 'do_rpackage: e_dist = ', cell_dist
      IF(cell_dist > 0.D0) THEN
       CALL change_cell(pack_index, next_cell)
-     END IF
-     IF (debug .EQ. 1) THEN 
-        write(99,*) 'propagate ', opa_cell * rho_cell * cell_dist
      END IF
   END IF
   

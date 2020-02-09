@@ -12,7 +12,7 @@ INTEGER                                 :: cur_mgi, indexe, indexi, indexl
 INTEGER                                 :: n_ions, n_levels
 DOUBLE PRECISION                        :: tot_pop_ion, sum_pop, act_pop
 DOUBLE PRECISION                        :: ratio
-DOUBLE PRECISION                        :: tot_pop_ele, tot_pop_elea
+DOUBLE PRECISION                        :: tot_pop_ele
 DOUBLE PRECISION                        :: frac, tot_frac
 DOUBLE PRECISION                        :: el_nd, temp
 CHARACTER(LEN=60)                       :: filename

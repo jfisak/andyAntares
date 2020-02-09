@@ -8,7 +8,7 @@ SUBROUTINE read_transitions(el_index, lowerion, upperion, transition_type, filen
  ! input data
  INTEGER                        :: element, lowerion, upperion, transition_type, el_index
  INTEGER                        :: n_ions
- CHARACTER (LEN=20)             :: filename, junk
+ CHARACTER (LEN=20)             :: filename
  INTEGER                        :: jint
  DOUBLE PRECISION               :: jdble
  ! used constants
@@ -23,7 +23,6 @@ SUBROUTINE read_transitions(el_index, lowerion, upperion, transition_type, filen
  INTEGER                        :: ion_index
  LOGICAL                        :: found_low_conf, found_up_conf
  ! reading from the file
- CHARACTER (LEN=200)            :: line
  INTEGER                        :: at_number
  INTEGER                        :: reading_transitions, n_levels, tot_ntrans
  INTEGER                        :: current_element, current_ion

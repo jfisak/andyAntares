@@ -25,8 +25,6 @@ INTEGER                         :: actIndex
 INTEGER                         :: n_ions, n_levels
 ! write down the processes
 LOGICAL                         :: procout = .FALSE.
-! double precission
-DOUBLE PRECISION                :: D
 
 ! write(*,*) 'do_kpackage: pack_index = ', pack_index
 package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1

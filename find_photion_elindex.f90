@@ -9,9 +9,9 @@ IMPLICIT NONE
 INTEGER                                 :: indexe, indexi
 INTEGER                                 :: index_level
 INTEGER                                 :: phot_index
-INTEGER                                 :: nlevs, act_lev
+INTEGER                                 :: nlevs
 DOUBLE PRECISION, PARAMETER             :: rydberg = 13.5979996 !(eV)
-INTEGER                                 :: cur_ion, indexl
+INTEGER                                 :: indexl
 INTEGER                                 :: cur_indexl
 
 nlevs = SIZE(elements(indexe)%ions(indexi)%levels)

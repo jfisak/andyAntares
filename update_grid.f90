@@ -8,7 +8,7 @@ SUBROUTINE update_grid(iteration)
   IMPLICIT NONE    
 
 INTEGER             :: gridcell, indexe, indexi, numb_ions, iteration
-DOUBLE PRECISION    :: el_nd, temp, frac, U, N_jk, gl_pop
+DOUBLE PRECISION    :: el_nd, temp
 LOGICAL                 :: wasFound
 
   

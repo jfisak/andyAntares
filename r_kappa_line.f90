@@ -1,4 +1,4 @@
-SUBROUTINE r_kappa_line(pack_index, current_mgi, nextLine, nnextlines, ldist, actirrates, tau_line)
+SUBROUTINE r_kappa_line(pack_index, current_mgi, nextLine, nnextlines, actirrates, tau_line)
 
 USE types
 USE rates_r
@@ -7,15 +7,11 @@ IMPLICIT NONE
 TYPE(rrates)                    :: actirrates
 INTEGER                         :: nextLine, nnextlines, pack_index
 INTEGER                         :: current_mgi
-DOUBLE PRECISION                :: ldist
 DOUBLE PRECISION                :: Blu, exci_energy_l, exci_energy_u
 DOUBLE PRECISION                :: stat_weight_l, stat_weight_u
 INTEGER                         :: I
 INTEGER                         :: indexe, indexi, indexline
-DOUBLE PRECISION                :: R_res, V_res
-DOUBLE PRECISION, DIMENSION(3)  :: V_res_vec
-DOUBLE PRECISION                :: tau_line, dV_res
-DOUBLE PRECISION                :: costheta
+DOUBLE PRECISION                :: tau_line
 INTEGER                         :: lower_level, upper_level
 DOUBLE PRECISION                :: ROverV
 DOUBLE PRECISION                :: low_pop, upp_pop
