@@ -89,19 +89,12 @@ SUBROUTINE init_photsphere(n_pack)
     ! e_cmf, freq_cmf, freq_rf, cell_numb, pack_numb, active
    END IF
   END DO
-! CLOSE(16)
 
-  ! PRINT*, ind_x, ind_y, ind_z, ind_cell_numb
-
-  ! I=10
-  ! package(I)%pos = 95.
-  ! package(I)%dir = -1.
-  ! package(I)%e_rf = 0.
-!     OPEN(19,file="photonFdistr.dat")
-!      do I=1,n_pack
-!       write(19,*) package(I)%freq_rf
-!      end do
-!     CLOSE(19)
+! OPEN(19,file="photonFdistr.dat")
+!  do I=1,n_pack
+!   write(19,*) -99, package(I)%freq_rf, package(I)%e_rf
+!  end do
+! CLOSE(19)
         
 
 END SUBROUTINE init_photsphere
