@@ -33,6 +33,7 @@ DOUBLE PRECISION                        :: act_pop
 DOUBLE PRECISION                        :: eenergy
 CHARACTER(LEN=60)                       :: fileTempStruct, fileOccNum, fileFreqs
 CHARACTER(LEN=60)                       :: fileHydrogenFrac, fileHeliumFrac
+CHARACTER(LEN=60)                       :: fileGrid
 ! ionization fraction files
 DOUBLE PRECISION                        :: frac, N_jk, totElPop
 ! DOUBLE PRECISION                        :: frac1, N_jk1, totElPop1
@@ -354,7 +355,7 @@ CASE(6)
    write(40,*) I, log10(ntot), log10(nhi/ntot)
   END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! #08 electron density and mass density
+! #07 electron density and mass density
 !
 ! 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -373,6 +374,19 @@ CASE(7)
    write(40,*) I, model_grid(I)%rho
   END DO
  CLOSE(40)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! #08 propagation grid information
+!
+! 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CASE(8)
+ fileGrid=trim(outputfolder)//'/dyn_cells.dat'
+ OPEN(16,FILE=fileGrid)
+ write(*,*) 'setup_grid2: SAVING CELLS INTO A FILE dyn_cells.dat'
+  DO I = 1, SIZE(dyn_cell)
+   write(16,*) I, dyn_cell(I)%corner, dyn_cell(I)%width, dyn_cell(I)%up_cell, dyn_cell(I)%model_index
+  END DO
+ CLOSE(16)
 CASE DEFAULT
  write(99,*) 'save_output: this case is not known'
 END SELECT

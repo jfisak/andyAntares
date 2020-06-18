@@ -80,7 +80,6 @@ IF(rand >= 0.D0 .AND. rand <= Z0) THEN
    package(pack_index)%l_ele = linelist(I)%indexe
    package(pack_index)%l_ion = linelist(I)%indexi
    package(pack_index)%l_lev = linelist(I)%upper
-   !$OMP ATOMIC
    count_cool_ex = count_cool_ex + 1
    IF(procout) write(*,*) 'do_kpackage: package = ', pack_index, ' collisional excitation process...'
    EXIT
@@ -148,7 +147,6 @@ ELSE IF(rand > Z2 .AND. rand <= Z3) THEN
   !  summ + actikrates%Lcool_fbE(4, J)
   IF(rand > summ .AND. rand <= summ + actikrates%Lcool_fbE(4, J)) THEN
    act_proc = J
-   !$OMP ATOMIC
    count_cool_fb = count_cool_fb + 1
    ! write(*,*) 'do_kpackage: act_proc = ', act_proc
    EXIT

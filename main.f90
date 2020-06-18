@@ -91,7 +91,7 @@ ELSE
 END IF
 write(99,*) 'model grid is set up'
 write(99,*) 'setup propagation grid'
-write(99,*) 'xmax = ', xmax, ' ymax = ', ymax, ' zmax = ', zmax
+write(99,*) 'xmax = ', xmax/R_star, ' ymax = ', ymax/R_star, ' zmax = ', zmax/R_star
  
 ALLOCATE(current_temp(n_modelgrid + add_mg))
 
@@ -148,6 +148,8 @@ END DO ! iteration (now of temperature structure)
  ! temp structure and occupation numbers
  IF(my_rank == 0) CALL save_output(3)
  CALL save_output(5)
+ ! info o gridu
+ CALL save_output(8)
  ! IF(my_rank == 0) CALL save_output(6)
  IF(my_rank == 0) CALL save_output(7)
  ! erase all temporary files with photons
