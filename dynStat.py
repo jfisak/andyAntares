@@ -35,6 +35,17 @@ modelcells = []
 print(lenModel+1)
 propVol = np.zeros(lenModel+1)
 modVol = np.zeros(lenModel+1)
+radius = dataM[:,1]
+print(radius)
+# prepocet jednotlivych polomeru na hranice modelovych bunek
+boundaries = np.zeros(lenModel)
+boundaries[0] = 1.0
+for I in range(lenModel-1):
+ boundaries[I + 1] = (radius[I+1] + radius[I]) / 2.0
+boundaries[lenModel - 1] = radius[lenModel - 1]
+
+print(boundaries)
+
 x=list(range(1,lenProp+2))
 
 # projdeme vsechny propagacni bunky a secteme, jaky objem nalezi jednotlivym modelovym
@@ -42,7 +53,7 @@ x=list(range(1,lenProp+2))
 for I in range(lenProp):
  width = dataP[I,4:7] / Rstar
  modelCell = int(dataP[I, 8])
- if modelCell != 902:
+ if modelCell != lenModel+1:
   modelcells.append(modelCell)
  upCell = dataP[I, 7]
  if upCell == 0:
@@ -52,15 +63,15 @@ for I in range(lenProp):
 
 # vypocet objemu jednotlivych bunek
 for I in range(lenModel-1):
- if I == 0:
-  rPrev = 1.E0
- else:
-  rPrev = dataM[I-1,1]
- rAct = dataM[I,1]
+ rPrev = boundaries[I]
+ rAct = boundaries[I + 1]
  volume = 4.0/3.0 * np.pi * (rAct**3 - rPrev**3)
  modVol[I] = volume
+ print("r=",radius[I], "propvol = ", propVol[I], "modvol = ", volume, " ratio = ",
+ propVol[I]/modVol[I])
  if volume == 0:
   print("zero volume for",I)
+
 
 ratio=propVol/modVol
 # print(ratio)
@@ -68,7 +79,7 @@ ratio=propVol/modVol
 # 
 fig, ax = plt.subplots(figsize=(plotwidth, plotheight))
 # 
-ax.plot(x[:lenModel], ratio[:lenModel])
-# ax.hist(modelcells[:lenProp], bins=100)
+ax.plot(radius[:lenModel], ratio[:lenModel])
+#ax.hist(modelcells[:lenProp], bins=100)
 # 
 plt.show()
