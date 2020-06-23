@@ -225,7 +225,7 @@ CASE(3)
   END DO
  CLOSE(14)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! #05 IONIZATION BALANCE
+! #04 IONIZATION BALANCE
 !
 ! saving ionization balance for hydrogen and helium
 !
@@ -265,7 +265,7 @@ CASE(4)
  !  END DO
  ! CLOSE(15)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! #06 packets informations
+! #05 packets informations
 ! 
 ! saves rf frequency and energy for the spectrum generation
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

@@ -42,6 +42,7 @@ IMPLICIT NONE
 
   TYPE modelgrid 
      INTEGER                         :: assoc_cells
+     DOUBLE PRECISION                :: width
      DOUBLE PRECISION                :: volume
      DOUBLE PRECISION                :: T, J, rho, vel, rwind, e_dens
      DOUBLE PRECISION                :: zwind, velang

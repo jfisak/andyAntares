@@ -21,6 +21,8 @@ CHARACTER(100)                             :: powrfile
 CHARACTER(100)                             :: line
 DOUBLE PRECISION, PARAMETER                :: meanAtMass = 1.33
 INTEGER                                         :: reading_grid
+DOUBLE PRECISION, ALLOCATABLE                   :: boundaries(:)
+DOUBLE PRECISION                                :: rPrev, rAct, width
 
 
 SELECT CASE (inputModel)
@@ -90,17 +92,24 @@ SELECT CASE (inputModel)
   model_grid(n_modelgrid+1)%rwind = 0.D0
   model_grid(n_modelgrid+1)%vel   = 0.D0
   model_grid(n_modelgrid+1)%rho   = 0.D0     
-  ! calculating virtual particles from the selected input model
-  !CALL virtual_particles(1)
 
-
-! Only for testing 
-! DO I=1, Ngrid
-!   r =SQRT( (cell(I)%corner(1) + cell_width/2.D0)**2 + &
-!              (cell(I)%corner(2) + cell_width/2.D0)**2 + &
-!              (cell(I)%corner(3) + cell_width/2.D0)**2)
-!   write(*,*) r, model_grid(cell(I)%model_index)%rwind, R_inf,  model_grid(cell(I)%model_index)%rho
-! END DO
+ ! the model cell widths
+ ! now it is a pont in the center of two neighbouring model cells
+ ! the boundaries for the widths calculation
+ ALLOCATE(boundaries(n_modelgrid + 1))
+ boundaries(1) = R_star
+ DO I = 1, n_modelgrid - 1
+  boundaries(I + 1) = (model_grid(I)%rwind + model_grid(I + 1)%rwind)/2.0
+ END DO
+ boundaries(n_modelgrid + 1) = R_inf
+ DO I = 1, n_modelgrid
+  rPrev = boundaries(I)
+  rAct = boundaries(I + 1)
+  width = rAct - rPrev
+  model_grid(I)%width = width
+  write(*,*) 'read_1D_model: I = ', I, ' width = ', width
+ END DO
+ ! STOP 'read_1D_model: testing calculation of width'
  !______________________________________________________________________________________________
  ! (1) JIKR model
  !______________________________________________________________________________________________

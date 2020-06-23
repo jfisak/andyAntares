@@ -102,6 +102,8 @@
   ! the maximal number of cells is now equal to L
   max_n_dcell = Ngrid
 
+ CALL connection_prop_model_grid()
+
  IF(dyngrid /= 0) THEN
   DO I = 1, Ngrid
    CALL create_dynamical_grid_cells(I, max_n_dcell)

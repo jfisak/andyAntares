@@ -101,6 +101,10 @@ CALL setup_grid2()
 write(99,*) 'propagation grid is set up'
 CALL connection_prop_model_grid()
 
+ IF(my_rank == 0) THEN
+  CALL save_output(8)
+  ! STOP 'testing the propagation grid'
+ END IF
 current_temp = 0.D0
 iteration = 0
 
@@ -146,12 +150,13 @@ END DO ! iteration (now of temperature structure)
  CALL save_output(1)
  CALL save_output(2)
  ! temp structure and occupation numbers
- IF(my_rank == 0) CALL save_output(3)
+ IF(my_rank == 0) THEN
+  CALL save_output(3)
+  CALL save_output(7)
+ END IF
  CALL save_output(5)
  ! info o gridu
- CALL save_output(8)
  ! IF(my_rank == 0) CALL save_output(6)
- IF(my_rank == 0) CALL save_output(7)
  ! erase all temporary files with photons
 
 CLOSE(2)

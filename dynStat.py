@@ -15,6 +15,7 @@ def file_len(fname):
 folder = sys.argv[1]
 propCfile = "./" + folder + "/dyn_cells.dat"
 modCfile = "./" + folder + "/model_grid.dat"
+savefilename = "./" + folder + "/volumes.eps"
 
 outputfolder = sys.argv[1]
 
@@ -82,4 +83,5 @@ fig, ax = plt.subplots(figsize=(plotwidth, plotheight))
 ax.plot(radius[:lenModel], ratio[:lenModel])
 #ax.hist(modelcells[:lenProp], bins=100)
 # 
-plt.show()
+# plt.show()
+fig.savefig(savefilename)
