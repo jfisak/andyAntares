@@ -264,7 +264,7 @@ CASE(2)
   end if
 !  print*, 'create_dynamical_grid_cells: n_dyncell = ', n_dyncell, ' max_n_dcell = ', &
 !         max_n_dcell, ' dimofsubcells = ', dimofsubcells, 'dim(dyn_cell) = ', size(dyn_cell)
-  IF(np >= 8) THEN
+  IF(np >= 8 .OR. no_dcells > 1) THEN
    CALL divide_cell_ijk(n_dyncell, max_n_dcell, dimofsubcells)
    write(*,*) 'create_dynamical_grid_cells: PRE max_n_dcell = ', max_n_dcell
    write(*,*) 'create_dynamical_grid_cells: no_dcells = ', no_dcells
