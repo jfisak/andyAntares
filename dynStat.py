@@ -15,11 +15,13 @@ def file_len(fname):
 folder = sys.argv[1]
 propCfile = "./" + folder + "/dyn_cells.dat"
 modCfile = "./" + folder + "/model_grid.dat"
+rhoFile = "./" + folder + "/rho.dat"
 savefilename = "./" + folder + "/volumes.eps"
 
 outputfolder = sys.argv[1]
 
 dataP = np.genfromtxt(propCfile)
+dataRho = np.genfromtxt(rhoFile)
 
 lenProp = file_len(propCfile)
 lenModel = file_len(modCfile)
@@ -77,11 +79,24 @@ for I in range(lenModel-1):
 ratio=propVol/modVol
 # print(ratio)
 # print(x,propVol)
+xmin=1
+xmax=10
+fntsize=15
 # 
-fig, ax = plt.subplots(figsize=(plotwidth, plotheight))
+fig, ax = plt.subplots(2,figsize=(plotwidth, plotheight))
 # 
-ax.plot(radius[:lenModel], ratio[:lenModel])
+ax[0].plot(radius[:lenModel], ratio[:lenModel])
+ax[0].set_ylabel("$V_{prop}/V_{model}$", fontsize = fntsize)
+ax[0].set_xlim(xmin, xmax)
+ax[0].tick_params(axis='both', which='major', labelsize=fntsize)
+ax[0].yaxis.offsetText.set_fontsize(fntsize)
 #ax.hist(modelcells[:lenProp], bins=100)
+ax[1].plot(dataRho[:,1], dataRho[:,2],'*')
+ax[1].set_xlabel("$R/R_*$", fontsize = fntsize)
+ax[1].set_xlim(xmin, xmax)
+ax[1].set_ylabel("density", fontsize = fntsize)
+ax[1].tick_params(axis='both', which='major', labelsize=fntsize)
+ax[1].yaxis.offsetText.set_fontsize(fntsize)
 # 
-# plt.show()
+plt.show()
 fig.savefig(savefilename)

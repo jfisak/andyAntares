@@ -235,6 +235,7 @@ SELECT CASE (inputModel)
     END DO
    END DO
   R_inf  = model_grid(1)%rwind
+  write(*,*) 'read_1D_model: R_inf = ', R_inf / R_star
   V_inf  = model_grid(1)%vel
   write(99,*) 'read_1D_model: R_star = ', R_star, ' R_inf = ', R_inf
   ! Dummy cell to associate to propagation grid cells which have no
