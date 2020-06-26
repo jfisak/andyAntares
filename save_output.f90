@@ -364,14 +364,14 @@ CASE(7)
  OPEN(40, FILE=fileEldens)
   DO I = 1, n_modelgrid
    IF(model_grid(I)%assoc_cells == 0) CYCLE
-   write(40,'(I3,d12.4)') I, model_grid(I)%e_dens
+   write(40,'(I3,d12.4,d12.4)') I, model_grid(I)%rwind, model_grid(I)%e_dens
   END DO
  CLOSE(40)
  fileRho = trim(outputfolder)//'/rho.dat'
  OPEN(40, FILE=fileRho)
   DO I = 1, n_modelgrid
    IF(model_grid(I)%assoc_cells == 0) CYCLE
-   write(40,*) I, model_grid(I)%rho
+   write(40,*) I, model_grid(I)%rwind/R_star, model_grid(I)%rho
   END DO
  CLOSE(40)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
