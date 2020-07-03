@@ -20,16 +20,15 @@ savefilename = "./" + folder + "/volumes.eps"
 
 outputfolder = sys.argv[1]
 
-dataP = np.genfromtxt(propCfile)
+dataP = np.genfromtxt(propCfile, usecols=(4, 5, 6 , 7, 8))
 dataRho = np.genfromtxt(rhoFile)
 
-lenProp = file_len(propCfile)
-lenModel = file_len(modCfile)
-# odpocet prvnich dvou radku
-lenModel -= 2
+lenProp = len(dataP)
 
-dataMH = np.genfromtxt(modCfile, skip_footer=lenModel)
 dataM = np.genfromtxt(modCfile, skip_header=2)
+lenModel = len(dataM)
+dataMH = np.genfromtxt(modCfile, skip_footer=lenModel)
+
 
 Rstar = dataMH[1]
 # seznam obsazenych modelovych bunek
@@ -54,14 +53,11 @@ x=list(range(1,lenProp+2))
 # projdeme vsechny propagacni bunky a secteme, jaky objem nalezi jednotlivym modelovym
 # bunkam
 for I in range(lenProp):
- width = dataP[I,4:7] / Rstar
- modelCell = int(dataP[I, 8])
- if modelCell != lenModel+1:
-  modelcells.append(modelCell)
- upCell = dataP[I, 7]
+ width = dataP[I,0:3] / Rstar
+ modelCell = int(dataP[I, 4])
+ upCell = dataP[I, 3]
  if upCell == 0:
   curVol = width[0] * width[1] * width[2]
-  # print(curVol, modelCell)
   propVol[modelCell - 1] += curVol
 
 # vypocet objemu jednotlivych bunek
@@ -90,7 +86,6 @@ ax[0].set_ylabel("$V_{prop}/V_{model}$", fontsize = fntsize)
 ax[0].set_xlim(xmin, xmax)
 ax[0].tick_params(axis='both', which='major', labelsize=fntsize)
 ax[0].yaxis.offsetText.set_fontsize(fntsize)
-#ax.hist(modelcells[:lenProp], bins=100)
 ax[1].plot(dataRho[:,1], dataRho[:,2],'*')
 ax[1].set_xlabel("$R/R_*$", fontsize = fntsize)
 ax[1].set_xlim(xmin, xmax)
