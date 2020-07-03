@@ -1,6 +1,7 @@
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
+import os, fnmatch
 
 plotwidth = 55
 plotheight = 40
@@ -13,17 +14,17 @@ def file_len(fname):
 
 
 folder = sys.argv[1]
-propCfile = "./" + folder + "/dyn_cells.dat"
+# propCfile = "./" + folder + "/dyn_cells.dat"
 modCfile = "./" + folder + "/model_grid.dat"
 rhoFile = "./" + folder + "/rho.dat"
 savefilename = "./" + folder + "/volumes.eps"
 
 outputfolder = sys.argv[1]
 
-dataP = np.genfromtxt(propCfile, usecols=(4, 5, 6 , 7, 8))
+# dataP = np.genfromtxt(propCfile, usecols=(4, 5, 6 , 7, 8))
 dataRho = np.genfromtxt(rhoFile)
 
-lenProp = len(dataP)
+#lenProp = len(dataP)
 
 dataM = np.genfromtxt(modCfile, skip_header=2)
 lenModel = len(dataM)
@@ -31,8 +32,6 @@ dataMH = np.genfromtxt(modCfile, skip_footer=lenModel)
 
 
 Rstar = dataMH[1]
-# seznam obsazenych modelovych bunek
-modelcells = []
 
 print(lenModel+1)
 propVol = np.zeros(lenModel+1)
@@ -48,18 +47,26 @@ boundaries[lenModel - 1] = radius[lenModel - 1]
 
 print(boundaries)
 
-x=list(range(1,lenProp+2))
+# x=list(range(1,lenProp+2))
 
+listOfFiles = os.listdir(folder)
+pattern="dc*"
+for entry in listOfFiles:
+ if fnmatch.fnmatch(entry, pattern):
+  inputFile = "./" + folder + "/" + entry
+  print(inputFile)
+  dataP = np.genfromtxt(inputFile, usecols=(4, 5, 6 , 7, 8))
+  lenProp = len(dataP)
 # projdeme vsechny propagacni bunky a secteme, jaky objem nalezi jednotlivym modelovym
 # bunkam
-for I in range(lenProp):
- width = dataP[I,0:3] / Rstar
- modelCell = int(dataP[I, 4])
- upCell = dataP[I, 3]
- if upCell == 0:
-  curVol = width[0] * width[1] * width[2]
-  propVol[modelCell - 1] += curVol
-
+  for I in range(lenProp):
+   width = dataP[I,0:3] / Rstar
+   modelCell = int(dataP[I, 4])
+   upCell = dataP[I, 3]
+   if upCell == 0:
+    curVol = width[0] * width[1] * width[2]
+    propVol[modelCell - 1] += curVol
+#
 # vypocet objemu jednotlivych bunek
 for I in range(lenModel-1):
  rPrev = boundaries[I]

@@ -144,4 +144,6 @@
    DEALLOCATE(pom2)
    N_dyn_grid = max_n_dcell
 
+IF(dyngrid /= 0) DEALLOCATE(virtual_particle)
+
 END SUBROUTINE setup_grid2
