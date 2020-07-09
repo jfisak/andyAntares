@@ -38,7 +38,7 @@ new_cell_width(1) = loc_cell_width(1) / DBLE(loc_nx)
 new_cell_width(2) = loc_cell_width(2) / DBLE(loc_ny)
 new_cell_width(3) = loc_cell_width(3) / DBLE(loc_nz)
 
-write(*,*) 'divide_cell_ijk: max_n_dcell = ', max_n_dcell
+! write(*,*) 'divide_cell_ijk: max_n_dcell = ', max_n_dcell
 
 L = 1
 DO I = 1, loc_nx

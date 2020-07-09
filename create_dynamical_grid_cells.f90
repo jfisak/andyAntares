@@ -228,9 +228,9 @@ CASE(2)
    dimofsubcells(1) = CEILING(cell_width_2(1) / width)
    dimofsubcells(2) = CEILING(cell_width_2(2) / width)
    dimofsubcells(3) = CEILING(cell_width_2(3) / width)
-   write(*,*) 'create_dynamical_grid_cells: current_mgi = ', current_mgi
-   write(*,*) 'create_dynamical_grid_cells: cell_width_2 = ', cell_width_2(:), ' width = ', width
-   write(*,*) 'create_dynamical_grid_cells: dimofsubcells = ', dimofsubcells(:)
+   ! write(*,*) 'create_dynamical_grid_cells: current_mgi = ', current_mgi
+   ! write(*,*) 'create_dynamical_grid_cells: cell_width_2 = ', cell_width_2(:), ' width = ', width
+   ! write(*,*) 'create_dynamical_grid_cells: dimofsubcells = ', dimofsubcells(:)
   ELSE
    dimofsubcells(1) = 1
    dimofsubcells(2) = 1
@@ -266,10 +266,10 @@ CASE(2)
 !         max_n_dcell, ' dimofsubcells = ', dimofsubcells, 'dim(dyn_cell) = ', size(dyn_cell)
   IF(np >= 8 .OR. no_dcells > 1) THEN
    CALL divide_cell_ijk(n_dyncell, max_n_dcell, dimofsubcells)
-   write(*,*) 'create_dynamical_grid_cells: PRE max_n_dcell = ', max_n_dcell
-   write(*,*) 'create_dynamical_grid_cells: no_dcells = ', no_dcells
+   ! write(*,*) 'create_dynamical_grid_cells: PRE max_n_dcell = ', max_n_dcell
+   ! write(*,*) 'create_dynamical_grid_cells: no_dcells = ', no_dcells
    max_n_dcell = max_n_dcell + no_dcells
-   write(*,*) 'create_dynamical_grid_cells: POST max_n_dcell = ', max_n_dcell
+   ! write(*,*) 'create_dynamical_grid_cells: POST max_n_dcell = ', max_n_dcell
   END IF
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

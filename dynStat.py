@@ -2,6 +2,7 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import os, fnmatch
+import math
 
 plotwidth = 55
 plotheight = 40
@@ -50,7 +51,7 @@ print(boundaries)
 # x=list(range(1,lenProp+2))
 
 listOfFiles = os.listdir(folder)
-pattern="dc*"
+pattern="dyn_cells*"
 for entry in listOfFiles:
  if fnmatch.fnmatch(entry, pattern):
   inputFile = "./" + folder + "/" + entry
@@ -80,6 +81,19 @@ for I in range(lenModel-1):
 
 
 ratio=propVol/modVol
+
+odchylky = (ratio-1)**2
+print("odchylky=", odchylky)
+sumaOdchylek = 0.0
+nOdchylek = 0
+for I in range(lenModel - 1):
+ if(odchylky[I] < math.inf):
+  sumaOdchylek += odchylky[I]
+  nOdchylek += 1
+print("sumaOdchylek = ", sumaOdchylek)
+
+stredniKvOdchylka = np.sqrt(sumaOdchylek/ nOdchylek)
+print(stredniKvOdchylka)
 # print(ratio)
 # print(x,propVol)
 xmin=1
