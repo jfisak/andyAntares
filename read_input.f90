@@ -39,6 +39,7 @@ SUBROUTINE read_input(n_pack, iseed)
 ! 016 velApprox
 ! 017 n_pack_save
 ! 018 refr_surface
+! 019 inputmodelFile
   DO
     READ (1, '(A)', END=99) LINE
 
@@ -168,6 +169,15 @@ SUBROUTINE read_input(n_pack, iseed)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I20)', ERR=94) refr_surface
+
+    ! 19 inputmodelFile
+    ELSE IF (ACTPAR .EQ. 'inputmodelFile') THEN
+    CALL SARGC (LINE, NPAR)
+    IF (NPAR .LT. 2) GOTO 90
+    CALL SARGV(LINE,2,ACTPAR)
+    READ (ACTPAR, '(A20)', ERR=94) inputmodelFile
+
+    ! end all ifs
     END IF
   END DO
 
@@ -187,6 +197,7 @@ SUBROUTINE read_input(n_pack, iseed)
   WRITE (99,'(A,I10)') 'inputmodel = ', inputmodel
   WRITE (99,'(A,I10)') 'dyngrid = ', dyngrid
   WRITE (99,'(A,I10)') 'nlte = ', nlte
+  write(*,*) 'read_input: inputmodelFile = ', inputmodelFile
   IF (iseed .LE. 0) THEN 
      WRITE (99,'(A)') 'Random-seed value is random '
   ELSE

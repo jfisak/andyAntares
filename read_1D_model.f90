@@ -24,10 +24,11 @@ INTEGER                                         :: reading_grid
 DOUBLE PRECISION, ALLOCATABLE                   :: boundaries(:)
 DOUBLE PRECISION                                :: rPrev, rAct, width
 
+modelfile=TRIM(inputmodelFile)
 
 SELECT CASE (inputModel)
  CASE(0)
- OPEN (UNIT=11, FILE='model_data.dat')
+ OPEN (UNIT=11, FILE=modelfile)
  READ(11,*) T_eff
  READ(11,*) R_star
  ! READ(11,*) R_inf
@@ -81,7 +82,8 @@ SELECT CASE (inputModel)
   END DO
 
   R_inf  = model_grid(n_modelgrid)%rwind
-  V_inf  = model_grid(n_modelgrid)%vel
+  V_inf  = model_grid(n_modelgrid)%vel * 10.0**5
+  write(*,*) 'read_1D_model: R_inf = ', R_inf/R_star, 'V_inf = ', V_inf
 
   ! setting properties
 
@@ -107,7 +109,7 @@ SELECT CASE (inputModel)
   rAct = boundaries(I + 1)
   width = rAct - rPrev
   model_grid(I)%width = width
-  write(*,*) 'read_1D_model: I = ', I, ' width = ', width
+  ! write(*,*) 'read_1D_model: I = ', I, ' width = ', width
  END DO
  ! STOP 'read_1D_model: testing calculation of width'
  !______________________________________________________________________________________________
@@ -173,7 +175,7 @@ SELECT CASE (inputModel)
    by a temperature factor = ', temp_factor
   R_star = model_grid(1)%rwind
   R_inf  = model_grid(n_modelgrid)%rwind
-  V_inf  = model_grid(n_modelgrid)%vel
+  V_inf  = model_grid(n_modelgrid)%vel * 10.0**5
   ! Dummy cell to associate to propagation grid cells which have no representation on the model grid.
   ! All cells out of model grid set to 0 and associate to n_modelgrid. 
   ! Other cells will obtainde particular values with memory
