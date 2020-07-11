@@ -1,7 +1,7 @@
 #Compiler settings
 #F90 = gfortran
 F90 = mpifort.mpich
-FCFLAGS = -g -cpp -O0 -fbounds-check -Dmpi=1# -pg -fprofile-arcs# -ffpe-trap=zero,overflow,invalid,underflow
+FCFLAGS = -g -cpp -O0 -fbounds-check -Dmpi=1 -fcheck=all -Wall -pg -llapack #-fprofile-arcs# -ffpe-trap=zero,overflow,invalid,underflow
 
 #Variables
 progname = main
@@ -19,9 +19,9 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
           random_unitvector1.o read_1D_model.o doppler_factor.o	\
           vec_length.o velo.o angle_aberration.o freq_from_planck.o	  \
           do_rpackage.o do_ipackage.o event_dist.o get_package_model_index.o  \
-          do_rpackage_event.o update_packages.o do_spectrum.o do_kpackage.o \
+          do_rpackage_event.o update_packages.o do_kpackage.o \
           read_composition.o read_levels.o read_transitions.o      \
-          sorting-new.o setup_model_grid.o update_grid.o                  \
+          sorting-new.o setup_model_grid.o update_grid.o i_ion_recomb.o   \
           saha_boltzmann_factor.o ionization_fraction.o f_edens.o         \
           find_e_nd.o part_fun.o update_estimators.o freq_from_file.o     \
           acc_rej_montecarlo.o virtual_particles.o setup_grid2.o          \
@@ -29,21 +29,28 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
           connection_prop_model_grid.o divide_cell_8.o divide_cell_ijk.o  \
 	  next_cell_down.o next_cell_up.o read_2D_model.o populations.o   \
 	  i_coltrans.o gamma_function.o exp_int_func.o cool_excit.o \
-	  read_photcs.o i_radtrans.o i_radion.o i_colion.o \
+	  read_photcs.o i_radtrans.o i_radion.o i_colion.o find_populations.o \
 	  flux_function.o find_element_index.o next_line.o resonance_distance.o \
 	  r_kappa_cont.o i_freq_recomb.o cool_ff.o warning.o k_freq_ff.o  \
-	  cool_ionization.o cool_fb.o k_freq_fb.o			\
-	  save_output.o gauntff.o counters.o saha_factor.o             \
-	  mpi_distribute_estimators.o
+	  cool_ionization.o cool_fb.o k_freq_fb.o check_pop.o r_kappa_line.o \
+	  save_output.o gauntff.o counters.o saha_factor.o find_photion_elindex.o \
+	  mpi_distribute_estimators.o save_temp_packs.o find_unfinished_run.o \
+	  lte_pops.o photosphere_interaction.o roverw.o
+# end of procedures
 
 #Rules
 all : $(PROJECT)
 
 types.o: types.f90 
+	$(F90) $(FCFLAGS) -o $@ -c $<
 rates_i.o: rates_i.f90
+	$(F90) $(FCFLAGS) -o $@ -c $<
 rates_k.o: rates_k.f90
+	$(F90) $(FCFLAGS) -o $@ -c $<
 rates_r.o: rates_r.f90
+	$(F90) $(FCFLAGS) -o $@ -c $<
 ran2_class.o: ran2_class.f90 
+	$(F90) $(FCFLAGS) -o $@ -c $<
 counters.o: counters.f90
 	$(F90) $(FCFLAGS) -o $@ -c $<
 

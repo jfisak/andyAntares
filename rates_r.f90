@@ -6,6 +6,7 @@ IMPLICIT NONE
 !DOUBLE PRECISION, ALLOCATABLE           :: Lcont(:)
 TYPE rrates
  DOUBLE PRECISION, ALLOCATABLE                   :: Lcont(:,:)
+ DOUBLE PRECISION, ALLOCATABLE                   :: Lline(:)
 
 END TYPE rrates
 

@@ -1,16 +1,15 @@
+! Set up propagation grid cells using dynamic cells
   SUBROUTINE setup_grid2() 
  
-  ! Set up propagation grid cells using dynamic cells
 
   USE types
 
   IMPLICIT NONE    
 
   ! loop variables
-  INTEGER                                :: I, J, K, L, M
+  INTEGER                                :: I, J, K, L
   INTEGER, PARAMETER                     :: Nmax = 1000000000               
   ! variables describing dynamic cells
-  DOUBLE PRECISION, DIMENSION(3)         :: cell_width2
   INTEGER                                :: max_n_dcell, N_dyn_grid
   INTEGER                                :: xp, xm, yp, ym, zp, zm
   TYPE(dyn_grid_cell), ALLOCATABLE       :: pom2(:)
@@ -103,6 +102,8 @@
   ! the maximal number of cells is now equal to L
   max_n_dcell = Ngrid
 
+ CALL connection_prop_model_grid()
+
  IF(dyngrid /= 0) THEN
   DO I = 1, Ngrid
    CALL create_dynamical_grid_cells(I, max_n_dcell)
@@ -142,5 +143,7 @@
    end do
    DEALLOCATE(pom2)
    N_dyn_grid = max_n_dcell
+
+IF(dyngrid /= 0) DEALLOCATE(virtual_particle)
 
 END SUBROUTINE setup_grid2

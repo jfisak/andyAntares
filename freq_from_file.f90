@@ -9,15 +9,17 @@ SUBROUTINE freq_from_file(n_packs,freq)
   IMPLICIT NONE 
 
   INTEGER                       :: NR,n_packet,n_packs
-  INTEGER                       :: I,J, lw_index, lg_index
+  INTEGER                       :: I
 !  LOGICAL                       :: found, linint
   INTEGER, PARAMETER            :: maxrows = 6000000
-  DOUBLE PRECISION              :: seed
   DOUBLE PRECISION, DIMENSION(n_packs) :: freq
 !  DOUBLE PRECISION              :: freq, freq_min, freq_max, flux_max
 !  DOUBLE PRECISION              :: ran_freq, ran_flux, bound_flux
   DOUBLE PRECISION              :: junk
   INTEGER                       :: ios
+! (2) PoWR testing model
+DOUBLE PRECISION                        :: logwv, Iflux
+CHARACTER(100)                  :: fluxfile
 !  DOUBLE PRECISION              :: sinseed, cosseed
 !  ! the linear interpolation parameters
 !  DOUBLE PRECISION              :: a_linint, b_linint
@@ -27,24 +29,22 @@ SUBROUTINE freq_from_file(n_packs,freq)
 ! flux(NUMBER OF ROW, INDEX) INDEX = 1 ... FREQUENCY, INDEX = 2 ... FLUX
 ! at first we will use the given input flux
 SELECT CASE (inputflux)
- ! in this case we read input file from Jiri Kubat's model in the form
- ! row number   frequency       wavelength      flux    log flux
+ !______________________________________________________________________________
+ ! (1) TLUSTY model
+ ! in this case we read input file from the TLUSTY model
+ ! number   frequency
 CASE (1)
  IF(ALLOCATED(incomingflux) .EQV. .FALSE.) THEN
    !print*, 'initialization of reading input flux'
    OPEN(11,status='old',FILE='emflux.dat')
    ! it is necessary to compute number of rows of the file
    NR = 0
-  DO I=1,maxrows
+  DO 
     READ(11,*,IOSTAT=ios) junk, junk
    IF (ios /= 0) EXIT
-   IF (I == maxrows) THEN
-    write(99,*) 'Error: Maximum number of records exceeded...'
-    write(99,*) 'Exiting program now...'
-    STOP
-   END IF
    NR = NR + 1
   END DO
+  write(*,*) 'freq_from_file: nr = ', NR
   REWIND(11)
   ! now we can allocate the field flux (frequency, flux))
   write(*,*) 'allocation of the field incomingflux(', NR, ', 2)'
@@ -59,6 +59,36 @@ CASE (1)
   ! write(99,*) 'incomingflux: ', incomingflux(I,1), ', ', incomingflux(I,2)
   end do
  END IF
+ !______________________________________________________________________________
+ ! (2) PoWR model
+ ! log(wavelength)      Intensity
+ ! log(Angstroms)       erg / cm^2 / s / Hz
+ CASE(2)
+  CALL GET_ENVIRONMENT_VARIABLE("FLUXFILE", fluxfile)
+  IF(TRIM(fluxfile) == '') STOP 'freq_from_file: file was not found'
+   OPEN(11, status='old', FILE=TRIM(fluxFile))
+   IF(.NOT. ALLOCATED(incomingflux)) THEN
+   NR = 0
+   DO
+    READ(11,*,IOSTAT=ios) junk, junk
+    IF (ios /= 0) EXIT
+    NR = NR + 1
+   END DO
+   ALLOCATE(incomingflux(NR, 2))
+   REWIND(11)
+   PRINT*, 'reading the flux from input file...'
+   write(*,*) 'freq_from_file: NR = ', NR
+   DO I=1,NR
+    ! wl in log(Angstroms), flux in erg / cm^2 / s / Hz
+    READ(11,*) logwv, Iflux
+    ! CHECK ONCE MORE !!!!!!!!!!!!!!!!!
+    incomingflux(NR - I + 1, 1) = 1.D6 * light_speed * exp(- logwv)
+    ! incomingflux(I, 2) = light_speed * Iflux / (incomingflux(I, 1) ** 2.0)
+    incomingflux(I, 2) = Iflux
+    ! write(*,*) 'freq_from_file: I = ', I, ' logwv = ', logwv, ' freq = ', incomingflux(I, 1), ' flux = ', incomingflux(I, 2)
+   END DO
+   CLOSE(11)
+  END IF
  CASE DEFAULT
   write(99,*) 'the choice of variable inputflux = ', inputflux, 'is not known...'
   STOP 'ENDING PROGRAM NOW...'

@@ -6,23 +6,21 @@ USE types
 
 IMPLICIT NONE 
 
-INTEGER                       :: NR,n_packet,n_packs
+INTEGER                       :: NR, n_packs
 INTEGER                       :: I,J, K, lw_index, lg_index
-LOGICAL                       :: found, linint
+LOGICAL                       :: found
 INTEGER, PARAMETER            :: maxrows = 6000000
-DOUBLE PRECISION              :: seed
 DOUBLE PRECISION, DIMENSION(n_packs) :: freq
 DOUBLE PRECISION              :: freq_min, freq_max, flux_max
 DOUBLE PRECISION              :: ran_freq, ran_flux, bound_flux
-DOUBLE PRECISION              :: junk
 ! INTEGER                       :: ios
 DOUBLE PRECISION              :: sinseed, cosseed
 ! the linear interpolation parameters
 DOUBLE PRECISION              :: a_linint, b_linint
 DOUBLE PRECISION              :: x1, x2, fx1, fx2
 ! division on several intervals
-DOUBLE PRECISION                :: summ, summ2
-DOUBLE PRECISION                :: tot_int_val, tot_int_val2
+DOUBLE PRECISION                :: summ
+DOUBLE PRECISION                :: tot_int_val
 INTEGER                         :: low_bound, upp_bound
 INTEGER                         :: Nints, Npoints
 DOUBLE PRECISION, ALLOCATABLE   :: int_val(:)
@@ -69,7 +67,7 @@ DO I = 1, Nints
  summ = 0.D0
  DO J = low_bound, upp_bound - 1
   summ = summ + 5.D-1 * (incomingflux(J + 1, 2) + incomingflux(J, 2)) * &
-   (incomingflux(J + 1, 1) - incomingflux(J, 1)) 
+   abs(incomingflux(J + 1, 1) - incomingflux(J, 1)) 
  END DO
  int_val(I) = summ
  ! write(*,*) 'acc_rej_montecarlo: low = ', low_bound, ' up = ', upp_bound, ' int_val = ', int_val(I)
@@ -94,8 +92,8 @@ DO I = 1, Nints
  low_bound = 1 + Npoints * (I - 1)
  upp_bound = 1 + Npoints * I
  IF(I == Nints) upp_bound = NR
- loc_npacks = int_val(I) / tot_int_val * DBLE(n_packs)
- !write(*,*) 'acc_rej_montecarlo: loc_npacks = ', loc_npacks
+ loc_npacks = INT(int_val(I) / DBLE(tot_int_val) * n_packs)
+ ! write(*,*) 'acc_rej_montecarlo: loc_npacks = ', loc_npacks
  IF(loc_npacks == 0) CYCLE
  ! we generate now loc_npacks on the given interval
  DO K=n_created_packs + 1, n_created_packs + loc_npacks + 1
@@ -141,7 +139,7 @@ DO I = 1, Nints
    ! now we can find bound flux easily
    bound_flux = a_linint * ran_freq + b_linint
    ! iii did we find the right frequency?
-   ! print*, 'lw_index = ', lw_index, 'ran_freq = ', ran_freq, 'ran_flux', ran_flux, ' bound_flux = ', bound_flux
+   ! write(*,*) 'lw_index = ', lw_index, 'ran_freq = ', ran_freq, 'ran_flux', ran_flux, ' bound_flux = ', bound_flux
    IF (ran_flux < bound_flux) THEN
     freq(K) = ran_freq
     FOUND = .TRUE.
@@ -212,11 +210,11 @@ DO K=n_created_packs + 1, n_packs
   ! if ((MODULO(K,10000) .EQ. 0) .AND. (FOUND .EQV. .TRUE.)) print*, 'Generating the frequency packet ', K, ' ...'
  END DO
 END DO
-OPEN(37, FILE='freq_dist_test.dat')
- DO I = 1, n_packs
-  WRITE(37, *) freq(I)
- END DO
-CLOSE(37)
+! OPEN(37, FILE='freq_dist_test.dat')
+!  DO I = 1, n_packs
+!   WRITE(37, *) freq(I)
+!  END DO
+! CLOSE(37)
 ! STOP 'acc_rej_montecarlo, testing'
  ! after the last photon is calculated we erase the field incomingflux'
 ! IF(n_packet .EQ. n_packs) DEALLOCATE(incomingflux)

@@ -5,28 +5,23 @@ USE types
 IMPLICIT NONE
 
 
-    ! input variables
-    INTEGER                         :: pack_index, cell_numb
-    ! output variable
-    DOUBLE PRECISION                :: dist
-    ! variables for dynamic cells
-    DOUBLE PRECISION                :: t1, t2, t3, t4, t5, t6
-    DOUBLE PRECISION, DIMENSION(3)  :: corner, width
-    DOUBLE PRECISION, DIMENSION(3)  :: dir, pos
-    INTEGER                         :: forbidden
+ ! input variables
+ INTEGER                         :: pack_index, cell_numb
+ ! output variable
+ DOUBLE PRECISION                :: dist
+ ! variables for dynamic cells
+ DOUBLE PRECISION                :: t1, t2, t3, t4, t5, t6
+ DOUBLE PRECISION, DIMENSION(3)  :: corner, width
+ DOUBLE PRECISION, DIMENSION(3)  :: dir, pos
+ INTEGER                         :: forbidden
 
-  cell_numb = package(pack_index)%cell_numb
-  IF(cell_numb > SIZE(dyn_cell)) THEN
-   write(*,*) 'find_dist: wrong cell number cell_numb = ', cell_numb,&
-    ' SIZE(dyn_cell) = ', SIZE(dyn_cell), ' pack_index = ', pack_index
-   CALL abort()
-  END IF
-  corner = dyn_cell(cell_numb)%corner
-  width = dyn_cell(cell_numb)%width
-  dir = package(pack_index)%dir
-  pos = package(pack_index)%pos
-  forbidden = package(pack_index)%next_cross
- ! we will calculate parameters t1,...,t6
+ cell_numb = package(pack_index)%cell_numb
+ corner = dyn_cell(cell_numb)%corner
+ width = dyn_cell(cell_numb)%width
+ dir = package(pack_index)%dir
+ pos = package(pack_index)%pos
+ forbidden = package(pack_index)%next_cross
+ ! we will calculate parameters t1, ..., t6
  IF(dir(1) /= 0) THEN
   t1 = (corner(1) - pos(1))/(dir(1))
   t4 = (corner(1) + width(1) - pos(1))/(dir(1))
@@ -76,6 +71,31 @@ IMPLICIT NONE
    dist = t6
    package(pack_index)%next_cross = posz
   END IF
-   !print*, 'find_dist: t1 = ', t1, ' t2 = ', t2, ' t3 = ', t3, ' t4 = ', t4, ' t5 = ', t5, ' t6 = ', t6
+ ! IF(pos(1) < corner(1) .OR. pos(1) > corner(1) + width(1) .OR. &
+ ! pos(2) < corner(2) .OR. pos(2) > corner(2) + width(2) .OR. &
+ ! pos(3) < corner(3) .OR. pos(3) > corner(3) + width(3) ) THEN
+ !  write(*,*) 'find_dist: pack_index = ', pack_index
+ !  write(*,*) 'find_dist: pos/corner = ', pos(:)/corner(:)!, ' corner = ', corner / R_inf
+ !  write(*,*) 'find_dist: pos/R_inf = ', pos/R_inf, ' corner/R_inf = ', corner/R_inf,&
+ !   ' width/R_inf = ', width/R_inf
+ !  write(*,*) 'find_dist: t1 = ', t1/R_inf, ' t2 = ', t2/R_inf, ' t3 = ', t3/R_inf,&
+ !   ' t4 = ', t4/R_inf, ' t5 = ', t5/R_inf, ' t6 = ', t6/R_inf
+ !  write(*,*) 'find_dist: n = ', dir
+ !  write(*,*) 'find_dist: dist = ', dist/R_inf
+ !  write(*,*) 'find_dist: cell_numb = ', cell_numb, ' neighbors = ', dyn_cell(cell_numb)%neighbor
+ !  STOP 
+ ! END IF
 
+  IF(dist > sqrt(width(1)**2 + width(2)**2 + width(3)**2)) THEN
+   write(*,*) 'find_dist: pack_index = ', pack_index
+   write(*,*) 'pos/corner = ', pos(:)/corner(:)!, ' corner = ', corner / R_inf
+   write(*,*) 'pos/R_inf = ', pos/R_inf, ' corner/R_inf = ', corner/R_inf,&
+    ' width/R_inf = ', width/R_inf
+   write(*,*) 't1 = ', t1/R_inf, ' t2 = ', t2/R_inf, ' t3 = ', t3/R_inf,&
+    ' t4 = ', t4/R_inf, ' t5 = ', t5/R_inf, ' t6 = ', t6/R_inf
+   write(*,*) 'n = ', dir
+   write(*,*) 'dist = ', dist/R_inf
+   write(*,*) 'cell_index = ', package(pack_index)%cell_numb
+   STOP 
+  END IF
 END SUBROUTINE find_dist

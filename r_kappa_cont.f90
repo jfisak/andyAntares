@@ -6,7 +6,7 @@ USE rates_r
 IMPLICIT NONE
 
 ! input variables
-INTEGER                                         :: pack_index, n_cont
+INTEGER                                         :: pack_index
 ! 
 INTEGER                                         :: current_mgi
 DOUBLE PRECISION                                :: freq
@@ -29,7 +29,7 @@ DOUBLE PRECISION                                :: cross_sect
 INTEGER                                         :: n_sigma
 ! ion information
 INTEGER                                         :: n_ions, n_levels
-DOUBLE PRECISION                                :: sigma_rs_he
+! DOUBLE PRECISION                                :: sigma_rs_he
 INTEGER                                         :: get_package_model_index
 INTEGER                                         :: act_continuum
 DOUBLE PRECISION                                :: act_pop
@@ -63,6 +63,8 @@ actirrates%Lcont(2, act_continuum) = 0
 actirrates%Lcont(3, act_continuum) = 0
 actirrates%Lcont(4, act_continuum) = thomson
 kappa = thomson
+! write(*,*) 'r_kappa_cont: *********************************************************************************'
+! write(*,*) 'r_kappa_cont: temp = ', temp
 ! write(*,*) 'r_kappa_cont: thomson = ', thomson
 ! write(*,*) 'r_kappa_cont: electron_density = ', electron_density, ' sigma_e = ', sigma_e
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -97,6 +99,11 @@ DO indexe = 1, n_elements
     actirrates%Lcont(2, act_continuum) = indexi 
     actirrates%Lcont(3, act_continuum) = indexl
     actirrates%Lcont(4, act_continuum) = 0.D0
+    ! write(*,*) 'r_kappa_cont: act_continuum = ', act_continuum, &
+    !  ' actirrates%Lcont(1, act_continuum) = ', actirrates%Lcont(1, act_continuum), &
+    !  ' actirrates%Lcont(2, act_continuum) = ', actirrates%Lcont(2, act_continuum), &
+    !  ' actirrates%Lcont(3, act_continuum) = ', actirrates%Lcont(3, act_continuum), &
+    !  ' actirrates%Lcont(4, act_continuum) = ', actirrates%Lcont(4, act_continuum)
    ELSE
     ! yes
     ! now we can compute cross section from the data via linear interpolation
@@ -107,6 +114,7 @@ DO indexe = 1, n_elements
     ali = (func1 - func2) / (freq1 - freq2)
     bli = (func2 * freq1 - func1 * freq2) / (freq1 - freq2)
     cross_sect = ali * freq + bli
+    ! write(33,*) freq, cross_sect
     CALL populations(indexe, indexi, indexl, current_mgi, act_pop)
     ! write(*,*)  'r_kappa_cont: cross_sect = ', cross_sect, ' act_continuum = ', act_continuum, &
     !  'act_pop = ', act_pop, ' 1-exp() = ', (1-exp(-(h * freq)/(BOLK * temp)))
@@ -116,11 +124,12 @@ DO indexe = 1, n_elements
     actirrates%Lcont(2, act_continuum) = indexi 
     actirrates%Lcont(3, act_continuum) = indexl
     actirrates%Lcont(4, act_continuum) = cross_sect * act_pop * (1-exp(-(h * freq)/(BOLK * temp)))
-    !write(*,*) 'r_kappa_cont: act_continuum = ', act_continuum, &
-    ! ' actirrates%Lcont(1, act_continuum) = ', actirrates%Lcont(1, act_continuum), &
-    ! ' actirrates%Lcont(2, act_continuum) = ', actirrates%Lcont(2, act_continuum), &
-    ! ' actirrates%Lcont(3, act_continuum) = ', actirrates%Lcont(3, act_continuum), &
-    ! ' actirrates%Lcont(4, act_continuum) = ', actirrates%Lcont(4, act_continuum)
+    ! write(*,*) 'r_kappa_cont: act_continuum = ', act_continuum, &
+    !  ' actirrates%Lcont(1, act_continuum) = ', actirrates%Lcont(1, act_continuum), &
+    !  ' actirrates%Lcont(2, act_continuum) = ', actirrates%Lcont(2, act_continuum), &
+    !  ' actirrates%Lcont(3, act_continuum) = ', actirrates%Lcont(3, act_continuum), &
+    !  ' actirrates%Lcont(4, act_continuum) = ', actirrates%Lcont(4, act_continuum)
+    ! write(*,*) 'r_kappa_cont: act_continuum = ', act_continuum, ' Lion = ', actirrates%Lcont(4, act_continuum)
      kappa = kappa + actirrates%Lcont(4, act_continuum)
    END IF ! finding valid data
   END DO ! levels
@@ -141,7 +150,9 @@ DO indexe = 1, n_elements
   act_pop = model_grid(current_mgi)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
   ! calculation of alpha_ff
   CALL gauntff(freq, temp, gff)
-  alphaff = ffconst * DBLE((indexi - 1)**2) * gff /sqrt(temp) / freq ** 3.0 
+  alphaff = ffconst * DBLE((indexi - 1))**2 * gff /sqrt(temp) / freq ** 3.0 
+  ! write(*,*) 'r_kappa_cont: ffconst = ', ffconst, ' i - 1 ^2 = ', DBLE((indexi - 1)**2), &
+  !  ' gff = ', gff, ' sT = ', sqrt(temp), 'freq = ', freq
   kappaff = kappaff + electron_density * act_pop * alphaff * &
    (1.E0 - exp(-(h * freq) / (BOLK * temp)))
   ! write(*,*) 'r_kappa_cont: electron_density = ', electron_density, ' act_pop = ', &
@@ -149,8 +160,9 @@ DO indexe = 1, n_elements
   ! write(*,*) 'r_kappa_cont: indexe = ', indexe, ' indexi = ', indexi, ' kappaff = ', kappaff
  END DO
 END DO
+kappaff = 0.D0
 kappa = kappa + kappaff
-! write(*,*) 'r_kappa_cont: kappaff = ', kappaff, 'thomson = ', thomson
+! write(*,*) 'r_kappa_cont: kappaff = ', kappaff , 'thomson = ', thomson
 ! write(*,*) 'r_kappa_cont: kappa = ', kappa
 actirrates%Lcont(4, act_continuum) = kappaff
 ! STOP 'r_kappa_cont: testing'

@@ -11,20 +11,18 @@ SUBROUTINE read_composition()
 
   IMPLICIT NONE    
 
-  INTEGER                            :: I, J, flag
+  INTEGER                            :: I, J
   INTEGER                            :: element_index, Z, lowerion, upperion
   INTEGER                            :: photn
   INTEGER                            :: levels_type, transition_type
   INTEGER                            :: atom_number
   DOUBLE PRECISION                   :: abundance
-  INTEGER                            :: current_element,current_ion, nions,ios, NR
+  INTEGER                            :: current_ion, nions,ios
   CHARACTER (20)                     :: filename, photfile
   CHARACTER (LEN=200)                    :: line
-  CHARACTER (1)                      :: junk
   DOUBLE PRECISION                   :: mass, tot_abundance
   ! photon cross section data type
   INTEGER                            :: phcs_type
-  INTEGER                            :: K, n_levels, n_ions, n_points
 
 ! initialization the toal number of photoionization cross section
 n_photcrossect = 0
@@ -75,7 +73,6 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
    !write(99,*) 'upperion = ', upperion, 'lowerion = ', lowerion, 'upperion - lowerion + 1', nions
    ! Allocate the memory to the elements(I)%ions(nions)
    ALLOCATE (elements(I)%ions(nions))
-   !if(ALLOCATED(elements(I)%ions)) write(99,*) 'allocated: elements(', I, ')%ions...', nions
    ! Loop over all ions of given chem. element
    DO J = lowerion, upperion
       elements(I)%ions(J)%ion_stage = current_ion
@@ -98,9 +95,12 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
       EXIT
   END IF
   IF ( INDEX(line, '*') /= 0) CYCLE
+  ! write(*,*) 'read_composition: read line = ', line
   READ(line,*) atom_number, lowerion, upperion, levels_type, filename
+  ! write(*,*) 'read_composition: filename = ', filename
   CALL find_element_index(atom_number, element_index)
   ! the most important is to read the file
+  ! write(*,*) 'read_composition: element_index = ', element_index
   CALL read_levels(element_index, lowerion,upperion,levels_type,filename)
  END DO
 ! now reading atomic transitions 
@@ -157,8 +157,10 @@ OPEN (UNIT=7, FILE='compose_adata.dat')
   DO I = 1, ntransitions
    linelist(I)%n_deexc = 0
    linelist(I)%n_exc = 0
+   ! write(*,*) 'read_composition: line = ', I, ' lower = ', linelist(I)%lower, ' upper = ', linelist(I)%upper
 !   write(20,*) elements(linelist(I)%indexe)%atom_number, linelist(I)%indexi, linelist(I)%freq, linelist(I)%f_ul
   END DO
 ! CLOSE(20)
+! STOP 'read_composition: testing'
 
 END SUBROUTINE read_composition

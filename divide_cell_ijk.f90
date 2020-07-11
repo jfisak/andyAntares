@@ -7,23 +7,23 @@ USE types
 IMPLICIT NONE
 
 ! input variables
-        ! number of created dynamical cells
-        INTEGER                         :: max_n_dcell
-        ! original dynamic cell
-        INTEGER                         :: act_n_dyncell
-        ! number of cells in the basic cells (nx, ny, nz)
-        INTEGER, DIMENSION(3)           :: numberofsubcells
-        ! properties of the original dynamic cell
-        DOUBLE PRECISION, DIMENSION(3)  :: loc_corner, loc_cell_width
-        DOUBLE PRECISION, DIMENSION(3)  :: new_cell_width
-        ! loop indexes
-        INTEGER                         :: I, J, K
-        ! local cell index
-        INTEGER                         :: L
-        ! local number of subcells
-        INTEGER                         :: loc_nx, loc_ny, loc_nz
-        ! indexes of the next cells
-        INTEGER                         :: xp, xm, yp, ym, zp, zm
+! number of created dynamical cells
+INTEGER                         :: max_n_dcell
+! original dynamic cell
+INTEGER                         :: act_n_dyncell
+! number of cells in the basic cells (nx, ny, nz)
+INTEGER, DIMENSION(3)           :: numberofsubcells
+! properties of the original dynamic cell
+DOUBLE PRECISION, DIMENSION(3)  :: loc_corner, loc_cell_width
+DOUBLE PRECISION, DIMENSION(3)  :: new_cell_width
+! loop indexes
+INTEGER                         :: I, J, K
+! local cell index
+INTEGER                         :: L
+! local number of subcells
+INTEGER                         :: loc_nx, loc_ny, loc_nz
+! indexes of the next cells
+INTEGER                         :: xp, xm, yp, ym, zp, zm
 
 dyn_cell(act_n_dyncell)%up_cell = max_n_dcell + 1
 loc_corner = dyn_cell(act_n_dyncell)%corner
@@ -38,7 +38,7 @@ new_cell_width(1) = loc_cell_width(1) / DBLE(loc_nx)
 new_cell_width(2) = loc_cell_width(2) / DBLE(loc_ny)
 new_cell_width(3) = loc_cell_width(3) / DBLE(loc_nz)
 
-!print*, 'divide_cell_ijk: ', act_n_dyncell, loc_nx, loc_ny, loc_nz
+! write(*,*) 'divide_cell_ijk: max_n_dcell = ', max_n_dcell
 
 L = 1
 DO I = 1, loc_nx

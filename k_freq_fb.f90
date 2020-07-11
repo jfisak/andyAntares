@@ -18,7 +18,7 @@ DOUBLE PRECISION                                :: init_freq
 ! integral calculations
 DOUBLE PRECISION, ALLOCATABLE                   :: func(:), intval(:)
 DOUBLE PRECISION                                :: summ
-DOUBLE PRECISION                                :: integral1, integral2
+DOUBLE PRECISION                                :: integral1
 INTEGER                                         :: actIndex
 ! propagation grid informations
 INTEGER                                         :: cur_mgi, get_package_model_index
@@ -29,15 +29,14 @@ DOUBLE PRECISION                                :: ran_num
 INTEGER                                         :: I
 ! linear interpolation
 DOUBLE PRECISION                                :: ali, bli, int1, int2, func1, func2
-INTEGER                                         :: actPoint
 TYPE(krates)                                    :: actikrates
 
 ! informations about ion
 ! write(*,*) 'k_freq_fb: act_proc = ', act_proc, ' allocated? Lcfb = ', ALLOCATED(actikrates%Lcool_fbind)
-indexe = actikrates%Lcool_fbE(1, act_proc)
-indexi = actikrates%Lcool_fbE(2, act_proc)
-indexl = actikrates%Lcool_fbE(3, act_proc)
-initPoint = actikrates%Lcool_fbE(5, act_proc)
+indexe = INT(actikrates%Lcool_fbE(1, act_proc))
+indexi = INT(actikrates%Lcool_fbE(2, act_proc))
+indexl = INT(actikrates%Lcool_fbE(3, act_proc))
+initPoint = INT(actikrates%Lcool_fbE(5, act_proc))
 ! write(*,*) 'k_freq_fb: initPoint = ', initPoint
 ! getting the photoionization cross section
 ! nfreq cannot be equal to zero, because a process with a zero rate could
@@ -61,20 +60,20 @@ CALL populations(indexe, indexi, indexl, cur_mgi, act_pop)
 ! random number
 ran_num = ran2(idum)
 ! ! calculation of initial frequency
-! init_freq = (MINVAL(elements(indexe)%ions(indexi + 1)%levels(:)%exci_energy) - &
-!        elements(indexe)%ions(indexi)%levels(indexl)%exci_energy) / h
- ! write(*,*) 'k_freq_fb: el = ', indexe, ' ion = ', indexi, ' lev = ', indexl, &
- !  ' init_freq = ', init_freq, ' energy = ', init_freq * h / e_v
+init_freq = (MINVAL(elements(indexe)%ions(indexi + 1)%levels(:)%exci_energy) - &
+       elements(indexe)%ions(indexi)%levels(indexl)%exci_energy) / h
+! write(*,*) 'k_freq_fb: el = ', indexe, ' ion = ', indexi, ' lev = ', indexl, &
+!  ' init_freq = ', init_freq, ' energy = ', init_freq * h / e_v
 ! STOP 'k_freq_fb: testing'
 ! getting the first point
 !initPoint = 0
-! DO I = 1, nfreq
-!   ! write(*,*) 'cool_ionization: freq = ', init_freq, ' freq(', I, ') = ', freq(I)
-!  IF(init_freq < freq(I)) THEN
-!   initPoint = I
-!   EXIT
-!  END IF
-! END DO
+DO I = 1, nfreq
+  ! write(*,*) 'cool_ionization: freq = ', init_freq, ' freq(', I, ') = ', freq(I)
+ IF(init_freq < freq(I)) THEN
+  initPoint = I
+  EXIT
+ END IF
+END DO
 ! write(*,*) ' k_freq_fb: initPoint = ', initPoint, ' nfreq = ', nfreq
 IF(initPoint == 0) STOP 'k_freq_fb: initPoint = 0'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

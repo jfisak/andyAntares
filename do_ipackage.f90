@@ -13,41 +13,41 @@ INTEGER                         :: last_line, last_level, last_ion
 ! is a macro atom active?
 INTEGER                         :: active
 ! number of line transitions
-INTEGER                         :: nlns, nluns, act_line
+INTEGER                         :: nlns, nluns
 INTEGER                         :: element_index, ion_index
-INTEGER                         :: I, J, K, line
-INTEGER, ALLOCATABLE            :: linetransitions(:), transitions(:), lineuptransitions(:), &
-                                   lineradtransitions(:) ! an array of transitions down from last_line
+INTEGER                         :: I, line
+INTEGER, ALLOCATABLE            :: linetransitions(:), lineuptransitions(:)
 INTEGER                         :: nlevslion
-DOUBLE PRECISION                :: actVal
 DOUBLE PRECISION                :: rand
 ! sum function
-DOUBLE PRECISION                :: Z, Ztotal, Zintdownrad, Zraddeexc, Zintuprad, Zrad, Zcoll, &
-                                   Zintupcoll, Zintdowncoll, Zdown, Zup, Zintdown, Zintup, &
+DOUBLE PRECISION                :: Ztotal, Zintdownrad, Zraddeexc, Zintuprad, Zcoll, &
+                                   Zintupcoll, Zintdowncoll, Zintdown, Zintup, &
                                    Zphotrecom, Zintrecombination, Zcollrecom
 ! B-F internal processes
 DOUBLE PRECISION                :: Zphotionup, Zphotiondown, Zcollionup, Zcolliondown
 DOUBLE PRECISION                :: Zionization, Zrecombination
 ! partition function for the given process
 DOUBLE PRECISION                :: Z0, Z1, Z2, Z3, Z4, Z5, Z6, Z7
-DOUBLE PRECISION                :: summ, stat_weight_u, stat_weight_l, exci_energy, exci_energy_l, exci_energy_u
+DOUBLE PRECISION                :: summ
 DOUBLE PRECISION                :: ran2
 ! populations
-DOUBLE PRECISION                :: act_pop, low_pop
+DOUBLE PRECISION                :: act_pop
 INTEGER                         :: get_package_model_index, current_mgi
+INTEGER                         :: dummypackage
 ! new frequency
 DOUBLE PRECISION                :: new_freq
-! beta calculation
-DOUBLE PRECISION                :: taulu, betalu, Blu
 ! Doppler factor
 DOUBLE PRECISION                :: D
 TYPE(irates)                    :: actirates
 ! write down the processes
 LOGICAL                         :: procout = .FALSE.
 LOGICAL                         :: sstates = .FALSE.
+! number of processes in MA
+! INTEGER, PARAMETER              :: maxproc = 1000000
+! INTEGER                         :: n_proc
 
-! my_rank = OMP_GET_THREAD_NUM()
 
+dummypackage = SIZE(package)
 last_line = package(pack_index)%last_line
 ! define the needed variables
 ! it is necessary to remember the initial conditions of a macro-atom
@@ -55,6 +55,9 @@ last_line = package(pack_index)%last_line
 element_index = package(pack_index)%l_ele
 last_ion = package(pack_index)%l_ion
 last_level = package(pack_index)%l_lev
+package(pack_index)%l_ele = 0
+package(pack_index)%l_ion = 0
+package(pack_index)%l_lev = 0
 IF(package(pack_index)%last_line /= no_line) linelist(last_line)%n_exc = linelist(last_line)%n_exc + 1
  
 current_mgi = get_package_model_index(pack_index)
@@ -65,50 +68,33 @@ active = 1
 ! this is an initial state of the macro-atom
 actual_state = last_level
 ion_index = last_ion
+package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
 ! we will run this loop until the macro atom is deactivated
 DO WHILE (active == 1)
- !write(*,*)  'do_ipackage: element_index = ', element_index, 'ion_index = ', ion_index, ' level_index = ', actual_state
- ! write(*,*) 'do_ipackage: actual_state = ', actual_state, ' ion_index = ', ion_index
+ ! write(*,*)  'do_ipackage: element_index = ', element_index, 'ion_index = ', ion_index, ' level_index = ', actual_state
+ ! IF(n_proc > maxproc) THEN
+ !  package(pack_index)%active = 0
+ !  !$OMP ATOMIC
+ !  count_des_ipack = count_des_ipack + 1
+ !  write(*,*) 'do_ipackage: destroying i-packet ', pack_index
+ !  EXIT
+ ! END IF
  ! we have to find all possible downward upward transitions
  ! firstly we calculate number of these possible transitions
  ! number of transitions to a lower level
- nlns = 0
- ! number of transitions to a upper level
- nluns = 0
- DO I = 1, ntransitions
-  ! we are interested only in the transitions for the given atom
-  IF(linelist(I)%indexe == element_index .AND. linelist(I)%indexi == ion_index) THEN
-   ! transitions to a lower level
-   IF(linelist(I)%upper == actual_state) THEN
-    nlns = nlns + 1
-   END IF
-   ! transitions to a upper level
-   IF(linelist(I)%lower == actual_state) THEN
-    nluns = nluns + 1
-   END IF
-  END IF
- END DO
- 
- !print*, 'do_ipackage: number of found transitions: ', nlns
+ IF(element_index == 0) THEN
+  write(*,*) 'pack_index = ', pack_index
+ END IF
+ nlns = &
+  SIZE(elements(element_index)%ions(ion_index)%levels(actual_state)%linetransitions)
+ nluns = &
+  SIZE(elements(element_index)%ions(ion_index)%levels(actual_state)%lineuptransitions)
+ ! write(*,*) 'do_ipackage: nlns = ', nlns, ' nluns = ', nluns
  ALLOCATE(linetransitions(nlns), lineuptransitions(nluns))
- ! we will save these possible transitions into an array
- J = 0
- K = 0
- DO I = 1, ntransitions
-  IF(linelist(I)%indexe == element_index .AND. linelist(I)%indexi == ion_index) THEN
-   ! transitions to a lower level
-   IF(linelist(I)%upper == actual_state) THEN
-    J = J + 1
-    linetransitions(J) = I
-   END IF
-   ! transitions to a upper level
-   IF(linelist(I)%lower == actual_state) THEN
-    K = K + 1
-    lineuptransitions(K) = I
-   END IF
-  END IF
- END DO
- 
+ linetransitions = &
+  elements(element_index)%ions(ion_index)%levels(actual_state)%linetransitions
+ lineuptransitions = &
+  elements(element_index)%ions(ion_index)%levels(actual_state)%lineuptransitions
  ! total rates of procedure
  ! 0.) internal downward jump within the current ion
  !ALLOCATE(actirates%Lma_int_dorad(nlns))
@@ -149,23 +135,23 @@ DO WHILE (active == 1)
   ! write(*,*) 'do_ipackage: element_index = ', element_index, ' ion_index = ', ion_index
   IF(sstates) write(36,*) 'element_index = ', element_index, ' ion_index = ', ion_index, ' actual_state = ',&
    actual_state
- CALL populations(element_index, ion_index, actual_state, current_mgi, act_pop)
  ! write(*,*) 'do_ipackage: pop = ', act_pop
- CALL i_radtrans(current_mgi, nlns, linetransitions, nluns, lineuptransitions, act_pop, &
+ CALL i_radtrans(current_mgi, element_index, ion_index, actual_state, &
   Zintdownrad, Zintuprad, Zraddeexc, actirates, pack_index)
- CALL i_coltrans(1, pack_index, actual_state, nlns, linetransitions, nluns, lineuptransitions, &
-  act_pop, Zintdowncoll, Zintupcoll, Zcoll, actirates)
- CALL i_radion(0, element_index, ion_index, actual_state, current_mgi, act_pop, Zphotionup, &
+ CALL i_coltrans(1, pack_index, element_index, ion_index, actual_state, act_pop, &
+  Zintdowncoll, Zintupcoll, Zcoll, actirates)
+ CALL i_radion(element_index, ion_index, actual_state, current_mgi, act_pop, Zphotionup, &
    Zphotiondown, Zphotrecom, actirates)
  CALL i_colion(1, element_index, ion_index, actual_state, pack_index, act_pop, Zcollionup, &
   Zcolliondown,Zcollrecom, actirates)
 ! testing
 ! Zcollrecom = 0.D0
-! Zcoll = 0.D0
+Zcoll = 0.D0
 ! Zphotrecom = 0.D0
-! Zintupcoll = 0.D0
-! Zintdowncoll = 0.D0
+Zintupcoll = 0.D0
+Zintdowncoll = 0.D0
 ! Zintdownrad = 0.D0
+! Zintuprad = 0.D0
 ! Zphotionup = 0.D0
 ! Zcollionup = 0.D0
 ! end testing
@@ -182,6 +168,7 @@ IF(Zcollrecom < 0.D0) STOP 'do_ipackage: Zcollrecom < 0'
    actirates%Lma_int_do(I) = actirates%Lma_int_dorad(I) + actirates%Lma_int_docoll(I)
  END DO
  Zintdown = Zintdownrad + Zintdowncoll
+ ! write(*,*) 'do_ipackage: Zintdowncoll = ', Zintdowncoll
  ! total rates of internal upward jump
  DO I = 1, nluns
   ! internal jump up
@@ -214,10 +201,18 @@ Z6 = Z5 + Zphotrecom
 Z7 = Z6 + Zcollrecom
 ! write(*,*) 'Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zcollrecom, Zintrecombination, Zphotrecom: ', &
 !  Zintdown, Zintup, Zraddeexc, Zcoll, Zionization, Zcollrecom, Zintrecombination, Zphotrecom
+! write(*,*) 'Ztotal = ', Ztotal, ' rand = ', rand
 ! write(*,*) 'do_ipackage: Zrecombination = ', Zrecombination, ' Zphotrecom = ', Zphotrecom, ' Zcollrecom = ', Zcollrecom
 ! write(*,*) 'do_ipackage: Z0 = ', Z0, ' Z1 = ', Z1, ' Z2 = ', Z2, ' Z3 = ', Z3, &
 !  ' Z4 = ', Z4, ' Z5 = ', Z5, ' Z6 =', Z6, ' Z7 = ', Z7
-IF(Ztotal == 0.D0) STOP 'do_ipackage: Ztotal = 0'
+IF(Ztotal == 0.D0) THEN
+ write(*,*) 'Zintuprad = ', Zintuprad, ' Zintdownrad = ', Zintdownrad
+ write(*,*) 'Lma_int_do = ', actirates%Lma_int_do
+ write(*,*) 'Lma_int_up = ', actirates%Lma_int_up
+ write(*,*) 'actual_state = ', actual_state, ' ion_index = ', ion_index, ' element_index = ', element_index
+ write(*,*) 'do_ipackage: Ztotal = 0'
+ CALL abort()
+END IF!STOP 'do_ipackage: Ztotal = 0'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal downward jump
 ! in this case a macro-atom transits into a lower state without an energy emission
@@ -246,16 +241,21 @@ IF(rand >= 0.D0 .AND. rand < Z0) THEN
 ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
 ! next transition will be an radiative deexcitation
  package(pack_index)%typ = type_rpkt
+ package(pack_index)%dir = package(dummypackage)%dir
+ package(pack_index)%next_cross = NONE
  ! IF(package(pack_index)%last_line == no_line) CYCLE
  ! now we will calculate new frequency of the packet
  ! we will choose this frequency from the possible radiative transitions
  summ = 0.D0
  rand = ran2(idum) * Zraddeexc
+ ! write(*,*) 'do_ipackage: lines = ', linetransitions(:)
+ ! write(*,*) 'do_ipackage: radRate = ', actirates%Lma_rad(:)
  IF(procout) write(*,*) 'do_ipackage: radiative deexcitation...'
  ! looking for the given line
  DO line = 1, nlns
   ! print*, 'raddeexc: summ = ', summ, ' rand = ', rand, ' Zrad = ', Zraddeexc
   IF(rand >= summ .AND. rand <= summ + actirates%Lma_rad(line)) THEN
+  ! write(*,*) 'do_ipackage: summ = ', summ, ' rand = ', rand, ' summ + act = ', summ + actirates%Lma_rad(line)
   IF(procout) write(*,*) 'do_ipackage: packet: ', pack_index, ' radiative deexcitation...'
    ! write(*,*) 'do_ipackage: wale = ', 1.D8 * light_speed / linelist(linetransitions(line))%freq
    ! write(*,*) 'do_ipackage: I = ', I
@@ -263,24 +263,21 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
    new_freq = linelist(linetransitions(line))%freq
    ! testing
    ! new_freq = light_speed / (4.D3 * 1.D-8)
-   CALL emit_rpackage(pack_index)
    package(pack_index)%freq_cmf = new_freq
    CALL doppler_factor(pack_index, D)
    IF(sstates) write(36, *) 'RDEEX linewl = ', 1.D8 * light_speed / linelist(linetransitions(line))%freq
    ! D = 1.D0
    package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
    package(pack_index)%e_rf = package(pack_index)%e_cmf / D
-   !$OMP ATOMIC
+   write(37,*) 1.D8 * light_speed / package(pack_index)%freq_rf
+   ! save the emitted frequency
    linelist(linetransitions(line))%n_deexc = linelist(linetransitions(line))%n_deexc + 1
-   !$OMP ATOMIC
    count_i_rad_deex = count_i_rad_deex + 1
    IF(last_line /= no_line) THEN
     IF(linetransitions(line) == last_line) THEN
      ! resonant scattering occures
-     !$OMP ATOMIC
      count_i_rad_dxrs = count_i_rad_dxrs + 1
     ELSE
-     !$OMP ATOMIC
      count_i_rad_dxfl = count_i_rad_dxfl + 1
     END IF
    END IF
@@ -366,15 +363,14 @@ ELSE IF(rand >= Z5 .AND. rand <= Z6) THEN
   IF( rand >= summ .AND. rand < summ + actirates%Lma_recrad(I)) THEN
    IF(procout) write(*,*) 'do_ipackage: pack_index = ', pack_index, 'radiative recombination'
    package(pack_index)%last_line = no_line
-   CALL emit_rpackage(pack_index)
-   CALL i_freq_recomb(element_index, ion_index, I, pack_index, act_pop, new_freq)
+   CALL i_freq_recomb(element_index, ion_index, I, pack_index, new_freq)
    package(pack_index)%freq_cmf = new_freq
+   CALL emit_rpackage(pack_index)
    ! write(*,*) 'do_ipackage: new_freq = ', new_freq
-   CALL doppler_factor(pack_index, D)
+   ! CALL doppler_factor(pack_index, D)
    ! write(3, *) new_freq
-   package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
-   package(pack_index)%e_rf = package(pack_index)%e_cmf / D
-   !$OMP ATOMIC
+   ! package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
+   ! package(pack_index)%e_rf = package(pack_index)%e_cmf / D
    count_i_rad_reco = count_i_rad_reco + 1
    EXIT
   END IF
@@ -394,10 +390,11 @@ ELSE
  STOP
 END IF
 
-DEALLOCATE(linetransitions, lineuptransitions, &
-                actirates%Lma_int_dorad, actirates%Lma_int_uprad, actirates%Lma_int_docoll, actirates%Lma_int_upcoll, &
+DEALLOCATE(actirates%Lma_int_dorad, actirates%Lma_int_uprad, actirates%Lma_int_docoll, actirates%Lma_int_upcoll, &
                 actirates%Lma_int_up, actirates%Lma_int_do)
 IF(nlevslion /= 0) DEALLOCATE(actirates%Lma_recrad, actirates%Lma_int_recrad, actirates%Lma_reccol, actirates%Lma_int_reccol)
+DEALLOCATE(linetransitions, lineuptransitions)
+! n_proc = n_proc + 1
 END DO
 
 ! deallocate rates
@@ -415,5 +412,6 @@ IF(ALLOCATED(actirates%Lma_int_recrad)) DEALLOCATE(actirates%Lma_int_recrad)
 IF(ALLOCATED(actirates%Lma_int_reccol)) DEALLOCATE(actirates%Lma_int_reccol)
 IF(ALLOCATED(actirates%Lma_int_dorad)) DEALLOCATE(actirates%Lma_int_reccol)
 
+! write(*,*) 'do_ipackage: e_rf = ', package(pack_index)%e_rf
 
 END SUBROUTINE do_ipackage

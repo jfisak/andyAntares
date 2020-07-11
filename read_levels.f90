@@ -8,32 +8,36 @@ SUBROUTINE read_levels(el_index, lowerion, upperion, levels_type, filename)
 
  ! input parameters
  INTEGER                        :: element, lowerion, upperion, levels_type, el_index
+ INTEGER                        :: levelindex
  CHARACTER (LEN=20)             :: filename
  ! loop variables
- INTEGER                        :: I, J, K
+ INTEGER                        :: I, J
  INTEGER                        :: act_lev
  ! reading from file variables
- INTEGER                        :: ios, reading_levels
- INTEGER                        :: current_element, current_ion, ions
- INTEGER                        :: n_levels, kindex, l_numb, l_index
+ INTEGER                        :: reading_levels
+ INTEGER                        :: current_ion, ions
+ INTEGER                        :: n_levels, l_index
  INTEGER                        :: indexi, act_index
- INTEGER                        :: lowering_index
  ! saves number of levels for the ions (lowerion, upperion)
  INTEGER, ALLOCATABLE           :: nlevels(:)
- INTEGER                        :: act_nlevels, nions, nline
- INTEGER                        :: cur_ion, ionindex
+ INTEGER                        :: act_nlevels, nions
+ INTEGER                        :: cur_ion
  CHARACTER (LEN=200)            :: line
- CHARACTER (LEN=15)              :: iconf
- CHARACTER (LEN=15)              :: junk
- DOUBLE PRECISION               :: i_pot, l_energy, ionoffset, ionstage, s_weight
+ CHARACTER (LEN=16)              :: iconf
+ CHARACTER (LEN=16)              :: junk
+ INTEGER                        :: jint
+ REAL                           :: jreal
+ DOUBLE PRECISION               :: l_energy, ionoffset, s_weight
  DOUBLE PRECISION, PARAMETER    :: rydberg = 13.5979996 !(eV)
  ! calculation of excitation energy (OP)
  ! current excitation energy
- INTEGER                        :: cur_excien 
+ DOUBLE PRECISION               :: cur_excien 
  INTEGER                        :: cur_level
  INTEGER                        :: n_ions
  INTEGER                        :: at_index
  ! basic setting of variables
+! format of Opacity project file
+991 format(I7, I3, I3, I5, I4, Tr1, A16, e12.5, f5.1)
  ionoffset = 0
  ions = 0
  element = elements(el_index)%atom_number
@@ -47,44 +51,7 @@ OPEN(8,status='old',FILE=filename)
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  CASE(0)
-  DO
-   ! reading from the file filename
-   ! we ignore rows starting *
-   ! firstly we read the whole line
-   READ(8,'(A)',IOSTAT=reading_levels) line
-   IF (ios /= 0) THEN
-    write(99,*) 'the subroutine read_atomic data:'
-    STOP 'ERROR: NO VALID ATOMIC DATA...'
-   END IF
-   IF(line(1:1) == '*') CYCLE
-   ! if everything is OK, we will read from the variable line variables
-   READ(line,*) current_element, current_ion, n_levels, i_pot
-   write(99,*) 'current element: ', current_element, 'current_ion: ', current_ion, &
-        'number of levels: ', n_levels, 'i_pot: ', i_pot
-   ! do we read the right file?
-   IF((current_element /= element).OR. (current_ion < lowerion) .OR. (current_ion > upperion)) STOP 'WRONG ATOMIC DATA...'
-   ! computation and allocation of important variables
-   ionstage = elements(current_element)%ions(current_ion)%ion_stage
-   elements(current_element)%ions(current_ion)%ion_potential = i_pot * e_v
-   !elements(current_element)%ions(current_ion)%nlevels = n_levels
-   ALLOCATE(elements(current_element)%ions(current_ion)%levels(n_levels))
-   ! now we will read every single atomic levels
-   DO J = 1, n_levels
-    READ(8,*,IOSTAT=reading_levels) l_numb, l_energy, s_weight, junk
-    ! did we read anything?
-    IF(reading_levels /= 0) STOP 'WRONG NUMBER OF LEVELS IN THE FILE...'
-    write(99,*) 'from the level file: ', l_numb, l_energy, s_weight, junk
-    ! increase the level energy l_e (multiply with e_v) by ionoffset i. e.
-    ! for the ion. potential of the ground level
-    elements(current_element)%ions(current_ion)%levels(J)%exci_energy = l_energy * e_v + ionoffset
-    elements(current_element)%ions(current_ion)%levels(J)%stat_waight = s_weight
-    write(99,*) 'exci_energy = ', elements(current_element)%ions(current_ion)%levels(J)%exci_energy/e_v
-   END DO
-    ! we can increase number of read ions :-)
-    ions = ions + 1
-    ! are every single ions already read?
-    IF (ions == (upperion - lowerion + 1)) EXIT
-  END DO
+  STOP 'reading_levels: this level sources is not possible'
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! data from the Opacity project
@@ -115,22 +82,28 @@ OPEN(8,status='old',FILE=filename)
  ! computing number of energy levels for the given ions
  current_ion = lowerion
  DO
-  READ(8,'(A)', iostat = reading_levels) line
+  ! READ(8,'(A)', iostat = reading_levels) line
+  ! write(*,*) 'read_levels: line = ', line
+  ! BACKSPACE(8)
+  READ(8 ,991, iostat = reading_levels) jint, jint, cur_ion, jint, jint, junk, l_energy, jreal
+  ! write(*,*) 'reading_levels = cur_ion = ', cur_ion, ' l_energy = ', l_energy
   IF(reading_levels /= 0) EXIT
   !write(99,*) line
-  IF(line(1:1) .EQ. '*') CYCLE
-  READ(line,*) junk, junk, cur_ion, junk, junk, junk, junk, junk
+  ! IF(line(1:1) .EQ. '*') CYCLE
+  ! READ(line,991, iostat = reading_levels) junk, junk, cur_ion, junk, junk, junk, l_energy, junk
   ! calculation of index of the given ion of the array nlevels(:)
+  IF(l_energy > 0.D0) CYCLE
   act_index = cur_ion - lowerion + 2
   nlevels(act_index) = nlevels(act_index) + 1
  END DO
- !write(99,*) 'number of levels: ', nlevels
+ ! write(*,*) 'number of levels: ', nlevels(act_index)
  DO I = 1, nions
   ! ionindex = I + lowerion - 1
   indexi = at_index - I - lowerion + 3
   n_levels = nlevels(I)
   ! write(99,*) 'I = ', I, 'lowerion = ', lowerion, &
   !  ' el_index = ', el_index, ' indexi = ', indexi
+  ! write(*,*) 'read_levels: ion = ', I, ' n_levels = ', n_levels
   ALLOCATE(elements(el_index)%ions(indexi)%levels(n_levels))
  END DO
  ! allocation of the given arrays
@@ -164,14 +137,20 @@ OPEN(8,status='old',FILE=filename)
   ! reading the levels for the given ion
   J = 0
   DO  ! loop over atomic levels for the given ion
-   READ(8,'(A)', IOSTAT = reading_levels) line
+   ! READ(8,'(A)', IOSTAT = reading_levels) line
    ! write(99,*) 'reading_levels: ', line
+   READ(8 ,991, iostat = reading_levels) levelindex, jint, jint, jint, l_index, iconf, l_energy, s_weight
    IF(reading_levels /= 0) EXIT
-   IF(line(1:1) .EQ. '*') CYCLE
-   READ(line,*) kindex, junk, junk, junk, l_index, iconf, l_energy, s_weight
+   ! IF(line(1:1) .EQ. '*') CYCLE
+   ! READ(line,*) levelindex, junk, junk, junk, l_index, iconf, l_energy, s_weight
+   IF(l_energy > 0.D0) CYCLE
    J = J + 1
    elements(el_index)%ions(indexi)%levels(J)%exci_energy = l_energy * rydberg * e_v
+   elements(el_index)%ions(indexi)%levels(J)%levelindex = levelindex
    ! write(99,*) 'read_levels: kindex = ', kindex, ' element = ', el_index, 'ion = ', indexi, &
+   !  ' J = ', J, ' exci_energy = ', &
+   ! elements(el_index)%ions(indexi)%levels(J)%exci_energy / e_v, ' l_energy = ', l_energy
+   ! write(*,*) 'read_levels: element = ', el_index, 'ion = ', indexi, &
    !  ' J = ', J, ' exci_energy = ', &
    !  elements(el_index)%ions(indexi)%levels(J)%exci_energy / e_v, ' l_energy = ', l_energy
    elements(el_index)%ions(indexi)%levels(J)%stat_waight = s_weight
@@ -179,15 +158,15 @@ OPEN(8,status='old',FILE=filename)
    ! we have to calculate l_index correctly: it should start at 1 for every ion
    ! this condition is not satisfied in the input files thus we have to substract
    ! the total number of levels of the lower ions from the number kindex
-   IF(J == 1) lowering_index = kindex
-   elements(el_index)%ions(indexi)%levels(J)%l_index = kindex - lowering_index + 1
+   ! elements(el_index)%ions(indexi)%levels(J)%l_index = J
    IF( J == act_nlevels) EXIT
   END DO ! loop over atomic levels for the given ion
   elements(el_index)%ions(indexi)%ion_potential = &
    ABS(MINVAL(elements(el_index)%ions(indexi)%levels(:)%exci_energy))
+  ! write(*,*) 'read_levels: ion pot = ', MINVAL(elements(el_index)%ions(indexi)%levels(:)%exci_energy)/ e_v
   DO act_lev = 1, SIZE(elements(el_index)%ions(indexi)%levels)
    elements(el_index)%ions(indexi)%levels(act_lev)%exci_energy = &
-    elements(el_index)%ions(indexi)%levels(act_lev)%exci_energy + &
+   elements(el_index)%ions(indexi)%levels(act_lev)%exci_energy + &
     elements(el_index)%ions(indexi)%ion_potential
     ! write(99,*) 'read_levels: el = ', el_index, ' ion = ', indexi, &
     !  ' J = ', J, ' act_lev = ', act_lev, ' excie = ', &
@@ -198,15 +177,17 @@ OPEN(8,status='old',FILE=filename)
  ! this sbr recalculates excitation energies WRT of the ionization
  ! energy downloaded from the Opacity project 
  n_ions = SIZE(elements(el_index)%ions)
- ionstage = 0.D0
+ ionoffset = 0.D0
  DO I = 1, n_ions
   n_levels = SIZE(elements(el_index)%ions(I)%levels)
-  IF(I > 1) ionoffset = ionoffset + elements(el_index)%ions(cur_ion)%ion_potential
+  IF(I > 1) ionoffset = ionoffset + elements(el_index)%ions(I - 1)%ion_potential
+  ! write(*,*) 'read_levels: ion pot = ', elements(el_index)%ions(I)%ion_potential/ e_v
   DO cur_level = 1, n_levels
    cur_excien = elements(el_index)%ions(I)%levels(cur_level)%exci_energy
-   elements(el_index)%ions(I)%levels(cur_level)%exci_energy = &
-    ionoffset + elements(el_index)%ions(I)%levels(cur_level)%exci_energy + cur_excien
-   ! write(99,*) 'read_levels: el_index = ', el_index, 'cur_ion = ', I, &
+   ! write(*,*) 'read_levels: cur_excien = ', cur_excien,&
+   !  ' ee = ', elements(el_index)%ions(I)%levels(cur_level)%exci_energy
+   elements(el_index)%ions(I)%levels(cur_level)%exci_energy = ionoffset + cur_excien
+   ! IF(el_index == 3) write(*,*) 'read_levels: el_index = ', el_index, 'cur_ion = ', I, &
    !  ' cur_level = ', cur_level, 'ionoffset = ', ionoffset / e_v, 'eenergy = ', &
    !  elements(el_index)%ions(I)%levels(cur_level)%exci_energy / e_v
   END DO

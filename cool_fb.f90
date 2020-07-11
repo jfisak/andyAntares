@@ -21,7 +21,6 @@ DOUBLE PRECISION                        :: Zfb
 ! ion informations
 INTEGER                                 :: indexe, indexi, indexl
 INTEGER                                 :: n_ions, n_levels
-INTEGER                                 :: n_phcs
 ! physical parameters
 DOUBLE PRECISION                        :: el_dens, temp
 INTEGER                                 :: cur_mgi
@@ -81,6 +80,7 @@ DO indexe = 1, n_elements
     ! write(*,*) 'cool_fb: el = ', indexe, ' ion = ', indexi - 1, ' lev = ', indexl,&
     !  ' init_freq = ', init_freq, ' rate = ', actikrates%Lcool_fbE(act_rate)
     ! looking for initial point
+    actPoint = 0
     DO I = 1, nfreq
      IF(init_freq < crossfreq(I)) THEN
       ! write(*,*) 'cool_ionization: freq = ', init_freq, ' crossfreq(', I, ') = ', crossfreq(I)
@@ -97,14 +97,17 @@ DO indexe = 1, n_elements
      actikrates%Lcool_fbE(4,act_rate) = 0.D0
      ! write(*,*) 'cool_ionization: el = ', indexe, ' ion = ', indexi - 1, ' lev = ', indexl,&
      !  ' n = ', nfreq, ' initp = ', actPoint, ' rate = ', actikrates%Lcool_fbE(4, act_rate)
+     DEALLOCATE(crossfreq, cross)
      CYCLE
     END IF
     ! calculation of the integral alpha E spont after Kromer(), Eq. (4.34)
     ! filling the arrays
     ALLOCATE(func(nfreq - actPoint + 1), func2(nfreq - actPoint + 1))
     DO J = actPoint, nfreq
+     ! write(*,*) 'cool_ionization: J = ', J, ' al(crfr) = ', ALLOCATED(crossfreq)
      x = ( h * crossfreq(J) ) / ( BOLK * temp)
      func(J - actPoint + 1) = cross(J) / (h * init_freq) * h * crossfreq(J)**3.0 / light_speed**2.0 * exp(-x)
+     ! write(*,*) 'cool_ionization: cross = ', cross(J), ' init_freq = ', init_freq
      func2(J - actPoint + 1) = cross(J) / (h * crossfreq(J)) * h * crossfreq(J)**3.0 / light_speed**2.0 * exp(-x)
     END DO ! calculation of the integral
     ! calculation of integral using the trapezoid rule
@@ -112,6 +115,7 @@ DO indexe = 1, n_elements
     DO J = 1, SIZE(func) - 1
      actInt = (func(J) + func(J + 1) ) * (crossfreq(J + 1) - crossfreq(J))
      summ = summ + actInt
+     ! write(*,*) 'cool_fb: summ = ', summ
     END DO
     alphEspont = 4.D0 * pi * summ ! / light_speed**2 / init_freq * summ
     ! write(*,*) 'cool_fb: summ = ', summ, ' alphEspont = ', alphEspont, ' init_freq = ', init_freq
@@ -123,7 +127,7 @@ DO indexe = 1, n_elements
     END DO
     alphaSpont = 4.D0 * pi * summ ! / light_speed**2 * summ
     ! write(*,*) 'cool_ionization: alphaSpont = ', alphaSpont, 'alphEspont = ', alphEspont
-    CALL saha_factor(indexe, indexi, indexl, cur_mgi, el_dens, sfactor)
+    CALL saha_factor(indexe, indexi, indexl, temp,  sfactor)
     ! population of the given ion
     tot_pop = model_grid(cur_mgi)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
     uppper_en = MINVAL(elements(indexe)%ions(indexi)%levels(:)%exci_energy)

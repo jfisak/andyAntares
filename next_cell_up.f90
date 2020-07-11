@@ -23,6 +23,8 @@ INTEGER                                 :: subind_x, subind_y, subind_z
 INTEGER                                         :: sub_nx, sub_ny, sub_nz
 DOUBLE PRECISION                                :: rat1, rat2, rat3
 
+! IF(package(pack_index)%pos > R_inf .OR. package(pack_index)%pos < R_star) THEN
+!  next_cell = 
 
 act_cell = cell_down
 cross_pos = package(pack_index)%pos + package(pack_index)%dir * dist
@@ -32,6 +34,10 @@ IF(act_cell < 0) THEN
  next_cell = act_cell
  RETURN
 END IF
+IF(act_cell > SIZE(dyn_cell)) THEN
+ write(*,*) 'next_cell_up: act_cell = ', act_cell
+ CALL abort()
+END IF
 
 SELECT CASE(dyngrid)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -39,6 +45,7 @@ SELECT CASE(dyngrid)
 ! dynamical grid type 8
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! there is a bug in this type of cells
 CASE(1)
 !print*, 'next_cell_up: act_cell = ', act_cell, ' cross_pos = ', cross_pos, 'cross = ', cross
 DO
@@ -80,7 +87,8 @@ DO
      if(cross == posx) act_cell = upper_cell + 6
      if(cross == negx) act_cell = upper_cell + 7
     ELSE
-     STOP 'next_cell_up: no cell was found'
+     write(*,*) 'next_cell_up: no cell was found'
+     CALL abort()
     END IF
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! cross in y direction
@@ -111,7 +119,9 @@ DO
     if(cross == posy) act_cell = upper_cell + 5
     if(cross == negy) act_cell = upper_cell + 7
    ELSE
-    STOP 'next_cell_up: no cell was found'
+    write(*,*) 'next_cell_up: no cell was found'
+    write(*,*) 'pos = ', norm2(package(pack_index)%pos) / R_inf
+    CALL abort()
    END IF
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! cross in z direction
@@ -142,7 +152,11 @@ DO
     if(cross == posz) act_cell = upper_cell + 3
     if(cross == negz) act_cell = upper_cell + 7
    ELSE
-    STOP 'next_cell_up: no cell was found'
+    write(*,*) 'next_cell_up: no cell was found'
+    write(*,*) 'pos = ', norm2(package(pack_index)%pos) / R_star
+    write(*,*) 'cor_z = ', corner(3)/R_star, ' pos_z = ', package(pack_index)%pos(3)/R_star, ' cor_z+w = ', (corner(3) + &
+    width(3))/R_star
+    CALL abort()
    END IF
   END IF
  END IF  
@@ -157,7 +171,6 @@ CASE(2)
  IF(upper_cell == 0) THEN
   next_cell = act_cell
   RETURN
- ELSE IF(upper_cell > 0) THEN
  END IF
  subcells_width = dyn_cell(dyn_cell(act_cell)%up_cell)%width
  subcells_width = dyn_cell(dyn_cell(act_cell)%up_cell)%width
@@ -207,6 +220,11 @@ CASE(2)
  next_cell = dyn_cell(act_cell)%up_cell + &
         sub_ny * sub_nz * (subind_x - 1) + &
         sub_nz * (subind_y - 1) + subind_z - 1
+! this case occurs also when the SBR resonance distance is
+! looking for another boundary
+IF(next_cell > SIZE(dyn_cell)) THEN
+ next_cell = -99
+END IF
 ! print*, 'next_cell_up: next_cell = ', next_cell
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

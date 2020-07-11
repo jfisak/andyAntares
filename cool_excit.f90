@@ -53,14 +53,14 @@ CASE(1)
   ! gamma function
   CALL gamma_function(x, line, gf)
   
-  actVal = pop * electron_density * c0 * (temperature)**(1.0/2.0) * &
+  actVal = electron_density * c0 * (temperature)**(1.0/2.0) * &
         coll_const * (IH / (h * freq)) * osc_str * &
         ((h * freq) / (BOLK * el_temperature)) * &
         exp(-x) * gf * (exc_upper - exc_lower)
   ! print*, 'cool_excit: pop = ', pop, ' electron_density = ', electron_density, &
   !        ' temperature = ', temperature, ' gf = ', gf, ' osc_str = ', osc_str, &
   !        ' x = ', x
-  actikrates%Lcool_excit(line) = actVal
+  actikrates%Lcool_excit(line) = pop * actVal
   !write(*,*) 'cool_excit: actikrates%Lcool_excit(', line, ') = ', actikrates%Lcool_excit(line)
   Zexc = Zexc + actVal
   !write(*,*) 'cool_excit: Zexc = ', Zexc

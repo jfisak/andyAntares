@@ -10,3 +10,6 @@ graphs/*
 a.out
 *.mod
 *.orig
+*.gcda
+*.out
+*.txt

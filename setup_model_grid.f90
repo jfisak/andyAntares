@@ -6,8 +6,6 @@
 
   IMPLICIT NONE    
 
-  INTEGER   :: I, J, K, L
-
   IF (model_type .EQ. 1) THEN
      ! Read 1D wind model
      CALL read_1D_model()

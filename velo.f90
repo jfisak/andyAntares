@@ -16,11 +16,6 @@ SUBROUTINE velo(pack_index,vel_vec)
  SELECT CASE(velApprox)
  ! homologous expansion
  CASE(0)
-  ! vel_radial = V_inf/R_inf * vec_length(package(pack_index)%pos)
-  IF(vec_length(package(pack_index)%pos) > R_inf) THEN
-   vel_vec = (/ 0.0, 0.0, 0.0/)
-   RETURN
-  END IF
   vel_radial = V_inf/R_inf * vec_length(package(pack_index)%pos)
   vel_vec = package(pack_index)%pos/vec_length(package(pack_index)%pos) * vel_radial
  ! the beta velocity law
@@ -28,9 +23,21 @@ SUBROUTINE velo(pack_index,vel_vec)
   vel_radial = V_inf * (1.D0 - R_star / norm2(package(pack_index)%pos))**beta
   vel_vec = package(pack_index)%pos/vec_length(package(pack_index)%pos) * vel_radial
   ! write(*,*) 'velo: pos = ', package(pack_index)%pos 
+ CASE(2)
+  vel_radial = (V_inf - V_0)/(R_inf - R_star) * &
+   vec_length(package(pack_index)%pos) + &
+   (V_0 * R_inf - V_inf * R_star) / (R_inf - R_star)
+  vel_vec = package(pack_index)%pos/vec_length(package(pack_index)%pos) * vel_radial
  CASE DEFAULT
-  STOP 'velo: this velocity structure is not known'
+  write(*,*) 'velo: velApprox = ', velApprox
+  write(*,*) 'this velocity structure is not known'
+  CALL abort()
  END SELECT
+ ! check if the packet is located inside the model grid
+ IF(vec_length(package(pack_index)%pos) > R_inf .OR. &
+  norm2(package(pack_index)%pos) < R_star) THEN
+  vel_vec = (/ 0.0, 0.0, 0.0/)
+ END IF
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! petr kurfurst's disk model
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -50,7 +57,11 @@ SUBROUTINE velo(pack_index,vel_vec)
   vel_vec = vel_rad + vel_ang
  END IF
  IF(norm2(vel_vec) > light_speed) THEN
-  write(*,*) 'velo: pack_index = ', pack_index, ' position = ', vec_length(package(pack_index)%pos)/R_sun
-  STOP 'velocity is larger than the speed of light'
+  write(*,*) 'velo: V_inf = ', V_inf, ' R_star = ', R_star, ' beta = ', beta,&
+   ' ||package(pack_index)%pos|| = ', norm2(package(pack_index)%pos)
+  write(*,*) 'velo: pack_index = ', pack_index, ' position = ', vec_length(package(pack_index)%pos)/R_inf,&
+  norm2(package(pack_index)%pos)/R_star
+  write(*,*) 'velocity is larger than the speed of light'
+  CALL abort()
  END IF
 END SUBROUTINE velo

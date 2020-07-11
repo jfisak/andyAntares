@@ -14,8 +14,6 @@ DOUBLE PRECISION                :: summ
 DOUBLE PRECISION                :: rand
  DOUBLE PRECISION                       :: ran2
 !package(pack_index)%typ = type_rpkt
-! total number of possible cooling processes
-INTEGER                         :: n_cool_tot
 ! new frequency
 DOUBLE PRECISION                :: new_freq
 ! choosing the given process
@@ -25,19 +23,18 @@ TYPE(krates)                    :: actikrates
 INTEGER                         :: indexe, indexi, indexl
 INTEGER                         :: actIndex
 INTEGER                         :: n_ions, n_levels
-INTEGER                         :: nline
 ! write down the processes
 LOGICAL                         :: procout = .FALSE.
-! double precission
-DOUBLE PRECISION                :: D
 
+! write(*,*) 'do_kpackage: pack_index = ', pack_index
+package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
 
 actikrates = krates()
 
 ! calculating of cooling rates
 ! collision excitation rate
 CALL cool_excit(1, pack_index,  Zexcit, actikrates)
-CALL cool_ff(pack_index, Zff, actikrates)
+CALL cool_ff(pack_index, Zff)
 CALL cool_ionization(1, pack_index, Zion, actikrates)
 CALL cool_fb(pack_index, Zfb, actikrates)
 
@@ -64,8 +61,9 @@ Z2 = Z1 + Zion
 Z3 = Z2 + Zfb
 ! total rate
 Ztot = Zexcit + Zff + Zion + Zfb
-rand = rand * Ztot
+rand = rand   * Ztot
 ! write(*,*) 'do_kpackage: Zexcit = ', Zexcit, ' Zff = ', Zff, ' Zion = ', Zion, ' Zfb = ', Zfb
+! write(*,*) 'do_kpackage: Z0 = ', Z0, ' Z1 = ', Z1, ' Z2 = ', Z2, ' Z3 = ', Z3
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! collisional excitation
@@ -82,7 +80,6 @@ IF(rand >= 0.D0 .AND. rand <= Z0) THEN
    package(pack_index)%l_ele = linelist(I)%indexe
    package(pack_index)%l_ion = linelist(I)%indexi
    package(pack_index)%l_lev = linelist(I)%upper
-   !$OMP ATOMIC
    count_cool_ex = count_cool_ex + 1
    IF(procout) write(*,*) 'do_kpackage: package = ', pack_index, ' collisional excitation process...'
    EXIT
@@ -99,15 +96,14 @@ ELSE IF(rand >= Z0 .AND. rand <= Z1) THEN
  ! package changes to r-packet
  package(pack_index)%typ = type_rpkt
  package(pack_index)%last_line = no_line
- CALL emit_rpackage(pack_index)
  CALL k_freq_ff(pack_index, new_freq)
  package(pack_index)%freq_cmf = new_freq
- CALL doppler_factor(pack_index, D)
- package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
- package(pack_index)%e_rf = package(pack_index)%e_cmf / D
- !$OMP ATOMIC
+ CALL emit_rpackage(pack_index)
+IF(procout) write(*,*) 'do_kpackage: package = ', pack_index, ' free-free process...'
+ ! CALL doppler_factor(pack_index, D)
+ ! package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
+ ! package(pack_index)%e_rf = package(pack_index)%e_cmf / D
  count_cool_ff = count_cool_ff + 1
-! IF(procout) write(*,*) 'do_kpackage: package = ', pack_index, ' free-free process...'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! ionization
@@ -151,7 +147,6 @@ ELSE IF(rand > Z2 .AND. rand <= Z3) THEN
   !  summ + actikrates%Lcool_fbE(4, J)
   IF(rand > summ .AND. rand <= summ + actikrates%Lcool_fbE(4, J)) THEN
    act_proc = J
-   !$OMP ATOMIC
    count_cool_fb = count_cool_fb + 1
    ! write(*,*) 'do_kpackage: act_proc = ', act_proc
    EXIT
@@ -162,13 +157,16 @@ ELSE IF(rand > Z2 .AND. rand <= Z3) THEN
  package(pack_index)%typ = type_rpkt
  package(pack_index)%last_line = no_line
  IF(procout) write(*,*) 'do_kpackage: package = ', pack_index, ' recombination process...'
- CALL emit_rpackage(pack_index)
  CALL k_freq_fb(pack_index, act_proc, new_freq, actikrates)
  package(pack_index)%freq_cmf = new_freq
- CALL doppler_factor(pack_index, D)
- package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
- package(pack_index)%e_rf = package(pack_index)%e_cmf / D
+ CALL emit_rpackage(pack_index)
+ ! CALL doppler_factor(pack_index, D)
+ ! package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
+ ! package(pack_index)%e_rf = package(pack_index)%e_cmf / D
  !STOP 'do_kpackage: testing'
+ELSE
+ write(*,*) 'do_kpackage: no process was chosen'
+ STOP
 END IF
 
 

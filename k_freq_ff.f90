@@ -3,7 +3,7 @@ USE types
 IMPLICIT NONE
 
 ! input
-INTEGER                         :: pack_index, indexe, indexi
+INTEGER                         :: pack_index
 ! output
 DOUBLE PRECISION                :: ran_freq
 ! random number
@@ -19,7 +19,6 @@ ran_z = ran2(idum)
 ! calculate variables of free-free emission coefficient
 cur_mgi = get_package_model_index(pack_index)
 e_dens = model_grid(cur_mgi)%e_dens
-!Nij = model_grid(cur_mgi)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
 temp = model_grid(cur_mgi)%t
 
 ran_freq = - BOLK * temp / h * log(ran_z)

@@ -25,7 +25,7 @@ IMPLICIT NONE
      INTEGER                         :: typ, next_cross, last_line
      INTEGER                         :: n_interactions
      DOUBLE PRECISION, DIMENSION(3)  :: pos, dir 
-     INTEGER                         :: l_ele, l_ion, l_lev
+     INTEGER                         :: l_ele, l_ion, l_lev, n_int = 0
   END TYPE photon
 
 
@@ -42,6 +42,7 @@ IMPLICIT NONE
 
   TYPE modelgrid 
      INTEGER                         :: assoc_cells
+     DOUBLE PRECISION                :: width
      DOUBLE PRECISION                :: volume
      DOUBLE PRECISION                :: T, J, rho, vel, rwind, e_dens
      DOUBLE PRECISION                :: zwind, velang
@@ -63,13 +64,14 @@ IMPLICIT NONE
   END TYPE line_list
 
   TYPE ion_levels 
-     INTEGER                         :: nuptrans, ndowtrans
-     INTEGER                         :: l_index
+     INTEGER(KIND=2), ALLOCATABLE    :: linetransitions(:), lineuptransitions(:)
      DOUBLE PRECISION                :: exci_energy, stat_waight
      CHARACTER(LEN=15)               :: elconf
      LOGICAL                         :: phcrossform
      DOUBLE PRECISION, ALLOCATABLE   :: photcros(:,:), phcrosscoeff(:)
      DOUBLE PRECISION                :: phfreq
+     INTEGER                         :: phfreqi
+     INTEGER                         :: levelindex
   END TYPE ion_levels
 
   TYPE element_ions 
@@ -102,8 +104,9 @@ IMPLICIT NONE
   INTEGER                            :: dyngrid
 ! NLTE
   INTEGER                            :: nlte
+  INTEGER                            :: refr_surface=0
 ! properties of a central star
-  DOUBLE PRECISION                   :: R_star, R_inf, V_inf, M_dot, T_eff
+  DOUBLE PRECISION                   :: R_star, R_inf, V_inf, V_0, M_dot, T_eff
   DOUBLE PRECISION                   :: Z_inf
 ! lower boundary condition
   DOUBLE PRECISION, ALLOCATABLE      :: incomingflux(:,:)
@@ -130,6 +133,7 @@ IMPLICIT NONE
   INTEGER                            :: debug
 ! flux from existing input file
   INTEGER                            :: inputflux, inputmodel
+  CHARACTER(20)                         :: inputmodelFile
 ! number of photoionization cross sections
   INTEGER                               :: n_photcrossect, n_tot_cont, n_ff = 0
 ! number of dummy packages
@@ -162,6 +166,7 @@ IMPLICIT NONE
   INTEGER                            :: my_rank
   INTEGER                            :: ierr
   INTEGER                            :: n_tasks
+  CHARACTER(80)                      :: outputfolder=''
   CHARACTER(80)                      :: outputfile
 !! Atomic data
  ! Total number of chemical elements in the simulation
@@ -172,27 +177,41 @@ IMPLICIT NONE
   INTEGER                            :: model_type
   ! Specify minimal size of dynamic cell
   DOUBLE PRECISION, PARAMETER          :: minwidth = 1E8
+  ! number of packets which will be saved into a file
+  INTEGER                               :: n_pack_save
+  ! temporary file name
+  CHARACTER(30)                     :: temp_filename = 'temp_packet'
+  INTEGER                               :: tot_saved_packets
+  ! for testing case
+  LOGICAL                               :: simpleTrans
 
 
 
 !! Physical constants
-  DOUBLE PRECISION, PARAMETER        :: pi=3.1415926535897932D+00,me_g=9.109534D-28,mp_g=1.6726485D-24, sigma_e=6.6516D-25,&
-                                       h=6.626176D-27,light_speed=2.99792458D+10,e_charge=4.803242D-10,ftran=0.6407D+00, &       
-                                       nio=4.5655967D+14,const=1.D-04,vel_ter=920.0D+05,r_sun=695990.D+05,beta=2.0D+00,  &   
-                                       BOLK=1.380662D-16,m_sun=1.989D+33, sigma =5.6704D-05 !ergcm^(-2)s(-1)K(-4) !D. H. Cohen et al.2012
-  DOUBLE PRECISION, PARAMETER        :: parsec=30.857D17, e_v = 1.60217646D-12, saha_const=2.0706839D-16, b = 1.D0
+  DOUBLE PRECISION, PARAMETER        :: pi=3.1415926535897932D+00,&
+                                        me_g=9.109534D-28,&
+                                        mp_g=1.6726485D-24,&
+                                        sigma_e=6.6516D-25,&
+                                        h=6.626176D-27,&
+                                        light_speed=2.99792458D+10,&
+                                        e_charge=4.803242D-10,&
+                                        ftran=0.6407D+00, &       
+                                        nio=4.5655967D+14,&
+                                        const=1.D-04,&
+                                        vel_ter=920.0D+05,&
+                                        r_sun=695990.D+05,&
+                                        beta=1.3D0,  &   
+                                        BOLK=1.380662D-16,&
+                                        m_sun=1.989D+33,&
+                                        sigma =5.6704D-05 !ergcm^(-2)s(-1)K(-4) !D. H. Cohen et al.2012
+  DOUBLE PRECISION, PARAMETER        :: parsec=30.857D17,&
+                                        e_v = 1.60217646D-12,&
+                                        saha_const=2.0706839D-16,&
+                                        ! saha_const=4.1414D-16,&
+                                        b = 1.D0
   ! TEMPORARY CHANGE OF TEMPERATURE STRUCTURE
   DOUBLE PRECISION, PARAMETER        :: temp_factor = 1.0
 
-
-!  DOUBLE PRECISION, PARAMETER       :: osc_line=0.416D0 ! for Ly_alph line
-!  DOUBLE PRECISION, PARAMETER       :: nu_min= 2.D15, nu_max=3.D15  !nu_min= 1.D14, nu_max=1.D17,
-!  DOUBLE PRECISION, PARAMETER       :: nu_min= 2.14286D15, nu_max=3.D15
-
-! Define the min and max wavelenght range in cm for the synthetic spectrum calculation 1A = 1.D-8 cm
-   DOUBLE PRECISION, PARAMETER        :: nu_min = 3.D14, nu_max = 3.7D15 ! in cm (800 - 10000 A)
-  ! DOUBLE PRECISION, PARAMETER        :: nu_min = 7.D12, nu_max = 3.7D15 ! in cm 
-  !DOUBLE PRECISION, PARAMETER       :: nu_min = 2.4D15, nu_max = 2.5D15 ! in cm (1150 - 1250 A)
 
 
 END MODULE types

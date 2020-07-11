@@ -14,7 +14,7 @@
    ! number of new created cells in cell
    INTEGER                              :: no_dcells
    ! variables for boundaries
-   INTEGER                              :: up_bound, bound, newbound
+   INTEGER                              :: up_bound, newbound
    ! maximal number of particles in one cell
    INTEGER, PARAMETER                   :: maxPart = 2
    DOUBLE PRECISION, DIMENSION(3)       :: corner, cell_width_2
@@ -28,6 +28,8 @@
    DOUBLE PRECISION, DIMENSION(3)       :: loc_corner, loc_cell_width
    INTEGER                              :: loc_np
    INTEGER                              :: loc_downcell, loc_upcell
+   INTEGER                              :: current_mgi
+   DOUBLE PRECISION                     :: width
     ! for 8-dyncells
 
 corner(1) = dyn_cell(n_dyncell)%corner(1)
@@ -219,36 +221,56 @@ END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CASE(2)
- dimofsubcells(1) = FLOOR(np**(1.0/2.0))
- dimofsubcells(2) = FLOOR(np**(1.0/2.0))
- dimofsubcells(3) = FLOOR(np**(1.0/2.0))
- no_dcells = dimofsubcells(1) * dimofsubcells(2) * dimofsubcells(3)
- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- ! do we need to resize dyn_cell?
- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- up_bound = SIZE(dyn_cell(:))
- if(max_n_dcell + no_dcells >= up_bound) then
- ! print*, 'creating a larger array dyn_cell...'
-  ! define a new upper bound
-  newbound =  up_bound + 2 * no_dcells
-  ALLOCATE(pom2(up_bound))
-  do I = 1, up_bound
-   pom2(I) = dyn_cell(I)
-  end do
-  DEALLOCATE(dyn_cell)
-  ALLOCATE(dyn_cell(newbound))
-  do I = 1, up_bound
-   dyn_cell(I) = pom2(I)
-  end do
-  DEALLOCATE(pom2)
-  up_bound = newbound
- end if
-! print*, 'create_dynamical_grid_cells: n_dyncell = ', n_dyncell, ' max_n_dcell = ', &
-!        max_n_dcell, ' dimofsubcells = ', dimofsubcells, 'dim(dyn_cell) = ', size(dyn_cell)
- IF(np >= 8) THEN
-  CALL divide_cell_ijk(n_dyncell, max_n_dcell, dimofsubcells)
-  max_n_dcell = max_n_dcell + no_dcells
+ IF(model_type == 1) THEN
+  current_mgi = dyn_cell(n_dyncell)%model_index
+  IF (current_mgi /= n_modelgrid + 1) THEN
+   width = model_grid(current_mgi)%width
+   dimofsubcells(1) = CEILING(cell_width_2(1) / width)
+   dimofsubcells(2) = CEILING(cell_width_2(2) / width)
+   dimofsubcells(3) = CEILING(cell_width_2(3) / width)
+   ! write(*,*) 'create_dynamical_grid_cells: current_mgi = ', current_mgi
+   ! write(*,*) 'create_dynamical_grid_cells: cell_width_2 = ', cell_width_2(:), ' width = ', width
+   ! write(*,*) 'create_dynamical_grid_cells: dimofsubcells = ', dimofsubcells(:)
+  ELSE
+   dimofsubcells(1) = 1
+   dimofsubcells(2) = 1
+   dimofsubcells(3) = 1
+  END IF
+ ELSE
+  dimofsubcells(1) = FLOOR(np**(4.0/1.0))
+  dimofsubcells(2) = FLOOR(np**(4.0/1.0))
+  dimofsubcells(3) = FLOOR(np**(4.0/1.0))
  END IF
+  no_dcells = dimofsubcells(1) * dimofsubcells(2) * dimofsubcells(3)
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! do we need to resize dyn_cell?
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  up_bound = SIZE(dyn_cell(:))
+  if(max_n_dcell + no_dcells >= up_bound) then
+  ! print*, 'creating a larger array dyn_cell...'
+   ! define a new upper bound
+   newbound =  up_bound + 2 * no_dcells
+   ALLOCATE(pom2(up_bound))
+   do I = 1, up_bound
+    pom2(I) = dyn_cell(I)
+   end do
+   DEALLOCATE(dyn_cell)
+   ALLOCATE(dyn_cell(newbound))
+   do I = 1, up_bound
+    dyn_cell(I) = pom2(I)
+   end do
+   DEALLOCATE(pom2)
+   up_bound = newbound
+  end if
+!  print*, 'create_dynamical_grid_cells: n_dyncell = ', n_dyncell, ' max_n_dcell = ', &
+!         max_n_dcell, ' dimofsubcells = ', dimofsubcells, 'dim(dyn_cell) = ', size(dyn_cell)
+  IF(np >= 8 .OR. no_dcells > 1) THEN
+   CALL divide_cell_ijk(n_dyncell, max_n_dcell, dimofsubcells)
+   ! write(*,*) 'create_dynamical_grid_cells: PRE max_n_dcell = ', max_n_dcell
+   ! write(*,*) 'create_dynamical_grid_cells: no_dcells = ', no_dcells
+   max_n_dcell = max_n_dcell + no_dcells
+   ! write(*,*) 'create_dynamical_grid_cells: POST max_n_dcell = ', max_n_dcell
+  END IF
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! default case

@@ -4,7 +4,7 @@ IMPLICIT NONE
 
 ! input variables
 CHARACTER(LEN=20)                       :: phot_file
-INTEGER                                 :: indexe, ion, max_levels
+INTEGER                                 :: indexe, max_levels
 INTEGER                                 :: inputdata
 CHARACTER(LEN=20)                       :: junk
 ! loop index
@@ -19,13 +19,11 @@ DOUBLE PRECISION                        :: freqt
 ! data about cross section
 DOUBLE PRECISION                        :: freq, cross
 INTEGER                                 :: n_read
+INTEGER                                 :: l_index
 DOUBLE PRECISION, PARAMETER             :: rydberg = 13.5979996 !(eV)
-! energy calculation
-DOUBLE PRECISION                        :: ionstage, energyFZ
 ! reading files
 INTEGER                                 :: ios
 INTEGER                                 :: new_ion, old_ion
-INTEGER                                 :: lowering_index
 LOGICAL                                 :: save_cs
 INTEGER                                 :: atom_number
 INTEGER                                 :: electron_number
@@ -55,7 +53,12 @@ CASE(2)
    ! write(*,*)  'read_photcs: ', line
    IF(line(1:1) == '*') CYCLE
    IF(ios /= 0) EXIT
-   READ(line, *) indexclev, indexZ, electron_number, junk, junk, energy, nofPoints
+   READ(line, *) l_index, indexZ, electron_number, junk, junk, energy, nofPoints
+   IF(energy > 0.D0) THEN
+    ! write(*,*) 'read_photcs: nofPoints = ', nofPoints
+    DO I = 1, nofPoints
+    END DO
+   END IF
    ! we have to know, if the ion is different from the previous one
    new_ion = electron_number
    indexI = atom_number - electron_number + 1
@@ -64,30 +67,37 @@ CASE(2)
     n_read = 0
     save_cs = .TRUE.
     old_ion = new_ion
-    lowering_index = indexclev
     !print*, 'indexclev = ', indexclev
    END IF
-   indexclev = indexclev - lowering_index + 1
    !print*, 'indexclev = ', indexclev, ' lowering_index = ', lowering_index
    n_read = n_read + 1
    IF(n_read > max_levels .AND. max_levels > 0) save_cs = .FALSE.
    IF(save_cs .EQV. .TRUE.) THEN
+    CALL find_photion_elindex(indexe, indexI, l_index, indexclev)
+    IF(indexclev < 0) THEN
+     DO I = 1, nofPoints
+      READ(13, '(A)', IOSTAT=ios) line 
+     END DO
+     CYCLE
+    END IF
+    ! write(*,*) 'read_photcs: indexclev = ', indexclev
     ALLOCATE(elements(indexe)%ions(indexI)%levels(indexclev)%photcros(2,nofPoints))
     IF(nofPoints /= 0) n_photcrossect = n_photcrossect + 1
     !write(*,*) 'read_photcs: n_photcrossect = ', n_photcrossect, 'nofPoints = ', nofPoints
+    ! we can compute a frequency treshold from these data
+    freqt = (MINVAL(elements(indexe)%ions(indexI + 1)%levels(:)%exci_energy) - &
+     elements(indexe)%ions(indexI)%levels(indexclev)%exci_energy) / h
+    elements(indexe)%ions(indexI)%levels(indexclev)%phfreq = freqt
    END IF
    !print*, 'nofPoints = ', nofPoints
-   ! we can compute a frequency treshold from these data
-   freqt = (MINVAL(elements(indexe)%ions(indexI + 1)%levels(:)%exci_energy) - &
-    elements(indexe)%ions(indexI)%levels(indexclev)%exci_energy) / h
-   elements(indexe)%ions(indexI)%levels(indexclev)%phfreq = freqt
-   !write(*,*) 'read_photcs: freqt = ', freqt
+   ! write(*,*) 'read_photcs: freqt = ', freqt
    !elements(indexe)%ions(indexI)%levels(indexclev)%phfreq = freqt
    ! now we will read the given data for the photoionization cross section
+   ! write(*,*) 'read_photcs: nofPoints = ', nofPoints
    DO I = 1, nofPoints
     READ(13, '(A)', IOSTAT=ios) line
     if(ios /= 0) EXIT
-    !print*, 'read_photcs: ', line
+    ! write(*,*) 'read_photcs: ', line
     READ(line,*) freq, cross
     !print*, I, freq, cross
     !print*, freq(I), cross(I)
@@ -96,7 +106,9 @@ CASE(2)
      ! elements(indexe)%ions(indexI)%levels(indexclev)%photcros(1,I) = freq * freqt
      elements(indexe)%ions(indexI)%levels(indexclev)%photcros(1,I) = freq * Rydberg * e_v / h
      ! write(*,*) 'read_photcs: photfreq = ', freq * Rydberg * e_v / h
-     elements(indexe)%ions(indexI)%levels(indexclev)%photcros(2,I) = cross * 1.D-15
+     elements(indexe)%ions(indexI)%levels(indexclev)%photcros(2,I) = cross * 1.D-18
+     ! write(32,*) indexe, indexI, indexclev, freq * Rydberg * e_v / h, cross * 1.D-15
+     ! write(32,*) indexe, indexI, indexclev, freq, cross
      ! print*, index, indexI, freq(I), cross(I)
     END IF
    END DO

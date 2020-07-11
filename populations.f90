@@ -11,7 +11,20 @@ DOUBLE PRECISION                :: pop_number
 ! local variables for LTE
 DOUBLE PRECISION                :: ground_level_pop, g_gstat, g_stat, e_exc
 DOUBLE PRECISION                :: abund, rho, atom_mass
-DOUBLE PRECISION, PARAMETER     :: minpop = 1.D-40
+DOUBLE PRECISION, PARAMETER     :: minpop = 1.D-50
+
+IF(indexe <= 0) THEN
+ write(*,*) 'populations: indexe < 0'
+ CALL abort()
+END IF
+IF(indexi <= 0) THEN
+ write(*,*) 'populations: indexi < 0'
+ CALL abort()
+END IF
+IF(level <= 0) THEN
+ write(*,*) 'populations: level < 0'
+ CALL abort()
+END IF
 
 SELECT CASE(nlte)
 ! LTE approximation
@@ -25,6 +38,7 @@ CASE(0)
  ! excitation energy
  e_exc = elements(indexe)%ions(indexi)%levels(level)%exci_energy - &
         MINVAL(elements(indexe)%ions(indexi)%levels(:)%exci_energy)
+ ! write(*,*) 'populations: e_exc = ', e_exc
  IF(e_exc < 0.D0) STOP 'populations: e_exc < 0'
  rho = model_grid(model_cell)%rho
  abund = model_grid(model_cell)%grid_comp(indexe)%abund
@@ -32,14 +46,7 @@ CASE(0)
  
  pop_number = ground_level_pop * g_stat / g_gstat * &
         exp(-e_exc / BOLK / model_grid(model_cell)%T )! * &
-        ! rho * abund / atom_mass
- ! print*, 'populations: indexe = ', indexe, ' indexi = ', indexi, 'populations: e_exc = ', e_exc, &
- ! ' g_stat = ', g_stat, ' g_gstat = ', g_gstat, ' ground_level_pop = ', ground_level_pop, &
- ! ' pop_number = ', pop_number, ' exp() = ', exp(-e_exc / BOLK / model_grid(model_cell)%T )
- IF(pop_number < minpop) pop_number = 1.D-40
-! print*, 'populations: rho = ', rho, ' abund = ', abund, ' atom_mass = ', atom_mass
-! print*, 'populations: pop_number = ', pop_number
-! NLTE approximation
+ IF(pop_number < minpop) pop_number = 1.D-50
 CASE(1)
  STOP 'NLTE is not supported yet'
 CASE DEFAULT
