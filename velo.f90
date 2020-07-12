@@ -28,6 +28,10 @@ SUBROUTINE velo(pack_index,vel_vec)
    vec_length(package(pack_index)%pos) + &
    (V_0 * R_inf - V_inf * R_star) / (R_inf - R_star)
   vel_vec = package(pack_index)%pos/vec_length(package(pack_index)%pos) * vel_radial
+ ! #03
+ ! velocity field given by model in discrete points
+ CASE(3)
+  CALL vel_discrete_points(pack_index, vel_vec)
  CASE DEFAULT
   write(*,*) 'velo: velApprox = ', velApprox
   write(*,*) 'this velocity structure is not known'
