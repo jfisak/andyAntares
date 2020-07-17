@@ -44,7 +44,7 @@ my_rank = 0
  write(99,*) 'read input'
  CALL read_input(n_pack, iseed)
  ! Allocate array for photon packages.
- ALLOCATE (package(n_pack + 1))
+ ALLOCATE (package(n_pack + 2))
  ! write(*,*) 'main: |package| = ', SIZE(package)
 
  CALL find_unfinished_run()

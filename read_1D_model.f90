@@ -82,7 +82,7 @@ SELECT CASE (inputModel)
   END DO
 
   R_inf  = model_grid(n_modelgrid)%rwind
-  V_inf  = model_grid(n_modelgrid)%vel * 10.0**5
+  V_inf  = model_grid(n_modelgrid)%vel
   write(*,*) 'read_1D_model: R_inf = ', R_inf/R_star, 'V_inf = ', V_inf
 
   ! setting properties
