@@ -16,12 +16,12 @@ SUBROUTINE read_levels(el_index, lowerion, upperion, levels_type, filename)
  ! reading from file variables
  INTEGER                        :: reading_levels
  INTEGER                        :: current_ion, ions
- INTEGER                        :: n_levels, l_index
+ INTEGER                        :: n_levels
  INTEGER                        :: indexi, act_index
  ! saves number of levels for the ions (lowerion, upperion)
  INTEGER, ALLOCATABLE           :: nlevels(:)
  INTEGER                        :: act_nlevels, nions
- INTEGER                        :: cur_ion
+ INTEGER                        :: cur_ion, vsplit
  CHARACTER (LEN=200)            :: line
  CHARACTER (LEN=16)              :: iconf
  CHARACTER (LEN=16)              :: junk
@@ -82,17 +82,18 @@ OPEN(8,status='old',FILE=filename)
  ! computing number of energy levels for the given ions
  current_ion = lowerion
  DO
+  !
+  ! calculation of number of levels for the given ion
+  !
   ! READ(8,'(A)', iostat = reading_levels) line
   ! write(*,*) 'read_levels: line = ', line
   ! BACKSPACE(8)
   READ(8 ,991, iostat = reading_levels) jint, jint, cur_ion, jint, jint, junk, l_energy, jreal
   ! write(*,*) 'reading_levels = cur_ion = ', cur_ion, ' l_energy = ', l_energy
   IF(reading_levels /= 0) EXIT
-  !write(99,*) line
-  ! IF(line(1:1) .EQ. '*') CYCLE
-  ! READ(line,991, iostat = reading_levels) junk, junk, cur_ion, junk, junk, junk, l_energy, junk
-  ! calculation of index of the given ion of the array nlevels(:)
+  ! we ignore energy levels in the continuum
   IF(l_energy > 0.D0) CYCLE
+  ! calculation of index of the given ion of the array nlevels(:)
   act_index = cur_ion - lowerion + 2
   nlevels(act_index) = nlevels(act_index) + 1
  END DO
@@ -139,7 +140,8 @@ OPEN(8,status='old',FILE=filename)
   DO  ! loop over atomic levels for the given ion
    ! READ(8,'(A)', IOSTAT = reading_levels) line
    ! write(99,*) 'reading_levels: ', line
-   READ(8 ,991, iostat = reading_levels) levelindex, jint, jint, jint, l_index, iconf, l_energy, s_weight
+   ! finally read the atomic data and save it into the variables
+   READ(8 ,991, iostat = reading_levels) levelindex, jint, jint, vsplit, jint, iconf, l_energy, s_weight
    IF(reading_levels /= 0) EXIT
    ! IF(line(1:1) .EQ. '*') CYCLE
    ! READ(line,*) levelindex, junk, junk, junk, l_index, iconf, l_energy, s_weight
@@ -155,6 +157,7 @@ OPEN(8,status='old',FILE=filename)
    !  elements(el_index)%ions(indexi)%levels(J)%exci_energy / e_v, ' l_energy = ', l_energy
    elements(el_index)%ions(indexi)%levels(J)%stat_waight = s_weight
    elements(el_index)%ions(indexi)%levels(J)%elconf = iconf
+   elements(el_index)%ions(indexi)%levels(J)%vsplit = vsplit
    ! we have to calculate l_index correctly: it should start at 1 for every ion
    ! this condition is not satisfied in the input files thus we have to substract
    ! the total number of levels of the lower ions from the number kindex

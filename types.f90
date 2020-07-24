@@ -72,6 +72,7 @@ IMPLICIT NONE
      DOUBLE PRECISION                :: phfreq
      INTEGER                         :: phfreqi
      INTEGER                         :: levelindex
+     INTEGER                         :: vsplit
   END TYPE ion_levels
 
   TYPE element_ions 

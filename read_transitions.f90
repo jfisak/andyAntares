@@ -28,7 +28,7 @@ SUBROUTINE read_transitions(el_index, lowerion, upperion, transition_type, filen
  INTEGER                        :: current_element, current_ion
  INTEGER                        :: kindex, low_level, up_level
  ! actual lower and upper index
- INTEGER                        :: act_lower, act_upper
+ INTEGER                        :: act_lower, act_upper, low_vsplit, up_vsplit
  ! counter of not included transitions
  INTEGER                        :: n_not_included
  CHARACTER (LEN=16)             :: low_conf
@@ -148,7 +148,7 @@ CASE(2)
   n_not_included = 0
   DO
    READ(9,992, IOSTAT = reading_transitions) kindex, current_element, electron_number,&
-   jint, jint, low_level, up_level, low_conf, up_conf, col_str, A, l_freq
+   low_vsplit, up_vsplit, low_level, up_level, low_conf, up_conf, col_str, A, l_freq
    ! write(*,*) 'read_transitions: col_str = ', col_str, ' A = ', A, &
    !  ' l_freq = ', l_freq
    ! READ(9,'(A)',IOSTAT = reading_transitions) line
@@ -174,7 +174,8 @@ CASE(2)
    found_up_conf = .FALSE.
    n_levels = SIZE(elements(el_index)%ions(current_ion)%levels)
    DO J = 1, n_levels
-    IF(TRIM(low_conf) == TRIM(elements(el_index)%ions(current_ion)%levels(J)%elconf)) THEN
+    IF(TRIM(low_conf) == TRIM(elements(el_index)%ions(current_ion)%levels(J)%elconf) &
+     .AND. low_vsplit == elements(el_index)%ions(current_ion)%levels(J)%vsplit) THEN
      found_low_conf = .TRUE.
      act_lc = J
      !write(99,*) 'found electron configuration...'
@@ -185,7 +186,8 @@ CASE(2)
      ! END IF 
      !write(99,*) 'l_index = ', elements(el_index)%ions(current_ion)%levels(J)%l_index
     END IF
-    IF(TRIM(up_conf) == TRIM(elements(el_index)%ions(current_ion)%levels(J)%elconf)) THEN
+    IF(TRIM(up_conf) == TRIM(elements(el_index)%ions(current_ion)%levels(J)%elconf) &
+     .AND. up_vsplit == elements(el_index)%ions(current_ion)%levels(J)%vsplit) THEN
      found_up_conf = .TRUE.
      act_uc = J
      !write(99,*) 'found electron configuration...'
@@ -231,7 +233,7 @@ CASE(2)
    IF((found_low_conf .EQV. .FALSE.) .OR. (found_up_conf .EQV. .FALSE.)) THEN
     ! this configuration will not be taken into account and we will read the next line
     write(*,*) 'element: ', element, ' ion = ', ion_index, ' line from ', low_conf, ' to ', up_conf, &
-      '  was not included...'
+      'low_vsplit = ', low_vsplit, ' up_vsplit = ', up_vsplit, '  was not included...'
     n_not_included = n_not_included + 1
     CYCLE
    ELSE
