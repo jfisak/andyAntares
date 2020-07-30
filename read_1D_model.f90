@@ -13,6 +13,7 @@ INTEGER                                   :: ios
 INTEGER, PARAMETER                        :: maxrows = 6000000
 DOUBLE PRECISION                          :: r, velo, dens, temp
 DOUBLE PRECISION, DIMENSION(n_elements)   :: massfrac
+DOUBLE PRECISION                          :: cell_index
 CHARACTER(20)                             :: modelfile, jikrfile
 ! variables which are not needed in the code
 !DOUBLE PRECISION                          :: delta_r, delta, delta2, tot_nd, tot_md
@@ -58,7 +59,7 @@ SELECT CASE (inputModel)
   READ(11,*) junk
   DO I = 1, n_modelgrid
      ! Maybe better to calculate at the midle of the grid cell rather then at the outer boundary 
-     READ(11,*) indexg, r, velo, dens, temp, massfrac
+     READ(11,*) cell_index, r, velo, dens, temp, massfrac
      model_grid(I)%rwind = r  * R_star
      model_grid(I)%vel = velo
      model_grid(I)%rho = dens

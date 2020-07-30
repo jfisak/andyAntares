@@ -162,6 +162,8 @@ END DO ! iteration (now of temperature structure)
  IF(my_rank == 0) THEN
   CALL save_output(3)
   CALL save_output(7)
+  ! partition function
+  CALL save_output(9)
  END IF
  CALL save_output(5)
  ! info o gridu

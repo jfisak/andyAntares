@@ -24,7 +24,7 @@ LOGICAL                                 :: dirExists
 CHARACTER(LEN=30)                       :: mkdirCMD
 CHARACTER(LEN=60)                       :: lineOutput
 ! save informations about lines
-INTEGER                                 :: I, J
+INTEGER                                 :: I, J, K
 DOUBLE PRECISION                        :: wavle
 ! occupation numbers
 ! levels index variables
@@ -33,7 +33,7 @@ DOUBLE PRECISION                        :: act_pop
 DOUBLE PRECISION                        :: eenergy
 CHARACTER(LEN=60)                       :: fileTempStruct, fileOccNum, fileFreqs
 CHARACTER(LEN=60)                       :: fileHydrogenFrac, fileHeliumFrac
-CHARACTER(LEN=60)                       :: fileGrid
+CHARACTER(LEN=60)                       :: fileGrid, filePart
 ! ionization fraction files
 DOUBLE PRECISION                        :: frac, N_jk, totElPop
 ! DOUBLE PRECISION                        :: frac1, N_jk1, totElPop1
@@ -51,6 +51,9 @@ CHARACTER(LEN=60)                       :: fileHI, fileHII, fileHeI, fileHeII, f
 CHARACTER(LEN=60)                       :: fileEldens, fileRho
 INTEGER                                 :: cell_index
 DOUBLE PRECISION                        :: num_tot_pop
+INTEGER                                 :: tot_n_ions, cur_ion, n_ions
+DOUBLE PRECISION, ALLOCATABLE           :: part_functions(:)
+DOUBLE PRECISION                        :: U, temperature
 !________________________________________________________________________________
 ! #00 output folder
 !
@@ -387,6 +390,33 @@ CASE(8)
    write(16,*) I, dyn_cell(I)%corner, dyn_cell(I)%width, dyn_cell(I)%up_cell, dyn_cell(I)%model_index
   END DO
  CLOSE(16)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! #09 partition function
+!
+! 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CASE(9)
+ filePart=trim(outputfolder)//'/partitionFunction.dat'
+ tot_n_ions = 0
+ DO J = 1, n_elements
+  n_ions = SIZE(elements(J)%ions)
+  tot_n_ions = tot_n_ions + n_ions
+ END DO
+ ALLOCATE(part_functions(tot_n_ions))
+ OPEN(17, FILE=filePart)
+ DO I = 1, n_modelgrid
+  temperature = model_grid(I)%T
+  cur_ion = 1
+  DO J = 1, n_elements
+   n_ions = SIZE(elements(J)%ions)
+   DO K = 1, n_ions
+    CALL part_fun(J, K, temperature, U)
+    part_functions(cur_ion) = U
+   END DO ! over ions
+  END DO ! over elements
+  write(17,*) I, part_functions
+ END DO ! over model cells
+ CLOSE(17)
 CASE DEFAULT
  write(99,*) 'save_output: this case is not known'
 END SELECT
