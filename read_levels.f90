@@ -293,20 +293,12 @@ OPEN(8,status='old',FILE=filename)
     IF( J == act_nlevels) EXIT
    END DO ! loop over atomic levels for the given ion
    elements(el_index)%ions(indexi)%ion_potential = &
-    ABS(MINVAL(elements(el_index)%ions(indexi)%levels(:)%exci_energy))
+    ABS(MAXVAL(elements(el_index)%ions(indexi)%levels(:)%exci_energy))
    ! write(*,*) 'read_levels: ion pot = ', MINVAL(elements(el_index)%ions(indexi)%levels(:)%exci_energy)/ e_v
-   DO act_lev = 1, SIZE(elements(el_index)%ions(indexi)%levels)
-    elements(el_index)%ions(indexi)%levels(act_lev)%exci_energy = &
-    elements(el_index)%ions(indexi)%levels(act_lev)%exci_energy + &
-     elements(el_index)%ions(indexi)%ion_potential
-     ! write(99,*) 'read_levels: el = ', el_index, ' ion = ', indexi, &
-     !  ' J = ', J, ' act_lev = ', act_lev, ' excie = ', &
-     !  elements(el_index)%ions(indexi)%levels(act_lev)%exci_energy
-   END DO
   END DO ! loop over ions
   ! recalculation of excitation energies
-  ! this sbr recalculates excitation energies WRT of the ionization
-  ! energy downloaded from the Opacity project 
+  ! this loop recalculates energies so every energy level will have energy equal to
+  ! E = exci_energy + ion_energy
   n_ions = SIZE(elements(el_index)%ions)
   ionoffset = 0.D0
   DO I = 1, n_ions
@@ -318,9 +310,6 @@ OPEN(8,status='old',FILE=filename)
     ! write(*,*) 'read_levels: cur_excien = ', cur_excien,&
     !  ' ee = ', elements(el_index)%ions(I)%levels(cur_level)%exci_energy
     elements(el_index)%ions(I)%levels(cur_level)%exci_energy = ionoffset + cur_excien
-    ! IF(el_index == 3) write(*,*) 'read_levels: el_index = ', el_index, 'cur_ion = ', I, &
-    !  ' cur_level = ', cur_level, 'ionoffset = ', ionoffset / e_v, 'eenergy = ', &
-    !  elements(el_index)%ions(I)%levels(cur_level)%exci_energy / e_v
    END DO
   END DO
    ! if everything is OK, we will read from the variable line variables
