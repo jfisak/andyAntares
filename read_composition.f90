@@ -18,7 +18,7 @@ SUBROUTINE read_composition()
   INTEGER                            :: atom_number
   DOUBLE PRECISION                   :: abundance
   INTEGER                            :: current_ion, nions,ios
-  CHARACTER (20)                     :: filename, photfile
+  CHARACTER (30)                     :: filename, photfile
   CHARACTER (LEN=200)                    :: line
   DOUBLE PRECISION                   :: mass, tot_abundance
   ! photon cross section data type

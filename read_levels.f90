@@ -207,7 +207,7 @@ OPEN(8,status='old',FILE=filename)
  ! we won't use the metastable variable
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- CASE(9)
+ CASE(8)
   nions = upperion - lowerion + 1
   at_index = elements(el_index)%atom_number
   ALLOCATE(nlevels(nions))
@@ -217,6 +217,8 @@ OPEN(8,status='old',FILE=filename)
   END DO
   ! computing number of energy levels for the given ions
   current_ion = lowerion
+  ! reading the first line
+  READ(8 ,*, iostat = reading_levels) jint, jint, iconf, l_energy, s_weight, junk
   DO
    !
    ! calculation of number of levels for the given ion
@@ -225,18 +227,17 @@ OPEN(8,status='old',FILE=filename)
    ! write(*,*) 'read_levels: line = ', line
    ! BACKSPACE(8)
    READ(8 ,*, iostat = reading_levels) jint, cur_ion, jint, jreal, jint, junk
-   ! write(*,*) 'reading_levels = cur_ion = ', cur_ion, ' l_energy = ', l_energy
    IF(reading_levels /= 0) EXIT
    act_index = cur_ion + 1
    nlevels(act_index) = nlevels(act_index) + 1
   END DO
   DO I = 1, nions
    ! ionindex = I + lowerion - 1
-   indexi = at_index - I - lowerion + 3
+   indexi = I + lowerion - 1
    n_levels = nlevels(I)
    ! write(99,*) 'I = ', I, 'lowerion = ', lowerion, &
    !  ' el_index = ', el_index, ' indexi = ', indexi
-   ! write(*,*) 'read_levels: ion = ', I, ' n_levels = ', n_levels
+   write(*,*) 'read_levels: ion = ', I, ' n_levels = ', n_levels
    ALLOCATE(elements(el_index)%ions(indexi)%levels(n_levels))
   END DO
   ! allocation of the given arrays
@@ -253,7 +254,7 @@ OPEN(8,status='old',FILE=filename)
   DO current_ion = lowerion, upperion ! loop over ions
    ! index in the array elements%ions(indexi) ordered from
    ! neutrals to most ionized ions
-   indexi = at_index - current_ion + 2
+   indexi = current_ion
    act_index = current_ion - lowerion + 1
    act_nlevels = nlevels(act_index)
    !write(99,*) 'n_levels = ', act_nlevels
@@ -269,16 +270,21 @@ OPEN(8,status='old',FILE=filename)
 !    END IF
    ! reading the levels for the given ion
    J = 0
+   ! reading the first line
+   READ(8 ,*, iostat = reading_levels) jint, jint, iconf, l_energy, s_weight, junk
    DO  ! loop over atomic levels for the given ion
     ! READ(8,'(A)', IOSTAT = reading_levels) line
     ! write(99,*) 'reading_levels: ', line
     ! finally read the atomic data and save it into the variables
-    READ(8 ,*, iostat = reading_levels) jint, jint, levelindex, l_energy, s_weight, junk
+    READ(8 ,*, iostat = reading_levels) jint, jint, iconf, l_energy, s_weight, junk
     IF(reading_levels /= 0) EXIT
     ! IF(line(1:1) .EQ. '*') CYCLE
     J = J + 1
+    ! write(*,*) 'read_levels: el_index = ', el_index, ' J = ', J
+    ! write(*,*) 'read_levels: iconf = ', iconf, ' l_energy = ', l_energy
+    ! write(*,*) 'read_levels: indexi = ', indexi, ' act_index = ', act_index, 'act_nlevels = ', act_nlevels
     elements(el_index)%ions(indexi)%levels(J)%exci_energy = l_energy
-    elements(el_index)%ions(indexi)%levels(J)%levelindex = levelindex
+    elements(el_index)%ions(indexi)%levels(J)%elconf = iconf
     ! write(99,*) 'read_levels: kindex = ', kindex, ' element = ', el_index, 'ion = ', indexi, &
     !  ' J = ', J, ' exci_energy = ', &
     ! elements(el_index)%ions(indexi)%levels(J)%exci_energy / e_v, ' l_energy = ', l_energy
@@ -307,9 +313,9 @@ OPEN(8,status='old',FILE=filename)
    ! write(*,*) 'read_levels: ion pot = ', elements(el_index)%ions(I)%ion_potential/ e_v
    DO cur_level = 1, n_levels
     cur_excien = elements(el_index)%ions(I)%levels(cur_level)%exci_energy
-    ! write(*,*) 'read_levels: cur_excien = ', cur_excien,&
-    !  ' ee = ', elements(el_index)%ions(I)%levels(cur_level)%exci_energy
     elements(el_index)%ions(I)%levels(cur_level)%exci_energy = ionoffset + cur_excien
+    write(*,*) 'read_levels: ', el_index, I, cur_level, 'ionoffset = ', ionoffset,&
+     ' ee = ', elements(el_index)%ions(I)%levels(cur_level)%exci_energy
    END DO
   END DO
    ! if everything is OK, we will read from the variable line variables
