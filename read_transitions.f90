@@ -224,17 +224,6 @@ CASE(2)
    IF((found_low_conf .EQV. .TRUE.) .AND. (found_up_conf .EQV. .TRUE.)) THEN
     ! write(*,*) 'read_transitions: element: ', element, ' ion = ', ion_index, &
     !  ' line from ', low_conf, ' to ', up_conf, 'lc = ', act_lc, 'uc = ', act_uc, ' was included...'
-    ee_lc = elements(el_index)%ions(current_ion)%levels(act_lc)%exci_energy
-    ee_uc = elements(el_index)%ions(current_ion)%levels(act_uc)%exci_energy
-    IF(ee_lc < ee_uc) THEN
-     act_lower = act_lc
-     act_upper = act_uc
-    ELSE IF(ee_uc < ee_lc) THEN
-     act_lower = act_uc
-     act_upper = act_lc
-    ELSE
-     STOP 'read_transitions: ee_lc == ee_uc'
-    END IF
    END IF
    IF((found_low_conf .EQV. .FALSE.) .OR. (found_up_conf .EQV. .FALSE.)) THEN
     ! this configuration will not be taken into account and we will read the next line
@@ -311,15 +300,15 @@ CASE(8)
  ! calculation a number of transition which will be included
  DO ! main loop
   READ(9,'(A)',IOSTAT = reading_transitions) line
-  write(*,*) 'read_transitions: line = ', line
+  ! write(*,*) 'read_transitions: line = ', line
+  IF(reading_transitions /= 0) EXIT
   IF(line(1:1) == '*') CYCLE
-  READ(line,*, IOSTAT = reading_transitions) jint, electron_number,&
-   jint,  jint, jint, jfloat, jfloat, jfloat,  jdble, jdble, jdble, jdble, jfloat
-  write(*,*) 'read_transitions: low_conf = ', TRIM(low_conf), ' up_conf = ', TRIM(up_conf)
+  READ(line,*) at_number, electron_number,&
+   low_conf,  up_conf, jint, jfloat, jfloat, jfloat,  jdble, jdble, jdble, jdble, jfloat
+  ! write(*,*) 'read_transitions: low_conf = ', TRIM(low_conf), ' up_conf = ', TRIM(up_conf)
   write(*,*) 'read_transitions: electron_number = ', electron_number
   !print*, line
   write(*,*) 'read_transitions: reading_transitions = ', reading_transitions
-  IF(reading_transitions /= 0) EXIT
   CALL find_element_index(at_number,el_index)
   current_ion = electron_number + 1
   ! write(99,*) 'read_transitions: current_ion = ', current_ion
@@ -327,8 +316,8 @@ CASE(8)
   found_up_conf = .FALSE.
   n_levels = SIZE(elements(el_index)%ions(current_ion)%levels)
   DO J = 1, n_levels
-   write(*,*) 'read_transitions: low_conf = ', low_conf, ' up_conf = ', up_conf, &
-    ' elconf = ', elements(el_index)%ions(current_ion)%levels(J)%elconf
+   ! write(*,*) 'read_transitions: low_conf = ', low_conf, ' up_conf = ', up_conf, &
+   !  ' elconf = ', elements(el_index)%ions(current_ion)%levels(J)%elconf
    IF(TRIM(low_conf) == TRIM(elements(el_index)%ions(current_ion)%levels(J)%elconf)) THEN
     found_low_conf = .TRUE.
     ! write(*,*) 'found low_conf ', low_conf
@@ -374,15 +363,20 @@ CASE(8)
 
  ! we have \sum_i ntrans_i additional transitions into the linelist array
  ! now we will read the given data
- DO I = lowerion, upperion ! do 01 over ions
-  current_index = I - lowerion + 1
-  current_ntrans = ntrans(current_index)
+ ! DO I = lowerion, upperion ! do 01 over ions
+ !  current_index = I - lowerion + 1
+ !  current_ntrans = ntrans(current_index)
   ! trans is a number of read transitions 
   ! because we have tu assume, that we can comment lines in the middle of the file
   trans = 0
   n_not_included = 0
   DO ! do 02 reading line by line
-   READ(8, *, IOSTAT = reading_transitions) jint, electron_number,&
+   READ(9,'(A)',IOSTAT = reading_transitions) line
+   write(*,*) 'read_transitions: line = ', line
+   IF(reading_transitions /= 0) EXIT
+   write(*,*) 'read_transitions: reading_transitions = ', reading_transitions
+   IF(line(1:1) == '*') CYCLE
+   READ(9, *) current_element, electron_number,&
     low_conf,  up_conf, jint, jdble, col_str, jdble,  jdble, jdble, jdble, A, jdble
    ! write(*,*) 'read_transitions: col_str = ', col_str, ' A = ', A, &
    !  ' l_freq = ', l_freq
@@ -413,11 +407,13 @@ CASE(8)
      ' elconf = ', elements(el_index)%ions(current_ion)%levels(J)%elconf
     IF(TRIM(low_conf) == TRIM(elements(el_index)%ions(current_ion)%levels(J)%elconf)) THEN
      found_low_conf = .TRUE.
+     act_lc = J
      ! write(*,*) 'found low_conf ', low_conf
      ! write(*,*) 'found electron configuration...'
     END IF
     IF(TRIM(up_conf) == TRIM(elements(el_index)%ions(current_ion)%levels(J)%elconf)) THEN
      found_up_conf = .TRUE.
+     act_uc = J
      ! write(*,*) 'found up_conf ', up_conf
      ! write(*,*) 'found electron configuration...'
     END IF
@@ -441,8 +437,8 @@ CASE(8)
     END IF
    END DO ! end loop 03 over levels
    IF((found_low_conf .EQV. .TRUE.) .AND. (found_up_conf .EQV. .TRUE.)) THEN
-    ! write(*,*) 'read_transitions: element: ', element, ' ion = ', ion_index, &
-    !  ' line from ', low_conf, ' to ', up_conf, 'lc = ', act_lc, 'uc = ', act_uc, ' was included...'
+     write(*,*) 'read_transitions: element: ', element, ' ion = ', ion_index, &
+      ' line from ', low_conf, ' to ', up_conf, 'lc = ', act_lc, 'uc = ', act_uc, ' was included...'
     ee_lc = elements(el_index)%ions(current_ion)%levels(act_lc)%exci_energy
     ee_uc = elements(el_index)%ions(current_ion)%levels(act_uc)%exci_energy
     IF(ee_lc < ee_uc) THEN
@@ -491,10 +487,9 @@ CASE(8)
    ! connection via electron configuration in the form of string
    trans = trans + 1
    ! write(99,*) 'read_transitions: trans = ', trans, ' ntrans(I) = ', ntrans(I)
-   IF(trans == ntrans(I)) EXIT
   END DO
   ! write(99,*) 'read_transitions: el = ', el_index, ' ion = ', current_ion, n_not_included, 'lines were not included'
- END DO
+ ! END DO
  !STOP 'read_transitions: testing'
  ! if we did now use every transition in the file we will reallocate the array
  ! linelist so it will not be so large
