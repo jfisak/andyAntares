@@ -44,6 +44,8 @@ SUBROUTINE read_transitions(el_index, lowerion, upperion, transition_type, filen
 
 992 format(I7, I3, I3, I5, I5, I4, I4, Tr1, A16, A16, e9.2, e10.2, e10.2, f5.1, f5.1)
 
+orbitals_nl = .FALSE.
+
 ! calculate the constant for the oscilator strength calculation
 oconstant = (me_g * light_speed ** 3)/(8.D0 * pi ** 2 * e_charge**2)
 n_ions = 0
@@ -76,6 +78,7 @@ CASE(0)
 CASE(2)
  ! computing number of transitions for the given ions
  ! initialization of number of transitions
+ orbitals_nl = .TRUE.
  ALLOCATE(ntrans(upperion - lowerion + 1))
  DO I = lowerion, upperion
   ion_index = I - lowerion + 1
@@ -283,7 +286,7 @@ CASE(2)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! data from the Tardis code
-! **9**
+! **8**
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

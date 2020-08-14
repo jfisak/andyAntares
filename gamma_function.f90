@@ -43,18 +43,22 @@ conf_len_upper = LEN_TRIM(el_conf_upper)
 ! write(*,*) 'elclower: ', el_conf_lower(conf_len_lower - 2:conf_len_lower - 1)
 ! write(*,*) 'elclower: ', el_conf_upper(conf_len_upper - 2:conf_len_upper - 1)
 
-IF(simpleTrans) THEN
- sconf_l = el_conf_lower(1:conf_len_lower - 1)
- sconf_u = el_conf_upper(1:conf_len_upper - 1)
+IF(orbitals_nl .EQV. .TRUE.) THEN
+ IF(simpleTrans) THEN
+  sconf_l = el_conf_lower(1:conf_len_lower - 1)
+  sconf_u = el_conf_upper(1:conf_len_upper - 1)
+ ELSE
+  sconf_l = el_conf_lower(conf_len_lower - 2:)
+  sconf_u = el_conf_upper(conf_len_upper - 2:conf_len_upper - 1)
+ END IF
+ 
+ IF(sconf_l == sconf_u) THEN
+  value_1 = 7.D-1
+ ELSE
+  value_1 = 2.D-1
+ END IF
 ELSE
- sconf_l = el_conf_lower(conf_len_lower - 2:)
- sconf_u = el_conf_upper(conf_len_upper - 2:conf_len_upper - 1)
-END IF
-
-IF(sconf_l == sconf_u) THEN
  value_1 = 7.D-1
-ELSE
- value_1 = 2.D-1
 END IF
 !write(*,*) 'gamma_function: value_1 = ', value_1
 !STOP 'gamma_function: only for testing'

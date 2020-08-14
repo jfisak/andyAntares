@@ -44,7 +44,10 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
      package(pack_index)%typ = type_ipkt
     END IF
     package(pack_index)%n_int = package(pack_index)%n_int + 1
-    IF(package(pack_index)%n_int > ntransitions) STOP 'n_int > ntransitions'
+    ! IF(package(pack_index)%n_int > ntransitions) THEN
+    !  write(*,*) 'do_rpackage_event: pack_index = ', pack_index
+    !  STOP 'n_int > ntransitions'
+    ! END IF
     linelist(package(pack_index)%last_line)%n_int = &
      linelist(package(pack_index)%last_line)%n_int + 1
     linelist(package(pack_index)%last_line)%n_deexc = &
