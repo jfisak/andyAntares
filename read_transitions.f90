@@ -87,7 +87,7 @@ CASE(2)
  tot_ntrans = 0
  DO
   READ(9,992, IOSTAT = reading_transitions) jint, at_number, electron_number,&
-   jint, low_vsplit, up_vsplit, jint, low_conf, up_conf, jdble, jdble
+   low_vsplit, up_vsplit, jint, jint, low_conf, up_conf, jdble, jdble
   ! write(*,*) 'read_transitions: low_conf = ', TRIM(low_conf), ' up_conf = ', TRIM(up_conf)
   ! write(*,*) 'read_transitions: at_number = ', at_number
   ! READ(9,'(A)',IOSTAT = reading_transitions) line
@@ -101,15 +101,17 @@ CASE(2)
   found_up_conf = .FALSE.
   n_levels = SIZE(elements(el_index)%ions(current_ion)%levels)
   DO J = 1, n_levels
-   ! write(*,*) 'read_transitions: low_conf = ', low_conf, ' up_conf = ', up_conf, &
+   ! write(*,*) 'read_transitions: low_conf = ', TRIM(low_conf), ' up_conf = ', TRIM(up_conf), &
    !  ' elconf = ', elements(el_index)%ions(current_ion)%levels(J)%elconf
-   IF(low_conf .EQ. elements(el_index)%ions(current_ion)%levels(J)%elconf &
+   ! write(*,*) 'read_transitions: low_vsplit = ', low_vsplit, 'up_vsplit = ', up_vsplit, &
+   !  'vsplit = ', elements(el_index)%ions(current_ion)%levels(J)%vsplit
+   IF(TRIM(low_conf) == elements(el_index)%ions(current_ion)%levels(J)%elconf &
      .AND. low_vsplit == elements(el_index)%ions(current_ion)%levels(J)%vsplit) THEN
     found_low_conf = .TRUE.
     ! write(*,*) 'found low_conf ', low_conf
     ! write(*,*) 'found electron configuration...'
    END IF
-   IF(TRIM(up_conf) .EQ. TRIM(elements(el_index)%ions(current_ion)%levels(J)%elconf) &
+   IF(TRIM(up_conf) == TRIM(elements(el_index)%ions(current_ion)%levels(J)%elconf) &
      .AND. up_vsplit == elements(el_index)%ions(current_ion)%levels(J)%vsplit) THEN
     found_up_conf = .TRUE.
     ! write(*,*) 'found up_conf ', up_conf
@@ -182,6 +184,7 @@ CASE(2)
    found_low_conf = .FALSE.
    found_up_conf = .FALSE.
    n_levels = SIZE(elements(el_index)%ions(current_ion)%levels)
+   ! write(*,*) 'read_transitions: n_levels = ', n_levels
    DO J = 1, n_levels
     IF(TRIM(low_conf) == TRIM(elements(el_index)%ions(current_ion)%levels(J)%elconf) &
      .AND. low_vsplit == elements(el_index)%ions(current_ion)%levels(J)%vsplit) THEN

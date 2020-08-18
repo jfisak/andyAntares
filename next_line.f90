@@ -24,7 +24,9 @@ IF(init_line == ntransitions .OR. init_line == ntransitions + 1) THEN
 END IF
 
 IF(ntransitions == 0) THEN
- STOP 'ntransitions = 0'
+ next1line = ntransitions + 1
+ tooRed = .TRUE.
+ RETURN
 END IF
 
 SELECT CASE(approximation)
