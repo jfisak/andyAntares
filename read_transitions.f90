@@ -296,7 +296,7 @@ CASE(2)
 CASE(8)
  ! computing number of transitions for the given ions
  ! initialization of number of transitions
- write(*,*) 'sbr read_transitions...'
+ ! write(*,*) 'sbr read_transitions...'
  ALLOCATE(ntrans(upperion - lowerion + 1))
  DO I = lowerion, upperion
   ion_index = I
@@ -312,9 +312,9 @@ CASE(8)
   READ(line,*) at_number, electron_number,&
    low_conf,  up_conf, jint, jfloat, jfloat, jfloat,  jdble, jdble, jdble, jdble, jfloat
   ! write(*,*) 'read_transitions: low_conf = ', TRIM(low_conf), ' up_conf = ', TRIM(up_conf)
-  write(*,*) 'read_transitions: electron_number = ', electron_number
+  ! write(*,*) 'read_transitions: electron_number = ', electron_number
   !print*, line
-  write(*,*) 'read_transitions: reading_transitions = ', reading_transitions
+  ! write(*,*) 'read_transitions: reading_transitions = ', reading_transitions
   CALL find_element_index(at_number,el_index)
   current_ion = electron_number + 1
   ! write(99,*) 'read_transitions: current_ion = ', current_ion
@@ -378,9 +378,9 @@ CASE(8)
   n_not_included = 0
   DO ! do 02 reading line by line
    READ(9,'(A)',IOSTAT = reading_transitions) line
-   write(*,*) 'read_transitions: line = ', line
+   ! write(*,*) 'read_transitions: line = ', line
    IF(reading_transitions /= 0) EXIT
-   write(*,*) 'read_transitions: reading_transitions = ', reading_transitions
+   ! write(*,*) 'read_transitions: reading_transitions = ', reading_transitions
    IF(line(1:1) == '*') CYCLE
    READ(line, *) current_element, electron_number,&
     low_conf,  up_conf, jint, jdble, col_str, jdble,  jdble, jdble, jdble, A, jdble
@@ -409,8 +409,8 @@ CASE(8)
    found_up_conf = .FALSE.
    n_levels = SIZE(elements(el_index)%ions(current_ion)%levels)
    DO J = 1, n_levels ! loop 03 over levels
-    write(*,*) 'read_transitions: low_conf = ', low_conf, ' up_conf = ', up_conf, &
-     ' elconf = ', elements(el_index)%ions(current_ion)%levels(J)%elconf
+    ! write(*,*) 'read_transitions: low_conf = ', low_conf, ' up_conf = ', up_conf, &
+    !  ' elconf = ', elements(el_index)%ions(current_ion)%levels(J)%elconf
     IF(TRIM(low_conf) == TRIM(elements(el_index)%ions(current_ion)%levels(J)%elconf)) THEN
      found_low_conf = .TRUE.
      act_lc = J
@@ -435,16 +435,16 @@ CASE(8)
       act_lower = act_uc
       act_upper = act_lc
      ELSE
-      write(*,*) 'read_transitions: act_lc = ', act_lc, ' act_uc = ', act_uc
-      write(*,*) 'conf_l = ', TRIM(low_conf), ' conf_u = ', up_conf
-      write(*,*) 'ee_lc = ', ee_lc, ' ee_uc = ', ee_uc
+      ! write(*,*) 'read_transitions: act_lc = ', act_lc, ' act_uc = ', act_uc
+      ! write(*,*) 'conf_l = ', TRIM(low_conf), ' conf_u = ', up_conf
+      ! write(*,*) 'ee_lc = ', ee_lc, ' ee_uc = ', ee_uc
       STOP 'ee_lc == ee_uc'
      END IF
     END IF
    END DO ! end loop 03 over levels
    IF((found_low_conf .EQV. .TRUE.) .AND. (found_up_conf .EQV. .TRUE.)) THEN
-     write(*,*) 'read_transitions: element: ', element, ' ion = ', ion_index, &
-      ' line from ', low_conf, ' to ', up_conf, 'lc = ', act_lc, 'uc = ', act_uc, ' was included...'
+     ! write(*,*) 'read_transitions: element: ', element, ' ion = ', ion_index, &
+     !  ' line from ', low_conf, ' to ', up_conf, 'lc = ', act_lc, 'uc = ', act_uc, ' was included...'
     ee_lc = elements(el_index)%ions(current_ion)%levels(act_lc)%exci_energy
     ee_uc = elements(el_index)%ions(current_ion)%levels(act_uc)%exci_energy
     IF(ee_lc < ee_uc) THEN
@@ -459,8 +459,8 @@ CASE(8)
    END IF
    IF((found_low_conf .EQV. .FALSE.) .OR. (found_up_conf .EQV. .FALSE.)) THEN
     ! this configuration will not be taken into account and we will read the next line
-    write(*,*) 'element: ', element, ' ion = ', ion_index, ' line from ', low_conf, ' to ', up_conf, &
-      'low_vsplit = ', low_vsplit, ' up_vsplit = ', up_vsplit, '  was not included...'
+    ! write(*,*) 'element: ', element, ' ion = ', ion_index, ' line from ', low_conf, ' to ', up_conf, &
+    !   'low_vsplit = ', low_vsplit, ' up_vsplit = ', up_vsplit, '  was not included...'
     n_not_included = n_not_included + 1
     CYCLE
    ELSE

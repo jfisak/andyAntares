@@ -412,9 +412,10 @@ CASE(9)
    DO K = 1, n_ions
     CALL part_fun(J, K, temperature, U)
     part_functions(cur_ion) = U
+    cur_ion = cur_ion + 1
    END DO ! over ions
   END DO ! over elements
-  write(17,*) I, part_functions
+  write(17,*) I, part_functions(1:)
  END DO ! over model cells
  CLOSE(17)
 CASE DEFAULT
