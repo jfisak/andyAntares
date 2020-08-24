@@ -134,7 +134,7 @@ IMPLICIT NONE
   INTEGER                            :: debug
 ! flux from existing input file
   INTEGER                            :: inputflux, inputmodel
-  CHARACTER(20)                         :: inputmodelFile
+  CHARACTER(20)                         :: inputmodelFile, inputcomposition
 ! number of photoionization cross sections
   INTEGER                               :: n_photcrossect, n_tot_cont, n_ff = 0
 ! number of dummy packages

@@ -197,6 +197,7 @@ OPEN(8,status='old',FILE=filename)
    ! IF(el_index == 3) write(*,*) 'read_levels: el_index = ', el_index, 'cur_ion = ', I, &
    !  ' cur_level = ', cur_level, 'ionoffset = ', ionoffset / e_v, 'eenergy = ', &
    !  elements(el_index)%ions(I)%levels(cur_level)%exci_energy / e_v
+   ! write(*,*) 'read_levels: exci_energy = ', elements(el_index)%ions(I)%levels(cur_level)%exci_energy
   END DO
  END DO
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -237,7 +238,7 @@ OPEN(8,status='old',FILE=filename)
    n_levels = nlevels(I)
    ! write(99,*) 'I = ', I, 'lowerion = ', lowerion, &
    !  ' el_index = ', el_index, ' indexi = ', indexi
-   write(*,*) 'read_levels: ion = ', I, ' n_levels = ', n_levels
+   ! write(*,*) 'read_levels: ion = ', I, ' n_levels = ', n_levels
    ALLOCATE(elements(el_index)%ions(indexi)%levels(n_levels))
   END DO
   ! allocation of the given arrays
@@ -251,6 +252,8 @@ OPEN(8,status='old',FILE=filename)
 !   IF(nline == nions) EXIT
 !  END DO
   ! now we are reading atomic data for the selected ions
+  ! reading the first line
+  READ(8 ,*, iostat = reading_levels) jint, jint, iconf, l_energy, s_weight, junk
   DO current_ion = lowerion, upperion ! loop over ions
    ! index in the array elements%ions(indexi) ordered from
    ! neutrals to most ionized ions
@@ -270,8 +273,6 @@ OPEN(8,status='old',FILE=filename)
 !    END IF
    ! reading the levels for the given ion
    J = 0
-   ! reading the first line
-   READ(8 ,*, iostat = reading_levels) jint, jint, iconf, l_energy, s_weight, junk
    DO  ! loop over atomic levels for the given ion
     ! READ(8,'(A)', IOSTAT = reading_levels) line
     ! write(99,*) 'reading_levels: ', line
@@ -314,8 +315,8 @@ OPEN(8,status='old',FILE=filename)
    DO cur_level = 1, n_levels
     cur_excien = elements(el_index)%ions(I)%levels(cur_level)%exci_energy
     elements(el_index)%ions(I)%levels(cur_level)%exci_energy = ionoffset + cur_excien
-    write(*,*) 'read_levels: ', el_index, I, cur_level, 'ionoffset = ', ionoffset,&
-     ' ee = ', elements(el_index)%ions(I)%levels(cur_level)%exci_energy
+    ! write(*,*) 'read_levels: ', el_index, I, cur_level, 'ionoffset = ', ionoffset,&
+    !  ' ee = ', elements(el_index)%ions(I)%levels(cur_level)%exci_energy
    END DO
   END DO
    ! if everything is OK, we will read from the variable line variables

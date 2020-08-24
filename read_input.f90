@@ -177,6 +177,12 @@ SUBROUTINE read_input(n_pack, iseed)
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(A20)', ERR=94) inputmodelFile
 
+    ELSE IF (ACTPAR .EQ. 'inputComposition') THEN
+    CALL SARGC (LINE, NPAR)
+    IF (NPAR .LT. 2) GOTO 90
+    CALL SARGV(LINE,2,ACTPAR)
+    READ (ACTPAR, '(A20)', ERR=94) inputcomposition
+
     ! end all ifs
     END IF
   END DO

@@ -26,7 +26,7 @@ SUBROUTINE read_composition()
 
 ! initialization the toal number of photoionization cross section
 n_photcrossect = 0
-OPEN (UNIT=7, FILE='compose_adata.dat')
+OPEN (UNIT=7, FILE=inputcomposition)
  ! computes number of lines in the input file
  ! number of rows is equal to 0
  ! for this time it will calculate number of rows
