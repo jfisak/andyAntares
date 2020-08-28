@@ -23,7 +23,7 @@ indexl0(:) = MINLOC(elements(indexe)%ions(indexi)%levels(:)%exci_energy)
 indexl1(:) = MAXLOC(elements(indexe)%ions(indexi)%levels(:)%exci_energy)
 U = elements(indexe)%ions(indexi)%levels(indexl0(1))%stat_waight
 e_gl = elements(indexe)%ions(indexi)%levels(indexl0(1))%exci_energy
-!  print*, '  Part.func. initialisation:', U, e_gl
+! write(*,*) 'part_fun: indexe = ', indexe, ' indexi = ', indexi, ' e_gl = ', e_gl / e_V
 ! IF(indexe == 3 .AND. indexi == 3) write(*,*) 'part_fun: indexl0(1) = ', indexl0(1), ' e_gl = ', e_gl / e_V
 
 ! Number of levels for the given element indexe in ionisation stage indexi
@@ -35,9 +35,11 @@ DO indexl = 1, nlevels
  g_level = elements(indexe)%ions(indexi)%levels(indexl)%stat_waight   
  ! Excitation energy of the excited level
  e_level = elements(indexe)%ions(indexi)%levels(indexl)%exci_energy
+ ! write(*,*) 'part_fun: g_level = ', g_level, ' e_level = ', e_level/e_V
  ! Partition function
  IF(temp == 0 ) STOP 'part_fun: temperature = 0...'
  U = U + g_level * EXP(-(e_level - e_gl) / BOLK / temp)  
+ ! write(*,*) 'part_fun: delta U = ', g_level * EXP(-(e_level - e_gl) / BOLK / temp)  
 ! IF(indexe == 3 .AND. indexi == 2) write(*,*) '   part.func. calculation:', indexl, g_level, U,&
 !  e_level/e_V, e_gl/e_V
 END DO

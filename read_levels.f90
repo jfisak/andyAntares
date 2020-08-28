@@ -31,7 +31,7 @@ SUBROUTINE read_levels(el_index, lowerion, upperion, levels_type, filename)
  DOUBLE PRECISION, PARAMETER    :: rydberg = 13.5979996 !(eV)
  ! calculation of excitation energy (OP)
  ! current excitation energy
- DOUBLE PRECISION               :: cur_excien 
+ DOUBLE PRECISION               :: cur_excien, ipot
  INTEGER                        :: cur_level
  INTEGER                        :: n_ions
  INTEGER                        :: at_index
@@ -194,9 +194,9 @@ OPEN(8,status='old',FILE=filename)
    ! write(*,*) 'read_levels: cur_excien = ', cur_excien,&
    !  ' ee = ', elements(el_index)%ions(I)%levels(cur_level)%exci_energy
    elements(el_index)%ions(I)%levels(cur_level)%exci_energy = ionoffset + cur_excien
-   ! IF(el_index == 3) write(*,*) 'read_levels: el_index = ', el_index, 'cur_ion = ', I, &
-   !  ' cur_level = ', cur_level, 'ionoffset = ', ionoffset / e_v, 'eenergy = ', &
-   !  elements(el_index)%ions(I)%levels(cur_level)%exci_energy / e_v
+    write(*,*) 'read_levels: ', el_index, I, &
+     cur_level,  'ee= ', &
+     elements(el_index)%ions(I)%levels(cur_level)%exci_energy / e_v
    ! write(*,*) 'read_levels: exci_energy = ', elements(el_index)%ions(I)%levels(cur_level)%exci_energy
   END DO
  END DO
@@ -215,11 +215,15 @@ OPEN(8,status='old',FILE=filename)
   ! set up initial variables for every single index I
   DO I = 1, nions
    nlevels(I) = 0
+   READ(8,*) el_index, indexi, ipot
+   indexi = indexi + 1
+   ! write(*,*) 'read_levels: el_index = ', el_index, ' indexi = ', indexi, ' ipot = ', ipot
+   elements(el_index)%ions(indexi)%ion_potential = DBLE(ipot) * e_V
+   ! write(*,*) 'reading_levels: ipot = ', elements(el_index)%ions(indexi)%ion_potential
   END DO
   ! computing number of energy levels for the given ions
   current_ion = lowerion
   ! reading the first line
-  READ(8 ,*, iostat = reading_levels) jint, jint, iconf, l_energy, s_weight, junk
   DO
    !
    ! calculation of number of levels for the given ion
@@ -232,6 +236,7 @@ OPEN(8,status='old',FILE=filename)
    act_index = cur_ion + 1
    nlevels(act_index) = nlevels(act_index) + 1
   END DO
+  ! allocation of arrays
   DO I = 1, nions
    ! ionindex = I + lowerion - 1
    indexi = I + lowerion - 1
@@ -253,7 +258,9 @@ OPEN(8,status='old',FILE=filename)
 !  END DO
   ! now we are reading atomic data for the selected ions
   ! reading the first line
-  READ(8 ,*, iostat = reading_levels) jint, jint, iconf, l_energy, s_weight, junk
+  DO I = 1, nions
+   READ(8 ,'(A)') line
+  END DO
   DO current_ion = lowerion, upperion ! loop over ions
    ! index in the array elements%ions(indexi) ordered from
    ! neutrals to most ionized ions
@@ -299,8 +306,6 @@ OPEN(8,status='old',FILE=filename)
     ! elements(el_index)%ions(indexi)%levels(J)%l_index = J
     IF( J == act_nlevels) EXIT
    END DO ! loop over atomic levels for the given ion
-   elements(el_index)%ions(indexi)%ion_potential = &
-    ABS(MAXVAL(elements(el_index)%ions(indexi)%levels(:)%exci_energy))
    ! write(*,*) 'read_levels: ion pot = ', MINVAL(elements(el_index)%ions(indexi)%levels(:)%exci_energy)/ e_v
   END DO ! loop over ions
   ! recalculation of excitation energies
@@ -315,7 +320,7 @@ OPEN(8,status='old',FILE=filename)
    DO cur_level = 1, n_levels
     cur_excien = elements(el_index)%ions(I)%levels(cur_level)%exci_energy
     elements(el_index)%ions(I)%levels(cur_level)%exci_energy = ionoffset + cur_excien
-    ! write(*,*) 'read_levels: ', el_index, I, cur_level, 'ionoffset = ', ionoffset,&
+    ! write(*,*) 'read_levels: ', el_index, I, cur_level, &
     !  ' ee = ', elements(el_index)%ions(I)%levels(cur_level)%exci_energy
    END DO
   END DO

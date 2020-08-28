@@ -42,8 +42,8 @@ DO I = 1, numb_ions
   D = D * el_nd * sb_factor
   IF(isnan(D)) THEN
   END IF
-! print*, 'vypocet ionization fraction, hodnoty: el_nd = ', el_nd, ' ,sb_factor = ', sb_factor, ' , temp = ', temp
-! print*, 'probehl', I, ' a ', J, ' -ty cyklus vypoctu D, D=', D
+ ! write(*,*) 'vypocet ionization fraction, hodnoty: el_nd = ', el_nd, ' ,sb_factor = ', sb_factor, ' , temp = ', temp
+ ! write(*,*) 'probehl', I, ' a ', J, ' -ty cyklus vypoctu D, D=', D
  END DO
  SUMM = SUMM + D     
 ! print*, 'hodnota SUMM = ', SUMM

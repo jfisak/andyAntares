@@ -24,6 +24,7 @@ DO gridcell = 1, n_modelgrid
   ! Calculate partition function (U) of element indexe in ionization stage 
   ! indexi at given temperature temp
   CALL part_fun(indexe, indexi, temp, U)
+  ! write(*,*) 'lte_pops: U = ', U
   ! Ground level population number (number density of the atom at ground level)
   ! write(*,*) 'update_grid: U = ', U
   indexl0(:) = MINLOC(elements(indexe)%ions(indexi)%levels(:)%exci_energy)

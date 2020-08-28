@@ -383,7 +383,7 @@ CASE(8)
    ! write(*,*) 'read_transitions: reading_transitions = ', reading_transitions
    IF(line(1:1) == '*') CYCLE
    READ(line, *) current_element, electron_number,&
-    low_conf,  up_conf, jint, jdble, col_str, jdble,  jdble, jdble, jdble, A, jdble
+    low_conf,  up_conf, jint, jdble, jdble, col_str, jdble, jdble, jdble, A, jdble
    ! write(*,*) 'read_transitions: col_str = ', col_str, ' A = ', A, &
    !  ' l_freq = ', l_freq
    ! READ(9,'(A)',IOSTAT = reading_transitions) line
