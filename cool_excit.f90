@@ -44,7 +44,7 @@ CASE(1)
   ! write(*,*) 'cool_excit: calling populations...'
   CALL populations(element_index, ion_index, linelist(line)%lower, current_mgi, pop)
   ! oscilator strength
-  osc_str = linelist(line)%f_ul
+  osc_str = linelist(line)%f_lu
   ! frequency of transition
   freq = linelist(line)%freq
   x = (h * freq) / (BOLK * temperature)

@@ -20,7 +20,7 @@ DOUBLE PRECISION                        :: exci_energy_u, exci_energy_l
 DOUBLE PRECISION                        :: act_pop, up_pop, low_pop
 ! beta lu calculation
 DOUBLE PRECISION                        :: taulu, betalu
-DOUBLE PRECISION                        :: Bul, Blu, Jlu
+DOUBLE PRECISION                        :: Bul, Blu, Jlu, Aul
 DOUBLE PRECISION                        :: flux_function
 INTEGER                                 :: act_line
 INTEGER                                 :: lower_level, upper_level
@@ -88,32 +88,35 @@ DO I = 1, nlns
  ! homologous approximation
  ROverV = roverw()
  ! optical depth
- !  * linelist(act_line)%f_ul * corrFactor
+ !  * linelist(act_line)%f_lu * corrFactor
  taulu = light_speed / fr_line * constanta * &
-   linelist(act_line)%f_ul * low_pop * ROverV * corrFactor
+   linelist(act_line)%f_lu * low_pop * ROverV * corrFactor
  betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
- Blu = 4 * pi**2 * e_charge**2 / (me_g * light_speed * h * fr_line) * linelist(act_line)%f_ul
+ Blu = 4 * pi**2 * e_charge**2 / (me_g * light_speed * h * fr_line) * linelist(act_line)%f_lu
  Bul = stat_weight_l / stat_weight_u * Blu
+ Aul = 2 * h * fr_line**3 / light_speed**2 * Bul
  Jlu = flux_function(0, linelist(act_line)%freq, model_grid(current_mgi)%T)
  IF(stmasnab) THEN
   actVal = (low_pop * Blu - up_pop * Bul) * betalu * Jlu
  ELSE
   ! Blu = light_speed ** 2.0 / (2.0 * h * fr_line**3.0) * DBLE(stat_weight_u) / DBLE(stat_weight_l) &
   !  * linelist(act_line)%A_ul
-  Blu = 4 * pi**2 * e_charge**2 / (me_g * light_speed * h * fr_line) * linelist(act_line)%f_ul
-  Bul = stat_weight_l / stat_weight_u * Blu
-  Jlu = flux_function(0, linelist(act_line)%freq, model_grid(current_mgi)%T)
   ! calculation of Blu and Bul
-  actVal = up_pop * betalu * (linelist(act_line)%A_ul + Bul * Jlu)! * corrFactor 
+  actVal = up_pop * betalu * (Aul + Bul * Jlu)! * corrFactor 
  END IF
  ! write(*,*) 'i_radtrans: actVal = ', actVal, ' e_l = ', exci_energy_l, ' e_u - e_l = ', exci_energy_u - exci_energy_l
  actirates%Lma_int_dorad(I) = actVal * exci_energy_l
+ ! actirates%Lma_int_dorad(I) = 2.0 * fr_line **2 / light_speed**2 * stat_weight_l / stat_weight_u * &
+ !  linelist(act_line)%f_lu * betalu * exci_energy_l
  IF(actirates%Lma_int_dorad(I) < 0.D0) STOP 'i_radtrans: Lma_int_dorad < 0'
  ! write(*,*) 'i_radtrans: exci_energy_u = ', exci_energy_u
  actirates%Lma_rad(I) = actVal * (exci_energy_u - exci_energy_l)
+ ! actirates%Lma_rad(I) = 2.0 * fr_line **2 / light_speed**2 * stat_weight_l / stat_weight_u * &
+ !  linelist(act_line)%f_lu * betalu * exci_energy_l
  Zintdown = Zintdown + actirates%Lma_int_dorad(I)
  ! write(*,*) 'i_radtrans: Zintdown = ', Zintdown
  Zrad = Zrad + actirates%Lma_rad(I)
+ ! write(*,*) 'i_radtrans: Zrad = ', Zrad
  IF(exci_energy_u - exci_energy_l < 0) STOP 'i_radtrans: exci_energy_u - exci_energy_l < 0'
 END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -136,25 +139,28 @@ DO I = 1, nluns
  ! Blu = light_speed ** 2.0 / (2.0 * h * linelist(act_line)%freq**3.0) * DBLE(stat_weight_u) / DBLE(stat_weight_l) &
  !  * linelist(act_line)%A_ul
  fr_line = linelist(act_line)%freq
- Blu = 4 * pi**2 * e_charge**2 / (me_g * light_speed * h * fr_line) * linelist(act_line)%f_ul
+ Blu = 4 * pi**2 * e_charge**2 / (me_g * light_speed * h * fr_line) * linelist(act_line)%f_lu
  Bul = DBLE(stat_weight_l) / DBLE(stat_weight_u) * Blu
+ Aul = 2 * h * fr_line**3 / light_speed**2 * Bul
 ! internal jump up
 ! write(*,*) 'i_radtrans: pack_index = ', pack_index, ' freq = ', linelist(act_line)%freq
 ! IF(vec_length(vel_vec) /= 0.D0) THEN
  ROverV = roverw()
  ! optical depth
  ! taulu = low_pop * pi * e_v ** 2.0  * ROverV / (me_g * light_speed * linelist(act_line)%freq) &
- !  * linelist(act_line)%f_ul * corrFactor
+ !  * linelist(act_line)%f_lu * corrFactor
  taulu = light_speed / linelist(act_line)%freq * constanta * &
-  linelist(act_line)%f_ul * low_pop * corrFactor * ROverV!  * corrFactor
+  linelist(act_line)%f_lu * low_pop * corrFactor * ROverV
  betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
  IF(stmasnab) THEN
   actVal = up_pop * betalu * linelist(act_line)%A_ul
  ELSE
-  actVal = up_pop * betalu * (linelist(act_line)%A_ul + Bul * Jlu)
+  actVal = up_pop * betalu * (Aul + Bul * Jlu)
  END IF
  IF(actVal < 0.D0) STOP 'i_radtrans: (l_pop * Blu - u_pop * Bul) < 0'
  actirates%Lma_int_uprad(I) = actVal * exci_energy_l
+ ! actirates%Lma_int_uprad(I) = linelist(act_line)%f_lu / (h * fr_line) * corrFactor * &
+ !  betalu * Jlu * exci_energy_l
 !  write(*,*) 'i_radtrans: up_pop = ', up_pop, 'low_pop = ', low_pop
 !  write(*,*) 'i_radtrans: nB - nB = ', (low_pop * Blu - up_pop * Bul)
 !  write(*,*) 'i_radtrans: taulu = ', taulu, ' corrFactor = ', corrFactor

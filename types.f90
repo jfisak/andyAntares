@@ -58,7 +58,7 @@ IMPLICIT NONE
 
   TYPE line_list
      INTEGER                         :: indexe, indexi, lower, upper
-     DOUBLE PRECISION                :: freq, A_ul, f_ul
+     DOUBLE PRECISION                :: freq, A_ul, f_lu
      INTEGER                         :: n_deexc, n_exc
      INTEGER(KIND=4)                 :: n_int
   END TYPE line_list

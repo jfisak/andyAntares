@@ -256,10 +256,10 @@ CASE(2)
    ! write(*,*) 'read_transitions: lambda = ', light_speed / linelist(ntransitions)%freq * 1.E8
    IF(simpleTrans) THEN
     linelist(ntransitions)%A_ul = abs(A)
-    linelist(ntransitions)%f_ul = abs(col_str)
+    linelist(ntransitions)%f_lu = abs(col_str)
    ELSE
     linelist(ntransitions)%A_ul = abs(A) / g_lower
-    linelist(ntransitions)%f_ul = abs(col_str) / g_lower
+    linelist(ntransitions)%f_lu = abs(col_str) / g_lower
    END IF
    linelist(ntransitions)%n_int = 0
    ! write(99,*) 'line: ', ntransitions, ' el = ', el_index, ' ion = ', current_ion,&
@@ -423,17 +423,17 @@ CASE(8)
      ! write(*,*) 'found up_conf ', up_conf
      ! write(*,*) 'found electron configuration...'
     END IF
-    !IF(found_up_conf .EQV. .TRUE. .AND. found_low_conf .EQV. .TRUE.) EXIT
-    IF((found_up_conf .EQV. .TRUE.) .AND. (found_low_conf .EQV. .TRUE.)) EXIT
     IF((found_low_conf .EQV. .TRUE.) .AND. (found_up_conf .EQV. .TRUE.)) THEN
      ee_lc = elements(el_index)%ions(current_ion)%levels(act_lc)%exci_energy
      ee_uc = elements(el_index)%ions(current_ion)%levels(act_uc)%exci_energy
      IF(ee_lc < ee_uc) THEN
       act_lower = act_lc
       act_upper = act_uc
+      EXIT
      ELSE IF(ee_uc < ee_lc) THEN
       act_lower = act_uc
       act_upper = act_lc
+      EXIT
      ELSE
       ! write(*,*) 'read_transitions: act_lc = ', act_lc, ' act_uc = ', act_uc
       ! write(*,*) 'conf_l = ', TRIM(low_conf), ' conf_u = ', up_conf
@@ -445,8 +445,8 @@ CASE(8)
    IF((found_low_conf .EQV. .TRUE.) .AND. (found_up_conf .EQV. .TRUE.)) THEN
      ! write(*,*) 'read_transitions: element: ', element, ' ion = ', ion_index, &
      !  ' line from ', low_conf, ' to ', up_conf, 'lc = ', act_lc, 'uc = ', act_uc, ' was included...'
-    ee_lc = elements(el_index)%ions(current_ion)%levels(act_lc)%exci_energy
-    ee_uc = elements(el_index)%ions(current_ion)%levels(act_uc)%exci_energy
+    ee_lc = elements(el_index)%ions(current_ion)%levels(act_lower)%exci_energy
+    ee_uc = elements(el_index)%ions(current_ion)%levels(act_upper)%exci_energy
     IF(ee_lc < ee_uc) THEN
      act_lower = act_lc
      act_upper = act_uc
@@ -480,7 +480,7 @@ CASE(8)
     elements(el_index)%ions(current_ion)%levels(act_lower)%exci_energy
    linelist(ntransitions)%freq =  deltaE / h
    linelist(ntransitions)%A_ul = A
-   linelist(ntransitions)%f_ul = col_str
+   linelist(ntransitions)%f_lu = col_str
    ! write(*,*) 'read_transitions: lambda = ', light_speed / linelist(ntransitions)%freq * 1.E8
    linelist(ntransitions)%n_int = 0
    ! write(99,*) 'line: ', ntransitions, ' el = ', el_index, ' ion = ', current_ion,&

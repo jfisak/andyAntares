@@ -87,10 +87,13 @@ DO I = 1, nnextlines
  ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * ROverV &
  ! / (4.0 * pi) * corrFactor * ldist
  ! actirrates%Lline(I) = low_pop * pi * e_v ** 2.0  * ROverV &
- !  / (me_g * linelist(indexline)%freq) * linelist(indexline)%f_ul * corrFactor
+ !  / (me_g * linelist(indexline)%freq) * linelist(indexline)%f_lu * corrFactor
+ ! actirrates%Lline(I) = light_speed / linelist(indexline)%freq * constanta * &
+ !  linelist(indexline)%f_lu * low_pop * corrFactor * ROverV
  actirrates%Lline(I) = light_speed / linelist(indexline)%freq * constanta * &
-  linelist(indexline)%f_ul * low_pop * corrFactor * ROverV
- write(*,*) 'r_kappa_line: Lline(', I ') = ', actirrates%Lline(I)
+  linelist(indexline)%f_lu * low_pop * corrFactor * ROverV
+ !write(*,*) 'r_kappa_line: Lline(', I, ') = ', actirrates%Lline(I)
+ ! write(*,*) 'r_kappa_line: f_lu = ', linelist(indexline)%f_lu
  tau_line = tau_line + actirrates%Lline(I)
 END DO
 

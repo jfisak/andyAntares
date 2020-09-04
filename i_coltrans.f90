@@ -75,7 +75,7 @@ lineuptransitions = elements(indexe)%ions(indexi)%levels(level)%lineuptransition
  DO I = 1, nlns
   ! important physical quantities
   act_line = linetransitions(I)
-  osc_str = linelist(act_line)%f_ul
+  osc_str = linelist(act_line)%f_lu
   exci_energy_l = elements(indexe)%ions(indexi)%levels(linelist(act_line)%lower)%exci_energy
   exci_energy_u = elements(indexe)%ions(indexi)%levels(linelist(act_line)%upper)%exci_energy
   ! frequency of transition
@@ -108,7 +108,7 @@ lineuptransitions = elements(indexe)%ions(indexi)%levels(level)%lineuptransition
  DO I = 1, nluns
   act_line = lineuptransitions(I)
   ! important physical quantities
-  osc_str = linelist(act_line)%f_ul
+  osc_str = linelist(act_line)%f_lu
   exci_energy_l = elements(indexe)%ions(indexi)%levels(linelist(act_line)%lower)%exci_energy
   ! frequency of transition
   freq = linelist(act_line)%freq

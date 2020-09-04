@@ -194,9 +194,9 @@ OPEN(8,status='old',FILE=filename)
    ! write(*,*) 'read_levels: cur_excien = ', cur_excien,&
    !  ' ee = ', elements(el_index)%ions(I)%levels(cur_level)%exci_energy
    elements(el_index)%ions(I)%levels(cur_level)%exci_energy = ionoffset + cur_excien
-    write(*,*) 'read_levels: ', el_index, I, &
-     cur_level,  'ee= ', &
-     elements(el_index)%ions(I)%levels(cur_level)%exci_energy / e_v
+    ! write(*,*) 'read_levels: ', el_index, I, &
+    !  cur_level,  'ee= ', &
+    ! elements(el_index)%ions(I)%levels(cur_level)%exci_energy / e_v
    ! write(*,*) 'read_levels: exci_energy = ', elements(el_index)%ions(I)%levels(cur_level)%exci_energy
   END DO
  END DO
