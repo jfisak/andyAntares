@@ -70,12 +70,15 @@ ELSE ! f_cmf < f_reddest_line
  RETURN
 END IF
 
-! write(*,*) 'next_line: after next1line = ', next1line
+! write(*,*) 'next_line: next1line = ', next1line
 
+linelist(next1line)%counted = .TRUE.
 
 n_eqf_lines = 1
 DO I = next1line + 1, ntransitions
  IF(linelist(I)%freq == linelist(next1line)%freq) THEN
+  ! write(*,*) 'next1line: after next line: ', I
+  linelist(I)%counted = .TRUE.
   n_eqf_lines = n_eqf_lines + 1
   CYCLE
  END IF
@@ -85,6 +88,7 @@ END DO
 ! write(*,*) 'next_line: next1line = ', next1line
  ! write(*,*) 'next_line: next1line = ', next1line, ' n_eqf_lines = ', n_eqf_lines
  ! write(*,*) 'next_line: f_cmf / f_line = ', package(pack_index)%freq_cmf / linelist(next1line)%freq
+ ! write(*,*) 'next_line:(n-1) f_cmf / f_line = ', package(pack_index)%freq_cmf / linelist(next1line - 1)%freq
  ! write(*,*) 'next_line: f_cmf / f_line(n1 - 1) = ', package(pack_index)%freq_cmf / linelist(next1line - 1)%freq
  ! STOP 'next_line: testing'
 ! number of lines with the same frequency
@@ -113,9 +117,9 @@ IF(package(pack_index)%freq_cmf <= linelist(next1line)%freq) THEN
  tooRed = .TRUE.
 END IF
 
-IF(pack_index == test_pi) THEN
- write(*,*) 'next_line: init_line = ', init_line, ' next1line = ', next1line
-END IF
+! IF(pack_index == test_pi) THEN
+!  write(*,*) 'next_line: init_line = ', init_line, ' next1line = ', next1line
+! END IF
 ! write(*,*) 'next_line: f_cmf / f_line = ', package(pack_index)%freq_cmf / linelist(next1line)%freq
 
 IF(next1line > SIZE(linelist) + 1) THEN

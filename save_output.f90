@@ -136,7 +136,7 @@ CASE(1)
    ! wavelength is in Angstroms
    wavle = 1e8 * light_speed / linelist(I)%freq
    WRITE(11,*) I, elements(linelist(I)%indexe)%atom_number, linelist(I)%indexi, wavle,&
-    linelist(I)%A_ul, linelist(I)%n_int, linelist(I)%n_deexc
+    linelist(I)%A_ul, linelist(I)%n_int, linelist(I)%n_deexc, linelist(I)%counted
   END DO
  CLOSE(11)
 !________________________________________________________________________________

@@ -34,7 +34,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
     ! case, i.e. we immediately re-emit the package isotropically in
     ! the cmf and conserve the cmf frequency print*,
     ! freq_line,package(pack_index)%freq_cmf
-!     print*, 'photon ', pack_index, ' line interaction...'
+    ! write(*,*) 'do_rpackage_event: ', pack_index, ' line interaction...'
     IF(ellastic_scattering) THEN
      ! write(37,*) 1.D8 * light_speed / package(pack_index)%freq_rf
      CALL emit_rpackage(pack_index)

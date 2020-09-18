@@ -11,9 +11,9 @@ INTEGER                           :: pack_index
 DOUBLE PRECISION                  :: dist, D, vec_length
 INTEGER                           :: dummypackage
 
-!write(*,*)'move_package: Thread rank: ', my_rank
 dummypackage = SIZE(package)
-!write(*,*) 'move_package: my_rank = ', my_rank, ' dummypackage = ', dummypackage
+
+! write(*,*) 'move_package: pack_index = ', pack_index, ' dist = ', dist/R_star
 
 ! Calculate the position of package
 package(pack_index)%pos(1) = package(pack_index)%pos(1) + dist * package(pack_index)%dir(1) 
@@ -43,8 +43,9 @@ END IF
 CALL doppler_factor(pack_index, D)
 package(pack_index)%freq_cmf = package(pack_index)%freq_rf * D
 package(pack_index)%e_cmf = package(pack_index)%e_rf * D
-!  print*, 'frequency in frame: ', package(pack_index)%freq_rf, &
-!        'frequency in CMF: ', package(pack_index)%freq_cmf
+! write(*,*)  'frequency in frame: ', package(pack_index)%freq_rf/1.5e9, &
+!       'frequency in CMF: ', package(pack_index)%freq_cmf/1.5e9, &
+!       ' dir = ', package(pack_index)%dir
 IF (package(pack_index)%freq_cmf < 0) THEN
  write(*,*) 'move_package: package = ', pack_index, ' prop. cell = ', package(pack_index)%cell_numb
  write(*,*) 'FREQUENCY IS LOWER THAN ZERO!!!'
