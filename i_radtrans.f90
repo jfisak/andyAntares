@@ -94,7 +94,9 @@ DO I = 1, nlns
  betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
  Blu = 4 * pi**2 * e_charge**2 / (me_g * light_speed * h * fr_line) * linelist(act_line)%f_lu
  Bul = stat_weight_l / stat_weight_u * Blu
- Aul = 2 * h * fr_line**3 / light_speed**2 * Bul
+ ! Aul = 2 * h * fr_line**3 / light_speed**2 * Bul
+ Aul = 8.D0 * fr_line**2 * pi**2 * e_charge**2/ (me_g * light_speed**3) *&
+  stat_weight_l / stat_weight_u * linelist(act_line)%f_lu
  Jlu = flux_function(0, linelist(act_line)%freq, model_grid(current_mgi)%T)
  IF(stmasnab) THEN
   actVal = (low_pop * Blu - up_pop * Bul) * betalu * Jlu
@@ -102,7 +104,8 @@ DO I = 1, nlns
   ! Blu = light_speed ** 2.0 / (2.0 * h * fr_line**3.0) * DBLE(stat_weight_u) / DBLE(stat_weight_l) &
   !  * linelist(act_line)%A_ul
   ! calculation of Blu and Bul
-  actVal = up_pop * betalu * (Aul + Bul * Jlu)! * corrFactor 
+  ! actVal = up_pop * betalu * (Aul + Bul * Jlu)! * corrFactor 
+  actVal = Aul * betalu * up_pop
  END IF
  ! write(*,*) 'i_radtrans: actVal = ', actVal, ' e_l = ', exci_energy_l, ' e_u - e_l = ', exci_energy_u - exci_energy_l
  actirates%Lma_int_dorad(I) = actVal * exci_energy_l
@@ -155,7 +158,8 @@ DO I = 1, nluns
  IF(stmasnab) THEN
   actVal = up_pop * betalu * linelist(act_line)%A_ul
  ELSE
-  actVal = up_pop * betalu * (Aul + Bul * Jlu)
+  ! actVal = up_pop * betalu * (Aul + Bul * Jlu)
+  actVal = (Blu * low_pop - Bul * up_pop) * betalu * Jlu
  END IF
  IF(actVal < 0.D0) STOP 'i_radtrans: (l_pop * Blu - u_pop * Bul) < 0'
  actirates%Lma_int_uprad(I) = actVal * exci_energy_l

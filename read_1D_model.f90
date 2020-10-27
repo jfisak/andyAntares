@@ -59,7 +59,7 @@ SELECT CASE (inputModel)
   READ(11,*) junk
   DO I = 1, n_modelgrid
      ! Maybe better to calculate at the midle of the grid cell rather then at the outer boundary 
-     READ(11,*) cell_index, r, velo, dens, temp, massfrac
+     READ(11,*) cell_index, r, velo, dens, temp!, massfrac
      model_grid(I)%rwind = r  * R_star
      model_grid(I)%vel = velo
      model_grid(I)%rho = dens
@@ -84,6 +84,7 @@ SELECT CASE (inputModel)
 
   R_inf  = model_grid(n_modelgrid)%rwind
   V_inf  = model_grid(n_modelgrid)%vel
+  V_inf = 30000.D+5
   write(*,*) 'read_1D_model: R_inf = ', R_inf/R_star, 'V_inf = ', V_inf
 
   ! setting properties

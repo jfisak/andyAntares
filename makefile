@@ -26,7 +26,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
           saha_boltzmann_factor.o ionization_fraction.o f_edens.o         \
           find_e_nd.o part_fun.o update_estimators.o freq_from_file.o     \
           acc_rej_montecarlo.o virtual_particles.o setup_grid2.o          \
-          create_dynamical_grid_cells.o find_dyn_cell1.o \
+          create_dynamical_grid_cells.o find_dyn_cell1.o do_spectrum.o\
           connection_prop_model_grid.o divide_cell_8.o divide_cell_ijk.o  \
 	  next_cell_down.o next_cell_up.o read_2D_model.o populations.o   \
 	  i_coltrans.o gamma_function.o exp_int_func.o cool_excit.o \

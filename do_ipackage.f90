@@ -145,15 +145,15 @@ DO WHILE (active == 1)
  CALL i_colion(1, element_index, ion_index, actual_state, pack_index, act_pop, Zcollionup, &
   Zcolliondown,Zcollrecom, actirates)
 ! testing
-! Zcollrecom = 0.D0
+Zcollrecom = 0.D0
 Zcoll = 0.D0
-! Zphotrecom = 0.D0
+Zphotrecom = 0.D0
 Zintupcoll = 0.D0
 Zintdowncoll = 0.D0
-! Zintdownrad = 0.D0
-! Zintuprad = 0.D0
-! Zphotionup = 0.D0
-! Zcollionup = 0.D0
+Zintdownrad = 0.D0
+Zintuprad = 0.D0
+Zphotionup = 0.D0
+Zcollionup = 0.D0
 ! end testing
 IF(Zintdowncoll < 0.D0) STOP 'do_ipackage: Zintdowncoll < 0'
 IF(Zintupcoll < 0.D0) STOP 'do_ipackage: Zintupcoll < 0'

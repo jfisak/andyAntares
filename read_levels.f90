@@ -213,6 +213,7 @@ OPEN(8,status='old',FILE=filename)
   at_index = elements(el_index)%atom_number
   ALLOCATE(nlevels(nions))
   ! set up initial variables for every single index I
+  ! write(*,*) 'read_levels: nions = ', nions
   DO I = 1, nions
    nlevels(I) = 0
    READ(8,*) el_index, indexi, ipot
