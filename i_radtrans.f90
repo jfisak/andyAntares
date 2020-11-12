@@ -90,7 +90,7 @@ DO I = 1, nlns
  ! optical depth
  !  * linelist(act_line)%f_lu * corrFactor
  taulu = light_speed / fr_line * constanta * &
-   linelist(act_line)%f_lu * low_pop * ROverV * corrFactor
+   linelist(act_line)%f_lu * up_pop * ROverV * corrFactor
  betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
  Blu = 4 * pi**2 * e_charge**2 / (me_g * light_speed * h * fr_line) * linelist(act_line)%f_lu
  Bul = stat_weight_l / stat_weight_u * Blu

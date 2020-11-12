@@ -132,7 +132,6 @@ DO iteration = 1,1
 !  DO J = 1, nphit
 ! Initialisation of photon packages from the photosphere
  CALL init_photsphere(n_pack) 
- write(99,*) 'photons initialised'
 
 ! Initalisation of photon packages from point source
 ! CALL init_photonpack(n_pack)

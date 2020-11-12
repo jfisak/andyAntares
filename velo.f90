@@ -1,47 +1,46 @@
 
 SUBROUTINE velo(pack_index,vel_vec)
 
- USE types
+USE types
 
- IMPLICIT NONE    
+IMPLICIT NONE    
 
- INTEGER                           :: pack_index
- DOUBLE PRECISION                  :: vel_radial, vec_length
- DOUBLE PRECISION, DIMENSION(3)    :: vel_vec
- ! Petr Kurfurst's disk model variables
- INTEGER                           :: pack_mi, get_package_model_index
- DOUBLE PRECISION, DIMENSION(3)    :: vel_rad, vel_ang, phot_pos
- DOUBLE PRECISION                  :: vel_rad_norm, vel_ang_norm
+INTEGER                           :: pack_index
+DOUBLE PRECISION                  :: vel_radial, vec_length
+DOUBLE PRECISION, DIMENSION(3)    :: vel_vec
+! Petr Kurfurst's disk model variables
+INTEGER                           :: pack_mi, get_package_model_index
+DOUBLE PRECISION, DIMENSION(3)    :: vel_rad, vel_ang, phot_pos
+DOUBLE PRECISION                  :: vel_rad_norm, vel_ang_norm
 
- SELECT CASE(velApprox)
- ! homologous expansion
- CASE(0)
-  vel_radial = V_inf/R_inf * vec_length(package(pack_index)%pos)
-  vel_vec = package(pack_index)%pos/vec_length(package(pack_index)%pos) * vel_radial
- ! the beta velocity law
- CASE(1)
-  vel_radial = V_inf * (1.D0 - R_star / norm2(package(pack_index)%pos))**beta
-  vel_vec = package(pack_index)%pos/vec_length(package(pack_index)%pos) * vel_radial
-  ! write(*,*) 'velo: pos = ', package(pack_index)%pos 
- CASE(2)
-  vel_radial = (V_inf - V_0)/(R_inf - R_star) * &
-   vec_length(package(pack_index)%pos) + &
-   (V_0 * R_inf - V_inf * R_star) / (R_inf - R_star)
-  vel_vec = package(pack_index)%pos/vec_length(package(pack_index)%pos) * vel_radial
- ! #03
- ! velocity field given by model in discrete points
- CASE(3)
-  CALL vel_discrete_points(pack_index, vel_vec)
- CASE DEFAULT
-  write(*,*) 'velo: velApprox = ', velApprox
-  write(*,*) 'this velocity structure is not known'
-  CALL abort()
- END SELECT
- ! check if the packet is located inside the model grid
- IF(vec_length(package(pack_index)%pos) > R_inf .OR. &
-  norm2(package(pack_index)%pos) < R_star) THEN
-  vel_vec = (/ 0.0, 0.0, 0.0/)
- END IF
+SELECT CASE(velApprox)
+! homologous expansion
+CASE(0)
+ vel_radial = V_inf/R_inf * vec_length(package(pack_index)%pos)
+ vel_vec = package(pack_index)%pos/vec_length(package(pack_index)%pos) * vel_radial
+! the beta velocity law
+CASE(1)
+ vel_radial = V_inf * (1.D0 - R_star / norm2(package(pack_index)%pos))**beta
+ vel_vec = package(pack_index)%pos/vec_length(package(pack_index)%pos) * vel_radial
+CASE(2)
+ vel_radial = (V_inf - V_0)/(R_inf - R_star) * &
+  vec_length(package(pack_index)%pos) + &
+  (V_0 * R_inf - V_inf * R_star) / (R_inf - R_star)
+ vel_vec = package(pack_index)%pos/vec_length(package(pack_index)%pos) * vel_radial
+! #03
+! velocity field given by model in discrete points
+CASE(3)
+ CALL vel_discrete_points(pack_index, vel_vec)
+CASE DEFAULT
+ write(*,*) 'velo: velApprox = ', velApprox
+ write(*,*) 'this velocity structure is not known'
+ CALL abort()
+END SELECT
+! check if the packet is located inside the model grid
+! IF(vec_length(package(pack_index)%pos) > R_inf .OR. &
+!  norm2(package(pack_index)%pos) < R_star) THEN
+!  vel_vec = (/ 0.0, 0.0, 0.0/)
+! END IF
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! petr kurfurst's disk model
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
