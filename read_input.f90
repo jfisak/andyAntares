@@ -5,7 +5,7 @@ SUBROUTINE read_input(n_pack, iseed)
   IMPLICIT NONE
 
   INTEGER    :: n_pack, iseed, idx, npar
-  CHARACTER  :: LINE*80, ACTPAR*20
+  CHARACTER  :: LINE*80, ACTPAR*40
 
   OPEN (UNIT=1, FILE='input.dat', STATUS='OLD')
 
@@ -175,7 +175,8 @@ SUBROUTINE read_input(n_pack, iseed)
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
-    READ (ACTPAR, '(A20)', ERR=94) inputmodelFile
+    READ (ACTPAR, '(A60)', ERR=94) inputmodelFile
+    write(*,*) 'read_input: inputmodelFile = ', inputmodelFile
 
     ELSE IF (ACTPAR .EQ. 'inputComposition') THEN
     CALL SARGC (LINE, NPAR)

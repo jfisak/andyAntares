@@ -14,7 +14,7 @@ INTEGER, PARAMETER                        :: maxrows = 6000000
 DOUBLE PRECISION                          :: r, velo, dens, temp
 DOUBLE PRECISION, DIMENSION(n_elements)   :: massfrac
 DOUBLE PRECISION                          :: cell_index
-CHARACTER(20)                             :: modelfile, jikrfile
+CHARACTER(80)                             :: modelfile, jikrfile
 ! variables which are not needed in the code
 !DOUBLE PRECISION                          :: delta_r, delta, delta2, tot_nd, tot_md
 ! (2) PoWR model

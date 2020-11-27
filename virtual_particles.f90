@@ -35,7 +35,7 @@ SELECT CASE (dimIM)
 ! we consider radial symmetric model
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CASE(1)
- delta = 1.D0
+ delta = 2.D0
  ! angle between particles
  ! angleParam = 20
  ! number of virtual particles
