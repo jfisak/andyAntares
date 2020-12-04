@@ -16,7 +16,7 @@
    ! variables for boundaries
    INTEGER                              :: up_bound, newbound
    ! maximal number of particles in one cell
-   INTEGER, PARAMETER                   :: maxPart = 2
+   INTEGER, PARAMETER                   :: maxPart = 1
    DOUBLE PRECISION, DIMENSION(3)       :: corner, cell_width_2
    TYPE(virt_particle), ALLOCATABLE     :: local_particle(:), pom(:)
    TYPE(dyn_grid_cell), ALLOCATABLE     ::  pom2(:)
