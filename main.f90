@@ -12,6 +12,7 @@ SUBROUTINE main
   INTEGER                           :: iseed, idx
   INTEGER, DIMENSION (9)            :: TT
   DOUBLE PRECISION, ALLOCATABLE     :: current_temp(:)
+  INTEGER                               :: cur_parameter=0
 ! parallelized part
 ! definition of MPI variables
 INTEGER                              :: nphit
@@ -30,7 +31,7 @@ my_rank = 0
 #endif
 
 
- CALL save_output(0)
+ CALL save_output(cur_parameter)
  write(99,*) 'mpi initialization: my_rank = ', my_rank, &
   ' n_tasks = ', n_tasks
 ! CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)

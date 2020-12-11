@@ -176,7 +176,6 @@ SUBROUTINE read_input(n_pack, iseed)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(A60)', ERR=94) inputmodelFile
-    write(*,*) 'read_input: inputmodelFile = ', inputmodelFile
 
     ELSE IF (ACTPAR .EQ. 'inputComposition') THEN
     CALL SARGC (LINE, NPAR)
@@ -204,7 +203,6 @@ SUBROUTINE read_input(n_pack, iseed)
   WRITE (99,'(A,I10)') 'inputmodel = ', inputmodel
   WRITE (99,'(A,I10)') 'dyngrid = ', dyngrid
   WRITE (99,'(A,I10)') 'nlte = ', nlte
-  write(*,*) 'read_input: inputmodelFile = ', inputmodelFile
   IF (iseed .LE. 0) THEN 
      WRITE (99,'(A)') 'Random-seed value is random '
   ELSE
