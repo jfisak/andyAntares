@@ -24,6 +24,7 @@ SUBROUTINE virtual_particles(dimIM)
  ! a random point
  DOUBLE PRECISION               :: point
  DOUBLE PRECISION               :: ran2
+ INTEGER                        :: sumpart = 0, zbytek
 
 
 !OPEN(20,FILE="virtual_particles.dat")
@@ -74,6 +75,16 @@ CASE(1)
  ! now we will compute given numbers of points for the given spheres
  DO I = 1, n_modelgrid
   nOfPoints(I) = INT(FLOAT(Nvirtpart) * (model_grid(I)%rwind / R_inf) ** delta / sumr)
+ END DO
+ DO J = 1, n_modelgrid 
+  sumpart = sumpart + nOfPoints(J)
+ END DO
+ write(*,*) 'virtual_particles: sumpart1 = ', sumpart, ' Nvirtpart = ', Nvirtpart
+ zbytek = Nvirtpart - sumpart
+ nOfPoints(n_modelgrid) = nOfPoints(n_modelgrid) + zbytek
+ sumpart = 0
+ DO J = 1, n_modelgrid 
+  sumpart = sumpart + nOfPoints(J)
  END DO
  ! printing number of points for each model grid
 ! OPEN(UNIT=8,FILE='vp_distribution.dat')
@@ -167,6 +178,9 @@ CASE(2)
 !    write(20,*) virtual_particle(NP)%pos(1), virtual_particle(NP)%pos(2), virtual_particle(NP)%pos(3)
   END DO
  END DO
+ ! DO I = 1, Nvirtpart
+ !  IF(norm2(virtual_particle(I)%pos) < R_star) STOP '||r||_vp < R_star'
+ ! END DO
 
 CASE DEFAULT
  STOP 'wrong choice of input model dimension...'

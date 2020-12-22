@@ -85,6 +85,7 @@ SELECT CASE (inputModel)
   END DO
 
   R_inf  = model_grid(n_modelgrid)%rwind
+  ! R_inf = 5.0 * R_star
   ! V_inf  = model_grid(n_modelgrid)%vel
   ! temporary change
   write(*,*) 'read_1D_model: R_inf = ', R_inf/R_star, 'V_inf = ', V_inf
