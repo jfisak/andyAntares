@@ -1,11 +1,12 @@
 ! this subroutine will create a dynamical grid cell for the given basic cell
-  SUBROUTINE create_dynamical_grid_cells(n_dyncell,max_n_dcell)
+  SUBROUTINE create_dynamical_grid_cells(n_dyncell,max_n_dcell, Npart, v_part)
 
    USE types
 
    IMPLICIT NONE
    
    INTEGER                              :: n_dyncell
+   TYPE(virt_particle), DIMENSION(Npart):: v_part
    ! number of created dynamic cells and
    ! actual number of grid cell
    INTEGER                              :: max_n_dcell, act_n_dyncell
@@ -43,17 +44,16 @@ cell_width_2(3) = dyn_cell(n_dyncell)%width(3)
  np = 0
  up_bound = 100
  ! temporary solution
- Npart = SIZE(virtual_particle)
 ! print*, 'create_dynamical_grid_cells: ', Npart
  ALLOCATE(local_particle(up_bound))
 DO J = 1, Npart
  ! is the virtual particle in this cell?
- IF((virtual_particle(J)%pos(1) >= corner(1)) .AND. &
-    (virtual_particle(J)%pos(1) < (corner(1) + cell_width_2(1))) .AND. &
-    (virtual_particle(J)%pos(2) >= corner(2)) .AND. &
-    (virtual_particle(J)%pos(2) < (corner(2) + cell_width_2(2))) .AND. &
-    (virtual_particle(J)%pos(3) >= corner(3)) .AND. &
-    (virtual_particle(J)%pos(3) < (corner(3) + cell_width_2(3)))) THEN
+ IF((v_part(J)%pos(1) >= corner(1)) .AND. &
+    (v_part(J)%pos(1) < (corner(1) + cell_width_2(1))) .AND. &
+    (v_part(J)%pos(2) >= corner(2)) .AND. &
+    (v_part(J)%pos(2) < (corner(2) + cell_width_2(2))) .AND. &
+    (v_part(J)%pos(3) >= corner(3)) .AND. &
+    (v_part(J)%pos(3) < (corner(3) + cell_width_2(3)))) THEN
  ! print*, 'we have a new catched virtual particle :-)'
   np = np + 1
   ! if the field is full, we will have to increase its size

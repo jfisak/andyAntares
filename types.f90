@@ -93,6 +93,7 @@ IMPLICIT NONE
   TYPE virt_particle
      DOUBLE PRECISION, DIMENSION(3)  :: pos
      DOUBLE PRECISION                :: weight
+     INTEGER                         :: n_cell
   END TYPE virt_particle
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

@@ -13,6 +13,12 @@
   INTEGER                                :: max_n_dcell, N_dyn_grid
   INTEGER                                :: xp, xm, yp, ym, zp, zm
   TYPE(dyn_grid_cell), ALLOCATABLE       :: pom2(:)
+  TYPE(virt_particle), ALLOCATABLE       :: local_particle(:), pom(:)
+  INTEGER                               :: Npart
+  INTEGER                               :: np
+  DOUBLE PRECISION, DIMENSION(3)        :: cell_width_2, corner
+  INTEGER                               :: ind_x, ind_y, ind_z, ind_cell_numb
+  DOUBLE PRECISION, DIMENSION(3)        :: pos, width
 
 
   ! Number of propagation grid cells
@@ -99,6 +105,18 @@
     END DO
    END DO
   END DO
+
+  Npart = SIZE(virtual_particle)
+  DO I = 1, Npart
+   pos = virtual_particle(I)%pos
+   width = dyn_cell(1)%width
+   ind_x = FLOOR(pos(1)/width(1) + DBLE(nx_cell)/2) + 1
+   ind_y = FLOOR(pos(2)/width(2) + DBLE(ny_cell)/2) + 1
+   ind_z = FLOOR(pos(3)/width(3) + DBLE(nz_cell)/2) + 1
+   ind_cell_numb = (ind_x - 1) * ny_cell * nz_cell + (ind_y - 1) * nz_cell + ind_z
+   virtual_particle(I)%n_cell = ind_cell_numb
+  END DO
+
   ! the maximal number of cells is now equal to L
   max_n_dcell = Ngrid
 
@@ -106,28 +124,33 @@
 
  IF(dyngrid /= 0) THEN
   DO I = 1, Ngrid
-   CALL create_dynamical_grid_cells(I, max_n_dcell)
-   !print*, 'max_n_dcell = ', max_n_dcell
+   ! find virtual points located in this bgc
+   ! at first we have to know, how many particles are
+   ! in the given cell
+   np = 0
+   ! temporary solution
+   ! print*, 'create_dynamical_grid_cells: ', Npart
+   ALLOCATE(local_particle(Npart))
+   DO J = 1, Npart
+    ! is the virtual particle in this cell?
+    IF(virtual_particle(J)%n_cell == I) THEN
+    ! print*, 'we have a new catched virtual particle :-)'
+     np = np + 1
+     ! if the field is full, we will have to increase its size
+     local_particle(np) = virtual_particle(J)
+    END IF
+   END DO
+   ALLOCATE(pom(np))
+   pom(1:np)=local_particle(1:np)
+   DEALLOCATE(local_particle)
+   ALLOCATE(local_particle(np))
+   local_particle(1:np)=pom(1:np)
+   DEALLOCATE(pom)
+   
+   CALL create_dynamical_grid_cells(I, max_n_dcell, np, local_particle)
+   DEALLOCATE(local_particle)
   END DO
  END IF
- ! OPEN(15,FILE='dyn_cells.dat')
- ! write(*,*) 'setup_grid2: SAVING CELLS INTO A FILE dyn_cells.dat'
- !  DO I = 1, max_n_dcell
- !   write(15,*) I, dyn_cell(I)%corner, dyn_cell(I)%width, dyn_cell(I)%neighbor
- !  END DO
- ! CLOSE(15)
-  ! STOP 'setup_grid2: testing'
-! DO I = 1, max_n_dcell
-!  IF(dyn_cell(I)%up_cell == 0) THEN
-!   ! what is the basic cell of this dynamical cell
-!   actCell = I
-!   DO WHILE(dyn_cell(actCell)%down_cell /= 0)
-!    actCell = dyn_cell(actCell)%down_cell
-!   END DO
-!   basicCell = actCell
-!  END IF
-!
-! END DO
 
    ! we will resize the field dyn_cell
    ! because we do not want empty cells
