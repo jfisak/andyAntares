@@ -1,12 +1,12 @@
 ! this subroutine will create a dynamical grid cell for the given basic cell
-  SUBROUTINE create_dynamical_grid_cells(n_dyncell,max_n_dcell, Npart, v_part)
+  SUBROUTINE create_dynamical_grid_cells(n_dyncell,max_n_dcell)
 
    USE types
 
    IMPLICIT NONE
    
    INTEGER                              :: n_dyncell
-   TYPE(virt_particle), DIMENSION(Npart):: v_part
+   ! TYPE(virt_particle), DIMENSION(Npart):: v_part
    ! number of created dynamic cells and
    ! actual number of grid cell
    INTEGER                              :: max_n_dcell, act_n_dyncell
@@ -44,21 +44,22 @@ cell_width_2(3) = dyn_cell(n_dyncell)%width(3)
  np = 0
  up_bound = 100
  ! temporary solution
-! print*, 'create_dynamical_grid_cells: ', Npart
+ Npart = SIZE(virtual_particle)
  ALLOCATE(local_particle(up_bound))
 DO J = 1, Npart
- ! is the virtual particle in this cell?
- IF((v_part(J)%pos(1) >= corner(1)) .AND. &
-    (v_part(J)%pos(1) < (corner(1) + cell_width_2(1))) .AND. &
-    (v_part(J)%pos(2) >= corner(2)) .AND. &
-    (v_part(J)%pos(2) < (corner(2) + cell_width_2(2))) .AND. &
-    (v_part(J)%pos(3) >= corner(3)) .AND. &
-    (v_part(J)%pos(3) < (corner(3) + cell_width_2(3)))) THEN
- ! print*, 'we have a new catched virtual particle :-)'
+ ! is the virtual point in this cell?
+ ! IF((v_part(J)%pos(1) >= corner(1)) .AND. &
+ !    (v_part(J)%pos(1) < (corner(1) + cell_width_2(1))) .AND. &
+ !    (v_part(J)%pos(2) >= corner(2)) .AND. &
+ !    (v_part(J)%pos(2) < (corner(2) + cell_width_2(2))) .AND. &
+ !    (v_part(J)%pos(3) >= corner(3)) .AND. &
+ !    (v_part(J)%pos(3) < (corner(3) + cell_width_2(3)))) THEN
+ ! write(*,*) 'create_dynamical_grid_cells: n_cell = ', virtual_particle(J)%n_cell
+ IF(virtual_particle(J)%n_cell == n_dyncell) THEN
+ ! print*, 'we have a new catched virtual point :-)'
   np = np + 1
   ! if the field is full, we will have to increase its size
   if(np == up_bound) then
-   !print*, 'creating a larger array local_particle'
    ! define a new upper bound
    newbound = 2 * up_bound
    ALLOCATE(pom(up_bound))
@@ -74,6 +75,7 @@ DO J = 1, Npart
    up_bound = newbound
   end if
   local_particle(np) = virtual_particle(J)
+ !  write(*,*) 'create_dynamical_grid_cells: pos = ', local_particle(np)%pos
  END IF
 END DO
 !  print*, 'create_dynamical_grid_cells: number of particles: ', np

@@ -127,28 +127,31 @@
    ! find virtual points located in this bgc
    ! at first we have to know, how many particles are
    ! in the given cell
-   np = 0
-   ! temporary solution
-   ! print*, 'create_dynamical_grid_cells: ', Npart
-   ALLOCATE(local_particle(Npart))
-   DO J = 1, Npart
-    ! is the virtual particle in this cell?
-    IF(virtual_particle(J)%n_cell == I) THEN
-    ! print*, 'we have a new catched virtual particle :-)'
-     np = np + 1
-     ! if the field is full, we will have to increase its size
-     local_particle(np) = virtual_particle(J)
-    END IF
-   END DO
-   ALLOCATE(pom(np))
-   pom(1:np)=local_particle(1:np)
-   DEALLOCATE(local_particle)
-   ALLOCATE(local_particle(np))
-   local_particle(1:np)=pom(1:np)
-   DEALLOCATE(pom)
+   ! np = 0
+   ! ! temporary solution
+   ! ! print*, 'create_dynamical_grid_cells: ', Npart
+   ! ALLOCATE(local_particle(Npart))
+   ! DO J = 1, Npart
+   !  ! is the virtual particle in this cell?
+   !  IF(virtual_particle(J)%n_cell == I) THEN
+   !  ! print*, 'we have a new catched virtual particle :-)'
+   !   np = np + 1
+   !   ! if the field is full, we will have to increase its size
+   !   local_particle(np) = virtual_particle(J)
+   !  END IF
+   ! END DO
+   ! ! write(*,*) 'setup_grid2: model cell = ', I, ' n_particles = ', np
+   ! ALLOCATE(pom(np))
+   ! pom(1:np)=local_particle(1:np)
+   ! DEALLOCATE(local_particle)
+   ! ALLOCATE(local_particle(np))
+   ! local_particle(1:np)=pom(1:np)
+   ! DEALLOCATE(pom)
    
-   CALL create_dynamical_grid_cells(I, max_n_dcell, np, local_particle)
-   DEALLOCATE(local_particle)
+   ! IF(np > 0) THEN
+    CALL create_dynamical_grid_cells(I, max_n_dcell)
+   ! END IF
+   ! DEALLOCATE(local_particle)
   END DO
  END IF
 

@@ -81,8 +81,8 @@ debug = 0
 CALL setup_model_grid()
 ! create virtual particles for the given model cell
 IF (dyngrid /= 0) CALL virtual_particles(model_type)
- xmax = R_inf + 0.1 * R_sun
- ymax = R_inf + 0.1 * R_sun 
+ xmax = R_inf + 0.5 * R_sun
+ ymax = R_inf + 0.5 * R_sun 
 IF(model_type == 1) THEN
  zmax = R_inf + 0.1 * R_sun
 ELSE IF (model_type == 2 .AND. inputmodel == 1) THEN
