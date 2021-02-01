@@ -69,7 +69,7 @@ IF(my_rank == 0) THEN
 ! it reads a shell variable OUTPUTFO, if it does not
 ! exist, it will create (or not, if it already exists)
 IF(outputfolder(:) == '') THEN
- CALL GET_ENVIRONMENT_VARIABLE("OUTPUTFO", outputfolder)
+ CALL GET_ENVIRONMENT_VARIABLE("outputfolder", outputfolder)
 END IF
 IF(outputfolder(:) == '') THEN
  CALL DATE_AND_TIME(VALUES = TT)

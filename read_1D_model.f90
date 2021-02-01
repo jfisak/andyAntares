@@ -32,8 +32,8 @@ SELECT CASE (inputModel)
  OPEN (UNIT=11, FILE=modelfile)
  READ(11,*) T_eff
  READ(11,*) R_star
+ READ(11,*) R_inf
  READ(11,*) V_inf
- ! READ(11,*) R_inf
  ! READ(11,*) V_inf
 !  READ(11,*) M_dot
  ! READ(11,*) n_modelgrid
@@ -56,6 +56,7 @@ SELECT CASE (inputModel)
   END DO
   ALLOCATE (model_grid(n_modelgrid + add_mg))
   REWIND(11)
+  READ(11,*) junk
   READ(11,*) junk
   READ(11,*) junk
   READ(11,*) junk
@@ -84,11 +85,11 @@ SELECT CASE (inputModel)
      END DO
   END DO
 
-  R_inf  = model_grid(n_modelgrid)%rwind
+  ! R_inf  = model_grid(n_modelgrid)%rwind
   ! R_inf = 5.0 * R_star
   ! V_inf  = model_grid(n_modelgrid)%vel
   ! temporary change
-  write(*,*) 'read_1D_model: R_inf = ', R_inf/R_star, 'V_inf = ', V_inf
+  ! write(*,*) 'read_1D_model: R_inf = ', R_inf/R_star, 'V_inf = ', V_inf
 
   ! setting properties
 

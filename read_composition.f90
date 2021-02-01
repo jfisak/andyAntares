@@ -23,9 +23,15 @@ SUBROUTINE read_composition()
   DOUBLE PRECISION                   :: mass, tot_abundance
   ! photon cross section data type
   INTEGER                            :: phcs_type
+  LOGICAL                            :: fileExists
 
 ! initialization the toal number of photoionization cross section
 n_photcrossect = 0
+inquire( file=inputcomposition, exist=fileExists )
+if(.NOT. fileExists) THEN
+ write(*,*) "file: ", inputcomposition, "does not exists"
+ STOP
+end if
 OPEN (UNIT=7, FILE=inputcomposition)
  ! computes number of lines in the input file
  ! number of rows is equal to 0

@@ -227,9 +227,12 @@ CASE(2)
   current_mgi = dyn_cell(n_dyncell)%model_index
   IF (current_mgi /= n_modelgrid + 1) THEN
    width = model_grid(current_mgi)%width
-   dimofsubcells(1) = CEILING(cell_width_2(1) / width)
-   dimofsubcells(2) = CEILING(cell_width_2(2) / width)
-   dimofsubcells(3) = CEILING(cell_width_2(3) / width)
+   ! dimofsubcells(1) = CEILING(cell_width_2(1) / width)
+   ! dimofsubcells(2) = CEILING(cell_width_2(2) / width)
+   ! dimofsubcells(3) = CEILING(cell_width_2(3) / width)
+   dimofsubcells(1) = FLOOR(np**(1.0/2.0))
+   dimofsubcells(2) = FLOOR(np**(1.0/2.0))
+   dimofsubcells(3) = FLOOR(np**(1.0/2.0))
    ! write(*,*) 'create_dynamical_grid_cells: current_mgi = ', current_mgi
    ! write(*,*) 'create_dynamical_grid_cells: cell_width_2 = ', cell_width_2(:), ' width = ', width
    ! write(*,*) 'create_dynamical_grid_cells: dimofsubcells = ', dimofsubcells(:)

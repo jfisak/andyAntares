@@ -106,16 +106,18 @@
    END DO
   END DO
 
-  Npart = SIZE(virtual_particle)
-  DO I = 1, Npart
-   pos = virtual_particle(I)%pos
-   width = dyn_cell(1)%width
-   ind_x = FLOOR(pos(1)/width(1) + DBLE(nx_cell)/2) + 1
-   ind_y = FLOOR(pos(2)/width(2) + DBLE(ny_cell)/2) + 1
-   ind_z = FLOOR(pos(3)/width(3) + DBLE(nz_cell)/2) + 1
-   ind_cell_numb = (ind_x - 1) * ny_cell * nz_cell + (ind_y - 1) * nz_cell + ind_z
-   virtual_particle(I)%n_cell = ind_cell_numb
-  END DO
+  IF (ALLOCATED(virtual_particle)) THEN
+   Npart = SIZE(virtual_particle)
+   DO I = 1, Npart
+    pos = virtual_particle(I)%pos
+    width = dyn_cell(1)%width
+    ind_x = FLOOR(pos(1)/width(1) + DBLE(nx_cell)/2) + 1
+    ind_y = FLOOR(pos(2)/width(2) + DBLE(ny_cell)/2) + 1
+    ind_z = FLOOR(pos(3)/width(3) + DBLE(nz_cell)/2) + 1
+    ind_cell_numb = (ind_x - 1) * ny_cell * nz_cell + (ind_y - 1) * nz_cell + ind_z
+    virtual_particle(I)%n_cell = ind_cell_numb
+   END DO
+  END IF
 
   ! the maximal number of cells is now equal to L
   max_n_dcell = Ngrid

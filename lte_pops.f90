@@ -44,7 +44,7 @@ DO gridcell = 1, n_modelgrid
   IF(N_jk  > 1.D20) THEN
    write(*,*) 'update_grid: indexe = ', indexe, ' indexi = ', indexi, &
     ' tot_pop = ', N_jk 
-   STOP 'update_grid: suspiciously large number'
+   STOP 'lte_pops: suspiciously large number'
   END IF
  END IF
 END DO
