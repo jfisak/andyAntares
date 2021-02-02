@@ -194,8 +194,9 @@ IMPLICIT NONE
      !model_grid(I)%grid_comp(J)%numb_den = tot_nd
     END DO
    END DO
+   R_inf = MAXVAL(model_grid(:)%rwind)
+   R_star = MINVAL(model_grid(:)%rwind)
    CLOSE(15)
-   STOP 'read_2D_model: testing'
   CASE DEFAULT
    STOP 'unknown type of 2D model'
  END SELECT

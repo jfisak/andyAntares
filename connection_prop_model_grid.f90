@@ -18,6 +18,9 @@
   ! volume of model cell
   DOUBLE PRECISION               :: volume, loc_volume
   INTEGER                        :: gridcell
+  INTEGER                        :: my_n_cells
+  INTEGER                       :: N0, Nzbytek
+  INTEGER                       :: my_start, my_end, zb
   
   basic_diagonal = sqrt(basic_cell_width(1)**2 + basic_cell_width(2)**2 + &
                         basic_cell_width(3)**2)
@@ -69,10 +72,10 @@
   ! 2D model grid -- Petr Kurfurst's model
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ELSE IF (model_type .EQ. 2) THEN
+   SELECT CASE (inputmodel)
+   ! PeKu disk model
+   CASE(1)
    add_mg = 2
-   !$OMP PARALLEL
-   !$DEFAULT(private)
-   !$OMP DO 
    DO I = 1, max_n_dcell
     ! IF(mod(I,10000) .EQ. 0) print*, 'associating propagation grid', I, REAL(I)/REAL(max_n_dcell) * 1.E2, ' % completed'
     IF(dyn_cell(I)%up_cell == 0) THEN
@@ -126,10 +129,39 @@
       !print*, I,J,M
     END IF
    END DO
-   !$OMP END DO
-   !$OMP END PARALLEL
    write(99,*) 'number of propagation cells in vacuum: ', model_grid(n_modelgrid + add_mg)%assoc_cells
-  ENDIF
+   ! supernova model
+   CASE(2)
+    N0 = FLOOR(max_n_dcell/REAL(n_tasks))
+    Nzbytek = MOD(max_n_dcell, n_tasks)
+    IF(Nzbytek == 0) THEN
+     zb = 0
+    ELSE
+     zb = 1
+    END IF
+    write(*,*) 'connection: N0 = ', N0, ' Nzbytek = ', Nzbytek
+    IF(my_rank == 0) THEN
+     my_n_cells = N0
+     my_start = 1
+     my_end = N0
+    ELSE IF (my_rank > 0 .AND. my_rank <= Nzbytek) THEN
+     my_n_cells = N0 + 1
+     my_start = my_rank*(N0 + zb) + 1
+     my_end = (my_rank + 1) * (N0 + zb)
+    ELSE IF (my_rank > 0 .AND. my_rank > Nzbytek) THEN
+     my_n_cells = N0
+     my_start = (2 * my_rank - 1 - Nzbytek) * N0 + zb * my_rank + 1
+     my_end = (2 * my_rank - Nzbytek) * N0 + zb * my_rank
+    END IF
+    CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
+    write(*,*) 'connection_prop_model_grid: my_rank = ', ' my_start = ', my_start, &
+     ' my_end = ', my_end
+    STOP 'connection_prop_model_grid: testing'
+   CASE DEFAULT
+    write(*,*) 'connection_prop_model_grid: wrong inputmodel = ', inputmodel
+    STOP
+   END SELECT
+  END IF
 ! computing volume of model cells
 DO gridcell = 1, n_modelgrid
  volume = 0.D0
