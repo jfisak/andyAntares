@@ -2,17 +2,23 @@
 
 
 
-export OUTPUTFO=${2}
+export outputfolder=${2}
 
-FOLDERPATH='./'${2}'/'temp_packet*.dat
-PREVFILE0='./'${2}'/'packet000.dat
-PREVFILE='./'${2}'/'packet*.dat
+fpath='./'$outputfolder'/'temp_packet*.dat
+prevfile0='./'$outputfolder'/'packet000.dat
+prevfile='./'$outputfolder'/'packet*.dat
 
-if [ -e $PREVFILE0 ]; then
- rm $PREVFILE
+if [ -e $prevfile0 ]; then
+ rm $prevfile
 fi
 
 mpirun.mpich -np $1 ./main.run
 
-rm $FOLDERPATH
+rm $fpath
 
+cp input.dat $outputfolder
+
+inputmodelfile=`cat input.dat | grep inputmodelFile | cut -d= -f 2`
+cp $inputmodelFile $outputfolder/
+
+python3.6 spec.py $outputfolder

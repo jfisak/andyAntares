@@ -48,12 +48,13 @@ INTEGER, PARAMETER                      :: indexH = 1, indexHI = 1, indexHII = 2
 INTEGER, PARAMETER                      :: indexHe = 2, indexHeI = 1, indexHeII = 2, indexHeIII = 3
 DOUBLE PRECISION                        :: abundance, density
 CHARACTER(LEN=60)                       :: fileHI, fileHII, fileHeI, fileHeII, fileHeIII
-CHARACTER(LEN=60)                       :: fileEldens, fileRho
+CHARACTER(LEN=60)                       :: fileEldens, fileRho, temp_file_name
 INTEGER                                 :: cell_index
 DOUBLE PRECISION                        :: num_tot_pop
 INTEGER                                 :: tot_n_ions, cur_ion, n_ions
 DOUBLE PRECISION, ALLOCATABLE           :: part_functions(:)
 DOUBLE PRECISION                        :: U, temperature
+INTEGER                                 :: n_adgrids
 !________________________________________________________________________________
 ! #00 output folder
 !
@@ -419,6 +420,23 @@ CASE(9)
   write(17,*) I, part_functions(1:)
  END DO ! over model cells
  CLOSE(17)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! #09 adaptive grid parts
+!
+! 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CASE(10)
+ write(temp_file_name,"(A, A11, I3.3, A4)") TRIM(outputfolder), '/temp_adgrid', my_rank, ".dat"
+ write(*,*) 'save_output: temp_file_name = ', temp_file_name
+ Ngrid = nx_cell * ny_cell * nz_cell
+ n_adgrids = SIZE(dyn_cell)
+ IF(Ngrid == n_adgrids) RETURN
+ OPEN(72, form='unformatted', FILE=temp_file_name)
+  DO I = Ngrid, n_adgrids
+   WRITE(72) dyn_cell(I)
+  END DO
+ CLOSE(72)
+
 CASE DEFAULT
  write(99,*) 'save_output: this case is not known'
 END SELECT

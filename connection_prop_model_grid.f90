@@ -14,7 +14,7 @@
   ! propagation and model cell
   DOUBLE PRECISION               :: delta, delta2
   ! radial and vertical distance
-  DOUBLE PRECISION               :: r, z, r0, z0
+  DOUBLE PRECISION               :: r, z, r0, z0, phi, phi0
   ! volume of model cell
   DOUBLE PRECISION               :: volume, loc_volume
   INTEGER                        :: gridcell
@@ -139,24 +139,38 @@
     ELSE
      zb = 1
     END IF
+    N0 = N0 + zb
     write(*,*) 'connection: N0 = ', N0, ' Nzbytek = ', Nzbytek
-    IF(my_rank == 0) THEN
+    IF(my_rank < n_tasks - 1) THEN
      my_n_cells = N0
-     my_start = 1
-     my_end = N0
-    ELSE IF (my_rank > 0 .AND. my_rank <= Nzbytek) THEN
-     my_n_cells = N0 + 1
-     my_start = my_rank*(N0 + zb) + 1
-     my_end = (my_rank + 1) * (N0 + zb)
-    ELSE IF (my_rank > 0 .AND. my_rank > Nzbytek) THEN
-     my_n_cells = N0
-     my_start = (2 * my_rank - 1 - Nzbytek) * N0 + zb * my_rank + 1
-     my_end = (2 * my_rank - Nzbytek) * N0 + zb * my_rank
+     my_start = my_rank * N0 + 1
+     my_end = (my_rank + 1) * N0
+    ELSE IF (my_rank == n_tasks - 1 ) THEN
+     my_n_cells = N0 - Nzbytek
+     my_start = my_rank * N0 + 1
+     my_end = max_n_dcell
     END IF
-    CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
-    write(*,*) 'connection_prop_model_grid: my_rank = ', ' my_start = ', my_start, &
-     ' my_end = ', my_end
-    STOP 'connection_prop_model_grid: testing'
+    ! connect every single cell to its model cell
+    DO I = my_start, my_end
+     r = SQRT((dyn_cell(I)%corner(1) + dyn_cell(I)%width(1)/2.D0)**2 + &
+              (dyn_cell(I)%corner(2) + dyn_cell(I)%width(2)/2.D0)**2 + &
+              (dyn_cell(I)%corner(3) + dyn_cell(I)%width(3)/2.D0)**2)
+     r0 = SQRT(dyn_cell(I)%corner(1)**2 + dyn_cell(I)%corner(2)**2 + &
+              dyn_cell(I)%corner(3)**2)
+     z = dyn_cell(I)%corner(3) + dyn_cell(I)%width(3)/2.D0
+     z0 = dyn_cell(I)%corner(3)
+     phi = acos(z/r)
+     phi0 = acos(z0/r0)
+     IF(r0 < R_star .OR. r0 > R_inf) THEN
+      dyn_cell(I)%model_index = n_modelgrid
+      CONTINUE
+     END IF
+     write(*,*) 'connection_prop_model_grid: r = ', r, ' z = ', z
+     write(*,*) 'connection_prop_model_grid: phi = ', phi
+    END DO
+    ! write(*,*) 'connection_prop_model_grid: my_rank = ', my_rank, ' my_start = ', my_start, &
+    !  ' my_end = ', my_end
+    ! STOP 'connection_prop_model_grid: testing'
    CASE DEFAULT
     write(*,*) 'connection_prop_model_grid: wrong inputmodel = ', inputmodel
     STOP

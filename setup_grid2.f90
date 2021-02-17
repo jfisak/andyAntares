@@ -19,6 +19,8 @@
   DOUBLE PRECISION, DIMENSION(3)        :: cell_width_2, corner
   INTEGER                               :: ind_x, ind_y, ind_z, ind_cell_numb
   DOUBLE PRECISION, DIMENSION(3)        :: pos, width
+  INTEGER                               :: my_start, my_end, my_n_cells
+  INTEGER                               :: N0, Nzbytek, zb
 
 
   ! Number of propagation grid cells
@@ -122,40 +124,42 @@
   ! the maximal number of cells is now equal to L
   max_n_dcell = Ngrid
 
- CALL connection_prop_model_grid()
-
- IF(dyngrid /= 0) THEN
-  DO I = 1, Ngrid
-   ! find virtual points located in this bgc
-   ! at first we have to know, how many particles are
-   ! in the given cell
-   ! np = 0
-   ! ! temporary solution
-   ! ! print*, 'create_dynamical_grid_cells: ', Npart
-   ! ALLOCATE(local_particle(Npart))
-   ! DO J = 1, Npart
-   !  ! is the virtual particle in this cell?
-   !  IF(virtual_particle(J)%n_cell == I) THEN
-   !  ! print*, 'we have a new catched virtual particle :-)'
-   !   np = np + 1
-   !   ! if the field is full, we will have to increase its size
-   !   local_particle(np) = virtual_particle(J)
-   !  END IF
-   ! END DO
-   ! ! write(*,*) 'setup_grid2: model cell = ', I, ' n_particles = ', np
-   ! ALLOCATE(pom(np))
-   ! pom(1:np)=local_particle(1:np)
-   ! DEALLOCATE(local_particle)
-   ! ALLOCATE(local_particle(np))
-   ! local_particle(1:np)=pom(1:np)
-   ! DEALLOCATE(pom)
-   
-   ! IF(np > 0) THEN
-    CALL create_dynamical_grid_cells(I, max_n_dcell)
-   ! END IF
-   ! DEALLOCATE(local_particle)
-  END DO
+IF(dyngrid /= 0) THEN
+#if mpi==1
+ N0 = FLOOR(Ngrid / REAL(n_tasks))
+ Nzbytek = MOD(Ngrid, n_tasks)
+ IF(Nzbytek == 0) THEN
+  zb = 0
+ ELSE
+  zb = 1
  END IF
+ N0 = N0 + zb
+ write(*,*) 'connection: N0 = ', N0, ' Nzbytek = ', Nzbytek
+ IF(my_rank < n_tasks - 1) THEN
+  my_n_cells = N0
+  my_start = my_rank * N0 + 1
+  my_end = (my_rank + 1) * N0
+ ELSE IF (my_rank == n_tasks - 1 ) THEN
+  my_n_cells = N0 - Nzbytek
+  my_start = my_rank * N0 + 1
+  my_end = Ngrid
+ END IF
+ write(*,*) 'setup_grid2: my_start = ', my_start, ' my_end = ', my_end
+#else
+ my_start = 1
+ my_end = Ngrid
+#endif
+ DO I = my_start, my_end
+    CALL create_dynamical_grid_cells(I, max_n_dcell)
+ END DO
+END IF
+#if mpi==1
+write(*,*) 'setup_grid2: my_rank = ', my_rank, ' max_n_dcell = ', max_n_dcell
+CALL save_output(10)
+CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
+STOP 'setup_grid2: testing'
+#endif
+
 
    ! we will resize the field dyn_cell
    ! because we do not want empty cells

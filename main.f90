@@ -92,6 +92,9 @@ ELSE IF (model_type == 2 .AND. inputmodel == 2) THEN
 ELSE
  STOP 'main: non-known model type'
 END IF
+write(*,*) 'model grid is set up'
+write(*,*) 'setup propagation grid'
+write(*,*) 'xmax = ', xmax/R_star, ' ymax = ', ymax/R_star, ' zmax = ', zmax/R_star
 write(99,*) 'model grid is set up'
 write(99,*) 'setup propagation grid'
 write(99,*) 'xmax = ', xmax/R_star, ' ymax = ', ymax/R_star, ' zmax = ', zmax/R_star
@@ -101,7 +104,10 @@ ALLOCATE(current_temp(n_modelgrid + add_mg))
 CALL DATE_AND_TIME(VALUES = TT)
 write(*,*) my_rank, TT(5), TT(6), TT(7), TT(8)
 ! Set up of the propagation grid
+write(99,*) 'setting up the propagation grid'
 CALL setup_grid2()
+
+CALL connection_prop_model_grid()
 CALL DATE_AND_TIME(VALUES = TT)
 write(*,*) my_rank,  TT(5), TT(6), TT(7), TT(8)
 ! connects the propagation grid with the model grid

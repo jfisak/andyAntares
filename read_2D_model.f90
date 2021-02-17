@@ -153,8 +153,9 @@ IMPLICIT NONE
    write(99,*) 'we will read input input data from Petr Kurfurst model of stellar disc'
    ! firstly we calculate number of rows in the file
    n_modelgrid = 0
-    T_eff = 30000
    OPEN(UNIT=15,status='old', FILE='supernova_model.dat')
+    READ(15, *) junk
+    READ(15, *) junk
     DO I = 1, maxrows
      READ(15,*,IOSTAT = ios) junk, junk, junk, junk, junk, junk, junk, junk
      if(ios /= 0) EXIT
@@ -172,6 +173,8 @@ IMPLICIT NONE
    !                     (vacuum cell) 
    ALLOCATE ( model_grid(n_modelgrid + add_mg))
    REWIND(15)
+   READ(15, *) T_eff
+   READ(15, *) R_star
    DO I = 1, n_modelgrid
     READ(15,*) radius, angle, dens, velrad, velang, temp, junk, junk
     model_grid(I)%rwind = radius * 1.D2
@@ -195,10 +198,11 @@ IMPLICIT NONE
     END DO
    END DO
    R_inf = MAXVAL(model_grid(:)%rwind)
-   R_star = MINVAL(model_grid(:)%rwind)
+   write(*,*) 'read_2d_model: R_inf = ', R_inf, ' R_star = ', R_star
    CLOSE(15)
   CASE DEFAULT
    STOP 'unknown type of 2D model'
  END SELECT
 
+ write(*,*) 'read_2D_model: reading was succesfull'
 END SUBROUTINE read_2D_model
