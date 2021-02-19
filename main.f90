@@ -13,6 +13,10 @@ SUBROUTINE main
   INTEGER, DIMENSION (9)            :: TT
   DOUBLE PRECISION, ALLOCATABLE     :: current_temp(:)
   INTEGER                               :: cur_parameter=0
+  REAL                                  :: time0_agcreation, time1_agcreation
+  REAL                                  :: time0_agconnwpg, time1_agconnwpg
+  REAL                                  :: time0_pp, time1_pp
+  REAL                                  :: time_cre, time_con, time_pp
 ! parallelized part
 ! definition of MPI variables
 INTEGER                              :: nphit
@@ -101,25 +105,22 @@ write(99,*) 'xmax = ', xmax/R_star, ' ymax = ', ymax/R_star, ' zmax = ', zmax/R_
  
 ALLOCATE(current_temp(n_modelgrid + add_mg))
 
-CALL DATE_AND_TIME(VALUES = TT)
-write(*,*) my_rank, TT(5), TT(6), TT(7), TT(8)
 ! Set up of the propagation grid
 write(99,*) 'setting up the propagation grid'
+CALL cpu_time(time0_agcreation)
 CALL setup_grid2()
+CALL cpu_time(time1_agcreation)
+time_cre = time1_agcreation - time0_agcreation
 
+CALL cpu_time(time0_agconnwpg)
 CALL connection_prop_model_grid()
-CALL DATE_AND_TIME(VALUES = TT)
-write(*,*) my_rank,  TT(5), TT(6), TT(7), TT(8)
+CALL cpu_time(time1_agconnwpg)
+time_con = time1_agconnwpg - time0_agconnwpg
 ! connects the propagation grid with the model grid
 write(99,*) 'propagation grid is set up'
-CALL connection_prop_model_grid()
-CALL DATE_AND_TIME(VALUES = TT)
-write(*,*) 'connected prop/model grid', my_rank, TT(5), TT(6), TT(7), TT(8)
 
  IF(my_rank == 0) THEN
   CALL save_output(8)
-  CALL DATE_AND_TIME(VALUES = TT)
-  write(*,*) my_rank, TT(5), TT(6), TT(7), TT(8)
   ! STOP 'testing the propagation grid'
  END IF
 current_temp = 0.D0
@@ -148,10 +149,11 @@ DO iteration = 1,1
 ! Propagation of the photon in 3D grid
 ! CALL propagation(n_pack, opa_cell, lower_opa, delta_opa)
  write(99,*) 'update packages'
+ CALL cpu_time(time0_pp)
  CALL update_packages(n_pack)
+ CALL cpu_time(time1_pp)
+time_pp = time1_pp - time0_pp
  write(99,*) 'Number of destoyed packages =', destroyed_pack
- CALL DATE_AND_TIME(VALUES = TT)
- write(*,*) 'packet prop: ', my_rank, TT(5), TT(6), TT(7), TT(8)
 #if mpi==1
  CALL mpi_distribute_estimators()
  CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
@@ -177,6 +179,8 @@ END DO ! iteration (now of temperature structure)
  ! info o gridu
  ! IF(my_rank == 0) CALL save_output(6)
  ! erase all temporary files with photons
+
+ write(*,*) 'main: time CRE: ', time_cre, ' time CON: ', time_con, ' time PP = ', time_pp
 
 CLOSE(2)
 CLOSE(99)
