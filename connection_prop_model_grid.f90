@@ -106,11 +106,7 @@
         ! if the propagation cell is too far from the nearest model point
         ! we will associate this cell to the dummy cells
        END DO
-        !diagonal = sqrt(dyn_cell(I)%width(1)**2+dyn_cell(I)%width(2)**2+dyn_cell(I)%width(3)**2)
         diagonal = sqrt(dyn_cell(I)%width(1)**2+dyn_cell(I)%width(3)**2)/2.D0
-        !diagonal = sqrt((sqrt(r**2 - z**2) - sqrt(r0**2 - z0**2))**2 + &
-        ! (z - z0)**2)
-        !IF( (delta > diagonal) .AND. (diagonal < basic_diagonal / 16.D0)) THEN
         IF((delta > diagonal) .AND. (dyn_cell(I)%width(1) > basic_cell_width(1)/2.D0**6)) THEN
          dyn_cell(I)%model_index = n_modelgrid + add_mg
          model_grid(n_modelgrid + add_mg)%assoc_cells = model_grid(n_modelgrid + add_mg)%assoc_cells + 1
@@ -132,41 +128,41 @@
    write(99,*) 'number of propagation cells in vacuum: ', model_grid(n_modelgrid + add_mg)%assoc_cells
    ! supernova model
    CASE(2)
-    N0 = FLOOR(max_n_dcell/REAL(n_tasks))
-    Nzbytek = MOD(max_n_dcell, n_tasks)
-    IF(Nzbytek == 0) THEN
-     zb = 0
-    ELSE
-     zb = 1
-    END IF
-    N0 = N0 + zb
-    write(*,*) 'connection: N0 = ', N0, ' Nzbytek = ', Nzbytek
-    IF(my_rank < n_tasks - 1) THEN
-     my_n_cells = N0
-     my_start = my_rank * N0 + 1
-     my_end = (my_rank + 1) * N0
-    ELSE IF (my_rank == n_tasks - 1 ) THEN
-     my_n_cells = N0 - Nzbytek
-     my_start = my_rank * N0 + 1
-     my_end = max_n_dcell
-    END IF
     ! connect every single cell to its model cell
     DO I = my_start, my_end
      r = SQRT((dyn_cell(I)%corner(1) + dyn_cell(I)%width(1)/2.D0)**2 + &
               (dyn_cell(I)%corner(2) + dyn_cell(I)%width(2)/2.D0)**2 + &
               (dyn_cell(I)%corner(3) + dyn_cell(I)%width(3)/2.D0)**2)
-     r0 = SQRT(dyn_cell(I)%corner(1)**2 + dyn_cell(I)%corner(2)**2 + &
-              dyn_cell(I)%corner(3)**2)
      z = dyn_cell(I)%corner(3) + dyn_cell(I)%width(3)/2.D0
-     z0 = dyn_cell(I)%corner(3)
      phi = acos(z/r)
-     phi0 = acos(z0/r0)
-     IF(r0 < R_star .OR. r0 > R_inf) THEN
+     phi = abs(phi)
+     IF(r < R_star .OR. r > R_inf) THEN
       dyn_cell(I)%model_index = n_modelgrid
       CONTINUE
      END IF
      write(*,*) 'connection_prop_model_grid: r = ', r, ' z = ', z
      write(*,*) 'connection_prop_model_grid: phi = ', phi
+      delta = 1.D99
+      DO J = 1, n_modelgrid
+       r0 = model_grid(J)%rwind
+       phi0 = model_grid(J)%angle
+       delta2 = sqrt(r**2.0+r0**2.0 - 2.0 * r * r0 * &
+        (cos(phi)*cos(phi0) - sin(phi) * sin(phi0)))
+       IF( delta2 < delta ) THEN
+         delta = delta2
+         M = J
+       END IF
+       ! if the propagation cell is too far from the nearest model point
+       ! we will associate this cell to the dummy cells
+      END DO
+       diagonal = sqrt(dyn_cell(I)%width(1)**2+dyn_cell(I)%width(3)**2)/2.D0
+       IF((delta > diagonal) .AND. (dyn_cell(I)%width(1) > basic_cell_width(1)/2.D0**6)) THEN
+        dyn_cell(I)%model_index = n_modelgrid + add_mg
+        model_grid(n_modelgrid + add_mg)%assoc_cells = model_grid(n_modelgrid + add_mg)%assoc_cells + 1
+       ELSE
+        dyn_cell(I)%model_index = M     
+        model_grid(M)%assoc_cells = model_grid(M)%assoc_cells + 1
+       END IF
     END DO
     ! write(*,*) 'connection_prop_model_grid: my_rank = ', my_rank, ' my_start = ', my_start, &
     !  ' my_end = ', my_end

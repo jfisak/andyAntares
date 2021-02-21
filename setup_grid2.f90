@@ -125,57 +125,23 @@
   max_n_dcell = Ngrid
 
 IF(dyngrid /= 0) THEN
-#if mpi==1
- N0 = FLOOR(Ngrid / REAL(n_tasks))
- Nzbytek = MOD(Ngrid, n_tasks)
- IF(Nzbytek == 0) THEN
-  zb = 0
- ELSE
-  zb = 1
- END IF
- N0 = N0 + zb
- write(*,*) 'connection: N0 = ', N0, ' Nzbytek = ', Nzbytek
- IF(my_rank < n_tasks - 1) THEN
-  my_n_cells = N0
-  my_start = my_rank * N0 + 1
-  my_end = (my_rank + 1) * N0
- ELSE IF (my_rank == n_tasks - 1 ) THEN
-  my_n_cells = N0 - Nzbytek
-  my_start = my_rank * N0 + 1
-  my_end = Ngrid
- END IF
- write(*,*) 'setup_grid2: my_start = ', my_start, ' my_end = ', my_end
-#else
- my_start = 1
- my_end = Ngrid
-#endif
- DO I = my_start, my_end
+ DO I = 1, Ngrid
     CALL create_dynamical_grid_cells(I, max_n_dcell)
  END DO
+
+! we will resize the field dyn_cell
+! because we do not want empty cells
+! inside
+ ALLOCATE(pom2(max_n_dcell))
+  pom2(:) = dyn_cell(1:max_n_dcell)
+ DEALLOCATE(dyn_cell)
+ ALLOCATE(dyn_cell(max_n_dcell))
+  dyn_cell(:) = pom2(:)
+ DEALLOCATE(pom2)
+ N_dyn_grid = max_n_dcell
+
+ DEALLOCATE(virtual_particle)
 END IF
-#if mpi==1
-write(*,*) 'setup_grid2: my_rank = ', my_rank, ' max_n_dcell = ', max_n_dcell
-CALL save_output(10)
-CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
-STOP 'setup_grid2: testing'
-#endif
 
-
-   ! we will resize the field dyn_cell
-   ! because we do not want empty cells
-   ! inside
-   ALLOCATE(pom2(max_n_dcell))
-   do I = 1, max_n_dcell
-    pom2(I) = dyn_cell(I)
-   end do
-   DEALLOCATE(dyn_cell)
-   ALLOCATE(dyn_cell(max_n_dcell))
-   do I = 1, max_n_dcell
-    dyn_cell(I) = pom2(I)
-   end do
-   DEALLOCATE(pom2)
-   N_dyn_grid = max_n_dcell
-
-IF(dyngrid /= 0) DEALLOCATE(virtual_particle)
 
 END SUBROUTINE setup_grid2
