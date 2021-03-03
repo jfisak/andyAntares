@@ -41,7 +41,7 @@
       (dyn_cell(I)%corner(2) + dyn_cell(I)%width(2)/2.D0)**2 + &
       (dyn_cell(I)%corner(3) + dyn_cell(I)%width(3)/2.D0)**2)
      !print*,I,r/R_star
-     IF ((r .GT. R_star) .AND. (r .LT. R_inf)) THEN
+     ! IF ((r .GT. R_star) .AND. (r .LT. R_inf)) THEN
       ! Cells with radius larger than the stellar radius but smaller
       ! than the winds outer radius have an associated model grid cell.
       ! Find this model grid cell and add a pointer to the propatation
@@ -58,13 +58,13 @@
       END DO
       dyn_cell(I)%model_index = M     
       model_grid(M)%assoc_cells = model_grid(M)%assoc_cells + 1
-     ELSE
-      ! Cells with radius smaller than the stellar radius or larger
-      ! than the winds outer radius have no associated model grid cell
-      ! Make them point to the dummy model grid cell
-      dyn_cell(I)%model_index = n_modelgrid + 1     
-      model_grid(n_modelgrid + 1)%assoc_cells = model_grid(n_modelgrid + 1)%assoc_cells + 1
-     END IF
+     ! ELSE
+     !  ! Cells with radius smaller than the stellar radius or larger
+     !  ! than the winds outer radius have no associated model grid cell
+     !  ! Make them point to the dummy model grid cell
+     !  dyn_cell(I)%model_index = n_modelgrid + 1     
+     !  model_grid(n_modelgrid + 1)%assoc_cells = model_grid(n_modelgrid + 1)%assoc_cells + 1
+     ! END IF
     END IF
      !print*, I,J,M
    END DO
@@ -129,7 +129,7 @@
    ! supernova model
    CASE(2)
     ! connect every single cell to its model cell
-    DO I = my_start, my_end
+    DO I = 1, max_n_dcell
      r = SQRT((dyn_cell(I)%corner(1) + dyn_cell(I)%width(1)/2.D0)**2 + &
               (dyn_cell(I)%corner(2) + dyn_cell(I)%width(2)/2.D0)**2 + &
               (dyn_cell(I)%corner(3) + dyn_cell(I)%width(3)/2.D0)**2)
@@ -140,8 +140,8 @@
       dyn_cell(I)%model_index = n_modelgrid
       CONTINUE
      END IF
-     write(*,*) 'connection_prop_model_grid: r = ', r, ' z = ', z
-     write(*,*) 'connection_prop_model_grid: phi = ', phi
+     ! write(*,*) 'connection_prop_model_grid: r = ', r, ' z = ', z
+     ! write(*,*) 'connection_prop_model_grid: phi = ', phi
       delta = 1.D99
       DO J = 1, n_modelgrid
        r0 = model_grid(J)%rwind
@@ -161,6 +161,10 @@
         model_grid(n_modelgrid + add_mg)%assoc_cells = model_grid(n_modelgrid + add_mg)%assoc_cells + 1
        ELSE
         dyn_cell(I)%model_index = M     
+        IF(dyn_cell(I)%model_index == 0) THEN
+         write(*,*) 'connection_prop_model_grid: a cell ', I, 'is not connected...'
+         STOP
+        END IF
         model_grid(M)%assoc_cells = model_grid(M)%assoc_cells + 1
        END IF
     END DO

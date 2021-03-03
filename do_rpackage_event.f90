@@ -19,7 +19,8 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
   DOUBLE PRECISION                      :: ZcontTot
   LOGICAL                               :: procout = .FALSE.
   DOUBLE PRECISION                      :: D
-  LOGICAL                               :: ellastic_scattering = .TRUE.
+  LOGICAL                               :: ellastic_scattering = .FALSE.
+  INTEGER                               :: n_ll
 
 
  package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
@@ -34,6 +35,8 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
     ! case, i.e. we immediately re-emit the package isotropically in
     ! the cmf and conserve the cmf frequency print*,
     ! freq_line,package(pack_index)%freq_cmf
+    n_ll = package(pack_index)%last_line
+    write(70, *) linelist(n_ll)%freq, package(pack_index)%freq_rf
     ! write(*,*) 'do_rpackage_event: ', pack_index, ' line interaction...'
     IF(ellastic_scattering) THEN
      ! write(37,*) 1.D8 * light_speed / package(pack_index)%freq_rf
