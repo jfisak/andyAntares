@@ -46,6 +46,7 @@ IMPLICIT NONE
      DOUBLE PRECISION                :: volume
      DOUBLE PRECISION                :: T, J, rho, vel, rwind, e_dens
      DOUBLE PRECISION                :: zwind, velang, angle
+     DOUBLE PRECISION, DIMENSION(3)  :: velocity
      TYPE(grid_comp_t), ALLOCATABLE  :: grid_comp(:)
   END TYPE modelgrid
 

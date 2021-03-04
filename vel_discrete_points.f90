@@ -32,6 +32,16 @@ DOUBLE PRECISION, DIMENSION(size(matA,1)) :: work
 DOUBLE PRECISION                        :: act_coeff
 DOUBLE PRECISION, DIMENSION(3, 7)       :: coeffs
 
+DOUBLE PRECISION                        :: sumx, sumxsq, sumy, sumysq, sumxy
+DOUBLE PRECISION, DIMENSION(3)          :: vel_m, vel_p, vel_0
+DOUBLE PRECISION, DIMENSION(3)          :: pos_m, pos_p, pos_0
+INTEGER                                 :: cur_dim, n_index
+INTEGER                                 :: cur_neighbor_p, cur_neighbor_m
+INTEGER                                 :: n_points
+
+INTEGER                                 :: mgi_p, mgi_m
+DOUBLE PRECISION, DIMENSION(3)          :: inda, indb
+
 testPacket = SIZE(package) - 1
 package(testPacket) = package(pack_index)
 act_cell = package(pack_index)%cell_numb
@@ -70,6 +80,7 @@ directions(6,:) = (/ 0, 0,-1 /)
 distances(6) = act_pos(3) - corner(3)
 crossy(6) = negz
 
+! searching the neighbor cells
 DO cur_dir = 1,6
  package(testPacket)%dir = directions(cur_dir, :)
  package(testPacket)%next_cross = crossy(cur_dir)
@@ -83,36 +94,70 @@ DO cur_dir = 1,6
 END DO
 
 ! spherically symmetric model
-IF(model_type == 1) THEN
- ! velocity of the current cell
- cur_center = corner + width / 2.0
- cur_vel = cur_vel_norm * cur_center / norm2(cur_center)
- velocity_field(1,:) = cur_vel
- matA(1:2,1) = (/ cur_center(1)**2.0, cur_center(1) /)
- matA(3:4,1) = (/ cur_center(2)**2.0, cur_center(2) /)
- matA(5:7,1) = (/ cur_center(3)**2.0, cur_center(3), 1.D0 /)
- vecB(:, 1) = cur_vel(:)
- ! neighbor velocities
- DO I = 1, 6
-  cur_neighbor = neighbors(I)
-  IF(cur_neighbor > 0) THEN
-   cur_corner = dyn_cell(cur_neighbor)%corner
-   cur_width = dyn_cell(cur_neighbor)%width
-   cur_center = cur_corner + cur_width / 2.0
-   cur_nmgi = dyn_cell(cur_neighbor)%model_index
-   cur_vel_norm = model_grid(cur_nmgi)%vel
-   cur_vel = cur_vel_norm * cur_center / norm2(cur_center)
-   ! write(*,*) 'vel_discrete_points: n = ', cur_center / norm2(cur_center), &
-   !  ' ||v|| = ', cur_vel_norm
-   velocity_field(I + 1, :) = cur_vel
-  ELSE
-   velocity_field(I + 1, :) = velocity_field(1, :)
-  END IF
-  matA(1:2, I + 1) = (/ cur_center(1)**2.0, cur_center(1) /)
-  matA(3:4, I + 1) = (/ cur_center(2)**2.0, cur_center(2) /)
-  matA(5:7, I + 1) = (/ cur_center(3)**2.0, cur_center(3), 1.D0 /)
-  vecB(:, I + 1) = cur_vel(:)
- END DO
+! IF(model_type == 1) THEN
+!  ! velocity of the current cell
+!  cur_center = corner + width / 2.0
+!  cur_vel = cur_vel_norm * cur_center / norm2(cur_center)
+!  velocity_field(1,:) = cur_vel
+! END IF
+
+n_points = 3
+n_index = 1
+DO cur_dim = 1, 3
+ cur_neighbor_p = neighbors(n_index)
+ cur_neighbor_m = neighbors(n_index + 1)
+ ! velocities
+ mgi_m = dyn_cell(cur_neighbor_m)%model_index
+ vel_m = model_grid(mgi_m)%velocity
+ mgi_p = dyn_cell(cur_neighbor_p)%model_index
+ vel_p = model_grid(mgi_p)%velocity
+ vel_0 = model_grid(cur_mgi)%velocity
+ ! positions
+ pos_m = dyn_cell(cur_neighbor_m)%corner + dyn_cell(cur_neighbor_m)%width/2.0
+ pos_p = dyn_cell(cur_neighbor_p)%corner + dyn_cell(cur_neighbor_p)%width/2.0
+ pos_0 = cur_center
+ ! sums
+ sumx = pos_m(cur_dim) + pos_0(cur_dim) + pos_p(cur_dim)
+ sumxsq = pos_m(cur_dim)**2 + pos_0(cur_dim)**2 + pos_p(cur_dim)**2
+ sumy = vel_m(cur_dim) + vel_0(cur_dim) + vel_p(cur_dim)
+ sumysq = vel_m(cur_dim)**2 + vel_0(cur_dim)**2 + vel_p(cur_dim)**2
+ sumxy = pos_m(cur_dim) * vel_m(cur_dim) + pos_0(cur_dim) * vel_0(cur_dim) + &
+  pos_p(cur_dim) * vel_p(cur_dim)
+
+ inda(cur_dim) = (n_points * sumxy - sumx * sumy)/(n_points * sumxsq - sumx**2)
+ indb(cur_dim) = (sumxsq * sumy - sumx * sumxy)/(n_points * sumxsq - sumx**2)
+ n_index = n_index + 2
+END DO
+
+DO I = 1, 3
+ vel_vec(I) = inda(I) * act_pos(I) + indb(I)
+END DO
+
+!  matA(1:2,1) = (/ cur_center(1)**2.0, cur_center(1) /)
+!  matA(3:4,1) = (/ cur_center(2)**2.0, cur_center(2) /)
+!  matA(5:7,1) = (/ cur_center(3)**2.0, cur_center(3), 1.D0 /)
+!  vecB(:, 1) = cur_vel(:)
+!  ! neighbor velocities
+!  DO I = 1, 6
+!   cur_neighbor = neighbors(I)
+!   IF(cur_neighbor > 0) THEN
+!    cur_corner = dyn_cell(cur_neighbor)%corner
+!    cur_width = dyn_cell(cur_neighbor)%width
+!    cur_center = cur_corner + cur_width / 2.0
+!    cur_nmgi = dyn_cell(cur_neighbor)%model_index
+!    cur_vel_norm = model_grid(cur_nmgi)%vel
+!    cur_vel = cur_vel_norm * cur_center / norm2(cur_center)
+!    ! write(*,*) 'vel_discrete_points: n = ', cur_center / norm2(cur_center), &
+!    !  ' ||v|| = ', cur_vel_norm
+!    velocity_field(I + 1, :) = cur_vel
+!   ELSE
+!    velocity_field(I + 1, :) = velocity_field(1, :)
+!   END IF
+!   matA(1:2, I + 1) = (/ cur_center(1)**2.0, cur_center(1) /)
+!   matA(3:4, I + 1) = (/ cur_center(2)**2.0, cur_center(2) /)
+!   matA(5:7, I + 1) = (/ cur_center(3)**2.0, cur_center(3), 1.D0 /)
+!   vecB(:, I + 1) = cur_vel(:)
+!  END DO
 
 ! test for the inverse matrix calculation
 ! matA(:,1) = (/1, 0, 0, 0, 0, 0, 0 /)
@@ -125,30 +170,29 @@ IF(model_type == 1) THEN
 
 ! write(*,*) 'vel_discrete_points: matA = ', matA
 
-CALL DGETRF(7, 7, matA, 7, ipiv, info)
-CALL DGETRI(7, matA, 7, ipiv, work, 7, info)
-
-! calculation of coefficients (a ... g)
-DO K = 1, 3
- DO I = 1, 7
-  act_coeff = 0.0
-  DO J = 1, 7
-   act_coeff = act_coeff + matA(J, I) * vecB(K, J)
-  END DO
-  coeffs(K, I) = act_coeff
- END DO
-END DO
-! write(*,*) 'vel_discrete_points: vecB = ', vecB
-DO I = 1, 3
- vel_vec(I) = coeffs(I, 1) * act_pos(1)**2.0 + coeffs(I, 2) * act_pos(1) + &
-  coeffs(I, 3) * act_pos(2) + coeffs(I, 4) * act_pos(2) + &
-  coeffs(I, 5) * act_pos(3) + coeffs(I, 6) * act_pos(3) + coeffs(I, 7)
-END DO
+! CALL DGETRF(7, 7, matA, 7, ipiv, info)
+! CALL DGETRI(7, matA, 7, ipiv, work, 7, info)
+! 
+! ! calculation of coefficients (a ... g)
+! DO K = 1, 3
+!  DO I = 1, 7
+!   act_coeff = 0.0
+!   DO J = 1, 7
+!    act_coeff = act_coeff + matA(J, I) * vecB(K, J)
+!   END DO
+!   coeffs(K, I) = act_coeff
+!  END DO
+! END DO
+! ! write(*,*) 'vel_discrete_points: vecB = ', vecB
+! DO I = 1, 3
+!  vel_vec(I) = coeffs(I, 1) * act_pos(1)**2.0 + coeffs(I, 2) * act_pos(1) + &
+!   coeffs(I, 3) * act_pos(2) + coeffs(I, 4) * act_pos(2) + &
+!   coeffs(I, 5) * act_pos(3) + coeffs(I, 6) * act_pos(3) + coeffs(I, 7)
+! END DO
  
 write(*,*) 'vel_discrete_points: ||v||/c = ', norm2(vel_vec)/light_speed
 ! STOP 'vel_discrete_points: testing'
 
-END IF
 
 
 
