@@ -48,6 +48,7 @@ act_cell = package(pack_index)%cell_numb
 act_pos = package(pack_index)%pos
 cur_mgi = get_package_model_index(pack_index)
 corner = dyn_cell(act_cell)%corner
+cur_center = corner + width / 2.0
 width = dyn_cell(act_cell)%width
 cur_vel_norm0 = model_grid(cur_mgi)%vel
 
@@ -96,7 +97,6 @@ END DO
 ! spherically symmetric model
 ! IF(model_type == 1) THEN
 !  ! velocity of the current cell
-!  cur_center = corner + width / 2.0
 !  cur_vel = cur_vel_norm * cur_center / norm2(cur_center)
 !  velocity_field(1,:) = cur_vel
 ! END IF
@@ -106,16 +106,39 @@ n_index = 1
 DO cur_dim = 1, 3
  cur_neighbor_p = neighbors(n_index)
  cur_neighbor_m = neighbors(n_index + 1)
- ! velocities
- mgi_m = dyn_cell(cur_neighbor_m)%model_index
- vel_m = model_grid(mgi_m)%velocity
- mgi_p = dyn_cell(cur_neighbor_p)%model_index
- vel_p = model_grid(mgi_p)%velocity
- vel_0 = model_grid(cur_mgi)%velocity
  ! positions
- pos_m = dyn_cell(cur_neighbor_m)%corner + dyn_cell(cur_neighbor_m)%width/2.0
- pos_p = dyn_cell(cur_neighbor_p)%corner + dyn_cell(cur_neighbor_p)%width/2.0
+
+ IF (cur_neighbor_m > 0) THEN
+  pos_m = dyn_cell(cur_neighbor_m)%corner + dyn_cell(cur_neighbor_m)%width/2.0
+  mgi_m = dyn_cell(cur_neighbor_m)%model_index
+ ! if it is out of the grid we will set it to the actuall cell boundary
+ ELSE 
+  pos_m = act_pos
+  pos_m(cur_dim) = corner(cur_dim)
+  mgi_m = cur_mgi
+ END IF
+ IF (cur_neighbor_p > 0) THEN
+  pos_p = dyn_cell(cur_neighbor_p)%corner + dyn_cell(cur_neighbor_p)%width/2.0
+  mgi_p = dyn_cell(cur_neighbor_p)%model_index
+ ELSE 
+  pos_m = act_pos
+  pos_m(cur_dim) = corner(cur_dim) + width(cur_dim)
+  mgi_p = cur_mgi
+ END IF
  pos_0 = cur_center
+ ! velocities
+ IF(model_type == 1) THEN
+  vel_m = model_grid(mgi_m)%vel * pos_m / norm2(pos_m)
+  vel_p = model_grid(mgi_p)%vel * pos_p / norm2(pos_p)
+  vel_0 = model_grid(cur_mgi)%vel * pos_0 / norm2(pos_0)
+  write(*,*) 'vel_discrete_points: vel_0 = ', vel_0, ' pos_0 = ', pos_0
+ ELSE IF(model_type == 2) THEN
+  mgi_m = dyn_cell(cur_neighbor_m)%model_index
+  vel_m = model_grid(mgi_m)%velocity
+  mgi_p = dyn_cell(cur_neighbor_p)%model_index
+  vel_p = model_grid(mgi_p)%velocity
+  vel_0 = model_grid(cur_mgi)%velocity
+ END IF
  ! sums
  sumx = pos_m(cur_dim) + pos_0(cur_dim) + pos_p(cur_dim)
  sumxsq = pos_m(cur_dim)**2 + pos_0(cur_dim)**2 + pos_p(cur_dim)**2
@@ -123,6 +146,7 @@ DO cur_dim = 1, 3
  sumysq = vel_m(cur_dim)**2 + vel_0(cur_dim)**2 + vel_p(cur_dim)**2
  sumxy = pos_m(cur_dim) * vel_m(cur_dim) + pos_0(cur_dim) * vel_0(cur_dim) + &
   pos_p(cur_dim) * vel_p(cur_dim)
+ write(*,*) 'vel_discrete_points: sumx = ', sumx, ' sumy = ', sumy
 
  inda(cur_dim) = (n_points * sumxy - sumx * sumy)/(n_points * sumxsq - sumx**2)
  indb(cur_dim) = (sumxsq * sumy - sumx * sumxy)/(n_points * sumxsq - sumx**2)
@@ -133,6 +157,7 @@ DO I = 1, 3
  vel_vec(I) = inda(I) * act_pos(I) + indb(I)
 END DO
 
+write(*,*) 'vel_discrete_points: ||v||/c = ', vel_vec/light_speed
 !  matA(1:2,1) = (/ cur_center(1)**2.0, cur_center(1) /)
 !  matA(3:4,1) = (/ cur_center(2)**2.0, cur_center(2) /)
 !  matA(5:7,1) = (/ cur_center(3)**2.0, cur_center(3), 1.D0 /)
@@ -190,7 +215,6 @@ END DO
 !   coeffs(I, 5) * act_pos(3) + coeffs(I, 6) * act_pos(3) + coeffs(I, 7)
 ! END DO
  
-write(*,*) 'vel_discrete_points: ||v||/c = ', norm2(vel_vec)/light_speed
 ! STOP 'vel_discrete_points: testing'
 
 

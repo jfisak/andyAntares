@@ -151,6 +151,7 @@
        IF( delta2 < delta ) THEN
          delta = delta2
          M = J
+        ! write(*,*) 'connection_prop_model_grid: I = ', I, ' / ', r/r0, phi/phi0
        END IF
        ! if the propagation cell is too far from the nearest model point
        ! we will associate this cell to the dummy cells

@@ -113,6 +113,7 @@ CALL cpu_time(time1_agcreation)
 time_cre = time1_agcreation - time0_agcreation
 
 CALL cpu_time(time0_agconnwpg)
+write(*,*) 'main: connecting prop model grid'
 CALL connection_prop_model_grid()
 CALL cpu_time(time1_agconnwpg)
 time_con = time1_agconnwpg - time0_agconnwpg
