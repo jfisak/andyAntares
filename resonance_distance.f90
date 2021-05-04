@@ -17,7 +17,7 @@ DOUBLE PRECISION                :: minint
 DOUBLE PRECISION                :: chint
 ! testing
 DOUBLE PRECISION                :: ldist_analyt
-INTEGER                         :: dummypackage
+TYPE(photon)                    :: dummypackage
 DOUBLE PRECISION                :: bfreq, halffreq, D
 DOUBLE PRECISION                :: ufreq, lfreq
 LOGICAL                         :: TESTING = .false.
@@ -38,16 +38,9 @@ LOGICAL                         :: endit = .false.
 
 ! write(78,*) pack_index, package(pack_index)%freq_rf, package(pack_index)%freq_cmf, &
 !  package(pack_index)%freq_cmf / linelist(nextLine)%freq
-dummypackage = SIZE(package)
-package(dummypackage) = package(pack_index)
 ! write(*,*) 'resonance_distance: pack_index = ', pack_index, ' f_line = ', f_line,&
 !  ' cell_dist = ', cell_dist
 
-! write(*,*) '*****************************************************'
-! 
-! IF(pack_index == 549) write(*,*) 'resonance_distance: fcmf / f_line = ', package(pack_index)%freq_cmf / f_line
-
-! write(*,*) 'resonance_distance***************************************'
 minint = 1.D0 / linelist(1)%freq
 calculate = .TRUE.
 iteration = .TRUE.
@@ -66,8 +59,8 @@ IF(TESTING .EQV. .TRUE.) THEN
  ldist_analyt = light_speed * ( R_inf / V_inf ) * &
   ( ( package(pack_index)%freq_cmf / package(pack_index)%freq_rf)-&
   f_line / package(pack_index)%freq_rf)
- package(dummypackage) = package(pack_index)
- CALL move_package(dummypackage, ldist_analyt)
+ dummypackage = package(pack_index)
+ package(pack_index)%pos(:) = package(pack_index)%pos(:) + ldist_analyt * package(pack_index)%dir(:)
  IF(ldist_analyt <= cell_dist) THEN
   inCell = .TRUE.
  ELSE
@@ -79,11 +72,10 @@ IF(TESTING .EQV. .TRUE.) THEN
 END IF
  ! boundary coordinate
 ! write(*,*) 'resonance_distance: cell_dist = ', cell_dist
-CALL move_package(dummypackage, cell_dist)
-bfreq = package(dummypackage)%freq_cmf
-rbound = package(dummypackage)%pos
+ package(pack_index)%pos(:) = package(pack_index)%pos(:) + cell_dist * package(pack_index)%dir(:)
+bfreq = dummypackage%freq_cmf
+rbound = dummypackage%pos
 ! frequency in the propagation cell boundary
-! package(dummypackage)%pos = rbound
 lowbond = package(pack_index)%pos
 DO WHILE(iteration)
  lfreq = package(pack_index)%freq_cmf
@@ -125,8 +117,8 @@ DO WHILE(iteration)
     ! END IF
    END IF
    halfpos = upbond * 5.D-1 + lowbond * 5.D-1
-   package(dummypackage)%pos = halfpos
-   CALL doppler_factor(dummypackage, D)
+   dummypackage%pos = halfpos
+   CALL doppler_factor(0, dummypackage%pos, dummypackage%dir, D)
    halffreq = package(pack_index)%freq_rf * D
    ! IF(pack_index == 549) write(*,*) 'resonance_distance: lfreq / f = ', lfreq / f_line, &
    !  ' halffreq / f = ', halffreq / f_line, ' ufreq / f = ', ufreq / f_line
@@ -172,7 +164,7 @@ DO WHILE(iteration)
     write(*,*) 'resonance_distance: r / R_inf = ', norm2(lowbond) / R_inf
     write(*,*) 'resonance_distance: r_r / R_inf = ', norm2(upbond) / R_inf
     ! write(*,*) 'resonance_distance: r / R_star = ', norm2(halfpos) / R_star
-    CALL doppler_factor(dummypackage, D)
+    CALL doppler_factor(0, dummypackage%pos, dummypackage%dir, D)
     write(*,*) 'resonance_distance: D = ', D
     STOP 'resonance_distance'
    END IF
@@ -195,7 +187,7 @@ DO WHILE(iteration)
    inCell = .FALSE.
    RETURN
   END IF
-  package(dummypackage)%pos = rbound
+  dummypackage%pos = rbound
   lowbond = rbound
   CALL boundary3(dummypackage, dist, cell_number)
   IF(cell_number <= 0) THEN
@@ -214,11 +206,8 @@ DO WHILE(iteration)
    ! write(*,*) 'resonance_distance: #3 ldist = ', ldist/R_inf
    RETURN
   END IF
-  rbound = package(dummypackage)%pos
+  rbound = dummypackage%pos
   upbond = rbound
-   ! write(*,*) 'resonance_distance: dist = ', norm2(package(pack_index)%pos - rbound)/R_inf, norm2(package(dummypackage)%pos)/R_inf
-   ! write(*,*) 'resonance_distance: rbound = ', norm2(rbound)/R_inf
-   ! STOP 'resonance_distance: testing'
  END IF
 END DO
 

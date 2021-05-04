@@ -67,7 +67,7 @@ END DO
 
  ! This is the opacity in co-moving frame. Must be transformed to the lab frame
  ! According to Mihalas and Mihalas Eq. 90.8 this is achieved by 
- CALL doppler_factor(pack_index, D)
+ CALL doppler_factor(pack_index, package(pack_index)%pos, package(pack_index)%dir, D)
  kappa_cont = D * kappa_cont
  ! write(*,*) 'event_dist: kappa_cont = ', kappa_cont
 

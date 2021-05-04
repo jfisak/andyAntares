@@ -40,7 +40,7 @@ END IF
 ! write(78,*) pack_index, package(pack_index)%freq_rf, package(pack_index)%freq_cmf, package(pack_index)%freq_cmf / linelist(1)%freq
 ! Rest frame quantities do not change while propagating without any events, 
 ! but cmf quantities need to be updated
-CALL doppler_factor(pack_index, D)
+CALL doppler_factor(pack_index, package(pack_index)%pos, package(pack_index)%dir, D)
 package(pack_index)%freq_cmf = package(pack_index)%freq_rf * D
 package(pack_index)%e_cmf = package(pack_index)%e_rf * D
 ! write(*,*)  'frequency in frame: ', package(pack_index)%freq_rf/1.5e9, &

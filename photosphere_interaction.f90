@@ -55,7 +55,7 @@ END IF
  ! Assign rf energy and frequency to the packet
 
  ! Now convert the energy and frequency to their cmf values
- CALL doppler_factor(pack_index, D)
+ CALL doppler_factor(pack_index, package(pack_index)%pos, package(pack_index)%dir, D)
  CALL freq_from_planck(freq)
  package(pack_index)%freq_rf = freq
  package(pack_index)%e_rf = L_star/n_pack

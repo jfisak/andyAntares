@@ -21,13 +21,13 @@ SUBROUTINE emit_rpackage(pack_index)
   ! Transform direction from cmf to rf. Take negativ velocity for the
   ! aberration formula (rf to cmf trafo would require positive
   ! velocity). See e.g. Mihalas and Mihalas Eq. 89.6
-  CALL velo(pack_index,vel_vec)
+  CALL velo(pack_index, package(pack_index)%pos, vel_vec)
   CALL angle_aberration(cmf_direction, -1.D0*vel_vec, rf_direction)
   package(pack_index)%dir = rf_direction
   
   ! Finally update the packets frequency and energy
   ! See e.g. Mihalas and Mihalas Eq. 89.5
-  CALL doppler_factor(pack_index, D)
+  CALL doppler_factor(pack_index, package(pack_index)%pos, rf_direction, D)
   
   package(pack_index)%e_rf = package(pack_index)%e_cmf / D
   package(pack_index)%freq_rf =  package(pack_index)%freq_cmf / D

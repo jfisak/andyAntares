@@ -77,7 +77,7 @@ SUBROUTINE init_photsphere(n_pack)
     !IF (I .EQ. 1) print*, package(I)%e_rf
 
     ! Now convert the energy and frequency to their cmf values
-    CALL doppler_factor(I, D)
+    CALL doppler_factor(I, R_star * direction, direction, D)
     package(I)%freq_cmf = package(I)%freq_rf * D 
     !print*, 'frequencies: ', package(I)%freq_cmf, package(I)%freq_rf
     package(I)%e_cmf    = package(I)%e_rf * D  

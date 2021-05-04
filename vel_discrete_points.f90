@@ -6,7 +6,8 @@ IMPLICIT NONE
 INTEGER                                 :: pack_index
 DOUBLE PRECISION, DIMENSION(3)          :: vel_vec
 
-INTEGER                                 :: testpacket
+TYPE(photon)                            :: testPacket
+INTEGER                                 :: dummyPacket
 INTEGER                                 :: cur_dir
 INTEGER, DIMENSION(6,3)                 :: directions
 DOUBLE PRECISION, DIMENSION(6)          :: distances
@@ -31,8 +32,6 @@ DOUBLE PRECISION, DIMENSION(size(matA,1)) :: work
 
 DOUBLE PRECISION                        :: act_coeff
 DOUBLE PRECISION, DIMENSION(3, 7)       :: coeffs
-DOUBLE PRECISION, DIMENSION(3)          :: sph_coor, cart_coor
-LOGICAL                                 :: find_spher_coor, found
 
 DOUBLE PRECISION                        :: sumx, sumxsq, sumy, sumysq, sumxy
 DOUBLE PRECISION, DIMENSION(3)          :: vel_m, vel_p, vel_0
@@ -43,25 +42,22 @@ INTEGER                                 :: n_points
 
 INTEGER                                 :: mgi_p, mgi_m
 DOUBLE PRECISION, DIMENSION(3)          :: inda, indb
-DOUBLE PRECISION, DIMENSION(3)          :: sph_coor_p, sph_coor_m, sph_coor_0
-DOUBLE PRECISION                        :: vel_ang_m, vel_ang_p, vel_ang_0
-DOUBLE PRECISION                        :: vel_rad_m, vel_rad_p, vel_rad_0
+DOUBLE PRECISION                        :: vel_ana
 
-testPacket = SIZE(package) - 1
-package(testPacket) = package(pack_index)
+testPacket = package(pack_index)
+dummyPacket = SIZE(package)
 act_cell = package(pack_index)%cell_numb
 act_pos = package(pack_index)%pos
 cur_mgi = get_package_model_index(pack_index)
 corner = dyn_cell(act_cell)%corner
 cur_center = corner + width / 2.0
 width = dyn_cell(act_cell)%width
-! cur_vel_rad = model_grid(cur_mgi)%vel
-! cur_vel_ang = model_grid(cur_mgi)%velang
+cur_vel_norm0 = model_grid(cur_mgi)%vel
 
-! IF(cur_vel_norm == 0.0) THEN
-!  vel_vec = (/ 0.0, 0.0, 0.0 /)
-!  RETURN
-! END IF
+IF(cur_vel_norm == 0.0) THEN
+ vel_vec = (/ 0.0, 0.0, 0.0 /)
+ RETURN
+END IF
 
 ! find the neighboring cells
 ! we will send a testPacket into all six directions
@@ -89,13 +85,14 @@ crossy(6) = negz
 
 ! searching the neighbor cells
 DO cur_dir = 1,6
- package(testPacket)%dir = directions(cur_dir, :)
- package(testPacket)%next_cross = crossy(cur_dir)
- CALL next_cell_down(testPacket, down_cell)
+ testPacket%dir = directions(cur_dir, :)
+ testPacket%next_cross = crossy(cur_dir)
+ package(dummyPacket) = testPacket
+ CALL next_cell_down(dummyPacket, down_cell)
  IF(dyngrid == 0) THEN
   next_cell = down_cell
  ELSE 
-  CALL next_cell_up(testPacket, distances(cur_dir), down_cell, next_cell)
+  CALL next_cell_up(dummyPacket, distances(cur_dir), down_cell, next_cell)
  END IF
  neighbors(cur_dir) = next_cell
 END DO
@@ -103,66 +100,47 @@ END DO
 ! spherically symmetric model
 ! IF(model_type == 1) THEN
 !  ! velocity of the current cell
+!  cur_vel = cur_vel_norm * cur_center / norm2(cur_center)
 !  velocity_field(1,:) = cur_vel
 ! END IF
 
-cur_center = corner + width / 2.0
 n_points = 3
 n_index = 1
 DO cur_dim = 1, 3
  cur_neighbor_p = neighbors(n_index)
  cur_neighbor_m = neighbors(n_index + 1)
- IF(model_type == 2) THEN
-  ! positions
+ ! positions
+
+ IF (cur_neighbor_m > 0) THEN
   pos_m = dyn_cell(cur_neighbor_m)%corner + dyn_cell(cur_neighbor_m)%width/2.0
-  pos_p = dyn_cell(cur_neighbor_p)%corner + dyn_cell(cur_neighbor_p)%width/2.0
-  pos_0 = cur_center
-  found = find_spher_coor(pos_p, sph_coor_p)
-  found = find_spher_coor(pos_m, sph_coor_m)
-  found = find_spher_coor(pos_0, sph_coor_0)
-  write(*,*) 'vel_discrete_points: vel_rad_0 = ', vel_rad_0 / R_inf
-  ! write(*,*) 'vel_discrete_points: sph_coor_0 = ', sph_coor_0 / R_inf
-  ! write(*,*) 'vel_discrete_points: sph_coor_m = ', sph_coor_m / R_inf
-  ! write(*,*) 'vel_discrete_points: sph_coor_p = ', sph_coor_p / R_inf
-  ! STOP 'vel_discrete_points: testing'
-  ! velocities
   mgi_m = dyn_cell(cur_neighbor_m)%model_index
+ ! if it is out of the grid we will set it to the actuall cell boundary
+ ELSE 
+  pos_m = act_pos
+  pos_m(cur_dim) = corner(cur_dim)
+  mgi_m = cur_mgi
+ END IF
+ IF (cur_neighbor_p > 0) THEN
+  pos_p = dyn_cell(cur_neighbor_p)%corner + dyn_cell(cur_neighbor_p)%width/2.0
   mgi_p = dyn_cell(cur_neighbor_p)%model_index
-  IF(mgi_m > 0 ) THEN
-   vel_rad_m = model_grid(mgi_m)%vel
-   vel_ang_m = model_grid(mgi_m)%velang
-  ELSE
-   vel_rad_m = 0.0
-   vel_ang_m = 0.0
-  END IF
-  IF(mgi_p > 0) THEN
-   vel_rad_p = model_grid(mgi_p)%vel
-   vel_ang_p = model_grid(mgi_p)%velang
-  ELSE
-   vel_rad_p = 0.0
-   vel_ang_p = 0.0
-  END IF
-  vel_rad_0 = model_grid(cur_mgi)%vel
-  vel_ang_0 = model_grid(cur_mgi)%velang
-  IF(cur_dim == 1) THEN
-   vel_p(cur_dim) = vel_rad_p * sin(sph_coor_p(2)) * cos(sph_coor_p(3)) + &
-    vel_ang_p * sin(sph_coor_p(3))
-   vel_m(cur_dim) = vel_rad_m * sin(sph_coor_m(2)) * cos(sph_coor_m(3)) + &
-    vel_ang_m * sin(sph_coor_m(3))
-   vel_0(cur_dim) = vel_rad_0 * sin(sph_coor_0(2)) * cos(sph_coor_0(3)) + &
-    vel_ang_0 * sin(sph_coor_0(3))
-  ELSE IF(cur_dim == 2) THEN
-   vel_p(cur_dim) = vel_rad_p * sin(sph_coor_p(2)) * sin(sph_coor_p(3)) + &
-    vel_ang_p * cos(sph_coor_p(3))
-   vel_m(cur_dim) = vel_rad_p * sin(sph_coor_m(2)) * sin(sph_coor_m(3)) + &
-    vel_ang_m * cos(sph_coor_m(3))
-   vel_0(cur_dim) = vel_rad_m * sin(sph_coor_0(2)) * sin(sph_coor_0(3)) + &
-    vel_ang_0 * cos(sph_coor_0(3))
-  ELSE IF(cur_dim == 3) THEN
-   vel_p(cur_dim) = vel_rad_p * cos(sph_coor_p(2))
-   vel_m(cur_dim) = vel_rad_m * cos(sph_coor_m(2))
-   vel_0(cur_dim) = vel_rad_0 * cos(sph_coor_0(2))
-  END IF
+ ELSE 
+  pos_m = act_pos
+  pos_m(cur_dim) = corner(cur_dim) + width(cur_dim)
+  mgi_p = cur_mgi
+ END IF
+ pos_0 = cur_center
+ ! velocities
+ IF(model_type == 1) THEN
+  vel_m = model_grid(mgi_m)%vel * pos_m / norm2(pos_m)
+  vel_p = model_grid(mgi_p)%vel * pos_p / norm2(pos_p)
+  vel_0 = model_grid(cur_mgi)%vel * pos_0 / norm2(pos_0)
+  write(*,*) 'vel_discrete_points: vel_0 = ', vel_0, ' pos_0 = ', pos_0
+ ELSE IF(model_type == 2) THEN
+  mgi_m = dyn_cell(cur_neighbor_m)%model_index
+  vel_m = model_grid(mgi_m)%velocity
+  mgi_p = dyn_cell(cur_neighbor_p)%model_index
+  vel_p = model_grid(mgi_p)%velocity
+  vel_0 = model_grid(cur_mgi)%velocity
  END IF
  ! sums
  sumx = pos_m(cur_dim) + pos_0(cur_dim) + pos_p(cur_dim)
@@ -181,9 +159,9 @@ END DO
 DO I = 1, 3
  vel_vec(I) = inda(I) * act_pos(I) + indb(I)
 END DO
-write(*,*) 'vel_discrete_points: ||v||/c = ', norm2(vel_vec)/light_speed
 
-write(*,*) 'vel_discrete_points: ||v||/c = ', vel_vec/light_speed
+vel_ana = V_inf/R_inf * norm2(package(pack_index)%pos)
+write(*,*) 'vel_discrete_points: ||v||/v_an = ', norm2(vel_vec)/vel_ana
 !  matA(1:2,1) = (/ cur_center(1)**2.0, cur_center(1) /)
 !  matA(3:4,1) = (/ cur_center(2)**2.0, cur_center(2) /)
 !  matA(5:7,1) = (/ cur_center(3)**2.0, cur_center(3), 1.D0 /)

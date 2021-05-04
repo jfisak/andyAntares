@@ -264,7 +264,7 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
    ! testing
    ! new_freq = light_speed / (4.D3 * 1.D-8)
    package(pack_index)%freq_cmf = new_freq
-   CALL doppler_factor(pack_index, D)
+   CALL doppler_factor(pack_index, package(pack_index)%pos, package(pack_index)%dir, D)
    IF(sstates) write(36, *) 'RDEEX linewl = ', 1.D8 * light_speed / linelist(linetransitions(line))%freq
    ! D = 1.D0
    package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
