@@ -25,7 +25,9 @@ CASE(2)
 ! #03
 ! velocity field given by model in discrete points
 CASE(3)
- CALL vel_discrete_points(pack_index, vel_vec)
+ CALL vel_discrete_points_interpolation(pack_index, vel_vec)
+CASE(4)
+ CALL vel_discrete_points_constant(pack_index, vel_vec)
 CASE DEFAULT
  write(*,*) 'velo: velApprox = ', velApprox
  write(*,*) 'this velocity structure is not known'

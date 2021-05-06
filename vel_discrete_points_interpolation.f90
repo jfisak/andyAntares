@@ -1,4 +1,4 @@
-SUBROUTINE vel_discrete_points(pack_index, vel_vec)
+SUBROUTINE vel_discrete_points_interpolation(pack_index, vel_vec)
 
 USE types
 IMPLICIT NONE
@@ -224,4 +224,4 @@ write(*,*) 'vel_discrete_points: ||v||/v_an = ', norm2(vel_vec)/vel_ana
 
 
 
-END SUBROUTINE vel_discrete_points
+END SUBROUTINE vel_discrete_points_interpolation
