@@ -27,7 +27,7 @@ LOGICAL                         :: isLdist
 LOGICAL                         :: calculate
 INTEGER                         :: I
 INTEGER                         :: cell_number
-DOUBLE PRECISION                :: dist
+DOUBLE PRECISION                :: dist, dist1, dist2
 LOGICAL                         :: endit = .false.
 
 ! IF(package(pack_index)%freq_cmf <= linelist(next1line)%freq) THEN
@@ -71,15 +71,14 @@ IF(TESTING .EQV. .TRUE.) THEN
  RETURN
  ! write(*,*) 'resonance_distance: ldist_analyt = ', ldist_analyt / R_inf
 END IF
- ! boundary coordinate
-! write(*,*) 'resonance_distance: cell_dist = ', cell_dist
+! boundary coordinate
 dummypackage = package(pack_index)
-dummypackage%pos(:) = dummypackage%pos(:) + cell_dist * dummypackage%dir(:)
-bfreq = dummypackage%freq_cmf
-rbound = dummypackage%pos
-! frequency in the propagation cell boundary
-lowbond = package(pack_index)%pos
 IF(velApprox /= 4) THEN
+ dummypackage%pos(:) = dummypackage%pos(:) + cell_dist * dummypackage%dir(:)
+ bfreq = dummypackage%freq_cmf
+ rbound = dummypackage%pos
+ ! frequency in the propagation cell boundary
+ lowbond = package(pack_index)%pos
  DO WHILE(iteration)
   lfreq = package(pack_index)%freq_cmf
   upbond = rbound
@@ -214,6 +213,9 @@ IF(velApprox /= 4) THEN
   END IF
  END DO
 ELSE IF (velApprox == 4) THEN
+ CALL find_dist(pack_index, cell_numb, dist1, dist2)
+ ! calculation of two boundary frequencies
+
 END IF
 
 ! write(*,*) 'resonance_distance: la = ', light_speed * ( R_inf / V_inf ) * &
