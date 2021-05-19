@@ -87,6 +87,7 @@ IMPLICIT NONE
  
 
   IF(dist > sqrt(width(1)**2 + width(2)**2 + width(3)**2)) THEN
+   write(*,*) 'find_dist dist > úhlopříčka'
    write(*,*) 'find_dist: pack_index = ', pack_index
    write(*,*) 'pos/corner = ', pos(:)/corner(:)!, ' corner = ', corner / R_inf
    write(*,*) 'pos/R_inf = ', pos/R_inf, ' corner/R_inf = ', corner/R_inf,&

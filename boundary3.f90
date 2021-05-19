@@ -1,4 +1,4 @@
-SUBROUTINE boundary3(pack_index, dist, next_cell) 
+SUBROUTINE boundary3(pack_index, dist, opdist, next_cell) 
 ! write nx_cell, ny_cell, nz_cell as global variable
 
 ! Calculate the shortest distance to the cell surface which photon will cross and return this 
@@ -11,7 +11,7 @@ USE types
 IMPLICIT NONE    
 
 INTEGER                         :: pack_index, next_cell, n_cell
-DOUBLE PRECISION                :: dist
+DOUBLE PRECISION                :: dist, opdist
 ! dynamic cell variables
 INTEGER                         :: act_cell
 DOUBLE PRECISION                :: dummy
@@ -23,7 +23,7 @@ act_cell = package(pack_index)%cell_numb
 !  print*, 'boundary3: pack index = ', pack_index, ' actCell = ', actCell
 !  print*, 'boundary3: basic_cell_numb = ', basic_cell_numb
 ! now we are computing the nearest distance to the actuall dynamic cell
-CALL find_dist(pack_index, act_cell, dist, dummy)
+CALL find_dist(pack_index, act_cell, dist, opdist)
 ! now we look for the next cell given by indexes
 CALL next_cell_down(pack_index, n_cell)
 ! position of the point

@@ -29,10 +29,14 @@ LOGICAL                         :: calculate
 INTEGER                         :: I
 INTEGER                         :: cell_number
 DOUBLE PRECISION                :: dist, dist1, dist2
+DOUBLE PRECISION                :: nu1, nu2
 LOGICAL                         :: endit = .false.
 
 INTEGER                         :: n_cell, next_cell, next_mi
 
+DOUBLE PRECISION                :: ainx, binx, junk
+
+inCell = .FALSE.
 ! IF(package(pack_index)%freq_cmf <= linelist(next1line)%freq) THEN
 !  write(*,*) 'pack_index = ', pack_index
 !  write(*,*) ' f_cmf / f_line = ', package(pack_index)%freq_cmf / linelist(next1line)%freq
@@ -76,8 +80,10 @@ IF(TESTING .EQV. .TRUE.) THEN
 END IF
 ! boundary coordinate
 dummypackage = package(pack_index)
-dummypackage%pos(:) = dummypackage%pos(:) + cell_dist * dummypackage%dir(:)
-CALL doppler_factor(pack_index, dummypackage%pos, dummypackage%dir, D)
+dummy_pack = SIZE(package)
+package(dummy_pack) = dummypackage
+CALL boundary3(dummy_pack, dist1, dist2, next_cell)
+CALL move_package(dummy_pack, dist1)
 package(pack_index)%freq_cmf = package(pack_index)%freq_rf * D
 package(pack_index)%e_cmf = package(pack_index)%e_rf * D
 bfreq = dummypackage%freq_cmf
@@ -197,7 +203,7 @@ IF(velApprox /= 4) THEN
    END IF
    dummypackage%pos = rbound
    lowbond = rbound
-   CALL boundary3(dummypackage, dist, cell_number)
+   CALL boundary3(dummypackage, dist, junk, cell_number)
    IF(cell_number <= 0) THEN
     inCell = .FALSE.
     ldist = R_inf
@@ -219,27 +225,36 @@ IF(velApprox /= 4) THEN
   END IF
  END DO
 ELSE IF (velApprox == 4) THEN
- CALL find_dist(pack_index, cell_number, dist1, dist2)
  ! calculation of two boundary frequencies
- dummy_pack = SIZE(package)
- package(dummy_pack) = dummypackage
- CALL next_cell_down(dummy_pack, n_cell)
- ! position of the point
- !cross_pos = package(pack_index)%pos + package(pack_index)%dir * dist
- if(dyngrid /= 0) CALL next_cell_up(dummy_pack, dist1, n_cell, next_cell)
- if(dyngrid == 0) next_cell = n_cell
  IF(next_cell > 0) THEN
-  next_mi = dyn_cell(next_cell)%model_index
- END IF
   dummypackage%cell_numb = next_cell
- CALL doppler_factor(dummy_pack, dummypackage%pos, dummypackage%dir, D)
- dummypackage%freq_cmf = dummypackage%freq_rf * D
- write(*,*) 'resonance_distance: D = ', D
- write(*,*) 'resonance_distance: next_cell = ', next_cell, ' cur_cell = ', &
-  package(pack_index)%cell_numb
- write(*,*) 'resonance_distance: nu1, nu2 = ', &
-  dummypackage%freq_cmf, package(pack_index)%freq_cmf
- STOP 'resonance_distance: testing'
+  package(dummy_pack) = dummypackage
+  CALL doppler_factor(dummy_pack, dummypackage%pos, dummypackage%dir, D)
+  dummypackage%freq_cmf = dummypackage%freq_rf * D
+  
+  nu1 = package(pack_index)%freq_cmf
+  nu2 = dummypackage%freq_cmf
+   
+  f_line = linelist(nextLine)%freq
+
+  IF(nu1 > nu2) THEN
+   IF(f_line > nu2 .AND. f_line < nu1) inCell = .TRUE.
+  ELSE IF(nu1 < nu2) THEN
+   IF(f_line < nu2 .AND. f_line > nu1) inCell = .TRUE.
+  END IF
+
+  if (inCell .EQV. .TRUE.) THEN
+   ainx = (nu2 - nu1)/(dist1 + dist2)
+   binx = (nu2 * dist1 + nu1 * dist2) / (dist1 + dist2)
+   ldist = ainx * f_line + binx
+   if (ldist < 0) then
+    isLdist = .FALSE.
+   end if
+  end if
+ ELSE
+  inCell = .FALSE.
+ END IF
+
  
 END IF
 

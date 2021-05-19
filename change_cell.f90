@@ -30,9 +30,9 @@ SUBROUTINE change_cell(pack_index, next_cell)
    CALL abort()
   END IF
   ! check if the next cell si chosen correctly
-  corner = dyn_cell(next_cell)%corner
-  width = dyn_cell(next_cell)%width
-  pos = package(pack_index)%pos
+  ! corner = dyn_cell(next_cell)%corner
+  ! width = dyn_cell(next_cell)%width
+  ! pos = package(pack_index)%pos
   ! IF(pos(
  END IF
  

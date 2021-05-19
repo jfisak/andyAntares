@@ -10,7 +10,7 @@ SUBROUTINE do_rpackage(pack_index)
   INTEGER                           :: pack_index, next_cell, event
   INTEGER                           :: get_package_model_index
   DOUBLE PRECISION                  :: cell_dist, e_dist, &
-                                       rho_cell
+                                       rho_cell, junk
 
 INTEGER                                         :: n_thomson
 !INTEGER                                         :: n_tot_cont
@@ -29,7 +29,7 @@ ELSE
 END IF
 actirrates = rrates()
 
-  CALL boundary3(pack_index, cell_dist, next_cell)
+  CALL boundary3(pack_index, cell_dist, junk, next_cell)
   ! IF(pack_index == 30) THEN
   !  WRITE(3,*) pack_index, package(pack_index)%pos/R_sun, dyn_cell(package(pack_index)%cell_numb)%corner/R_sun, &
   !                dyn_cell(package(pack_index)%cell_numb)%width/R_sun, get_package_model_index(pack_index)
