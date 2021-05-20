@@ -248,7 +248,7 @@ ELSE IF (velApprox == 4) THEN
    binx = (nu2 * dist1 + nu1 * dist2) / (dist1 + dist2)
    ldist = ainx * f_line + binx
    if (ldist < 0) then
-    isLdist = .FALSE.
+    inCell = .FALSE.
    end if
   end if
  ELSE
