@@ -237,16 +237,26 @@ ELSE IF (velApprox == 4) THEN
    
   f_line = linelist(nextLine)%freq
 
+  IF(nu1 < nu2) THEN
+   inCell = .FALSE.
+   RETURN
+  END IF
+
   IF(nu1 > nu2) THEN
    IF(f_line > nu2 .AND. f_line < nu1) inCell = .TRUE.
   ELSE IF(nu1 < nu2) THEN
    IF(f_line < nu2 .AND. f_line > nu1) inCell = .TRUE.
+  ELSE
+   inCell = .FALSE.
   END IF
 
   if (inCell .EQV. .TRUE.) THEN
-   ainx = (nu2 - nu1)/(dist1 + dist2)
-   binx = (nu2 * dist1 + nu1 * dist2) / (dist1 + dist2)
+   ainx = (dist1 + dist2)/(nu2 - nu1)
+   binx = (dist1 * nu1 + dist2 * nu2) / (nu1 - nu2)
    ldist = ainx * f_line + binx
+   ! ldist = dist1
+   ! write(*,*) 'resonance_distance: ainx = ', ainx, ' binx = ', binx/f_line
+   ! write(*,*) 'resonance_distance: ldist = ', ldist/R_star, ' dist1 = ', dist1/R_star, ' inCell = ', inCell
    if (ldist < 0) then
     inCell = .FALSE.
    end if
