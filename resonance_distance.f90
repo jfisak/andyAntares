@@ -1,10 +1,11 @@
-SUBROUTINE resonance_distance(pack_index, nextLine, f_line, cell_dist, ldist, inCell, isLdist)
+SUBROUTINE resonance_distance(pack_index, lastLine, cell_dist, nextLine, n_next_lines, ldist, inCell, isLdist, tooRed)
 USE types
 USE counters
 IMPLICIT NONE
 
 ! input variables
-INTEGER                         :: pack_index, nextLine
+INTEGER                         :: n_next_lines
+INTEGER                         :: pack_index, nextLine, lastLine
 DOUBLE PRECISION                :: cell_dist
 DOUBLE PRECISION                :: f_line
 ! output variables
@@ -37,6 +38,7 @@ INTEGER                         :: n_cell, next_cell, next_mi
 DOUBLE PRECISION                :: ainx, binx, junk
 
 inCell = .FALSE.
+
 ! IF(package(pack_index)%freq_cmf <= linelist(next1line)%freq) THEN
 !  write(*,*) 'pack_index = ', pack_index
 !  write(*,*) ' f_cmf / f_line = ', package(pack_index)%freq_cmf / linelist(next1line)%freq
@@ -51,10 +53,6 @@ inCell = .FALSE.
 minint = 1.D0 / linelist(1)%freq
 calculate = .TRUE.
 iteration = .TRUE.
-! minint = 1.D-4
-IF(package(pack_index)%freq_cmf < f_line) THEN
- calculate = .FALSE.
-END IF
 ! Calculate distance the photon needs to travel to come to
 ! resonance with the next line. This assumes homologous
 ! expansion i.e. velocity is proportional to r. Projected
@@ -88,6 +86,8 @@ package(pack_index)%freq_cmf = package(pack_index)%freq_rf * D
 package(pack_index)%e_cmf = package(pack_index)%e_rf * D
 bfreq = dummypackage%freq_cmf
 IF(velApprox /= 4) THEN
+ CALL next_line_red(1, pack_index, lastLine, nextLine, n_next_lines, tooRed)
+ f_line = linelist(nextLine)%freq
  rbound = dummypackage%pos
  ! frequency in the propagation cell boundary
  lowbond = package(pack_index)%pos
@@ -232,6 +232,8 @@ ELSE IF (velApprox == 4) THEN
   CALL doppler_factor(dummy_pack, dummypackage%pos, dummypackage%dir, D)
   dummypackage%freq_cmf = dummypackage%freq_rf * D
   
+  ! nu1 the frequency in the start point
+  ! nu2 the frequency in the end point
   nu1 = package(pack_index)%freq_cmf
   nu2 = dummypackage%freq_cmf
    
@@ -241,11 +243,17 @@ ELSE IF (velApprox == 4) THEN
    inCell = .FALSE.
    RETURN
   END IF
-
+  
   IF(nu1 > nu2) THEN
-   IF(f_line > nu2 .AND. f_line < nu1) inCell = .TRUE.
+   IF(f_line > nu2 .AND. f_line < nu1) THEN
+    inCell = .TRUE.
+    CALL next_line_blue(1, pack_index, lastLine, nextLine, n_next_lines, tooRed)
+   END IF
   ELSE IF(nu1 < nu2) THEN
-   IF(f_line < nu2 .AND. f_line > nu1) inCell = .TRUE.
+   IF(f_line < nu2 .AND. f_line > nu1) THEN
+    inCell = .TRUE.
+    CALL next_line_red(1, pack_index, lastLine, nextLine, n_next_lines, tooRed)
+   END IF
   ELSE
    inCell = .FALSE.
   END IF
@@ -264,7 +272,7 @@ ELSE IF (velApprox == 4) THEN
  ELSE
   inCell = .FALSE.
  END IF
-
+ 
  
 END IF
 
