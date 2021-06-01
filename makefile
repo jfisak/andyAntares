@@ -31,7 +31,8 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
 	  next_cell_down.o next_cell_up.o read_2D_model.o populations.o   \
 	  i_coltrans.o gamma_function.o exp_int_func.o cool_excit.o \
 	  read_photcs.o i_radtrans.o i_radion.o i_colion.o find_populations.o \
-	  flux_function.o find_element_index.o next_line_red.o next_line_blue.o resonance_distance.o \
+	  flux_function.o find_element_index.o \
+	  resonance_distance.o next_line_red.o next_line_blue.o \
 	  r_kappa_cont.o i_freq_recomb.o cool_ff.o warning.o k_freq_ff.o  \
 	  cool_ionization.o cool_fb.o k_freq_fb.o check_pop.o r_kappa_line.o \
 	  save_output.o gauntff.o counters.o saha_factor.o find_photion_elindex.o \

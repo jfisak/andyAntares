@@ -90,7 +90,7 @@ DO WHILE (do_loop)
  
  ! CALL next_line(1, pack_index, lastLine, nextLine, n_next_lines, tooRed)
  ! write(*,*) 'event_dist: nextLine = ', nextLine, ' n_next_lines = ', n_next_lines
- CALL resonance_distance(pack_index, lastLine, cell_dist, nextLine, n_next_lines, l_dist, inCell, .TRUE.)
+ CALL resonance_distance(pack_index, lastLine, cell_dist, nextLine, n_next_lines, l_dist, inCell, .TRUE., tooRed)
  ALLOCATE(actirrates%Lline(n_next_lines))
  ! IF(nextLine < ntransitions + 1) THEN
   ! freq_line = linelist(nextLine)%freq

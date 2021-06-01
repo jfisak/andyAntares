@@ -8,6 +8,7 @@ INTEGER                         :: n_next_lines
 INTEGER                         :: pack_index, nextLine, lastLine
 DOUBLE PRECISION                :: cell_dist
 DOUBLE PRECISION                :: f_line
+LOGICAL                         :: tooRed
 ! output variables
 DOUBLE PRECISION                :: ldist
 ! beta law 
@@ -87,7 +88,11 @@ package(pack_index)%e_cmf = package(pack_index)%e_rf * D
 bfreq = dummypackage%freq_cmf
 IF(velApprox /= 4) THEN
  CALL next_line_red(1, pack_index, lastLine, nextLine, n_next_lines, tooRed)
- f_line = linelist(nextLine)%freq
+ IF(.not. tooRed) THEN
+  f_line = linelist(nextLine)%freq
+ ELSE
+  RETURN
+ END IF
  rbound = dummypackage%pos
  ! frequency in the propagation cell boundary
  lowbond = package(pack_index)%pos

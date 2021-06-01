@@ -1,6 +1,6 @@
 ! this sbr will find next line which a r-package can interact with
 ! now it is possible compute only lines with the delta function profile
-SUBROUTINE next_line(approximation, pack_index, init_line, next1line, n_eqf_lines, tooRedOrBlue)
+SUBROUTINE next_line_blue(approximation, pack_index, init_line, next1line, n_eqf_lines, tooRedOrBlue)
 USE types
 IMPLICIT NONE
 
