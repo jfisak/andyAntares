@@ -63,7 +63,7 @@ END DO
 
  ! calculates all continuum opacities
  CALL r_kappa_cont(pack_index, kappa_cont, actirrates)
- kappa_cont = 0.D0
+ ! kappa_cont = 0.D0
 
  ! This is the opacity in co-moving frame. Must be transformed to the lab frame
  ! According to Mihalas and Mihalas Eq. 90.8 this is achieved by 
@@ -94,16 +94,6 @@ DO WHILE (do_loop)
  IF(nextLine < ntransitions + 1) THEN
   freq_line = linelist(nextLine)%freq
   CALL resonance_distance(pack_index, nextLine, freq_line, cell_dist, l_dist, inCell, .TRUE.)
-!   IF (nextLine < ntransitions - 10) THEN
-!    n_lines = nextLine + 10
-!   ELSE
-!    n_lines = ntransitions
-!   END IF
-!   DO I = nextLine, n_lines
-!    fr_line = linelist(I)%freq
-!    CALL resonance_distance(pack_index, I, fr_line, cell_dist, loc_dist, linCell, .TRUE.)
-!    write(*,*) 'event_dist: line = ', I, ' loc_dist = ', loc_dist/R_star, ' ic = ', linCell
-!   END DO
    IF(inCell) THEN
     CALL r_kappa_line(pack_index, current_mgi, nextLine, n_next_lines, actirrates, tau_line)
    END IF
@@ -112,13 +102,13 @@ DO WHILE (do_loop)
  ! write(*,*) 'event_dist: inCell = ', inCell
  IF(inCell .AND. nextLine /= ntransitions + 1 .AND. .NOT. tooRed) THEN
  
-  ! Calculate optical depth in the next line (Sobolev, dv/dr dependent)
-  ! and continuum optical depth accumulated up to the line
-  !print*, 'before moving package #', pack_index
- 
-  tau_cont = kappa_cont * l_dist
-  ! write(*,*) 'event_dist: l_dist = ', l_dist, ' tau_line = ',&
-  !  tau_line, ' tau_cont = ', tau_cont
+ ! Calculate optical depth in the next line (Sobolev, dv/dr dependent)
+ ! and continuum optical depth accumulated up to the line
+ !print*, 'before moving package #', pack_index
+
+ tau_cont = kappa_cont * l_dist
+ ! write(*,*) 'event_dist: l_dist = ', l_dist, ' tau_line = ',&
+ !  tau_line, ' tau_cont = ', tau_cont
  
  
  
@@ -127,23 +117,27 @@ DO WHILE (do_loop)
  
   ! Now do a step by step analysis of which event occurs and return the 
   ! distance and corresponding event
-  ! IF(pack_index == 2222) write(*,*) 'event_dist: #1', tau_line, tau_cont, tau, tau_rand
   IF ((tau_rand - tau) .GT. tau_cont) THEN
+   ! if #02
    IF ((tau_rand - tau) .GT. (tau_cont + tau_line)) THEN
     dist = l_dist
+    ! if #03
     IF (dist .GT. cell_dist) THEN
      ! In this case the package propagates to the next cell
      e_dist = cell_dist + largeNumber
      do_loop = .FALSE.
      event = rpkt_eventtype_changecell
      if(procout) write(*,*) 'event_dist: rpkt_eventtype_changecell'
+    ! if #03
     ELSE
      ! choosing next line
      tau = tau + tau_cont + tau_line
      ! nextLine = nextLine + n_next_lines
      package(pack_index)%last_line = nextLine
      if(procout) write(*,*) 'event_dist: choosing next line nextLine = ', nextLine
+    ! if #03
     END IF
+   ! if #02
    ELSE
     e_dist = l_dist
     do_loop = .FALSE.
@@ -187,6 +181,7 @@ DO WHILE (do_loop)
      ! write(*,*) 'event_dist: #2 last_line = ', nextLine
      if(procout) write(*,*) 'event_dist: #2 choosing chosen line: ', nextLine 
     END IF 
+   ! if #02
    END IF
   ELSE
    ! Continuum process will happen

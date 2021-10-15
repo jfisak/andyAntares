@@ -48,10 +48,10 @@ package(dummypackage) = package(pack_index)
 ! IF(pack_index == 549) write(*,*) 'resonance_distance: fcmf / f_line = ', package(pack_index)%freq_cmf / f_line
 
 ! write(*,*) 'resonance_distance***************************************'
-minint = 1.D0 / linelist(1)%freq
+! minint = 1.D0 / linelist(1)%freq
 calculate = .TRUE.
 iteration = .TRUE.
-! minint = 1.D-4
+minint = 1.D-4
 IF(package(pack_index)%freq_cmf < f_line) THEN
  calculate = .FALSE.
 END IF
@@ -105,9 +105,12 @@ DO WHILE(iteration)
   DO WHILE(active .EQV. .TRUE.)
    I = I + 1
    ! write(*,*) 'resonance_distance: I = ', I
-   IF(I == 1000) THEN
+   IF(I == 100) THEN
     ! package(pack_index)%active = 0
     ! write(49, *) package(pack_index)%freq_cmf
+    ! write(*,*) 'resonance_distance: too many iterations...'
+    write(*,*) 'resonance_distance: packet: ', pack_index, ' too many iterations...'
+    STOP    
     count_des_resd = count_des_resd + 1
     ldist = R_inf
     inCell = .FALSE.
@@ -128,16 +131,17 @@ DO WHILE(iteration)
    package(dummypackage)%pos = halfpos
    CALL doppler_factor(dummypackage, D)
    halffreq = package(pack_index)%freq_rf * D
-   ! IF(pack_index == 549) write(*,*) 'resonance_distance: lfreq / f = ', lfreq / f_line, &
-   !  ' halffreq / f = ', halffreq / f_line, ' ufreq / f = ', ufreq / f_line
+   ! IF(pack_index == 549)
+   ! write(*,*) 'resonance_distance: lfreq / f = ', lfreq / f_line
+   ! write(*,*)  ' halffreq / f = ', halffreq / f_line, ' ufreq / f = ', ufreq / f_line
    ! write(*,*) 'resonance_distance: upbond = ', norm2(upbond), ' lowbond = ', norm2(lowbond)
    ! write(*,*) 'resonance_distance: halffreq = ', halffreq
    ! decision which interval should we test next
    IF(upbond(1) == lowbond(1) .AND. upbond(2) == lowbond(2) &
     .AND. upbond(3) == lowbond(3)) THEN
     ! write(78,*) 1.D8 * light_speed / package(pack_index)%freq_cmf
-    write(*,*) 'resonance_distance: package = ', pack_index
-    write(*,*) package(pack_index)%freq_cmf / linelist(nextLine)%freq
+    ! write(*,*) 'resonance_distance: package = ', pack_index
+    ! write(*,*) package(pack_index)%freq_cmf / linelist(nextLine)%freq
     STOP 'upbond == lowbond'
     active = .FALSE.
     iteration = .FALSE.

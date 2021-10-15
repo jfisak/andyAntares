@@ -37,6 +37,10 @@ SELECT CASE (inputModel)
  ! READ(11,*) V_inf
 !  READ(11,*) M_dot
  ! READ(11,*) n_modelgrid
+ if(T_eff < 5e3) THEN
+  write(*,*) 'T_eff = ', T_eff
+  STOP 'effective temperature is too low...'
+ end if
  
  
  add_mg = 1

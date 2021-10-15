@@ -21,11 +21,14 @@ SUBROUTINE main
 ! definition of MPI variables
 INTEGER                              :: nphit
 
+
 ! Link data to identify program version
 CHARACTER LINK_DATE*30, LINK_USER*10, LINK_HOST*60
 COMMON / COM_LINKINFO / LINK_DATE, LINK_USER, LINK_HOST
 ! COMMON / RAN_SEED / idum
 
+! the Saha constant calculation
+saha_const = 5.D-1 * (h**2/(2*pi*me_g*BOLK))**1.5
 ! CALL EXECUTE_COMMAND_LINE('figlet "3D WIND CODE"')
 my_rank = 0
 #if mpi==1
@@ -106,6 +109,7 @@ write(99,*) 'xmax = ', xmax/R_star, ' ymax = ', ymax/R_star, ' zmax = ', zmax/R_
 ALLOCATE(current_temp(n_modelgrid + add_mg))
 
 ! Set up of the propagation grid
+write(*,*) 'setting up the propagation grid'
 write(99,*) 'setting up the propagation grid'
 CALL cpu_time(time0_agcreation)
 CALL setup_grid2()
@@ -118,6 +122,7 @@ CALL cpu_time(time1_agconnwpg)
 time_con = time1_agconnwpg - time0_agconnwpg
 ! connects the propagation grid with the model grid
 write(99,*) 'propagation grid is set up'
+write(*,*) 'propagation grid is set up'
 
  IF(my_rank == 0) THEN
   CALL save_output(8)
@@ -135,12 +140,14 @@ DO iteration = 1,1
  CALL i_ion_recomb(1)
  IF(iteration == 100) STOP 'too many iteration in the subroutine main'
  write(99,*) 'Update grid finished' 
+ write(*,*) 'Update grid finished' 
 ! WRITE(20,*) '# ITERATION: ', iteration
   current_temp = model_grid(:)%T
 ! do 03
  nphit = 1
 !  DO J = 1, nphit
 ! Initialisation of photon packages from the photosphere
+ write(*,*) 'main: init_photsphere'
  CALL init_photsphere(n_pack) 
 
 ! Initalisation of photon packages from point source
@@ -149,6 +156,7 @@ DO iteration = 1,1
 ! Propagation of the photon in 3D grid
 ! CALL propagation(n_pack, opa_cell, lower_opa, delta_opa)
  write(99,*) 'update packages'
+ write(*,*) 'update packages'
  CALL cpu_time(time0_pp)
  CALL update_packages(n_pack)
  CALL cpu_time(time1_pp)

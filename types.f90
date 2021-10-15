@@ -192,12 +192,12 @@ IMPLICIT NONE
 
 !! Physical constants
   DOUBLE PRECISION, PARAMETER        :: pi=3.1415926535897932D+00,&
-                                        me_g=9.109534D-28,&
-                                        mp_g=1.6726485D-24,&
-                                        sigma_e=6.6516D-25,&
-                                        h=6.626176D-27,&
+                                        me_g=9.1093897D-28,&
+                                        mp_g=1.6726231D-24,&
+                                        sigma_e=6.6524587158D-25,&
+                                        h=6.6260755D-27,&
                                         light_speed=2.99792458D+10,&
-                                        e_charge=4.803242D-10,&
+                                        e_charge=4.8032068D-10,&
                                         ftran=0.6407D+00, &       
                                         nio=4.5655967D+14,&
                                         const=1.D-04,&
@@ -209,9 +209,10 @@ IMPLICIT NONE
                                         sigma =5.6704D-05 !ergcm^(-2)s(-1)K(-4) !D. H. Cohen et al.2012
   DOUBLE PRECISION, PARAMETER        :: parsec=30.857D17,&
                                         e_v = 1.60217646D-12,&
-                                        saha_const=2.0706839D-16,&
+                                        ! saha_const=2.0706839D-16,&
                                         ! saha_const=4.1414D-16,&
                                         b = 1.D0
+  DOUBLE PRECISION                      :: saha_const
   ! TEMPORARY CHANGE OF TEMPERATURE STRUCTURE
   DOUBLE PRECISION, PARAMETER        :: temp_factor = 1.0
 
