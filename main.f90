@@ -28,7 +28,7 @@ COMMON / COM_LINKINFO / LINK_DATE, LINK_USER, LINK_HOST
 ! COMMON / RAN_SEED / idum
 
 ! the Saha constant calculation
-saha_const = 5.D-1 * (h**2/(2*pi*me_g*BOLK))**1.5
+saha_const = 5.D-1 * (h**2/(2.0*pi*me_g*BOLK))**1.5
 ! CALL EXECUTE_COMMAND_LINE('figlet "3D WIND CODE"')
 my_rank = 0
 #if mpi==1
@@ -137,6 +137,9 @@ DO iteration = 1,1
  ! iteration = iteration + 1
  IF (iteration .GE. 10) write(99,*) 'No convergency'
  CALL update_grid(iteration)
+ if (iteration == 1 .AND. inputpopfile .NE. '') then
+  CALL read_populations()
+ end if
  CALL i_ion_recomb(1)
  IF(iteration == 100) STOP 'too many iteration in the subroutine main'
  write(99,*) 'Update grid finished' 

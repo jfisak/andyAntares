@@ -97,7 +97,7 @@ DO I = 1, nlns
  ! Aul = 2 * h * fr_line**3 / light_speed**2 * Bul
  Aul = 8.D0 * fr_line**2 * pi**2 * e_charge**2/ (me_g * light_speed**3) *&
   stat_weight_l / stat_weight_u * linelist(act_line)%f_lu
- Jlu = flux_function(0, linelist(act_line)%freq, model_grid(current_mgi)%T)
+ Jlu = flux_function(0, linelist(act_line)%freq, model_grid(current_mgi)%T, model_grid(current_mgi)%rwind)
  IF(stmasnab) THEN
   actVal = (low_pop * Blu - up_pop * Bul) * betalu * Jlu
  ELSE
@@ -137,7 +137,7 @@ DO I = 1, nluns
  CALL populations(indexe, indexi, linelist(act_line)%upper, current_mgi, up_pop)
  corrFactor = 1.D0 - (DBLE(stat_weight_l) * up_pop) / (DBLE(stat_weight_u) * low_pop)
  IF(corrFactor < 0.D0) write(*,*) 'WARNING: correction factor 1 - (gl nu) / (gu nl) < 0'
- Jlu = flux_function(0, linelist(act_line)%freq, model_grid(current_mgi)%T)
+ Jlu = flux_function(1, linelist(act_line)%freq, model_grid(current_mgi)%T, model_grid(current_mgi)%rwind)
  ! calculation of Blu and Bul
  ! Blu = light_speed ** 2.0 / (2.0 * h * linelist(act_line)%freq**3.0) * DBLE(stat_weight_u) / DBLE(stat_weight_l) &
  !  * linelist(act_line)%A_ul

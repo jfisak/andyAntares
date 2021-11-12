@@ -88,6 +88,7 @@ SELECT CASE (inputModel)
         !model_grid(I)%grid_comp(J)%numb_den = tot_nd
      END DO
   END DO
+  CLOSE(11)
 
   ! R_inf  = model_grid(n_modelgrid)%rwind
   ! R_inf = 5.0 * R_star

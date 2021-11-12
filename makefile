@@ -21,7 +21,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
           vec_length.o velo.o angle_aberration.o freq_from_planck.o	  \
           do_rpackage.o do_ipackage.o event_dist.o get_package_model_index.o  \
           do_rpackage_event.o update_packages.o do_kpackage.o \
-          read_composition.o read_levels.o read_transitions.o      \
+          read_composition.o read_levels.o read_transitions.o read_populations.o \
           sorting-new.o setup_model_grid.o update_grid.o i_ion_recomb.o   \
           saha_boltzmann_factor.o ionization_fraction.o f_edens.o         \
           find_e_nd.o part_fun.o update_estimators.o freq_from_file.o     \
@@ -29,7 +29,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
           create_dynamical_grid_cells.o find_dyn_cell1.o do_spectrum.o\
           connection_prop_model_grid.o divide_cell_8.o divide_cell_ijk.o  \
 	  next_cell_down.o next_cell_up.o read_2D_model.o populations.o   \
-	  i_coltrans.o gamma_function.o exp_int_func.o cool_excit.o \
+	  i_coltrans.o gamma_function.o exp_int_func.o cool_excit.o read_e_nd.o \
 	  read_photcs.o i_radtrans.o i_radion.o i_colion.o find_populations.o \
 	  flux_function.o find_element_index.o next_line.o resonance_distance.o \
 	  r_kappa_cont.o i_freq_recomb.o cool_ff.o warning.o k_freq_ff.o  \

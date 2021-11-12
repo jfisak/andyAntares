@@ -40,6 +40,7 @@ SUBROUTINE read_input(n_pack, iseed)
 ! 017 n_pack_save
 ! 018 refr_surface
 ! 019 inputmodelFile
+! 020 eldensfile
   DO
     READ (1, '(A)', END=99) LINE
 
@@ -177,11 +178,26 @@ SUBROUTINE read_input(n_pack, iseed)
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(A60)', ERR=94) inputmodelFile
 
+    ! 20 inputComposition
     ELSE IF (ACTPAR .EQ. 'inputComposition') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(A20)', ERR=94) inputcomposition
+
+    ! 21 eldensfile
+    ELSE IF (ACTPAR .EQ. 'eldensfile') THEN
+    CALL SARGC (LINE, NPAR)
+    IF (NPAR .LT. 2) GOTO 90
+    CALL SARGV(LINE,2,ACTPAR)
+    READ (ACTPAR, '(I20)', ERR=94) eldensfile
+
+    ! 22 inputpopfile
+    ELSE IF (ACTPAR .EQ. 'inputpopfile') THEN
+    CALL SARGC (LINE, NPAR)
+    IF (NPAR .LT. 2) GOTO 90
+    CALL SARGV(LINE,2,ACTPAR)
+    READ (ACTPAR, '(A20)', ERR=94) inputpopfile
 
     ! end all ifs
     END IF
@@ -203,6 +219,7 @@ SUBROUTINE read_input(n_pack, iseed)
   WRITE (99,'(A,I10)') 'inputmodel = ', inputmodel
   WRITE (99,'(A,I10)') 'dyngrid = ', dyngrid
   WRITE (99,'(A,I10)') 'nlte = ', nlte
+  WRITE (*,'(A,I10)') 'eldensfile = ', eldensfile
   IF (iseed .LE. 0) THEN 
      WRITE (99,'(A)') 'Random-seed value is random '
   ELSE
