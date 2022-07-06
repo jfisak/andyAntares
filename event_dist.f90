@@ -90,7 +90,7 @@ DO WHILE (do_loop)
  
  CALL next_line(1, pack_index, lastLine, nextLine, n_next_lines, tooRed)
  ! write(*,*) 'event_dist: nextLine = ', nextLine, ' n_next_lines = ', n_next_lines
- ALLOCATE(actirrates%Lline(n_next_lines))
+ ALLOCATE(actirrates%Lline(n_next_lines), actirrates%nline(n_next_lines))
  IF(nextLine < ntransitions + 1) THEN
   freq_line = linelist(nextLine)%freq
   CALL resonance_distance(pack_index, nextLine, freq_line, cell_dist, l_dist, inCell, .TRUE.)
@@ -132,7 +132,7 @@ DO WHILE (do_loop)
     ELSE
      ! choosing next line
      tau = tau + tau_cont + tau_line
-     ! nextLine = nextLine + n_next_lines
+     nextLine = nextLine + n_next_lines - 1
      package(pack_index)%last_line = nextLine
      if(procout) write(*,*) 'event_dist: choosing next line nextLine = ', nextLine
     ! if #03
@@ -146,41 +146,7 @@ DO WHILE (do_loop)
     !  1.D8 * light_speed / package(pack_index)%freq_rf
     if(procout) write(*,*) 'event_dist: rpkt_eventtype_lineinteraction'
     ! choosing the line
-    IF(n_next_lines > 1) THEN
-     tot_lop = 0.D0
-     DO I = 1, n_next_lines
-      tot_lop = tot_lop + actirrates%Lline(I)
-     END DO
-     ran_numb = ran2(idum) * tot_lop
-     summ = 0.D0
-     ! write(*,*) 'event_dist: tot_lop = ', tot_lop, ' ran_numb = ', ran_numb
-     DO I = 1, n_next_lines
-      act_line = nextLine + I - 1
-      IF(ran_numb > summ .AND. ran_numb < summ + actirrates%Lline(I)) THEN
-       package(pack_index)%last_line = act_line
-       ! write(*,*) 'event_dist: last_line = ', act_line
-       package(pack_index)%l_ele = linelist(act_line)%indexe
-       package(pack_index)%l_ion = linelist(act_line)%indexi
-       package(pack_index)%l_lev = linelist(act_line)%upper
-       if(procout) write(*,*) 'event_dist: #1 chosen line = ', act_line
-       ! write(*,*) 'event_dist: #1 chosen line = ', act_line
-       EXIT
-      END IF
-      summ = summ + actirrates%Lline(I)
-     END DO
-     IF(package(pack_index)%last_line == no_line) THEN
-      write(*,*) 'n_next_lines = ', n_next_lines, ' Lline = ', actirrates%Lline(:)
-      write(*,*) 'tot_lop = ', tot_lop
-      STOP 'event_dist: no line was chosen'
-     END IF
-    ELSE ! we have only one line
-     package(pack_index)%l_ele = linelist(nextLine)%indexe
-     package(pack_index)%l_ion = linelist(nextLine)%indexi
-     package(pack_index)%l_lev = linelist(nextLine)%upper
-     package(pack_index)%last_line = nextLine
-     ! write(*,*) 'event_dist: #2 last_line = ', nextLine
-     if(procout) write(*,*) 'event_dist: #2 choosing chosen line: ', nextLine 
-    END IF 
+    CALL r_choose_line(pack_index, actirrates, n_next_lines, nextLine)
    ! if #02
    END IF
   ELSE
@@ -209,7 +175,7 @@ DO WHILE (do_loop)
    if(procout) write(*,*) 'event_dist: rpkt_eventtype_continuum 2'
   END IF
  END IF
- DEALLOCATE(actirrates%Lline)
+ DEALLOCATE(actirrates%Lline, actirrates%nline)
  ! write(*,*) 'event_dist: eofloop, do_loop = ', do_loop
 END DO
 ! STOP 'event_dist: testing'  

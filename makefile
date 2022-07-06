@@ -20,7 +20,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
           random_unitvector1.o read_1D_model.o doppler_factor.o	\
           vec_length.o velo.o angle_aberration.o freq_from_planck.o	  \
           do_rpackage.o do_ipackage.o event_dist.o get_package_model_index.o  \
-          do_rpackage_event.o update_packages.o do_kpackage.o \
+          do_rpackage_event.o update_packages.o do_kpackage.o r_choose_line.o \
           read_composition.o read_levels.o read_transitions.o read_populations.o \
           sorting-new.o setup_model_grid.o update_grid.o i_ion_recomb.o   \
           saha_boltzmann_factor.o ionization_fraction.o f_edens.o         \

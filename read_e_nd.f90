@@ -22,7 +22,7 @@ SELECT CASE (inputModel)
    DO I = 1, n_modelgrid
     READ(11,*) junk, junk, junk, junk, junk, eldens
     model_grid(I)%e_dens = eldens
-    write(*,*) 'read_e_nd: I = ', I, ' eldens = ', eldens
+    ! write(*,*) 'read_e_nd: I = ', I, ' eldens = ', eldens
    END DO
   CLOSE(11)
 END SELECT

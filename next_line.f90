@@ -17,7 +17,20 @@ LOGICAL                                 :: tooRed
 
 INTEGER, PARAMETER                      :: test_pi = 0
 
-IF(init_line == ntransitions .OR. init_line == ntransitions + 1) THEN
+! check of the init_line
+IF(init_line > 1 .AND. init_line < ntransitions) THEN
+ DO
+  IF(linelist(init_line)%freq == linelist(init_line - 1)%freq) THEN
+   init_line = init_line + 1
+  ELSE
+   EXIT
+  END IF
+  IF(init_line == ntransitions) EXIT
+ END DO
+END IF
+
+! IF(init_line == ntransitions .OR. init_line == ntransitions + 1) THEN
+IF(init_line >= ntransitions) THEN
  next1line = ntransitions + 1
  tooRed = .TRUE.
  RETURN
@@ -28,6 +41,7 @@ IF(ntransitions == 0) THEN
  tooRed = .TRUE.
  RETURN
 END IF
+
 
 SELECT CASE(approximation)
 ! the Sobolev approximation: line profiles are delta functions
