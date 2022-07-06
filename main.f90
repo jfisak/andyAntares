@@ -137,9 +137,9 @@ DO iteration = 1,1
  ! iteration = iteration + 1
  IF (iteration .GE. 10) write(99,*) 'No convergency'
  CALL update_grid(iteration)
- if (iteration == 1 .AND. inputpopfile .NE. '') then
-  CALL read_populations()
- end if
+ ! if (iteration == 1 .AND. inputpopfile .NE. '') then
+ !  CALL read_populations()
+ ! end if
  CALL i_ion_recomb(1)
  IF(iteration == 100) STOP 'too many iteration in the subroutine main'
  write(99,*) 'Update grid finished' 
