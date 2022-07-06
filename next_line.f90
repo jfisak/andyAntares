@@ -18,9 +18,9 @@ LOGICAL                                 :: tooRed
 INTEGER, PARAMETER                      :: test_pi = 0
 
 ! check of the init_line
-IF(init_line > 1 .AND. init_line < ntransitions) THEN
+IF(init_line > 0 .AND. init_line < ntransitions) THEN
  DO
-  IF(linelist(init_line)%freq == linelist(init_line - 1)%freq) THEN
+  IF(linelist(init_line+1)%freq == linelist(init_line)%freq) THEN
    init_line = init_line + 1
   ELSE
    EXIT
