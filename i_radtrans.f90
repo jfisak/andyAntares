@@ -106,6 +106,7 @@ DO I = 1, nlns
   ! calculation of Blu and Bul
   ! actVal = up_pop * betalu * (Aul + Bul * Jlu)! * corrFactor 
   actVal = Aul * betalu * up_pop
+  ! write(*,*) 'i_radtrans: Aul = ', Aul, ' betalu = ', betalu, ' up_pop = ', up_pop, ' fr_line = ', fr_line
  END IF
  ! write(*,*) 'i_radtrans: actVal = ', actVal, ' e_l = ', exci_energy_l, ' e_u - e_l = ', exci_energy_u - exci_energy_l
  actirates%Lma_int_dorad(I) = actVal * exci_energy_l
@@ -114,6 +115,7 @@ DO I = 1, nlns
  IF(actirates%Lma_int_dorad(I) < 0.D0) STOP 'i_radtrans: Lma_int_dorad < 0'
  ! write(*,*) 'i_radtrans: exci_energy_u = ', exci_energy_u
  actirates%Lma_rad(I) = actVal * (exci_energy_u - exci_energy_l)
+ ! write(*,*) 'i_radtrans: lambda = ', 1.e8*light_speed/fr_line, ' L = ', actirates%Lma_rad(I)
  ! actirates%Lma_rad(I) = 2.0 * fr_line **2 / light_speed**2 * stat_weight_l / stat_weight_u * &
  !  linelist(act_line)%f_lu * betalu * exci_energy_l
  Zintdown = Zintdown + actirates%Lma_int_dorad(I)

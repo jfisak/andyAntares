@@ -99,9 +99,9 @@ ELSE IF (model_type == 2 .AND. inputmodel == 2) THEN
 ELSE
  STOP 'main: non-known model type'
 END IF
-write(*,*) 'model grid is set up'
-write(*,*) 'setup propagation grid'
-write(*,*) 'xmax = ', xmax/R_star, ' ymax = ', ymax/R_star, ' zmax = ', zmax/R_star
+! write(*,*) 'model grid is set up'
+! write(*,*) 'setup propagation grid'
+! write(*,*) 'xmax = ', xmax/R_star, ' ymax = ', ymax/R_star, ' zmax = ', zmax/R_star
 write(99,*) 'model grid is set up'
 write(99,*) 'setup propagation grid'
 write(99,*) 'xmax = ', xmax/R_star, ' ymax = ', ymax/R_star, ' zmax = ', zmax/R_star
@@ -124,10 +124,10 @@ time_con = time1_agconnwpg - time0_agconnwpg
 write(99,*) 'propagation grid is set up'
 write(*,*) 'propagation grid is set up'
 
- IF(my_rank == 0) THEN
-  CALL save_output(8)
-  ! STOP 'testing the propagation grid'
- END IF
+ ! IF(my_rank == 0) THEN
+ !  CALL save_output(8)
+ !  ! STOP 'testing the propagation grid'
+ ! END IF
 current_temp = 0.D0
 iteration = 0
 
