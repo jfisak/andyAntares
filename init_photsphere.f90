@@ -49,14 +49,6 @@ SUBROUTINE init_photsphere(n_pack)
     ! Now put the photon to the corresponding grid cell
     ! Determine the cell index where is the photon 
     ! This works only for regular grids!!!!
-!    ind_x = FLOOR(package(I)%pos(1)/cell_width + DBLE(nx_cell)/2) + 1
-!    ind_y = FLOOR(package(I)%pos(2)/cell_width + DBLE(ny_cell)/2) + 1
-!    ind_z = FLOOR(package(I)%pos(3)/cell_width + DBLE(nz_cell)/2) + 1
-!    ind_cell_numb = (ind_x - 1) * ny_cell * nz_cell + (ind_y - 1) * nz_cell + ind_z
-!    IF ((ind_cell_numb .GT. nx_cell*ny_cell*nz_cell) .OR. (ind_cell_numb .LT. 1)) THEN
-!     print*, 'ind_cell_numb = ', ind_cell_numb, '...'
-!     STOP 'Subroutine init_photsphere: ERROR in cell_number'
-!    END IF
     CALL find_dyn_cell1(package(I)%pos,ind_cell_numb)
     IF(ind_cell_numb > SIZE(dyn_cell)) THEN
      write(*,*) 'init_photsphere: wrong cell number'

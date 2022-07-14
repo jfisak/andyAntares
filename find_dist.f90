@@ -71,20 +71,6 @@ IMPLICIT NONE
    dist = t6
    package(pack_index)%next_cross = posz
   END IF
- ! IF(pos(1) < corner(1) .OR. pos(1) > corner(1) + width(1) .OR. &
- ! pos(2) < corner(2) .OR. pos(2) > corner(2) + width(2) .OR. &
- ! pos(3) < corner(3) .OR. pos(3) > corner(3) + width(3) ) THEN
- !  write(*,*) 'find_dist: pack_index = ', pack_index
- !  write(*,*) 'find_dist: pos/corner = ', pos(:)/corner(:)!, ' corner = ', corner / R_inf
- !  write(*,*) 'find_dist: pos/R_inf = ', pos/R_inf, ' corner/R_inf = ', corner/R_inf,&
- !   ' width/R_inf = ', width/R_inf
- !  write(*,*) 'find_dist: t1 = ', t1/R_inf, ' t2 = ', t2/R_inf, ' t3 = ', t3/R_inf,&
- !   ' t4 = ', t4/R_inf, ' t5 = ', t5/R_inf, ' t6 = ', t6/R_inf
- !  write(*,*) 'find_dist: n = ', dir
- !  write(*,*) 'find_dist: dist = ', dist/R_inf
- !  write(*,*) 'find_dist: cell_numb = ', cell_numb, ' neighbors = ', dyn_cell(cell_numb)%neighbor
- !  STOP 
- ! END IF
 
   IF(dist > sqrt(width(1)**2 + width(2)**2 + width(3)**2)) THEN
    write(*,*) 'find_dist: pack_index = ', pack_index

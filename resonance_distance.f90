@@ -77,6 +77,20 @@ IF(TESTING .EQV. .TRUE.) THEN
  RETURN
  ! write(*,*) 'resonance_distance: ldist_analyt = ', ldist_analyt / R_inf
 END IF
+
+IF(velapprox == 2) THEN
+ CALL move_package(dummypackage, cell_dist)
+ bfreq = package(dummypackage)%freq_cmf
+ IF(package(pack_index)%freq_cmf > f_line .AND. bfreq < f_line) THEN
+  inCell = .TRUE.
+  ldist = cell_dist/2.0
+ ELSE
+  inCell = .FALSE.
+ END IF
+ RETURN
+END IF
+
+
  ! boundary coordinate
 ! write(*,*) 'resonance_distance: cell_dist = ', cell_dist
 CALL move_package(dummypackage, cell_dist)
