@@ -123,9 +123,9 @@ DO WHILE(iteration)
     ! package(pack_index)%active = 0
     ! write(49, *) package(pack_index)%freq_cmf
     ! write(*,*) 'resonance_distance: too many iterations...'
-    write(*,*) 'resonance_distance: packet: ', pack_index, ' too many iterations...'
-    STOP    
-    count_des_resd = count_des_resd + 1
+    ! write(*,*) 'resonance_distance: packet: ', pack_index, ' too many iterations...'
+    ! STOP    
+    ! count_des_resd = count_des_resd + 1
     ldist = R_inf
     inCell = .FALSE.
     active = .FALSE.

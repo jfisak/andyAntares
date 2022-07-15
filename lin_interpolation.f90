@@ -8,8 +8,21 @@ DOUBLE PRECISION                               :: pos0, pos1, pos2
 DOUBLE PRECISION, DIMENSION(3)                 :: int_vector
 DOUBLE PRECISION, DIMENSION(3)                 :: lina, linb
 
+IF(pos1 > pos2 .and. (pos0 < pos2 .or. pos0 > pos1)) then
+ write(*,*) 'lin_interpolation: pos0 = ', pos0, ' pos1 = ', pos1, ' pos2 = ', pos2
+ STOP 'pos0 is not in the interval'
+ELSE IF(pos1 < pos2 .and. (pos0 > pos2 .or. pos0 < pos1)) THEN
+ write(*,*) 'lin_interpolation: pos0 = ', pos0, ' pos1 = ', pos1, ' pos2 = ', pos2
+ STOP 'pos0 is not in the interval'
+END IF
+
 lina = (vec2-vec1)/(pos2-pos1)
-linb = (vec2*pos1-vec1*pos2)/(pos2-pos1)
+linb = -(vec2*pos1-vec1*pos2)/(pos2-pos1)
 int_vector = lina*pos0 + linb
+
+! write(*,*) 'lin_interpolation: vec1 = ', vec1, ' vec2 = ', vec2
+! write(*,*) 'lin_interpolation: vec1 = ', norm2(vec1)/light_speed, ' vec2 = ', norm2(vec2)/light_speed
+! write(*,*) 'lin_interpolation: int_vector = ', int_vector
+! write(*,*) 'lin_interpolation: int_vector = ', norm2(int_vector)/light_speed
 
 END SUBROUTINE lin_interpolation

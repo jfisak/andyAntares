@@ -1,4 +1,4 @@
-SUBROUTINE oct_neighbors(pack_index, rel_pos, velgridcells)
+SUBROUTINE oct_neighbors(pack_index, rel_pos, velgridcells, incell)
 
 
 USE types
@@ -18,6 +18,8 @@ INTEGER                                 :: point_cell, cur_cell
 INTEGER, DIMENSION(n_oct)                   :: velgridcells
 
 INTEGER                                 :: I, J, dummy, a
+
+LOGICAL                                 :: incell
 
 
 act_cell = package(pack_index)%cell_numb
@@ -48,6 +50,13 @@ IF(dyngrid == 0) THEN
  ELSE
   velgridcells(4) = dyn_cell(act_cell)%neighbor(negz)
  END IF
+ ! test if the cell is on the edge of the propGrid
+ DO I = 2,4
+  IF(velgridcells(I) < 0) THEN
+   incell = .true.
+   RETURN
+  END IF
+ END DO
 
  ! setting the testing vector pointing to the oposite cell in the block
  point_width = act_width
@@ -65,9 +74,9 @@ IF(dyngrid == 0) THEN
   point_corner(3) = act_corner(3) + act_width(3)
  END IF
  point_vec = point_corner + 1.5*point_width
- write(28,*) act_corner, act_width
- write(28,*) point_corner, 1.5*point_width
- write(28,*) 0, 0, 0, point_vec
+ ! write(28,*) act_corner, act_width
+ ! write(28,*) point_corner, 1.5*point_width
+ ! write(28,*) 0, 0, 0, point_vec
 
  CALL find_dyn_cell1(point_vec, point_cell)
  velgridcells(5) = point_cell
@@ -93,7 +102,12 @@ IF(dyngrid == 0) THEN
 
  DO I = 1,n_oct
   cur_cell = velgridcells(I)
-  write(29,*) dyn_cell(cur_cell)%corner, dyn_cell(cur_cell)%width
+  ! IF(cur_cell > 0) write(29,*) dyn_cell(cur_cell)%corner, dyn_cell(cur_cell)%width
+  incell = .FALSE.
+  IF(cur_cell < 0) THEN
+   incell = .TRUE.
+   EXIT
+  END IF
  END DO
 ELSE IF (dyngrid > 0) THEN
  STOP 'adaptive propagation grid is not currently suppotred'
@@ -145,5 +159,10 @@ do J=2,n_oct
    I = I - 1
  end do
 end do
+
+! DO I = 1,8
+!  IF(velgridcells(I) < 0) STOP 'oct_neighbors: index < 0'
+! END DO
+
 
 END SUBROUTINE oct_neighbors
