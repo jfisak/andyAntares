@@ -64,36 +64,18 @@ INTEGER                                 :: n_adgrids
 ! * if the output folder does not exist create a new one
 !________________________________________________________________________________
 #if mpi==1
-IF(my_rank == 0) THEN
+ IF(my_rank == 0) THEN
 #endif
-! creates a folder, where an output will be saved
-! it reads a shell variable OUTPUTFO, if it does not
-! exist, it will create (or not, if it already exists)
-IF(outputfolder(:) == '') THEN
- CALL GET_ENVIRONMENT_VARIABLE("outputfolder", outputfolder)
-END IF
-IF(outputfolder(:) == '') THEN
- CALL DATE_AND_TIME(VALUES = TT)
- ! write(*,*) 'save_output: ', TT(1), TT(2), TT(3), TT(4), TT(5), TT(6), TT(7)
- write(outputfolder, "(A6, I4.4, I2.2, I2.2, I2.2, I2.2, I2.2)") "3Dwind", &
-  TT(1), TT(2), TT(3), TT(5), TT(6), TT(7)
- ! write(*,*) 'save_output: outputfolder = ', outputfolder
-END IF
-
-inquire( file=trim(outputfolder)//'/.', exist=dirExists )
-
-IF(.NOT. dirExists) THEN
- mkdirCMD = 'mkdir '//TRIM(outputfolder)
- CALL SYSTEM(mkdirCMD)
- ! write(99,*) 'save_output: creating a folder: ', outputfolder
-END IF
+  IF(outputfolder(:) == '') THEN
+   CALL GET_ENVIRONMENT_VARIABLE("outputfolder", outputfolder)
+  END IF
 #if mpi==1
- DO I = 1, n_tasks - 1
-  CALL MPI_SEND(outputfolder, 80, MPI_CHAR, I, 6, MPI_COMM_WORLD, ierr)
- END DO
-ELSE IF (outputfolder == '') THEN
- CALL MPI_RECV(outputfolder, 80, MPI_CHAR, 0, 6, MPI_COMM_WORLD, status, ierr)
-END IF
+  DO I = 1, n_tasks - 1
+   CALL MPI_SEND(outputfolder, 80, MPI_CHAR, I, 6, MPI_COMM_WORLD, ierr)
+  END DO
+ ELSE IF (outputfolder == '') THEN
+  CALL MPI_RECV(outputfolder, 80, MPI_CHAR, 0, 6, MPI_COMM_WORLD, status, ierr)
+ END IF
 #endif
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

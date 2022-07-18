@@ -2,23 +2,40 @@
 
 
 
-export outputfolder=${2}
+outputfolder=${2}
 
-fpath='./'$outputfolder'/'temp_packet*.dat
-prevfile0='./'$outputfolder'/'packet000.dat
-prevfile='./'$outputfolder'/'packet*.dat
+# the name will be created based on date
+echo $outputfolder
+if [[ $outputfolder = '' ]]; then
+ datum=`date`
+ year=`echo $datum | cut -d' ' -f6`
+ month=`echo $datum | cut -d' ' -f3`
+ nday=`echo $datum | cut -d' ' -f2`
+ hour=`echo $datum | cut -d' ' -f4 | cut -d ':' -f1`
+ minute=`echo $datum | cut -d' ' -f4 | cut -d ':' -f2`
+ second=`echo $datum | cut -d' ' -f4 | cut -d ':' -f3`
+ # create a name of an output folder
+ outputfolder='3dwind'$year$month$nday$hour$minute$second
+fi
+export outputfolder
 
-if [ -e $prevfile0 ]; then
- rm $prevfile
+# test of exsistence of the folder
+if [ ! -e $outputfolder ]; then
+ mkdir $outputfolder
+fi
+
+FOLDERPATH='./'$outputfolder'/'temp_packet*.dat
+PREVFILE0='./'$outputfolder'/'packet000.dat
+PREVFILE='./'$outputfolder'/'packet*.dat
+
+if [ -e $PREVFILE0 ]; then
+ rm $PREVFILE
 fi
 
 mpirun.mpich -np $1 ./main.run
 
-rm $fpath
+rm $FOLDERPATH
 
 cp input.dat $outputfolder
 
-inputmodelfile=`cat input.dat | grep inputmodelFile | cut -d= -f 2`
-cp $inputmodelFile $outputfolder/
-
-python3.6 spec.py $outputfolder
+python3.8 spec2.py $outputfolder
