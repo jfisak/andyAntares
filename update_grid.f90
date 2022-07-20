@@ -37,7 +37,7 @@ DO gridcell = 1, n_modelgrid
     END IF
     IF(eldensfile == 0) THEN
      model_grid(gridcell)%e_dens = el_nd 
-     write(*,*) 'update_grid: el_nd = ', el_nd
+     ! write(*,*) 'update_grid: el_nd = ', el_nd
     END IF
     temp = model_grid(gridcell)%T
     !     print*, 'temp and e_nd:', gridcell,  model_grid(gridcell)%rho, temp, el_nd/6.1D14

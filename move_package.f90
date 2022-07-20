@@ -1,4 +1,4 @@
-SUBROUTINE move_package(pack_index, dist)
+SUBROUTINE move_package(pack_index, dist, next_cell, change)
 
 ! Move photon package from the curent position for some distance (update package(pack_index)%pos)
 
@@ -10,6 +10,10 @@ IMPLICIT NONE
 INTEGER                           :: pack_index
 DOUBLE PRECISION                  :: dist, D, vec_length
 INTEGER                           :: dummypackage
+
+INTEGER                           :: next_cell
+
+LOGICAL                           :: change
 
 dummypackage = SIZE(package)
 
@@ -40,6 +44,7 @@ END IF
 ! write(78,*) pack_index, package(pack_index)%freq_rf, package(pack_index)%freq_cmf, package(pack_index)%freq_cmf / linelist(1)%freq
 ! Rest frame quantities do not change while propagating without any events, 
 ! but cmf quantities need to be updated
+IF(change) CALL change_cell(pack_index, next_cell)
 CALL doppler_factor(pack_index, D)
 package(pack_index)%freq_cmf = package(pack_index)%freq_rf * D
 package(pack_index)%e_cmf = package(pack_index)%e_rf * D

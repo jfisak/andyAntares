@@ -28,7 +28,7 @@ LOGICAL                         :: calculate
 INTEGER                         :: I
 INTEGER                         :: cell_number
 DOUBLE PRECISION                :: dist
-LOGICAL                         :: endit = .false.
+LOGICAL                         :: endit = .false., change_of_cell
 
 ! IF(package(pack_index)%freq_cmf <= linelist(next1line)%freq) THEN
 !  write(*,*) 'pack_index = ', pack_index
@@ -40,6 +40,7 @@ LOGICAL                         :: endit = .false.
 !  package(pack_index)%freq_cmf / linelist(nextLine)%freq
 dummypackage = SIZE(package)
 package(dummypackage) = package(pack_index)
+cell_number = package(pack_index)%cell_numb
 ! write(*,*) 'resonance_distance: pack_index = ', pack_index, ' f_line = ', f_line,&
 !  ' cell_dist = ', cell_dist
 
@@ -62,12 +63,13 @@ END IF
 ! photon propagation is more complicated in case of no
 ! homologous expansion
 ! homologous approximation
+package(dummypackage) = package(pack_index)
 IF(TESTING .EQV. .TRUE.) THEN
  ldist_analyt = light_speed * ( R_inf / V_inf ) * &
   ( ( package(pack_index)%freq_cmf / package(pack_index)%freq_rf)-&
   f_line / package(pack_index)%freq_rf)
- package(dummypackage) = package(pack_index)
- CALL move_package(dummypackage, ldist_analyt)
+ change_of_cell = .FALSE.
+ CALL move_package(dummypackage, ldist_analyt, cell_number, change_of_cell)
  IF(ldist_analyt <= cell_dist) THEN
   inCell = .TRUE.
  ELSE
@@ -78,22 +80,11 @@ IF(TESTING .EQV. .TRUE.) THEN
  ! write(*,*) 'resonance_distance: ldist_analyt = ', ldist_analyt / R_inf
 END IF
 
-IF(velapprox == 2) THEN
- CALL move_package(dummypackage, cell_dist)
- bfreq = package(dummypackage)%freq_cmf
- IF(package(pack_index)%freq_cmf > f_line .AND. bfreq < f_line) THEN
-  inCell = .TRUE.
-  ldist = cell_dist/2.0
- ELSE
-  inCell = .FALSE.
- END IF
- RETURN
-END IF
-
-
  ! boundary coordinate
 ! write(*,*) 'resonance_distance: cell_dist = ', cell_dist
-CALL move_package(dummypackage, cell_dist)
+write(*,*) 'resonance_distance: moving dummypackage'
+change_of_cell = .FALSE.
+CALL move_package(dummypackage, cell_dist, cell_number, change_of_cell)
 bfreq = package(dummypackage)%freq_cmf
 rbound = package(dummypackage)%pos
 ! frequency in the propagation cell boundary
@@ -178,11 +169,19 @@ DO WHILE(iteration)
    END IF
    IF(halffreq < bfreq) THEN
     write(*,*) 'resonance_distance: halffreq < bfreq'
-    endit = .TRUE.
+    ! endit = .TRUE.
+    ldist = R_inf
+    inCell = .FALSE.
+    active = .FALSE.
+    iteration = .FALSE.
    END IF
    IF(halffreq > lfreq) THEN
     write(*,*) 'resonance_distance: halffreq > lfreq'
-    endit = .TRUE.
+    ! endit = .TRUE.
+    ldist = R_inf
+    inCell = .FALSE.
+    active = .FALSE.
+    iteration = .FALSE.
    END IF
    IF(endit) THEN
     write(*,*) 'resonance_distance: pack_index = ', pack_index, ' f_line = ', f_line,&
@@ -206,37 +205,10 @@ DO WHILE(iteration)
  ! we have to go along the package path to the next cross boundary to
  ! realize if the resonant point is in this neighboor cell
  ELSE
-  !write(*,*) 'resonance_distance: line res out off prop cell'
-  ! only continnum process could happen
-  IF(isLdist) THEN
-   ldist = R_inf
-   inCell = .FALSE.
-   RETURN
-  END IF
-  package(dummypackage)%pos = rbound
-  lowbond = rbound
-  CALL boundary3(dummypackage, dist, cell_number)
-  IF(cell_number <= 0) THEN
-   inCell = .FALSE.
-   ldist = R_inf
-   RETURN
-  END IF
-  CALL change_cell(dummypackage, cell_number)
-  CALL move_package(dummypackage, dist)
-  ! write(*,*) 'resonance_distance: rbound / ldist_analyt = ',&
-  ! norm2(rbound) / ldist_analyt
-  ! IF(norm2(rbound - package(pack_index)%pos) > ldist_analyt) write(*,*) 'resonance_distance: ||rbound|| > ldist_analyt'
-  IF(norm2(rbound) > R_inf) THEN
-   ldist = R_inf
-   inCell = .FALSE.
-   ! write(*,*) 'resonance_distance: #3 ldist = ', ldist/R_inf
-   RETURN
-  END IF
-  rbound = package(dummypackage)%pos
-  upbond = rbound
-   ! write(*,*) 'resonance_distance: dist = ', norm2(package(pack_index)%pos - rbound)/R_inf, norm2(package(dummypackage)%pos)/R_inf
-   ! write(*,*) 'resonance_distance: rbound = ', norm2(rbound)/R_inf
-   ! STOP 'resonance_distance: testing'
+  inCell = .FALSE.
+  active = .FALSE.
+  iteration = .FALSE.
+  ldist = 2* cell_dist
  END IF
 END DO
 
