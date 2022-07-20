@@ -219,7 +219,7 @@ SUBROUTINE read_input(n_pack, iseed)
   WRITE (99,'(A,I10)') 'inputmodel = ', inputmodel
   WRITE (99,'(A,I10)') 'dyngrid = ', dyngrid
   WRITE (99,'(A,I10)') 'nlte = ', nlte
-  WRITE (*,'(A,I10)') 'eldensfile = ', eldensfile
+  WRITE (99,'(A,I10)') 'eldensfile = ', eldensfile
   IF (iseed .LE. 0) THEN 
      WRITE (99,'(A)') 'Random-seed value is random '
   ELSE

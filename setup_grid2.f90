@@ -97,12 +97,12 @@
       zm = L - 1
      END IF
      ! 
-     dyn_cell(L)%neighbor(1) = xp
-     dyn_cell(L)%neighbor(2) = xm
-     dyn_cell(L)%neighbor(3) = yp
-     dyn_cell(L)%neighbor(4) = ym
-     dyn_cell(L)%neighbor(5) = zp
-     dyn_cell(L)%neighbor(6) = zm
+     dyn_cell(L)%neighbor(posx) = xp
+     dyn_cell(L)%neighbor(negx) = xm
+     dyn_cell(L)%neighbor(posy) = yp
+     dyn_cell(L)%neighbor(negy) = ym
+     dyn_cell(L)%neighbor(posz) = zp
+     dyn_cell(L)%neighbor(negz) = zm
      L = L + 1
     END DO
    END DO

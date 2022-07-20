@@ -20,35 +20,49 @@ INTEGER, DIMENSION(n_oct)                   :: velgridcells
 INTEGER                                 :: I, J, dummy, a
 
 LOGICAL                                 :: incell
+LOGICAL, DIMENSION(3)                   :: posxyz
 
+
+INTEGER, PARAMETER                      :: n_zero = 1, n_x = 2, n_y = 3, n_z = 4,&
+                                           n_xz = 5, n_xy = 6, n_xyz = 7, n_yz = 8
+INTEGER, PARAMETER                      :: dir_x = 1, dir_y = 2, dir_z = 3
+INTEGER                                 :: neigx, neigy, neigz
+INTEGER                                 :: neigxy, neigxz, neigxyz, neigyz
 
 act_cell = package(pack_index)%cell_numb
 act_corner = dyn_cell(act_cell)%corner
 act_width = dyn_cell(act_cell)%width
 
 ! this part code only for the regular grid
+! posxyz(1-3) indicates a move in the three directions from the zero point
 IF(dyngrid == 0) THEN
  ! find the neighboring cells
  
  ! calculation of direct neighbors
  ! x
- velgridcells(1) = act_cell
+ velgridcells(n_zero) = act_cell
  IF(rel_pos(1) > 0) THEN
-  velgridcells(2) = dyn_cell(act_cell)%neighbor(posx)
+  velgridcells(n_x) = dyn_cell(act_cell)%neighbor(posx)
+  posxyz(dir_x) = .TRUE.
  ELSE
-  velgridcells(2) = dyn_cell(act_cell)%neighbor(negx)
+  velgridcells(n_x) = dyn_cell(act_cell)%neighbor(negx)
+  posxyz(dir_x) = .FALSE.
  END IF
  ! y
- IF(rel_pos(2) > 0) THEN
-  velgridcells(3) = dyn_cell(act_cell)%neighbor(posy)
+ IF(rel_pos(n_y) > 0) THEN
+  velgridcells(n_y) = dyn_cell(act_cell)%neighbor(posy)
+  posxyz(dir_x) = .TRUE.
  ELSE
-  velgridcells(3) = dyn_cell(act_cell)%neighbor(negy)
+  velgridcells(n_y) = dyn_cell(act_cell)%neighbor(negy)
+  posxyz(dir_x) = .FALSE.
  END IF
  ! z
  IF(rel_pos(3) > 0) THEN
-  velgridcells(4) = dyn_cell(act_cell)%neighbor(posz)
+  velgridcells(n_z) = dyn_cell(act_cell)%neighbor(posz)
+  posxyz(dir_x) = .TRUE.
  ELSE
-  velgridcells(4) = dyn_cell(act_cell)%neighbor(negz)
+  velgridcells(n_z) = dyn_cell(act_cell)%neighbor(negz)
+  posxyz(dir_x) = .FALSE.
  END IF
  ! test if the cell is on the edge of the propGrid
  DO I = 2,4
@@ -57,48 +71,41 @@ IF(dyngrid == 0) THEN
    RETURN
   END IF
  END DO
-
- ! setting the testing vector pointing to the oposite cell in the block
- point_width = act_width
- point_corner = act_corner
- IF(rel_pos(1) < 0) THEN
-  point_width(1) = - act_width(1)
-  point_corner(1) = act_corner(1) + act_width(1)
- END IF
- IF(rel_pos(2) < 0) THEN
-  point_width(2) = - act_width(2)
-  point_corner(2) = act_corner(2) + act_width(2)
- END IF
- IF(rel_pos(3) < 0) THEN
-  point_width(3) = - act_width(3)
-  point_corner(3) = act_corner(3) + act_width(3)
- END IF
- point_vec = point_corner + 1.5*point_width
- ! write(28,*) act_corner, act_width
- ! write(28,*) point_corner, 1.5*point_width
- ! write(28,*) 0, 0, 0, point_vec
-
- CALL find_dyn_cell1(point_vec, point_cell)
- velgridcells(5) = point_cell
-
- ! neighbors of neighbors
- IF(rel_pos(1) > 0) THEN
-  velgridcells(6) = dyn_cell(point_cell)%neighbor(negx)
+ 
+ ! neighbors x
+ neigx = velgridcells(n_x)
+ ! neighbor xz
+ ! neighbor xy
+ IF(posxyz(dir_y)) THEN
+  neigxy = dyn_cell(neigx)%neighbor(posy)
  ELSE
-  velgridcells(6) = dyn_cell(point_cell)%neighbor(posx)
+  neigxy = dyn_cell(neigx)%neighbor(negy)
  END IF
- ! y
- IF(rel_pos(2) > 0) THEN
-  velgridcells(7) = dyn_cell(point_cell)%neighbor(negy)
+ velgridcells(n_xy) = neigxy
+ ! neighbor xz
+ ! neighbor xyz
+ IF(posxyz(dir_z)) THEN
+  neigxz = dyn_cell(neigx)%neighbor(posz)
+  neigxyz = dyn_cell(neigxy)%neighbor(posz)
  ELSE
-  velgridcells(7) = dyn_cell(point_cell)%neighbor(posy)
+  neigxz = dyn_cell(neigx)%neighbor(negz)
+  neigxyz = dyn_cell(neigxy)%neighbor(negz)
  END IF
- ! z
- IF(rel_pos(3) > 0) THEN
-  velgridcells(8) = dyn_cell(point_cell)%neighbor(negz)
+ velgridcells(n_xz)=neigxz
+ velgridcells(n_xyz)=neigxyz
+
+ ! neighbors y
+ neigy = velgridcells(n_y)
+ ! neighbor yz
+ IF(posxyz(dir_z)) THEN
+  neigyz = dyn_cell(neigy)%neighbor(posz)
  ELSE
-  velgridcells(8) = dyn_cell(point_cell)%neighbor(posz)
+  neigyz = dyn_cell(neigy)%neighbor(negz)
  END IF
+ velgridcells(n_yz) = neigyz
+
+ ! write(*,*) 'oct_neighbors: velgridcells = ', velgridcells
+ 
 
  DO I = 1,n_oct
   cur_cell = velgridcells(I)
