@@ -1,10 +1,11 @@
 
-SUBROUTINE velo(pack_index,vel_vec)
+SUBROUTINE velo(pack_index,vel_vec,approx)
 
 USE types
 
 IMPLICIT NONE    
 
+INTEGER                           :: approx
 INTEGER                           :: pack_index
 DOUBLE PRECISION                  :: vel_radial, vec_length
 DOUBLE PRECISION, DIMENSION(3)    :: vel_vec, pack_position
