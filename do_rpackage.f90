@@ -33,11 +33,11 @@ END IF
 actirrates = rrates()
 
   CALL boundary3(pack_index, cell_dist, next_cell)
-  write(*,*) 'do_rpackage: cur_index = ', package(pack_index)%cell_numb, ' next_cell = ', next_cell
-   IF(pack_index == 78) THEN
-    WRITE(3,*) package(pack_index)%pos, dyn_cell(package(pack_index)%cell_numb)%corner, &
-                  dyn_cell(package(pack_index)%cell_numb)%width, get_package_model_index(pack_index)
-   END IF
+  ! write(*,*) 'do_rpackage: cur_index = ', package(pack_index)%cell_numb, ' next_cell = ', next_cell
+   ! IF(pack_index == 78) THEN
+   !  WRITE(3,*) package(pack_index)%pos, dyn_cell(package(pack_index)%cell_numb)%corner, &
+   !                dyn_cell(package(pack_index)%cell_numb)%width, get_package_model_index(pack_index)
+   ! END IF
   IF (cell_dist .LT. 0.D0) STOP 'cell_dist < 0'
   cur_mgi = get_package_model_index(pack_index)
   IF (cur_mgi .EQ. n_modelgrid + 1) THEN
@@ -61,11 +61,11 @@ actirrates = rrates()
    ! write(99,*) pack_index, freq_line, package(pack_index)%freq_cmf, package(pack_index)%freq_rf
    !write(99,*) 'before moving package #', pack_index
    ! write(*,*) 'before moving package #', pack_index
-   write(*,*) 'do_rpackage: #1 cur_index = ', package(pack_index)%cell_numb, ' next_cell = ', next_cell
-   write(*,*) 'before moving package ##', pack_index
+   ! write(*,*) 'do_rpackage: #1 cur_index = ', package(pack_index)%cell_numb, ' next_cell = ', next_cell
+   ! write(*,*) 'before moving package ##', pack_index
    change_of_cell = .FALSE.
    CALL move_package(pack_index, e_dist, next_cell, change_of_cell)
-   write(*,*) 'after moving package ##', pack_index
+   ! write(*,*) 'after moving package ##', pack_index
    IF(e_dist > 0.D0) THEN
     CALL update_estimators(pack_index, e_dist)
     ! write(99,*) pack_index, freq_line, package(pack_index)%freq_cmf, package(pack_index)%freq_rf
@@ -74,11 +74,11 @@ actirrates = rrates()
   ELSE     
      ! Move package from the curent position for the cell_dist
      !write(99,*) 'before moving package #', pack_index
-     write(*,*) 'do_rpackage: #2 cur_index = ', package(pack_index)%cell_numb, ' next_cell = ', next_cell
-     write(*,*) 'before moving package ##', pack_index
+     ! write(*,*) 'do_rpackage: #2 cur_index = ', package(pack_index)%cell_numb, ' next_cell = ', next_cell
+     ! write(*,*) 'before moving package ##', pack_index
      change_of_cell = .TRUE.
      CALL move_package(pack_index, cell_dist, next_cell, change_of_cell)
-     write(*,*) 'after moving package ##', pack_index
+     ! write(*,*) 'after moving package ##', pack_index
      CALL update_estimators(pack_index, cell_dist)
      ! If package escaped the calculation volume (next_cell=-99) then
      ! it become no-active and package type is update to the

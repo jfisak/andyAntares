@@ -186,7 +186,7 @@ SELECT CASE (inputModel)
    by a temperature factor = ', temp_factor
   R_star = model_grid(1)%rwind
   R_inf  = model_grid(n_modelgrid)%rwind
-  V_inf  = model_grid(n_modelgrid)%vel * 10.0**5
+  V_inf  = model_grid(n_modelgrid)%vel! * 10.0**5
   ! Dummy cell to associate to propagation grid cells which have no representation on the model grid.
   ! All cells out of model grid set to 0 and associate to n_modelgrid. 
   ! Other cells will obtainde particular values with memory

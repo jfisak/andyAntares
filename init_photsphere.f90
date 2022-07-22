@@ -49,7 +49,7 @@ SUBROUTINE init_photsphere(n_pack)
     ! Now put the photon to the corresponding grid cell
     ! Determine the cell index where is the photon 
     ! This works only for regular grids!!!!
-    write(*,*) 'init_photsphere: calling find_dyn_cell1, pack_index = ', I
+    ! write(*,*) 'init_photsphere: calling find_dyn_cell1, pack_index = ', I
     CALL find_dyn_cell1(package(I)%pos,ind_cell_numb)
     IF(ind_cell_numb > SIZE(dyn_cell)) THEN
      write(*,*) 'init_photsphere: wrong cell number'

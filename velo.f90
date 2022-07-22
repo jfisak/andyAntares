@@ -60,7 +60,9 @@ END SELECT
   ! and finally the velocity vector
   vel_vec = vel_rad + vel_ang
  END IF
+ ! write(*,*) 'velo: norm2(vel_vec) = ', norm2(vel_vec)
  IF(norm2(vel_vec) > light_speed) THEN
+  write(*,*) 'velo: vel_vec/c = ', norm2(vel_vec)/light_speed, ' Rinf/c = ', V_inf/light_speed
   write(*,*) 'velo: V_inf = ', V_inf, ' R_star = ', R_star, ' beta = ', beta,&
    ' ||pack_position|| = ', norm2(pack_position)
   write(*,*) 'velo: pack_index = ', pack_index, ' position = ', vec_length(pack_position)/R_inf,&

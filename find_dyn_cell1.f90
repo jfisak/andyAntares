@@ -51,7 +51,7 @@ bcell(3) = FLOOR(pos(3)/basic_cell_width(3) + dble(nz_cell)/2.D0) + 1
 !
 ! index of the given basic cell
 bindex = (bcell(1) - 1) * ny_cell * nz_cell + (bcell(2) - 1) * nz_cell + bcell(3)
-write(*,*) 'find_dyn_cell1: bindex = ', bindex
+! write(*,*) 'find_dyn_cell1: bindex = ', bindex
 ! initial setting of the local variable corresponding to the actual cell
 actCell = bindex
 ! if there is no dynamical cell in the given basic cell

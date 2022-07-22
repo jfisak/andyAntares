@@ -44,10 +44,11 @@ act_width = dyn_cell(act_cell)%width
 act_center = act_corner + act_width/2.0
 
 act_vel_norm = model_grid(act_mgi)%vel
+! write(*,*) 'vel_discrete_points: act_vel_norm = ', act_vel_norm/V_inf
 
 ! a relative position in respect to the propCell center
 rel_pos = act_pos - act_center
-write(*,*) 'vel_discrete_points: rel_pos = ', rel_pos(:)/act_width(:)
+! write(*,*) 'vel_discrete_points: rel_pos = ', rel_pos(:)
 
 ! DO I = 1,3
 !  IF((act_pos(I) < act_corner(I) .OR. act_pos(I) > act_corner(I) + act_width(I) ) .and. pack_index /= dummypackage) THEN
@@ -129,7 +130,7 @@ IF(incellmode) THEN ! incellmode
   cur_vel2 = c_point(:,2*I)
  
   ! write(*,*) 'vel_discrete_points: cur_vel1 = ', cur_vel1, ' cur_vel2 = ', cur_vel2
-  write(*,*) 'vel_discrete_points: e pack_index = ', pack_index, ' cur_pos1 = ', cur_pos1(3), ' cur_pos2 = ', cur_pos2(3)
+  ! write(*,*) 'vel_discrete_points: e pack_index = ', pack_index, ' cur_pos1 = ', cur_pos1(3), ' cur_pos2 = ', cur_pos2(3)
   CALL lin_interpolation(act_pos(3), cur_vel1, cur_pos1(3), cur_vel2, cur_pos2(3), e_point(:,I), act_pos, &
    velgridcells)
   e_pos(:,I) = (/ cur_pos1(1), cur_pos1(2), act_pos(3)/)
@@ -188,7 +189,7 @@ ELSE ! incellmode
   IF(model_type == 1) cur_vel2 = model_grid(cur_mgi2)%vel*cur_pos2/norm2(cur_pos2)
  
   ! write(*,*) 'vel_discrete_points: cur_vel1 = ', cur_vel1, ' cur_vel2 = ', cur_vel2
-  write(*,*) 'vel_discrete_points: e cur_pos1 = ', cur_pos1, ' cur_pos2 = ', cur_pos2
+  ! write(*,*) 'vel_discrete_points: e cur_pos1 = ', cur_pos1, ' cur_pos2 = ', cur_pos2
   CALL lin_interpolation(act_pos(3), cur_vel1, cur_pos1(3), cur_vel2, cur_pos2(3), e_point(:,I), act_pos, velgridcells)
   e_pos(:,I) = (/ cur_pos1(1), cur_pos1(2), act_pos(3 )/)
   ! write(*,*) 'vel_discrete_points: e_point = ', e_point(:,I)
@@ -205,7 +206,7 @@ ELSE ! incellmode
   cur_vel2 = e_point(:,2*I)
   cur_pos2 = e_pos(:,2*I)
  
-  write(*,*) 'vel_discrete_points: w cur_pos1 = ', cur_pos1, ' cur_pos2 = ', cur_pos2
+  ! write(*,*) 'vel_discrete_points: w cur_pos1 = ', cur_pos1, ' cur_pos2 = ', cur_pos2
 
   CALL lin_interpolation(act_pos(2), e_point(:,2*I-1), cur_pos1(2), e_point(:,2*I), cur_pos2(2), w_point(:,I), act_pos, &
    velgridcells)
@@ -228,7 +229,7 @@ END IF
 
  ! write(26,*) act_pos(:), vel_vec
 
- ! write(*,*) 'vel_discrete_points: vel_vec = ', vel_vec
+ ! write(*,*) 'vel_discrete_points: vel_vec = ', norm2(vel_vec)/R_inf
 
 
 

@@ -33,6 +33,10 @@ act_cell = package(pack_index)%cell_numb
 act_corner = dyn_cell(act_cell)%corner
 act_width = dyn_cell(act_cell)%width
 
+! write(*,*) 'oct_neighbors: rel_pos = ', rel_pos
+! 
+! write(24,*) act_corner, act_width
+
 ! this part code only for the regular grid
 ! posxyz(1-3) indicates a move in the three directions from the zero point
 IF(dyngrid == 0) THEN
@@ -41,7 +45,7 @@ IF(dyngrid == 0) THEN
  ! calculation of direct neighbors
  ! x
  velgridcells(n_zero) = act_cell
- IF(rel_pos(1) > 0) THEN
+ IF(rel_pos(dir_x) > 0) THEN
   velgridcells(n_x) = dyn_cell(act_cell)%neighbor(posx)
   posxyz(dir_x) = .TRUE.
  ELSE
@@ -49,20 +53,20 @@ IF(dyngrid == 0) THEN
   posxyz(dir_x) = .FALSE.
  END IF
  ! y
- IF(rel_pos(n_y) > 0) THEN
+ IF(rel_pos(dir_y) > 0) THEN
   velgridcells(n_y) = dyn_cell(act_cell)%neighbor(posy)
-  posxyz(dir_x) = .TRUE.
+  posxyz(dir_y) = .TRUE.
  ELSE
   velgridcells(n_y) = dyn_cell(act_cell)%neighbor(negy)
-  posxyz(dir_x) = .FALSE.
+  posxyz(dir_y) = .FALSE.
  END IF
  ! z
- IF(rel_pos(3) > 0) THEN
+ IF(rel_pos(dir_z) > 0) THEN
   velgridcells(n_z) = dyn_cell(act_cell)%neighbor(posz)
-  posxyz(dir_x) = .TRUE.
+  posxyz(dir_z) = .TRUE.
  ELSE
   velgridcells(n_z) = dyn_cell(act_cell)%neighbor(negz)
-  posxyz(dir_x) = .FALSE.
+  posxyz(dir_z) = .FALSE.
  END IF
  ! test if the cell is on the edge of the propGrid
  DO I = 2,4

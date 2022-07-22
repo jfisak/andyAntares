@@ -82,7 +82,7 @@ END IF
 
  ! boundary coordinate
 ! write(*,*) 'resonance_distance: cell_dist = ', cell_dist
-write(*,*) 'resonance_distance: moving dummypackage'
+! write(*,*) 'resonance_distance: moving dummypackage'
 change_of_cell = .FALSE.
 CALL move_package(dummypackage, cell_dist, cell_number, change_of_cell)
 bfreq = package(dummypackage)%freq_cmf

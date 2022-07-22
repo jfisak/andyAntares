@@ -46,6 +46,12 @@ ELSE IF(velapprox == 1) THEN
  ROverW = 1.0 / (costheta**2.0 * dV_pos + (1.0 - costheta**2.0)* V_pos / R_pos)
  ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * &
  !  ROverW / (4.0 * pi) * corrFactor 
+ELSE IF(velapprox == 3) THEN
+ ! temporary
+ ROverW = R_inf / V_inf
+ELSE
+ write(*,*) 'roverw: velapprox = ', velapprox, ' is not a valid choice'
+ STOP
 END IF
 
 END FUNCTION

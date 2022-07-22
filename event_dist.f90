@@ -24,7 +24,7 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
  ! looking for next line
  INTEGER                           :: act_line
  DOUBLE PRECISION                  :: summ, tot_lop
- LOGICAL                                :: procout=.TRUE.
+ LOGICAL                                :: procout=.FALSE.
  LOGICAL                                :: inCell, tooRed
  LOGICAL                                :: raninit
  INTEGER                           :: lastLine
