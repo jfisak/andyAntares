@@ -1,4 +1,4 @@
-SUBROUTINE lin_interpolation(pos0, vec1, pos1, vec2, pos2)
+SUBROUTINE lin_interpolation(pos0, vec1, pos1, vec2, pos2, int_vector)
 ! SUBROUTINE lin_interpolation(pos0, vec1, pos1, vec2, pos2, int_vector, vecpos0, neighborscells)
 
 USE types
