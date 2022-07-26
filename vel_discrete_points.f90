@@ -116,7 +116,8 @@ IF(incellmode) THEN ! incellmode
  ! write(27,*) act_pos
  ! zero approximation
  ! now we expect all vectors to be equal to zero, except the center vector
- IF(model_type == 1) c_point(:,1) = act_vel_norm * c_pos(:,1)/norm2(c_pos(:,1))
+ ! IF(model_type == 1) c_point(:,1) = act_vel_norm * c_pos(:,1)/norm2(c_pos(:,1))
+ CALL velo_vector(act_pos, act_mgi, c_point(:,1))
  DO I = 2,8
   c_point(:,I) = (/0.0, 0.0, 0.0 /)
  END DO
@@ -180,20 +181,22 @@ ELSE ! incellmode
   cur_mgi1 = dyn_cell(cur_cell1)%model_index
   cur_pos1 = dyn_cell(cur_cell1)%corner + dyn_cell(cur_cell1)%width/2.0
   ! only for spherically symmetric case
-  IF(model_type == 1) cur_vel1 = model_grid(cur_mgi1)%vel*cur_pos1/norm2(cur_pos1)
+  ! IF(model_type == 1) cur_vel1 = model_grid(cur_mgi1)%vel*cur_pos1/norm2(cur_pos1)
+  CALL velo_vector(cur_pos1, cur_mgi1, cur_vel1)
   
   cur_cell2 = velgridcells(2*I)
   cur_mgi2 = dyn_cell(cur_cell2)%model_index
   cur_pos2 = dyn_cell(cur_cell2)%corner + dyn_cell(cur_cell2)%width/2.0
   ! only for spherically symmetric case
-  IF(model_type == 1) cur_vel2 = model_grid(cur_mgi2)%vel*cur_pos2/norm2(cur_pos2)
+  ! IF(model_type == 1) cur_vel2 = model_grid(cur_mgi2)%vel*cur_pos2/norm2(cur_pos2)
+  CALL velo_vector(cur_pos2, cur_mgi2, cur_vel2)
  
   ! write(*,*) 'vel_discrete_points: cur_vel1 = ', cur_vel1, ' cur_vel2 = ', cur_vel2
   ! write(*,*) 'vel_discrete_points: e cur_pos1 = ', cur_pos1, ' cur_pos2 = ', cur_pos2
   CALL lin_interpolation(act_pos(3), cur_vel1, cur_pos1(3), cur_vel2, cur_pos2(3), e_point(:,I), act_pos, velgridcells)
   e_pos(:,I) = (/ cur_pos1(1), cur_pos1(2), act_pos(3 )/)
   ! write(*,*) 'vel_discrete_points: e_point = ', e_point(:,I)
-  IF(pack_index == 1) write(28,*) e_pos(:,I), e_point(:,I)
+  ! IF(pack_index == 1) write(28,*) e_pos(:,I), e_point(:,I)
   ! write(*,*) 'vel_discrete_points: e/c = ', norm2(e_point(:,I))/light_speed
  END DO
  
