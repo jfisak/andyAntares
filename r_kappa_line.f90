@@ -23,19 +23,20 @@ INTEGER                         :: n_eqf_lines
 ! calculation of optical depth
 ! the basic variables
 
+
 constanta = (pi * e_charge**2)/( me_g * light_speed)
 dummypackage = SIZE(package)
 package(dummypackage) = package(pack_index)
 
-n_eqf_lines = 1
-DO I = nextLine + 1, ntransitions
- IF(linelist(I)%freq == linelist(nextLine)%freq) THEN
-  n_eqf_lines = n_eqf_lines + 1
-  CYCLE
- END IF
- EXIT
-END DO
-nnextlines = n_eqf_lines
+! n_eqf_lines = 1
+! DO I = nextLine + 1, ntransitions
+!  IF(linelist(I)%freq == linelist(nextLine)%freq) THEN
+!   n_eqf_lines = n_eqf_lines + 1
+!   CYCLE
+!  END IF
+!  EXIT
+! END DO
+! nnextlines = n_eqf_lines
 
 tau_line = 0.D0
 DO I = 1, nnextlines

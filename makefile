@@ -24,7 +24,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
           read_composition.o read_levels.o read_transitions.o read_populations.o \
           sorting-new.o setup_model_grid.o update_grid.o i_ion_recomb.o   \
           saha_boltzmann_factor.o ionization_fraction.o f_edens.o round_number.o\
-          find_e_nd.o part_fun.o update_estimators.o freq_from_file.o     \
+          find_e_nd.o part_fun.o update_estimators.o freq_from_file.o rob.o \
           acc_rej_montecarlo.o virtual_particles.o setup_grid2.o velo_vector.o \
           create_dynamical_grid_cells.o find_dyn_cell1.o do_spectrum.o\
           connection_prop_model_grid.o divide_cell_8.o divide_cell_ijk.o  \
@@ -36,7 +36,8 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
 	  cool_ionization.o cool_fb.o k_freq_fb.o check_pop.o r_kappa_line.o \
 	  save_output.o gauntff.o counters.o saha_factor.o find_photion_elindex.o \
 	  mpi_distribute_estimators.o save_temp_packs.o find_unfinished_run.o \
-	  lte_pops.o photosphere_interaction.o roverw.o vel_discrete_points.o
+	  lte_pops.o photosphere_interaction.o roverw.o vel_discrete_points.o \
+          next_line_bluered.o
 # end of procedures
 
 #Rules

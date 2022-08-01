@@ -26,6 +26,7 @@ IMPLICIT NONE
      INTEGER                         :: n_interactions
      DOUBLE PRECISION, DIMENSION(3)  :: pos, dir 
      INTEGER                         :: l_ele, l_ion, l_lev, n_int = 0
+     LOGICAL                         :: redShift
   END TYPE photon
 
 
