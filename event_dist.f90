@@ -72,7 +72,6 @@ END DO
  ! write(*,*) 'event_dist: kappa_cont = ', kappa_cont
 
  ! initialization of n_next_lines to be equal to one
- n_next_lines = 1
  lastLine = package(pack_index)%last_line
 
 nloop = 0
@@ -80,20 +79,23 @@ DO WHILE (do_loop)
 
  nloop = nloop + 1
  IF(nloop == 1000) THEN
- !  write(*,*) 'event_dist: packet = ', pack_index
-  STOP 'nloop == 100'
+  write(*,*) 'event_dist: nextLine = ', lastLine
+  write(*,*) 'event_dist: packet = ', pack_index
+  STOP 'nloop == 1000'
  END IF
 
  IF(nloop > 1) lastLine = nextLine
  ! write(*,*) 'event_dist: pack_index = ', pack_index, ' n_next_lines = ', n_next_lines
  ! write(*,*) 'event_dist: nloop = ', nloop, ' lastLine = ', lastLine, ' ntransitions = ', ntransitions
  
- CALL next_line(1, pack_index, lastLine, nextLine, n_next_lines, tooRed)
+ ! CALL next_line(1, pack_index, lastLine, nextLine, n_next_lines, tooRed)
+ CALL next_line_bluered(1, pack_index, cell_dist, lastLine, nextLine, n_next_lines)
  ! write(*,*) 'event_dist: nextLine = ', nextLine, ' n_next_lines = ', n_next_lines
  ALLOCATE(actirrates%Lline(n_next_lines), actirrates%nline(n_next_lines))
  IF(nextLine < ntransitions + 1) THEN
   freq_line = linelist(nextLine)%freq
-  CALL resonance_distance(pack_index, nextLine, freq_line, cell_dist, l_dist, inCell, .TRUE.)
+  ! CALL resonance_distance(pack_index, nextLine, freq_line, cell_dist, l_dist, inCell, .TRUE.)
+  CALL resonance_distance2(pack_index, nextLine, cell_dist, inCell, l_dist)
    IF(inCell) THEN
     CALL r_kappa_line(pack_index, current_mgi, nextLine, n_next_lines, actirrates, tau_line)
    END IF
@@ -132,7 +134,8 @@ DO WHILE (do_loop)
     ELSE
      ! choosing next line
      tau = tau + tau_cont + tau_line
-     nextLine = nextLine + n_next_lines - 1
+     if(procout) write(*,*) 'event_dist: pack_index = ', pack_index, ' nextLine = ', nextLine
+     lastLine = nextLine + n_next_lines - 1
      ! package(pack_index)%last_line = nextLine + n_next_lines - 1
      if(procout) write(*,*) 'event_dist: choosing next line nextLine = ', nextLine
     ! if #03
