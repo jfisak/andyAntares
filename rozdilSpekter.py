@@ -28,11 +28,9 @@ xmax2 = 6750
 ymin2= 0e1
 ymax2 = 0.7e39
 
-savefilename='tc_rozdil.eps'
-
-
-spec1= input('First datafile name:')
-spec2= input('Second datafile name:')
+print('zadavani parametru')
+spec1= input('First datafile name: ')
+spec2= input('Second datafile name: ')
 if spec1 == '':
  spec1 = 'spec1'
 if spec2 == '':
@@ -78,7 +76,6 @@ def lininterpolation(spektrum, lambdaw, ncolumns, n_rows):
 soubor1 = sys.argv[1]
 soubor2 = sys.argv[2]
 outputfile = sys.argv[3]
-
 
 # načtení dat z jednotlivých souborů
 soubor1data = np.genfromtxt(soubor1)

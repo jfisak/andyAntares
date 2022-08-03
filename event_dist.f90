@@ -84,7 +84,6 @@ DO WHILE (do_loop)
   STOP 'nloop == 1000'
  END IF
 
- IF(nloop > 1) lastLine = nextLine
  ! write(*,*) 'event_dist: pack_index = ', pack_index, ' n_next_lines = ', n_next_lines
  ! write(*,*) 'event_dist: nloop = ', nloop, ' lastLine = ', lastLine, ' ntransitions = ', ntransitions
  
@@ -136,7 +135,6 @@ DO WHILE (do_loop)
      tau = tau + tau_cont + tau_line
      if(procout) write(*,*) 'event_dist: pack_index = ', pack_index, ' nextLine = ', nextLine
      lastLine = nextLine + n_next_lines - 1
-     ! package(pack_index)%last_line = nextLine + n_next_lines - 1
      if(procout) write(*,*) 'event_dist: choosing next line nextLine = ', nextLine
     ! if #03
     END IF
