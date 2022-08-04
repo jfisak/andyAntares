@@ -51,6 +51,7 @@ my_rank = 0
  ! Read input  
  write(99,*) 'read input'
  CALL read_input(n_pack, iseed)
+ CALL analyse_input()
  ! Allocate array for photon packages.
  ALLOCATE (package(n_pack + 2))
  ! write(*,*) 'main: |package| = ', SIZE(package)
@@ -88,6 +89,7 @@ debug = 0
 CALL setup_model_grid()
 ! create virtual particles for the given model cell
 IF (dyngrid /= 0) CALL virtual_particles(model_type)
+
  xmax = R_inf + 0.5 * R_sun
  ymax = R_inf + 0.5 * R_sun 
 IF(model_type == 1) THEN
@@ -99,6 +101,8 @@ ELSE IF (model_type == 2 .AND. inputmodel == 2) THEN
 ELSE
  STOP 'main: non-known model type'
 END IF
+
+
 ! write(*,*) 'model grid is set up'
 ! write(*,*) 'setup propagation grid'
 ! write(*,*) 'xmax = ', xmax/R_star, ' ymax = ', ymax/R_star, ' zmax = ', zmax/R_star

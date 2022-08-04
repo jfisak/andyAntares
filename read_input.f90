@@ -16,10 +16,8 @@ SUBROUTINE read_input(n_pack, iseed)
   ny_cell = 100 ! number of cell in y direction
   nz_cell = 100 ! number of cell in z direction
   model_type = 1
-  xmax = 50.    ! coordinates of outer bourder of the wind in units of stellar radius 
-  ymax = 50.  
-  zmax = 50. 
   iseed = -1  
+  eldensfile = 0
 
 ! 001 n_pack
 ! 002 n_nubin
@@ -40,7 +38,8 @@ SUBROUTINE read_input(n_pack, iseed)
 ! 017 n_pack_save
 ! 018 refr_surface
 ! 019 inputmodelFile
-! 020 eldensfile
+! 020 inputcomposition
+! 021 eldensfile
   DO
     READ (1, '(A)', END=99) LINE
 

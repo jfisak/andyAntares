@@ -4,22 +4,32 @@ SUBROUTINE analyse_input()
 USE types
 IMPLICIT NONE
 
+LOGICAL                         :: inp_model_exists, eldensfile_exists, inputcomp_exists
 
 
-IF (dyngrid /= 0) CALL virtual_particles(model_type)
- xmax = R_inf + 0.5 * R_sun
- ymax = R_inf + 0.5 * R_sun 
-IF(model_type == 1) THEN
- zmax = R_inf + 0.5 * R_sun
-ELSE IF (model_type == 2 .AND. inputmodel == 1) THEN
- zmax = Z_inf! + R_sun
-ELSE IF (model_type == 2 .AND. inputmodel == 2) THEN
- zmax = R_inf + 0.5 * R_sun
-ELSE
- STOP 'main: non-known model type'
+
+! test of file existence
+! model file
+INQUIRE(FILE=inputmodelFile, EXIST=inp_model_exists)
+
+IF(.not. inp_model_exists) THEN
+ write(*,*) 'input model file ', inputmodelFile, ' does not exist'
+ STOP
 END IF
 
+! eldens file
+! INQUIRE(FILE=eldensfile, EXIST=eldensfile_exists)
+! IF(.not. eldensfile_exists) THEN
+!  write(*,*) 'electron density file ', eldensfile, ' does not exist'
+!  STOP
+! END IF
 
+! input composition
+INQUIRE(FILE=inputcomposition, EXIST=inputcomp_exists)
+IF(.not. inputcomp_exists) THEN
+ write(*,*) 'input composition file ', inputcomposition, ' does not exist'
+ STOP
+END IF
 
 
 END SUBROUTINE analyse_input
