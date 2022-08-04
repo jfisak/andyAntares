@@ -134,7 +134,11 @@ DO WHILE (do_loop)
      ! choosing next line
      tau = tau + tau_cont + tau_line
      if(procout) write(*,*) 'event_dist: pack_index = ', pack_index, ' nextLine = ', nextLine
-     lastLine = nextLine + n_next_lines - 1
+     if(package(pack_index)%redshift) then
+      lastLine = nextLine + n_next_lines - 1
+     else
+      lastLine = nextLine - n_next_lines + 1
+     end if
      if(procout) write(*,*) 'event_dist: choosing next line nextLine = ', nextLine
     ! if #03
     END IF
