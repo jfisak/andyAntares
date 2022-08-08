@@ -18,6 +18,7 @@ SUBROUTINE read_input(n_pack, iseed)
   model_type = 1
   iseed = -1  
   eldensfile = 0
+  abs_surface = 0
 
 ! 001 n_pack
 ! 002 n_nubin
@@ -36,7 +37,7 @@ SUBROUTINE read_input(n_pack, iseed)
 ! 015 nlte
 ! 016 velApprox
 ! 017 n_pack_save
-! 018 refr_surface
+! 018 abs_surface
 ! 019 inputmodelFile
 ! 020 inputcomposition
 ! 021 eldensfile
@@ -163,12 +164,12 @@ SUBROUTINE read_input(n_pack, iseed)
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I20)', ERR=94) n_pack_save
 
-    ! 018 refr_surface
-    ELSE IF (ACTPAR .EQ. 'refr_surface') THEN
+    ! 018 abs_surface
+    ELSE IF (ACTPAR .EQ. 'abs_surface') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
-    READ (ACTPAR, '(I20)', ERR=94) refr_surface
+    READ (ACTPAR, '(I20)', ERR=94) abs_surface
 
     ! 19 inputmodelFile
     ELSE IF (ACTPAR .EQ. 'inputmodelFile') THEN

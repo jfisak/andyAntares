@@ -90,18 +90,20 @@ CALL setup_model_grid()
 ! create virtual particles for the given model cell
 IF (dyngrid /= 0) CALL virtual_particles(model_type)
 
- xmax = R_inf + 0.5 * R_sun
- ymax = R_inf + 0.5 * R_sun 
-IF(model_type == 1) THEN
- zmax = R_inf + 0.5 * R_sun
-ELSE IF (model_type == 2 .AND. inputmodel == 1) THEN
- zmax = Z_inf! + R_sun
-ELSE IF (model_type == 2 .AND. inputmodel == 2) THEN
- zmax = R_inf + 0.5 * R_sun
-ELSE
- STOP 'main: non-known model type'
+! if model_type == 3 xyzmax are already calculated in setup_model_grid
+IF(model_type /= 3) THEN
+  xmax = R_inf + 0.5 * R_sun
+  ymax = R_inf + 0.5 * R_sun 
+ IF(model_type == 1) THEN
+  zmax = R_inf + 0.5 * R_sun
+ ELSE IF (model_type == 2 .AND. inputmodel == 1) THEN
+  zmax = Z_inf! + R_sun
+ ELSE IF (model_type == 2 .AND. inputmodel == 2) THEN
+  zmax = R_inf + 0.5 * R_sun
+ ELSE
+  STOP 'main: non-known model type'
+ END IF
 END IF
-
 
 ! write(*,*) 'model grid is set up'
 ! write(*,*) 'setup propagation grid'
@@ -116,7 +118,7 @@ ALLOCATE(current_temp(n_modelgrid + add_mg))
 ! write(*,*) 'setting up the propagation grid'
 write(99,*) 'setting up the propagation grid'
 CALL cpu_time(time0_agcreation)
-CALL setup_grid2()
+CALL setup_propgrid()
 CALL cpu_time(time1_agcreation)
 time_cre = time1_agcreation - time0_agcreation
 

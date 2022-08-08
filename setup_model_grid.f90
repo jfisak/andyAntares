@@ -14,9 +14,7 @@
      CALL read_2D_model()
   ELSE IF (model_type .EQ. 3) THEN
      ! Read 3D wind model
-     !CALL read_3D_model()
-     PRINT*, 'ERROR: Unknown model type', model_type
-     STOP
+     CALL read_3D_model()
   ELSE
      PRINT*, 'ERROR: Unknown model type', model_type
      STOP

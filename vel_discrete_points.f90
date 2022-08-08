@@ -26,7 +26,6 @@ DOUBLE PRECISION, DIMENSION(3,4)        :: e_point, e_pos
 DOUBLE PRECISION, DIMENSION(3,2)        :: w_point, w_pos
 DOUBLE PRECISION, DIMENSION(3)          :: point_width
 
-INTEGER                                 :: pomocna_bunka
 LOGICAL                                 :: incellmode
 
 INTEGER                                 :: dummypackage
@@ -120,7 +119,7 @@ IF(incellmode) THEN ! incellmode
  CALL velo_vector(act_pos, act_mgi, c_point(:,1))
  DO I = 2,8
   ! c_point(:,I) = (/0.0, 0.0, 0.0 /)
-  c_point(:,I) = V_inf * act_pos/norm2(act_pos)
+  c_point(:,I) = c_point(:,1)
  END DO
 
  

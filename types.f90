@@ -47,6 +47,7 @@ IMPLICIT NONE
      DOUBLE PRECISION                :: volume
      DOUBLE PRECISION                :: T, J, rho, vel, rwind, e_dens
      DOUBLE PRECISION                :: zwind, velang, angle
+     DOUBLE PRECISION, DIMENSION(3)  :: vec_vel, vec_pos
      TYPE(grid_comp_t), ALLOCATABLE  :: grid_comp(:)
   END TYPE modelgrid
 
@@ -109,7 +110,7 @@ IMPLICIT NONE
   INTEGER                            :: dyngrid
 ! NLTE
   INTEGER                            :: nlte
-  INTEGER                            :: refr_surface=0
+  INTEGER                            :: abs_surface
 ! properties of a central star
   DOUBLE PRECISION                   :: R_star, R_inf, V_inf, V_0, M_dot, T_eff
   DOUBLE PRECISION                   :: Z_inf

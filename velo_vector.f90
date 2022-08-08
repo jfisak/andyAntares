@@ -16,6 +16,8 @@ SELECT CASE(model_type)
  CASE(1)
   rad_vel = model_grid(mod_index)%vel
   vel_vec = rad_vel * pos / norm2(pos)
+ CASE(3)
+  vel_vec = model_grid(mod_index)%vec_vel
 CASE DEFAULT
  write(*,*) 'velo_vector: the choice of velApprox = ', velApprox, ' is not known...'
  STOP
