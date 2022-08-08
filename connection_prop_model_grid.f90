@@ -187,6 +187,7 @@
          cur_pos(3) > cur_corner(3) .and. cur_pos(3) < cur_width(3) + cur_corner(3)) THEN
        dyn_cell(I)%model_index = J
        model_grid(J)%assoc_cells = model_grid(J)%assoc_cells + 1
+       EXIT
       END IF
      END DO
     END DO

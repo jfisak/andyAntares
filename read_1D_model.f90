@@ -44,11 +44,6 @@ SELECT CASE (inputModel)
  
  
  add_mg = 1
-  ! write(*,*) T_eff, R_star, R_inf, V_inf, M_dot, n_modelgrid
- 
- ! R_star = R_star * r_sun
- ! WRITE(15, *) 0.D0, 0.D0, R_star/R_star
- ! write(*,*) '   ', T_eff, R_star, R_inf, V_inf, M_dot, n_modelgrid
  
  ! Allocate array for model grid structure.
  ! Cell n_modelgrid+1 is associated to propagation grid cells 

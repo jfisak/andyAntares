@@ -31,7 +31,7 @@ if(abs(package(pack_index)%pos(3)) < 1e-1) package(pack_index)%pos(3) = 0e0
 ! length=SQRT(package(pack_index)%pos(1)**2 + package(pack_index)%pos(2)**2 + package(pack_index)%pos(3)**2)  
 IF ((vec_length(package(pack_index)%pos) < R_star) .AND. (pack_index .NE. dummypackage)) THEN
  ! print*, 'package ', pack_index, ' was destroyed because has come back to the photosphere'
- IF(refr_surface >= 1) THEN
+ IF(abs_surface >= 1) THEN
   ! write(*,*) 'move_package: pack_index = ', pack_index
   CALL photosphere_interaction(pack_index)
   dist = 0.D0
