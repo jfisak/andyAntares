@@ -178,18 +178,20 @@
    ! pseudo 3D testing model
    CASE(0)
     DO I = 1, max_n_dcell
-     cur_corner = dyn_cell(I)%corner
-     cur_width = dyn_cell(I)%width
-     DO J = 1, n_modelgrid
-      cur_pos = model_grid(J)%vec_pos
-      IF(cur_pos(1) > cur_corner(1) .and. cur_pos(1) < cur_width(1) + cur_corner(1) .and. &
-         cur_pos(2) > cur_corner(2) .and. cur_pos(2) < cur_width(2) + cur_corner(2) .and. &
-         cur_pos(3) > cur_corner(3) .and. cur_pos(3) < cur_width(3) + cur_corner(3)) THEN
-       dyn_cell(I)%model_index = J
-       model_grid(J)%assoc_cells = model_grid(J)%assoc_cells + 1
-       EXIT
-      END IF
-     END DO
+     ! cur_corner = dyn_cell(I)%corner
+     ! cur_width = dyn_cell(I)%width
+     ! DO J = 1, n_modelgrid
+      dyn_cell(I)%model_index = I
+      model_grid(I)%assoc_cells = model_grid(I)%assoc_cells + 1
+      ! cur_pos = model_grid(J)%vec_pos
+      ! IF(cur_pos(1) > cur_corner(1) .and. cur_pos(1) < cur_width(1) + cur_corner(1) .and. &
+      !    cur_pos(2) > cur_corner(2) .and. cur_pos(2) < cur_width(2) + cur_corner(2) .and. &
+      !    cur_pos(3) > cur_corner(3) .and. cur_pos(3) < cur_width(3) + cur_corner(3)) THEN
+      !  dyn_cell(I)%model_index = J
+      !  model_grid(J)%assoc_cells = model_grid(J)%assoc_cells + 1
+      !  EXIT
+      ! END IF
+     ! END DO
     END DO
    CASE DEFAULT
    END SELECT
