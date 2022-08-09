@@ -170,7 +170,6 @@
     !  ' my_end = ', my_end
     ! STOP 'connection_prop_model_grid: testing'
    CASE DEFAULT
-    write(*,*) 'connection_prop_model_grid: wrong inputmodel = ', inputmodel
     STOP
    END SELECT
   ELSE IF (model_type == 3) THEN

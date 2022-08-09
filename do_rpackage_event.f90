@@ -29,25 +29,13 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
     ! In this case the package interacts with a line. In the general
     ! case we now would make it an i-package and assign the i-package
     ! to the upper level of the corresponding bound-bound transition
-    
-    ! However, for now we restrict ourselves to the pure scattering
-    ! case, i.e. we immediately re-emit the package isotropically in
-    ! the cmf and conserve the cmf frequency print*,
-    ! freq_line,package(pack_index)%freq_cmf
-    ! write(*,*) 'do_rpackage_event: ', pack_index, ' line interaction...'
+    ! write(37,*) norm2(package(pack_index)%pos)
     IF(ellastic_scattering) THEN
-     ! write(37,*) 1.D8 * light_speed / package(pack_index)%freq_rf
      CALL emit_rpackage(pack_index)
-     ! IF(package(pack_index)%last_line == 71) write(44,*) norm2(package(pack_index)%pos)/R_star
     ELSE
-     ! write(37,*) 1.D8 * light_speed / package(pack_index)%freq_rf
      package(pack_index)%typ = type_ipkt
     END IF
     package(pack_index)%n_int = package(pack_index)%n_int + 1
-    ! IF(package(pack_index)%n_int > ntransitions) THEN
-    !  write(*,*) 'do_rpackage_event: pack_index = ', pack_index
-    !  STOP 'n_int > ntransitions'
-    ! END IF
     linelist(package(pack_index)%last_line)%n_int = &
      linelist(package(pack_index)%last_line)%n_int + 1
     linelist(package(pack_index)%last_line)%n_deexc = &
@@ -60,7 +48,6 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
     package(pack_index)%l_lev = linelist(package(pack_index)%last_line)%upper
     
      if(procout) write(*,*) 'photon ', pack_index, ' line interaction...'
-!     CALL emit_rpackage(pack_index)
  ELSE IF (event .EQ. rpkt_eventtype_continuum) THEN
     ! In this case the package undergoes a continuum event. In the
     ! general case we need to decide now if this was a
@@ -162,28 +149,3 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
  END IF
   
 END SUBROUTINE do_rpackage_event
-
-
-!!!!!! This is for test analitic expresion !!!!!!!!
-!!    print*, rand_numb
-!    rand_numb = 0.1D0
-!!    rand_numb = ran2(idum)     
-!    IF (rand_numb .LT. 0.5D0) THEN
-!        package(pack_index)%active = 0
-!!!        print*, 'DO ABSORPTION'
-!    ELSE
-!        CALL emit_rpackage(pack_index)
-!        tau = 0.D0
-!10      rand_numb = ran2(idum)     
-!        IF (rand_numb .EQ. 0.D0) GOTO 10    
-!        tau_rand = -LOG(rand_numb)
-!!!        print*, 'DO SCATTERING'
-!    END IF
-    
-
-
-! For absorption only  
-
-!     package(pack_index)%active = 0
-
-!END

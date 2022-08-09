@@ -273,7 +273,7 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
    ! D = 1.D0
    package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
    package(pack_index)%e_rf = package(pack_index)%e_cmf / D
-   write(37,*) 1.D8 * light_speed / package(pack_index)%freq_rf
+   ! write(37,*) 1.D8 * light_speed / package(pack_index)%freq_rf
    ! save the emitted frequency
    linelist(linetransitions(line))%n_deexc = linelist(linetransitions(line))%n_deexc + 1
    count_i_rad_deex = count_i_rad_deex + 1

@@ -19,8 +19,6 @@ INTEGER                         :: act_cell
 ! firstly we have to know which basic cell photon occupies
 !   Number of the current cell
 act_cell = package(pack_index)%cell_numb
-!  print*, 'boundary3: pack index = ', pack_index, ' actCell = ', actCell
-!  print*, 'boundary3: basic_cell_numb = ', basic_cell_numb
 ! now we are computing the nearest distance to the actuall dynamic cell
 CALL find_dist(pack_index, act_cell, dist)
 ! now we look for the next cell given by indexes

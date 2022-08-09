@@ -32,7 +32,11 @@
   END IF
 
   ! Define length of dynamic arrays (cell and package)
-  ALLOCATE (dyn_cell(INT(Ngrid + 3.0 * Nvirtpart)))
+  IF(dyngrid == 0) THEN
+   ALLOCATE (dyn_cell(INT(Ngrid)))
+  ELSE 
+   ALLOCATE (dyn_cell(INT(Ngrid + 3.0 * Nvirtpart)))
+  END IF
 
   ! Size of the basic grid cells in x,y, and z direction (now they are with
   ! the same size i.e. regular gred)
@@ -143,9 +147,9 @@ IF(dyngrid /= 0) THEN
  DEALLOCATE(virtual_particle)
 END IF
 
-DO I = 1, max_n_dcell
- write(39,*) dyn_cell(I)%corner, dyn_cell(I)%width
-END DO
+! DO I = 1, max_n_dcell
+!  write(39,*) dyn_cell(I)%corner, dyn_cell(I)%width
+! END DO
 
 
 END SUBROUTINE setup_propgrid
