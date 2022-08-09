@@ -18,7 +18,6 @@ L_star = 4.D0*pi*(R_star)**2*sigma*T_eff**4
 SELECT CASE(abs_surface)
 ! creation of a new packet
 CASE(1)
- ! write(*,*) 'photosphere_interaction: pack_index = ', pack_index
  CALL random_unitvector1(direction, sint, cost, sinp, cosp)
  ! write(*,*) 'init_photsphere: R_star = ', R_star
  package(pack_index)%pos = R_star * direction

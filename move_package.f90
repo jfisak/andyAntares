@@ -34,7 +34,9 @@ IF ((vec_length(package(pack_index)%pos) < R_star) .AND. (pack_index .NE. dummyp
  IF(abs_surface >= 1) THEN
   ! write(*,*) 'move_package: pack_index = ', pack_index
   CALL photosphere_interaction(pack_index)
-  dist = 0.D0
+  dist = 0.0
+  change=.false.
+  ! CALL find_dist(pack_index, next_cell, dist)
  ELSE
   package(pack_index)%active = 0
   count_des_phot = count_des_phot + 1
