@@ -74,98 +74,99 @@ CALL oct_neighbors(pack_index, rel_pos, velgridcells, incellmode)
 ! a special case when some neighbor cells do not exist, because we are close bound to the compuational domain
 ! we will choose initial points on the bound of the current propagation grid instead
 IF(incellmode) THEN ! incellmode
- point_width = act_width
- IF(rel_pos(3) < 0) THEN
-  point_width(3) = -act_width(3)
- END IF
- IF(rel_pos(2) < 0) THEN
-  point_width(2) = -act_width(2)
- END IF
- IF(rel_pos(1) < 0) THEN
-  point_width(1) = -act_width(1)
- END IF
- ! points for calculation
- DO I = 1,8
-  c_pos(:,I) = act_center
- END DO
- ! +z
- c_pos(3,2) = act_center(3) + point_width(3)
- ! +y
- c_pos(2,3) = act_center(2) + point_width(2)
- ! +y+z
- c_pos(2,4) = act_center(2) + point_width(2)
- c_pos(3,4) = act_center(3) + point_width(3)
- ! +x
- c_pos(1,5) = act_center(1) + point_width(1)
- ! +x+z
- c_pos(1,6) = act_center(1) + point_width(1)
- c_pos(3,6) = act_center(3) + point_width(3)
- ! +x+y
- c_pos(1,7) = act_center(1) + point_width(1)
- c_pos(2,7) = act_center(2) + point_width(2)
- ! +x+y+z
- c_pos(1,8) = act_center(1) + point_width(1)
- c_pos(2,8) = act_center(2) + point_width(2)
- c_pos(3,8) = act_center(3) + point_width(3)
+ CALL velo_vector(act_pos, act_mgi, vel_vec)
+ ! point_width = act_width
+ ! IF(rel_pos(3) < 0) THEN
+ !  point_width(3) = -act_width(3)
+ ! END IF
+ ! IF(rel_pos(2) < 0) THEN
+ !  point_width(2) = -act_width(2)
+ ! END IF
+ ! IF(rel_pos(1) < 0) THEN
+ !  point_width(1) = -act_width(1)
+ ! END IF
+ ! ! points for calculation
+ ! DO I = 1,8
+ !  c_pos(:,I) = act_center
+ ! END DO
+ ! ! +z
+ ! c_pos(3,2) = act_center(3) + point_width(3)
+ ! ! +y
+ ! c_pos(2,3) = act_center(2) + point_width(2)
+ ! ! +y+z
+ ! c_pos(2,4) = act_center(2) + point_width(2)
+ ! c_pos(3,4) = act_center(3) + point_width(3)
+ ! ! +x
+ ! c_pos(1,5) = act_center(1) + point_width(1)
+ ! ! +x+z
+ ! c_pos(1,6) = act_center(1) + point_width(1)
+ ! c_pos(3,6) = act_center(3) + point_width(3)
+ ! ! +x+y
+ ! c_pos(1,7) = act_center(1) + point_width(1)
+ ! c_pos(2,7) = act_center(2) + point_width(2)
+ ! ! +x+y+z
+ ! c_pos(1,8) = act_center(1) + point_width(1)
+ ! c_pos(2,8) = act_center(2) + point_width(2)
+ ! c_pos(3,8) = act_center(3) + point_width(3)
 
-  ! write(*,*) 'vel_discrete_points: ', 'point_width = ', point_width, ' c_pos = ', c_pos
-  ! DO I = 1,8
-  !  write(28,*) c_pos(:,I)
-  ! END DO
- ! write(27,*) act_pos
- ! zero approximation
- ! now we expect all vectors to be equal to zero, except the center vector
- ! IF(model_type == 1) c_point(:,1) = act_vel_norm * c_pos(:,1)/norm2(c_pos(:,1))
- CALL velo_vector(act_pos, act_mgi, c_point(:,1))
- DO I = 2,8
-  ! c_point(:,I) = (/0.0, 0.0, 0.0 /)
-  c_point(:,I) = c_point(:,1)
- END DO
+ !  ! write(*,*) 'vel_discrete_points: ', 'point_width = ', point_width, ' c_pos = ', c_pos
+ !  ! DO I = 1,8
+ !  !  write(28,*) c_pos(:,I)
+ !  ! END DO
+ ! ! write(27,*) act_pos
+ ! ! zero approximation
+ ! ! now we expect all vectors to be equal to zero, except the center vector
+ ! ! IF(model_type == 1) c_point(:,1) = act_vel_norm * c_pos(:,1)/norm2(c_pos(:,1))
+ ! CALL velo_vector(act_pos, act_mgi, c_point(:,1))
+ ! DO I = 2,8
+ !  ! c_point(:,I) = (/0.0, 0.0, 0.0 /)
+ !  c_point(:,I) = c_point(:,1)
+ ! END DO
 
- 
- DO I = 1,4
-  cur_pos1 = c_pos(:,2*I-1)
-  cur_vel1 = c_point(:,2*I-1)
-  
-  cur_pos2 = c_pos(:,2*I)
-  cur_vel2 = c_point(:,2*I)
- 
-  ! write(*,*) 'vel_discrete_points: cur_vel1 = ', cur_vel1, ' cur_vel2 = ', cur_vel2
-  ! write(*,*) 'vel_discrete_points: e pack_index = ', pack_index, ' cur_pos1 = ', cur_pos1(3), ' cur_pos2 = ', cur_pos2(3)
-  ! CALL lin_interpolation(act_pos(3), cur_vel1, cur_pos1(3), cur_vel2, cur_pos2(3), e_point(:,I), act_pos, &
-  CALL lin_interpolation(act_pos(3), cur_vel1, cur_pos1(3), cur_vel2, cur_pos2(3), e_point(:,I))
-  e_pos(:,I) = (/ cur_pos1(1), cur_pos1(2), act_pos(3)/)
-  ! write(*,*) 'vel_discrete_points: e_point = ', e_point(:,I)
-  ! write(26,*) e_pos(:,I), e_point(:,I)
-  ! write(*,*) 'vel_discrete_points: e/c = ', norm2(e_point(:,I))/light_speed
- END DO
+ ! 
+ ! DO I = 1,4
+ !  cur_pos1 = c_pos(:,2*I-1)
+ !  cur_vel1 = c_point(:,2*I-1)
+ !  
+ !  cur_pos2 = c_pos(:,2*I)
+ !  cur_vel2 = c_point(:,2*I)
+ ! 
+ !  ! write(*,*) 'vel_discrete_points: cur_vel1 = ', cur_vel1, ' cur_vel2 = ', cur_vel2
+ !  ! write(*,*) 'vel_discrete_points: e pack_index = ', pack_index, ' cur_pos1 = ', cur_pos1(3), ' cur_pos2 = ', cur_pos2(3)
+ !  ! CALL lin_interpolation(act_pos(3), cur_vel1, cur_pos1(3), cur_vel2, cur_pos2(3), e_point(:,I), act_pos, &
+ !  CALL lin_interpolation(act_pos(3), cur_vel1, cur_pos1(3), cur_vel2, cur_pos2(3), e_point(:,I))
+ !  e_pos(:,I) = (/ cur_pos1(1), cur_pos1(2), act_pos(3)/)
+ !  ! write(*,*) 'vel_discrete_points: e_point = ', e_point(:,I)
+ !  ! write(26,*) e_pos(:,I), e_point(:,I)
+ !  ! write(*,*) 'vel_discrete_points: e/c = ', norm2(e_point(:,I))/light_speed
+ ! END DO
 
 
 
- DO I = 1,2
-  cur_vel1 = e_point(:,2*I-1)
-  cur_pos1 = e_pos(:,2*I - 1)
- 
-  cur_vel2 = e_point(:,2*I)
-  cur_pos2 = e_pos(:,2*I)
- 
-  ! write(*,*) 'vel_discrete_points: w cur_pos1 = ', cur_pos1(2), ' cur_pos2 = ', cur_pos2(2)
-  CALL lin_interpolation(act_pos(2), e_point(:,2*I-1), cur_pos1(2), e_point(:,2*I), cur_pos2(2),w_point(:,I))
-  w_pos(:,I) = (/ cur_pos1(1), act_pos(2), e_pos(3,I) /)
-  ! write(25,*) w_pos(:,I), w_point(:,I)
-  ! write(*,*) 'vel_discrete_points: w/c = ', norm2(w_point(:,I))/light_speed
- END DO
- 
- ! x-direction -- one last point
-  cur_vel1 = w_point(:,1)
-  cur_pos1 = w_pos(:,1)
- 
-  cur_vel2 = w_point(:,2)
-  cur_pos2 = w_pos(:,2)
-  
-  ! write(*,*) 'vel_discrete_points: f cur_pos1 = ', cur_pos1(1), ' cur_pos2 = ', cur_pos2(1)
-  CALL lin_interpolation(act_pos(1), w_point(:,1), cur_pos1(1), w_point(:,2), cur_pos2(1), vel_vec)
-  ! write(*,*) 'vel_discrete_points: vel_vec = ', vel_vec
+ ! DO I = 1,2
+ !  cur_vel1 = e_point(:,2*I-1)
+ !  cur_pos1 = e_pos(:,2*I - 1)
+ ! 
+ !  cur_vel2 = e_point(:,2*I)
+ !  cur_pos2 = e_pos(:,2*I)
+ ! 
+ !  ! write(*,*) 'vel_discrete_points: w cur_pos1 = ', cur_pos1(2), ' cur_pos2 = ', cur_pos2(2)
+ !  CALL lin_interpolation(act_pos(2), e_point(:,2*I-1), cur_pos1(2), e_point(:,2*I), cur_pos2(2),w_point(:,I))
+ !  w_pos(:,I) = (/ cur_pos1(1), act_pos(2), e_pos(3,I) /)
+ !  ! write(25,*) w_pos(:,I), w_point(:,I)
+ !  ! write(*,*) 'vel_discrete_points: w/c = ', norm2(w_point(:,I))/light_speed
+ ! END DO
+ ! 
+ ! ! x-direction -- one last point
+ !  cur_vel1 = w_point(:,1)
+ !  cur_pos1 = w_pos(:,1)
+ ! 
+ !  cur_vel2 = w_point(:,2)
+ !  cur_pos2 = w_pos(:,2)
+ !  
+ !  ! write(*,*) 'vel_discrete_points: f cur_pos1 = ', cur_pos1(1), ' cur_pos2 = ', cur_pos2(1)
+ !  CALL lin_interpolation(act_pos(1), w_point(:,1), cur_pos1(1), w_point(:,2), cur_pos2(1), vel_vec)
+ !  ! write(*,*) 'vel_discrete_points: vel_vec = ', vel_vec
   ! write(*,*) 'vel_discrete_points: v = ', norm2(vel_vec)/light_speed
  ! STOP 'vel_discrete_points: testing'
 
