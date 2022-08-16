@@ -56,8 +56,6 @@ SUBROUTINE init_photsphere(n_pack)
      CALL abort()
     END IF
     package(I)%cell_numb = ind_cell_numb
-    ! IF(I == 1) write(*,*) 'init_photsphere: WRITING AN INITIAL PACKET POSITION AND CORRESPONDING CELL INTO THE FILE'
-    ! write(16,*) dyn_cell(ind_cell_numb)%corner, dyn_cell(ind_cell_numb)%width, package(I)%pos
 
     ! Flag the packet as an active r-pkt and allow all kind of cell crossings
     package(I)%active     = 1
@@ -67,7 +65,6 @@ SUBROUTINE init_photsphere(n_pack)
 
     ! Assign rf energy and frequency to the packet
     package(I)%e_rf = L_star/n_pack  
-    !IF (I .EQ. 1) print*, package(I)%e_rf
 
     ! Now convert the energy and frequency to their cmf values
     CALL doppler_factor(I, D)

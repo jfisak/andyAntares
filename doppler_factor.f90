@@ -13,6 +13,7 @@ DOUBLE PRECISION, DIMENSION(3)    :: vel_vec
   
 D_gamma = 1.D0 ! For non-relativistic case    
  CALL velo(pack_index, vel_vec, velApprox)
+D_gamma = 1/sqrt(1-norm2(vel_vec)**2.0/light_speed**2)
 D = D_gamma * (1.D0 -  DOT_PRODUCT(package(pack_index)%dir,vel_vec)/light_speed)
 
 END SUBROUTINE doppler_factor
