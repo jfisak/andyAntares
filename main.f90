@@ -21,6 +21,9 @@ SUBROUTINE main
 ! definition of MPI variables
 INTEGER                              :: nphit
 
+LOGICAL                                 :: propmod_file_exists
+CHARACTER(60)                           :: propmod_file
+
 
 ! Link data to identify program version
 CHARACTER LINK_DATE*30, LINK_USER*10, LINK_HOST*60
@@ -111,10 +114,14 @@ debug = 0
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-CALL setup_model_grid()
 ! create virtual particles for the given model cell
-IF(saved_grid == 1) THEN
+write(propmod_file,"(A, A12)") TRIM(outputfolder), '/propmod.dat'
+INQUIRE(FILE=propmod_file, EXIST=propmod_file_exists)
+
+IF(saved_grid == 1 .and. propmod_file_exists) THEN
+ CALL read_propmod_grid()
 ELSE
+ CALL setup_model_grid()
  IF (dyngrid /= 0) CALL virtual_particles(model_type)
  
  ! if model_type == 3 xyzmax are already calculated in setup_model_grid
@@ -145,8 +152,14 @@ ELSE
 END IF ! saved propmod grid
 
 ! save propmod_grid?
-IF(saved_grid == 1) THEN
+IF(saved_grid == 1 .and. .not. propmod_file_exists) THEN
+#if mpi==1
+ IF(my_rank == 0) THEN
+#endif
  CALL save_propmod_grid()
+#if mpi==1
+ END IF
+#endif
 END IF
 ! connects the propagation grid with the model grid
 write(99,*) 'propagation grid is set up'

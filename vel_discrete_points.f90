@@ -21,10 +21,10 @@ DOUBLE PRECISION, DIMENSION(3)          :: cur_pos1, cur_vel1, cur_pos2, cur_vel
 INTEGER                                 :: cur_cell1, cur_cell2, cur_mgi1, cur_mgi2
 
 INTEGER                                 :: I
-DOUBLE PRECISION, DIMENSION(3,8)        :: c_point, c_pos
+! DOUBLE PRECISION, DIMENSION(3,8)        :: c_point, c_pos
 DOUBLE PRECISION, DIMENSION(3,4)        :: e_point, e_pos 
 DOUBLE PRECISION, DIMENSION(3,2)        :: w_point, w_pos
-DOUBLE PRECISION, DIMENSION(3)          :: point_width
+! DOUBLE PRECISION, DIMENSION(3)          :: point_width
 
 LOGICAL                                 :: incellmode
 

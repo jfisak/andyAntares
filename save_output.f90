@@ -110,10 +110,6 @@ CASE(0)
 CASE(1)
  ! line rates
  write(lineOutput,"(A, A9, I3.3, A4)") trim(outputfolder), '/linevar.', my_rank, '.dat'
- write(98,*) lineOutput!trim(outputfolder), '/linevar.', my_rank, '.dat'
-! CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
-! STOP
- write(98,*) 'save_output: lineOutput = ', TRIM(lineOutput)
  OPEN(11,FILE=lineOutput)
   DO I = 1, ntransitions
    ! wavelength is in Angstroms
@@ -203,14 +199,6 @@ CASE(3)
    END DO
   END DO
  CLOSE(13)
- fileFreqs = 'freqs.dat'
- OPEN(14, FILE = fileFreqs)
-  DO I = 1, SIZE(package)
-   IF(package(I)%typ == type_escaped) THEN
-    WRITE(14, *) 1.D8 * light_speed / package(I)%freq_rf
-   END IF
-  END DO
- CLOSE(14)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! #04 IONIZATION BALANCE
 !

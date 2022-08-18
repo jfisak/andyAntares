@@ -19,6 +19,7 @@ SUBROUTINE read_input(n_pack, iseed)
   iseed = -1  
   eldensfile = 0
   abs_surface = 0
+  saved_grid = 0
 
 ! 001 n_pack
 ! 002 n_nubin
@@ -41,6 +42,8 @@ SUBROUTINE read_input(n_pack, iseed)
 ! 019 inputmodelFile
 ! 020 inputcomposition
 ! 021 eldensfile
+! 022 inputpopfile
+! 023 saved grid
   DO
     READ (1, '(A)', END=99) LINE
 
@@ -199,13 +202,19 @@ SUBROUTINE read_input(n_pack, iseed)
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(A20)', ERR=94) inputpopfile
 
+    ! 23 saved grid
+    ELSE IF (ACTPAR .EQ. 'saved_grid') THEN
+    CALL SARGC (LINE, NPAR)
+    IF (NPAR .LT. 2) GOTO 90
+    CALL SARGV(LINE,2,ACTPAR)
+    READ (ACTPAR, '(I2)', ERR=94) saved_grid
+
     ! end all ifs
     END IF
   END DO
 
 99 CONTINUE
   CLOSE (1)
-
   WRITE (99,'(A,I10)')   'npackages        = ', n_pack
   WRITE (99,'(A,I10)')   'n_nubin          = ', n_nubin
   WRITE (99,'(A,I10)')   'nx_cell          = ', nx_cell
@@ -220,6 +229,8 @@ SUBROUTINE read_input(n_pack, iseed)
   WRITE (99,'(A,I10)') 'dyngrid = ', dyngrid
   WRITE (99,'(A,I10)') 'nlte = ', nlte
   WRITE (99,'(A,I10)') 'eldensfile = ', eldensfile
+  WRITE (99,'(A,I10)') 'velocity profile = ', velApprox
+  WRITE (99,'(A,I10)') 'saved grid = ', saved_grid
   IF (iseed .LE. 0) THEN 
      WRITE (99,'(A)') 'Random-seed value is random '
   ELSE

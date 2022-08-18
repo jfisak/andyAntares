@@ -37,7 +37,8 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
 	  save_output.o gauntff.o counters.o saha_factor.o find_photion_elindex.o \
 	  mpi_distribute_estimators.o save_temp_packs.o find_unfinished_run.o \
 	  lte_pops.o photosphere_interaction.o roverw.o vel_discrete_points.o \
-          next_line_bluered.o resonance_distance2.o read_3D_pseudo3D.o
+          next_line_bluered.o resonance_distance2.o read_3D_pseudo3D.o save_propmod_grid.o \
+	  read_propmod_grid.o
 # end of procedures
 
 #Rules

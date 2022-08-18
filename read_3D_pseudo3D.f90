@@ -73,18 +73,14 @@ OPEN(UNIT=11, FILE=modelfile)
    !model_grid(I)%grid_comp(J)%numb_den = tot_nd
   END DO
 
+ END DO
+
   ! Dummy cell to associate to propagation grid cells which have no representation on the model grid.
   ! All cells out of model grid set to 0 and associate to n_modelgrid.
   ! Other cells will obtainde particular values with memory
   model_grid(n_modelgrid+1)%rwind = 0.D0
   model_grid(n_modelgrid+1)%vel   = 0.D0
   model_grid(n_modelgrid+1)%rho   = 0.D0
-
-
-
- END DO
-
-
 
 
 

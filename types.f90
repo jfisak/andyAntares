@@ -108,6 +108,8 @@ IMPLICIT NONE
   DOUBLE PRECISION, DIMENSION(3)     :: basic_cell_width
   INTEGER                            :: nx_cell, ny_cell, nz_cell, Ngrid, destroyed_pack
   INTEGER                            :: dyngrid
+! information about saved propmod grid
+  INTEGER                            :: saved_grid
 ! NLTE
   INTEGER                            :: nlte
   INTEGER                            :: abs_surface
@@ -126,7 +128,6 @@ IMPLICIT NONE
 
 ! fields for the given types
   TYPE(modelgrid), ALLOCATABLE       :: model_grid(:)
-!  TYPE(grid_cell), ALLOCATABLE       :: cell(:)   
   TYPE(dyn_grid_cell), ALLOCATABLE   :: dyn_cell(:)   
   TYPE(photon), ALLOCATABLE          :: package(:)
 
@@ -137,12 +138,12 @@ IMPLICIT NONE
   INTEGER                            :: idum
 ! is electron density values stored?
   INTEGER                            :: eldensfile
-  CHARACTER(20)                      :: inputpopfile
+  CHARACTER(180)                      :: inputpopfile
 ! debug mode
   INTEGER                            :: debug
 ! flux from existing input file
   INTEGER                            :: inputflux, inputmodel
-  CHARACTER(80)                         :: inputmodelFile, inputcomposition
+  CHARACTER(160)                         :: inputmodelFile, inputcomposition
 ! number of photoionization cross sections
   INTEGER                               :: n_photcrossect, n_tot_cont, n_ff = 0
 ! number of dummy packages
@@ -175,8 +176,8 @@ IMPLICIT NONE
   INTEGER                            :: my_rank
   INTEGER                            :: ierr
   INTEGER                            :: n_tasks
-  CHARACTER(80)                      :: outputfolder=''
-  CHARACTER(80)                      :: outputfile
+  CHARACTER(160)                      :: outputfolder=''
+  CHARACTER(160)                      :: outputfile
 !! Atomic data
  ! Total number of chemical elements in the simulation
   INTEGER                            :: n_elements
@@ -189,7 +190,7 @@ IMPLICIT NONE
   ! number of packets which will be saved into a file
   INTEGER                               :: n_pack_save
   ! temporary file name
-  CHARACTER(30)                     :: temp_filename = 'temp_packet'
+  CHARACTER(160)                     :: temp_filename = 'temp_packet'
   INTEGER                               :: tot_saved_packets
   ! for testing case
   LOGICAL                               :: simpleTrans, orbitals_nl
