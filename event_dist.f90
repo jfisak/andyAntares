@@ -53,6 +53,7 @@ END DO
  tau = 0.D0
  dist = 0.D0
  do_loop = .TRUE.
+ inCell=.FALSE.
 
  !Get the packet's current position on the model grid
  current_mgi = get_package_model_index(pack_index)
@@ -63,7 +64,7 @@ END DO
 
  ! calculates all continuum opacities
  CALL r_kappa_cont(pack_index, kappa_cont, actirrates)
- kappa_cont = 0.D0
+ ! kappa_cont = 0.D0
 
  ! This is the opacity in co-moving frame. Must be transformed to the lab frame
  ! According to Mihalas and Mihalas Eq. 90.8 this is achieved by 

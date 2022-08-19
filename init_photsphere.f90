@@ -69,14 +69,11 @@ SUBROUTINE init_photsphere(n_pack)
     ! Now convert the energy and frequency to their cmf values
     CALL doppler_factor(I, D)
     package(I)%freq_cmf = package(I)%freq_rf * D 
-    !print*, 'frequencies: ', package(I)%freq_cmf, package(I)%freq_rf
     package(I)%e_cmf    = package(I)%e_rf * D  
 
     ! Assine 1 to the last_line whith which package is in resonance
     package(I)%last_line = no_line
     package(I)%delta_s = 0.D0
-    ! print*, package(I)%cell_numb,package(I)%dir !,  package(I)%pos, package(I)% e_rf
-    ! e_cmf, freq_cmf, freq_rf, cell_numb, pack_numb, active
    END IF
   END DO
 
