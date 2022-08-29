@@ -26,13 +26,13 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
           saha_boltzmann_factor.o ionization_fraction.o f_edens.o round_number.o\
           find_e_nd.o part_fun.o update_estimators.o freq_from_file.o rob.o \
           acc_rej_montecarlo.o virtual_particles.o setup_propgrid.o velo_vector.o \
-          create_dynamical_grid_cells.o find_dyn_cell1.o do_spectrum.o\
-          connection_prop_model_grid.o divide_cell_8.o divide_cell_ijk.o  \
-	  next_cell_down.o next_cell_up.o read_2D_model.o populations.o   \
+          create_dynamical_grid_cells.o find_dyn_cell1.o do_spectrum.o read_3D_nico.o\
+          connection_prop_model_grid.o divide_cell_8.o divide_cell_ijk.o \
+	  next_cell_down.o next_cell_up.o read_2D_model.o populations.o  \
 	  i_coltrans.o gamma_function.o exp_int_func.o cool_excit.o read_e_nd.o \
 	  read_photcs.o i_radtrans.o i_radion.o i_colion.o find_populations.o \
 	  flux_function.o find_element_index.o analyse_input.o read_3D_model.o \
-	  r_kappa_cont.o i_freq_recomb.o cool_ff.o warning.o k_freq_ff.o  \
+	  r_kappa_cont.o i_freq_recomb.o cool_ff.o warning.o k_freq_ff.o \
 	  cool_ionization.o cool_fb.o k_freq_fb.o check_pop.o r_kappa_line.o \
 	  save_output.o gauntff.o counters.o saha_factor.o find_photion_elindex.o \
 	  mpi_distribute_estimators.o save_temp_packs.o find_unfinished_run.o \

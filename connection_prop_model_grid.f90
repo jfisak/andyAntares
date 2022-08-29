@@ -21,6 +21,10 @@
   INTEGER                        :: my_n_cells
   INTEGER                       :: N0, Nzbytek
   INTEGER                       :: my_start, my_end, zb
+
+  DOUBLE PRECISION, DIMENSION(3) :: cur_center, cur_mpos
+  DOUBLE PRECISION               :: dist
+  INTEGER                        :: cur_mcell
   
   basic_diagonal = sqrt(basic_cell_width(1)**2 + basic_cell_width(2)**2 + &
                         basic_cell_width(3)**2)
@@ -178,6 +182,27 @@
      dyn_cell(I)%model_index = I
      model_grid(I)%assoc_cells = model_grid(I)%assoc_cells + 1
     END DO
+   CASE(1)
+    DO I = 1, max_n_dcell
+     IF(dyn_cell(I)%up_cell == 0) THEN
+      delta = 1.D99
+      cur_mcell = 0
+      cur_center = dyn_cell(I)%corner + dyn_cell(I)%width/2.0
+      DO J = 1, n_modelgrid
+       cur_mpos = model_grid(I)%vec_pos
+       dist = sqrt((cur_center(1) - cur_mpos(1))**2.0 + (cur_center(2) - cur_mpos(2))**2.0 +&
+        (cur_center(3) - cur_mpos(3))**2.0)
+       IF(dist < delta) delta = dist
+       cur_mcell = J
+      END DO
+      dyn_cell(I)%model_index = cur_mcell
+      diagonal = sqrt(dyn_cell(I)%width(1)**2+dyn_cell(I)%width(3)**2)/2.D0
+      IF((delta > diagonal) .AND. (dyn_cell(I)%width(1) > basic_cell_width(1)/2.D0**6)) THEN
+       dyn_cell(I)%model_index = n_modelgrid + add_mg
+       model_grid(n_modelgrid + add_mg)%assoc_cells = model_grid(n_modelgrid + add_mg)%assoc_cells + 1
+      END IF
+     END IF ! up_cell == 0
+    END DO ! 
    CASE DEFAULT
    END SELECT
   END IF

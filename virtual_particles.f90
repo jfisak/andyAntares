@@ -27,7 +27,7 @@ SUBROUTINE virtual_particles(dimIM)
  INTEGER                        :: sumpart = 0, zbytek
 
 
-OPEN(20,FILE="virtual_particles.dat")
+! OPEN(20,FILE="virtual_particles.dat")
 SELECT CASE (dimIM)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!! 1D MODEL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -103,7 +103,7 @@ CASE(1)
    NP = NP + 1
    CALL random_unitvector(direction)
    virtual_particle(NP)%pos = radius * direction
-   write(20,*) virtual_particle(NP)%pos(1), virtual_particle(NP)%pos(2), virtual_particle(NP)%pos(3)
+   ! write(20,*) virtual_particle(NP)%pos(1), virtual_particle(NP)%pos(2), virtual_particle(NP)%pos(3)
   END DO
  END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -182,9 +182,11 @@ CASE(2)
  !  IF(norm2(virtual_particle(I)%pos) < R_star) STOP '||r||_vp < R_star'
  ! END DO
 
+CASE(3)
+ RETURN
 CASE DEFAULT
  STOP 'wrong choice of input model dimension...'
 END SELECT
-CLOSE(20)
+! CLOSE(20)
 
 END SUBROUTINE

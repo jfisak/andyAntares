@@ -34,7 +34,20 @@ n_cell = (/ nx_cell, ny_cell, nz_cell /)
 !  END IF
 ! END DO
 
-! write(*,*) 'find_dyn_cell1: pos = ', pos 
+! bounds test
+IF(pos(1) > xmax .or. pos(1) < -xmax) THEN
+ actCell = -99
+ RETURN
+END IF
+IF(pos(2) > xmax .or. pos(2) < -xmax) THEN
+ actCell = -99
+ RETURN
+END IF
+IF(pos(3) > xmax .or. pos(3) < -xmax) THEN
+ actCell = -99
+ RETURN
+END IF
+
 ! firstly we can compute which basic cell this point contains
 bcell(1) = FLOOR(pos(1)/basic_cell_width(1) + dble(nx_cell)/2.D0) + 1
 bcell(2) = FLOOR(pos(2)/basic_cell_width(2) + dble(ny_cell)/2.D0) + 1
