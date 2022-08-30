@@ -144,24 +144,6 @@ CASE(2)
    END IF
   END DO
  END DO
- ! printing number of points for each model grid
-! DO I = 1, n_modelgrid
-!  print*, nOfPoints(I)
-! END DO
-! DO I = 1, n_modelgrid !  nOfPoints(I) = 0
-! END DO
-! DO WHILE(NP < Npart)
-!  rand_r = ran2(idum)
-!  rand_rho = rhomax * ran2(idum + 1)
-!  loc_rad = INT(FLOOR(1 + (n_modelgrid - 1) * rand_rho))
-!!  print*, 'virtual_particles: rand_r = ', rand_r, ' rand_rho = ', rand_rho, ' loc_rad = ', loc_rad
-!  IF(rand_rho <= model_grid(loc_rad)%rho) THEN
-!   nOfPoints(loc_rad) = nOfPoints(loc_rad) + 1
-!   NP = NP + 1
-!   print*, 'found NP = ', NP
-!  END IF
-! END DO
-! 
  ! we have zero particles located
  NP = 0
  ! distribution of particles on the shell of the radius R
@@ -181,9 +163,12 @@ CASE(2)
  ! DO I = 1, Nvirtpart
  !  IF(norm2(virtual_particle(I)%pos) < R_star) STOP '||r||_vp < R_star'
  ! END DO
-
+ 
 CASE(3)
- RETURN
+ ALLOCATE(virtual_particle(n_modelgrid))
+ DO I = 1, n_modelgrid
+  virtual_particle(I)%pos = model_grid(I)%vec_pos
+ END DO
 CASE DEFAULT
  STOP 'wrong choice of input model dimension...'
 END SELECT

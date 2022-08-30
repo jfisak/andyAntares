@@ -227,6 +227,10 @@ CASE(2)
   dimofsubcells(1) = FLOOR(np**(1.0/2.0))
   dimofsubcells(2) = FLOOR(np**(1.0/2.0))
   dimofsubcells(3) = FLOOR(np**(1.0/2.0))
+ ELSE IF(model_type == 3) THEN
+  dimofsubcells(1) = FLOOR(np**(1.0/4.0))
+  dimofsubcells(2) = FLOOR(np**(1.0/4.0))
+  dimofsubcells(3) = FLOOR(np**(1.0/4.0))
  ELSE
   dimofsubcells(1) = FLOOR(np**(4.0/1.0))
   dimofsubcells(2) = FLOOR(np**(4.0/1.0))
@@ -238,9 +242,9 @@ CASE(2)
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   up_bound = SIZE(dyn_cell(:))
   if(max_n_dcell + no_dcells >= up_bound) then
-  ! print*, 'creating a larger array dyn_cell...'
+  write(*,*)  'creating a larger array dyn_cell...'
    ! define a new upper bound
-   newbound =  up_bound + 2 * no_dcells
+   newbound =  up_bound + 2.0 * no_dcells
    ALLOCATE(pom2(up_bound))
    do I = 1, up_bound
     pom2(I) = dyn_cell(I)
@@ -257,10 +261,7 @@ CASE(2)
 !         max_n_dcell, ' dimofsubcells = ', dimofsubcells, 'dim(dyn_cell) = ', size(dyn_cell)
   IF(np >= 8 .OR. no_dcells > 1) THEN
    CALL divide_cell_ijk(n_dyncell, max_n_dcell, dimofsubcells)
-   ! write(*,*) 'create_dynamical_grid_cells: PRE max_n_dcell = ', max_n_dcell
-   ! write(*,*) 'create_dynamical_grid_cells: no_dcells = ', no_dcells
    max_n_dcell = max_n_dcell + no_dcells
-   ! write(*,*) 'create_dynamical_grid_cells: POST max_n_dcell = ', max_n_dcell
   END IF
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

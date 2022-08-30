@@ -35,9 +35,9 @@ OPEN(UNIT=11, FILE=modelfile)
 
  END DO
 
- ALLOCATE(model_grid(n_mgi + add_mg))
+ n_modelgrid = n_mgi
 
- write(*,*) 'read_3D_nico: n_modelgrid = ', n_mgi
+ ALLOCATE(model_grid(n_modelgrid + add_mg))
 
  REWIND(11)
 
@@ -80,9 +80,9 @@ OPEN(UNIT=11, FILE=modelfile)
   IF(cur_radius > cur_rinf) cur_rinf = cur_radius
   IF(cur_velocity > cur_vinf) cur_vinf = cur_velocity
 
-  IF(abs(x) > xmax) cur_xmax = x
-  IF(abs(y) > ymax) cur_ymax = y
-  IF(abs(z) > zmax) cur_zmax = z
+  IF(abs(x) > cur_xmax) cur_xmax = abs(x)
+  IF(abs(y) > cur_ymax) cur_ymax = abs(y)
+  IF(abs(z) > cur_zmax) cur_zmax = abs(z)
 
   
   model_grid(cur_mgi)%J = 0.D0
