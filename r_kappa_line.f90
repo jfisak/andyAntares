@@ -19,7 +19,6 @@ DOUBLE PRECISION                :: corrFactor
 DOUBLE PRECISION                :: constanta
 DOUBLE PRECISION                :: roverw
 INTEGER                         :: dummypackage
-INTEGER                         :: n_eqf_lines 
 ! calculation of optical depth
 ! the basic variables
 

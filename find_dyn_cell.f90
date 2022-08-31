@@ -4,7 +4,7 @@
    USE types
    IMPLICIT NONE
 
-   INTEGER                              :: I, actual_cell
+   INTEGER                              :: actual_cell
    ! position
    DOUBLE PRECISION, DIMENSION(3)       :: pos, width
    LOGICAL                              :: xpl, ypl, zpl

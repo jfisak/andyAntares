@@ -4,7 +4,7 @@ SUBROUTINE analyse_input()
 USE types
 IMPLICIT NONE
 
-LOGICAL                         :: inp_model_exists, eldensfile_exists, inputcomp_exists
+LOGICAL                         :: inp_model_exists, inputcomp_exists
 
 
 

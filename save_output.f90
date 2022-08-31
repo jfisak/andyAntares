@@ -16,12 +16,7 @@ IMPLICIT NONE
 
 ! type of output
 INTEGER                                 :: otype
-! date and time info
-INTEGER, DIMENSION (9)            :: TT
 ! folder variables
-! CHARACTER(LEN=30)                       :: outputfolder
-LOGICAL                                 :: dirExists
-CHARACTER(LEN=30)                       :: mkdirCMD
 CHARACTER(LEN=60)                       :: lineOutput
 ! save informations about lines
 INTEGER                                 :: I, J, K
@@ -31,7 +26,7 @@ DOUBLE PRECISION                        :: wavle
 INTEGER                                 :: act_elem, act_ion, act_lev
 DOUBLE PRECISION                        :: act_pop
 DOUBLE PRECISION                        :: eenergy
-CHARACTER(LEN=60)                       :: fileTempStruct, fileOccNum, fileFreqs
+CHARACTER(LEN=60)                       :: fileTempStruct, fileOccNum
 CHARACTER(LEN=60)                       :: fileHydrogenFrac, fileHeliumFrac
 CHARACTER(LEN=60)                       :: fileGrid, filePart
 ! ionization fraction files

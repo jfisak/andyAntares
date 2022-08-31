@@ -29,8 +29,6 @@
    DOUBLE PRECISION, DIMENSION(3)       :: loc_corner, loc_cell_width
    INTEGER                              :: loc_np
    INTEGER                              :: loc_downcell, loc_upcell
-   INTEGER                              :: current_mgi
-   DOUBLE PRECISION                     :: width
     ! for 8-dyncells
 
 corner(1) = dyn_cell(n_dyncell)%corner(1)
@@ -244,7 +242,7 @@ CASE(2)
   if(max_n_dcell + no_dcells >= up_bound) then
   write(*,*)  'creating a larger array dyn_cell...'
    ! define a new upper bound
-   newbound =  up_bound + 2.0 * no_dcells
+   newbound =  up_bound + 2 * no_dcells
    ALLOCATE(pom2(up_bound))
    do I = 1, up_bound
     pom2(I) = dyn_cell(I)

@@ -30,6 +30,8 @@ LOGICAL                                 :: incellmode
 
 INTEGER                                 :: dummypackage
 
+DOUBLE PRECISION, DIMENSION(8,3)        :: cube_pos
+
 dummypackage = SIZE(package)
 
 
@@ -49,7 +51,11 @@ rel_pos = act_pos - act_center
 
 
 ! cell neighbour numbers
-CALL oct_neighbors(pack_index, rel_pos, velgridcells, incellmode)
+IF(dyngrid == 0) THEN
+ CALL oct_neighbors(pack_index, rel_pos, velgridcells, incellmode)
+ELSE IF(dyngrid > 0) THEN
+ CALL oct_virtcube(pack_index, rel_pos, cube_pos, incellmode)
+END IF
 ! a special case when some neighbor cells do not exist, because we are close bound to the compuational domain
 ! we will choose initial points on the bound of the current propagation grid instead
 IF(incellmode) THEN ! incellmode
@@ -59,14 +65,25 @@ IF(incellmode) THEN ! incellmode
 ! IF(pack_index == 1) THEN
 ELSE ! incellmode
  DO I = 1,4
-  cur_cell1 = velgridcells(2*I -1)
-  cur_mgi1 = dyn_cell(cur_cell1)%model_index
-  cur_pos1 = dyn_cell(cur_cell1)%corner + dyn_cell(cur_cell1)%width/2.0
+  IF(dyngrid == 0) THEN
+   cur_cell1 = velgridcells(2*I -1)
+   cur_mgi1 = dyn_cell(cur_cell1)%model_index
+   cur_pos1 = dyn_cell(cur_cell1)%corner + dyn_cell(cur_cell1)%width/2.0
+   
+   cur_cell2 = velgridcells(2*I)
+   cur_mgi2 = dyn_cell(cur_cell2)%model_index
+   cur_pos2 = dyn_cell(cur_cell2)%corner + dyn_cell(cur_cell2)%width/2.0
+  ELSE IF (dyngrid > 0) THEN
+   cur_pos1 = cube_pos(2*I - 1, :)
+   CALL find_dyn_cell1(cur_pos1, cur_cell1)
+   cur_mgi1 = dyn_cell(cur_cell1)%model_index
+
+   cur_pos2 = cube_pos(2*I, :)
+   CALL find_dyn_cell1(cur_pos2, cur_cell2)
+   cur_mgi2 = dyn_cell(cur_cell2)%model_index
+  END IF
   CALL velo_vector(cur_pos1, cur_mgi1, cur_vel1)
-  
-  cur_cell2 = velgridcells(2*I)
-  cur_mgi2 = dyn_cell(cur_cell2)%model_index
-  cur_pos2 = dyn_cell(cur_cell2)%corner + dyn_cell(cur_cell2)%width/2.0
+
   CALL velo_vector(cur_pos2, cur_mgi2, cur_vel2)
  
   CALL lin_interpolation(act_pos(3), cur_vel1, cur_pos1(3), cur_vel2, cur_pos2(3), e_point(:,I))

@@ -35,16 +35,17 @@ n_cell = (/ nx_cell, ny_cell, nz_cell /)
 ! END DO
 
 ! bounds test
+
 IF(pos(1) > xmax .or. pos(1) < -xmax) THEN
- actCell = -99
+ actual_cell = -99
  RETURN
 END IF
 IF(pos(2) > xmax .or. pos(2) < -xmax) THEN
- actCell = -99
+ actual_cell = -99
  RETURN
 END IF
 IF(pos(3) > xmax .or. pos(3) < -xmax) THEN
- actCell = -99
+ actual_cell = -99
  RETURN
 END IF
 
@@ -52,19 +53,9 @@ END IF
 bcell(1) = FLOOR(pos(1)/basic_cell_width(1) + dble(nx_cell)/2.D0) + 1
 bcell(2) = FLOOR(pos(2)/basic_cell_width(2) + dble(ny_cell)/2.D0) + 1
 bcell(3) = FLOOR(pos(3)/basic_cell_width(3) + dble(nz_cell)/2.D0) + 1
-! tests
-! DO I = 1,3
-!  write(*,*) 'find_dyn_cell1: pos  = ', pos(I)/R_inf
-!  write(*,*) 'find_dyn_cell1: pos/width = ', pos(I)/basic_cell_width(I), ' + '
-!  write(*,*) 'find_dyn_cell1: pos/width = ', dble(n_cell(I))/2.D0, ' = '
-!  write(*,*) 'find_dyn_cell1: pos/width = ', pos(I)/basic_cell_width(I) + dble(n_cell(I))/2.D0
-!  write(*,*) 'find_dyn_cell1: floor = ', FLOOR(pos(I)/basic_cell_width(I) + dble(n_cell(I))/2.D0)
-! END DO
-! write(*,*) 'find_dyn_cell1: bcell = ', bcell
-!
+
 ! index of the given basic cell
 bindex = (bcell(1) - 1) * ny_cell * nz_cell + (bcell(2) - 1) * nz_cell + bcell(3)
-! write(*,*) 'find_dyn_cell1: bindex = ', bindex
 ! initial setting of the local variable corresponding to the actual cell
 actCell = bindex
 ! if there is no dynamical cell in the given basic cell
@@ -145,15 +136,14 @@ CASE(2)
  ELSE IF(MODULO(rat3,1.0) == 0.0) THEN
   sub_nz = INT(rat3)
  END IF
-! write(*,*) 'find_dyn_cell1: sub_nx = ', sub_nx, ' sub_ny = ', sub_ny, ' sub_nz = ', sub_nz
+
  subind_x = FLOOR((pos(1) - dyn_cell(actcell)%corner(1))/subcells_width(1)) + 1
  subind_y = FLOOR((pos(2) - dyn_cell(actcell)%corner(2))/subcells_width(2)) + 1
  subind_z = FLOOR((pos(3) - dyn_cell(actcell)%corner(3))/subcells_width(3)) + 1
-! print*, 'find_dyn_cell1:', subind_x, subind_y, subind_z
+
  actual_cell = dyn_cell(actcell)%up_cell + &
         sub_ny * sub_nz * (subind_x - 1) + &
         sub_nz * (subind_y - 1) + subind_z - 1
-! print*, 'find_dyn_cell1: actual_cell = ', actual_cell
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! default case
