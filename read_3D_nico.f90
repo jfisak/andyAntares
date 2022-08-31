@@ -11,7 +11,7 @@ DOUBLE PRECISION                        :: cur_xmax, cur_ymax, cur_zmax
 
 INTEGER                                 :: reading_models
 
-CHARACTER(180)                           :: line, modelfile
+CHARACTER(500)                           :: line, modelfile
 
 INTEGER                                  :: numbions, atom_number
 INTEGER                                  :: I, J
@@ -53,6 +53,7 @@ OPEN(UNIT=11, FILE=modelfile)
  DO
 
   READ(11, '(A)', IOSTAT=reading_models) line
+  write(*,*) 'read_3D_nico: line = ', line
   IF(line(1:1) == '*') CYCLE
   IF(reading_models /= 0) EXIT
 
