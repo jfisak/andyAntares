@@ -36,6 +36,7 @@ OPEN(UNIT=11, FILE=modelfile)
  END DO
 
  n_modelgrid = n_mgi
+ write(*,*) 'read_3D_nico: n_modelgrid = ', n_modelgrid
 
  ALLOCATE(model_grid(n_modelgrid + add_mg))
 
@@ -53,7 +54,6 @@ OPEN(UNIT=11, FILE=modelfile)
  DO
 
   READ(11, '(A)', IOSTAT=reading_models) line
-  write(*,*) 'read_3D_nico: line = ', line
   IF(line(1:1) == '*') CYCLE
   IF(reading_models /= 0) EXIT
 
@@ -64,6 +64,7 @@ OPEN(UNIT=11, FILE=modelfile)
   model_grid(cur_mgi)%vec_pos(1) = x * R_sun
   model_grid(cur_mgi)%vec_pos(2) = y * R_sun
   model_grid(cur_mgi)%vec_pos(3) = z * R_sun
+  model_grid(cur_mgi)%rwind = sqrt(x**2 + y**2 + z**2) * R_sun
 
   cur_radius = R_sun * sqrt(x**2 + y**2 + z**2)
 
@@ -72,6 +73,11 @@ OPEN(UNIT=11, FILE=modelfile)
   model_grid(cur_mgi)%vec_vel(3) = vz
 
   cur_velocity = sqrt(vx**2 + vy**2 + vz**2)
+  IF(cur_velocity > light_speed) THEN
+   write(*,*) 'read_3D_nico: the velocity of the point I = ', cur_velocity,&
+    ' is larger than the speed of light'
+   CALL abort()
+  END IF
 
   model_grid(cur_mgi)%rho = rho
   model_grid(cur_mgi)%T = temp
@@ -103,13 +109,27 @@ OPEN(UNIT=11, FILE=modelfile)
 
  END DO
 
+! Dummy cell to associate to propagation grid cells which have no representation on the model grid.
+! All cells out of model grid set to 0 and associate to n_modelgrid.
+! Other cells will obtainde particular values with memory
+model_grid(n_modelgrid + add_mg)%vec_vel = (/ 0.e0, 0.e0, 0.e0 /)
+model_grid(n_modelgrid+add_mg)%rwind = 0.D0
+model_grid(n_modelgrid+add_mg)%vel   = 0.D0
+model_grid(n_modelgrid+add_mg)%rho   = 0.D0
+  
  T_eff = cur_Teff
+ ! only for testing, TEMPORARY
+ T_eff = 14734.4140625
  R_star = cur_rstar
  R_inf = cur_rinf
+ R_inf = 5615999915130880.000
  V_inf = cur_vinf
- xmax = cur_xmax * R_sun
- ymax = cur_ymax * R_sun
- zmax = cur_zmax * R_sun
+ V_inf = 3000000000.000
+ xmax = (cur_xmax + cur_xmax / nx_cell) * R_sun  
+ ymax = (cur_ymax + cur_ymax / ny_cell) * R_sun 
+ zmax = (cur_zmax + cur_zmax / nz_cell) * R_sun 
+ write(*,*) 'read_3D_nico: T_eff = ', T_eff, 'R_star = ', R_star, ' R_inf = ', R_inf, ' V_inf = ', V_inf
+ write(*,*) 'read_3D_nico: xmax = ', xmax, ' ymax = ', ymax, ' zmax = ', zmax
 
 CLOSE(11)
 

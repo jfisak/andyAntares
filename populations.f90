@@ -10,7 +10,7 @@ INTEGER                         :: indexe, indexi, level, model_cell
 DOUBLE PRECISION                :: pop_number
 ! local variables for LTE
 DOUBLE PRECISION                :: ground_level_pop, g_gstat, g_stat, e_exc
-DOUBLE PRECISION                :: abund, rho, atom_mass
+DOUBLE PRECISION                :: abund, rho, atom_mass, temp
 DOUBLE PRECISION, PARAMETER     :: minpop = 1.D-50
 
 IF(indexe <= 0) THEN
@@ -43,10 +43,14 @@ CASE(0)
  rho = model_grid(model_cell)%rho
  abund = model_grid(model_cell)%grid_comp(indexe)%abund
  atom_mass = elements(indexe)%atom_mass
+ temp = model_grid(model_cell)%T
  
  pop_number = ground_level_pop * g_stat / g_gstat * &
-        exp(-e_exc / BOLK / model_grid(model_cell)%T )! * &
+        exp(-e_exc / BOLK / temp )! * &
  ! if(indexe == 1 .and. indexi == 1 .and. level == 5) pop_number = 2.00 * pop_number
+ ! write(*,*) 'populations: rho = ', rho, ' abund = ', abund, ' temp = ', temp
+ ! write(*,*) 'populations: ground_level_pop = ', ground_level_pop
+ ! write(*,*) 'populations: 
  IF(pop_number < minpop) pop_number = 1.D-50
 CASE(1)
  STOP 'NLTE is not supported yet'

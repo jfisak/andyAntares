@@ -188,19 +188,27 @@
       delta = 1.D99
       cur_mcell = 0
       cur_center = dyn_cell(I)%corner + dyn_cell(I)%width/2.0
-      DO J = 1, n_modelgrid
-       cur_mpos = model_grid(I)%vec_pos
-       dist = sqrt((cur_center(1) - cur_mpos(1))**2.0 + (cur_center(2) - cur_mpos(2))**2.0 +&
-        (cur_center(3) - cur_mpos(3))**2.0)
-       IF(dist < delta) delta = dist
-       cur_mcell = J
-      END DO
-      dyn_cell(I)%model_index = cur_mcell
-      diagonal = sqrt(dyn_cell(I)%width(1)**2+dyn_cell(I)%width(3)**2)/2.D0
-      IF((delta > diagonal) .AND. (dyn_cell(I)%width(1) > basic_cell_width(1)/2.D0**6)) THEN
+      IF(norm2(cur_center) > R_inf .or. norm2(cur_center) < R_star) THEN
        dyn_cell(I)%model_index = n_modelgrid + add_mg
        model_grid(n_modelgrid + add_mg)%assoc_cells = model_grid(n_modelgrid + add_mg)%assoc_cells + 1
+       CYCLE
       END IF
+      DO J = 1, n_modelgrid
+       cur_mpos = model_grid(J)%vec_pos
+       dist = sqrt((cur_center(1) - cur_mpos(1))**2.0 + (cur_center(2) - cur_mpos(2))**2.0 +&
+        (cur_center(3) - cur_mpos(3))**2.0)
+       IF(dist < delta) THEN
+        delta = dist
+        cur_mcell = J
+       END IF
+      END DO
+      dyn_cell(I)%model_index = cur_mcell
+      model_grid(cur_mcell)%assoc_cells = model_grid(cur_mcell)%assoc_cells + 1
+      diagonal = sqrt(dyn_cell(I)%width(1)**2+dyn_cell(I)%width(3)**2)/2.D0
+      ! IF((delta > diagonal) .AND. (dyn_cell(I)%width(1) > basic_cell_width(1)/2.D0**6)) THEN
+      !  dyn_cell(I)%model_index = n_modelgrid + add_mg
+      !  model_grid(n_modelgrid + add_mg)%assoc_cells = model_grid(n_modelgrid + add_mg)%assoc_cells + 1
+      ! END IF
      END IF ! up_cell == 0
     END DO ! 
    CASE DEFAULT
@@ -231,5 +239,8 @@ END DO
 !  DO I = 1, n_modelgrid + 1
 !     print*, I, model_grid(I)%assoc_cells
 !  END DO
+DO I = 1, max_n_dcell
+ write(39,*) dyn_cell(I)%corner, dyn_cell(I)%width, dyn_cell(I)%model_index
+END DO
 
   END SUBROUTINE connection_prop_model_grid

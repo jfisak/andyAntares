@@ -55,6 +55,7 @@ OPEN(UNIT=11, FILE=modelfile)
  DO I = 1, n_modelgrid
   READ(11, *) pos, vel, dens, temp
   model_grid(I)%vec_pos = pos  * R_star
+  model_grid(I)%rwind = norm2(pos) * R_star
   model_grid(I)%vec_vel = vel
   model_grid(I)%rho = dens
   model_grid(I)%T = temp
@@ -78,10 +79,14 @@ OPEN(UNIT=11, FILE=modelfile)
   ! Dummy cell to associate to propagation grid cells which have no representation on the model grid.
   ! All cells out of model grid set to 0 and associate to n_modelgrid.
   ! Other cells will obtainde particular values with memory
-  model_grid(n_modelgrid+1)%rwind = 0.D0
-  model_grid(n_modelgrid+1)%vel   = 0.D0
-  model_grid(n_modelgrid+1)%rho   = 0.D0
+  model_grid(n_modelgrid + add_mg)%vec_vel = (/ 0.e0, 0.e0, 0.e0 /)
+  model_grid(n_modelgrid+add_mg)%rwind = 0.D0
+  model_grid(n_modelgrid+add_mg)%vel   = 0.D0
+  model_grid(n_modelgrid+add_mg)%rho   = 0.D0
 
+ 
+  write(*,*) 'read_3D_pseudo3D: T_eff = ', T_eff, 'R_star = ', R_star, ' R_inf = ', R_inf, ' V_inf = ', V_inf
+  write(*,*) 'read_3D_pseudo3D: xmax = ', xmax, ' ymax = ', ymax, ' zmax = ', zmax
 
 
 CLOSE(11)
