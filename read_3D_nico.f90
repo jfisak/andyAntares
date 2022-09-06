@@ -118,13 +118,9 @@ model_grid(n_modelgrid+add_mg)%vel   = 0.D0
 model_grid(n_modelgrid+add_mg)%rho   = 0.D0
   
  T_eff = cur_Teff
- ! only for testing, TEMPORARY
- T_eff = 14734.4140625
  R_star = cur_rstar
  R_inf = cur_rinf
- R_inf = 5615999915130880.000
  V_inf = cur_vinf
- V_inf = 3000000000.000
  xmax = (cur_xmax + cur_xmax / nx_cell) * R_sun  
  ymax = (cur_ymax + cur_ymax / ny_cell) * R_sun 
  zmax = (cur_zmax + cur_zmax / nz_cell) * R_sun 
