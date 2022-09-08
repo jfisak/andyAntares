@@ -13,7 +13,7 @@ IMPLICIT NONE
 ! Type Definitions
 
   TYPE dyn_grid_cell
-      INTEGER                        :: model_index
+      INTEGER                        :: model_index, n_virt=0
       INTEGER                        :: cell_index, up_cell, down_cell
       INTEGER, DIMENSION(6)          :: neighbor
       DOUBLE PRECISION, DIMENSION(3) :: corner, width
@@ -93,11 +93,11 @@ IMPLICIT NONE
      TYPE(element_ions), ALLOCATABLE :: ions(:)
   END TYPE atom_elements
 
-  TYPE virt_particle
+  TYPE virt_point
      DOUBLE PRECISION, DIMENSION(3)  :: pos
      DOUBLE PRECISION                :: weight
      INTEGER                         :: n_cell
-  END TYPE virt_particle
+  END TYPE virt_point
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -121,8 +121,8 @@ IMPLICIT NONE
   INTEGER                            :: n_nubin, n_modelgrid
   ! additional model grid variables
   INTEGER                            :: add_mg
-  ! number of virtual particles
-  INTEGER                            :: Nvirtpart
+  ! number of virtual point
+  INTEGER                            :: Nvirtpoint
   ! velocity approximation
   INTEGER                            :: velApprox
 
@@ -133,7 +133,7 @@ IMPLICIT NONE
 
   TYPE(line_list), ALLOCATABLE       :: linelist(:)
   TYPE(atom_elements), ALLOCATABLE   :: elements(:)
-  TYPE(virt_particle), ALLOCATABLE   :: virtual_particle(:)
+  TYPE(virt_point), ALLOCATABLE   :: virtual_point(:)
 ! variable for random number generation
   INTEGER                            :: idum
 ! is electron density values stored?

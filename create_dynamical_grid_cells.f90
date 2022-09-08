@@ -6,20 +6,20 @@
    IMPLICIT NONE
    
    INTEGER                              :: n_dyncell
-   ! TYPE(virt_particle), DIMENSION(Npart):: v_part
+   ! TYPE(virt_point), DIMENSION(Npart):: v_part
    ! number of created dynamic cells and
    ! actual number of grid cell
    INTEGER                              :: max_n_dcell, act_n_dyncell
    INTEGER                              :: I,J
-   INTEGER                              :: Npart, np
+   INTEGER                              :: Npart, n_points
    ! number of new created cells in cell
    INTEGER                              :: no_dcells
    ! variables for boundaries
    INTEGER                              :: up_bound, newbound
-   ! maximal number of particles in one cell
+   ! maximal number of point in one cell
    INTEGER, PARAMETER                   :: maxPart = 1
    DOUBLE PRECISION, DIMENSION(3)       :: corner, cell_width_2
-   TYPE(virt_particle), ALLOCATABLE     :: local_particle(:), pom(:)
+   TYPE(virt_point), ALLOCATABLE     :: local_point(:), pom(:)
    TYPE(dyn_grid_cell), ALLOCATABLE     ::  pom2(:)
    ! dimension of the subcell grid
    INTEGER, DIMENSION(3)                :: dimofsubcells
@@ -37,46 +37,9 @@ corner(3) = dyn_cell(n_dyncell)%corner(3)
 cell_width_2(1) = dyn_cell(n_dyncell)%width(1)
 cell_width_2(2) = dyn_cell(n_dyncell)%width(2)
 cell_width_2(3) = dyn_cell(n_dyncell)%width(3)
-! at first we have to know, how many particles are
+! at first we have to know, how many points are located
 ! in the given cell
- np = 0
- up_bound = 100
- ! temporary solution
- Npart = SIZE(virtual_particle)
- ALLOCATE(local_particle(up_bound))
-DO J = 1, Npart
- ! is the virtual point in this cell?
- ! IF((v_part(J)%pos(1) >= corner(1)) .AND. &
- !    (v_part(J)%pos(1) < (corner(1) + cell_width_2(1))) .AND. &
- !    (v_part(J)%pos(2) >= corner(2)) .AND. &
- !    (v_part(J)%pos(2) < (corner(2) + cell_width_2(2))) .AND. &
- !    (v_part(J)%pos(3) >= corner(3)) .AND. &
- !    (v_part(J)%pos(3) < (corner(3) + cell_width_2(3)))) THEN
- ! write(*,*) 'create_dynamical_grid_cells: n_cell = ', virtual_particle(J)%n_cell
- IF(virtual_particle(J)%n_cell == n_dyncell) THEN
- ! print*, 'we have a new catched virtual point :-)'
-  np = np + 1
-  ! if the field is full, we will have to increase its size
-  if(np == up_bound) then
-   ! define a new upper bound
-   newbound = 2 * up_bound
-   ALLOCATE(pom(up_bound))
-   do I = 1, up_bound
-    pom(I) = local_particle(I)
-   end do
-   DEALLOCATE(local_particle)
-   ALLOCATE(local_particle(newbound))
-   do I = 1, up_bound
-    local_particle(I) = pom(I)
-   end do
-   DEALLOCATE(pom)
-   up_bound = newbound
-  end if
-  local_particle(np) = virtual_particle(J)
- !  write(*,*) 'create_dynamical_grid_cells: pos = ', local_particle(np)%pos
- END IF
-END DO
-!  print*, 'create_dynamical_grid_cells: number of particles: ', np
+n_points = dyn_cell(n_dyncell)%n_virt
 SELECT CASE(dyngrid)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!§§
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!§§
@@ -84,9 +47,11 @@ SELECT CASE(dyngrid)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!§§
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!§§
 CASE(1)
-! we have found particles included in this basic cell
+ALLOCATE(local_point(n_points))
+
+! we have found point included in this basic cell
 ! now we have to generate brand new dynamical cell
-! if the number of particles np is equal to one or two
+! if the number of point n_points is equal to one or two
 ! we don't have to allocate any new dynamical cells
 ! number of the dynamic grid cell
 ! firstly for the basic cell division
@@ -97,7 +62,7 @@ no_dcells = 8
 ! start: large loop
 DO
 ! print*, 'create_dynamical_grid_cells: act_n_dyncell = ', act_n_dyncell
-! local number of particles is in the begining of cycle = 0
+! local number of point is in the begining of cycle = 0
   loc_np = 0
   loc_corner(1) = dyn_cell(act_n_dyncell)%corner(1)
   loc_corner(2) = dyn_cell(act_n_dyncell)%corner(2)
@@ -107,27 +72,27 @@ DO
   loc_cell_width(3) = dyn_cell(act_n_dyncell)%width(3)
   loc_upcell = dyn_cell(act_n_dyncell)%up_cell
   loc_downcell = dyn_cell(act_n_dyncell)%down_cell
- ! how many virtual particles is there in this subcell
+ ! how many virtual point is there in this subcell
  IF(next_cell .EQV. .FALSE.) THEN
-  ! start: calculating number of local particles
-  DO J = 1, np
-   IF((local_particle(J)%pos(1) >= loc_corner(1)) .AND. &
-     (local_particle(J)%pos(1) < (loc_corner(1) + loc_cell_width(1))) .AND. &
-     (local_particle(J)%pos(2) >= loc_corner(2)) .AND. &
-     (local_particle(J)%pos(2) < (loc_corner(2) + loc_cell_width(2))) .AND. &
-     (local_particle(J)%pos(3) >= loc_corner(3)) .AND. &
-     (local_particle(J)%pos(3) < (loc_corner(3) + loc_cell_width(3)))) THEN
-   !print*, 'found a particle number ', loc_np + 1
+  ! start: calculating number of local point
+  DO J = 1, n_points
+   IF((local_point(J)%pos(1) >= loc_corner(1)) .AND. &
+     (local_point(J)%pos(1) < (loc_corner(1) + loc_cell_width(1))) .AND. &
+     (local_point(J)%pos(2) >= loc_corner(2)) .AND. &
+     (local_point(J)%pos(2) < (loc_corner(2) + loc_cell_width(2))) .AND. &
+     (local_point(J)%pos(3) >= loc_corner(3)) .AND. &
+     (local_point(J)%pos(3) < (loc_corner(3) + loc_cell_width(3)))) THEN
+   !print*, 'found a point number ', loc_n_points + 1
    loc_np = loc_np + 1
   END IF
- ! stop: calculating number of local particles
+ ! stop: calculating number of local point
   END DO
  ELSE
   loc_np = 0
   next_cell = .FALSE.
  END IF
  ! now we have to decide what to do on the basement of number of
- ! local particles
+ ! local point
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!§§
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!§§
  ! 1. the division of the cells is good enough
@@ -180,7 +145,6 @@ DO
     ! do we need to resize dyn_cell?
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     if(max_n_dcell + no_dcells >= up_bound) then
-    ! print*, 'creating a larger array dyn_cell...'
      ! define a new upper bound
      newbound = 2 * up_bound
      ALLOCATE(pom2(up_bound))
@@ -222,27 +186,33 @@ END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CASE(2)
  IF(model_type == 1) THEN
-  dimofsubcells(1) = FLOOR(np**(1.0/2.0))
-  dimofsubcells(2) = FLOOR(np**(1.0/2.0))
-  dimofsubcells(3) = FLOOR(np**(1.0/2.0))
+  dimofsubcells(1) = FLOOR(n_points**(1.0/2.0))
+  dimofsubcells(2) = FLOOR(n_points**(1.0/2.0))
+  dimofsubcells(3) = FLOOR(n_points**(1.0/2.0))
  ELSE IF(model_type == 3) THEN
-  dimofsubcells(1) = FLOOR(np**(1.0/4.0))
-  dimofsubcells(2) = FLOOR(np**(1.0/4.0))
-  dimofsubcells(3) = FLOOR(np**(1.0/4.0))
+  dimofsubcells(1) = FLOOR(n_points**(1.0/4.0))
+  dimofsubcells(2) = FLOOR(n_points**(1.0/4.0))
+  dimofsubcells(3) = FLOOR(n_points**(1.0/4.0))
  ELSE
-  dimofsubcells(1) = FLOOR(np**(4.0/1.0))
-  dimofsubcells(2) = FLOOR(np**(4.0/1.0))
-  dimofsubcells(3) = FLOOR(np**(4.0/1.0))
+  dimofsubcells(1) = FLOOR(n_points**(4.0/1.0))
+  dimofsubcells(2) = FLOOR(n_points**(4.0/1.0))
+  dimofsubcells(3) = FLOOR(n_points**(4.0/1.0))
  END IF
   no_dcells = dimofsubcells(1) * dimofsubcells(2) * dimofsubcells(3)
+ write(*,*) 'create_dynamical_grid_cells: no_dcells = ', no_dcells
+ IF(dimofsubcells(1) <= 1 .and. dimofsubcells(2) <= 1 &
+  .and. dimofsubcells(3) <=1) THEN
+  no_dcells = 0
+ END IF
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! do we need to resize dyn_cell?
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   up_bound = SIZE(dyn_cell(:))
+  write(*,*) 'create_dynamical_grid_cells: max_n_dcell = ', max_n_dcell, ' up_bound = ', up_bound
   if(max_n_dcell + no_dcells >= up_bound) then
-  write(*,*)  'creating a larger array dyn_cell...'
+  write(*,*)  'create_dynamical_grid_cells: creating a larger array dyn_cell...'
    ! define a new upper bound
-   newbound =  up_bound + 2 * no_dcells
+   newbound =  2 * up_bound
    ALLOCATE(pom2(up_bound))
    do I = 1, up_bound
     pom2(I) = dyn_cell(I)
@@ -255,9 +225,7 @@ CASE(2)
    DEALLOCATE(pom2)
    up_bound = newbound
   end if
-!  print*, 'create_dynamical_grid_cells: n_dyncell = ', n_dyncell, ' max_n_dcell = ', &
-!         max_n_dcell, ' dimofsubcells = ', dimofsubcells, 'dim(dyn_cell) = ', size(dyn_cell)
-  IF(np >= 8 .OR. no_dcells > 1) THEN
+  IF(n_points >= 8 .OR. no_dcells > 1) THEN
    CALL divide_cell_ijk(n_dyncell, max_n_dcell, dimofsubcells)
    max_n_dcell = max_n_dcell + no_dcells
   END IF

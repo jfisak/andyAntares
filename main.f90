@@ -114,7 +114,6 @@ debug = 0
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! create virtual particles for the given model cell
 write(propmod_file,"(A, A12)") TRIM(outputfolder), '/propmod.dat'
 INQUIRE(FILE=propmod_file, EXIST=propmod_file_exists)
 
@@ -122,7 +121,6 @@ IF(saved_grid == 1 .and. propmod_file_exists) THEN
  CALL read_propmod_grid()
 ELSE
  CALL setup_model_grid()
- IF (dyngrid /= 0) CALL virtual_particles(model_type)
  
  ! if model_type == 3 xyzmax are already calculated in setup_model_grid
  IF(model_type /= 3) THEN

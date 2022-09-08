@@ -33,7 +33,7 @@ SUBROUTINE read_input(n_pack, iseed)
 ! 010 iseed
 ! 011 inputflux
 ! 012 inputmodel
-! 013 Nvirtpart
+! 013 Nvirtpoint
 ! 014 dyngrid
 ! 015 nlte
 ! 016 velApprox
@@ -132,12 +132,12 @@ SUBROUTINE read_input(n_pack, iseed)
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I20)', ERR=94) inputmodel
 
-    ! 013 Nvirtpart
-    ELSE IF (ACTPAR .EQ. 'Nvirtpart') THEN
+    ! 013 Nvirtpoint
+    ELSE IF (ACTPAR .EQ. 'Nvirtpoint') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
-    READ (ACTPAR, '(I20)', ERR=94) Nvirtpart
+    READ (ACTPAR, '(I20)', ERR=94) Nvirtpoint
 
     ! 014 dyngrid
     ELSE IF (ACTPAR .EQ. 'dyngrid') THEN
