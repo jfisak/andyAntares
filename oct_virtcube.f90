@@ -13,14 +13,16 @@ INTEGER                                                 :: sgn_x, sgn_y, sgn_z
 DOUBLE PRECISION, DIMENSION(8,3)                        :: cube_pos
 
 INTEGER                                                 :: act_cell, cur_cell
-INTEGER                                                 :: I
 DOUBLE PRECISION, DIMENSION(3)                          :: act_pos, act_corner, act_width, act_center
 DOUBLE PRECISION, DIMENSION(3)                          :: cur_pos
+INTEGER, DIMENSION(n_oct)                   :: velgridcells
 INTEGER, PARAMETER                      :: n_zero = 1, n_x = 2, n_y = 3, n_z = 4,&
                                            n_xz = 5, n_xy = 6, n_xyz = 7, n_yz = 8
 
 LOGICAL                                                 :: incell
 INTEGER, PARAMETER                      :: dir_x = 1, dir_y = 2, dir_z = 3
+INTEGER                                 :: I, J, dummy, a
+DOUBLE PRECISION, DIMENSION(3)          :: dummy2
 
 act_cell = package(pack_index)%cell_numb
 act_pos = package(pack_index)%pos
@@ -83,21 +85,41 @@ cube_pos(7,3) = act_center(3) + sgn_z * act_width(3)
 cube_pos(8,2) = act_center(2) + sgn_y * act_width(2)
 cube_pos(8,3) = act_center(3) + sgn_z * act_width(3)
 
+velgridcells(1) = act_cell
 ! the current propagation grid cells
 DO I = 2, 8
  cur_pos = cube_pos(I,:)
  CALL find_dyn_cell1(cur_pos, cur_cell)
+ velgridcells(I) = cur_cell
  IF(cur_cell < 0) THEN
   incell = .TRUE.
   RETURN
  END IF
 END DO
 
-! DO I = 1,8
-!  write(29,*) cube_pos(I,:)
-! END DO
+DO I = 1,8
+ write(29,*) cube_pos(I,:)
+END DO
 
 
+! sort the velgridcells according to the index number
+do J = 2, n_oct
+ I = J - 1
+
+ a = velgridcells(J)
+
+ do while(I >= 1)
+  if(velgridcells(I) > a) THEN
+   dummy = velgridcells(I + 1)
+   dummy2 = cube_pos(I + 1, :)
+   velgridcells(I + 1) = velgridcells(I)
+   cube_pos(I + 1, :) = cube_pos(I, :)
+   velgridcells(I) = dummy
+   cube_pos(I, :) = dummy2
+  end if
+   I = I - 1
+ end do
+end do
 
 
 

@@ -1,5 +1,5 @@
-! this subroutine creates virtual particles for a dynamical grid calculation
-SUBROUTINE virtual_particles(dimIM)
+! this subroutine creates virtual points for a dynamical grid calculation
+SUBROUTINE virtual_points(dimIM)
 
  USE types
 
@@ -52,26 +52,6 @@ CASE(1)
  DO I = 1, n_modelgrid
   sumr = sumr + (model_grid(I)%rwind / R_inf) ** delta
  END DO
-! ! now we divide an interval [0, 1] into parts which lenght
-! ! corresponds to the density magnitude
-! bound = 0.D0
-! DO I = 1, n_modelgrid
-!  actbound = bound - log10(model_grid(I)%rho) / rhotot
-!  bounds(I) = actbound
-!  !write(99,*) actbound, model_grid(I)%rho
-!  bound = actbound
-!  nOfPoints(I) = 0
-! END DO
-! ! now we will compute given numbers of points for the given spheres
-! DO I = 1, Nvirtpart
-!  point = ran2(idum)
-!  DO J = 1, n_modelgrid
-!   IF((bounds(J) > point)) THEN
-!    nOfPoints(J) = nOfPoints(J) + 1
-!    EXIT
-!   END IF
-!  END DO
-! END DO
  ! now we will compute given numbers of points for the given spheres
  DO I = 1, n_modelgrid
   nOfPoints(I) = INT(FLOAT(Nvirtpart) * (model_grid(I)%rwind / R_inf) ** delta / sumr)
@@ -79,7 +59,6 @@ CASE(1)
  DO J = 1, n_modelgrid 
   sumpart = sumpart + nOfPoints(J)
  END DO
- ! write(*,*) 'virtual_particles: sumpart1 = ', sumpart, ' Nvirtpart = ', Nvirtpart
  zbytek = Nvirtpart - sumpart
  nOfPoints(n_modelgrid) = nOfPoints(n_modelgrid) + zbytek
  sumpart = 0
@@ -163,7 +142,6 @@ CASE(2)
  ! DO I = 1, Nvirtpart
  !  IF(norm2(virtual_particle(I)%pos) < R_star) STOP '||r||_vp < R_star'
  ! END DO
- 
 CASE(3)
  ALLOCATE(virtual_particle(n_modelgrid))
  DO I = 1, n_modelgrid
@@ -174,4 +152,4 @@ CASE DEFAULT
 END SELECT
 ! CLOSE(20)
 
-END SUBROUTINE
+END SUBROUTINE virtual_points

@@ -12,6 +12,11 @@ DOUBLE PRECISION, DIMENSION(3)                 :: vecpos0
 INTEGER, DIMENSION(8)                          :: neighborscells
 INTEGER                                        :: pack_index, I
 
+if(pos1 == pos2) then
+ write(*,*) 'lin_interpolation: pos1 = ', pos1, ' pos2 = ', pos2
+ STOP 'pos1 == pos2'
+end if
+
 IF(pos1 > pos2 .and. (pos0 < pos2 .or. pos0 > pos1)) then
  write(*,*) 'lin_interpolation: pack_index = ', pack_index
  write(*,*) 'lin_interpolation: pos0 = ', pos0, ' pos1 = ', pos1, ' pos2 = ', pos2
@@ -37,6 +42,7 @@ linb = -(vec2*pos1-vec1*pos2)/(pos2-pos1)
 int_vector = lina*pos0 + linb
 
 ! write(*,*) 'lin_interpolation: vec1 = ', vec1, ' vec2 = ', vec2
+! write(*,*) 'lin_interpolation: pos2 = ', pos2, ' pos1 = ', pos1
 ! write(*,*) 'lin_interpolation: vec1 = ', norm2(vec1)/light_speed, ' vec2 = ', norm2(vec2)/light_speed
 ! write(*,*) 'lin_interpolation: int_vector = ', int_vector
 ! write(*,*) 'lin_interpolation: int_vector = ', norm2(int_vector)/light_speed
