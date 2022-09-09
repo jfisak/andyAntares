@@ -27,15 +27,7 @@ constanta = (pi * e_charge**2)/( me_g * light_speed)
 dummypackage = SIZE(package)
 package(dummypackage) = package(pack_index)
 
-! n_eqf_lines = 1
-! DO I = nextLine + 1, ntransitions
-!  IF(linelist(I)%freq == linelist(nextLine)%freq) THEN
-!   n_eqf_lines = n_eqf_lines + 1
-!   CYCLE
-!  END IF
-!  EXIT
-! END DO
-! nnextlines = n_eqf_lines
+! write(*,*) 'r_kappa_line: nnextlines = ', nnextlines
 
 tau_line = 0.D0
 DO I = 1, nnextlines
@@ -62,6 +54,7 @@ DO I = 1, nnextlines
   current_mgi, low_pop)
  CALL populations(indexe, indexi, linelist(indexline)%upper,&
   current_mgi, upp_pop)
+ ! write(*,*) 'r_kappa_line: low_pop = ', low_pop, ' upp_pop = ', upp_pop
  IF(low_pop <= 1.E-20 .OR. upp_pop == 1.E-20) THEN
   actirrates%Lline(I) = 0.E0
   actirrates%nline(I) = indexline
@@ -81,7 +74,7 @@ DO I = 1, nnextlines
  ! ROverV
  ROverV = roverw()
  ! write(*,*) 'r_kappa_line: ROverV = ', ROverV, ' low_pop = ', low_pop, &
- !  ' Blu = ', Blu, ' corrFactor = ', corrFactor, ' ldist = ', ldist / R_star, &
+ !  ' Blu = ', Blu, ' corrFactor = ', corrFactor, &
  !  ' freq = ', linelist(indexline)%freq
  ! write(*,*) 'r_kappa_line: rho = ', model_grid(current_mgi)%rho, ' t = ', model_grid(current_mgi)%T
  ! calculation of optical depth and rates
@@ -94,7 +87,7 @@ DO I = 1, nnextlines
  actirrates%Lline(I) = light_speed / linelist(indexline)%freq * constanta * &
   linelist(indexline)%f_lu * low_pop * corrFactor * ROverV
  actirrates%nline(I) = indexline
- !write(*,*) 'r_kappa_line: Lline(', I, ') = ', actirrates%Lline(I)
+ ! write(*,*) 'r_kappa_line: Lline(', I, ') = ', actirrates%Lline(I)
  ! write(*,*) 'r_kappa_line: f_lu = ', linelist(indexline)%f_lu
  tau_line = tau_line + actirrates%Lline(I)
 END DO

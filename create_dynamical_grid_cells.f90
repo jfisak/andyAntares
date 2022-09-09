@@ -190,16 +190,16 @@ CASE(2)
   dimofsubcells(2) = FLOOR(n_points**(1.0/2.0))
   dimofsubcells(3) = FLOOR(n_points**(1.0/2.0))
  ELSE IF(model_type == 3) THEN
-  dimofsubcells(1) = FLOOR(n_points**(1.0/4.0))
-  dimofsubcells(2) = FLOOR(n_points**(1.0/4.0))
-  dimofsubcells(3) = FLOOR(n_points**(1.0/4.0))
+  dimofsubcells(1) = FLOOR(n_points**(1.0/2.0))
+  dimofsubcells(2) = FLOOR(n_points**(1.0/2.0))
+  dimofsubcells(3) = FLOOR(n_points**(1.0/2.0))
  ELSE
   dimofsubcells(1) = FLOOR(n_points**(4.0/1.0))
   dimofsubcells(2) = FLOOR(n_points**(4.0/1.0))
   dimofsubcells(3) = FLOOR(n_points**(4.0/1.0))
  END IF
   no_dcells = dimofsubcells(1) * dimofsubcells(2) * dimofsubcells(3)
- write(*,*) 'create_dynamical_grid_cells: no_dcells = ', no_dcells
+ ! write(*,*) 'create_dynamical_grid_cells: no_dcells = ', no_dcells
  IF(dimofsubcells(1) <= 1 .and. dimofsubcells(2) <= 1 &
   .and. dimofsubcells(3) <=1) THEN
   no_dcells = 0
@@ -208,9 +208,9 @@ CASE(2)
   ! do we need to resize dyn_cell?
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   up_bound = SIZE(dyn_cell(:))
-  write(*,*) 'create_dynamical_grid_cells: max_n_dcell = ', max_n_dcell, ' up_bound = ', up_bound
+  ! write(*,*) 'create_dynamical_grid_cells: max_n_dcell = ', max_n_dcell, ' up_bound = ', up_bound
   if(max_n_dcell + no_dcells >= up_bound) then
-  write(*,*)  'create_dynamical_grid_cells: creating a larger array dyn_cell...'
+  ! write(*,*)  'create_dynamical_grid_cells: creating a larger array dyn_cell...'
    ! define a new upper bound
    newbound =  2 * up_bound
    ALLOCATE(pom2(up_bound))
@@ -238,4 +238,6 @@ CASE DEFAULT
  STOP 'create_dynamical_grid_cells: choice of the dyngrid type is not known'
 END SELECT
  CLOSE(15)
+
+
 END SUBROUTINE create_dynamical_grid_cells

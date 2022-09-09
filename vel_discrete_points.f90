@@ -20,7 +20,7 @@ INTEGER, DIMENSION(8)                   :: velgridcells
 DOUBLE PRECISION, DIMENSION(3)          :: cur_pos1, cur_vel1, cur_pos2, cur_vel2
 INTEGER                                 :: cur_cell1, cur_cell2, cur_mgi1, cur_mgi2
 
-INTEGER                                 :: I
+INTEGER                                 :: I, J
 ! DOUBLE PRECISION, DIMENSION(3,8)        :: c_point, c_pos
 DOUBLE PRECISION, DIMENSION(3,4)        :: e_point, e_pos 
 DOUBLE PRECISION, DIMENSION(3,2)        :: w_point, w_pos
@@ -85,6 +85,23 @@ ELSE ! incellmode
   CALL velo_vector(cur_pos1, cur_mgi1, cur_vel1)
 
   CALL velo_vector(cur_pos2, cur_mgi2, cur_vel2)
+
+  IF(cur_pos1(3) > cur_pos2(3) .and. (act_pos(3) < cur_pos2(3) .or. act_pos(3) > cur_pos1(3)))THEN
+   DO J = 1,8
+    write(29,*) cube_pos(I,:)
+   END DO
+  ELSE IF (cur_pos1(3) < cur_pos2(3) .and. (act_pos(3) > cur_pos2(3) .or. act_pos(3) < cur_pos1(3))) THEN
+   DO J = 1,8
+    write(29,*) cube_pos(I,:)
+   END DO
+  END IF
+   
+
+ ! IF(cur_pos1(3) == cur_pos2(3)) THEN
+ !  DO J = 1,8
+ !   write(29,*) cube_pos(I,:)
+ !  END DO
+ ! END IF
  
   CALL lin_interpolation(act_pos(3), cur_vel1, cur_pos1(3), cur_vel2, cur_pos2(3), e_point(:,I))
   e_pos(:,I) = (/ cur_pos1(1), cur_pos1(2), act_pos(3 )/)
@@ -112,6 +129,8 @@ ELSE ! incellmode
   
   CALL lin_interpolation(act_pos(1), w_point(:,1), cur_pos1(1), w_point(:,2), cur_pos2(1), vel_vec)
 END IF
+
+! write(49,*) norm2(act_pos), norm2(vel_vec)
 
 
 

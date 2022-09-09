@@ -65,23 +65,23 @@ DO I = 1,8
  cube_pos(I,:) = act_center(:)
 END DO
 
-! x
-cube_pos(2,1) = act_center(1) + sgn_x * act_width(1)
-! xy
-cube_pos(3,1) = act_center(1) + sgn_x * act_width(1)
-cube_pos(3,2) = act_center(2) + sgn_y * act_width(2)
-! y
-cube_pos(4,2) = act_center(2) + sgn_y * act_width(2)
 ! z
-cube_pos(5,3) = act_center(3) + sgn_z * act_width(3)
+cube_pos(2,3) = act_center(3) + sgn_z * act_width(3)
+! y
+cube_pos(3,2) = act_center(2) + sgn_y * act_width(2)
+! zy
+cube_pos(4,2) = act_center(2) + sgn_y * act_width(2)
+cube_pos(4,3) = act_center(3) + sgn_z * act_width(3)
+! x
+cube_pos(5,1) = act_center(1) + sgn_x * act_width(1)
 ! zx
 cube_pos(6,1) = act_center(1) + sgn_x * act_width(1)
 cube_pos(6,3) = act_center(3) + sgn_z * act_width(3)
-! zxy
+! xy
 cube_pos(7,1) = act_center(1) + sgn_x * act_width(1)
 cube_pos(7,2) = act_center(2) + sgn_y * act_width(2)
-cube_pos(7,3) = act_center(3) + sgn_z * act_width(3)
-! zy
+! zxy
+cube_pos(8,1) = act_center(1) + sgn_x * act_width(1)
 cube_pos(8,2) = act_center(2) + sgn_y * act_width(2)
 cube_pos(8,3) = act_center(3) + sgn_z * act_width(3)
 
@@ -97,33 +97,30 @@ DO I = 2, 8
  END IF
 END DO
 
-DO I = 1,8
- write(29,*) cube_pos(I,:)
-END DO
+! DO I = 1,8
+!  write(29,*) cube_pos(I,:)
+! END DO
 
 
 ! sort the velgridcells according to the index number
-do J = 2, n_oct
- I = J - 1
+! do J = 2, n_oct
+!  I = J - 1
+! 
+!  a = velgridcells(J)
+! 
+!  do while(I >= 1)
+!   if(velgridcells(I) > a) THEN
+!    dummy = velgridcells(I + 1)
+!    dummy2 = cube_pos(I + 1, :)
+!    velgridcells(I + 1) = velgridcells(I)
+!    cube_pos(I + 1, :) = cube_pos(I, :)
+!    velgridcells(I) = dummy
+!    cube_pos(I, :) = dummy2
+!   end if
+!    I = I - 1
+!  end do
+! end do
 
- a = velgridcells(J)
-
- do while(I >= 1)
-  if(velgridcells(I) > a) THEN
-   dummy = velgridcells(I + 1)
-   dummy2 = cube_pos(I + 1, :)
-   velgridcells(I + 1) = velgridcells(I)
-   cube_pos(I + 1, :) = cube_pos(I, :)
-   velgridcells(I) = dummy
-   cube_pos(I, :) = dummy2
-  end if
-   I = I - 1
- end do
-end do
-
-
-
-
-
+! STOP 'oct_virtcube: testing'
 
 END SUBROUTINE oct_virtcube

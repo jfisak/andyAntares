@@ -64,7 +64,7 @@ END DO
 
  ! calculates all continuum opacities
  CALL r_kappa_cont(pack_index, kappa_cont, actirrates)
- ! kappa_cont = 0.D0
+ kappa_cont = 0.D0
 
  ! This is the opacity in co-moving frame. Must be transformed to the lab frame
  ! According to Mihalas and Mihalas Eq. 90.8 this is achieved by 

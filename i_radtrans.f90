@@ -124,6 +124,13 @@ DO I = 1, nlns
  ! write(*,*) 'i_radtrans: Zrad = ', Zrad
  IF(exci_energy_u - exci_energy_l < 0) STOP 'i_radtrans: exci_energy_u - exci_energy_l < 0'
 END DO
+
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! internal upward jump
 ! write(36,*) 'i_radtrans: nluns = ', nluns
@@ -167,10 +174,10 @@ DO I = 1, nluns
  actirates%Lma_int_uprad(I) = actVal * exci_energy_l
  ! actirates%Lma_int_uprad(I) = linelist(act_line)%f_lu / (h * fr_line) * corrFactor * &
  !  betalu * Jlu * exci_energy_l
-!  write(*,*) 'i_radtrans: up_pop = ', up_pop, 'low_pop = ', low_pop
-!  write(*,*) 'i_radtrans: nB - nB = ', (low_pop * Blu - up_pop * Bul)
-!  write(*,*) 'i_radtrans: taulu = ', taulu, ' corrFactor = ', corrFactor
-!  write(*,*) 'i_radtrans: betalu = ', betalu, ' Jlu = ', Jlu
+ write(*,*) 'i_radtrans: up_pop = ', up_pop, 'low_pop = ', low_pop
+ write(*,*) 'i_radtrans: nB - nB = ', (low_pop * Blu - up_pop * Bul)
+ write(*,*) 'i_radtrans: taulu = ', taulu, ' corrFactor = ', corrFactor
+ write(*,*) 'i_radtrans: betalu = ', betalu, ' Jlu = ', Jlu
  ! write(36, *) 'i_radtrans: ', linelist(act_line)%lower, '->',&
  !  linelist(act_line)%upper, ' Lup = ', actirates%Lma_int_uprad(I),&
  !  ' wale = ', 1.D8 * light_speed / linelist(act_line)%freq

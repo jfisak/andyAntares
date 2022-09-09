@@ -138,9 +138,5 @@ IF(dyngrid /= 0) THEN
  DEALLOCATE(virtual_point)
 END IF
 
-DO I = 1, max_n_dcell
- write(39,*) dyn_cell(I)%corner, dyn_cell(I)%width
-END DO
-
 
 END SUBROUTINE setup_propgrid

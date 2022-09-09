@@ -8,6 +8,8 @@ DOUBLE PRECISION                :: flux_function
 DOUBLE PRECISION                :: W, cur_r
 
 
+write(*,*) 'flux_function: temperature = ', temperature, ' cur_r = ', cur_r
+
 SELECT CASE(approx)
 ! the most stupid approximation: J is the Planck function
 CASE(0)
