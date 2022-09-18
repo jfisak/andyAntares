@@ -38,7 +38,8 @@ new_cell_width(1) = loc_cell_width(1) / DBLE(loc_nx)
 new_cell_width(2) = loc_cell_width(2) / DBLE(loc_ny)
 new_cell_width(3) = loc_cell_width(3) / DBLE(loc_nz)
 
-! write(*,*) 'divide_cell_ijk: max_n_dcell = ', max_n_dcell
+! write(*,*) 'divide_cell_ijk: r+n*w = ', loc_corner(1) + dble(loc_nx) * new_cell_width(1)
+! write(*,*) 'divide_cell_ijk: BG r+w = ', dyn_cell(act_n_dyncell)%corner + dyn_cell(act_n_dyncell)%width
 
 L = 1
 DO I = 1, loc_nx
@@ -51,6 +52,16 @@ DO I = 1, loc_nx
    dyn_cell(max_n_dcell + L)%corner(1) = loc_corner(1) + DBLE((I - 1)) * new_cell_width(1)
    dyn_cell(max_n_dcell + L)%corner(2) = loc_corner(2) + DBLE((J - 1)) * new_cell_width(2)
    dyn_cell(max_n_dcell + L)%corner(3) = loc_corner(3) + DBLE((K - 1)) * new_cell_width(3)
+   IF(I == loc_nx) THEN
+    dyn_cell(max_n_dcell + L)%width(1) = dyn_cell(act_n_dyncell)%corner(1) &
+     + dyn_cell(act_n_dyncell)%width(1) - dyn_cell(max_n_dcell + L)%corner(1)
+   ELSE IF (J == loc_ny) THEN
+    dyn_cell(max_n_dcell + L)%width(2) = dyn_cell(act_n_dyncell)%corner(2) &
+     + dyn_cell(act_n_dyncell)%width(2) - dyn_cell(max_n_dcell + L)%corner(2)
+   ELSE IF (K == loc_nz) THEN
+    dyn_cell(max_n_dcell + L)%width(3) = dyn_cell(act_n_dyncell)%corner(3) &
+     + dyn_cell(act_n_dyncell)%width(3) - dyn_cell(max_n_dcell + L)%corner(3)
+   END IF
    ! calculation of neighbors
    ! x+
    IF(I == loc_nx) THEN
@@ -89,13 +100,18 @@ DO I = 1, loc_nx
     zm = max_n_dcell + L - 1
    END IF
    ! setting number of neighbors
-   dyn_cell(max_n_dcell + L)%neighbor(1) = xp
-   dyn_cell(max_n_dcell + L)%neighbor(2) = xm
-   dyn_cell(max_n_dcell + L)%neighbor(3) = yp
-   dyn_cell(max_n_dcell + L)%neighbor(4) = ym
-   dyn_cell(max_n_dcell + L)%neighbor(5) = zp
-   dyn_cell(max_n_dcell + L)%neighbor(6) = zm
+   dyn_cell(max_n_dcell + L)%neighbor(posx) = xp
+   dyn_cell(max_n_dcell + L)%neighbor(negx) = xm
+   dyn_cell(max_n_dcell + L)%neighbor(posy) = yp
+   dyn_cell(max_n_dcell + L)%neighbor(negy) = ym
+   dyn_cell(max_n_dcell + L)%neighbor(posz) = zp
+   dyn_cell(max_n_dcell + L)%neighbor(negz) = zm
    L = L + 1
+   ! IF(K == loc_nz) THEN
+   !  write(*,*) 'divide_cell_ijk: K = ', K
+   !  write(*,*) 'divide_cell_ijk: r + w = ', dyn_cell(max_n_dcell + L - 1)%corner + dyn_cell(max_n_dcell + L)%width
+   !  write(*,*) 'divide_cell_ijk BC: r + w = ', dyn_cell(act_n_dyncell)%corner + dyn_cell(act_n_dyncell)%width
+   ! END IF
   END DO
  END DO
 END DO

@@ -63,6 +63,7 @@ DO I=1, nx_cell
    ! number of down cell is equal to zero
    dyn_cell(L)%down_cell = 0
    dyn_cell(L)%up_cell = 0
+   dyn_cell(L)%n_sbgr = (/ 0, 0, 0 /)
    ! calculation of neighbors
    ! x+
    IF(I == nx_cell) THEN
@@ -112,6 +113,7 @@ DO I=1, nx_cell
  END DO
 END DO
 
+
 IF (dyngrid /= 0) then
  CALL virtual_points(model_type)
 END IF
@@ -138,5 +140,8 @@ IF(dyngrid /= 0) THEN
  DEALLOCATE(virtual_point)
 END IF
 
+DO I = 1, max_n_dcell
+ write(19,*) dyn_cell(I)%corner, dyn_cell(I)%width
+END DO
 
 END SUBROUTINE setup_propgrid

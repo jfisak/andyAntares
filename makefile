@@ -16,7 +16,7 @@ linkhost=$(shell hostname)
 OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
           random_unitvector.o ran2.o boundary3.o find_dist.o rates_i.o\
           change_cell.o move_package.o emit_rpackage.o	rates_k.o rates_r.o \
-          init_photsphere.o random_unitvector2.o ran2_class.o init_random_seed.o \
+          init_photsphere.o random_unitvector2.o ran2_class.o \
           random_unitvector1.o read_1D_model.o doppler_factor.o oct_neighbors.o\
           vec_length.o velo.o angle_aberration.o freq_from_planck.o lin_interpolation.o \
           do_rpackage.o do_ipackage.o event_dist.o get_package_model_index.o  \
@@ -27,7 +27,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
           find_e_nd.o part_fun.o update_estimators.o freq_from_file.o rob.o \
           acc_rej_montecarlo.o virtual_points.o setup_propgrid.o velo_vector.o \
           create_dynamical_grid_cells.o find_dyn_cell1.o do_spectrum.o read_3D_nico.o\
-          connection_prop_model_grid.o divide_cell_8.o divide_cell_ijk.o \
+          connection_prop_model_grid.o divide_cell_8.o divide_cell_ijk.o do_dpackage.o \
 	  next_cell_down.o next_cell_up.o read_2D_model.o populations.o  \
 	  i_coltrans.o gamma_function.o exp_int_func.o cool_excit.o read_e_nd.o \
 	  read_photcs.o i_radtrans.o i_radion.o i_colion.o find_populations.o \
@@ -38,7 +38,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
 	  mpi_distribute_estimators.o save_temp_packs.o find_unfinished_run.o \
 	  lte_pops.o photosphere_interaction.o roverw.o vel_discrete_points.o \
           next_line_bluered.o resonance_distance2.o read_3D_pseudo3D.o save_propmod_grid.o \
-	  read_propmod_grid.o oct_virtcube.o
+	  read_propmod_grid.o oct_virtcube.o diffusion_approximation.o
 # end of procedures
 
 #Rules

@@ -17,6 +17,7 @@ IMPLICIT NONE
       INTEGER                        :: cell_index, up_cell, down_cell
       INTEGER, DIMENSION(6)          :: neighbor
       DOUBLE PRECISION, DIMENSION(3) :: corner, width
+      INTEGER, DIMENSION(3)          :: n_sbgr
   END TYPE dyn_grid_cell
 
   TYPE photon 
@@ -49,6 +50,8 @@ IMPLICIT NONE
      DOUBLE PRECISION                :: zwind, velang, angle
      DOUBLE PRECISION, DIMENSION(3)  :: vec_vel, vec_pos
      TYPE(grid_comp_t), ALLOCATABLE  :: grid_comp(:)
+     ! is the diffusion approximation recommended?
+     LOGICAL                         :: is_difapp
   END TYPE modelgrid
 
 
@@ -158,6 +161,7 @@ IMPLICIT NONE
   INTEGER, PARAMETER                 :: type_rpkt=0 
   INTEGER, PARAMETER                 :: type_kpkt=1
   INTEGER, PARAMETER                 :: type_ipkt=2
+  INTEGER, PARAMETER                 :: type_dpkt=3
 
   INTEGER, PARAMETER                 :: rpkt_eventtype_changecell=1
   INTEGER, PARAMETER                 :: rpkt_eventtype_lineinteraction=2

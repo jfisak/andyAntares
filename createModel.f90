@@ -114,12 +114,16 @@ CASE(3)
     radial = sqrt(xsour**2 + ysour**2 + zsour**2)
 
     cur_vel = velocity(vel_approx, radial, Rstar, Rinf, Vinf)
-    cur_vel_vec = cur_vel * (/xsour, ysour, zsour/)/radial
+    IF(radial /= 0) THEN
+     cur_vel_vec = cur_vel * (/xsour, ysour, zsour/)/radial
+    ELSE
+     cur_vel_vec = (/ 0.0, 0.0, 0.0 /)
+    END IF
 
 
-    actrho = rho(rdist, R1, R2, sigma, stred1, stred2, rho0, rhocl, clump, &
+    actrho = rho(radial, R1, R2, sigma, stred1, stred2, rho0, rhocl, clump, &
      turnclumpoff, clump_type)
-
+    write(*,*) cur_vel_vec
     write(1,*) xsour, ysour, zsour, cur_vel_vec, actrho, 15500
    END DO
   END DO

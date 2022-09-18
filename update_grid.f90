@@ -22,6 +22,7 @@ DO gridcell = 1, n_modelgrid
     ELSE
      if(gridcell == 1) CALL read_e_nd()
     END IF
+   CALL diffusion_approximation()
   ELSE
     ! Energy density contribeted to the model grid cell 
      model_grid(gridcell)%J = model_grid(gridcell)%J / model_grid(gridcell)%volume / (4 * pi)

@@ -72,6 +72,6 @@ END SELECT
   CALL abort()
  END IF
 
-write(30,*) norm2(pack_position), norm2(vel_vec)
+! write(30,*) norm2(pack_position), norm2(vel_vec)
 
 END SUBROUTINE velo

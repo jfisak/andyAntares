@@ -23,6 +23,11 @@ INTEGER                                 :: subind_x, subind_y, subind_z
 INTEGER                                         :: sub_nx, sub_ny, sub_nz
 DOUBLE PRECISION                                :: rat1, rat2, rat3
 
+INTEGER, DIMENSION(3)                   :: bcell
+INTEGER                                 :: bindex
+DOUBLE PRECISION, DIMENSION(3)          :: pos
+
+DOUBLE PRECISION, PARAMETER                     :: epsilon0 = 1e-6
 ! IF(package(pack_index)%pos > R_inf .OR. package(pack_index)%pos < R_star) THEN
 !  next_cell = 
 
@@ -35,8 +40,8 @@ IF(act_cell < 0) THEN
  RETURN
 END IF
 IF(act_cell > SIZE(dyn_cell)) THEN
- write(*,*) 'next_cell_up: act_cell = ', act_cell
- CALL abort()
+ ! write(*,*) 'next_cell_up: act_cell = ', act_cell
+ ! CALL abort()
 END IF
 
 SELECT CASE(dyngrid)
@@ -87,8 +92,8 @@ DO
      if(cross == posx) act_cell = upper_cell + 6
      if(cross == negx) act_cell = upper_cell + 7
     ELSE
-     write(*,*) 'next_cell_up: no cell was found'
-     CALL abort()
+     ! write(*,*) 'next_cell_up: no cell was found'
+     ! CALL abort()
     END IF
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! cross in y direction
@@ -172,37 +177,49 @@ CASE(2)
   next_cell = act_cell
   RETURN
  END IF
- subcells_width = dyn_cell(dyn_cell(act_cell)%up_cell)%width
- subcells_width = dyn_cell(dyn_cell(act_cell)%up_cell)%width
- rat1 = dyn_cell(act_cell)%width(1) / subcells_width(1)
- rat2 = dyn_cell(act_cell)%width(2) / subcells_width(2)
- rat3 = dyn_cell(act_cell)%width(3) / subcells_width(3)
-!  write(*,*) 'find_dyn_cell1: rat1 = ', rat1, ' rat2 = ', rat2, ' rat3 = ', rat3
- IF(MODULO(rat1,1.0) > 0.5) THEN
-  sub_nx = CEILING(rat1)
- ELSE IF(MODULO(rat1,1.0) <= 0.5 .AND. MODULO(rat1,1.0) /= 0.0) THEN
-  sub_nx = FLOOR(rat1)
- ELSE IF(MODULO(rat1,1.0) == 0.0) THEN
-  sub_nx = INT(rat1)
- END IF
- IF(MODULO(rat2,1.0) > 0.5) THEN
-  sub_ny = CEILING(rat2)
- ELSE IF(MODULO(rat2,1.0) <= 0.5 .AND. MODULO(rat2,1.0) /= 0.0) THEN
-  sub_ny = FLOOR(rat2)
- ELSE IF(MODULO(rat2,1.0) == 0.0) THEN
-  sub_ny = INT(rat2)
- END IF
- IF(MODULO(rat3,1.0) > 0.5) THEN
-  sub_nz = CEILING(rat3)
- ELSE IF(MODULO(rat3,1.0) <= 0.5 .AND. MODULO(rat3,1.0) /= 0.0) THEN
-  sub_nz = FLOOR(rat3)
- ELSE IF(MODULO(rat3,1.0) == 0.0) THEN
-  sub_nz = INT(rat3)
+ subcells_width = dyn_cell(upper_cell)%width
+ subcells_width = dyn_cell(upper_cell)%width
+ sub_nx = dyn_cell(act_cell)%n_sbgr(1)
+ sub_ny = dyn_cell(act_cell)%n_sbgr(2)
+ sub_nz = dyn_cell(act_cell)%n_sbgr(3)
+
+ subind_x = FLOOR((cross_pos(1) - dyn_cell(act_cell)%corner(1))/subcells_width(1) + epsilon0) + 1
+ subind_y = FLOOR((cross_pos(2) - dyn_cell(act_cell)%corner(2))/subcells_width(2) + epsilon0) + 1
+ subind_z = FLOOR((cross_pos(3) - dyn_cell(act_cell)%corner(3))/subcells_width(3) + epsilon0) + 1
+
+ pos = package(pack_index)%pos
+ bcell(1) = FLOOR(pos(1)/basic_cell_width(1) + dble(nx_cell)/2.D0 + epsilon0) + 1
+ bcell(2) = FLOOR(pos(2)/basic_cell_width(2) + dble(ny_cell)/2.D0 + epsilon0) + 1
+ bcell(3) = FLOOR(pos(3)/basic_cell_width(3) + dble(nz_cell)/2.D0 + epsilon0) + 1
+  
+ ! index of the given basic cell
+ bindex = (bcell(1) - 1) * ny_cell * nz_cell + (bcell(2) - 1) * nz_cell + bcell(3)
+ ! write(*,*) 'lower_grid = ', dyn_cell(upper_cell)%down_cell
+ ! write(*,*) 'act_cell = ', act_cell, ' bindex = ', bindex
+
+ IF(bindex /= act_cell) THEN
+  write(*,*) 'next_cell_up: bindex = ', bindex, ' act_cell = ', act_cell
+  write(*,*) 'next_cell_up: pos = ', pos
+  write(*,*) 'next_cell_up: corner BC= ', dyn_cell(bindex)%corner
+  write(*,*) 'next_cell_up: corner2 BC= ', dyn_cell(bindex)%corner+dyn_cell(bindex)%width
+  write(*,*) 'next_cell_up: corner: ', dyn_cell(act_cell)%corner
+  write(*,*) 'next_cell_up: corner2: ', dyn_cell(act_cell)%corner+dyn_cell(act_cell)%width
+  STOP 'basic cell index do not agree with the current cell index'
  END IF
 
- subind_x = FLOOR((cross_pos(1) - dyn_cell(act_cell)%corner(1))/subcells_width(1)) + 1
- subind_y = FLOOR((cross_pos(2) - dyn_cell(act_cell)%corner(2))/subcells_width(2)) + 1
- subind_z = FLOOR((cross_pos(3) - dyn_cell(act_cell)%corner(3))/subcells_width(3)) + 1
+ IF(subind_x < 1 .or. subind_y < 1 .or. subind_z < 1 &
+  .or. subind_x > sub_nx .or. subind_y > sub_ny .or. subind_z > sub_nz) THEN
+  ! firstly we can compute which basic cell this point contains
+  write(*,*) 'next_cell_up: sub_nx = ', sub_nx, ' sub_ny = ', sub_ny, ' sub_nz = ', sub_nz
+  write(*,*) 'next_cell_up: subind_x = ', subind_x, ' subind_y = ', subind_y, ' subind_z = ', subind_z
+  write(*,*) 'lower_grid = ', dyn_cell(upper_cell)%down_cell
+  write(*,*) 'act_cell = ', act_cell, ' bindex = ', bindex
+  write(*,*) 'r/w = ', dyn_cell(act_cell)%corner(:)/subcells_width(:)
+  STOP 'subind < 1'
+ END IF
+
+ ! write(*,*) 'next_cell_up: subind_x = ', subind_x, ' subind_y = ', subind_y, ' subind_z = ', subind_z
+
  IF(cross == posx) THEN
   subind_x = 1
  ELSE IF(cross == negx) THEN
@@ -216,8 +233,7 @@ CASE(2)
  ELSE IF(cross == negz) THEN
   subind_z = sub_nz
  END IF
-! print*, 'next_cell_up:', subind_x, subind_y, subind_z
- next_cell = dyn_cell(act_cell)%up_cell + &
+ next_cell = upper_cell + &
         sub_ny * sub_nz * (subind_x - 1) + &
         sub_nz * (subind_y - 1) + subind_z - 1
 ! this case occurs also when the SBR resonance distance is
@@ -225,7 +241,6 @@ CASE(2)
 IF(next_cell > SIZE(dyn_cell)) THEN
  next_cell = -99
 END IF
-! print*, 'next_cell_up: next_cell = ', next_cell
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! default case

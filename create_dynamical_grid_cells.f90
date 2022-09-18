@@ -198,6 +198,7 @@ CASE(2)
   dimofsubcells(2) = FLOOR(n_points**(4.0/1.0))
   dimofsubcells(3) = FLOOR(n_points**(4.0/1.0))
  END IF
+  dyn_cell(n_dyncell)%n_sbgr = dimofsubcells
   no_dcells = dimofsubcells(1) * dimofsubcells(2) * dimofsubcells(3)
  ! write(*,*) 'create_dynamical_grid_cells: no_dcells = ', no_dcells
  IF(dimofsubcells(1) <= 1 .and. dimofsubcells(2) <= 1 &
@@ -212,7 +213,7 @@ CASE(2)
   if(max_n_dcell + no_dcells >= up_bound) then
   ! write(*,*)  'create_dynamical_grid_cells: creating a larger array dyn_cell...'
    ! define a new upper bound
-   newbound =  2 * up_bound
+   newbound =  max_n_dcell + 2*no_dcells
    ALLOCATE(pom2(up_bound))
    do I = 1, up_bound
     pom2(I) = dyn_cell(I)
@@ -237,7 +238,5 @@ CASE(2)
 CASE DEFAULT
  STOP 'create_dynamical_grid_cells: choice of the dyngrid type is not known'
 END SELECT
- CLOSE(15)
-
 
 END SUBROUTINE create_dynamical_grid_cells
