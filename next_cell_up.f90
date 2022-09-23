@@ -183,42 +183,42 @@ CASE(2)
  sub_ny = dyn_cell(act_cell)%n_sbgr(2)
  sub_nz = dyn_cell(act_cell)%n_sbgr(3)
 
- subind_x = FLOOR((cross_pos(1) - dyn_cell(act_cell)%corner(1))/subcells_width(1) + epsilon0) + 1
- subind_y = FLOOR((cross_pos(2) - dyn_cell(act_cell)%corner(2))/subcells_width(2) + epsilon0) + 1
- subind_z = FLOOR((cross_pos(3) - dyn_cell(act_cell)%corner(3))/subcells_width(3) + epsilon0) + 1
+ subind_x = FLOOR((cross_pos(1) - dyn_cell(act_cell)%corner(1))/subcells_width(1)) + 1
+ subind_y = FLOOR((cross_pos(2) - dyn_cell(act_cell)%corner(2))/subcells_width(2)) + 1
+ subind_z = FLOOR((cross_pos(3) - dyn_cell(act_cell)%corner(3))/subcells_width(3)) + 1
 
  pos = package(pack_index)%pos
- bcell(1) = FLOOR(pos(1)/basic_cell_width(1) + dble(nx_cell)/2.D0 + epsilon0) + 1
- bcell(2) = FLOOR(pos(2)/basic_cell_width(2) + dble(ny_cell)/2.D0 + epsilon0) + 1
- bcell(3) = FLOOR(pos(3)/basic_cell_width(3) + dble(nz_cell)/2.D0 + epsilon0) + 1
+ bcell(1) = FLOOR(pos(1)/basic_cell_width(1) + dble(nx_cell)/2.D0) + 1
+ bcell(2) = FLOOR(pos(2)/basic_cell_width(2) + dble(ny_cell)/2.D0) + 1
+ bcell(3) = FLOOR(pos(3)/basic_cell_width(3) + dble(nz_cell)/2.D0) + 1
   
  ! index of the given basic cell
  bindex = (bcell(1) - 1) * ny_cell * nz_cell + (bcell(2) - 1) * nz_cell + bcell(3)
  ! write(*,*) 'lower_grid = ', dyn_cell(upper_cell)%down_cell
  ! write(*,*) 'act_cell = ', act_cell, ' bindex = ', bindex
 
- IF(bindex /= act_cell) THEN
-  write(*,*) 'next_cell_up: bindex = ', bindex, ' act_cell = ', act_cell
-  write(*,*) 'next_cell_up: pos = ', pos
-  write(*,*) 'next_cell_up: corner BC= ', dyn_cell(bindex)%corner
-  write(*,*) 'next_cell_up: corner2 BC= ', dyn_cell(bindex)%corner+dyn_cell(bindex)%width
-  write(*,*) 'next_cell_up: corner: ', dyn_cell(act_cell)%corner
-  write(*,*) 'next_cell_up: corner2: ', dyn_cell(act_cell)%corner+dyn_cell(act_cell)%width
-  STOP 'basic cell index do not agree with the current cell index'
- END IF
+!  IF(bindex /= act_cell) THEN
+!   write(*,*) 'next_cell_up: bindex = ', bindex, ' act_cell = ', act_cell
+!   write(*,*) 'next_cell_up: pos = ', pos
+!   write(*,*) 'next_cell_up: corner BC= ', dyn_cell(bindex)%corner
+!   write(*,*) 'next_cell_up: corner2 BC= ', dyn_cell(bindex)%corner+dyn_cell(bindex)%width
+!   write(*,*) 'next_cell_up: corner: ', dyn_cell(act_cell)%corner
+!   write(*,*) 'next_cell_up: corner2: ', dyn_cell(act_cell)%corner+dyn_cell(act_cell)%width
+!   STOP 'basic cell index do not agree with the current cell index'
+!  END IF
 
- IF(subind_x < 1 .or. subind_y < 1 .or. subind_z < 1 &
-  .or. subind_x > sub_nx .or. subind_y > sub_ny .or. subind_z > sub_nz) THEN
-  ! firstly we can compute which basic cell this point contains
-  write(*,*) 'next_cell_up: sub_nx = ', sub_nx, ' sub_ny = ', sub_ny, ' sub_nz = ', sub_nz
-  write(*,*) 'next_cell_up: subind_x = ', subind_x, ' subind_y = ', subind_y, ' subind_z = ', subind_z
-  write(*,*) 'lower_grid = ', dyn_cell(upper_cell)%down_cell
-  write(*,*) 'act_cell = ', act_cell, ' bindex = ', bindex
-  write(*,*) 'r/w = ', dyn_cell(act_cell)%corner(:)/subcells_width(:)
-  STOP 'subind < 1'
- END IF
+!  IF(subind_x < 1 .or. subind_y < 1 .or. subind_z < 1 &
+!   .or. subind_x > sub_nx .or. subind_y > sub_ny .or. subind_z > sub_nz) THEN
+!   ! firstly we can compute which basic cell this point contains
+!   write(*,*) 'next_cell_up: sub_nx = ', sub_nx, ' sub_ny = ', sub_ny, ' sub_nz = ', sub_nz
+!   write(*,*) 'next_cell_up: subind_x = ', subind_x, ' subind_y = ', subind_y, ' subind_z = ', subind_z
+!   write(*,*) 'lower_grid = ', dyn_cell(upper_cell)%down_cell
+!   write(*,*) 'act_cell = ', act_cell, ' bindex = ', bindex
+!   write(*,*) 'r/w = ', dyn_cell(act_cell)%corner(:)/subcells_width(:)
+!   STOP 'subind < 1'
+!  END IF
 
- ! write(*,*) 'next_cell_up: subind_x = ', subind_x, ' subind_y = ', subind_y, ' subind_z = ', subind_z
+ write(*,*) 'next_cell_up: subind_x = ', subind_x, ' subind_y = ', subind_y, ' subind_z = ', subind_z
 
  IF(cross == posx) THEN
   subind_x = 1
