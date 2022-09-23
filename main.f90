@@ -105,7 +105,9 @@ my_rank = 0
 
 ! Only for debuging; if set the values > 0 then variou print out statement 
 ! will give information on a packet's history (depending on the actual value of debug)
-debug = 0
+! 0 -- no debug mode
+! 2 -- packet propagation debugging
+debug = 2
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

@@ -239,8 +239,8 @@ END DO
 !  DO I = 1, n_modelgrid + 1
 !     print*, I, model_grid(I)%assoc_cells
 !  END DO
-DO I = 1, max_n_dcell
- write(39,*) dyn_cell(I)%corner, dyn_cell(I)%width, dyn_cell(I)%model_index
-END DO
+! DO I = 1, max_n_dcell
+!  write(39,*) dyn_cell(I)%corner, dyn_cell(I)%width, dyn_cell(I)%model_index
+! END DO
 
   END SUBROUTINE connection_prop_model_grid

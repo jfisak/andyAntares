@@ -36,15 +36,15 @@ n_cell = (/ nx_cell, ny_cell, nz_cell /)
 
 ! bounds test
 
-IF(pos(1) > xmax .or. pos(1) < -xmax) THEN
+IF(pos(1) >= xmax .or. pos(1) <= -xmax) THEN
  actual_cell = -99
  RETURN
 END IF
-IF(pos(2) > xmax .or. pos(2) < -xmax) THEN
+IF(pos(2) >= ymax .or. pos(2) <= -ymax) THEN
  actual_cell = -99
  RETURN
 END IF
-IF(pos(3) > xmax .or. pos(3) < -xmax) THEN
+IF(pos(3) >= zmax .or. pos(3) <= -zmax) THEN
  actual_cell = -99
  RETURN
 END IF
