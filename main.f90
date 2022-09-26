@@ -107,7 +107,7 @@ my_rank = 0
 ! will give information on a packet's history (depending on the actual value of debug)
 ! 0 -- no debug mode
 ! 2 -- packet propagation debugging
-debug = 2
+debug = 0
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

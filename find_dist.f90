@@ -186,20 +186,11 @@ IF(n_zer == 1 .and. n_pos < 3) THEN
  IF(t6 == 0.0) package(pack_index)%next_cross = posz
 END IF
 
-write(*,*) 'find_dist: n_pos = ', n_pos, ' n_neg = ', n_neg
-write(*,*) 'find_dist: t1 = ', t1, ' t2 = ', t2, ' t3 = ', t3, ' t4 = ', t4, ' t5 = ', t5, ' t6 = ', t6
-write(*,*) 'find_dist: dist = ', dist
+IF(debug == 2) THEN
+ write(*,*) 'find_dist: n_pos = ', n_pos, ' n_neg = ', n_neg
+ write(*,*) 'find_dist: t1 = ', t1, ' t2 = ', t2, ' t3 = ', t3, ' t4 = ', t4, ' t5 = ', t5, ' t6 = ', t6
+ write(*,*) 'find_dist: dist = ', dist
+END IF
 
-! uhlopricka = sqrt(width(1)**2 + width(2)**2 + width(3)**2)
-
-! IF(dist > uhlopricka) THEN
-!  write(*,*) 'find_dist: dist > uhlopricka!!!'
-!  write(*,*) 'find_dist: cell starting = ', dyn_cell(cell_numb)%corner
-!  write(*,*) 'find_dist: packet pos = ', package(pack_index)%pos
-!  write(*,*) 'find_dist: cell ending = ', dyn_cell(cell_numb)%corner + dyn_cell(cell_numb)%width
-!  write(78,*) package(pack_index)%pos, dyn_cell(cell_numb)%corner, dyn_cell(cell_numb)%width
-! 
-!  STOP 
-! END IF
 
 END SUBROUTINE find_dist

@@ -80,11 +80,6 @@ ELSE
  CALL event_dist(pack_index, cell_dist, e_dist, event, actirrates)
 END IF
 
-write(*,*) 'do_rpackage: e_dist = ', e_dist, ' cell_dist = ', cell_dist
-
-
-
-
 
 IF (e_dist .LT. cell_dist) THEN
  change_of_cell = .FALSE.

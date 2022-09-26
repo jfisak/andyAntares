@@ -17,7 +17,6 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
  INTEGER                           :: n_next_lines
  INTEGER                           :: dummypackage
  INTEGER                           :: n_pack_d
- ! INTEGER                           :: OMP_GET_THREAD_NUM
  DOUBLE PRECISION                  :: freq_line
  TYPE(rrates)                      :: actirrates
  DOUBLE PRECISION                       :: ran2
