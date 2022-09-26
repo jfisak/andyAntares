@@ -46,6 +46,9 @@ DO pack_index = tot_saved_packets + 1, n_pack
      ! write(*,*) 'update_packages: calling do_ipackage'
      CALL do_ipackage(pack_index)
      ! write(*,*) 'ipkt found, should not happen for now'
+  ELSE IF (package(pack_index)%typ == type_dpkt) THEN
+   ! this state corresponds to diffusive approximation
+   CALL do_dpackage(pack_index)
   ELSE
      STOP 'ERROR unknown package typ'
   END IF

@@ -22,17 +22,12 @@ DO gridcell = 1, n_modelgrid
     ELSE
      if(gridcell == 1) CALL read_e_nd()
     END IF
-   CALL diffusion_approximation()
   ELSE
     ! Energy density contribeted to the model grid cell 
      model_grid(gridcell)%J = model_grid(gridcell)%J / model_grid(gridcell)%volume / (4 * pi)
      temp = (model_grid(gridcell)%J * pi / sigma )**(1./4.) 
-     ! print*, 'model cell: ', gridcell, ' temperature = ', temp, ' flux = ', model_grid(gridcell)%J, &
-     ! ' volume = ', model_grid(gridcell)%volume
-     ! print*, 'update_grid: temperature: I = ', I, ' T = ', temp
      model_grid(gridcell)%T = temp
      ! Calculate electron number density for every model grid cell gridcell
-     !print*, gridcell, model_grid(gridcell)%J, temp
      CALL find_e_nd(gridcell, el_nd)
      model_grid(gridcell)%J = 0.D0   
   END IF
@@ -40,8 +35,9 @@ DO gridcell = 1, n_modelgrid
    model_grid(gridcell)%e_dens = el_nd 
    ! write(*,*) 'update_grid: el_nd = ', el_nd
   END IF
+  ! if we calculate the condition only from electron density
+  CALL diffusion_approximation(gridcell)
   temp = model_grid(gridcell)%T
-  !     print*, 'temp and e_nd:', gridcell,  model_grid(gridcell)%rho, temp, el_nd/6.1D14
  ENDIF
 END DO
 ! calculation of population numbers

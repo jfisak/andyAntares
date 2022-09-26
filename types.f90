@@ -51,7 +51,7 @@ IMPLICIT NONE
      DOUBLE PRECISION, DIMENSION(3)  :: vec_vel, vec_pos
      TYPE(grid_comp_t), ALLOCATABLE  :: grid_comp(:)
      ! is the diffusion approximation recommended?
-     LOGICAL                         :: is_difapp
+     LOGICAL                         :: is_difapp = .false.
   END TYPE modelgrid
 
 

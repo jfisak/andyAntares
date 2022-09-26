@@ -190,7 +190,7 @@
       cur_center = dyn_cell(I)%corner + dyn_cell(I)%width/2.0
       IF(norm2(cur_center) > R_inf .or. norm2(cur_center) < R_star) THEN
        dyn_cell(I)%model_index = n_modelgrid + add_mg
-       model_grid(n_modelgrid + add_mg)%assoc_cells = model_grid(n_modelgrid + add_mg)%assoc_cells + 1
+       model_grid(n_modelgrid + 1)%assoc_cells = model_grid(n_modelgrid + 1)%assoc_cells + 1
        CYCLE
       END IF
       DO J = 1, n_modelgrid
@@ -205,10 +205,11 @@
       dyn_cell(I)%model_index = cur_mcell
       model_grid(cur_mcell)%assoc_cells = model_grid(cur_mcell)%assoc_cells + 1
       diagonal = sqrt(dyn_cell(I)%width(1)**2+dyn_cell(I)%width(3)**2)/2.D0
-      ! IF((delta > diagonal) .AND. (dyn_cell(I)%width(1) > basic_cell_width(1)/2.D0**6)) THEN
-      !  dyn_cell(I)%model_index = n_modelgrid + add_mg
-      !  model_grid(n_modelgrid + add_mg)%assoc_cells = model_grid(n_modelgrid + add_mg)%assoc_cells + 1
-      ! END IF
+      ! vacuum cell
+      IF((delta > diagonal) .AND. (dyn_cell(I)%width(1) > basic_cell_width(1)/2.D0**6)) THEN
+       dyn_cell(I)%model_index = n_modelgrid + add_mg
+       model_grid(n_modelgrid + add_mg)%assoc_cells = model_grid(n_modelgrid + add_mg)%assoc_cells + 1
+      END IF
      END IF ! up_cell == 0
     END DO ! 
    CASE DEFAULT
