@@ -39,8 +39,11 @@ ELSE
 END IF
 actirrates = rrates()
 
+cur_pgi = package(pack_index)%cell_numb
+
+
+
 IF(debug == 2) THEN
- cur_pgi = package(pack_index)%cell_numb
  CALL find_dyn_cell1(package(pack_index)%pos, pomocna_bunka)
  write(*,*) 'do_rpackage I: pack_index = ', pack_index, ' cur_pgi = ', cur_pgi, ' neigbors = ', dyn_cell(cur_pgi)%neighbor
  write(*,*) 'do_rpackage I: pack_index = ', pack_index, ' bunka = ', pomocna_bunka
