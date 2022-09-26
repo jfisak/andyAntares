@@ -218,7 +218,7 @@ CASE(2)
 !   STOP 'subind < 1'
 !  END IF
 
- write(*,*) 'next_cell_up: subind_x = ', subind_x, ' subind_y = ', subind_y, ' subind_z = ', subind_z
+ ! write(*,*) 'next_cell_up: subind_x = ', subind_x, ' subind_y = ', subind_y, ' subind_z = ', subind_z
 
  IF(cross == posx) THEN
   subind_x = 1
