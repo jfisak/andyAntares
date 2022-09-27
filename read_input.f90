@@ -20,6 +20,7 @@ SUBROUTINE read_input(n_pack, iseed)
   eldensfile = 0
   abs_surface = 0
   saved_grid = 0
+  enable_diffusion = 0
 
 ! 001 n_pack
 ! 002 n_nubin
@@ -44,6 +45,7 @@ SUBROUTINE read_input(n_pack, iseed)
 ! 021 eldensfile
 ! 022 inputpopfile
 ! 023 saved grid
+! 024 diffusion
   DO
     READ (1, '(A)', END=99) LINE
 
@@ -209,6 +211,12 @@ SUBROUTINE read_input(n_pack, iseed)
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I2)', ERR=94) saved_grid
 
+    ! 24 saved grid
+    ELSE IF (ACTPAR .EQ. 'diffusive') THEN
+    CALL SARGC (LINE, NPAR)
+    IF (NPAR .LT. 2) GOTO 90
+    CALL SARGV(LINE,2,ACTPAR)
+    READ (ACTPAR, '(I2)', ERR=94) enable_diffusion
     ! end all ifs
     END IF
   END DO

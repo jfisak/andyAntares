@@ -41,13 +41,15 @@ ELSE
  IF(next_cell > SIZE(dyn_cell)) THEN
   CALL abort()
  END IF
- next_mgi = dyn_cell(next_cell)%model_index
- is_difap = model_grid(next_mgi)%is_difapp
- IF(is_difap) THEN
-  package(pack_index)%typ = type_dpkt
- ELSE
-  package(pack_index)%typ = type_rpkt
- END IF
+ if(enable_diffusion == 1) then
+  next_mgi = dyn_cell(next_cell)%model_index
+  is_difap = model_grid(next_mgi)%is_difapp
+  IF(is_difap) THEN
+   package(pack_index)%typ = type_dpkt
+  ELSE
+   package(pack_index)%typ = type_rpkt
+  END IF
+ end if
 END IF
  
 END SUBROUTINE change_cell

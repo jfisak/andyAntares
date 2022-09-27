@@ -103,10 +103,10 @@ ELSE IF(cell_dist < 0.e0) THEN
  ! next_cell = dyn_cell(cur_pgi)%neighbor(package(pack_index)%next_cross)
  CALL change_cell(pack_index, next_cell)
 END IF
-CALL find_dyn_cell1(package(pack_index)%pos, pomocna_bunka)
 
 ! check if we are in a correct cell
 IF(debug == 2) THEN
+ CALL find_dyn_cell1(package(pack_index)%pos, pomocna_bunka)
  cur_pgi = package(pack_index)%cell_numb
  pos = package(pack_index)%pos
  corner = dyn_cell(cur_pgi)%corner

@@ -198,6 +198,7 @@ IMPLICIT NONE
   INTEGER                               :: tot_saved_packets
   ! for testing case
   LOGICAL                               :: simpleTrans, orbitals_nl
+  INTEGER                               :: enable_diffusion
 
 
 
