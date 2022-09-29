@@ -51,8 +51,8 @@ IF(dir(1) /= 0) THEN
  IF(t1 == 0.0) n_zer = n_zer + 1
  IF(t4 == 0.0) n_zer = n_zer + 1
 ELSE
- t1 = 0
- t4 = 0
+ t1 = velkeCislo
+ t4 = velkeCislo
 END IF
 IF(dir(2) /= 0) THEN
  t2 = (corner(2) - pos(2))/(dir(2))
@@ -64,8 +64,8 @@ IF(dir(2) /= 0) THEN
  IF(t2 == 0.0) n_zer = n_zer + 1
  IF(t5 == 0.0) n_zer = n_zer + 1
 ELSE
- t2 = 0
- t5 = 0
+ t2 = velkeCislo
+ t5 = velkeCislo
 END IF
 IF(dir(3) /= 0) THEN
  t3 = (corner(3) - pos(3))/(dir(3))
@@ -77,8 +77,8 @@ IF(dir(3) /= 0) THEN
  IF(t3 == 0.0) n_zer = n_zer + 1
  IF(t6 == 0.0) n_zer = n_zer + 1
 ELSE
- t3 = 0
- t6 = 0
+ t3 = velkeCislo
+ t6 = velkeCislo
 END IF
 
 

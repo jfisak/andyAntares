@@ -8,12 +8,12 @@ INTEGER                                 :: cur_mgi
 
 DOUBLE PRECISION                        :: electron_density, chi_cont
 
-DOUBLE PRECISION, PARAMETER             :: chi_min = 1e-10
+DOUBLE PRECISION, PARAMETER             :: chi_min = 1e-16
 
 
 electron_density = model_grid(cur_mgi)%e_dens
 chi_cont = sigma_e * electron_density
-! write(*,*) 'diffusion_approximation: cur_mgi = ', cur_mgi, ' chi_cont = ', chi_cont
+write(*,*) 'diffusion_approximation: cur_mgi = ', cur_mgi, ' chi_cont = ', chi_cont
 
 IF(chi_cont > chi_min) THEN
  model_grid(cur_mgi)%is_difapp = .true.

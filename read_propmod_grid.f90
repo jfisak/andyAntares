@@ -51,6 +51,7 @@ DO I = 1, n_modelgrid
   model_grid(I)%vel = vel(1)
  ELSE IF(model_type == 3) THEN
   model_grid(I)%vec_pos = pos
+  model_grid(I)%rwind = norm2(pos)
   model_grid(I)%vec_vel = vel
  END IF
  model_grid(I)%rho = rho
