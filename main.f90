@@ -122,6 +122,7 @@ INQUIRE(FILE=propmod_file, EXIST=propmod_file_exists)
 IF(saved_grid == 1 .and. propmod_file_exists) THEN
  CALL read_propmod_grid()
 ELSE
+ ! write(*,*) 'setting up model grid'
  CALL setup_model_grid()
  
  ! if model_type == 3 xyzmax are already calculated in setup_model_grid
@@ -146,9 +147,12 @@ ELSE
  
  ! Set up of the propagation grid
  write(99,*) 'setting up the propagation grid'
+ ! write(*,*) 'setting up the propagation grid'
  CALL setup_propgrid()
  
+ ! write(*,*) 'connecting prop and mod grids'
  CALL connection_prop_model_grid()
+ ! write(*,*) 'prop and mod grids are connected'
 END IF ! saved propmod grid
 
 ! save propmod_grid?
@@ -194,7 +198,9 @@ DO iteration = 1,1
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  IF (iteration .GE. 10) write(99,*) 'No convergency'
+ ! write(*,*) 'updating modGrid'
  CALL update_grid(iteration)
+ ! write(*,*) 'modGrid was updated'
  ! if (iteration == 1 .AND. inputpopfile .NE. '') then
  !  CALL read_populations()
  ! end if
@@ -212,13 +218,16 @@ DO iteration = 1,1
 ! PACKET MACHINERY !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ ! write(*,*) 'initialization of photosphere'
  CALL init_photsphere(n_pack) 
+ ! write(*,*) 'photosphere was initialized'
 
 ! Propagation of the photon in 3D grid
 ! CALL propagation(n_pack, opa_cell, lower_opa, delta_opa)
  write(99,*) 'update packages'
  ! write(*,*) 'update packages'
  CALL update_packages(n_pack)
+ ! write(*,*) 'packets were updated'
  write(99,*) 'Number of destoyed packages =', destroyed_pack
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

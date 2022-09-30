@@ -14,6 +14,7 @@ INTEGER                                 :: dummypack, I
 
 DOUBLE PRECISION                        :: loc_sum, Z
 DOUBLE PRECISION, DIMENSION(3)          :: width, corner, ran_dir, pack_dir, cur_center
+DOUBLE PRECISION, DIMENSION(3)          :: new_width
 INTEGER, DIMENSION(3)                   :: cur_dir
 INTEGER                                 :: next_mgi
 DOUBLE PRECISION                        :: ran2, rand
@@ -26,6 +27,8 @@ LOGICAL                                 :: active
 DOUBLE PRECISION                        :: D, freq
 DOUBLE PRECISION, DIMENSION(3)          :: cross_pos
 DOUBLE PRECISION, DIMENSION(3)          :: new_dir
+
+DOUBLE PRECISION                        :: area
 
 INTEGER                                 :: pomocna_bunka
 
@@ -150,17 +153,30 @@ END IF
 
     active = .false.
    END IF
-  ! we have to repeat the choice
   ELSE
    ! another choice must be done...
-   write(*,*) 'another choice must be done'
+  ! we have to repeat the choice
+    new_width = dyn_cell(next_cell)%width
+    IF(next_leak == posx) THEN
+     area = new_width(2) * new_width(3)
+    ELSE IF(next_leak == negx) THEN
+     area = new_width(2) * new_width(3)
+    ELSE IF(next_leak == posy) THEN
+     area = new_width(1) * new_width(3)
+    ELSE IF(next_leak == negy) THEN
+     area = new_width(1) * new_width(3)
+    ELSE IF(next_leak == posz) THEN
+     area = new_width(2) * new_width(1)
+    ELSE IF(next_leak == negz) THEN
+     area = new_width(2) * new_width(1)
+    END IF
+    
+    rates(next_leak) = rates(next_leak) - area
+    if(rates(next_leak) < 0.0) STOP 'do_dpackage: rate < 0'
+
   END IF
   
  END DO
-
-write(*,*) 'do_dpackage: pack_index = ', pack_index, ' moving to next cell = ', next_cell
-cur_center = corner + width/2.0
-write(22,*) cur_center, dyn_cell(next_cell)%corner, dyn_cell(next_cell)%width
 
 CASE DEFAULT
  write(*,*) 'do_dpackage: the choice dapprox = ', dapprox, ' is not known...'

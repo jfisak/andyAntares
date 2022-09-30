@@ -28,7 +28,7 @@ DO I = 1,3
  cross_pos(I) = corner(I) + rand * width(I)
 END DO
 
-write(*,*) 'd_choosenextcell: next_leak = ', next_leak
+! write(*,*) 'd_choosenextcell: next_leak = ', next_leak
 
 IF(next_leak == posx) THEN
  cross_pos(1) = corner(1) + width(1)
@@ -64,7 +64,7 @@ END DO
 ! next cell up
 IF(dyn_cell(next_cell)%up_cell > 0) THEN
 
- write(*,*) 'd_choosenextcell: next_cell = ', next_cell
+ ! write(*,*) 'd_choosenextcell: next_cell = ', next_cell
 
  SELECT CASE(dyngrid)
  CASE(0)
