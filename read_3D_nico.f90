@@ -5,7 +5,7 @@ IMPLICIT NONE
 
 INTEGER                                 :: cur_mgi, n_mgi
 DOUBLE PRECISION                        :: cur_Teff, cur_rinf, cur_vinf
-DOUBLE PRECISION                        :: x, y, z, vx, vy, vz, rho, temp
+DOUBLE PRECISION                        :: x, y, z, vx, vy, vz, rho, temp, lambda
 DOUBLE PRECISION                        :: cur_radius, cur_velocity, cur_rstar
 DOUBLE PRECISION                        :: cur_xmax, cur_ymax, cur_zmax
 
@@ -20,7 +20,10 @@ INTEGER                                  :: I, J
 
 modelfile=TRIM(inputmodelFile)
 
-add_mg = 1
+! add_mg = 1 r < R_star
+! add_mg = 2 r > R_inf
+! add_mg = 3 r > R_star && r < R_inf, vacuum cell
+add_mg = 3
 cur_mgi = 0
 
 OPEN(UNIT=11, FILE=modelfile)
@@ -59,7 +62,7 @@ OPEN(UNIT=11, FILE=modelfile)
 
   cur_mgi = cur_mgi + 1
 
-  READ(line,*) x, y, z, vx, vy, vz, rho, temp
+  READ(line,*) x, y, z, vx, vy, vz, rho, temp, lambda
   
   model_grid(cur_mgi)%vec_pos(1) = x * R_sun
   model_grid(cur_mgi)%vec_pos(2) = y * R_sun
@@ -71,6 +74,8 @@ OPEN(UNIT=11, FILE=modelfile)
   model_grid(cur_mgi)%vec_vel(1) = vx
   model_grid(cur_mgi)%vec_vel(2) = vy
   model_grid(cur_mgi)%vec_vel(3) = vz
+
+  model_grid(cur_mgi)%diff_param = lambda
 
   cur_velocity = sqrt(vx**2 + vy**2 + vz**2)
   IF(cur_velocity > light_speed) THEN
@@ -112,10 +117,14 @@ OPEN(UNIT=11, FILE=modelfile)
 ! Dummy cell to associate to propagation grid cells which have no representation on the model grid.
 ! All cells out of model grid set to 0 and associate to n_modelgrid.
 ! Other cells will obtainde particular values with memory
-model_grid(n_modelgrid + add_mg)%vec_vel = (/ 0.e0, 0.e0, 0.e0 /)
-model_grid(n_modelgrid+add_mg)%rwind = 0.D0
-model_grid(n_modelgrid+add_mg)%vel   = 0.D0
-model_grid(n_modelgrid+add_mg)%rho   = 0.D0
+DO I = 1, add_mg
+ model_grid(n_modelgrid + I)%vec_vel = (/ 0.e0, 0.e0, 0.e0 /)
+ model_grid(n_modelgrid + I)%rwind = 0.D0
+ model_grid(n_modelgrid + I)%vel   = 0.D0
+ model_grid(n_modelgrid + I)%rho   = 0.D0
+ model_grid(cur_mgi)%J = 0.D0
+ model_grid(cur_mgi)%assoc_cells = 0
+END DO
   
  T_eff = cur_Teff
  R_star = cur_rstar

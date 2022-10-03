@@ -60,6 +60,8 @@ DO
  END IF
 END DO
 
+! if we are at the propGrid edge, we do not have to find upper cells
+IF(next_cell < 0) RETURN
 
 ! next cell up
 IF(dyn_cell(next_cell)%up_cell > 0) THEN

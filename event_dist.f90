@@ -57,9 +57,13 @@ END DO
  !Get the packet's current position on the model grid
  current_mgi = get_package_model_index(pack_index)
 
+ IF(current_mgi > n_modelgrid) THEN
+  event = rpkt_eventtype_changecell
+  e_dist = cell_dist + largeNumber
+  RETURN
+ END IF
+
  electron_density = model_grid(current_mgi)%e_dens
- IF(current_mgi .EQ. n_modelgrid + 2) electron_density = 0.D0
- !print*, 'electron_density = ', electron_density
 
  ! calculates all continuum opacities
  CALL r_kappa_cont(pack_index, kappa_cont, actirrates)

@@ -46,6 +46,7 @@ IMPLICIT NONE
      INTEGER                         :: assoc_cells
      DOUBLE PRECISION                :: width
      DOUBLE PRECISION                :: volume
+     DOUBLE PRECISION                :: diff_param
      DOUBLE PRECISION                :: T, J, rho, vel, rwind, e_dens
      DOUBLE PRECISION                :: zwind, velang, angle
      DOUBLE PRECISION, DIMENSION(3)  :: vec_vel, vec_pos

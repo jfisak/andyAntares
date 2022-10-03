@@ -188,8 +188,13 @@
       delta = 1.D99
       cur_mcell = 0
       cur_center = dyn_cell(I)%corner + dyn_cell(I)%width/2.0
-      IF(norm2(cur_center) > R_inf .or. norm2(cur_center) < R_star) THEN
-       dyn_cell(I)%model_index = n_modelgrid + add_mg
+      IF(norm2(cur_center) < R_star) THEN
+       dyn_cell(I)%model_index = n_modelgrid + 1
+       model_grid(n_modelgrid + 1)%assoc_cells = model_grid(n_modelgrid + 1)%assoc_cells + 1
+       CYCLE
+      END IF
+      IF(norm2(cur_center) > R_inf) THEN
+       dyn_cell(I)%model_index = n_modelgrid + 2
        model_grid(n_modelgrid + 1)%assoc_cells = model_grid(n_modelgrid + 1)%assoc_cells + 1
        CYCLE
       END IF

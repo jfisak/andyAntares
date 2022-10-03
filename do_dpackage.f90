@@ -4,6 +4,7 @@
 SUBROUTINE do_dpackage(pack_index)
 
 USE types
+USE counters
 IMPLICIT NONE
 
 INTEGER                                 :: pack_index
@@ -114,9 +115,35 @@ END IF
 
   CALL d_choosenextcell(cur_pgi, next_leak, next_cell, cross_pos)
 
-  next_mgi = dyn_cell(next_cell)%model_index
+  IF(next_cell > 0) THEN
+   next_mgi = dyn_cell(next_cell)%model_index
+  ELSE
+   package(pack_index)%cell_numb = next_cell
+   package(pack_index)%active = 0
+   package(pack_index)%typ = type_escaped
+   package(pack_index)%pos = cross_pos
+   count_des_esca = count_des_esca + 1
+   CALL freq_from_planck(freq)
+   package(pack_index)%freq_rf = freq
+   CALL random_unitvector2(ran_dir)
+   IF(next_leak == posx) THEN
+    new_dir = (/ ran_dir(3), ran_dir(1), -ran_dir(2)   /)
+   ELSE IF(next_leak == negx) THEN
+    new_dir = (/ -ran_dir(3), ran_dir(1), ran_dir(2)   /)
+   ELSE IF(next_leak == posy) THEN
+    new_dir = (/ ran_dir(1), ran_dir(3), -ran_dir(2) /)
+   ELSE IF(next_leak == negy) THEN
+    new_dir = (/ ran_dir(1) , -ran_dir(3) , ran_dir(2) /)
+   ELSE IF(next_leak == posz) THEN
+    new_dir = (/ -ran_dir(2) , ran_dir(1),ran_dir(3)/)
+   ELSE IF(next_leak == negz) THEN
+    new_dir = (/ ran_dir(2), ran_dir(1), -ran_dir(3)/)
+   END IF
+
+   RETURN
+  END IF
   ! packet can be changed into an r-packet
-  IF(next_mgi < n_modelgrid + 1) THEN
+  IF(next_mgi .ne. n_modelgrid + 1) THEN
    next_diff = model_grid(next_mgi)%is_difapp
    IF(next_diff) THEN
     package(pack_index)%cell_numb = next_cell
