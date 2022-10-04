@@ -16,13 +16,12 @@ INTEGER, DIMENSION(6)                           :: neighbors
 
 INTEGER                                         :: Nx, Ny, Nz
 
-INTEGER                                         :: add_mc
 INTEGER                                         :: atom_number, numbions, assoc_cells
+
+LOGICAL                                         :: is_diff
 
 ! now it works only for 3D models!!!
 write(propmod_file,"(A, A12)") TRIM(outputfolder), '/propmod.dat'
-
-add_mc = 1
 
 ! OPEN(49, FORM='unformatted', FILE=propmod_file)
 OPEN(49, FILE=propmod_file)
@@ -35,8 +34,9 @@ read(49, *) R_inf
 read(49, *) V_inf
 read(49, *) xmax, ymax, zmax
 read(49, *) Nx, Ny, Nz
+read(49, *) add_mg
 
-ALLOCATE(model_grid(n_modelgrid + add_mc))
+ALLOCATE(model_grid(n_modelgrid + add_mg))
 
 nx_cell = Nx
 ny_cell = Ny
@@ -44,7 +44,7 @@ nz_cell = Nz
 Ngrid = nx_cell * ny_cell * nz_cell
 
 DO I = 1, n_modelgrid
- read(49, *) pos, vel, rho, temp, volume, assoc_cells
+ read(49, *) pos, vel, rho, temp, volume, assoc_cells, is_diff
 
  IF(model_type == 1) THEN
   model_grid(I)%rwind = pos(1)
@@ -59,6 +59,7 @@ DO I = 1, n_modelgrid
  model_grid(I)%volume = volume
  model_grid(I)%assoc_cells = assoc_cells
  model_grid(I)%J = 0.D0
+ model_grid(I)%is_difapp = is_diff
 
  ALLOCATE (model_grid(I)%grid_comp(n_elements))
  DO J = 1, n_elements

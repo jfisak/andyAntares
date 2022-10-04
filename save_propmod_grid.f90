@@ -16,6 +16,8 @@ DOUBLE PRECISION                                :: rho, temp, volume
 INTEGER                                         :: down_cell, up_cell, model_index, assoc_cells
 INTEGER, DIMENSION(6)                           :: neighbors
 
+LOGICAL                                         :: is_diff
+
 
 write(propmod_file,"(A, A12)") TRIM(outputfolder), '/propmod.dat'
 
@@ -29,6 +31,7 @@ write(49,*) R_inf
 write(49,*) V_inf
 write(49,*) xmax, ymax, zmax
 write(49,*) nx_cell, ny_cell, nz_cell
+write(49,*) add_mg
 
 DO I = 1, n_modelgrid
  IF(model_type == 1) THEN
@@ -46,8 +49,9 @@ DO I = 1, n_modelgrid
  temp = model_grid(I)%T
  volume = model_grid(I)%volume
  assoc_cells = model_grid(I)%assoc_cells
+ is_diff = model_grid(I)%is_difapp
 
- write(49,*) pos, vel, rho, temp, volume, assoc_cells
+ write(49,*) pos, vel, rho, temp, volume, assoc_cells, is_diff
 END DO
 
 ! saves the associated propagation grid
