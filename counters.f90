@@ -37,4 +37,10 @@ INTEGER                         :: count_i_int_reco = 0
 INTEGER                         :: count_i_rad_reco = 0
 INTEGER                         :: count_i_col_reco = 0
 
+! d-packets counters
+INTEGER                         :: count_d_change_cell = 0
+INTEGER                         :: count_d_new_choice = 0
+INTEGER                         :: count_d_radiative = 0
+INTEGER                         :: count_d_rad_end = 0
+
 END MODULE counters

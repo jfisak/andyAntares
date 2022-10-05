@@ -140,6 +140,9 @@ CASE(2)
   ' count_i_col_deex = ', count_i_col_deex, ' count_i_int_phot = ', count_i_int_phot, &
   ' count_i_int_reco = ', count_i_int_reco, ' count_i_rad_reco = ', count_i_rad_reco, &
   ' count_i_col_reco = ', count_i_col_reco
+ write(99,*) 'd-packets'
+ write(99,*) 'count_d_change_cell = ', count_d_change_cell, ' count_d_new_choice = ', count_d_new_choice, &
+  ' count_d_radiative = ', count_d_radiative, ' count_d_rad_end = ', count_d_rad_end
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! #04 temperature structure and ionization balance
 !
@@ -158,23 +161,24 @@ CASE(3)
  OPEN(12, FILE=fileTempStruct)
   DO I = 1, n_modelgrid
    IF(model_grid(I)%assoc_cells == 0) CYCLE
-   WRITE(12, *) model_grid(I)%rwind / R_inf, model_grid(I)%T, model_grid(I)%e_dens
+   WRITE(12, *) model_grid(I)%rwind, model_grid(I)%T, model_grid(I)%e_dens
   END DO
  CLOSE(12)
  ! saving population numbers
  fileOccNum = trim(outputfolder)//'/occNums.dat'
  OPEN(13, FILE = fileOccNum)
   ! writing basic informations about chemical composition
+  ! 000 -- model cell information
+  ! 001 -- chemical composition
+  ! 002 -- level population
+  ! 003 -- total ion population
   DO I = 1, n_modelgrid
    IF(model_grid(I)%assoc_cells == 0) CYCLE
-   WRITE(13, *) '**modelCell**'
-   WRITE(13, *) I, model_grid(I)%rwind, model_grid(I)%t, model_grid(I)%rho, model_grid(I)%e_dens
-   WRITE(13, *) '**composition**'
+   WRITE(13, *) '000', I, model_grid(I)%rwind, model_grid(I)%t, model_grid(I)%rho, model_grid(I)%e_dens
    DO J = 1, n_elements
-     WRITE(13, *) elements(J)%atom_number, elements(J)%abundance
+     WRITE(13, *) '001', elements(J)%atom_number, elements(J)%abundance
    END DO
    ! write the occupation numbers
-   WRITE(13, *) '**occunumbs**'
    DO act_elem = 1, n_elements
     DO act_ion = 1, SIZE(elements(act_elem)%ions)
      ! WRITE(13, *) model_grid(I)%grid_comp(act_elem)%grid_ion(act_ion)%tot_pop
@@ -183,11 +187,11 @@ CASE(3)
       eenergy = elements(act_elem)%ions(act_ion)%levels(act_lev)%exci_energy
       CALL populations(act_elem, act_ion, act_lev, I, act_pop)
       num_tot_pop = num_tot_pop + act_pop
-      WRITE(13, *) elements(act_elem)%atom_number, act_ion, act_lev, &
+      WRITE(13, *) '002', elements(act_elem)%atom_number, act_ion, act_lev, &
       elements(act_elem)%ions(act_ion)%levels(act_lev)%stat_waight, &
       eenergy / e_v, act_pop
      END DO
-     WRITE(13, *) elements(act_elem)%atom_number, act_ion, ' TOT ', &
+     WRITE(13, *) '003', elements(act_elem)%atom_number, act_ion, ' TOT ', &
      model_grid(I)%grid_comp(act_elem)%grid_ion(act_ion)%tot_pop / num_tot_pop, &
       model_grid(I)%grid_comp(act_elem)%grid_ion(act_ion)%tot_pop
     END DO

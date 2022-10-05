@@ -9,7 +9,8 @@ USE types
 IMPLICIT NONE
 
 INTEGER                                 :: cur_mgi, indexe, indexi, indexl
-INTEGER                                 :: n_ions, n_levels
+DOUBLE PRECISION                        :: cur_radius
+INTEGER                                 :: n_ions, n_levels, at_index
 DOUBLE PRECISION                        :: tot_pop_ion, sum_pop, act_pop
 DOUBLE PRECISION                        :: ratio
 DOUBLE PRECISION                        :: tot_pop_ele
@@ -24,6 +25,7 @@ DO cur_mgi = 1, n_modelgrid
  IF (model_grid(cur_mgi)%assoc_cells == 0) CYCLE
  DO indexe = 1, n_elements
   n_ions = SIZE(elements(indexe)%ions)
+  cur_radius = model_grid(cur_mgi)%rwind
   tot_pop_ele = 0.D0
   tot_pop_ion = 0.D0
   tot_frac = 0.D0
@@ -31,7 +33,8 @@ DO cur_mgi = 1, n_modelgrid
    temp = model_grid(cur_mgi)%t
    el_nd = model_grid(cur_mgi)%e_dens
    CALL ionization_fraction(indexe, indexi, temp, el_nd, frac)
-   write(59,*) cur_mgi, indexe, indexi, frac
+   at_index = elements(indexe)%atom_number
+   write(59,*) cur_mgi, at_index, indexi, frac, cur_radius
    tot_frac = tot_frac + frac
    tot_pop_ion = model_grid(cur_mgi)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
    tot_pop_ele = tot_pop_ele + tot_pop_ion
@@ -58,7 +61,7 @@ DO cur_mgi = 1, n_modelgrid
   ! tot_pop_elea = model_grid(cur_mgi)%grid_comp(indexe)%abund * model_grid(cur_mgi)%rho / elements(indexe)%atom_mass
   ! ratio_el = tot_pop_ele / tot_pop_elea
   ! write(*,*) 'check_pop: indexe = ', indexe, ' ratio_el = ', ratio_el
-  write(59,*) cur_mgi, indexe, ' TOT ', tot_frac
+  write(59,*) cur_mgi, at_index, ' TOT ', tot_frac, cur_radius
  END DO
 END DO
 CLOSE(59)

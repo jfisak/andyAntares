@@ -50,12 +50,10 @@ DO I = 1, nnextlines
  ! write(*,*) 'r_kappa_line: indexe = ', indexe, ' indexi = ', indexi
  ! write(*,*) 'indexl = ', linelist(indexline)%lower, 'indexu = ', linelist(indexline)%upper
  ! write(*,*) 'current_mgi = ', current_mgi
- CALL populations(indexe, indexi, linelist(indexline)%lower,&
-  current_mgi, low_pop)
- CALL populations(indexe, indexi, linelist(indexline)%upper,&
-  current_mgi, upp_pop)
+ CALL populations(indexe, indexi, lower_level, current_mgi, low_pop)
+ CALL populations(indexe, indexi, upper_level, current_mgi, upp_pop)
  ! write(*,*) 'r_kappa_line: low_pop = ', low_pop, ' upp_pop = ', upp_pop
- IF(low_pop <= 1.E-20 .OR. upp_pop == 1.E-20) THEN
+ IF(low_pop <= 1.E-20 .OR. upp_pop <= 1.E-20) THEN
   actirrates%Lline(I) = 0.E0
   actirrates%nline(I) = indexline
   CYCLE

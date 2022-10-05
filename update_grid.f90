@@ -11,6 +11,8 @@ INTEGER             :: gridcell, indexe, indexi, numb_ions, iteration
 DOUBLE PRECISION    :: el_nd, temp
 LOGICAL                 :: wasFound
 
+LOGICAL                                 :: propmod_file_exists
+CHARACTER(60)                           :: propmod_file
   
 write(99,*) 'updating grid'
 DO gridcell = 1, n_modelgrid
@@ -35,8 +37,15 @@ DO gridcell = 1, n_modelgrid
    model_grid(gridcell)%e_dens = el_nd 
    ! write(*,*) 'update_grid: el_nd = ', el_nd
   END IF
+  write(propmod_file,"(A, A12)") TRIM(outputfolder), '/propmod.dat'
+  INQUIRE(FILE=propmod_file, EXIST=propmod_file_exists)
+
+  IF(saved_grid == 1 .and. propmod_file_exists) THEN
+  ! nothing
+  ELSE
   ! if we calculate the condition only from electron density
   CALL diffusion_approximation(gridcell)
+  END IF
   temp = model_grid(gridcell)%T
  ENDIF
 END DO
@@ -53,6 +62,7 @@ END DO
   END DO
  END IF
 CALL check_pop()
+CALL save_rates()
 ! STOP 'update_grid: testing'
 CLOSE(3)
 

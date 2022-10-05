@@ -16,7 +16,7 @@ linkhost=$(shell hostname)
 OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
           random_unitvector.o ran2.o boundary3.o find_dist.o rates_i.o\
           change_cell.o move_package.o emit_rpackage.o	rates_k.o rates_r.o \
-          init_photsphere.o random_unitvector2.o ran2_class.o \
+          init_photsphere.o random_unitvector2.o ran2_class.o save_rates.o\
           random_unitvector1.o read_1D_model.o doppler_factor.o oct_neighbors.o\
           vec_length.o velo.o angle_aberration.o freq_from_planck.o lin_interpolation.o \
           do_rpackage.o do_ipackage.o event_dist.o get_package_model_index.o  \

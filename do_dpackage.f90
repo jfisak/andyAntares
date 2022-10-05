@@ -54,6 +54,8 @@ CASE(0)
  cur_pgi = package(pack_index)%cell_numb
  corner = dyn_cell(cur_pgi)%corner
  width = dyn_cell(cur_pgi)%width
+
+ ! write(22,*) corner, width
  
 IF(debug == 3) THEN
  CALL find_dyn_cell1(package(pack_index)%pos, pomocna_bunka)
@@ -115,6 +117,7 @@ END IF
 
   CALL d_choosenextcell(cur_pgi, next_leak, next_cell, cross_pos)
 
+  ! test if the next cell exists
   IF(next_cell > 0) THEN
    next_mgi = dyn_cell(next_cell)%model_index
   ELSE
@@ -139,18 +142,20 @@ END IF
    ELSE IF(next_leak == negz) THEN
     new_dir = (/ ran_dir(2), ran_dir(1), -ran_dir(3)/)
    END IF
-
+   count_d_rad_end = count_d_rad_end + 1
    RETURN
   END IF
-  ! packet can be changed into an r-packet
+
+  ! packet can be changed into an r-packet or just move to another diffusive cell
   IF(next_mgi .ne. n_modelgrid + 1) THEN
    next_diff = model_grid(next_mgi)%is_difapp
+   ! moving to another diffusive cell
    IF(next_diff) THEN
     package(pack_index)%cell_numb = next_cell
     active = .false.
+    count_d_change_cell = count_d_change_cell + 1
    ELSE
     package(pack_index)%pos = cross_pos
-    write(23,*) cross_pos
     package(pack_index)%cell_numb = next_cell
     package(pack_index)%typ = type_rpkt
     
@@ -179,6 +184,8 @@ END IF
     package(pack_index)%next_cross = next_leak
 
     active = .false.
+
+    count_d_radiative = count_d_radiative + 1
    END IF
   ELSE
    ! another choice must be done...
@@ -200,6 +207,8 @@ END IF
     
     rates(next_leak) = rates(next_leak) - area
     if(rates(next_leak) < 0.0) STOP 'do_dpackage: rate < 0'
+
+    count_d_new_choice = count_d_new_choice + 1
 
   END IF
   
