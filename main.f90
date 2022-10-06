@@ -24,6 +24,8 @@ INTEGER                              :: nphit
 LOGICAL                                 :: propmod_file_exists
 CHARACTER(60)                           :: propmod_file
 
+LOGICAL                                 :: timing = .true.
+
 
 ! Link data to identify program version
 CHARACTER LINK_DATE*30, LINK_USER*10, LINK_HOST*60
@@ -226,7 +228,14 @@ DO iteration = 1,1
 ! CALL propagation(n_pack, opa_cell, lower_opa, delta_opa)
  write(99,*) 'update packages'
  ! write(*,*) 'update packages'
+ IF(timing) THEN
+  CALL cpu_time(time0_pp)
+ END IF
  CALL update_packages(n_pack)
+ IF(timing) THEN
+  CALL cpu_time(time1_pp)
+  write(99,*) 'time0_pp = ', time0_pp, ' time1_pp = ', time1_pp
+ END IF
  ! write(*,*) 'packets were updated'
  write(99,*) 'Number of destoyed packages =', destroyed_pack
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
