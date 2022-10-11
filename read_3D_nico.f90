@@ -39,7 +39,7 @@ OPEN(UNIT=11, FILE=modelfile)
  END DO
 
  n_modelgrid = n_mgi
- write(*,*) 'read_3D_nico: n_modelgrid = ', n_modelgrid
+ write(*,*) 'read_3D_nico: n_modelgrid = ', n_modelgrid, ' add_mg = ', add_mg
 
  ALLOCATE(model_grid(n_modelgrid + add_mg))
 

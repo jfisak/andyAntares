@@ -47,6 +47,7 @@ current_mgi = get_package_model_index(pack_index)
 electron_density = model_grid(current_mgi)%e_dens
 temp = model_grid(current_mgi)%t
 freq = package(pack_index)%freq_cmf
+if(isnan(freq)) STOP 'r_kappa_cont: freq is NaN'
 IF(current_mgi .EQ. n_modelgrid + 2) electron_density = 0.D0
 !IF(.NOT. ALLOCATED(Lcont)) THEN
 !END IF
@@ -66,7 +67,6 @@ kappa = thomson
 ! write(*,*) 'r_kappa_cont: *********************************************************************************'
 ! write(*,*) 'r_kappa_cont: temp = ', temp
 ! write(*,*) 'r_kappa_cont: thomson = ', thomson
-! write(*,*) 'r_kappa_cont: electron_density = ', electron_density, ' sigma_e = ', sigma_e
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! bound-free processes
@@ -130,7 +130,7 @@ DO indexe = 1, n_elements
     !  ' actirrates%Lcont(3, act_continuum) = ', actirrates%Lcont(3, act_continuum), &
     !  ' actirrates%Lcont(4, act_continuum) = ', actirrates%Lcont(4, act_continuum)
     ! write(*,*) 'r_kappa_cont: act_continuum = ', act_continuum, ' Lion = ', actirrates%Lcont(4, act_continuum)
-     kappa = kappa + actirrates%Lcont(4, act_continuum)
+    kappa = kappa + actirrates%Lcont(4, act_continuum)
    END IF ! finding valid data
   END DO ! levels
  END DO ! ions
@@ -160,7 +160,7 @@ DO indexe = 1, n_elements
   ! write(*,*) 'r_kappa_cont: indexe = ', indexe, ' indexi = ', indexi, ' kappaff = ', kappaff
  END DO
 END DO
-kappaff = 0.D0
+! kappaff = 0.D0
 kappa = kappa + kappaff
 ! write(*,*) 'r_kappa_cont: kappaff = ', kappaff , 'thomson = ', thomson
 ! write(*,*) 'r_kappa_cont: kappa = ', kappa
