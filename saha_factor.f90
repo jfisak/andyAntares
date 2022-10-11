@@ -11,6 +11,8 @@ INTEGER, DIMENSION(1)                   :: indexl0
 DOUBLE PRECISION                        :: sfactor
 DOUBLE PRECISION                        :: sahaconst, gijk, g0, eijk, e0
 
+DOUBLE PRECISION, PARAMETER             :: greatNumber=1.D80
+
 !CALL populations(indexe, indexi - 1, indexl, cur_mgi, popj)
 !! dimind = SIZE(MINLOC(elements(indexe)%ions(indexi)%levels(:)%exci_energy))
 !! ALLOCATE(indexl0(dimind))
@@ -33,7 +35,7 @@ e0 = elements(indexe)%ions(indexi)%levels(indexl0(1))%exci_energy
 sfactor = gijk / g0 * sahaconst / temp**(3.0/2.0) * exp((e0 - eijk) / (BOLK * temp))
 
 
-IF(isnan(sfactor)) THEN
+IF(isnan(sfactor) .or. sfactor > greatNumber) THEN
  write(*,*) 'saha_factor: indexe = ', indexe, ' indexi = ', indexi, ' indexl = ', indexl
  write(*,*) 'saha_factor: gijk = ', gijk, ' g0 = ', g0, ' temp = ', temp,&
   ' e0 = ', e0, ' eijk = ', eijk

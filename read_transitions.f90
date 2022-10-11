@@ -233,7 +233,7 @@ CASE(2)
    END IF
    IF((found_low_conf .EQV. .FALSE.) .OR. (found_up_conf .EQV. .FALSE.)) THEN
     ! this configuration will not be taken into account and we will read the next line
-    write(*,*) 'element: ', element, ' ion = ', ion_index, ' line from ', low_conf, ' to ', up_conf, &
+    write(99,*) 'element: ', element, ' ion = ', ion_index, ' line from ', low_conf, ' to ', up_conf, &
       'low_vsplit = ', low_vsplit, ' up_vsplit = ', up_vsplit, '  was not included...'
     n_not_included = n_not_included + 1
     CYCLE

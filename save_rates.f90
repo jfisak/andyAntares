@@ -8,28 +8,39 @@ INTEGER                                 :: indexe, indexi
 INTEGER                                 :: cur_mgi
 INTEGER                                 :: lower_level, upper_level, stat_weight_u
 INTEGER                                 :: stat_weight_l
-DOUBLE PRECISION                        :: ROverV, corrFactor, cur_tau, cur_radius
+DOUBLE PRECISION                        :: ROverV, corrFactor, cur_kappa, cur_radius, cur_rho
 DOUBLE PRECISION                        :: constanta
 DOUBLE PRECISION                        :: cur_wavelength
 DOUBLE PRECISION                        :: exci_energy_u, exci_energy_l
 DOUBLE PRECISION                        :: low_pop, upp_pop
 DOUBLE PRECISION                        :: roverw
 
-CHARACTER(LEN=120)                      :: file_r_linetrans
+CHARACTER(LEN=120)                      :: file_linetrans
+
+DOUBLE PRECISION                        :: taulu, betalu, Aul, Jlu
+DOUBLE PRECISION                        :: actVal
+DOUBLE PRECISION                        :: i_downrad, i_int_down, i_int_up
+DOUBLE PRECISION                        :: Blu, Bul, fr_line
+
+DOUBLE PRECISION                        :: flux_function
 
 constanta = (pi * e_charge**2)/( me_g * light_speed)
 
-file_r_linetrans = trim(outputfolder)//'/r_linetrans.dat'
+file_linetrans = trim(outputfolder)//'/r_linetrans.dat'
 
-OPEN(101,FILE=file_r_linetrans)
+OPEN(101,FILE=file_linetrans)
+write(101,*) '* radius, wavelength, tau_line, i_radeexc, i_int_down, i_int_up'
+write(101,*) n_modelgrid
 DO cur_mgi = 1, n_modelgrid
 
   cur_radius = model_grid(cur_mgi)%rwind
+  cur_rho = model_grid(cur_mgi)%rho
   ! r opacities
   
   ! line optical depths
  DO cur_line = 1, ntransitions
-  cur_wavelength = 1e8 * light_speed / linelist(cur_line)%freq
+  fr_line = linelist(cur_line)%freq
+  cur_wavelength = 1e8 * light_speed / fr_line
   indexe = linelist(cur_line)%indexe
   indexi = linelist(cur_line)%indexi
   lower_level = linelist(cur_line)%lower
@@ -48,10 +59,33 @@ DO cur_mgi = 1, n_modelgrid
 
   corrFactor = 1.D0 - (stat_weight_l * upp_pop) / (stat_weight_u * low_pop)
 
-  cur_tau = light_speed / linelist(cur_line)%freq * constanta * &
-   linelist(cur_line)%f_lu * low_pop * corrFactor * ROverV
+  cur_kappa = constanta * linelist(cur_line)%f_lu * low_pop * corrFactor / cur_rho
 
-  write(101,*) cur_radius, cur_wavelength, cur_tau
+
+  ! i opacities
+  taulu = light_speed / fr_line * constanta * &
+   linelist(cur_line)%f_lu * upp_pop * ROverV * corrFactor
+  betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
+  Aul = 8.D0 * fr_line**2 * pi**2 * e_charge**2/ (me_g * light_speed**3) *&
+   stat_weight_l / stat_weight_u * linelist(cur_line)%f_lu
+  Jlu = flux_function(0, fr_line, model_grid(cur_mgi)%T, model_grid(cur_mgi)%rwind)
+
+  actVal = Aul * betalu * upp_pop
+  
+  i_downrad = actVal * exci_energy_l
+  i_int_down = actVal * (exci_energy_u - exci_energy_l)
+
+  ! internal upward jump rate
+
+  
+  Blu = 4 * pi**2 * e_charge**2 / (me_g * light_speed * h * fr_line) * linelist(cur_line)%f_lu
+  Bul = DBLE(stat_weight_l) / DBLE(stat_weight_u) * Blu
+
+  actVal = (Blu * low_pop - Bul * upp_pop) * betalu * Jlu
+
+  i_int_up = actVal * exci_energy_l
+
+  write(101,*) cur_radius, cur_wavelength, cur_kappa, i_downrad, i_int_down, i_int_up
  
  END DO
 END DO

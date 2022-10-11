@@ -32,11 +32,8 @@ INTEGER                                 :: dummypackage
 
 DOUBLE PRECISION, DIMENSION(8,3)        :: cube_pos
 
+
 dummypackage = SIZE(package)
-
-
-testPacket = SIZE(package) - 1
-package(testPacket) = package(pack_index)
 act_cell = package(pack_index)%cell_numb
 act_pos = package(pack_index)%pos
 act_mgi = get_package_model_index(pack_index)

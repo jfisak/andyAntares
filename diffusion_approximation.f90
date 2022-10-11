@@ -12,7 +12,7 @@ LOGICAL                                 :: is_diff
 
 DOUBLE PRECISION                        :: cur_lambda
 
-DOUBLE PRECISION, PARAMETER             :: chi_min = 1e-15, lambda_min = 0.15
+DOUBLE PRECISION, PARAMETER             :: chi_min = 5e-16, lambda_min = 0.30
 
 
 ! hydronico model, diffaaprox is decidead based on the parameter lambda
@@ -21,7 +21,11 @@ IF(model_type == 3 .and. inputmodel == 1) THEN
  IF(cur_lambda > lambda_min) THEN
   is_diff = .true.
   model_grid(cur_mgi)%is_difapp = is_diff
+ ELSE
+  is_diff = .false.
+  model_grid(cur_mgi)%is_difapp = is_diff
  END IF
+ ! write(*,*) 'diffusion_approximation: cur_mgi = ', cur_mgi, ' cur_lambda = ', cur_lambda, ' is_diff? = ', is_diff
 ELSE
  electron_density = model_grid(cur_mgi)%e_dens
  chi_cont = sigma_e * electron_density
@@ -33,8 +37,8 @@ ELSE
   is_diff = .false.
   model_grid(cur_mgi)%is_difapp = is_diff
  END IF
+ ! write(*,*) 'diffusion_approximation: cur_mgi = ', cur_mgi, ' chi_cont = ', chi_cont, ' is_diff? ', is_diff
  
- write(*,*) 'diffusion_approximation: cur_mgi = ', cur_mgi, ' chi_cont = ', chi_cont, ' is_diff? = ', is_diff
 END IF
 
 

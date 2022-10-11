@@ -44,7 +44,9 @@ DO gridcell = 1, n_modelgrid
   ! nothing
   ELSE
   ! if we calculate the condition only from electron density
-  CALL diffusion_approximation(gridcell)
+   IF(enable_diffusion == 1) THEN
+   CALL diffusion_approximation(gridcell)
+   END IF
   END IF
   temp = model_grid(gridcell)%T
  ENDIF

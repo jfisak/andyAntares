@@ -39,11 +39,6 @@ CASE DEFAULT
  write(*,*) 'this velocity structure is not known'
  CALL abort()
 END SELECT
-! check if the packet is located inside the model grid
-! IF(vec_length(pack_position) > R_inf .OR. &
-!  norm2(pack_position) < R_star) THEN
-!  vel_vec = (/ 0.0, 0.0, 0.0/)
-! END IF
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! petr kurfurst's disk model
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

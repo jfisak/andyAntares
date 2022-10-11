@@ -13,7 +13,7 @@ SUBROUTINE init_photsphere(n_pack)
   destroyed_pack = 0
   L_star = 4.D0*pi*(R_star)**2*sigma*T_eff**4
   write(99,*) 'init photsphere...'
-  write(99,*) 'init_photsphere: R_star = ', R_star, ' T_eff = ', T_eff
+  write(99,*) 'init_photsphere: R_star = ', R_star, ' T_eff = ', T_eff, ' L_star = ', L_star
   !print*, L_star, pi, R_star/r_sun,sigma, T_eff
 
   !    ind_x = nx_cell/2 + 1
@@ -26,6 +26,7 @@ SUBROUTINE init_photsphere(n_pack)
   DO I = 1, n_pack
    IF ((inputflux .EQ. 0) ) THEN
     CALL freq_from_planck(freq)   ! here the frequency is sampled from a Planck law
+    ! write(21,*) freq
     IF(I > tot_saved_packets) package(I)%freq_rf = freq
    ELSE IF ((inputflux .EQ. 1 .OR. inputflux == 2) .AND. (I==1)) THEN
     CALL freq_from_file(n_pack,frequencies) ! frequency is sampled using an existing emergent flux

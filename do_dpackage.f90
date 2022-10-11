@@ -35,7 +35,11 @@ INTEGER                                 :: pomocna_bunka
 
 LOGICAL                                 :: next_diff
 
+LOGICAL                                 :: procout = .FALSE.
+
 dapprox = 0
+
+IF(debug == 4) procout = .TRUE.
 
 dummypack = SIZE(package)
 package(dummypack) = package(pack_index)

@@ -89,6 +89,7 @@ DO I = 1, nfreq
 END DO
 DO I = 1, nfreq - 1
  intval(I) = (func(I + 1) + func(I)) * (freq(I + 1) - freq(I))
+ ! write(*,*) 'k_freq_fb: intval(', I, ') = ', intval(I)
 END DO
 intval(nfreq) = 0.D0
 ! the integral calculation using the trapezoid rule
@@ -105,6 +106,7 @@ DO I = 1, nfreq - 1
  summ = summ + intval(nfreq - I)
  IF(summ > integral1) THEN
   actIndex = nfreq - I
+  ! write(*,*) 'k_freq_fb: actIndex = ', actIndex, ' nfreq = ', nfreq, ' I = ', I
   EXIT
  END IF
 END DO
@@ -112,14 +114,17 @@ END DO
 func1 = freq(actIndex)
 func2 = freq(actIndex + 1)
 int1 = summ
-int2 = summ - intval(actIndex + 1)
+int2 = summ - intval(actIndex)
 ali = (func1 - func2) / (int1 - int2)
 bli = (func2 * int1 - func1 * int2) / (int1 - int2)
 ! finally we get random frequency
 ran_freq = ali * integral1 + bli
-IF(ran_freq < 0.D0) THEN
+! write(*,*) 'k_freq_fb: intval = ', intval(actIndex + 1)
 ! write(*,*) 'k_freq_fb: func1 = ', func1, ' func2 = ', func2, 'int1 = ', int1, &
 !  ' int2 = ', int2, ' ali = ', ali, ' bli = ', bli
+IF(ran_freq < 0.D0) THEN
+ write(*,*) 'k_freq_fb: func1 = ', func1, ' func2 = ', func2, 'int1 = ', int1, &
+  ' int2 = ', int2, ' ali = ', ali, ' bli = ', bli
  STOP
 END IF
 ! write(*,*) 'k_freq_fb: ran_freq = ', ran_freq

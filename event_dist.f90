@@ -33,6 +33,8 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
  DOUBLE  PRECISION                      :: fr_line, loc_dist
  LOGICAL                                :: linCell
  INTEGER                                :: n_lines
+
+IF(debug == 4) procout = .TRUE.
       
  n_pack_d = SIZE(package)
  dummypackage = SIZE(package)
@@ -66,8 +68,9 @@ END DO
  electron_density = model_grid(current_mgi)%e_dens
 
  ! calculates all continuum opacities
+ ! write(*,*) 'event_dist: calling r_kappa_cont for a packet = ', pack_index
  CALL r_kappa_cont(pack_index, kappa_cont, actirrates)
- kappa_cont = 0.D0
+ ! kappa_cont = 0.D0
 
  ! This is the opacity in co-moving frame. Must be transformed to the lab frame
  ! According to Mihalas and Mihalas Eq. 90.8 this is achieved by 
@@ -105,6 +108,8 @@ DO WHILE (do_loop)
   END IF
 
  ! write(*,*) 'event_dist: inCell = ', inCell
+ ! write(*,*) 'event_dist: l_dist = ', l_dist, ' tau_line = ',&
+ !  tau_line, ' tau_cont = ', tau_cont, ' tau_rand = ', tau_rand
  IF(inCell .AND. nextLine /= ntransitions + 1 .AND. .NOT. tooRed) THEN
  
  ! Calculate optical depth in the next line (Sobolev, dv/dr dependent)
@@ -112,9 +117,6 @@ DO WHILE (do_loop)
  !print*, 'before moving package #', pack_index
 
  tau_cont = kappa_cont * l_dist
- ! write(*,*) 'event_dist: l_dist = ', l_dist, ' tau_line = ',&
- !  tau_line, ' tau_cont = ', tau_cont
- 
  
  
   IF(current_mgi .EQ. n_modelgrid + 2) tau_cont = 0.D0

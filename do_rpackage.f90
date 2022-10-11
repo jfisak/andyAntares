@@ -41,7 +41,7 @@ actirrates = rrates()
 
 cur_pgi = package(pack_index)%cell_numb
 
-
+! write(23,*) package(pack_index)%pos
 
 IF(debug == 2) THEN
  CALL find_dyn_cell1(package(pack_index)%pos, pomocna_bunka)

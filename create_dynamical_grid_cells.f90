@@ -27,8 +27,10 @@
    LOGICAL                              :: next_cell
    ! local variables
    DOUBLE PRECISION, DIMENSION(3)       :: loc_corner, loc_cell_width
+   DOUBLE PRECISION, DIMENSION(3)       :: vp_pos
    INTEGER                              :: loc_np
    INTEGER                              :: loc_downcell, loc_upcell
+   INTEGER                              :: cur_point
     ! for 8-dyncells
 
 corner(1) = dyn_cell(n_dyncell)%corner(1)
@@ -48,6 +50,17 @@ SELECT CASE(dyngrid)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!§§
 CASE(1)
 ALLOCATE(local_point(n_points))
+
+cur_point = 0
+DO I = 1, Nvirtpoint
+ vp_pos = virtual_point(I)%pos
+ IF(vp_pos(1) > corner(1) .and. vp_pos(1) < (corner(1) + cell_width_2(1)) .and. &
+  vp_pos(2) >= corner(2) .and. vp_pos(2) < (corner(2) + cell_width_2(2)) .and. &
+  vp_pos(3) >= corner(3) .and. vp_pos(3) < (corner(3) + cell_width_2(3))) THEN
+  cur_point = cur_point + 1
+  local_point(cur_point) = virtual_point(I)
+ END IF
+END DO
 
 ! we have found point included in this basic cell
 ! now we have to generate brand new dynamical cell

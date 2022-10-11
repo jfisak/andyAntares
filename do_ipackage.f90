@@ -40,12 +40,13 @@ DOUBLE PRECISION                :: new_freq
 DOUBLE PRECISION                :: D
 TYPE(irates)                    :: actirates
 ! write down the processes
-LOGICAL                         :: procout = .TRUE.
+LOGICAL                         :: procout = .FALSE.
 LOGICAL                         :: sstates = .FALSE.
 ! number of processes in MA
 ! INTEGER, PARAMETER              :: maxproc = 1000000
 ! INTEGER                         :: n_proc
 
+IF(debug == 4) procout = .TRUE.
 
 dummypackage = SIZE(package)
 last_line = package(pack_index)%last_line
@@ -70,7 +71,7 @@ package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
 ! we will run this loop until the macro atom is deactivated
 DO WHILE (active == 1)
 
-
+ ! write(*,*) 'do_ipackage: actual_state = ', actual_state, ' ion_index = ', ion_index
  !____________________________________________________________________________________
  ! we have to find all possible downward upward transitions
  ! firstly we calculate number of these possible transitions
@@ -183,6 +184,9 @@ IF(Zcollrecom < 0.D0) STOP 'do_ipackage: Zcollrecom < 0'
  Z6 = Z5 + Zphotrecom
  Z7 = Z6 + Zcollrecom
 
+! write(*,*) 'Zintdown = ', Zintdown, ' Zraddeexc = ', Zraddeexc, ' Zintup = ', Zintup, ' Zcoll = ', Zcoll, &
+!  ' Zionization = ', Zionization, ' Zintrecombination = ', Zintrecombination, ' Zphotrecom = ', Zphotrecom, &
+!  ' Zcollrecom = ', Zcollrecom
 
 
 
@@ -279,7 +283,6 @@ IF(Zcollrecom < 0.D0) STOP 'do_ipackage: Zcollrecom < 0'
  ! in this case a macro-atom transits into a upper state without an energy emission
  ELSE IF (rand >= Z1 .AND. rand <= Z2) THEN
   ! write(*,*) 'do_ipackage: Z1 = ', Z1, ' rand = ', rand, ' Z2 = ', Z2
-  !$OMP ATOMIC
   count_i_int_upwa = count_i_int_upwa + 1
   summ = Z1
   IF(procout) write(*,*) 'do_ipackage: internal upward jump...'

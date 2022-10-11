@@ -28,10 +28,6 @@ dummypackage = SIZE(package)
 ! write(*,*) 'change_cell: pack_index = ', pack_index
 pos = package(pack_index)%pos
 old_cell = package(pack_index)%cell_numb
-! write(*,*) 'change_cell: old_cell= ', old_cell 
-!  write(*,*) 'change_cell: neighbors = ', dyn_cell(old_cell)%neighbor
-!  write(*,*) 'change_cell: pos = ', pos
- ! CALL find_dyn_cell1(pos, next_cell)
 IF (next_cell .LT. 0) THEN 
  package(pack_index)%typ = type_escaped
  package(pack_index)%active = 0

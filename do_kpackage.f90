@@ -26,6 +26,8 @@ INTEGER                         :: n_ions, n_levels
 ! write down the processes
 LOGICAL                         :: procout = .FALSE.
 
+IF(debug == 4) procout = .TRUE.
+
 ! write(*,*) 'do_kpackage: pack_index = ', pack_index
 package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
 
