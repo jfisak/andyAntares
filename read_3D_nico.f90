@@ -99,6 +99,7 @@ OPEN(UNIT=11, FILE=modelfile)
   
   model_grid(cur_mgi)%J = 0.D0
   model_grid(cur_mgi)%assoc_cells = 0
+  model_grid(cur_mgi)%volume = 0.D0
 
   ALLOCATE (model_grid(cur_mgi)%grid_comp(n_elements))
   DO J = 1, n_elements
@@ -116,14 +117,15 @@ OPEN(UNIT=11, FILE=modelfile)
 
 ! Dummy cell to associate to propagation grid cells which have no representation on the model grid.
 ! All cells out of model grid set to 0 and associate to n_modelgrid.
-! Other cells will obtainde particular values with memory
+! Other cells will obtain particular values with memory
 DO I = 1, add_mg
  model_grid(n_modelgrid + I)%vec_vel = (/ 0.e0, 0.e0, 0.e0 /)
  model_grid(n_modelgrid + I)%rwind = 0.D0
  model_grid(n_modelgrid + I)%vel   = 0.D0
  model_grid(n_modelgrid + I)%rho   = 0.D0
- model_grid(cur_mgi)%J = 0.D0
- model_grid(cur_mgi)%assoc_cells = 0
+ model_grid(n_modelgrid + I)%J = 0.D0
+ model_grid(n_modelgrid + I)%assoc_cells = 0
+ model_grid(n_modelgrid + I)%volume = 0.D0
 END DO
   
  T_eff = cur_Teff

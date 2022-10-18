@@ -64,7 +64,7 @@ END DO
   END DO
  END IF
 CALL check_pop()
-CALL save_rates()
+! CALL save_rates()
 ! STOP 'update_grid: testing'
 CLOSE(3)
 
