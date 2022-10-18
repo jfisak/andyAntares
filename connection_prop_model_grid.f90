@@ -1,32 +1,35 @@
-  SUBROUTINE connection_prop_model_grid()
+SUBROUTINE connection_prop_model_grid()
 
-  USE types
+USE types
 
-  IMPLICIT NONE
-  ! maximal distance between model and propagation grid
-  ! MUST BE LATER CHANGED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  DOUBLE PRECISION               :: basic_diagonal
-  DOUBLE PRECISION               :: diagonal
-  ! loop variables
-  INTEGER                        :: I, J, M
-  INTEGER                        :: max_n_dcell
-  ! variables for calculating the shortest distance between
-  ! propagation and model cell
-  DOUBLE PRECISION               :: delta, delta2
-  ! radial and vertical distance
-  DOUBLE PRECISION               :: r, z, r0, z0, phi, phi0
-  ! volume of model cell
-  DOUBLE PRECISION               :: volume, loc_volume
-  INTEGER                        :: gridcell
-  INTEGER                        :: my_n_cells
-  INTEGER                       :: N0, Nzbytek
-  INTEGER                       :: my_start, my_end, zb
+IMPLICIT NONE
+! maximal distance between model and propagation grid
+! MUST BE LATER CHANGED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+DOUBLE PRECISION               :: basic_diagonal
+DOUBLE PRECISION               :: diagonal
+! loop variables
+INTEGER                        :: I, J, M
+INTEGER                        :: max_n_dcell
+! variables for calculating the shortest distance between
+! propagation and model cell
+DOUBLE PRECISION               :: delta, delta2
+! radial and vertical distance
+DOUBLE PRECISION               :: r, z, r0, z0, phi, phi0
+! volume of model cell
+DOUBLE PRECISION               :: volume, loc_volume
+INTEGER                        :: gridcell
+INTEGER                        :: my_n_cells
+INTEGER                       :: N0, Nzbytek
+INTEGER                       :: my_start, my_end, zb
 
-  DOUBLE PRECISION, DIMENSION(3) :: cur_center, cur_mpos
-  DOUBLE PRECISION               :: dist
-  INTEGER                        :: cur_mcell
+DOUBLE PRECISION, DIMENSION(3) :: cur_center, cur_mpos
+DOUBLE PRECISION               :: dist
+INTEGER                        :: cur_mcell
+
+DOUBLE PRECISION, DIMENSION(3)  :: cur_corner, cur_width
+INTEGER                         :: cur_pgcell, cur_pgi
   
-  basic_diagonal = sqrt(basic_cell_width(1)**2 + basic_cell_width(2)**2 + &
+basic_diagonal = sqrt(basic_cell_width(1)**2 + basic_cell_width(2)**2 + &
                         basic_cell_width(3)**2)
 
   max_n_dcell = SIZE(dyn_cell)
@@ -183,70 +186,56 @@
      model_grid(I)%assoc_cells = model_grid(I)%assoc_cells + 1
     END DO
    CASE(1)
-    DO I = 1, max_n_dcell
-     IF(dyn_cell(I)%up_cell == 0) THEN
-      delta = 1.D99
-      cur_mcell = 0
-      cur_center = dyn_cell(I)%corner + dyn_cell(I)%width/2.0
-      IF(norm2(cur_center) < R_star) THEN
-       dyn_cell(I)%model_index = n_modelgrid + 1
-       model_grid(n_modelgrid + 1)%assoc_cells = model_grid(n_modelgrid + 1)%assoc_cells + 1
-       CYCLE
-      END IF
-      IF(norm2(cur_center) > R_inf) THEN
-       dyn_cell(I)%model_index = n_modelgrid + 2
-       model_grid(n_modelgrid + 1)%assoc_cells = model_grid(n_modelgrid + 1)%assoc_cells + 1
-       CYCLE
-      END IF
-      DO J = 1, n_modelgrid
-       cur_mpos = model_grid(J)%vec_pos
-       dist = sqrt((cur_center(1) - cur_mpos(1))**2.0 + (cur_center(2) - cur_mpos(2))**2.0 +&
-        (cur_center(3) - cur_mpos(3))**2.0)
-       IF(dist < delta) THEN
-        delta = dist
-        cur_mcell = J
-       END IF
-      END DO
-      dyn_cell(I)%model_index = cur_mcell
+    ! in this case we do the connection inversely: we find a propGrid cell
+    ! for a given modGrid point instead
+    DO cur_mcell = 1, n_modelgrid
+     cur_mpos = model_grid(cur_mcell)%vec_pos
+     CALL find_dyn_cell1(cur_mpos, cur_pgi)
+     write(*,*) 'connection_prop_model_grid: cur_mcell = ', cur_mcell, &
+      ' cur_pgi = ', cur_pgi
+     IF(dyn_cell(cur_pgi)%model_index /= 0 .and. dyn_cell(cur_pgi)%up_cell == 0) THEN
+      dyn_cell(cur_pgi)%model_index = cur_mcell
       model_grid(cur_mcell)%assoc_cells = model_grid(cur_mcell)%assoc_cells + 1
-      diagonal = sqrt(dyn_cell(I)%width(1)**2+dyn_cell(I)%width(3)**2)/2.D0
-      ! vacuum cell
-      IF((delta > diagonal) .AND. (dyn_cell(I)%width(1) > basic_cell_width(1)/2.D0**6)) THEN
-       dyn_cell(I)%model_index = n_modelgrid + add_mg
-       model_grid(n_modelgrid + add_mg)%assoc_cells = model_grid(n_modelgrid + add_mg)%assoc_cells + 1
+      write(*,*) 'connection_prop_model_grid: cur_mcell = ', cur_mcell, &
+       ' cur_mcell = ', cur_mcell
+     END IF
+    END DO
+
+    DO cur_pgcell = 1, max_n_dcell
+     write(*,*) 'connection_prop_model_grid: cur_pgcell = ', cur_pgcell
+     IF(dyn_cell(cur_pgcell)%up_cell == 0) THEN
+      cur_corner = dyn_cell(cur_pgcell)%corner
+      cur_width = dyn_cell(cur_pgcell)%width
+      cur_center = cur_center + cur_width/2.0
+      r0 = sqrt(cur_center(1)**2.0 + cur_center(2)**2.0 + &
+       cur_center(3)**2.0)
+      write(*,*) 'connection_prop_model_grid: cur_pgcell = ', cur_pgcell, &
+       ' r0 = ', r0
+      ! add_mg = 1 r < R_star
+      ! add_mg = 2 r > R_inf
+      ! add_mg = 3 r > R_star && r < R_inf, vacuum cell
+      IF(r0 < R_star) THEN
+       dyn_cell(cur_pgcell)%model_index = n_modelgrid + 1
+      ELSE IF(r0 > R_inf) THEN
+       dyn_cell(cur_pgcell)%model_index = n_modelgrid + 2
+      ELSE IF(dyn_cell(cur_pgcell)%model_index == 0) THEN
+       dyn_cell(cur_pgcell)%model_index = n_modelgrid + 3
       END IF
-     END IF ! up_cell == 0
-    END DO ! 
+     END IF
+    END DO
    CASE DEFAULT
+    write(*,*) 'the choice inputmodel = ', inputmodel, ' is not known'
+    STOP
    END SELECT
   END IF
 ! computing volume of model cells
-DO gridcell = 1, n_modelgrid
- volume = 0.D0
- DO I = 1, max_n_dcell
-  IF(dyn_cell(I)%up_cell == 0) THEN
-   IF(dyn_cell(I)%model_index == gridcell) THEN
-    loc_volume = dyn_cell(I)%width(1) * dyn_cell(I)%width(2) * dyn_cell(I)%width(3)
-    volume = volume + loc_volume
-   END IF
-  END IF
- END DO
- !print*, 'connection_prop_model_grid: volume of the cell ', gridcell, ' is ', volume
- model_grid(gridcell)%volume = volume
+DO I = 1, max_n_dcell
+ IF(dyn_cell(I)%up_cell == 0) THEN
+  gridcell = dyn_cell(I)%model_index
+   loc_volume = dyn_cell(I)%width(1) * dyn_cell(I)%width(2) * dyn_cell(I)%width(3)
+   model_grid(gridcell)%volume = model_grid(gridcell)%volume + loc_volume
+ END IF
 END DO
 
-!  print*, 'printing number of associated cells'
-!  OPEN(UNIT=3,FILE='conneced_cells.dat')
-!   DO I=1, n_modelgrid
-!!    IF(dyn_cell(I)%model_index == n_modelgrid + add_mg) write(3,*) dyn_cell(I)%corner, dyn_cell(I)%width
-!     write(3,*), I, model_grid(I)%assoc_cells
-!   END DO
-!  CLOSE(3)
-!  DO I = 1, n_modelgrid + 1
-!     print*, I, model_grid(I)%assoc_cells
-!  END DO
-! DO I = 1, max_n_dcell
-!  write(39,*) dyn_cell(I)%corner, dyn_cell(I)%width, dyn_cell(I)%model_index
-! END DO
 
   END SUBROUTINE connection_prop_model_grid
