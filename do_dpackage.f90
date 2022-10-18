@@ -146,6 +146,7 @@ END IF
    ELSE IF(next_leak == negz) THEN
     new_dir = (/ ran_dir(2), ran_dir(1), -ran_dir(3)/)
    END IF
+   if(procout) write(*,*) 'do_dpackage: a change to r-packet and end...'
    count_d_rad_end = count_d_rad_end + 1
    RETURN
   END IF
@@ -157,6 +158,7 @@ END IF
    IF(next_diff) THEN
     package(pack_index)%cell_numb = next_cell
     active = .false.
+    if(procout) write(*,*) 'do_dpackage: d-change of cell...'
     count_d_change_cell = count_d_change_cell + 1
    ELSE
     package(pack_index)%pos = cross_pos
@@ -189,6 +191,7 @@ END IF
 
     active = .false.
 
+    if(procout) write(*,*) 'do_dpackage: a radiative change...'
     count_d_radiative = count_d_radiative + 1
    END IF
   ELSE
@@ -212,6 +215,7 @@ END IF
     rates(next_leak) = rates(next_leak) - area
     if(rates(next_leak) < 0.0) STOP 'do_dpackage: rate < 0'
 
+    if(procout) write(*,*) 'do_dpackage: a new choice...'
     count_d_new_choice = count_d_new_choice + 1
 
   END IF

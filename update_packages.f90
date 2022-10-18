@@ -32,18 +32,15 @@ DO pack_index = tot_saved_packets + 1, n_pack
    END IF
      ! write(*,*) 'D'
      ! If the packet is of type rpkt, it represents a photon. So it needs to be propagated.
-     ! write(*,*) 'update_packages: calling do_rpackage'
      CALL do_rpackage(pack_index)
   ELSE IF (package(pack_index)%typ .EQ. type_kpkt) THEN 
      ! If the packet is of type kpkt, it represents thermal kinetic energy.
      ! Sample all possible cooling processes and randomly select one of them
-     ! write(*,*) 'update_packages: calling do_kpackage'
       CALL do_kpackage(pack_index)
      !write(*,*) 'kpkt found should not happen for now'
   ELSE IF (package(pack_index)%typ .EQ. type_ipkt) THEN 
      ! If the packet is of type ipkt, it represents atomic internal energy (excitation/ionization).
      ! Calculate all transition probabilities and randomly select one of them (macro-atom formalism)
-     ! write(*,*) 'update_packages: calling do_ipackage'
      CALL do_ipackage(pack_index)
      ! write(*,*) 'ipkt found, should not happen for now'
   ELSE IF (package(pack_index)%typ == type_dpkt) THEN

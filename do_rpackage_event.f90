@@ -19,7 +19,7 @@ SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
   DOUBLE PRECISION                      :: ZcontTot
   LOGICAL                               :: procout = .FALSE.
   DOUBLE PRECISION                      :: D
-  LOGICAL                               :: ellastic_scattering = .FALSE.
+  LOGICAL                               :: ellastic_scattering = .TRUE.
 
   IF(debug == 4) procout = .TRUE.
 
