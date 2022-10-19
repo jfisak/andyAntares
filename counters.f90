@@ -43,4 +43,8 @@ INTEGER                         :: count_d_new_choice = 0
 INTEGER                         :: count_d_radiative = 0
 INTEGER                         :: count_d_rad_end = 0
 
+! progrid cell statistics
+INTEGER                         :: count_pg_vacuum = 0
+INTEGER                         :: count_pg_mcell = 0
+
 END MODULE counters

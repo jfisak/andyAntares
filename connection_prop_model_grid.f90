@@ -1,6 +1,7 @@
 SUBROUTINE connection_prop_model_grid()
 
 USE types
+USE counters
 
 IMPLICIT NONE
 ! maximal distance between model and propagation grid
@@ -209,8 +210,6 @@ basic_diagonal = sqrt(basic_cell_width(1)**2 + basic_cell_width(2)**2 + &
       cur_center = cur_center + cur_width/2.0
       r0 = sqrt(cur_center(1)**2.0 + cur_center(2)**2.0 + &
        cur_center(3)**2.0)
-      write(*,*) 'connection_prop_model_grid: cur_pgcell = ', cur_pgcell, &
-       ' r0 = ', r0
       ! add_mg = 1 r < R_star
       ! add_mg = 2 r > R_inf
       ! add_mg = 3 r > R_star && r < R_inf, vacuum cell
@@ -234,8 +233,17 @@ DO I = 1, max_n_dcell
   gridcell = dyn_cell(I)%model_index
    loc_volume = dyn_cell(I)%width(1) * dyn_cell(I)%width(2) * dyn_cell(I)%width(3)
    model_grid(gridcell)%volume = model_grid(gridcell)%volume + loc_volume
+  ! counters
+  IF(dyn_cell(I)%model_index /= 0) THEN
+   count_pg_mcell = count_pg_mcell + 1
+  ELSE IF(dyn_cell(I)%model_index == n_modelgrid + 3) THEN
+   count_pg_vacuum = count_pg_vacuum + 1
+  END IF
  END IF
 END DO
 
+write(99,*) 'propGrid statistics:'
+write(99,*) 'count_pg_mcell = ', count_pg_mcell
+write(99,*) 'count_pg_vacuum = ', count_pg_vacuum
 
-  END SUBROUTINE connection_prop_model_grid
+END SUBROUTINE connection_prop_model_grid
