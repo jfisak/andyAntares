@@ -1,4 +1,4 @@
-SUBROUTINE find_dist(pack_index, cell_numb, dist)
+SUBROUTINE bound_dist(pack_index, cell_numb, dist)
 
 USE types
 
@@ -187,10 +187,10 @@ IF(n_zer == 1 .and. n_pos < 3) THEN
 END IF
 
 IF(debug == 2) THEN
- write(*,*) 'find_dist: n_pos = ', n_pos, ' n_neg = ', n_neg
- write(*,*) 'find_dist: t1 = ', t1, ' t2 = ', t2, ' t3 = ', t3, ' t4 = ', t4, ' t5 = ', t5, ' t6 = ', t6
- write(*,*) 'find_dist: dist = ', dist
+ write(*,*) 'bound_dist: n_pos = ', n_pos, ' n_neg = ', n_neg
+ write(*,*) 'bound_dist: t1 = ', t1, ' t2 = ', t2, ' t3 = ', t3, ' t4 = ', t4, ' t5 = ', t5, ' t6 = ', t6
+ write(*,*) 'bound_dist: dist = ', dist
 END IF
 
 
-END SUBROUTINE find_dist
+END SUBROUTINE bound_dist

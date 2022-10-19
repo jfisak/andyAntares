@@ -92,7 +92,7 @@ IF (e_dist .LT. cell_dist) THEN
   CALL update_estimators(pack_index, e_dist)
   CALL do_rpackage_event(pack_index, event, actirrates)
  ELSE IF (e_dist == 0.0) THEN
-  CALL find_dist(pack_index, cur_pgi, cell_dist)
+  CALL bound_dist(pack_index, cur_pgi, cell_dist)
  END IF
 ELSE IF(e_dist > cell_dist .and. cell_dist > 0.e0) THEN 
  ! Move package from the curent position for the cell_dist

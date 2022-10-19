@@ -20,7 +20,7 @@ INTEGER                         :: act_cell
 !   Number of the current cell
 act_cell = package(pack_index)%cell_numb
 ! now we are computing the nearest distance to the actuall dynamic cell
-CALL find_dist(pack_index, act_cell, dist)
+CALL bound_dist(pack_index, act_cell, dist)
 ! now we look for the next cell given by indexes
 CALL next_cell_down(pack_index, n_cell)
 ! position of the point
