@@ -1,10 +1,8 @@
 ! calculating free-free cooling rates
-SUBROUTINE cool_ff(pack_index, Zcool)
+SUBROUTINE cool_ff(cur_mgi, Zcool)
 USE types
 USE rates_k
 IMPLICIT NONE
-! input variables
-INTEGER                                                 :: pack_index
 ! constant
 DOUBLE PRECISION, PARAMETER                             :: C0 = 1.426D-27 ! Osterbrock 1974
 ! element index
@@ -20,7 +18,6 @@ DOUBLE PRECISION                                        :: act_pop, actVal
 ! output variables
 DOUBLE PRECISION                                        :: Zcool
                                                        
-cur_mgi = get_package_model_index(pack_index)
 cur_temp = model_grid(cur_mgi)%t
 e_dens = model_grid(cur_mgi)%e_dens
 !write(*,*) 'cool_ff: pack_index = ', pack_index, ' cur_mgi = ', cur_mgi, 'e_dens = ', e_dens

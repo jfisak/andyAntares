@@ -140,7 +140,7 @@ DO indexe = 1, n_elements
     ! write(*,*) 'cool_fb: sfactor = ', sfactor, ' ales = ', alphEspont, ' als = ',  alphaSpont 
     ! temporary solution
     ! Zfb = 0.D0
-    !write(*,*) 'cool_fb: Zfb = ', Zfb, 'actikrates%Lcool_fbE(', act_rate, ') = ', actikrates%Lcool_fbE(act_rate)
+    ! write(*,*) 'cool_fb: Zfb = ', Zfb, 'actikrates%Lcool_fbE(', act_rate, ') = ', actikrates%Lcool_fbE(act_rate)
     DEALLOCATE(crossfreq, cross)
     DEALLOCATE(func, func2)
    ELSE

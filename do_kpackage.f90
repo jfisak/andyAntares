@@ -26,8 +26,11 @@ INTEGER                         :: n_ions, n_levels
 ! write down the processes
 LOGICAL                         :: procout = .FALSE.
 
+INTEGER                         :: cur_mgi, get_package_model_index
+
 IF(debug == 4) procout = .TRUE.
 
+cur_mgi = get_package_model_index(pack_index)
 ! write(*,*) 'do_kpackage: pack_index = ', pack_index
 package(pack_index)%n_interactions = package(pack_index)%n_interactions + 1
 
@@ -36,7 +39,7 @@ actikrates = krates()
 ! calculating of cooling rates
 ! collision excitation rate
 CALL cool_excit(1, pack_index,  Zexcit, actikrates)
-CALL cool_ff(pack_index, Zff)
+CALL cool_ff(cur_mgi, Zff)
 CALL cool_ionization(1, pack_index, Zion, actikrates)
 CALL cool_fb(pack_index, Zfb, actikrates)
 
@@ -73,10 +76,7 @@ rand = rand   * Ztot
 IF(rand >= 0.D0 .AND. rand <= Z0) THEN
  summ = 0.D0
  DO I = 1, ntransitions
-  !print*, 'Lcool_excit(I) = ', Lcool_excit(I)
   IF(rand >= summ .AND. rand < summ + actikrates%Lcool_excit(I)) THEN
-   !print*, 'do_kpackage: packet = ', pack_index, ' a collisional excitation occures'
-   !print*, 'collisional deexcitation: I = ', I, ' upper level = ', linelist(I)%upper
    package(pack_index)%last_line = I
    package(pack_index)%typ = type_ipkt
    package(pack_index)%l_ele = linelist(I)%indexe

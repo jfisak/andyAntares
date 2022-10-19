@@ -21,7 +21,7 @@ INTEGER                                 :: nc
 act_cell = package(pack_index)%cell_numb
 cross = package(pack_index)%next_cross
 IF(cross <= 0 ) THEN
- CALL find_dist(pack_index, nc, di)
+ CALL bound_dist(pack_index, nc, di)
  cross = package(pack_index)%next_cross
  write(*,*) 'next_cell_down: act_cell = ', act_cell, ' cross = ', cross
  IF(cross < 0) STOP 'next_cell_down: next cross is impossible to find'
