@@ -194,7 +194,7 @@ basic_diagonal = sqrt(basic_cell_width(1)**2 + basic_cell_width(2)**2 + &
      CALL find_dyn_cell1(cur_mpos, cur_pgi)
      write(*,*) 'connection_prop_model_grid: cur_mcell = ', cur_mcell, &
       ' cur_pgi = ', cur_pgi
-     IF(dyn_cell(cur_pgi)%model_index /= 0 .and. dyn_cell(cur_pgi)%up_cell == 0) THEN
+     IF(dyn_cell(cur_pgi)%model_index == 0 .and. dyn_cell(cur_pgi)%up_cell == 0) THEN
       dyn_cell(cur_pgi)%model_index = cur_mcell
       model_grid(cur_mcell)%assoc_cells = model_grid(cur_mcell)%assoc_cells + 1
       write(*,*) 'connection_prop_model_grid: cur_mcell = ', cur_mcell, &
@@ -203,7 +203,6 @@ basic_diagonal = sqrt(basic_cell_width(1)**2 + basic_cell_width(2)**2 + &
     END DO
 
     DO cur_pgcell = 1, max_n_dcell
-     write(*,*) 'connection_prop_model_grid: cur_pgcell = ', cur_pgcell
      IF(dyn_cell(cur_pgcell)%up_cell == 0) THEN
       cur_corner = dyn_cell(cur_pgcell)%corner
       cur_width = dyn_cell(cur_pgcell)%width
