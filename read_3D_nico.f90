@@ -135,8 +135,8 @@ END DO
  xmax = (cur_xmax + cur_xmax / nx_cell) * R_sun  
  ymax = (cur_ymax + cur_ymax / ny_cell) * R_sun 
  zmax = (cur_zmax + cur_zmax / nz_cell) * R_sun 
- write(*,*) 'read_3D_nico: T_eff = ', T_eff, 'R_star = ', R_star, ' R_inf = ', R_inf, ' V_inf = ', V_inf
- write(*,*) 'read_3D_nico: xmax = ', xmax, ' ymax = ', ymax, ' zmax = ', zmax
+ write(*,*) 'read_3D_nico: T_eff = ', T_eff, 'R_star = ', R_star/R_sun, ' R_inf = ', R_inf/R_sun, ' V_inf = ', V_inf
+ write(*,*) 'read_3D_nico: xmax = ', xmax/R_sun, ' ymax = ', ymax/R_sun, ' zmax = ', zmax/R_sun
 
 CLOSE(11)
 

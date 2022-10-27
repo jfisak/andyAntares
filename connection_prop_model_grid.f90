@@ -6,7 +6,6 @@ USE counters
 IMPLICIT NONE
 ! maximal distance between model and propagation grid
 ! MUST BE LATER CHANGED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-DOUBLE PRECISION               :: basic_diagonal
 DOUBLE PRECISION               :: diagonal
 ! loop variables
 INTEGER                        :: I, J, M
@@ -17,7 +16,7 @@ DOUBLE PRECISION               :: delta, delta2
 ! radial and vertical distance
 DOUBLE PRECISION               :: r, z, r0, z0, phi, phi0
 ! volume of model cell
-DOUBLE PRECISION               :: volume, loc_volume
+DOUBLE PRECISION               :: loc_volume
 INTEGER                        :: gridcell
 INTEGER                        :: my_n_cells
 INTEGER                       :: N0, Nzbytek
@@ -27,11 +26,28 @@ DOUBLE PRECISION, DIMENSION(3) :: cur_center, cur_mpos
 DOUBLE PRECISION               :: dist
 INTEGER                        :: cur_mcell
 
+DOUBLE PRECISION, PARAMETER     :: large_number=1.d90
+
 DOUBLE PRECISION, DIMENSION(3)  :: cur_corner, cur_width
 INTEGER                         :: cur_pgcell, cur_pgi
+INTEGER                         :: n_virtpoints, cur_vpoint
+
+DOUBLE PRECISION, DIMENSION(3)  :: cur_vpos
+INTEGER                         :: up_cell, cur_lowcell
   
-basic_diagonal = sqrt(basic_cell_width(1)**2 + basic_cell_width(2)**2 + &
-                        basic_cell_width(3)**2)
+INTEGER, ALLOCATABLE            :: list_index(:)
+INTEGER                         :: last_index, new_index
+INTEGER                         :: n_bas_pcell
+
+INTEGER                         :: ind_x, ind_y, ind_z
+INTEGER                         :: cur_bpgi
+DOUBLE PRECISION, DIMENSION(3)  :: width, cur_pos
+
+INTEGER                         :: down_cell
+INTEGER                         :: start_vp_index, end_vp_index
+INTEGER                         :: cur_vp_nearest, cur_vp_index
+INTEGER                         :: act_pgcell, cur_vp
+
 
   max_n_dcell = SIZE(dyn_cell)
   ! Establish a connection between the propagation grid and the
@@ -55,7 +71,7 @@ basic_diagonal = sqrt(basic_cell_width(1)**2 + basic_cell_width(2)**2 + &
       ! Find this model grid cell and add a pointer to the propatation
       ! grid. Finally record the number of asscociated prop. grid cells
       ! on the model grid
-      delta = 1.D99
+      delta = large_number
       DO J = 1, n_modelgrid   
        delta2 = ABS(r - model_grid(J)%rwind)
        !print*,I,J,r/R_star,model_grid(J)%rwind/R_star,delta2/R_star,delta/R_star
@@ -187,26 +203,32 @@ basic_diagonal = sqrt(basic_cell_width(1)**2 + basic_cell_width(2)**2 + &
      model_grid(I)%assoc_cells = model_grid(I)%assoc_cells + 1
     END DO
    CASE(1)
-    ! in this case we do the connection inversely: we find a propGrid cell
-    ! for a given modGrid point instead
-    DO cur_mcell = 1, n_modelgrid
-     cur_mpos = model_grid(cur_mcell)%vec_pos
-     CALL find_dyn_cell1(cur_mpos, cur_pgi)
-     write(*,*) 'connection_prop_model_grid: cur_mcell = ', cur_mcell, &
-      ' cur_pgi = ', cur_pgi
-     IF(dyn_cell(cur_pgi)%model_index == 0 .and. dyn_cell(cur_pgi)%up_cell == 0) THEN
-      dyn_cell(cur_pgi)%model_index = cur_mcell
-      model_grid(cur_mcell)%assoc_cells = model_grid(cur_mcell)%assoc_cells + 1
-      write(*,*) 'connection_prop_model_grid: cur_mcell = ', cur_mcell, &
-       ' cur_mcell = ', cur_mcell
+    ! create an array with saved indexes
+    n_bas_pcell = nx_cell * ny_cell * nz_cell
+    ALLOCATE(list_index(n_bas_pcell))
+    ! initial setup
+    DO I = 1, n_bas_pcell
+     list_index(I) = 0
+    END DO
+    ! calculating of indeces
+    last_index = 0
+    n_virtpoints = SIZE(virtual_point)
+    DO I = 1, n_virtpoints
+     new_index = virtual_point(I)%ind_pcell
+     IF(new_index /= last_index) THEN
+      list_index(new_index) = I
+      last_index = new_index
      END IF
     END DO
 
+    ! we calculate associated cells for the rest of propGrid cells
     DO cur_pgcell = 1, max_n_dcell
-     IF(dyn_cell(cur_pgcell)%up_cell == 0) THEN
+     up_cell = dyn_cell(cur_pgcell)%up_cell
+     IF(up_cell == 0) THEN
       cur_corner = dyn_cell(cur_pgcell)%corner
       cur_width = dyn_cell(cur_pgcell)%width
-      cur_center = cur_center + cur_width/2.0
+      cur_center = cur_corner + cur_width/2.0
+      cur_lowcell = dyn_cell(cur_pgcell)%down_cell
       r0 = sqrt(cur_center(1)**2.0 + cur_center(2)**2.0 + &
        cur_center(3)**2.0)
       ! add_mg = 1 r < R_star
@@ -216,11 +238,51 @@ basic_diagonal = sqrt(basic_cell_width(1)**2 + basic_cell_width(2)**2 + &
        dyn_cell(cur_pgcell)%model_index = n_modelgrid + 1
       ELSE IF(r0 > R_inf) THEN
        dyn_cell(cur_pgcell)%model_index = n_modelgrid + 2
-      ELSE IF(dyn_cell(cur_pgcell)%model_index == 0) THEN
-       dyn_cell(cur_pgcell)%model_index = n_modelgrid + 3
+      ELSE 
+       ! we connect a modgrid from the current basic cell
+       act_pgcell = cur_pgcell
+       DO
+        down_cell = dyn_cell(act_pgcell)%down_cell
+        IF(down_cell == 0) EXIT
+        act_pgcell = down_cell
+       END DO
+       cur_bpgi = act_pgcell
+
+       start_vp_index = list_index(cur_bpgi)
+       
+
+       IF(start_vp_index == 0) THEN
+        dyn_cell(cur_pgcell)%model_index = n_modelgrid + 3
+       ELSE
+        ! we must find an end index
+        cur_vp_index = start_vp_index
+        DO
+         cur_vp_index = cur_vp_index + 1
+         if(virtual_point(cur_vp_index)%ind_pcell /= cur_bpgi) then
+          end_vp_index = cur_vp_index - 1
+          EXIT
+         end if
+        END DO
+
+        delta = large_number
+        cur_vp_nearest = 0
+        DO cur_vp = start_vp_index, end_vp_index
+         cur_pos = virtual_point(cur_vp)%pos
+         dist = sqrt((cur_center(1) - cur_pos(1))**2.0 +&
+          (cur_center(2) - cur_pos(2))**2.0 +&
+          (cur_center(3) - cur_pos(3))**2.0)
+         if(dist< delta) then
+          delta = dist
+          cur_vp_nearest = cur_vp
+         end if
+        END DO
+        dyn_cell(cur_pgcell)%model_index = virtual_point(cur_vp_nearest)%ind_mcell
+!        write(*,*) 'connection_prop_model_grid: cur_pgcell = ', cur_pgcell, ' modindex = ', virtual_point(cur_vp_nearest)%ind_mcell
+
+       END IF
       END IF
-     END IF
-    END DO
+     END IF ! up_cell == 0
+    END DO 
    CASE DEFAULT
     write(*,*) 'the choice inputmodel = ', inputmodel, ' is not known'
     STOP

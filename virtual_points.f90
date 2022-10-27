@@ -32,6 +32,9 @@ SUBROUTINE virtual_points(dimIM)
  INTEGER                        :: ind_x, ind_y, ind_z
  INTEGER                        :: cur_order, n_cells
 
+ TYPE(virt_point)               :: dummy
+ DOUBLE PRECISION               :: A
+
 
 ! OPEN(20,FILE="virtual_point.dat")
 SELECT CASE (dimIM)
@@ -146,6 +149,7 @@ CASE(3)
  ALLOCATE(virtual_point(n_modelgrid))
  DO I = 1, n_modelgrid
   virtual_point(I)%pos = model_grid(I)%vec_pos
+  virtual_point(I)%ind_mcell = I
  END DO
 CASE DEFAULT
  STOP 'wrong choice of input model dimension...'
@@ -161,8 +165,28 @@ DO I = 1, Npoint
  ind_y = FLOOR(pos(2)/width(2) + DBLE(ny_cell)/2) + 1
  ind_z = FLOOR(pos(3)/width(3) + DBLE(nz_cell)/2) + 1
  ind_cell_numb = (ind_x - 1) * ny_cell * nz_cell + (ind_y - 1) * nz_cell + ind_z
- virtual_point(I)%n_cell = ind_cell_numb
+ virtual_point(I)%ind_pcell = ind_cell_numb
  dyn_cell(ind_cell_numb)%n_virt = dyn_cell(ind_cell_numb)%n_virt + 1
 END DO
+
+! sort virtual points by its number
+DO J = 2, Npoint
+ I = J - 1
+ A = virtual_point(J)%ind_pcell
+ DO WHILE (I .GE. 1)
+  IF(virtual_point(I)%ind_pcell > A) THEN
+   dummy = virtual_point(I+1)
+   virtual_point(I+1) = virtual_point(I) 
+   virtual_point(I) = dummy
+  END IF
+   I = I - 1
+ END DO
+END DO
+! DO I = 1, Npoint
+!  write(*,*) 'virtual_point: sorted vp: cell: ', virtual_point(I)%ind_pcell
+! END DO
+
+
+
 
 END SUBROUTINE virtual_points

@@ -137,7 +137,6 @@ IF(dyngrid /= 0) THEN
  DEALLOCATE(pom2)
  N_dyn_grid = max_n_dcell
 
- DEALLOCATE(virtual_point)
 END IF
 
 DO I = 1, max_n_dcell

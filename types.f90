@@ -100,7 +100,7 @@ IMPLICIT NONE
   TYPE virt_point
      DOUBLE PRECISION, DIMENSION(3)  :: pos
      DOUBLE PRECISION                :: weight
-     INTEGER                         :: n_cell
+     INTEGER                         :: ind_pcell, ind_mcell
   END TYPE virt_point
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
