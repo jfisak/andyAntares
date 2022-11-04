@@ -73,7 +73,7 @@ IMPLICIT NONE
   TYPE ion_levels 
      INTEGER(KIND=2), ALLOCATABLE    :: linetransitions(:), lineuptransitions(:)
      DOUBLE PRECISION                :: exci_energy, stat_waight
-     CHARACTER(LEN=15)               :: elconf
+     CHARACTER(LEN=30)               :: elconf
      LOGICAL                         :: phcrossform
      DOUBLE PRECISION, ALLOCATABLE   :: photcros(:,:), phcrosscoeff(:)
      DOUBLE PRECISION, ALLOCATABLE   :: population(:)
@@ -93,7 +93,7 @@ IMPLICIT NONE
      INTEGER                         :: indexe, atom_number, nions
      DOUBLE PRECISION                :: atom_mass
      DOUBLE PRECISION                :: abundance
-     CHARACTER(20)                   :: levelfile, transitionfile
+     CHARACTER(180)                   :: levelfile, transitionfile
      TYPE(element_ions), ALLOCATABLE :: ions(:)
   END TYPE atom_elements
 

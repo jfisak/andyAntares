@@ -5,7 +5,7 @@ SUBROUTINE read_input(n_pack, iseed)
   IMPLICIT NONE
 
   INTEGER    :: n_pack, iseed, idx, npar
-  CHARACTER  :: LINE*80, ACTPAR*40
+  CHARACTER(LEN=180)  :: LINE, ACTPAR
 
   OPEN (UNIT=1, FILE='input.dat', STATUS='OLD')
 
@@ -183,12 +183,12 @@ SUBROUTINE read_input(n_pack, iseed)
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(A60)', ERR=94) inputmodelFile
 
-    ! 20 inputComposition
+    ! 020 inputComposition
     ELSE IF (ACTPAR .EQ. 'inputComposition') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
-    READ (ACTPAR, '(A20)', ERR=94) inputcomposition
+    READ (ACTPAR, '(A)', ERR=94) inputcomposition
 
     ! 21 eldensfile
     ELSE IF (ACTPAR .EQ. 'eldensfile') THEN

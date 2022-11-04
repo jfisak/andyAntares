@@ -46,7 +46,7 @@ DOUBLE PRECISION, DIMENSION(3)  :: width, cur_pos
 INTEGER                         :: down_cell
 INTEGER                         :: start_vp_index, end_vp_index
 INTEGER                         :: cur_vp_nearest, cur_vp_index
-INTEGER                         :: act_pgcell, cur_vp
+INTEGER                         :: act_pgcell, cur_vp, cur_mgi
 
 
   max_n_dcell = SIZE(dyn_cell)
@@ -258,6 +258,10 @@ INTEGER                         :: act_pgcell, cur_vp
         cur_vp_index = start_vp_index
         DO
          cur_vp_index = cur_vp_index + 1
+         if(cur_vp_index == n_virtpoints) then
+          end_vp_index = cur_vp_index
+          EXIT
+         end if
          if(virtual_point(cur_vp_index)%ind_pcell /= cur_bpgi) then
           end_vp_index = cur_vp_index - 1
           EXIT
@@ -276,7 +280,9 @@ INTEGER                         :: act_pgcell, cur_vp
           cur_vp_nearest = cur_vp
          end if
         END DO
-        dyn_cell(cur_pgcell)%model_index = virtual_point(cur_vp_nearest)%ind_mcell
+        cur_mgi = virtual_point(cur_vp_nearest)%ind_mcell
+        dyn_cell(cur_pgcell)%model_index = cur_mgi
+        model_grid(cur_mgi)%assoc_cells = model_grid(cur_mgi)%assoc_cells + 1
 !        write(*,*) 'connection_prop_model_grid: cur_pgcell = ', cur_pgcell, ' modindex = ', virtual_point(cur_vp_nearest)%ind_mcell
 
        END IF
