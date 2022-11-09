@@ -37,6 +37,9 @@ LOGICAL                                 :: next_diff
 
 LOGICAL                                 :: procout = .FALSE.
 
+INTEGER                                 :: cur_mgi, get_package_model_index
+DOUBLE PRECISION                        :: cur_temp
+
 dapprox = 0
 
 IF(debug == 4) procout = .TRUE.
@@ -58,6 +61,9 @@ CASE(0)
  cur_pgi = package(pack_index)%cell_numb
  corner = dyn_cell(cur_pgi)%corner
  width = dyn_cell(cur_pgi)%width
+
+ cur_mgi = get_package_model_index(pack_index)
+ cur_temp = model_grid(cur_mgi)%T
 
  ! write(22,*) corner, width
  
@@ -130,7 +136,7 @@ END IF
    package(pack_index)%typ = type_escaped
    package(pack_index)%pos = cross_pos
    count_des_esca = count_des_esca + 1
-   CALL freq_from_planck(freq)
+   CALL freq_from_planck(freq, cur_temp)
    package(pack_index)%freq_rf = freq
    CALL random_unitvector2(ran_dir)
    IF(next_leak == posx) THEN
@@ -181,7 +187,7 @@ END IF
     END IF
     package(pack_index)%dir = new_dir
 
-    CALL freq_from_planck(freq)
+    CALL freq_from_planck(freq, cur_temp)
     package(pack_index)%freq_rf = freq
     CALL doppler_factor(pack_index, D)
     package(pack_index)%freq_cmf = package(pack_index)%freq_rf * D 

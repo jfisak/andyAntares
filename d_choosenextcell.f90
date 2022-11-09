@@ -48,6 +48,7 @@ END IF
 ! next cell down
 DO
  n_cell = dyn_cell(cur_pgi)%neighbor(next_leak)
+ act_cell = cur_pgi
  IF(n_cell == 0) THEN
   IF(dyn_cell(act_cell)%down_cell == 0) STOP 'next_cell: no cell was found'
   act_cell = dyn_cell(act_cell)%down_cell
