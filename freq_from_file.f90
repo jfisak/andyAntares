@@ -173,5 +173,5 @@ CALL acc_rej_montecarlo(n_packs,freq)
 !  END IF
 ! END DO
  ! after the last photon is calculated we erase the field incomingflux'
- IF(n_packet .EQ. n_packs) DEALLOCATE(incomingflux)
+ IF(n_packet == n_packs) DEALLOCATE(incomingflux)
 END SUBROUTINE freq_from_file

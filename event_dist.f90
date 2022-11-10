@@ -58,6 +58,7 @@ END DO
 
  !Get the packet's current position on the model grid
  current_mgi = get_package_model_index(pack_index)
+!  write(*,*) 'event_dist: pack_index = ', pack_index, ' current_mgi = ', current_mgi
 
  IF(current_mgi > n_modelgrid) THEN
   event = rpkt_eventtype_changecell
@@ -70,7 +71,7 @@ END DO
  ! calculates all continuum opacities
  ! write(*,*) 'event_dist: calling r_kappa_cont for a packet = ', pack_index
  CALL r_kappa_cont(pack_index, kappa_cont, actirrates)
- ! kappa_cont = 0.D0
+ kappa_cont = 0.D0
 
  ! This is the opacity in co-moving frame. Must be transformed to the lab frame
  ! According to Mihalas and Mihalas Eq. 90.8 this is achieved by 
@@ -94,22 +95,23 @@ DO WHILE (do_loop)
  ! write(*,*) 'event_dist: pack_index = ', pack_index, ' n_next_lines = ', n_next_lines
  ! write(*,*) 'event_dist: nloop = ', nloop, ' lastLine = ', lastLine, ' ntransitions = ', ntransitions
  
- ! CALL next_line(1, pack_index, lastLine, nextLine, n_next_lines, tooRed)
  CALL next_line_bluered(1, pack_index, cell_dist, lastLine, nextLine, n_next_lines)
  ! write(*,*) 'event_dist: nextLine = ', nextLine, ' n_next_lines = ', n_next_lines
  ALLOCATE(actirrates%Lline(n_next_lines), actirrates%nline(n_next_lines))
  IF(nextLine < ntransitions + 1) THEN
   freq_line = linelist(nextLine)%freq
-  ! CALL resonance_distance(pack_index, nextLine, freq_line, cell_dist, l_dist, inCell, .TRUE.)
   CALL resonance_distance2(pack_index, nextLine, cell_dist, inCell, l_dist)
-   IF(inCell) THEN
-    CALL r_kappa_line(pack_index, current_mgi, nextLine, n_next_lines, actirrates, tau_line)
-   END IF
+  IF(inCell) THEN
+   CALL r_kappa_line(pack_index, current_mgi, nextLine, n_next_lines, l_dist, actirrates, tau_line)
+  ELSE
+   tau_line = 0.e0
   END IF
+ ELSE
+  tau_line = 0.e0
+ END IF
 
- ! write(*,*) 'event_dist: inCell = ', inCell
- ! write(*,*) 'event_dist: l_dist = ', l_dist, ' tau_line = ',&
- !  tau_line, ' tau_cont = ', tau_cont, ' tau_rand = ', tau_rand
+ if(procout) write(*,*) 'event_dist: l_dist = ', l_dist, ' tau_line = ',&
+  tau_line, ' tau_cont = ', tau_cont, ' tau_rand = ', tau_rand
  IF(inCell .AND. nextLine /= ntransitions + 1 .AND. .NOT. tooRed) THEN
  
  ! Calculate optical depth in the next line (Sobolev, dv/dr dependent)

@@ -9,6 +9,8 @@ INTEGER            :: model_grid_index
 INTEGER            :: indexe, indexi, numb_ions
 DOUBLE PRECISION   :: temp, el_nd, func, SUMME, SUMMI, frac
 
+DOUBLE PRECISION        :: abundance
+
 
 temp = model_grid(model_grid_index)%T
 
@@ -21,7 +23,8 @@ DO indexe = 1, n_elements
     CALL ionization_fraction(indexe, indexi, temp, el_nd, frac)
     SUMMI = SUMMI + DBLE(indexi - 1) * frac
    END DO
-   SUMME = SUMME + (model_grid(model_grid_index)%grid_comp(indexe)%abund / elements(indexe)%atom_mass) * SUMMI
+   abundance = model_grid(model_grid_index)%grid_comp(indexe)%abund
+   SUMME = SUMME + (abundance / elements(indexe)%atom_mass) * SUMMI
 END DO
 
 ! we are searching for solution el_nd and because we subtract el_nd 

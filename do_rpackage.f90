@@ -41,7 +41,6 @@ actirrates = rrates()
 
 cur_pgi = package(pack_index)%cell_numb
 
-! write(23,*) package(pack_index)%pos
 
 IF(debug == 2) THEN
  CALL find_dyn_cell1(package(pack_index)%pos, pomocna_bunka)
@@ -71,12 +70,11 @@ END IF
 IF(cell_dist == 0.e0) STOP 'do_rpackage: cell_dist == 0'
 
 
-IF (cur_mgi .EQ. n_modelgrid + 1) THEN
+IF (cur_mgi > n_modelgrid) THEN
  ! Package is outside the wind model but still inside the propagation grid qube
  ! No physical interaction should occure, set e_dist > cell_dist
+ ! write(*,*) 'do_rpackage: vacuum cell for a packet: ', pack_index
  e_dist = cell_dist + R_inf
-ELSE IF(cur_mgi .EQ. n_modelgrid + 2) THEN
- e_dist = 1.D50
 ELSE
  ! write(*,*) 'do_rpackage: calling event_dist'
  IF(cell_dist > 1.D20) write(*,*) 'do_rpackage: pack_index = ', pack_index, ' cell_dist = ', cell_dist

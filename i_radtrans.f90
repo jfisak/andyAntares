@@ -97,7 +97,7 @@ DO I = 1, nlns
 
  IF(corrFactor < 0.D0) write(*,*) 'WARNING: correction factor 1 - (gl nu) / (gu nl) < 0'
  !______________________________________________________________________
- ROverV = roverw()
+ ROverV = roverw(pack_index, 0.e0, fr_line)
 
 
  taulu = light_speed / fr_line * constanta * &
@@ -179,7 +179,7 @@ DO I = 1, nluns
  Aul = 2 * h * fr_line**3 / light_speed**2 * Bul
 
 
- ROverV = roverw()
+ ROverV = roverw(pack_index, 0.e0, fr_line)
 
  taulu = light_speed / fr_line * constanta * &
   linelist(act_line)%f_lu * low_pop * corrFactor * ROverV

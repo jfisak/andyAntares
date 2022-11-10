@@ -11,7 +11,7 @@ CHARACTER(LEN=60)                               :: propmod_file
 INTEGER                                         :: n_propgrid
 
 DOUBLE PRECISION, DIMENSION(3)                  :: pos, vel, width
-DOUBLE PRECISION                                :: rho, temp, volume
+DOUBLE PRECISION                                :: rho, temp, volume, el_dens
 
 INTEGER                                         :: down_cell, up_cell, model_index, assoc_cells
 INTEGER, DIMENSION(6)                           :: neighbors
@@ -49,9 +49,10 @@ DO I = 1, n_modelgrid
  temp = model_grid(I)%T
  volume = model_grid(I)%volume
  assoc_cells = model_grid(I)%assoc_cells
+ el_dens = model_grid(I)%e_dens
  is_diff = model_grid(I)%is_difapp
 
- write(49,*) pos, vel, rho, temp, volume, assoc_cells, is_diff
+ write(49,*) pos, vel, rho, temp, volume, assoc_cells, el_dens, is_diff
 END DO
 
 ! saves the associated propagation grid

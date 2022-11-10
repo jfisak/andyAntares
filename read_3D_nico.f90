@@ -87,10 +87,15 @@ OPEN(UNIT=11, FILE=modelfile)
   model_grid(cur_mgi)%rho = rho
   model_grid(cur_mgi)%T = temp
 
-  IF(temp < cur_Teff) cur_Teff = temp
-  IF(cur_radius < cur_rstar) cur_rstar = cur_radius
-  IF(cur_radius > cur_rinf) cur_rinf = cur_radius
-  IF(cur_velocity > cur_vinf) cur_vinf = cur_velocity
+  IF(cur_radius < cur_rstar) THEN
+   cur_rstar = cur_radius
+   cur_Teff = temp
+  END IF
+
+  IF(cur_radius > cur_rinf) THEN
+   cur_rinf = cur_radius
+   cur_vinf = cur_velocity
+  END IF
 
   IF(abs(x) > cur_xmax) cur_xmax = abs(x)
   IF(abs(y) > cur_ymax) cur_ymax = abs(y)
@@ -131,7 +136,7 @@ END DO
  T_eff = cur_Teff
  R_star = cur_rstar
  R_inf = cur_rinf
- V_inf = cur_vinf
+ V_inf = cur_vinf/10.0
  xmax = (cur_xmax + cur_xmax / nx_cell) * R_sun  
  ymax = (cur_ymax + cur_ymax / ny_cell) * R_sun 
  zmax = (cur_zmax + cur_zmax / nz_cell) * R_sun 

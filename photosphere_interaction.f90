@@ -39,7 +39,7 @@ CASE(1)
  width = dyn_cell(ind_cell_numb)%width
  pos = package(pack_index)%pos
  
- CALL freq_from_planck(freq)   ! here the frequency is sampled from the Planck law
+ CALL freq_from_planck(freq, T_eff)   ! here the frequency is sampled from the Planck law
  package(pack_index)%freq_rf = freq
  package(pack_index)%e_rf = L_star/n_pack  
  CALL doppler_factor(pack_index, D)

@@ -1,11 +1,13 @@
-SUBROUTINE r_kappa_line(pack_index, current_mgi, nextLine, nnextlines, actirrates, tau_line)
+SUBROUTINE r_kappa_line(pack_index, current_mgi, nextLine, nnextlines, line_dist, actirrates, tau_line)
 
 USE types
 USE rates_r
 IMPLICIT NONE
 
+INTEGER                         :: pack_index
 TYPE(rrates)                    :: actirrates
-INTEGER                         :: nextLine, nnextlines, pack_index
+INTEGER                         :: nextLine, nnextlines
+DOUBLE PRECISION                :: line_dist
 INTEGER                         :: current_mgi
 DOUBLE PRECISION                :: Blu, exci_energy_l, exci_energy_u
 DOUBLE PRECISION                :: stat_weight_l, stat_weight_u
@@ -18,6 +20,7 @@ DOUBLE PRECISION                :: low_pop, upp_pop
 DOUBLE PRECISION                :: corrFactor
 DOUBLE PRECISION                :: constanta
 DOUBLE PRECISION                :: roverw
+DOUBLE PRECISION                :: fr_line, f_lu
 
 
 ! the basic variables
@@ -32,6 +35,8 @@ DO I = 1, nnextlines
  lower_level = linelist(indexline)%lower
  upper_level = linelist(indexline)%upper
 
+ fr_line = linelist(indexline)%freq
+
  stat_weight_u = &
   elements(indexe)%ions(indexi)%levels(upper_level)%stat_waight
  stat_weight_l = &
@@ -41,7 +46,7 @@ DO I = 1, nnextlines
  exci_energy_l = &
   elements(indexe)%ions(indexi)%levels(lower_level)%exci_energy
 
- Blu = light_speed**2.0 / (2.0 * h * linelist(indexline)%freq**3.0) * &
+ Blu = light_speed**2.0 / (2.0 * h * fr_line**3.0) * &
   stat_weight_u / stat_weight_l * linelist(I)%A_ul
  
  CALL populations(indexe, indexi, lower_level, current_mgi, low_pop)
@@ -62,10 +67,12 @@ DO I = 1, nnextlines
  END IF
  !!!!!!!!!!!
  ! ROverV
- ROverV = roverw()
+ ROverV = roverw(pack_index, line_dist, fr_line)
+ f_lu = linelist(indexline)%f_lu
+ actirrates%Lline(I) = light_speed / fr_line * constanta * &
+  f_lu * low_pop * corrFactor * ROverV
 
- actirrates%Lline(I) = light_speed / linelist(indexline)%freq * constanta * &
-  linelist(indexline)%f_lu * low_pop * corrFactor * ROverV
+ ! write(*,*) 'r_kappa_line: f_lu = ', f_lu, 'freq = ', fr_line, ' Blu = ', Blu
 
  actirrates%nline(I) = indexline
  

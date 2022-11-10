@@ -74,30 +74,11 @@ END IF
 
 
 
-! only for the testing purposes !!!!
-!ldist = light_speed * ( R_inf / V_inf ) * &
-! ( ( package(pack_index)%freq_cmf / package(pack_index)%freq_rf)-&
-! f_line / package(pack_index)%freq_rf)
-! RETURN
-
-! pokus: linear approximation
-! ldist = (f_line - lfreq)*cell_dist/(ufreq - lfreq)
-! write(*,*) 'resonance_distance2: ldist = ', ldist/cell_dist
-! RETURN
-
-
 I = 0
 DO WHILE(iteration)
  
  I = I + 1
  if(I == maxit) then
-  ! ldist = R_inf
-  ! write(*,*) 'reldiff = ', abs(halffreq - f_line) / f_line
-  ! write(*,*) 'redshift = ', redshift
-  ! write(*,*) 'packet cmf freq = ', package(pack_index)%freq_cmf
-  ! write(*,*) 'line freq = ', f_line
-  ! write(*,*) 'bound freq = ', bfreq
-  ! write(*,*) 'resonance_distance2: too many iterations'
   ldist = norm2(package(pack_index)%pos - halfpos)
   iteration = .false.
   ! STOP 'resonance_distance2: testing'
@@ -111,11 +92,6 @@ DO WHILE(iteration)
  package(dummypackage)%pos = halfpos
  CALL doppler_factor(dummypackage, D)
  halffreq = package(pack_index)%freq_rf * D
-
- ! write(*,*) 'resonance_distance2: lbond = ', lbond
- ! write(*,*) 'resonance_distance2: ubond = ', ubond
- ! write(*,*) 'resonance_distance2: flow, fline, fup: ', lfreq, f_line, ufreq
- ! write(*,*) 'resonance_distance2: halffreq = ', halffreq, ' cell_dist = ', cell_dist
 
  ! test of convergence
  chint = abs(halffreq - f_line) / f_line

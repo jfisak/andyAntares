@@ -9,7 +9,7 @@ CHARACTER(LEN=60)                               :: propmod_file
 INTEGER                                         :: n_propgrid
 
 DOUBLE PRECISION, DIMENSION(3)                  :: pos, vel, width
-DOUBLE PRECISION                                :: rho, temp, volume
+DOUBLE PRECISION                                :: rho, temp, volume, el_dens
 
 INTEGER                                         :: down_cell, up_cell, model_index
 INTEGER, DIMENSION(6)                           :: neighbors
@@ -44,7 +44,7 @@ nz_cell = Nz
 Ngrid = nx_cell * ny_cell * nz_cell
 
 DO I = 1, n_modelgrid
- read(49, *) pos, vel, rho, temp, volume, assoc_cells, is_diff
+ read(49, *) pos, vel, rho, temp, volume, assoc_cells, el_dens, is_diff
 
  IF(model_type == 1) THEN
   model_grid(I)%rwind = pos(1)
@@ -59,6 +59,7 @@ DO I = 1, n_modelgrid
  model_grid(I)%volume = volume
  model_grid(I)%assoc_cells = assoc_cells
  model_grid(I)%J = 0.D0
+ model_grid(I)%e_dens = el_dens
  model_grid(I)%is_difapp = is_diff
 
  ALLOCATE (model_grid(I)%grid_comp(n_elements))

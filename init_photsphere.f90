@@ -25,15 +25,17 @@ SUBROUTINE init_photsphere(n_pack)
 ! OPEN(16,FILE='photon_positions.dat')
   DO I = 1, n_pack
    IF ((inputflux .EQ. 0) ) THEN
-    CALL freq_from_planck(freq)   ! here the frequency is sampled from a Planck law
+    CALL freq_from_planck(freq, T_eff)   ! here the frequency is sampled from a Planck law
     ! write(21,*) freq
     IF(I > tot_saved_packets) package(I)%freq_rf = freq
    ELSE IF ((inputflux .EQ. 1 .OR. inputflux == 2) .AND. (I==1)) THEN
     CALL freq_from_file(n_pack,frequencies) ! frequency is sampled using an existing emergent flux
     DO J = tot_saved_packets + 1, n_pack
      package(J)%freq_rf = frequencies(J)
+     ! write(51,*) frequencies(J)
     END DO
    END IF
+  
    IF(I > tot_saved_packets) THEN
     ! Place photon on the photosphere's surface
     CALL random_unitvector1(direction, sint, cost, sinp, cosp)

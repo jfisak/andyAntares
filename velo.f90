@@ -1,5 +1,4 @@
-
-SUBROUTINE velo(pack_index,vel_vec,approx)
+SUBROUTINE velo(pack_index, pack_position, cur_mgi, vel_vec, approx)
 
 USE types
 

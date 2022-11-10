@@ -35,20 +35,19 @@ SUBROUTINE find_e_nd(model_grid_index, el_nd)
     ! Calculate the function func1 which is the root of the electron number density
     CALL f_edens(model_grid_index, el_nd_1, func1)
     CALL f_edens(model_grid_index, el_nd_2, func2)
-!    print*, 'electron densities: el_nd_1 = ', el_nd_1, ', el_nd_2 = ', el_nd_2
+    ! write(*,*) , 'electron densities: func1 = ', func1, ', func2 = ', func2
     diff = (el_nd_2 - el_nd_1) / (func2 - func1) * func2 
-!write(*,*) 'find_e_nd: el_nd_1 = ', el_nd_1, ' el_nd_2 = ', el_nd_2
+    ! write(*,*) 'find_e_nd: el_nd_1 = ', el_nd_1, ' el_nd_2 = ', el_nd_2
     IF (ABS(el_nd_1 / el_nd_2 - 1.D0) .LT. minc) THEN
-!       PRINT*, 'Electron number density in cell', model_grid_index, 'equals', el_nd_2
        EXIT
     END IF
     el_nd_1 = el_nd_2
     el_nd_2 = el_nd_2 - diff
 
     ! Debug
-  !  print*, 'electron density: ', loop_index, el_nd_1, el_nd_2, '\n', diff
-    !print*, 'electron density: ', diff
-    !print*, loop_index, func1, func2, diff
+    ! write(*,*)  'electron density: ', loop_index, el_nd_1, el_nd_2, '\n', diff
+    ! write(*,*)  'electron density: ', diff
+    ! write(*,*)  loop_index, func1, func2, diff
 
     loop_index = loop_index + 1  
    END DO    

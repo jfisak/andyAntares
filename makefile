@@ -17,12 +17,12 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
           random_unitvector.o ran2.o boundary3.o bound_dist.o rates_i.o\
           change_cell.o move_package.o emit_rpackage.o	rates_k.o rates_r.o \
           init_photsphere.o random_unitvector2.o ran2_class.o save_rates.o\
-          random_unitvector1.o read_1D_model.o doppler_factor.o oct_neighbors.o\
+          random_unitvector1.o read_1D_model.o doppler_factor.o doppler_factor2.o oct_neighbors.o \
           vec_length.o velo.o angle_aberration.o freq_from_planck.o lin_interpolation.o \
           do_rpackage.o do_ipackage.o event_dist.o get_package_model_index.o  \
           do_rpackage_event.o update_packages.o do_kpackage.o r_choose_line.o \
           read_composition.o read_levels.o read_transitions.o read_populations.o \
-          sorting-new.o setup_model_grid.o update_grid.o i_ion_recomb.o   \
+          sorting-new.o setup_model_grid.o update_grid.o i_ion_recomb.o cmf_freq.o \
           saha_boltzmann_factor.o ionization_fraction.o f_edens.o round_number.o\
           find_e_nd.o part_fun.o update_estimators.o freq_from_file.o rob.o \
           acc_rej_montecarlo.o virtual_points.o setup_propgrid.o velo_vector.o \

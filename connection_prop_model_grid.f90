@@ -204,91 +204,118 @@ INTEGER                         :: act_pgcell, cur_vp, cur_mgi
     END DO
    CASE(1)
     ! create an array with saved indexes
-    n_bas_pcell = nx_cell * ny_cell * nz_cell
-    ALLOCATE(list_index(n_bas_pcell))
-    ! initial setup
-    DO I = 1, n_bas_pcell
-     list_index(I) = 0
-    END DO
-    ! calculating of indeces
-    last_index = 0
-    n_virtpoints = SIZE(virtual_point)
-    DO I = 1, n_virtpoints
-     new_index = virtual_point(I)%ind_pcell
-     IF(new_index /= last_index) THEN
-      list_index(new_index) = I
-      last_index = new_index
-     END IF
-    END DO
+    write(*,*) 'connection_prop_model_grid: inputmodel = ', inputmodel, ' dyngrid = ', dyngrid
+    IF(dyngrid > 0) THEN
+     n_bas_pcell = nx_cell * ny_cell * nz_cell
+     ALLOCATE(list_index(n_bas_pcell))
+     ! initial setup
+     DO I = 1, n_bas_pcell
+      list_index(I) = 0
+     END DO
+     ! calculating of indeces
+     last_index = 0
+     n_virtpoints = SIZE(virtual_point)
+     DO I = 1, n_virtpoints
+      new_index = virtual_point(I)%ind_pcell
+      IF(new_index /= last_index) THEN
+       list_index(new_index) = I
+       last_index = new_index
+      END IF
+     END DO
 
-    ! we calculate associated cells for the rest of propGrid cells
-    DO cur_pgcell = 1, max_n_dcell
-     up_cell = dyn_cell(cur_pgcell)%up_cell
-     IF(up_cell == 0) THEN
+     ! we calculate associated cells for the rest of propGrid cells
+     DO cur_pgcell = 1, max_n_dcell
+      up_cell = dyn_cell(cur_pgcell)%up_cell
+      IF(up_cell == 0) THEN
+       cur_corner = dyn_cell(cur_pgcell)%corner
+       cur_width = dyn_cell(cur_pgcell)%width
+       cur_center = cur_corner + cur_width/2.0
+       cur_lowcell = dyn_cell(cur_pgcell)%down_cell
+       r0 = sqrt(cur_center(1)**2.0 + cur_center(2)**2.0 + &
+        cur_center(3)**2.0)
+       ! add_mg = 1 r < R_star
+       ! add_mg = 2 r > R_inf
+       ! add_mg = 3 r > R_star && r < R_inf, vacuum cell
+       IF(r0 < R_star) THEN
+        dyn_cell(cur_pgcell)%model_index = n_modelgrid + 1
+       ELSE IF(r0 > R_inf) THEN
+        dyn_cell(cur_pgcell)%model_index = n_modelgrid + 2
+       ELSE 
+        ! we connect a modgrid from the current basic cell
+        act_pgcell = cur_pgcell
+        DO
+         down_cell = dyn_cell(act_pgcell)%down_cell
+         IF(down_cell == 0) EXIT
+         act_pgcell = down_cell
+        END DO
+        cur_bpgi = act_pgcell
+
+        start_vp_index = list_index(cur_bpgi)
+        
+
+        IF(start_vp_index == 0) THEN
+         dyn_cell(cur_pgcell)%model_index = n_modelgrid + 3
+        ELSE
+         ! we must find an end index
+         cur_vp_index = start_vp_index
+         DO
+          cur_vp_index = cur_vp_index + 1
+          if(cur_vp_index == n_virtpoints) then
+           end_vp_index = cur_vp_index
+           EXIT
+          end if
+          if(virtual_point(cur_vp_index)%ind_pcell /= cur_bpgi) then
+           end_vp_index = cur_vp_index - 1
+           EXIT
+          end if
+         END DO
+
+         delta = large_number
+         cur_vp_nearest = 0
+         DO cur_vp = start_vp_index, end_vp_index
+          cur_pos = virtual_point(cur_vp)%pos
+          dist = sqrt((cur_center(1) - cur_pos(1))**2.0 +&
+           (cur_center(2) - cur_pos(2))**2.0 +&
+           (cur_center(3) - cur_pos(3))**2.0)
+          if(dist< delta) then
+           delta = dist
+           cur_vp_nearest = cur_vp
+          end if
+         END DO
+         cur_mgi = virtual_point(cur_vp_nearest)%ind_mcell
+         dyn_cell(cur_pgcell)%model_index = cur_mgi
+         model_grid(cur_mgi)%assoc_cells = model_grid(cur_mgi)%assoc_cells + 1
+!         write(*,*) 'connection_prop_model_grid: cur_pgcell = ', cur_pgcell, ' modindex = ', virtual_point(cur_vp_nearest)%ind_mcell
+
+        END IF
+       END IF
+      END IF ! up_cell == 0
+     END DO 
+    ELSE IF(dyngrid == 0) THEN
+     DO I = 1, n_modelgrid
+      cur_pos = model_grid(I)%vec_pos
+      CALL find_dyn_cell1(cur_pos, cur_pgi)
+      IF(dyn_cell(cur_pgi)%model_index == 0) THEN
+       dyn_cell(cur_pgi)%model_index = I
+       model_grid(I)%assoc_cells = model_grid(I)%assoc_cells + 1
+      END IF
+     END DO
+     ! other cells
+     DO cur_pgcell = 1, max_n_dcell
       cur_corner = dyn_cell(cur_pgcell)%corner
       cur_width = dyn_cell(cur_pgcell)%width
       cur_center = cur_corner + cur_width/2.0
-      cur_lowcell = dyn_cell(cur_pgcell)%down_cell
       r0 = sqrt(cur_center(1)**2.0 + cur_center(2)**2.0 + &
        cur_center(3)**2.0)
-      ! add_mg = 1 r < R_star
-      ! add_mg = 2 r > R_inf
-      ! add_mg = 3 r > R_star && r < R_inf, vacuum cell
       IF(r0 < R_star) THEN
        dyn_cell(cur_pgcell)%model_index = n_modelgrid + 1
       ELSE IF(r0 > R_inf) THEN
        dyn_cell(cur_pgcell)%model_index = n_modelgrid + 2
-      ELSE 
-       ! we connect a modgrid from the current basic cell
-       act_pgcell = cur_pgcell
-       DO
-        down_cell = dyn_cell(act_pgcell)%down_cell
-        IF(down_cell == 0) EXIT
-        act_pgcell = down_cell
-       END DO
-       cur_bpgi = act_pgcell
-
-       start_vp_index = list_index(cur_bpgi)
-       
-
-       IF(start_vp_index == 0) THEN
-        dyn_cell(cur_pgcell)%model_index = n_modelgrid + 3
-       ELSE
-        ! we must find an end index
-        cur_vp_index = start_vp_index
-        DO
-         cur_vp_index = cur_vp_index + 1
-         if(cur_vp_index == n_virtpoints) then
-          end_vp_index = cur_vp_index
-          EXIT
-         end if
-         if(virtual_point(cur_vp_index)%ind_pcell /= cur_bpgi) then
-          end_vp_index = cur_vp_index - 1
-          EXIT
-         end if
-        END DO
-
-        delta = large_number
-        cur_vp_nearest = 0
-        DO cur_vp = start_vp_index, end_vp_index
-         cur_pos = virtual_point(cur_vp)%pos
-         dist = sqrt((cur_center(1) - cur_pos(1))**2.0 +&
-          (cur_center(2) - cur_pos(2))**2.0 +&
-          (cur_center(3) - cur_pos(3))**2.0)
-         if(dist< delta) then
-          delta = dist
-          cur_vp_nearest = cur_vp
-         end if
-        END DO
-        cur_mgi = virtual_point(cur_vp_nearest)%ind_mcell
-        dyn_cell(cur_pgcell)%model_index = cur_mgi
-        model_grid(cur_mgi)%assoc_cells = model_grid(cur_mgi)%assoc_cells + 1
-!        write(*,*) 'connection_prop_model_grid: cur_pgcell = ', cur_pgcell, ' modindex = ', virtual_point(cur_vp_nearest)%ind_mcell
-
-       END IF
-      END IF
-     END IF ! up_cell == 0
-    END DO 
+      ELSE IF(dyn_cell(cur_pgcell)%model_index == 0) THEN
+       dyn_cell(cur_pgcell)%model_index = n_modelgrid + 3
+    END IF
+   END DO
+    END IF ! dyncell > 0
    CASE DEFAULT
     write(*,*) 'the choice inputmodel = ', inputmodel, ' is not known'
     STOP

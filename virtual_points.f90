@@ -147,6 +147,7 @@ CASE(2)
  END DO
 CASE(3)
  ALLOCATE(virtual_point(n_modelgrid))
+ write(*,*) 'virtual_point: dim vp = ', SIZE(virtual_point)
  DO I = 1, n_modelgrid
   virtual_point(I)%pos = model_grid(I)%vec_pos
   virtual_point(I)%ind_mcell = I
@@ -175,8 +176,8 @@ DO J = 2, Npoint
  A = virtual_point(J)%ind_pcell
  DO WHILE (I .GE. 1)
   IF(virtual_point(I)%ind_pcell > A) THEN
-   dummy = virtual_point(I+1)
-   virtual_point(I+1) = virtual_point(I) 
+   dummy = virtual_point(I + 1)
+   virtual_point(I + 1) = virtual_point(I) 
    virtual_point(I) = dummy
   END IF
    I = I - 1
