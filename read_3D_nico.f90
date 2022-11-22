@@ -29,6 +29,9 @@ cur_mgi = 0
 OPEN(UNIT=11, FILE=modelfile)
  n_mgi = 0
  ! number of cells
+ READ(11, '(A)', IOSTAT=reading_models) line
+ READ(11, '(A)', IOSTAT=reading_models) line
+ READ(11, '(A)', IOSTAT=reading_models) line
  DO
   READ(11, '(A)', IOSTAT=reading_models) line
   IF(line(1:1) == '*') CYCLE
@@ -45,8 +48,11 @@ OPEN(UNIT=11, FILE=modelfile)
 
  REWIND(11)
 
- cur_Teff = 1.e20
- cur_rstar = 1.D40
+ ! cur_Teff = 1.e20
+ READ(11,*) T_eff
+ READ(11,*) R_star
+ READ(11,*) R_inf
+ ! cur_rstar = 1.D40
  cur_rinf = 1.e0
  cur_vinf = 1.e0
  cur_xmax = 0.e0
@@ -87,13 +93,8 @@ OPEN(UNIT=11, FILE=modelfile)
   model_grid(cur_mgi)%rho = rho
   model_grid(cur_mgi)%T = temp
 
-  IF(cur_radius < cur_rstar) THEN
-   cur_rstar = cur_radius
-   cur_Teff = temp
-  END IF
-
   IF(cur_radius > cur_rinf) THEN
-   cur_rinf = cur_radius
+   ! cur_rinf = cur_radius
    cur_vinf = cur_velocity
   END IF
 
@@ -133,15 +134,14 @@ DO I = 1, add_mg
  model_grid(n_modelgrid + I)%volume = 0.D0
 END DO
   
- T_eff = cur_Teff
- R_star = cur_rstar
- R_inf = cur_rinf
  V_inf = cur_vinf/10.0
- xmax = (cur_xmax + cur_xmax / nx_cell) * R_sun  
- ymax = (cur_ymax + cur_ymax / ny_cell) * R_sun 
- zmax = (cur_zmax + cur_zmax / nz_cell) * R_sun 
- write(*,*) 'read_3D_nico: T_eff = ', T_eff, 'R_star = ', R_star/R_sun, ' R_inf = ', R_inf/R_sun, ' V_inf = ', V_inf
- write(*,*) 'read_3D_nico: xmax = ', xmax/R_sun, ' ymax = ', ymax/R_sun, ' zmax = ', zmax/R_sun
+ xmax = (cur_xmax + cur_xmax / R_star / 100.0) * R_sun  
+ ymax = (cur_ymax + cur_ymax / R_star / 100.0) * R_sun 
+ zmax = (cur_zmax + cur_zmax / R_star / 100.0) * R_sun 
+ ! write(*,*) 'read_3D_nico: T_eff = ', T_eff, 'R_star = ', R_star/R_inf, ' R_inf = ', R_inf/R_sun, ' V_inf = ', V_inf
+ ! write(*,*) 'read_3D_nico: xmax = ', xmax/R_inf, ' ymax = ', ymax/R_inf, ' zmax = ', zmax/R_inf
+ !  write(*,*) 'read_3D_nico: xmax/R_inf = ', xmax/R_inf
+ write(*,*) 'read_3D_nico: V_prop/V_inf = ', 6.0*(xmax/R_inf)*(ymax/R_inf)*(zmax/R_inf)/pi
 
 CLOSE(11)
 

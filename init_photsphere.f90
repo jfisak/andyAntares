@@ -10,11 +10,21 @@ SUBROUTINE init_photsphere(n_pack)
   DOUBLE PRECISION, DIMENSION(3)    :: direction, directionn
   DOUBLE PRECISION, DIMENSION(n_pack) :: frequencies
 
+  DOUBLE PRECISION, DIMENSION(3)        :: cur_pos
+  INTEGER                               :: cur_pgi, cur_mgi
+  DOUBLE PRECISION                      :: cur_Teff
+  LOGICAL, PARAMETER                    :: homogeneous=.false.
+
+  DOUBLE PRECISION                      :: R_bound
+
   destroyed_pack = 0
   L_star = 4.D0*pi*(R_star)**2*sigma*T_eff**4
   write(99,*) 'init photsphere...'
   write(99,*) 'init_photsphere: R_star = ', R_star, ' T_eff = ', T_eff, ' L_star = ', L_star
   !print*, L_star, pi, R_star/r_sun,sigma, T_eff
+
+  ! delete
+  R_bound = R_star
 
   !    ind_x = nx_cell/2 + 1
   !    ind_y = ny_cell/2 + 1
@@ -24,23 +34,12 @@ SUBROUTINE init_photsphere(n_pack)
   !    write(99,*) R_star
 ! OPEN(16,FILE='photon_positions.dat')
   DO I = 1, n_pack
-   IF ((inputflux .EQ. 0) ) THEN
-    CALL freq_from_planck(freq, T_eff)   ! here the frequency is sampled from a Planck law
-    ! write(21,*) freq
-    IF(I > tot_saved_packets) package(I)%freq_rf = freq
-   ELSE IF ((inputflux .EQ. 1 .OR. inputflux == 2) .AND. (I==1)) THEN
-    CALL freq_from_file(n_pack,frequencies) ! frequency is sampled using an existing emergent flux
-    DO J = tot_saved_packets + 1, n_pack
-     package(J)%freq_rf = frequencies(J)
-     ! write(51,*) frequencies(J)
-    END DO
-   END IF
+   ! Place photon on the photosphere's surface
+   CALL random_unitvector1(direction, sint, cost, sinp, cosp)
+   package(I)%pos = R_bound * direction
   
    IF(I > tot_saved_packets) THEN
-    ! Place photon on the photosphere's surface
-    CALL random_unitvector1(direction, sint, cost, sinp, cosp)
     ! write(*,*) 'init_photsphere: R_star = ', R_star
-    package(I)%pos = R_star * direction
 
     ! Then give it a random direction outward from the photosphere
     CALL random_unitvector2(directionn) !random_unitvector(direction) 
@@ -54,6 +53,25 @@ SUBROUTINE init_photsphere(n_pack)
     ! This works only for regular grids!!!!
     ! write(*,*) 'init_photsphere: calling find_dyn_cell1, pack_index = ', I
     CALL find_dyn_cell1(package(I)%pos,ind_cell_numb)
+    IF ((inputflux .EQ. 0) ) THEN
+     IF(homogeneous) THEN
+      CALL freq_from_planck(freq, T_eff)   ! here the frequency is sampled from a Planck law
+     ELSE
+      cur_mgi = dyn_cell(ind_cell_numb)%model_index
+      cur_Teff = model_grid(cur_mgi)%T
+      if(cur_mgi > n_modelgrid) cur_Teff = 45000.00
+      ! write(40,*) cur_Teff
+      ! write(*,*) 'init_photsphere: cur_pgi = ', ind_cell_numb, ' cur_mgi = ', cur_mgi, ' n_modelgrid = ', n_modelgrid 
+      CALL freq_from_planck(freq, cur_Teff)
+      IF(my_rank == 0) write(39,*) freq
+     END IF
+     IF(I > tot_saved_packets) package(I)%freq_rf = freq
+    ELSE IF ((inputflux .EQ. 1 .OR. inputflux == 2) .AND. (I==1)) THEN
+    CALL freq_from_file(n_pack,frequencies) ! frequency is sampled using an existing emergent flux
+    DO J = tot_saved_packets + 1, n_pack
+     package(J)%freq_rf = frequencies(J)
+    END DO
+   END IF
     ! write(*,*) 'init_photsphere: init cell numb = ', ind_cell_numb
     IF(ind_cell_numb > SIZE(dyn_cell)) THEN
      write(*,*) 'init_photsphere: wrong cell number'
@@ -81,11 +99,11 @@ SUBROUTINE init_photsphere(n_pack)
    END IF
   END DO
 
-! OPEN(19,file="photonFdistr.dat")
-!  do I=1,n_pack
-!   write(19,*) -99, package(I)%freq_rf, package(I)%e_rf
-!  end do
-! CLOSE(19)
+OPEN(19,file="photonFdistr.dat")
+ do I=1,n_pack
+  write(19,*) -99, package(I)%freq_rf, package(I)%e_rf
+ end do
+CLOSE(19)
         
 
 END SUBROUTINE init_photsphere

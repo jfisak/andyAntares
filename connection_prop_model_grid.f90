@@ -41,13 +41,19 @@ INTEGER                         :: n_bas_pcell
 
 INTEGER                         :: ind_x, ind_y, ind_z
 INTEGER                         :: cur_bpgi
-DOUBLE PRECISION, DIMENSION(3)  :: width, cur_pos
+DOUBLE PRECISION, DIMENSION(3)  :: width, cur_pos, mod_pos
 
 INTEGER                         :: down_cell
 INTEGER                         :: start_vp_index, end_vp_index
 INTEGER                         :: cur_vp_nearest, cur_vp_index
 INTEGER                         :: act_pgcell, cur_vp, cur_mgi
 
+INTEGER                         :: count_vacuum, count_out, count_in, count_ok
+
+count_ok = 0
+count_in = 0
+count_out = 0
+count_vacuum = 0
 
   max_n_dcell = SIZE(dyn_cell)
   ! Establish a connection between the propagation grid and the
@@ -298,23 +304,41 @@ INTEGER                         :: act_pgcell, cur_vp, cur_mgi
       IF(dyn_cell(cur_pgi)%model_index == 0) THEN
        dyn_cell(cur_pgi)%model_index = I
        model_grid(I)%assoc_cells = model_grid(I)%assoc_cells + 1
+       count_ok = count_ok + 1
       END IF
      END DO
      ! other cells
      DO cur_pgcell = 1, max_n_dcell
-      cur_corner = dyn_cell(cur_pgcell)%corner
-      cur_width = dyn_cell(cur_pgcell)%width
+      cur_corner = dyn_cell(cur_pgcell)%corner/R_star
+      cur_width = dyn_cell(cur_pgcell)%width/R_star
       cur_center = cur_corner + cur_width/2.0
       r0 = sqrt(cur_center(1)**2.0 + cur_center(2)**2.0 + &
        cur_center(3)**2.0)
-      IF(r0 < R_star) THEN
+      IF(r0 < 1.0) THEN
        dyn_cell(cur_pgcell)%model_index = n_modelgrid + 1
-      ELSE IF(r0 > R_inf) THEN
+       count_in = count_in + 1
+      ELSE IF(r0 > R_inf/R_star) THEN
        dyn_cell(cur_pgcell)%model_index = n_modelgrid + 2
-      ELSE IF(dyn_cell(cur_pgcell)%model_index == 0) THEN
+       count_out = count_out + 1
+      END IF
+      IF(dyn_cell(cur_pgcell)%model_index == 0) THEN
        dyn_cell(cur_pgcell)%model_index = n_modelgrid + 3
-    END IF
-   END DO
+       count_vacuum = count_vacuum + 1
+       delta2 = large_number
+       DO J = 1, n_modelgrid
+        mod_pos = model_grid(J)%vec_pos
+        delta = sqrt((cur_center(1)-mod_pos(1))**2.0 + (cur_center(2)-mod_pos(2))**2.0 + (cur_center(3)-mod_pos(3))**2.0)
+        if(delta < delta2) THEN
+         delta2 = delta
+         M = J
+        end if
+        if(mod(I,1000)==0) write(*,*) 'connection_prop_model_grid: working on propGrid cell ', I, ' from ', max_n_dcell
+       END DO ! loop over all modGrid cells
+       dyn_cell(cur_pgcell)%model_index = M
+      END IF ! if model_index == 0
+     END DO ! loop over all propGrid cells
+     write(*,*) 'connection_prop_model_grid: in = ', count_in, ' out = ', count_out, ' vacuum = ', count_vacuum, &
+      ' count_ok = ', count_ok
     END IF ! dyncell > 0
    CASE DEFAULT
     write(*,*) 'the choice inputmodel = ', inputmodel, ' is not known'

@@ -14,7 +14,7 @@ IMPLICIT NONE
 
   TYPE dyn_grid_cell
       INTEGER                        :: model_index, n_virt=0
-      INTEGER                        :: cell_index, up_cell, down_cell
+      INTEGER                        :: up_cell, down_cell
       INTEGER, DIMENSION(6)          :: neighbor
       DOUBLE PRECISION, DIMENSION(3) :: corner, width
       INTEGER, DIMENSION(3)          :: n_sbgr
@@ -132,7 +132,7 @@ IMPLICIT NONE
 
 ! fields for the given types
   TYPE(modelgrid), ALLOCATABLE       :: model_grid(:)
-  TYPE(dyn_grid_cell), ALLOCATABLE   :: dyn_cell(:)   
+  TYPE(dyn_grid_cell), ALLOCATABLE, SAVE   :: dyn_cell(:)   
   TYPE(photon), ALLOCATABLE          :: package(:)
 
   TYPE(line_list), ALLOCATABLE       :: linelist(:)
