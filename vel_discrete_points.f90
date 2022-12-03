@@ -10,7 +10,7 @@ INTEGER                                 :: testpacket
 DOUBLE PRECISION, DIMENSION(3)          :: act_corner, act_width, act_pos
 INTEGER                                 :: act_cell
 INTEGER                                 :: get_package_model_index, act_mgi
-DOUBLE PRECISION, DIMENSION(3)          :: act_center
+DOUBLE PRECISION, DIMENSION(3)          :: act_center, act_vel
 DOUBLE PRECISION                        :: act_vel_norm
 
 DOUBLE PRECISION, DIMENSION(3)          :: rel_pos
@@ -41,6 +41,7 @@ act_corner = dyn_cell(act_cell)%corner
 act_width = dyn_cell(act_cell)%width
 act_center = act_corner + act_width/2.0
 
+act_vel = model_grid(act_mgi)%vec_vel
 act_vel_norm = model_grid(act_mgi)%vel
 
 ! a relative position in respect to the propCell center
@@ -54,7 +55,6 @@ ELSE IF(dyngrid > 0) THEN
  CALL oct_virtcube(pack_index, rel_pos, cube_pos, incellmode)
 END IF
 ! a special case when some neighbor cells do not exist, because we are close bound to the compuational domain
-! we will choose initial points on the bound of the current propagation grid instead
 IF(incellmode) THEN ! incellmode
  CALL velo_vector(act_pos, act_mgi, vel_vec)
 ! trilinear interpolation
@@ -82,6 +82,13 @@ ELSE ! incellmode
   CALL velo_vector(cur_pos1, cur_mgi1, cur_vel1)
 
   CALL velo_vector(cur_pos2, cur_mgi2, cur_vel2)
+
+  if(cur_vel1(1) == -2.0 .and. cur_vel1(2) == -3.0 .and. cur_vel1(3) == -5.0) then
+   cur_vel1 = act_vel
+  end if
+  if(cur_vel2(1) == -2.0 .and. cur_vel2(2) == -3.0 .and. cur_vel2(3) == -5.0) then
+   cur_vel2 = act_vel
+  end if
 
   IF(cur_pos1(3) > cur_pos2(3) .and. (act_pos(3) < cur_pos2(3) .or. act_pos(3) > cur_pos1(3)))THEN
    DO J = 1,8

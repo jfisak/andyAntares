@@ -49,6 +49,9 @@ INTEGER                         :: cur_vp_nearest, cur_vp_index
 INTEGER                         :: act_pgcell, cur_vp, cur_mgi
 
 INTEGER                         :: count_vacuum, count_out, count_in, count_ok
+INTEGER                         :: cur_neighbour, cur_n_mgi
+
+LOGICAL                         :: vacuum_found
 
 count_ok = 0
 count_in = 0
@@ -210,7 +213,7 @@ count_vacuum = 0
     END DO
    CASE(1)
     ! create an array with saved indexes
-    write(*,*) 'connection_prop_model_grid: inputmodel = ', inputmodel, ' dyngrid = ', dyngrid
+    ! write(*,*) 'connection_prop_model_grid: inputmodel = ', inputmodel, ' dyngrid = ', dyngrid
     IF(dyngrid > 0) THEN
      n_bas_pcell = nx_cell * ny_cell * nz_cell
      ALLOCATE(list_index(n_bas_pcell))
@@ -306,6 +309,41 @@ count_vacuum = 0
        model_grid(I)%assoc_cells = model_grid(I)%assoc_cells + 1
        count_ok = count_ok + 1
       END IF
+      DO J = 1,6
+       cur_neighbour = dyn_cell(cur_pgi)%neighbor(J)
+       IF(cur_neighbour > 0) then
+        cur_n_mgi = dyn_cell(cur_neighbour)%model_index
+        IF(cur_n_mgi == 0) THEN
+         dyn_cell(cur_neighbour)%model_index = I
+         model_grid(I)%assoc_cells = model_grid(I)%assoc_cells + 1
+         count_ok = count_ok + 1
+        END IF
+       END IF
+      END DO
+     END DO
+     ! 
+     vacuum_found = .true.
+     DO WHILE(vacuum_found)
+      vacuum_found = .false.
+      DO cur_pgi = 1, max_n_dcell
+       cur_mcell = dyn_cell(cur_pgi)%model_index
+       if(cur_mcell == 0) then
+        vacuum_found = .true.
+       else
+        DO J = 1,6
+         IF(J == 5) cycle
+         cur_neighbour = dyn_cell(cur_pgi)%neighbor(J)
+         if(cur_neighbour > 0) then
+          cur_n_mgi = dyn_cell(cur_neighbour)%model_index
+          if(cur_n_mgi == 0) then
+           dyn_cell(cur_neighbour)%model_index = cur_mcell
+           model_grid(cur_mcell)%assoc_cells = model_grid(cur_mcell)%assoc_cells + 1
+           ! write(*,*) 'connection_prop_model_grid: cur_pgcell = ', cur_pgcell, ' cur_mcell = ', cur_mcell
+          end if ! cur_n_mgi == 0
+         end if ! cur_neighbour > 0
+        END DO 
+       end if ! cur_mcell == 0
+      END DO
      END DO
      ! other cells
      DO cur_pgcell = 1, max_n_dcell
@@ -324,17 +362,17 @@ count_vacuum = 0
       IF(dyn_cell(cur_pgcell)%model_index == 0) THEN
        dyn_cell(cur_pgcell)%model_index = n_modelgrid + 3
        count_vacuum = count_vacuum + 1
-       delta2 = large_number
-       DO J = 1, n_modelgrid
-        mod_pos = model_grid(J)%vec_pos
-        delta = sqrt((cur_center(1)-mod_pos(1))**2.0 + (cur_center(2)-mod_pos(2))**2.0 + (cur_center(3)-mod_pos(3))**2.0)
-        if(delta < delta2) THEN
-         delta2 = delta
-         M = J
-        end if
-        if(mod(I,1000)==0) write(*,*) 'connection_prop_model_grid: working on propGrid cell ', I, ' from ', max_n_dcell
-       END DO ! loop over all modGrid cells
-       dyn_cell(cur_pgcell)%model_index = M
+       ! delta2 = large_number
+       ! DO J = 1, n_modelgrid
+       !  mod_pos = model_grid(J)%vec_pos
+       !  delta = sqrt((cur_center(1)-mod_pos(1))**2.0 + (cur_center(2)-mod_pos(2))**2.0 + (cur_center(3)-mod_pos(3))**2.0)
+       !  if(delta < delta2) THEN
+       !   delta2 = delta
+       !   M = J
+       !  end if
+       !  if(mod(I,1000)==0) write(*,*) 'connection_prop_model_grid: working on propGrid cell ', I, ' from ', max_n_dcell
+       ! END DO ! loop over all modGrid cells
+       ! dyn_cell(cur_pgcell)%model_index = M
       END IF ! if model_index == 0
      END DO ! loop over all propGrid cells
      write(*,*) 'connection_prop_model_grid: in = ', count_in, ' out = ', count_out, ' vacuum = ', count_vacuum, &

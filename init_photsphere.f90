@@ -13,9 +13,9 @@ SUBROUTINE init_photsphere(n_pack)
   DOUBLE PRECISION, DIMENSION(3)        :: cur_pos
   INTEGER                               :: cur_pgi, cur_mgi
   DOUBLE PRECISION                      :: cur_Teff
-  LOGICAL, PARAMETER                    :: homogeneous=.false.
+  LOGICAL, PARAMETER                    :: homogeneous=.true.
 
-  DOUBLE PRECISION                      :: R_bound
+  DOUBLE PRECISION                      :: R_bound, ran2
 
   destroyed_pack = 0
   L_star = 4.D0*pi*(R_star)**2*sigma*T_eff**4
@@ -59,8 +59,10 @@ SUBROUTINE init_photsphere(n_pack)
      ELSE
       cur_mgi = dyn_cell(ind_cell_numb)%model_index
       cur_Teff = model_grid(cur_mgi)%T
-      if(cur_mgi > n_modelgrid) cur_Teff = 45000.00
-      ! write(40,*) cur_Teff
+      if(cur_mgi > n_modelgrid) then
+       cur_Teff = 30000.00 + (270000 * ran2(idum))
+      end if
+      write(40,*) cur_Teff
       ! write(*,*) 'init_photsphere: cur_pgi = ', ind_cell_numb, ' cur_mgi = ', cur_mgi, ' n_modelgrid = ', n_modelgrid 
       CALL freq_from_planck(freq, cur_Teff)
       IF(my_rank == 0) write(39,*) freq

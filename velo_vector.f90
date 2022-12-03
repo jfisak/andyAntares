@@ -23,6 +23,8 @@ SELECT CASE(model_type)
  CASE(3)
   IF(mod_index <= n_modelgrid) THEN
    vel_vec = model_grid(mod_index)%vec_vel
+  ELSE IF(mod_index == n_modelgrid + 3) THEN ! special treatment for vacuum cells
+   vel_vec = (/-2.0, -3.0, -5.0/)
   ELSE
    vel_vec = (/ 0.0, 0.0, 0.0 /)
   END IF
