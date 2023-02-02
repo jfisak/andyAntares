@@ -1,7 +1,9 @@
 #Compiler settings
 #F90 = gfortran
-#F90=mpif90
+# F90=mpif90
+# F90=ifort
 F90=mpifort.mpich
+FCFLAGS = -g -cpp -O0 -Dmpi=1 -check all -llapack 
 FCFLAGS = -g -cpp -O0 -fbounds-check -Dmpi=1 -fcheck=all -Wall -pg -llapack # -fprofile-arcs# -ffpe-trap=zero,overflow,invalid,underflow
 
 #Variables
@@ -38,7 +40,8 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
 	  mpi_distribute_estimators.o save_temp_packs.o find_unfinished_run.o \
 	  lte_pops.o photosphere_interaction.o roverw.o vel_discrete_points.o \
           next_line_bluered.o resonance_distance2.o read_3D_pseudo3D.o save_propmod_grid.o \
-	  read_propmod_grid.o oct_virtcube.o diffusion_approximation.o d_choosenextcell.o
+	  read_propmod_grid.o oct_virtcube.o diffusion_approximation.o d_choosenextcell.o \
+	  read_1D_araya.o
 # end of procedures
 
 #Rules

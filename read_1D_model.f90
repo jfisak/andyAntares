@@ -27,6 +27,11 @@ DOUBLE PRECISION                                :: rPrev, rAct, width
 
 modelfile=TRIM(inputmodelFile)
 
+! case
+! (1)
+! (2)
+! (3) model by Araya
+
 SELECT CASE (inputModel)
  CASE(0)
  OPEN (UNIT=11, FILE=modelfile)
@@ -255,6 +260,9 @@ SELECT CASE (inputModel)
   model_grid(n_modelgrid + 1)%rho   = 0.D0     
   CLOSE(11)
   ! STOP 'read_1D_model: testing...'
+ ! araya model
+ CASE(3)
+  CALL read_1D_araya()
  CASE DEFAULT
   write(99,*) 'the choice of the variable inputModel = ', inputModel, 'is not known...'
   STOP 'ENDING PROGRAM NOW...'
