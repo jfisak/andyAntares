@@ -13,10 +13,8 @@ SUBROUTINE main
   INTEGER, DIMENSION (9)            :: TT
   DOUBLE PRECISION, ALLOCATABLE     :: current_temp(:)
   INTEGER                               :: cur_parameter=0
-  REAL                                  :: time0_agcreation, time1_agcreation
   REAL                                  :: time0_agconnwpg, time1_agconnwpg
   REAL                                  :: time0_pp, time1_pp
-  REAL                                  :: time_cre, time_con, time_pp
 ! parallelized part
 ! definition of MPI variables
 INTEGER                              :: nphit
@@ -26,6 +24,8 @@ CHARACTER(60)                           :: propmod_file
 
 LOGICAL                                 :: timing = .true.
 
+DOUBLE PRECISION                        :: test_freq
+DOUBLE PRECISION, DIMENSION(3)          :: test_pos, test_dir
 
 ! Link data to identify program version
 CHARACTER LINK_DATE*30, LINK_USER*10, LINK_HOST*60
@@ -153,6 +153,9 @@ ELSE
  write(99,*) 'setting up the propagation grid'
  IF(debug == 3)  write(*,*) 'setting up the propagation grid'
  CALL setup_propgrid()
+
+ write(*,*) 'main: xmax = ', xmax/R_inf, ' ymax = ', ymax/R_inf, ' zmax = ', zmax/R_inf
+
  
  IF(debug == 3) write(*,*) 'connecting prop and mod grids'
  CALL connection_prop_model_grid()
@@ -171,13 +174,6 @@ IF(saved_grid == 1 .and. .not. propmod_file_exists) THEN
 END IF
 ! connects the propagation grid with the model grid
 write(99,*) 'propagation grid is set up'
-
- ! IF(my_rank == 0) THEN
- !  CALL save_output(8)
- !  ! STOP 'testing the propagation grid'
- ! END IF
-
-
 
 
 
@@ -205,6 +201,13 @@ DO iteration = 1,1
  IF(debug == 3) write(*,*) 'updating modGrid'
  CALL update_grid(iteration)
  IF(debug == 3) write(*,*) 'modGrid was updated'
+ ! opacity tables
+ test_pos = (/R_star, 1.D4,1.D4/)
+ test_dir = (/1.D0,1.D-4,1.D-4/)
+ ! test_freq = 1164084775316555.5 ! Hz
+ CALL freq_from_planck(test_freq, T_eff)
+ CALL calc_tau(test_pos, test_dir, test_freq)
+ STOP 'main: testing'
  ! if (iteration == 1 .AND. inputpopfile .NE. '') then
  !  CALL read_populations()
  ! end if

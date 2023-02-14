@@ -41,7 +41,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
 	  lte_pops.o photosphere_interaction.o roverw.o vel_discrete_points.o \
           next_line_bluered.o resonance_distance2.o read_3D_pseudo3D.o save_propmod_grid.o \
 	  read_propmod_grid.o oct_virtcube.o diffusion_approximation.o d_choosenextcell.o \
-	  read_1D_araya.o
+	  read_1D_araya.o calc_tau.o
 # end of procedures
 
 #Rules
