@@ -10,7 +10,8 @@ IMPLICIT NONE
 
 INTEGER                                 :: n_mg_points
 
-INTEGER                                 :: cur_line, reading_grid
+INTEGER                                 :: cur_line, reading_grid, J
+INTEGER                                 :: numbions, atom_number
 
 DOUBLE PRECISION                        :: effective_temperature, stellar_radius
 DOUBLE PRECISION                        :: radius, density, djunk
@@ -39,13 +40,35 @@ OPEN(38, FILE=inputmodelFile)
  READ(38,*) effective_temperature
  READ(38,*) stellar_radius
 
+ T_eff = effective_temperature
+ R_star = stellar_radius
 
  DO cur_line = 1, n_mg_points
   READ(38,*) radius, djunk, velocity, djunk, djunk, density, junk
-  model_grid
-  write(*,*) 'read_1D_araya: r = ', radius, ' v = ', velocity, ' density = ', density
+  model_grid(cur_line)%rwind = radius * R_star
+  model_grid(cur_line)%vel = velocity * 1.D5 ! [velocity] = km/h
+  model_grid(cur_line)%rho = density
+  model_grid(cur_line)%T = T_eff
+  ALLOCATE (model_grid(cur_line)%grid_comp(n_elements))
+  DO J = 1, n_elements      
+   numbions = elements(J)%nions
+   ! write(*,*) 'read_1D_model: numbions = ', numbions
+   ALLOCATE (model_grid(cur_line)%grid_comp(J)%grid_ion(numbions))
+   atom_number = elements(J)%atom_number
+   !model_grid(cur_line)%grid_comp(J)%abund = massfrac(atom_number)        
+   model_grid(cur_line)%grid_comp(J)%abund = elements(J)%abundance
+   !Calculate total number density for included species
+   !tot_nd = model_grid(cur_line)%grid_comp(J)%abund / elements(J)%atom_mass 
+   !model_grid(cur_line)%grid_comp(J)%numb_den = tot_nd
+  END DO
  END DO
- STOP 'read_1D_araya: testing'
+ R_inf = model_grid(n_mg_points)%rwind
+ V_inf = model_grid(n_mg_points)%vel
+ model_grid(n_modelgrid+add_mg)%rwind = 0.D0
+ model_grid(n_modelgrid+add_mg)%vel   = 0.D0
+ model_grid(n_modelgrid+add_mg)%rho   = 0.D0     
+ write(*,*) 'read_1D_araya: R_inf = ', R_inf, ' V_inf = ', V_inf
+ ! STOP 'read_1D_araya: testing'
 
 
 
