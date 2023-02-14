@@ -207,7 +207,7 @@ DO iteration = 1,1
  ! test_freq = 1164084775316555.5 ! Hz
  CALL freq_from_planck(test_freq, T_eff)
  CALL calc_tau(test_pos, test_dir, test_freq)
- STOP 'main: testing'
+ ! STOP 'main: testing'
  ! if (iteration == 1 .AND. inputpopfile .NE. '') then
  !  CALL read_populations()
  ! end if

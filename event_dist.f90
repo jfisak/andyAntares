@@ -34,6 +34,8 @@ SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
  LOGICAL                                :: linCell
  INTEGER                                :: n_lines
 
+ INTEGER                                :: cur_approx
+
 IF(debug == 4) procout = .TRUE.
       
  n_pack_d = SIZE(package)
@@ -95,7 +97,8 @@ DO WHILE (do_loop)
  ! write(*,*) 'event_dist: pack_index = ', pack_index, ' n_next_lines = ', n_next_lines
  ! write(*,*) 'event_dist: nloop = ', nloop, ' lastLine = ', lastLine, ' ntransitions = ', ntransitions
  
- CALL next_line_bluered(1, pack_index, cell_dist, lastLine, nextLine, n_next_lines)
+ cur_approx = 1
+ CALL next_line_bluered(cur_approx, pack_index, cell_dist, lastLine, nextLine, n_next_lines)
  ! write(*,*) 'event_dist: nextLine = ', nextLine, ' n_next_lines = ', n_next_lines
  ALLOCATE(actirrates%Lline(n_next_lines), actirrates%nline(n_next_lines))
  IF(nextLine < ntransitions + 1) THEN

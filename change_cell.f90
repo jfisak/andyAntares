@@ -11,7 +11,6 @@ SUBROUTINE change_cell(pack_index, next_cell)
  ! DOUBLE PRECISION                  :: event_dist
  DOUBLE PRECISION, DIMENSION(3)         :: pos
 
-INTEGER                                 :: get_package_model_index
 INTEGER                                 :: pomocna_bunka, I, old_cell, next_mgi
 INTEGER                                 :: dummypackage
 

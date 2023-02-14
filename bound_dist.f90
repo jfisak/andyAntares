@@ -15,7 +15,6 @@ DOUBLE PRECISION, DIMENSION(3)  :: corner, width
 DOUBLE PRECISION, DIMENSION(3)  :: dir, pos
 INTEGER                         :: forbidden
 DOUBLE PRECISION, PARAMETER     :: minie = 1e1
-DOUBLE PRECISION                :: uhlopricka
 
 INTEGER                         :: n_pos, n_neg, n_zer
 
@@ -38,7 +37,6 @@ width = dyn_cell(cell_numb)%width
 dir = package(pack_index)%dir
 pos = package(pack_index)%pos
 forbidden = package(pack_index)%next_cross
-
 
 ! we will calculate parameters t1, ..., t6
 IF(dir(1) /= 0) THEN

@@ -281,11 +281,11 @@ RETURN
    WRITE (99,*) LINE(:IDX(LINE))
    GOTO 100
 
-92 WRITE (99,*) '*** Error: vel_dopp not given in input file'
-   GOTO 100
+! 92 WRITE (99,*) '*** Error: vel_dopp not given in input file'
+!    GOTO 100
 
-93 WRITE (99,*) '*** Error: L0 not given in input file'
-   GOTO 100
+! 93 WRITE (99,*) '*** Error: L0 not given in input file'
+!    GOTO 100
 
 94 WRITE (99,*) '*** Error when decoding integer number'
    WRITE (99,*) '*** The error occured in the following line:'

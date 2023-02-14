@@ -32,11 +32,13 @@ SELECT CASE(approximation)
  CASE(1)
  !!!!!!!!!!!!!!!!!
  ! if we have no initial line, we will have to go through the whole linelist
+ ! write(*,*) 'next_line_bluered: init_line = ', init_line
  if(init_line == no_line) THEN
   IF(redshift) THEN
    IF(f_cmf > linelist(ntransitions)%freq) THEN
     DO I = 1, ntransitions
      cur_fline = linelist(I)%freq
+     ! write(*,*) 'next_line_bluered: f_lu = ', cur_fline/f_cmf
      IF(f_cmf >  cur_fline) THEN
       next_line = I
       package(pack_index)%redshift = .true.
@@ -106,6 +108,9 @@ SELECT CASE(approximation)
     end if
    end do
   end if
+ else
+  next_line = ntransitions
+  n_lines = 0
  end if ! next_line < ntransitions + 1
 CASE DEFAULT
  write(*,*) 'next_line_bluered: the choice approximation = ', approximation, ' is not supported'

@@ -44,9 +44,11 @@ DOUBLE PRECISION                                :: kappaff
 !write(*,*) 'r_kappa_cont: dim(lcont) = ', SIZE(actirrates%Lcont)
 !calculation of basic variables
 current_mgi = get_package_model_index(pack_index)
+! write(*,*) 'r_kappa_cont: current_mgi = ', current_mgi
 electron_density = model_grid(current_mgi)%e_dens
 temp = model_grid(current_mgi)%t
 freq = package(pack_index)%freq_cmf
+! write(*,*) 'r_kappa_cont: electron_density = ', electron_density
 if(isnan(freq)) STOP 'r_kappa_cont: freq is NaN'
 IF(current_mgi .EQ. n_modelgrid + 2) electron_density = 0.D0
 !IF(.NOT. ALLOCATED(Lcont)) THEN
@@ -160,7 +162,7 @@ DO indexe = 1, n_elements
   ! write(*,*) 'r_kappa_cont: indexe = ', indexe, ' indexi = ', indexi, ' kappaff = ', kappaff
  END DO
 END DO
-! kappaff = 0.D0
+kappaff = 0.D0
 kappa = kappa + kappaff
 ! write(*,*) 'r_kappa_cont: kappaff = ', kappaff , 'thomson = ', thomson
 ! write(*,*) 'r_kappa_cont: kappa = ', kappa
