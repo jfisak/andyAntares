@@ -143,6 +143,9 @@ ELSE
    STOP 'main: non-known model type'
   END IF
  END IF
+ xmin = -xmax
+ ymin = -ymax
+ zmin = -zmax
  
  write(99,*) 'model grid is set up'
  write(99,*) 'setup propagation grid'

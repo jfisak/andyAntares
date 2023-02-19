@@ -108,7 +108,7 @@ IMPLICIT NONE
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Global variables
 ! propagation grid properties
-  DOUBLE PRECISION                   :: xmax, ymax, zmax
+  DOUBLE PRECISION                   :: xmax, ymax, zmax, xmin, ymin, zmin
   DOUBLE PRECISION, DIMENSION(3)     :: basic_cell_width
   INTEGER                            :: nx_cell, ny_cell, nz_cell, Ngrid, destroyed_pack
   INTEGER                            :: dyngrid

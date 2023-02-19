@@ -23,6 +23,8 @@ write(propmod_file,"(A, A12)") TRIM(outputfolder), '/propmod.dat'
 
 OPEN(49, FILE=propmod_file)
 
+n_modelgrid = SIZE(model_grid)
+
 ! saves the model grid
 write(49,*) n_modelgrid
 write(49,*) T_eff
