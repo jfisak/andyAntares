@@ -1,5 +1,6 @@
 SUBROUTINE bound_free_rates(approximation, pack_index, act_level, rate)
 USE types
+USE constants
 IMPLICIT NONE
 
 ! input variables

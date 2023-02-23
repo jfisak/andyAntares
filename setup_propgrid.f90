@@ -3,6 +3,7 @@ SUBROUTINE setup_propgrid()
 
 
 USE types
+USE constants
 
 IMPLICIT NONE    
 
@@ -25,6 +26,7 @@ INTEGER                               :: N0, Nzbytek, zb
 
 ! Number of propagation grid cells
 Ngrid = nx_cell * ny_cell * nz_cell
+write(*,*) 'create_dynamical_grid_cells: Ngrid = ', Ngrid
 
 IF (Ngrid .GT. Nmax) THEN
    PRINT*, 'ERROR: N > Nmax', Ngrid
@@ -43,6 +45,8 @@ END IF
 basic_cell_width(1) = 2.E0 * xmax / DBLE(nx_cell)
 basic_cell_width(2) = 2.E0 * ymax / DBLE(ny_cell)
 basic_cell_width(3) = 2.E0 * zmax / DBLE(nz_cell)
+
+write(*,*) 'create_dynamical_grid_cells: basic_cell_width = ', basic_cell_width/R_inf
 
 L = 1
 DO I=1, nx_cell
@@ -139,9 +143,10 @@ IF(dyngrid /= 0) THEN
 
 END IF
 
-DO I = 1, max_n_dcell
- ! write(19,*) dyn_cell(I)%corner, dyn_cell(I)%width
- dyn_cell(I)%model_index = 0
-END DO
+! DO I = 1, max_n_dcell
+!  write(19,*) dyn_cell(I)%corner, dyn_cell(I)%width
+!  dyn_cell(I)%model_index = 0
+! END DO
+! STOP 'setup_propgrid: testing'
 
 END SUBROUTINE setup_propgrid

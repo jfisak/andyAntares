@@ -1,6 +1,7 @@
 SUBROUTINE r_choose_event(tau_rand, kappa_cont, tau_line, l_dist, cell_dist)
 
 USE TYPES
+USE constants
 IMPLICIT NONE
 
 LOGICAL                                 :: raninit

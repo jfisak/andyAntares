@@ -11,6 +11,7 @@
 !_____________________________________________________________________________________________
 SUBROUTINE cool_fb(pack_index, Zfb, actikrates)
 USE types
+USE constants
 USE rates_k
 IMPLICIT NONE
 

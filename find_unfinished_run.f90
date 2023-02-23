@@ -1,6 +1,7 @@
 SUBROUTINE find_unfinished_run()
 
 USE types
+USE constants
 IMPLICIT NONE
 
 CHARACTER(50)                   :: temp_file_name

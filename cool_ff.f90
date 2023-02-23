@@ -1,6 +1,7 @@
 ! calculating free-free cooling rates
 SUBROUTINE cool_ff(cur_mgi, Zcool)
 USE types
+USE constants
 USE rates_k
 IMPLICIT NONE
 ! constant

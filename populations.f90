@@ -2,6 +2,7 @@
 ! given level of the given ion
 SUBROUTINE populations(indexe, indexi, level, model_cell, pop_number)
 USE types
+USE constants
 IMPLICIT NONE
 
 ! input variables

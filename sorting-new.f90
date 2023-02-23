@@ -38,6 +38,7 @@
 SUBROUTINE sorting_new(N, ARR)
 
   USE types
+USE constants
 
   IMPLICIT NONE   
 

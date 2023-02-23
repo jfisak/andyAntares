@@ -5,6 +5,7 @@
 SUBROUTINE freq_from_file(n_packs,freq)
 
   USE types
+USE constants
 
   IMPLICIT NONE 
 

@@ -4,6 +4,7 @@
 SUBROUTINE do_dpackage(pack_index)
 
 USE types
+USE constants
 USE counters
 IMPLICIT NONE
 

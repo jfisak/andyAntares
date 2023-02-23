@@ -1,5 +1,6 @@
 FUNCTION flux_function(approx, freq, temperature, cur_r)
 USE TYPES
+USE constants
 IMPLICIT NONE
 
 INTEGER                         :: approx

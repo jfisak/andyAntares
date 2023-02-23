@@ -1,6 +1,7 @@
 SUBROUTINE mpi_distribute_estimators()
 
 USE types
+USE constants
 IMPLICIT NONE
 
 INTEGER                                         :: I

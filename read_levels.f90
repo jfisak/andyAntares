@@ -3,6 +3,7 @@
 SUBROUTINE read_levels(el_index, lowerion, upperion, levels_type, filename)
 
   USE types
+USE constants
 
   IMPLICIT NONE    
 

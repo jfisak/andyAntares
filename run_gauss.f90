@@ -4,6 +4,7 @@
 ! numbers. Copyright (c) Tao Pang 1997.
 !
   USE types
+USE constants
 
   IMPLICIT NONE
   

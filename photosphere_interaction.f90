@@ -4,6 +4,7 @@ SUBROUTINE photosphere_interaction(pack_index)
 ! it flies back to the photosphere and it is not
 ! destroyed
 USE types
+USE constants
 IMPLICIT NONE
 
 INTEGER                                         :: pack_index, n_pack

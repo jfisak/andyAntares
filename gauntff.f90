@@ -1,6 +1,7 @@
 SUBROUTINE gauntff(freq, temp, gff)
 
 USE types
+USE constants
 IMPLICIT NONE
 
 ! we calculate a FF Gaunt factor after Mihalas(1967) using the approximate

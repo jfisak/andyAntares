@@ -6,6 +6,7 @@
 ! * Zintup -- total rate of internal upward jumps
 SUBROUTINE i_radtrans(current_mgi, indexe, indexi, indexl, Zintdown, Zintup, Zrad, actirates, pack_index)
 USE types
+USE constants
 USE rates_i
 IMPLICIT NONE
 

@@ -3,6 +3,7 @@ SUBROUTINE ionization_fraction(indexe, indexi, temp, el_nd, frac)
 ! Calculate the fraction of atoms of chemical element indexe in ionization
 ! stage indexi relative to the total number of atoms of that element
 USE types 
+USE constants
 
 IMPLICIT NONE
 

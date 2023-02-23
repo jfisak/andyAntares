@@ -1,6 +1,7 @@
 SUBROUTINE find_populations(fileFound)
 
 USE types
+USE constants
 
 IMPLICIT NONE
 

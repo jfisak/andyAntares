@@ -4,6 +4,7 @@ SUBROUTINE update_grid(iteration)
   ! and total population number for every model grid cell for given composition
   ! and corresponding ionization stages.
   USE types
+USE constants
 
   IMPLICIT NONE    
 
@@ -21,8 +22,9 @@ DO gridcell = 1, n_modelgrid
     ! Calculate electron number density for every model grid cell gridcell
     IF(eldensfile == 0) THEN
      CALL find_e_nd(gridcell, el_nd)
-    ELSE
-     if(gridcell == 1) CALL read_e_nd()
+     ! IF(mod(gridcell,1000)==0) write(*,*) 'update_grid: working on ', gridcell, ' cell'
+    ! ELSE
+    !  if(gridcell == 1) CALL read_e_nd()
     END IF
   ELSE
     ! Energy density contribeted to the model grid cell 
@@ -40,10 +42,12 @@ DO gridcell = 1, n_modelgrid
   write(propmod_file,"(A, A12)") TRIM(outputfolder), '/propmod.dat'
   INQUIRE(FILE=propmod_file, EXIST=propmod_file_exists)
 
+  ! write(*,*) 'update_grid: saved_grid = ', saved_grid, ' propmod_file_exists = ', propmod_file_exists
   IF(saved_grid == 1 .and. propmod_file_exists) THEN
   ! nothing
   ELSE
   ! if we calculate the condition only from electron density
+   ! write(*,*) 'update_grid: enable_diffusion = ', enable_diffusion
    IF(enable_diffusion == 1) THEN
    CALL diffusion_approximation(gridcell)
    END IF

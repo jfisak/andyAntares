@@ -1,6 +1,7 @@
 SUBROUTINE init_photsphere(n_pack)
 
   USE types
+USE constants
 
   IMPLICIT NONE
 

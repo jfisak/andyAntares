@@ -2,6 +2,7 @@
 SUBROUTINE diffusion_approximation(cur_mgi)
 
 USE types
+USE constants
 IMPLICIT NONE
 
 INTEGER                                 :: cur_mgi
@@ -15,6 +16,7 @@ DOUBLE PRECISION                        :: cur_lambda
 DOUBLE PRECISION, PARAMETER             :: chi_min = 5e-16, lambda_min = 0.30
 
 
+! write(*,*) 'diffusion_approximation: start'
 ! hydronico model, diffaaprox is decidead based on the parameter lambda
 IF(model_type == 3 .and. inputmodel == 1) THEN
  cur_lambda = model_grid(cur_mgi)%diff_param

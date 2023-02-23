@@ -2,6 +2,7 @@
 SUBROUTINE read_2D_model()
 
 USE types
+USE constants
 
 IMPLICIT NONE
  

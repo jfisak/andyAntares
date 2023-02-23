@@ -1,6 +1,7 @@
 DOUBLE PRECISION FUNCTION roverw(pack_index, l_dist, fr_line)
 
 USE types
+USE constants
 IMPLICIT NONE
 
 DOUBLE PRECISION                               :: R_pos, V_pos

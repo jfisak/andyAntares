@@ -2,6 +2,7 @@ SUBROUTINE r_choose_line(pack_index, actirrates, n_next_lines, n_chosenline)
 
 
 USE types
+USE constants
 USE rates_r
 IMPLICIT NONE
 

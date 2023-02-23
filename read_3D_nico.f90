@@ -1,6 +1,7 @@
 SUBROUTINE read_3D_nico()
 
 USE types
+USE constants
 IMPLICIT NONE
 
 INTEGER                                 :: cur_mgi, n_mgi

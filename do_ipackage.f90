@@ -2,6 +2,7 @@
 SUBROUTINE do_ipackage(pack_index)
 
 USE TYPES
+USE constants
 USE rates_i
 USE counters
 IMPLICIT NONE

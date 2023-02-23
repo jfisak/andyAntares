@@ -1,6 +1,7 @@
 ! SBR will find an element index for the given atomic number
 SUBROUTINE find_element_index(Z, indexe)
 USE types
+USE constants
 IMPLICIT NONE
 
 INTEGER                                 :: Z

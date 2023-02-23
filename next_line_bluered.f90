@@ -1,6 +1,7 @@
 SUBROUTINE next_line_bluered(approximation, pack_index, b_dist, init_line, next_line, n_lines)
 
 USE types
+USE constants
 IMPLICIT NONE
 
 INTEGER                                 :: approximation

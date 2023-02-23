@@ -3,6 +3,7 @@
   ! Set up model grid cells
 
   USE types
+USE constants
 
   IMPLICIT NONE    
 

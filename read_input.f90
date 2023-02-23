@@ -1,6 +1,7 @@
 SUBROUTINE read_input(n_pack, iseed)
 
   USE types
+USE constants
 
   IMPLICIT NONE
 

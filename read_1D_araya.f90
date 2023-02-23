@@ -6,6 +6,7 @@ SUBROUTINE read_1D_araya()
 ! R/R_* -- V/km/s -- -- rho/g/cm^3 -- -- -- -- -- -- -- -- -- -- --
 
 USE types
+USE constants
 IMPLICIT NONE
 
 INTEGER                                 :: n_mg_points

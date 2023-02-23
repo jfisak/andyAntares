@@ -4,6 +4,7 @@ SUBROUTINE main
 
 ! Use module types (modul.f90)
   USE types
+USE constants
 
 
   IMPLICIT NONE
@@ -25,7 +26,7 @@ CHARACTER(60)                           :: propmod_file
 LOGICAL                                 :: timing = .true.
 
 DOUBLE PRECISION                        :: test_freq
-DOUBLE PRECISION, DIMENSION(3)          :: test_pos, test_dir
+DOUBLE PRECISION, DIMENSION(3)          :: test_pos, test_end
 
 ! Link data to identify program version
 CHARACTER LINK_DATE*30, LINK_USER*10, LINK_HOST*60
@@ -205,12 +206,12 @@ DO iteration = 1,1
  CALL update_grid(iteration)
  IF(debug == 3) write(*,*) 'modGrid was updated'
  ! opacity tables
- test_pos = (/R_star, 1.D4,1.D4/)
- test_dir = (/1.D0,1.D-4,1.D-4/)
+ test_pos = (/R_star, 0.D0, 0.D0/)
+ test_end = (/20*R_star, 0.D0, 0.D0/)
  ! test_freq = 1164084775316555.5 ! Hz
  CALL freq_from_planck(test_freq, T_eff)
- CALL calc_tau(test_pos, test_dir, test_freq)
- ! STOP 'main: testing'
+ CALL calc_tau(test_pos, test_end, test_freq)
+ STOP 'main: testing'
  ! if (iteration == 1 .AND. inputpopfile .NE. '') then
  !  CALL read_populations()
  ! end if

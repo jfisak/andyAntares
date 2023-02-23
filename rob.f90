@@ -2,6 +2,7 @@
 FUNCTION rob(pack_index, b_dist)
 
 USE types
+USE constants
 IMPLICIT NONE
 
 

@@ -1,6 +1,7 @@
 SUBROUTINE bound_dist(pack_index, cell_numb, dist)
 
 USE types
+USE constants
 
 IMPLICIT NONE
 
@@ -16,7 +17,7 @@ DOUBLE PRECISION, DIMENSION(3)  :: dir, pos
 INTEGER                         :: forbidden
 DOUBLE PRECISION, PARAMETER     :: minie = 1e1
 
-INTEGER                         :: n_pos, n_neg, n_zer
+INTEGER                         :: n_pos, n_neg, n_zer, n_par
 
 DOUBLE PRECISION, PARAMETER     :: velkeCislo = 1.D99
 DOUBLE PRECISION                :: mindist
@@ -31,6 +32,7 @@ t6 = 0.E0
 n_pos = 0
 n_neg = 0
 n_zer = 0
+n_par = 0
 
 corner = dyn_cell(cell_numb)%corner
 width = dyn_cell(cell_numb)%width
@@ -50,7 +52,8 @@ IF(dir(1) /= 0) THEN
  IF(t4 == 0.0) n_zer = n_zer + 1
 ELSE
  t1 = velkeCislo
- t4 = velkeCislo
+ t4 = -velkeCislo
+ n_par = n_par + 2
 END IF
 IF(dir(2) /= 0) THEN
  t2 = (corner(2) - pos(2))/(dir(2))
@@ -63,7 +66,8 @@ IF(dir(2) /= 0) THEN
  IF(t5 == 0.0) n_zer = n_zer + 1
 ELSE
  t2 = velkeCislo
- t5 = velkeCislo
+ t5 = -velkeCislo
+ n_par = n_par + 2
 END IF
 IF(dir(3) /= 0) THEN
  t3 = (corner(3) - pos(3))/(dir(3))
@@ -76,7 +80,8 @@ IF(dir(3) /= 0) THEN
  IF(t6 == 0.0) n_zer = n_zer + 1
 ELSE
  t3 = velkeCislo
- t6 = velkeCislo
+ t6 = -velkeCislo
+ n_par = n_par + 2
 END IF
 
 
@@ -174,7 +179,7 @@ IF(n_neg > 3) THEN
  dist = -dist
 END IF
 
-IF(n_zer == 1 .and. n_pos < 3) THEN
+IF(n_zer == 1 .and. n_pos < 3 .and. n_zer == 0) THEN
  dist = -1.0
  IF(t1 == 0.0) package(pack_index)%next_cross = negx
  IF(t2 == 0.0) package(pack_index)%next_cross = negy

@@ -7,6 +7,7 @@ SUBROUTINE boundary3(pack_index, dist, next_cell)
 ! package(pack_index)%last_cross).
 
 USE types
+USE constants
 
 IMPLICIT NONE    
 

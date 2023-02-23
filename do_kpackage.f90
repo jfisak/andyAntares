@@ -1,5 +1,6 @@
 SUBROUTINE do_kpackage(pack_index)
 USE types
+USE constants
 USE rates_k
 USE counters
 IMPLICIT NONE

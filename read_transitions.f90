@@ -2,6 +2,7 @@ SUBROUTINE read_transitions(el_index, lowerion, upperion, transition_type, filen
 
 
  USE types
+USE constants
 
  IMPLICIT NONE    
 

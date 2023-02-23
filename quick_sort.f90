@@ -1,6 +1,7 @@
 SUBROUTINE sort_quick (customer_list, nvals) 
 !Sets up for the quick sort recursive method
 	USE types
+USE constants
 	LOGICAL, EXTERNAL :: gt_person !funtion to tell which person goes first
 	INTEGER :: i = 0
 	INTEGER :: j = 0
@@ -19,6 +20,7 @@ END SUBROUTINE sort_quick
 SUBROUTINE sort_quick (customer_list, nvals) 
 !Sets up for the quick sort recursive method
 	USE types
+USE constants
 	LOGICAL, EXTERNAL :: gt_person !funtion to tell which person goes first
 	INTEGER :: i = 0
 	INTEGER :: j = 0
@@ -37,6 +39,7 @@ END SUBROUTINE sort_quick
 RECURSIVE SUBROUTINE qsRecursive (lo, hi, customer_list)
 !This is the actualy recursive portion of the quicksort
 	USE types
+USE constants
 	INTEGER :: pivotPoint
 	INTEGER, INTENT(IN) :: lo
 	INTEGER, INTENT(IN) :: hi
@@ -50,6 +53,7 @@ END SUBROUTINE qsRecursive
 FUNCTION qsPartition (loin, hiin, customer_list)
 	!The partition portios of the Quick Sort is the must involved part
 	USE types
+USE constants
 	LOGICAL, EXTERNAL :: gt_person !funtion to tell which person goes first
 	TYPE(person), INTENT(INOUT), DIMENSION(*) :: customer_list
 	INTEGER, INTENT(IN) :: loin

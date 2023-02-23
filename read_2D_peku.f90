@@ -11,6 +11,7 @@
 SUBROUTINE read_2D_peku()
 
 USE types
+USE constants
 
 IMPLICIT NONE
 

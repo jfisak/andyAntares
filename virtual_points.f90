@@ -2,6 +2,7 @@
 SUBROUTINE virtual_points(dimIM)
 
  USE types
+USE constants
 
  IMPLICIT NONE 
 

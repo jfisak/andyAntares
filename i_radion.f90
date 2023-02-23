@@ -1,5 +1,6 @@
 SUBROUTINE i_radion(indexe, indexi, leveli, current_mgi, act_pop, Zion, Zintrecom, Zrecom, actirates)
 USE types
+USE constants
 USE rates_i
 IMPLICIT NONE
 

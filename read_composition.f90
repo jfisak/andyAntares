@@ -8,6 +8,7 @@ SUBROUTINE read_composition()
 ! elements(I)%ions(J)%ion_stage, J=1,nions
 
   USE types
+USE constants
 
   IMPLICIT NONE    
 

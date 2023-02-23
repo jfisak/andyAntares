@@ -7,6 +7,7 @@
 SUBROUTINE save_temp_packs(pack_index)
 
 USE types
+USE constants
 IMPLICIT NONE
 
 INTEGER                         :: pack_index

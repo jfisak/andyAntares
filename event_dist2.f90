@@ -1,6 +1,7 @@
 SUBROUTINE event_dist2(pack_index, cell_dist, e_dist, event, actirrates)
 
  USE types
+USE constants
  USE rates_r
 
  IMPLICIT NONE    

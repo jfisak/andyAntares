@@ -1,6 +1,7 @@
 SUBROUTINE vel_discrete_points(pack_index, vel_vec)
 
 USE types
+USE constants
 IMPLICIT NONE
 
 INTEGER                                 :: pack_index

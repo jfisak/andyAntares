@@ -3,6 +3,7 @@ SUBROUTINE saha_boltzmann_factor(indexe, indexi, temp, sb_factor, too_large)
 ! Calculate the ratio sb_factor between population of any two exication levels 
 ! indexi and (indexi+1)
 USE types  
+USE constants
 
 IMPLICIT NONE
 

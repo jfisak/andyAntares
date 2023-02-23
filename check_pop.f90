@@ -6,6 +6,7 @@
 SUBROUTINE check_pop()
 
 USE types
+USE constants
 IMPLICIT NONE
 
 INTEGER                                 :: cur_mgi, indexe, indexi, indexl

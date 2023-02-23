@@ -1,6 +1,7 @@
 SUBROUTINE do_rpackage_event(pack_index, event, actirrates)
 
  USE types
+USE constants
  USE rates_r
  USE counters
 

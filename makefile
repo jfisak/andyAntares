@@ -15,14 +15,16 @@ linkuser=$(shell whoami)
 linkhost=$(shell hostname)
 
 #Objects
+MODULES=types.o rates_i.o rates_k.o rates_r.o constants.o
 MODELS= read_1D_model.o read_2D_model.o read_3D_model.o read_1D_araya.o read_3D_nico.o\
         read_3D_pseudo3D.o read_2D_peku.o
 RATES= r_kappa_cont.o r_kappa_line.o i_ion_recomb.o i_radtrans.o i_radion.o i_colion.o \
        i_coltrans.o i_freq_recomb.o  k_freq_ff.o k_freq_fb.o read_photcs.o 
 ATOMIC=read_levels.o read_transitions.o read_e_nd.o 
-OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
-          random_unitvector.o ran2.o boundary3.o bound_dist.o rates_i.o\
-          change_cell.o move_package.o emit_rpackage.o	rates_k.o rates_r.o \
+
+OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o 	  \
+          random_unitvector.o ran2.o boundary3.o bound_dist.o \
+          change_cell.o move_package.o emit_rpackage.o	\
           init_photsphere.o random_unitvector2.o ran2_class.o save_rates.o\
           random_unitvector1.o doppler_factor.o doppler_factor2.o oct_neighbors.o \
           vec_length.o velo.o angle_aberration.o freq_from_planck.o lin_interpolation.o \
@@ -37,7 +39,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
           connection_prop_model_grid.o divide_cell_8.o divide_cell_ijk.o do_dpackage.o \
 	  next_cell_down.o next_cell_up.o populations.o  \
 	  gamma_function.o exp_int_func.o cool_excit.o \
-	  find_populations.o \
+	  find_populations.o propgrid_dist.o\
 	  flux_function.o find_element_index.o analyse_input.o \
 	  cool_ff.o warning.o calc_tau.o\
 	  cool_ionization.o cool_fb.o check_pop.o \
@@ -46,7 +48,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o types.o	  \
 	  lte_pops.o photosphere_interaction.o roverw.o vel_discrete_points.o \
           next_line_bluered.o resonance_distance2.o save_propmod_grid.o \
 	  read_propmod_grid.o oct_virtcube.o diffusion_approximation.o d_choosenextcell.o \
-	   $(MODELS) $(RATES) $(ATOMIC)
+	   $(MODELS) $(RATES) $(ATOMIC) $(MODULES)
 # end of procedures
 
 #Rules
@@ -63,6 +65,8 @@ rates_r.o: rates_r.f90
 ran2_class.o: ran2_class.f90 
 	$(F90) $(FCFLAGS) -o $@ -c $<
 counters.o: counters.f90
+	$(F90) $(FCFLAGS) -o $@ -c $<
+constants.o: constants.f90
 	$(F90) $(FCFLAGS) -o $@ -c $<
 
 %.for:

@@ -1,6 +1,7 @@
 SUBROUTINE r_kappa_line(pack_index, current_mgi, nextLine, nnextlines, line_dist, actirrates, tau_line)
 
 USE types
+USE constants
 USE rates_r
 IMPLICIT NONE
 

@@ -1,6 +1,7 @@
 ! calculation of absorption coefficient in continuum
 SUBROUTINE r_kappa_cont(pack_index, kappa, actirrates)
 USE types
+USE constants
 USE rates_r
 
 IMPLICIT NONE

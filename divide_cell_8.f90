@@ -3,6 +3,7 @@
 SUBROUTINE divide_cell_8(act_n_dyncell, max_n_dcell)
 
 USE types
+USE constants
 
 IMPLICIT NONE
 

@@ -1,5 +1,6 @@
 SUBROUTINE k_freq_ff(pack_index, ran_freq)
 USE types
+USE constants
 IMPLICIT NONE
 
 ! input

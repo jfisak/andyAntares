@@ -1,6 +1,7 @@
   SUBROUTINE random_unitvector2(direction)
      
       USE types
+USE constants
 
 !     Scatter photon randomly from the photosphere isotropicaly in phi and with distribution function theta*d(theta) in theta
 

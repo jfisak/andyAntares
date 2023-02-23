@@ -1,6 +1,7 @@
 ! this sbr returns cmf frequency for the input position and the input rf frequency
 SUBROUTINE cmf_freq(pack_index, cur_pos, cur_freq_rf, cur_freq_cmf)
 
+USE constants
 USE types
 IMPLICIT NONE
 

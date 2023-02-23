@@ -3,6 +3,7 @@
 SUBROUTINE find_dyn_cell1(pos,actual_cell)
 
 USE types
+USE constants
 IMPLICIT NONE
 
 ! input variables
@@ -53,6 +54,8 @@ END IF
 bcell(1) = FLOOR(pos(1)/basic_cell_width(1) + dble(nx_cell)/2.D0) + 1
 bcell(2) = FLOOR(pos(2)/basic_cell_width(2) + dble(ny_cell)/2.D0) + 1
 bcell(3) = FLOOR(pos(3)/basic_cell_width(3) + dble(nz_cell)/2.D0) + 1
+
+! write(*,*) 'find_dyn_cell1: bcell = ', bcell
 
 ! index of the given basic cell
 bindex = (bcell(1) - 1) * ny_cell * nz_cell + (bcell(2) - 1) * nz_cell + bcell(3)

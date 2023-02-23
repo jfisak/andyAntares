@@ -2,6 +2,7 @@ SUBROUTINE lin_interpolation(pos0, vec1, pos1, vec2, pos2, int_vector)
 ! SUBROUTINE lin_interpolation(pos0, vec1, pos1, vec2, pos2, int_vector, vecpos0, neighborscells)
 
 USE types
+USE constants
 IMPLICIT NONE
 
 DOUBLE PRECISION, DIMENSION(3)                 :: vec1, vec2

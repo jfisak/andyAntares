@@ -3,6 +3,7 @@
 SUBROUTINE divide_cell_ijk(act_n_dyncell, max_n_dcell, numberofsubcells)
 
 USE types
+USE constants
 
 IMPLICIT NONE
 

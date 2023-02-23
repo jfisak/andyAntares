@@ -4,6 +4,7 @@ SUBROUTINE doppler_factor2(pack_index, cur_pos, cur_mgi, D)
 ! into a comoving frame frequency (Mihalas & Mihalas Eq. 89.5)
 
 USE types
+USE constants
 
 IMPLICIT NONE    
 

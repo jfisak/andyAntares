@@ -1,6 +1,7 @@
 SUBROUTINE read_populations()
 
 USE types
+USE constants
 
 IMPLICIT NONE
 

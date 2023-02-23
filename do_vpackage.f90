@@ -2,6 +2,7 @@ SUBROUTINE do_vpackage()
 
 
 USE types
+USE constants
 
 IMPLICIT NONE
 

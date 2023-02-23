@@ -1,6 +1,7 @@
 SUBROUTINE saha_factor(indexe, indexi, indexl, temp, sfactor)
 
 USE types
+USE constants
 
 IMPLICIT NONE
 

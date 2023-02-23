@@ -1,5 +1,6 @@
 SUBROUTINE k_freq_fb(pack_index, act_proc, ran_freq, actikrates)
 USE types
+USE constants
 USE rates_k
 IMPLICIT NONE
 

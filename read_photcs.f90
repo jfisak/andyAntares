@@ -1,5 +1,6 @@
 SUBROUTINE read_photcs(inputdata, indexe, max_levels, phot_file)
 USE types
+USE constants
 IMPLICIT NONE
 
 ! input variables

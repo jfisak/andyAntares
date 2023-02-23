@@ -1,6 +1,7 @@
 SUBROUTINE do_spectrum(n_pack)
 
 USE types
+USE constants
 
 IMPLICIT NONE    
 

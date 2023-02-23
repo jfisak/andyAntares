@@ -1,6 +1,7 @@
 SUBROUTINE read_3D_model()
 
 USE types
+USE constants
 IMPLICIT NONE
 
 

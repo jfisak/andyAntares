@@ -1,6 +1,7 @@
 SUBROUTINE velo_vector(pos, mod_index, vel_vec)
 
 USE types
+USE constants
 IMPLICIT NONE
 
 DOUBLE PRECISION, DIMENSION(3)                          :: pos

@@ -1,6 +1,7 @@
 SUBROUTINE update_estimators(pack_index, dist)
 
   USE types
+USE constants
 
 IMPLICIT NONE
 

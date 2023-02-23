@@ -3,11 +3,12 @@ SUBROUTINE calc_tau(init_pos, end_pos, frequency)
 
 USE types
 USE rates_r
+USE constants
 IMPLICIT NONE
 
 
 DOUBLE PRECISION, DIMENSION(3)                  :: init_pos, end_pos
-DOUBLE PRECISION, DIMENSION(3)                  :: direction, cur_pos, cross_pos
+DOUBLE PRECISION, DIMENSION(3)                  :: direction, cur_pos
 DOUBLE PRECISION                                :: frequency
 INTEGER                                         :: next_cross
 LOGICAL                                         :: active, snapped
@@ -16,7 +17,7 @@ DOUBLE PRECISION                                :: cur_s
 
 INTEGER                                         :: next_cell, init_line, next_line, n_lines, cur_cell
 INTEGER                                         :: cur_mgi, get_package_model_index
-DOUBLE PRECISION                                :: bound_dist, line_dist, dopf
+DOUBLE PRECISION                                :: bound_dist, line_dist, dopf, end_dist
 DOUBLE PRECISION                                :: kappa_cont, kappa, tau_line
 LOGICAL                                         :: in_cell, cell_change
 
@@ -26,13 +27,12 @@ DOUBLE PRECISION                                :: cur_tau_line, cur_tau_cont, c
 
 INTEGER                                         :: n_thomson
 
-DOUBLE PRECISION, PARAMETER                     :: largeNumber = 1.D99
-DOUBLE PRECISION                                :: txm, txp, typ, tym, tzm, tzp
+
+DOUBLE PRECISION                                :: distance
 
 active = .true.
 cur_packet = 1
 cur_approx = 1
-
 cur_s = 0.D0
 cur_tau_line = 0.D0
 cur_tau_cont = 0.D0
@@ -74,6 +74,9 @@ OPEN(148, file="tau.dat")
 
 ! while the packet is active
 DO WHILE(active)
+ cur_pos = package(cur_packet)%pos
+ cur_r = norm2(cur_pos)
+ write(*,*) 'calc_tau: r = ', cur_r/R_star, cur_r/R_inf
  ! the current point is located inside the propGrid
  IF(cur_r < R_inf .or. cur_r > R_star) THEN
   ! distance to the cell boundary
@@ -92,8 +95,17 @@ DO WHILE(active)
   ! line tau
   cur_mgi = get_package_model_index(cur_packet)
   CALL r_kappa_line(cur_packet, cur_mgi, next_line, n_lines, line_dist, actirrates, tau_line)
+
+  ! distance to the end point
+  end_dist = norm2(cur_pos - end_pos)
  
-  if(line_dist < bound_dist) then
+  write(*,*) 'calc_tau: ld = ', line_dist, ' bd = ', bound_dist, ' ed = ', end_dist
+  if(line_dist < end_dist .and. line_dist < bound_dist) then
+   cell_change = .false.
+   CALL move_package(cur_packet, end_dist, next_cell, cell_change)
+   active = .false.
+  end if
+  if(line_dist < bound_dist .and. active) then
    cell_change = .FALSE.
    CALL move_package(cur_packet, line_dist, next_cell, cell_change)
    
@@ -105,7 +117,7 @@ DO WHILE(active)
    cur_tau_line = cur_tau_line + tau_line
    write(148, *) cur_r, cur_s, cur_tau_line, cur_tau_cont
  
-  else if (line_dist > bound_dist .and. bound_dist > 0.e0) then
+  else if (line_dist > bound_dist .and. bound_dist > 0.e0 .and. active) then
    cell_change = .TRUE.
    CALL move_package(cur_packet, bound_dist, next_cell, cell_change)
  
@@ -113,82 +125,20 @@ DO WHILE(active)
    cur_s = cur_s + bound_dist
    cur_tau_cont = cur_tau_cont + dopf * kappa_cont * bound_dist
    write(148, *) cur_r, cur_s, cur_tau_line, cur_tau_cont
-  else if (bound_dist < 0.e0) then
+  else if (bound_dist < 0.e0 .and. active) then
    CALL change_cell(cur_packet, next_cell)
   end if
- ELSE IF(cur_r > R_inf .or. cur_r < R_star) THEN
-  cur_pos = package(cur_packet)%pos
-  txp = 0.D0
-  txm = 0.D0
-  typ = 0.D0
-  tym = 0.D0
-  tzp = 0.D0
-  tzm = 0.D0
-
-  txm = (cur_pos(1) - xmin)/direction(1)
-  txp = (cur_pos(1) - xmax)/direction(1)
-  tym = (cur_pos(2) - ymin)/direction(2)
-  typ = (cur_pos(2) - ymax)/direction(2)
-  tzm = (cur_pos(3) - zmin)/direction(3)
-  tzp = (cur_pos(3) - zmax)/direction(3)
-
-  if(txm < bound_dist .and. txm > 0.D0) then
-   next_cross = negx
-   bound_dist = txm
-  end if
-  if(txp < bound_dist .and. txp > 0.D0) then
-   next_cross = posx
-   bound_dist = txp
-  end if
-  if(tym < bound_dist .and. tym > 0.D0) then
-   next_cross = negy
-   bound_dist = tym
-  end if
-  if(typ < bound_dist .and. typ > 0.D0) then
-   next_cross = posy
-   bound_dist = typ
-  end if
-  if(tzm < bound_dist .and. txm > 0.D0) then
-   next_cross = negz
-   bound_dist = tzm
-  end if
-  if(tzp < bound_dist .and. txp > 0.D0) then
-   next_cross = posz
-   bound_dist = tzp
-  end if
-
-  cross_pos = cur_pos + direction * bound_dist
-  if(next_cross == txm .or. next_cross == txp) then
-   ! 
-   if(cross_pos(2) > ymin .and. cross_pos(2) < ymax .and. &
-    cross_pos(3) > zmin .and. cross_pos(3) < zmax) then
-     snapped = .true.
-   end if
-  end if
-  
-  if(next_cross == tym .or. next_cross == typ) then
-   if(cross_pos(1) > xmin .and. cross_pos(1) < xmax .and. &
-    cross_pos(3) > zmin .and. cross_pos(3) < zmax) then
-     snapped = .true.
-   end if
-   
-  end if
-  if(next_cross == tzm .or. next_cross == tzp) then
-   if( cross_pos(2) > ymin .and. cross_pos(2) < ymax .and. &
-    cross_pos(1) > xmin .and. cross_pos(1) < xmax) then
-     snapped = .true.
-   end if
-   
-  end if
-
-  if(snapped) then
-   package(1)%pos = package(1)%pos + bound_dist * package(1)%dir 
-  else
-   exit
-  end if
-  
+ ELSE IF(cur_pos(1) < xmin .or. cur_pos(1) > xmax .or. &
+  cur_pos(2) < ymin .or. cur_pos(2) > ymax .or. &
+  cur_pos(3) < zmin .or. cur_pos(3) > zmax) THEN
+  write(*,*) 'calc_tau: calling propgrid_dist'
+  CALL propgrid_dist(package(cur_packet), bound_dist)
+ ELSE IF(cur_r < R_star) THEN
+  active = .false.
+ ELSE IF(cur_r >= R_inf) THEN
+  cell_change = .false.
+  CALL move_package(cur_packet, end_dist, next_cell, cell_change)
  END IF
-
  init_line = next_line
 
  DEALLOCATE(actirrates%Lline, actirrates%nline)

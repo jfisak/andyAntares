@@ -1,5 +1,6 @@
 SUBROUTINE cool_excit(approx, pack_index, Zexc, actikrates)
 USE types
+USE constants
 USE rates_k
 IMPLICIT NONE
 ! input variables

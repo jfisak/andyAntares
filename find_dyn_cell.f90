@@ -2,6 +2,7 @@
   SUBROUTINE find_dyn_cell(pos,actual_cell)
 
    USE types
+USE constants
    IMPLICIT NONE
 
    INTEGER                              :: actual_cell

@@ -1,6 +1,7 @@
 SUBROUTINE next_cell_down(pack_index, next_cell)
 
 USE types
+USE constants
 
 IMPLICIT NONE
 

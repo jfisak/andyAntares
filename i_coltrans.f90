@@ -2,6 +2,7 @@
 ! level
 SUBROUTINE i_coltrans(approx, pack_index, indexe, indexi, level, population, Zdown, Zup, Zcoll, actirates)
 USE types
+USE constants
 USE rates_i
 IMPLICIT NONE
 ! input variables

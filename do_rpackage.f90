@@ -3,6 +3,7 @@ SUBROUTINE do_rpackage(pack_index)
 ! Propagation of the photon in 3D grid
 
 USE types
+USE constants
 USE rates_r
 
 IMPLICIT NONE    
@@ -40,6 +41,8 @@ END IF
 actirrates = rrates()
 
 cur_pgi = package(pack_index)%cell_numb
+
+! write(23,*) package(pack_index)%pos
 
 
 IF(debug == 2) THEN

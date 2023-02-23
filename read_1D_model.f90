@@ -3,6 +3,7 @@ SUBROUTINE read_1D_model()
 ! Read 1D model data and allocet that data to the corresponding values of teh model grid cells
 
 USE types
+USE constants
 
 IMPLICIT NONE    
 

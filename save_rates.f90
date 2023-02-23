@@ -1,6 +1,7 @@
 SUBROUTINE save_rates()
 
 USE types
+USE constants
 IMPLICIT NONE
 
 INTEGER                                 :: cur_line

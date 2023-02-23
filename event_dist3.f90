@@ -1,4 +1,4 @@
-SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
+SUBROUTINE event_dist2(pack_index, cell_dist, e_dist, event, actirrates)
 
  USE types
 USE constants
@@ -10,7 +10,7 @@ USE constants
  INTEGER                           :: nextLine, current_mgi
  LOGICAL                           :: do_loop
 !pointer to a field of continuum rates
- DOUBLE PRECISION                  :: e_dist, ran_numb, tau_rand, cell_dist, D
+ DOUBLE PRECISION                  :: e_dist, ran_numb, tau_rand, cell_dist, D, cont_dist
  DOUBLE PRECISION                  :: tau, l_dist, tau_line, tau_cont
  DOUBLE PRECISION                  :: electron_density, kappa_cont, dist
  DOUBLE PRECISION, PARAMETER       :: largeNumber = 1.D20
@@ -18,6 +18,7 @@ USE constants
  INTEGER                           :: n_next_lines
  INTEGER                           :: dummypackage
  INTEGER                           :: n_pack_d
+ ! INTEGER                           :: OMP_GET_THREAD_NUM
  DOUBLE PRECISION                  :: freq_line
  TYPE(rrates)                      :: actirrates
  DOUBLE PRECISION                       :: ran2
@@ -34,10 +35,6 @@ USE constants
  DOUBLE  PRECISION                      :: fr_line, loc_dist
  LOGICAL                                :: linCell
  INTEGER                                :: n_lines
-
- INTEGER                                :: cur_approx
-
-IF(debug == 4) procout = .TRUE.
       
  n_pack_d = SIZE(package)
  dummypackage = SIZE(package)
@@ -57,22 +54,15 @@ END DO
  tau = 0.D0
  dist = 0.D0
  do_loop = .TRUE.
- inCell=.FALSE.
 
  !Get the packet's current position on the model grid
  current_mgi = get_package_model_index(pack_index)
-!  write(*,*) 'event_dist: pack_index = ', pack_index, ' current_mgi = ', current_mgi
-
- IF(current_mgi > n_modelgrid) THEN
-  event = rpkt_eventtype_changecell
-  e_dist = cell_dist + largeNumber
-  RETURN
- END IF
 
  electron_density = model_grid(current_mgi)%e_dens
+ IF(current_mgi .EQ. n_modelgrid + 2) electron_density = 0.D0
+ !print*, 'electron_density = ', electron_density
 
  ! calculates all continuum opacities
- ! write(*,*) 'event_dist: calling r_kappa_cont for a packet = ', pack_index
  CALL r_kappa_cont(pack_index, kappa_cont, actirrates)
  kappa_cont = 0.D0
 
@@ -80,9 +70,10 @@ END DO
  ! According to Mihalas and Mihalas Eq. 90.8 this is achieved by 
  CALL doppler_factor(pack_index, D)
  kappa_cont = D * kappa_cont
- ! write(*,*) 'event_dist: kappa_cont = ', kappa_cont
+
 
  ! initialization of n_next_lines to be equal to one
+ n_next_lines = 1
  lastLine = package(pack_index)%last_line
 
 nloop = 0
@@ -90,50 +81,50 @@ DO WHILE (do_loop)
 
  nloop = nloop + 1
  IF(nloop == 1000) THEN
-  write(*,*) 'event_dist: nextLine = ', lastLine
-  write(*,*) 'event_dist: packet = ', pack_index
-  STOP 'nloop == 1000'
+ !  write(*,*) 'event_dist: packet = ', pack_index
+  STOP 'nloop == 100'
  END IF
 
+ IF(kappa_cont /= 0) THEN
+  cont_dist = (tau_rand - tau) / kappa_cont
+ ELSE
+  cont_dist = largeNumber
+ END IF
+ tau_cont = kappa_cont * cont_dist
+
+ IF(nloop > 1) lastLine = nextLine + n_next_lines - 1
  ! write(*,*) 'event_dist: pack_index = ', pack_index, ' n_next_lines = ', n_next_lines
  ! write(*,*) 'event_dist: nloop = ', nloop, ' lastLine = ', lastLine, ' ntransitions = ', ntransitions
- 
- cur_approx = 1
- CALL next_line_bluered(cur_approx, pack_index, cell_dist, lastLine, nextLine, n_next_lines)
+ CALL next_line(1, pack_index, lastLine, nextLine, n_next_lines, tooRed)
  ! write(*,*) 'event_dist: nextLine = ', nextLine, ' n_next_lines = ', n_next_lines
  ALLOCATE(actirrates%Lline(n_next_lines), actirrates%nline(n_next_lines))
  IF(nextLine < ntransitions + 1) THEN
   freq_line = linelist(nextLine)%freq
-  CALL resonance_distance2(pack_index, nextLine, cell_dist, inCell, l_dist)
-  IF(inCell) THEN
-   CALL r_kappa_line(pack_index, current_mgi, nextLine, n_next_lines, l_dist, actirrates, tau_line)
-  ELSE
-   tau_line = 0.e0
-  END IF
- ELSE
-  tau_line = 0.e0
- END IF
+  CALL resonance_distance(pack_index, nextLine, freq_line, cell_dist, l_dist, inCell, .TRUE.)
+  CALL r_kappa_line(pack_index, current_mgi, nextLine, n_next_lines, actirrates, tau_line, l_dist)
+ 
+ ! IF (package(pack_index)%freq_cmf .GT. freq_line) THEN
+ !  ! next_line: the first line the packet can interact with
+ !  ! n_next_lines: the number of lines with the same frequency as the nextLine
+ !  CALL next_line(1, pack_index, lastLine, nextLine, n_next_lines, tooRed)
+ !  write(*,*) 'event_dist: nextLine = ', nextLine, ' n_next_lines = ', n_next_lines
+ !  ALLOCATE(actirrates%Lline(n_next_lines), actirrates%nline(n_next_lines))
+ !  IF(nextLine < ntransitions + 1) THEN
+ !   freq_line = linelist(nextLine)%freq
+ !   CALL resonance_distance(pack_index, nextLine, freq_line, cell_dist, l_dist, inCell, .TRUE.)
+ !   CALL r_kappa_line(pack_index, current_mgi, nextLine, n_next_lines, actirrates, tau_line, l_dist)
+ ! END IF
+  
+  write(*,*) 'event_dist2: l_dist/cell_dist = ', l_dist/cell_dist
+  write(*,*) 'event_dist2: tau_line = ', tau_line, ' tau_rand = ', tau_rand
 
- if(procout) write(*,*) 'event_dist: l_dist = ', l_dist, ' tau_line = ',&
-  tau_line, ' tau_cont = ', tau_cont, ' tau_rand = ', tau_rand
- IF(inCell .AND. nextLine /= ntransitions + 1 .AND. .NOT. tooRed) THEN
- 
- ! Calculate optical depth in the next line (Sobolev, dv/dr dependent)
- ! and continuum optical depth accumulated up to the line
- !print*, 'before moving package #', pack_index
-
- tau_cont = kappa_cont * l_dist
- 
- 
-  IF(current_mgi .EQ. n_modelgrid + 2) tau_cont = 0.D0
-  ! write(*,*) 'event_dist:', tau_line, tau_cont, tau_rand, tau
- 
   ! Now do a step by step analysis of which event occurs and return the 
   ! distance and corresponding event
   IF ((tau_rand - tau) .GT. tau_cont) THEN
    ! if #02
    IF ((tau_rand - tau) .GT. (tau_cont + tau_line)) THEN
-    dist = l_dist
+    tau = tau + tau_cont + tau_line
+    dist = dist + l_dist
     ! if #03
     IF (dist .GT. cell_dist) THEN
      ! In this case the package propagates to the next cell
@@ -142,28 +133,57 @@ DO WHILE (do_loop)
      event = rpkt_eventtype_changecell
      if(procout) write(*,*) 'event_dist: rpkt_eventtype_changecell'
     ! if #03
-    ELSE
-     ! choosing next line
-     tau = tau + tau_cont + tau_line
-     if(procout) write(*,*) 'event_dist: pack_index = ', pack_index, ' nextLine = ', nextLine
-     if(package(pack_index)%redshift) then
-      lastLine = nextLine + n_next_lines - 1
-     else
-      lastLine = nextLine - n_next_lines + 1
-     end if
-     if(procout) write(*,*) 'event_dist: choosing next line nextLine = ', nextLine
-    ! if #03
+    ! ELSE
+    !  ! choosing next line
+    !  ! nextLine = nextLine + n_next_lines
+    !  package(pack_index)%last_line = nextLine
+    !  if(procout) write(*,*) 'event_dist: choosing next line nextLine = ', nextLine
+    ! ! if #03
     END IF
    ! if #02
    ELSE
-    e_dist = l_dist
+    e_dist = dist + l_dist
+    write(*,*) 'event_dist: dist = ', dist, ' l_dist = ', l_dist
+    write(*,*) 'event_dist: e_dist = ', e_dist/R_inf
     do_loop = .FALSE.
     event = rpkt_eventtype_lineinteraction
-    ! write(*,*) 1.D8 * light_speed / package(pack_index)%freq_cmf, &
-    !  1.D8 * light_speed / package(pack_index)%freq_rf
     if(procout) write(*,*) 'event_dist: rpkt_eventtype_lineinteraction'
     ! choosing the line
-    CALL r_choose_line(pack_index, actirrates, n_next_lines, nextLine)
+    IF(n_next_lines > 1) THEN
+     tot_lop = 0.D0
+     DO I = 1, n_next_lines
+      tot_lop = tot_lop + actirrates%Lline(I)
+     END DO
+     ran_numb = ran2(idum) * tot_lop
+     summ = 0.D0
+     ! write(*,*) 'event_dist: tot_lop = ', tot_lop, ' ran_numb = ', ran_numb
+     DO I = 1, n_next_lines
+      act_line = nextLine + I - 1
+      IF(ran_numb > summ .AND. ran_numb < summ + actirrates%Lline(I)) THEN
+       package(pack_index)%last_line = act_line
+       ! write(*,*) 'event_dist: last_line = ', act_line
+       package(pack_index)%l_ele = linelist(act_line)%indexe
+       package(pack_index)%l_ion = linelist(act_line)%indexi
+       package(pack_index)%l_lev = linelist(act_line)%upper
+       if(procout) write(*,*) 'event_dist: #1 chosen line = ', act_line
+       ! write(*,*) 'event_dist: #1 chosen line = ', act_line
+       EXIT
+      END IF
+      summ = summ + actirrates%Lline(I)
+     END DO
+     IF(package(pack_index)%last_line == no_line) THEN
+      write(*,*) 'n_next_lines = ', n_next_lines, ' Lline = ', actirrates%Lline(:)
+      write(*,*) 'tot_lop = ', tot_lop
+      STOP 'event_dist: no line was chosen'
+     END IF
+    ELSE ! we have only one line
+     package(pack_index)%l_ele = linelist(nextLine)%indexe
+     package(pack_index)%l_ion = linelist(nextLine)%indexi
+     package(pack_index)%l_lev = linelist(nextLine)%upper
+     package(pack_index)%last_line = nextLine
+     ! write(*,*) 'event_dist: #2 last_line = ', nextLine
+     if(procout) write(*,*) 'event_dist: #2 choosing chosen line: ', nextLine 
+    END IF 
    ! if #02
    END IF
   ELSE
@@ -192,8 +212,11 @@ DO WHILE (do_loop)
    if(procout) write(*,*) 'event_dist: rpkt_eventtype_continuum 2'
   END IF
  END IF
+
+ ! write(*,*) 'event_dist: inCell = ', inCell
+ I = I + 1
  DEALLOCATE(actirrates%Lline, actirrates%nline)
  ! write(*,*) 'event_dist: eofloop, do_loop = ', do_loop
 END DO
 ! STOP 'event_dist: testing'  
-END SUBROUTINE event_dist
+END SUBROUTINE event_dist2

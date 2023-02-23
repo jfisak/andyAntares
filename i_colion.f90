@@ -1,6 +1,7 @@
 SUBROUTINE i_colion(approximation, indexe, indexi, act_level, pack_index, act_pop, Zion, &
         Zintrecomb, Zrecomb, actirates)
 USE types
+USE constants
 USE rates_i
 IMPLICIT NONE
 

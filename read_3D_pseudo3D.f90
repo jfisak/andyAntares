@@ -2,6 +2,7 @@ SUBROUTINE read_3D_pseudo3D()
 
 
 USE types
+USE constants
 IMPLICIT NONE
 
 CHARACTER(80)                                   :: modelfile

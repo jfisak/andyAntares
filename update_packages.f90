@@ -1,6 +1,7 @@
  SUBROUTINE update_packages(n_pack)
 
   USE types
+USE constants
   USE counters
 !  USE rand2
 

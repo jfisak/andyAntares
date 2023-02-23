@@ -1,6 +1,7 @@
 ! this subroutine calculates exponential integral function for the given x
 SUBROUTINE exp_int_func(approx, x, eif)
 USE types
+USE constants
 IMPLICIT NONE
 ! input variable
 INTEGER                                :: approx

@@ -1,6 +1,7 @@
 SUBROUTINE d_choosenextcell(cur_pgi, next_leak, next_cell, cross_pos)
 
 USE types
+USE constants
 IMPLICIT NONE
 
 INTEGER                                         :: cur_pgi, next_cell, next_leak

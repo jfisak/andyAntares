@@ -1,6 +1,7 @@
 SUBROUTINE read_e_nd()
 
 USE types
+USE constants
 
 IMPLICIT NONE
 

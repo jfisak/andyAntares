@@ -10,6 +10,7 @@
 SUBROUTINE save_output(otype)
 
 USE types
+USE constants
 USE counters
 IMPLICIT NONE
 

@@ -1,6 +1,7 @@
 SUBROUTINE freq_from_planck(freq, temperature)
 
   USE types
+USE constants
 
   IMPLICIT NONE 
 
@@ -11,6 +12,7 @@ DOUBLE PRECISION                :: temperature
   DOUBLE PRECISION              :: planck_numax, planck_numin
 DOUBLE PRECISION                      :: wale_start, wale_end 
 DOUBLE PRECISION                      :: nu_max, nu_min
+
 
 wale_start = 200   ! in Angstroms
 wale_end = 20000   ! in Angstroms

@@ -3,6 +3,7 @@
 SUBROUTINE save_propmod_grid()
 
 USE types
+USE constants
 IMPLICIT NONE
 
 INTEGER                                         :: I

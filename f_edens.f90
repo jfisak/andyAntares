@@ -3,6 +3,7 @@ SUBROUTINE f_edens(model_grid_index, el_nd, func)
 ! Function to calculate the root of the electron number density
 
 USE types
+USE constants
 
 IMPLICIT NONE
 INTEGER            :: model_grid_index

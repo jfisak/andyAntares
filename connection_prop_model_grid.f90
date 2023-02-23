@@ -1,6 +1,7 @@
 SUBROUTINE connection_prop_model_grid()
 
 USE types
+USE constants
 USE counters
 
 IMPLICIT NONE

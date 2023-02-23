@@ -4,6 +4,7 @@ SUBROUTINE change_cell(pack_index, next_cell)
 
  USE types
  USE counters
+USE constants
 
  IMPLICIT NONE    
 

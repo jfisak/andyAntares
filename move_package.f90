@@ -3,6 +3,7 @@ SUBROUTINE move_package(pack_index, dist, next_cell, change)
 ! Move photon package from the curent position for some distance (update package(pack_index)%pos)
 
 USE types
+USE constants
 USE counters
 
 IMPLICIT NONE    

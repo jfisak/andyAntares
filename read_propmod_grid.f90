@@ -1,6 +1,7 @@
 SUBROUTINE read_propmod_grid()
 
 USE types
+USE constants
 IMPLICIT NONE
 
 INTEGER                                         :: I, J
@@ -36,6 +37,7 @@ read(49, *) xmax, ymax, zmax
 read(49, *) Nx, Ny, Nz
 read(49, *) add_mg
 
+write(*,*) 'read_propmod_grid: n_modelgrid = ', n_modelgrid
 ALLOCATE(model_grid(n_modelgrid + add_mg))
 
 nx_cell = Nx
@@ -74,11 +76,10 @@ END DO
 model_grid(n_modelgrid+1)%rwind = 0.D0
 model_grid(n_modelgrid+1)%vel   = 0.D0
 model_grid(n_modelgrid+1)%rho   = 0.D0
-! saves the associated propagation grid
-n_propgrid = SIZE(dyn_cell)
 
 
 read(49, *) n_propgrid
+write(*,*) 'read_propmod_grid. n_propgrid = ', n_propgrid
 ALLOCATE(dyn_cell(n_propgrid))
 DO I = 1, n_propgrid
  read(49, *) pos, width, up_cell, down_cell, neighbors, model_index

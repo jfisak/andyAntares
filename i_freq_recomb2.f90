@@ -6,6 +6,7 @@
 ! is possible to happen
 SUBROUTINE i_freq_recomb(indexe, indexi, indexl, pack_index, population, ran_frequency)
 USE types
+USE constants
 USE rates_i
 IMPLICIT NONE
 

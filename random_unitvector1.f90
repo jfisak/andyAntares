@@ -2,6 +2,7 @@
 
 !     Scatter photon randomly and isotropicaly (in phi and theta) in any direction in the wind
       USE types
+USE constants
 
       IMPLICIT NONE 
 

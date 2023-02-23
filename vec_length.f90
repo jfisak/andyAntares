@@ -2,6 +2,7 @@
  FUNCTION vec_length(vector)
 
   USE types
+USE constants
 
   IMPLICIT NONE    
 

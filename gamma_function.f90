@@ -3,6 +3,7 @@
 ! \Gamma(x) = max(\tilde{g}, 0.26 * exp(x) * E_1(x))
 SUBROUTINE gamma_function(x, transition, gf)
 USE types
+USE constants
 IMPLICIT NONE
 
 ! input variables

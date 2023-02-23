@@ -2,6 +2,7 @@ SUBROUTINE oct_neighbors(pack_index, rel_pos, velgridcells, incell)
 
 
 USE types
+USE constants
 IMPLICIT NONE
 
 INTEGER, PARAMETER                      :: n_oct=8

@@ -3,6 +3,7 @@
 SUBROUTINE find_photion_elindex(indexe, indexi, index_level, phot_index)
 
 USE types
+USE constants
 
 IMPLICIT NONE
 

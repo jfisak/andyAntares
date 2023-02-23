@@ -1,6 +1,7 @@
 SUBROUTINE oct_virtcube(pack_index, rel_pos, cube_pos, incell)
 
 USE types
+USE constants
 IMPLICIT NONE
 
 INTEGER                                                 :: pack_index

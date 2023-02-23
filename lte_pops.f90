@@ -1,6 +1,7 @@
 SUBROUTINE lte_pops(indexe, indexi)
 
 USE types
+USE constants
 
 IMPLICIT NONE
 

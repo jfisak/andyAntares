@@ -4,6 +4,7 @@ SUBROUTINE find_e_nd(model_grid_index, el_nd)
 ! model grid cellmodel_grid_index
 
   USE types
+USE constants
 
   IMPLICIT NONE
   INTEGER, PARAMETER                 :: max_it = 100

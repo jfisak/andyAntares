@@ -3,6 +3,7 @@ SUBROUTINE part_fun(indexe, indexi, temp, U)
 ! Calculate partition function of element indexe in th egiven ionization
 ! stage indexi at the given temperature temp
 USE types
+USE constants
 
 IMPLICIT NONE    
 

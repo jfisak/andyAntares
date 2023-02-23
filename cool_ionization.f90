@@ -1,5 +1,6 @@
 SUBROUTINE cool_ionization(approximation, pack_index, Zion, actikrates)
 USE types
+USE constants
 USE rates_k
 IMPLICIT NONE
 

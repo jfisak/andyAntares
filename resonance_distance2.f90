@@ -2,6 +2,7 @@
 SUBROUTINE resonance_distance2(pack_index, nextLine, cell_dist, inCell, ldist)
 
 USE types
+USE constants
 
 IMPLICIT NONE
 

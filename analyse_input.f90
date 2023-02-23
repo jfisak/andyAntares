@@ -2,6 +2,7 @@
 SUBROUTINE analyse_input()
 
 USE types
+USE constants
 IMPLICIT NONE
 
 LOGICAL                         :: inp_model_exists, inputcomp_exists

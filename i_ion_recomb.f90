@@ -5,6 +5,7 @@
 SUBROUTINE i_ion_recomb(division_type)
 
 USE types
+USE constants
 USE rates_i
 IMPLICIT NONE
 

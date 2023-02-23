@@ -1,6 +1,7 @@
 SUBROUTINE emit_rpackage(pack_index)
 
 USE types
+USE constants
 
 IMPLICIT NONE    
 

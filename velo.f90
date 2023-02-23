@@ -1,6 +1,7 @@
 SUBROUTINE velo(pack_index, pack_position, cur_mgi, vel_vec, approx)
 
 USE types
+USE constants
 
 IMPLICIT NONE    
 

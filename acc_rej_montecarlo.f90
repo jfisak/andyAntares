@@ -3,6 +3,7 @@
 SUBROUTINE acc_rej_montecarlo(n_packs,freq)
 
 USE types
+USE constants
 
 IMPLICIT NONE 
 
