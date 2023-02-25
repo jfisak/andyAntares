@@ -59,6 +59,7 @@ count_in = 0
 count_out = 0
 count_vacuum = 0
 
+
   max_n_dcell = SIZE(dyn_cell)
   ! Establish a connection between the propagation grid and the
   ! model grid. This depends on the model grid type (1D, 2D, 3D)
@@ -74,7 +75,6 @@ count_vacuum = 0
      r = SQRT( (dyn_cell(I)%corner(1) + dyn_cell(I)%width(1)/2.D0)**2 + &
       (dyn_cell(I)%corner(2) + dyn_cell(I)%width(2)/2.D0)**2 + &
       (dyn_cell(I)%corner(3) + dyn_cell(I)%width(3)/2.D0)**2)
-     !print*,I,r/R_star
      IF ((r .GT. R_star) .AND. (r .LT. R_inf)) THEN
       ! Cells with radius larger than the stellar radius but smaller
       ! than the winds outer radius have an associated model grid cell.
@@ -84,7 +84,6 @@ count_vacuum = 0
       delta = large_number
       DO J = 1, n_modelgrid   
        delta2 = ABS(r - model_grid(J)%rwind)
-       !print*,I,J,r/R_star,model_grid(J)%rwind/R_star,delta2/R_star,delta/R_star
        IF (delta2 .LT. delta) THEN
         delta = delta2 
         M = J           
@@ -100,7 +99,6 @@ count_vacuum = 0
       model_grid(n_modelgrid + 1)%assoc_cells = model_grid(n_modelgrid + 1)%assoc_cells + 1
      END IF
     END IF
-     !print*, I,J,M
    END DO
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! 2D model grid -- Petr Kurfurst's model

@@ -206,12 +206,12 @@ DO iteration = 1,1
  CALL update_grid(iteration)
  IF(debug == 3) write(*,*) 'modGrid was updated'
  ! opacity tables
- test_pos = (/R_star, 0.D0, 0.D0/)
- test_end = (/20*R_star, 0.D0, 0.D0/)
+ ! test_pos = (/R_star, 0.D0, 0.D0/)
+ ! test_end = (/20*R_star, 0.D0, 0.D0/)
  ! test_freq = 1164084775316555.5 ! Hz
- CALL freq_from_planck(test_freq, T_eff)
- CALL calc_tau(test_pos, test_end, test_freq)
- STOP 'main: testing'
+ ! CALL freq_from_planck(test_freq, T_eff)
+ ! CALL calc_tau(test_pos, test_end, test_freq)
+ ! STOP 'main: testing'
  ! if (iteration == 1 .AND. inputpopfile .NE. '') then
  !  CALL read_populations()
  ! end if

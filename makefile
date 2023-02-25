@@ -19,7 +19,8 @@ MODULES=types.o rates_i.o rates_k.o rates_r.o constants.o
 MODELS= read_1D_model.o read_2D_model.o read_3D_model.o read_1D_araya.o read_3D_nico.o\
         read_3D_pseudo3D.o read_2D_peku.o
 RATES= r_kappa_cont.o r_kappa_line.o i_ion_recomb.o i_radtrans.o i_radion.o i_colion.o \
-       i_coltrans.o i_freq_recomb.o  k_freq_ff.o k_freq_fb.o read_photcs.o 
+       i_coltrans.o i_freq_recomb.o  k_freq_ff.o k_freq_fb.o read_photcs.o cool_excit.o \
+       cool_ff.o cool_ionization.o cool_fb.o 
 ATOMIC=read_levels.o read_transitions.o read_e_nd.o 
 
 OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o 	  \
@@ -38,11 +39,11 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o 	  \
           create_dynamical_grid_cells.o find_dyn_cell1.o do_spectrum.o\
           connection_prop_model_grid.o divide_cell_8.o divide_cell_ijk.o do_dpackage.o \
 	  next_cell_down.o next_cell_up.o populations.o  \
-	  gamma_function.o exp_int_func.o cool_excit.o \
+	  gamma_function.o exp_int_func.o \
 	  find_populations.o propgrid_dist.o\
 	  flux_function.o find_element_index.o analyse_input.o \
-	  cool_ff.o warning.o calc_tau.o\
-	  cool_ionization.o cool_fb.o check_pop.o \
+	  warning.o calc_tau.o\
+	  check_pop.o \
 	  save_output.o gauntff.o counters.o saha_factor.o find_photion_elindex.o \
 	  mpi_distribute_estimators.o save_temp_packs.o find_unfinished_run.o \
 	  lte_pops.o photosphere_interaction.o roverw.o vel_discrete_points.o \

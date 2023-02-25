@@ -21,6 +21,7 @@ SELECT CASE(model_type)
   END IF
   rad_vel = model_grid(mod_index)%vel
   vel_vec = rad_vel * pos / norm2(pos)
+  ! write(37,*) norm2(pos)/R_star, rad_vel, mod_index
  CASE(3)
   IF(mod_index <= n_modelgrid) THEN
    vel_vec = model_grid(mod_index)%vec_vel

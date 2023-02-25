@@ -16,7 +16,7 @@ DOUBLE PRECISION                  :: vel_rad_norm, vel_ang_norm
 
 INTEGER                            :: cur_mgi
 
-pack_position = package(pack_index)%pos
+! pack_position = package(pack_index)%pos
 SELECT CASE(velApprox)
 ! homologous expansion
 CASE(0)
@@ -34,6 +34,7 @@ CASE(2)
 ! velocity field given by model in discrete points
 CASE(3)
  CALL vel_discrete_points(pack_index, vel_vec)
+ ! write(37,*) norm2(package(pack_index)%pos)/R_star, norm2(vel_vec)
 CASE DEFAULT
  write(*,*) 'velo: velApprox = ', velApprox
  write(*,*) 'this velocity structure is not known'

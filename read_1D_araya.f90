@@ -18,6 +18,8 @@ DOUBLE PRECISION                        :: effective_temperature, stellar_radius
 DOUBLE PRECISION                        :: radius, density, djunk
 DOUBLE PRECISION                        :: velocity
 
+INTEGER                                 :: I
+
 CHARACTER(LEN=100)                      :: junk
 
 add_mg = 1
@@ -47,6 +49,7 @@ OPEN(38, FILE=inputmodelFile)
  DO cur_line = 1, n_mg_points
   READ(38,*) radius, djunk, velocity, djunk, djunk, density, junk
   model_grid(cur_line)%rwind = radius * R_star
+  write(*,*) 'read_1D_araya: r = ', radius * R_star
   model_grid(cur_line)%vel = velocity * 1.D5 ! [velocity] = km/h
   model_grid(cur_line)%rho = density
   model_grid(cur_line)%T = T_eff
@@ -68,10 +71,10 @@ OPEN(38, FILE=inputmodelFile)
  model_grid(n_modelgrid+add_mg)%rwind = 0.D0
  model_grid(n_modelgrid+add_mg)%vel   = 0.D0
  model_grid(n_modelgrid+add_mg)%rho   = 0.D0     
- write(*,*) 'read_1D_araya: R_inf = ', R_inf, ' V_inf = ', V_inf
- ! STOP 'read_1D_araya: testing'
+ write(*,*) 'read_1D_araya: R_inf = ', R_inf/R_star, ' V_inf = ', V_inf
 
-
+ ! saving n_mg_points into the global variable n_modelgrid
+ n_modelgrid = n_mg_points
 
 
 

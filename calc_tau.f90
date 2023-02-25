@@ -1,4 +1,4 @@
-! a subroutine to calculate optical depth from the particular point and direction
+! a subroutine to calculate optical depth between two points r1 and r2
 SUBROUTINE calc_tau(init_pos, end_pos, frequency)
 
 USE types

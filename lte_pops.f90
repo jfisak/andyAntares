@@ -28,7 +28,7 @@ DO gridcell = 1, n_modelgrid
   ! write(*,*) 'lte_pops: U = ', U
   ! Ground level population number (number density of the atom at ground level)
   ! write(*,*) 'update_grid: U = ', U
-  indexl0(:) = MINLOC(elements(indexe)%ions(indexi)%levels(:)%exci_energy)
+  indexl0(:) = MINLOC(elements(indexe)%ions(indexi)%levels(:)%exci_energy,1)
   gl_pop = ( elements(indexe)%ions(indexi)%levels(indexl0(1))%stat_waight * N_jk ) /  U 
   ! IF(indexe == 1 .AND. indexi == 1) write(*,*) 'update_grid: H I = ', frac
   ! IF(indexe == 1 .AND. indexi == 2) write(*,*) 'update_grid: H II = ', frac
