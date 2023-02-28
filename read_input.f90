@@ -22,6 +22,7 @@ USE constants
   abs_surface = 0
   saved_grid = 0
   enable_diffusion = 0
+  sobolev_approximation = 1
 
 ! 001 n_pack
 ! 002 n_nubin
@@ -47,6 +48,7 @@ USE constants
 ! 022 inputpopfile
 ! 023 saved grid
 ! 024 diffusion
+! 025 Sobolev approximation
   DO
     READ (1, '(A)', END=99) LINE
 
@@ -212,12 +214,19 @@ USE constants
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I2)', ERR=94) saved_grid
 
-    ! 24 saved grid
+    ! 24 diffusion approximation
     ELSE IF (ACTPAR .EQ. 'diffusive') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I2)', ERR=94) enable_diffusion
+
+    ! 25 Sobolev approximation
+    ELSE IF (ACTPAR .EQ. 'sobolev') THEN
+    CALL SARGC (LINE, NPAR)
+    IF (NPAR .LT. 2) GOTO 90
+    CALL SARGV(LINE,2,ACTPAR)
+    READ (ACTPAR, '(I2)', ERR=94) sobolev_approximation
     ! end all ifs
     END IF
   END DO
@@ -240,6 +249,8 @@ USE constants
   WRITE (99,'(A,I10)') 'eldensfile = ', eldensfile
   WRITE (99,'(A,I10)') 'velocity profile = ', velApprox
   WRITE (99,'(A,I10)') 'saved grid = ', saved_grid
+  WRITE (99,'(A,I10)') 'diffusion approximation = ', enable_diffusion
+  WRITE (99,'(A,I10)') 'Sobolev approximation = ', sobolev_approximation
   IF (iseed .LE. 0) THEN 
      WRITE (99,'(A)') 'Random-seed value is random '
   ELSE

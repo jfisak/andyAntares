@@ -201,6 +201,7 @@ SAVE
   ! for testing case
   LOGICAL                               :: simpleTrans, orbitals_nl
   INTEGER                               :: enable_diffusion
+  INTEGER                               :: sobolev_approximation
 
 
 

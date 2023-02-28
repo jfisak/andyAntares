@@ -17,6 +17,8 @@ CALL doppler_factor2(pack_index, cur_pos, cur_mgi, doppler)
 
 cur_freq_cmf = cur_freq_rf * doppler
 
+! write(*,*) 'cmf_freq: doppler = ', doppler
+
 
 
 
