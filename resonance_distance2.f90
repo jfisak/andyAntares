@@ -58,12 +58,11 @@ lfreq = package(pack_index)%freq_cmf
 iteration = .TRUE.
 inCell = .TRUE.
 
-
 ! test if the line frequency is in the interval
 IF(redshift) THEN
  ! frequency should getting lower
  IF(f_line < ufreq .or. f_line > lfreq) THEN
-  write(*,*) 'resonance_distance2: packet = ', pack_index, ' f_line < bfreq .or. f_line > lfreq'
+  ! write(*,*) 'resonance_distance2: packet = ', pack_index, ' f_line < bfreq .or. f_line > lfreq'
   inCell = .false.
   ldist = R_inf
   RETURN
@@ -75,7 +74,6 @@ ELSE ! blueshift
   RETURN
  END IF
 END IF
-
 
 
 I = 0

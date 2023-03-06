@@ -57,16 +57,6 @@ USE constants
     IF ((inputflux .EQ. 0) ) THEN
      IF(homogeneous) THEN
       CALL freq_from_planck(freq, T_eff)   ! here the frequency is sampled from a Planck law
-     ELSE
-      cur_mgi = dyn_cell(ind_cell_numb)%model_index
-      cur_Teff = model_grid(cur_mgi)%T
-      if(cur_mgi > n_modelgrid) then
-       cur_Teff = 30000.00 + (270000 * ran2(idum))
-      end if
-      write(40,*) cur_Teff
-      ! write(*,*) 'init_photsphere: cur_pgi = ', ind_cell_numb, ' cur_mgi = ', cur_mgi, ' n_modelgrid = ', n_modelgrid 
-      CALL freq_from_planck(freq, cur_Teff)
-      IF(my_rank == 0) write(39,*) freq
      END IF
      IF(I > tot_saved_packets) package(I)%freq_rf = freq
     ELSE IF ((inputflux .EQ. 1 .OR. inputflux == 2) .AND. (I==1)) THEN
