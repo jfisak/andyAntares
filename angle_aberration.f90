@@ -24,7 +24,7 @@ USE constants
 
   ! Simplified version accurate to v/c as given by Abott & Luy and
   ! Mazzali & Lucy. Use this for the comparison to my 1D code.
-  dir2 = (dir1 - D_gamma * vel/light_speed) / (D_gamma*(1-DOT_PRODUCT(dir1,vel)/light_speed))
+  ! dir2 = (dir1 - D_gamma * vel/light_speed) / (D_gamma*(1-DOT_PRODUCT(dir1,vel)/light_speed))
 
 
 

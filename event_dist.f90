@@ -37,7 +37,7 @@ USE constants
 
  INTEGER                                :: cur_approx
 
-IF(debug == 4) procout = .TRUE.
+IF(debug == 4 .or. debug == 5) procout = .TRUE.
       
  n_pack_d = SIZE(package)
  dummypackage = SIZE(package)
@@ -114,16 +114,22 @@ DO WHILE (do_loop)
   tau_line = 0.e0
  END IF
 
- if(procout) write(*,*) 'event_dist: l_dist = ', l_dist, ' tau_line = ',&
-  tau_line, ' tau_cont = ', tau_cont, ' tau_rand = ', tau_rand
  IF(inCell .AND. nextLine /= ntransitions + 1 .AND. .NOT. tooRed) THEN
  
  ! Calculate optical depth in the next line (Sobolev, dv/dr dependent)
  ! and continuum optical depth accumulated up to the line
  !print*, 'before moving package #', pack_index
 
- tau_cont = kappa_cont * l_dist
+ if(inCell) then
+  tau_cont = kappa_cont * l_dist
+ else
+  tau_cont = kappa_cont * cell_dist
+ end if
  
+ if(procout) then
+  write(*,*) 'event_dist: pack_index = ', pack_index, ' l_dist/cell_dist = ', l_dist/cell_dist, ' nextLine = ', nextLine
+  write(*,*) 'event_dist: tau_line = ', tau_line, ' tau_cont = ', tau_cont, ' tau_rand = ', tau_rand
+ end if
  
   IF(current_mgi .EQ. n_modelgrid + 2) tau_cont = 0.D0
   ! write(*,*) 'event_dist:', tau_line, tau_cont, tau_rand, tau

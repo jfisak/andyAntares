@@ -31,6 +31,7 @@ INTEGER, PARAMETER                      :: maxit = 111
 
 redshift = package(pack_index)%redshift
 f_line = linelist(nextLine)%freq
+! write(*,*) 'resonance_distance2: redshift = ', redshift
 
 dummypackage = SIZE(package)
 package(dummypackage) = package(pack_index)
@@ -45,6 +46,7 @@ CALL move_package(dummypackage, cell_dist, cell_number, change_of_cell)
 
 ! forward boundaries
 bfreq = package(dummypackage)%freq_cmf
+! write(*,*) 'resonance_distance2: f_rf = ', package(dummypackage)%freq_rf, 'f_cmf/f_line = ', package(dummypackage)%freq_cmf/f_line
 rbond = package(dummypackage)%pos
 ufreq = bfreq
 ubond = rbond
@@ -60,7 +62,8 @@ inCell = .TRUE.
 ! test if the line frequency is in the interval
 IF(redshift) THEN
  ! frequency should getting lower
- IF(f_line < bfreq .or. f_line > lfreq) THEN
+ IF(f_line < ufreq .or. f_line > lfreq) THEN
+  write(*,*) 'resonance_distance2: packet = ', pack_index, ' f_line < bfreq .or. f_line > lfreq'
   inCell = .false.
   ldist = R_inf
   RETURN

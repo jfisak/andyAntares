@@ -67,7 +67,7 @@ OPEN(38, FILE=inputmodelFile)
   END DO
  END DO
  R_inf = model_grid(n_mg_points)%rwind
- V_inf = model_grid(n_mg_points)%vel
+ V_inf = model_grid(n_mg_points)%vel * 100.0
  model_grid(n_modelgrid+add_mg)%rwind = 0.D0
  model_grid(n_modelgrid+add_mg)%vel   = 0.D0
  model_grid(n_modelgrid+add_mg)%rho   = 0.D0     

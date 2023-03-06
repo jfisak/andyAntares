@@ -18,7 +18,7 @@ DOUBLE PRECISION                                :: freq_min, freq_pls
 DOUBLE PRECISION                                :: cmf_min, cmf_pls, fr_line
 DOUBLE PRECISION                                :: a_lin, b_lin
 DOUBLE PRECISION                                :: cur_freq_rf
-DOUBLE PRECISION, PARAMETER                     :: delta=1.D4
+DOUBLE PRECISION, PARAMETER                     :: delta=1.D6
 DOUBLE PRECISION                                :: der
 DOUBLE PRECISION                                :: deriv_min, deriv_pls
 DOUBLE PRECISION, DIMENSION(3)                  :: pos_line
@@ -26,10 +26,44 @@ DOUBLE PRECISION                                :: s_min, s_0, s_pls
 
 IF(velapprox == 0) THEN
  ROverW = R_inf / V_inf
- ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * ROverV &
- ! / (4.0 * pi) * corrFactor * ldist
- ! write(*,*) 'r_kappa_line: actirrates%Lline(I) = ', actirrates%Lline(I)
+! ONLY FOR TESTING !!!
+! ***TESTING***
+ IF(sobolev_approximation == 1) THEN
+  cur_pos = package(pack_index)%pos
+  cur_dir = package(pack_index)%dir
+  cur_freq_rf = package(pack_index)%freq_rf
+
+  s_min = l_dist - delta
+  s_0 = l_dist
+  s_pls = l_dist + delta
+
+  ! write(*,*) 'roverw: s_min = ', s_min, ' s_0 = ', s_0, ' s_pls = ', s_pls
+
+  pos_min = cur_pos + cur_dir * s_min
+  pos_line = cur_pos + cur_dir * s_0
+  pos_pls = cur_pos + cur_dir * s_pls
+
+
+  CALL cmf_freq(pack_index, pos_min, cur_freq_rf, cmf_min)
+
+  CALL cmf_freq(pack_index, pos_pls, cur_freq_rf, cmf_pls)
+  ! write(*,*) 'roverw: p+ - p- = ', pos_pls - pos_min
+  ! write(*,*) 'roverw: pos_min = ', pos_min, ' pos_pls = ', pos_pls
+  ! write(*,*) 'roverw: f+ - f- = ', freq_pls - freq_min
+
+  deriv_min = (s_0 - s_min)/(fr_line - cmf_min)
+  deriv_pls = (s_pls - s_0)/(cmf_pls - fr_line)
+  ! write(*,*) 'roverw: f-, f0, f+ = ', cmf_min, fr_line, cmf_pls
+  ! write(*,*) 'roverw: s-, s0, s+ = ', s_min, s_0, s_pls
+  ! write(*,*) 'roverw: deriv_pls = ', deriv_pls, ' deriv_min = ', deriv_min
+
+  der = (deriv_pls - deriv_min)/2.D0
+  roverw = der
+  ! write(*,*) 'roverw: der = ', der, ' R_inf/V_inf = ', R_inf/V_inf
+ END IF ! sobolev_approximation
+! ***TESTING***
 ELSE IF(velapprox == 2) THEN
+
  ! according to (10) in Abbot & Lucy (1985)
  ! r
  R_pos = norm2(package(dummypackage)%pos)
@@ -89,14 +123,10 @@ ELSE IF(velapprox == 3) THEN
   ! write(*,*) 'roverw: s-, s0, s+ = ', s_min, s_0, s_pls
   ! write(*,*) 'roverw: deriv_pls = ', deriv_pls, ' deriv_min = ', deriv_min
 
-  ! a_lin = 2.0*(deriv_pls - deriv_min)/(s_pls - s_min)
-  ! a_lin = (deriv_pls - deriv_min)/delta
-  ! b_lin = (deriv_min - deriv_pls)/2.D0
-
   der = (deriv_pls - deriv_min)/2.D0
   roverw = der
-  ! write(*,*) 'roverw: der = ', der
-  ! roverw = R_inf / V_inf
+  write(*,*) 'roverw: der = ', der, ' R_inf/V_inf = ', R_inf/V_inf
+  roverw = R_inf / V_inf
  END IF ! sobolev_approximation
 ELSE
  write(*,*) 'roverw: velapprox = ', velapprox, ' is not a valid choice'

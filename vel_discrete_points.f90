@@ -10,7 +10,7 @@ DOUBLE PRECISION, DIMENSION(3)          :: vel_vec
 INTEGER                                 :: testpacket
 DOUBLE PRECISION, DIMENSION(3)          :: act_corner, act_width, act_pos
 INTEGER                                 :: act_cell
-INTEGER                                 :: get_package_model_index, act_mgi
+INTEGER                                 :: act_mgi
 DOUBLE PRECISION, DIMENSION(3)          :: act_center, act_vel
 DOUBLE PRECISION                        :: act_vel_norm
 
@@ -37,7 +37,7 @@ DOUBLE PRECISION, DIMENSION(8,3)        :: cube_pos
 dummypackage = SIZE(package)
 act_cell = package(pack_index)%cell_numb
 act_pos = package(pack_index)%pos
-act_mgi = get_package_model_index(pack_index)
+act_mgi = dyn_cell(act_cell)%model_index
 act_corner = dyn_cell(act_cell)%corner
 act_width = dyn_cell(act_cell)%width
 act_center = act_corner + act_width/2.0

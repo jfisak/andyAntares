@@ -118,6 +118,11 @@ CASE DEFAULT
  STOP
 END SELECT
 
+if(debug == 5) then
+ write(*,*) 'next_line_bluered: f_cmf/f_next = ', package(pack_index)%freq_cmf/linelist(next_line)%freq
+ if(next_line > 1) write(*,*) 'next_line_bluered: f_cmf/f_- = ', package(pack_index)%freq_cmf/linelist(next_line-1)%freq
+ if(next_line < ntransitions) write(*,*) 'next_line_bluered: f_cmf/f_+ = ', package(pack_index)%freq_cmf/linelist(next_line+1)%freq
+end if
 ! write(*,*) 'next_line_bluered: next_line = ', next_line
  
 END SUBROUTINE next_line_bluered

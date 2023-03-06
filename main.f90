@@ -112,6 +112,7 @@ my_rank = 0
 ! 2 -- packet propagation debugging
 ! 3 -- progress of the calculation procedure
 ! 4 -- rikd packet dynamics
+! 5 -- line interactions
 debug = 0
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
