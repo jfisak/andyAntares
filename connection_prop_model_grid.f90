@@ -158,47 +158,9 @@ count_vacuum = 0
     END IF
    END DO
    write(99,*) 'number of propagation cells in vacuum: ', model_grid(n_modelgrid + add_mg)%assoc_cells
-   ! supernova model
+   ! PeKu model
    CASE(2)
-    ! connect every single cell to its model cell
-    DO I = my_start, my_end
-     r = SQRT((dyn_cell(I)%corner(1) + dyn_cell(I)%width(1)/2.D0)**2 + &
-              (dyn_cell(I)%corner(2) + dyn_cell(I)%width(2)/2.D0)**2 + &
-              (dyn_cell(I)%corner(3) + dyn_cell(I)%width(3)/2.D0)**2)
-     z = dyn_cell(I)%corner(3) + dyn_cell(I)%width(3)/2.D0
-     phi = acos(z/r)
-     phi = abs(phi)
-     IF(r < R_star .OR. r > R_inf) THEN
-      dyn_cell(I)%model_index = n_modelgrid
-      CONTINUE
-     END IF
-     write(*,*) 'connection_prop_model_grid: r = ', r, ' z = ', z
-     write(*,*) 'connection_prop_model_grid: phi = ', phi
-      delta = 1.D99
-      DO J = 1, n_modelgrid
-       r0 = model_grid(J)%rwind
-       phi0 = model_grid(J)%angle
-       delta2 = sqrt(r**2.0+r0**2.0 - 2.0 * r * r0 * &
-        (cos(phi)*cos(phi0) - sin(phi) * sin(phi0)))
-       IF( delta2 < delta ) THEN
-         delta = delta2
-         M = J
-       END IF
-       ! if the propagation cell is too far from the nearest model point
-       ! we will associate this cell to the dummy cells
-      END DO
-       diagonal = sqrt(dyn_cell(I)%width(1)**2+dyn_cell(I)%width(3)**2)/2.D0
-       IF((delta > diagonal) .AND. (dyn_cell(I)%width(1) > basic_cell_width(1)/2.D0**6)) THEN
-        dyn_cell(I)%model_index = n_modelgrid + add_mg
-        model_grid(n_modelgrid + add_mg)%assoc_cells = model_grid(n_modelgrid + add_mg)%assoc_cells + 1
-       ELSE
-        dyn_cell(I)%model_index = M     
-        model_grid(M)%assoc_cells = model_grid(M)%assoc_cells + 1
-       END IF
-    END DO
-    ! write(*,*) 'connection_prop_model_grid: my_rank = ', my_rank, ' my_start = ', my_start, &
-    !  ' my_end = ', my_end
-    ! STOP 'connection_prop_model_grid: testing'
+    CALL connect_2D_peku()
    CASE DEFAULT
     STOP
    END SELECT

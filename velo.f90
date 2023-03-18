@@ -34,7 +34,6 @@ CASE(2)
 ! velocity field given by model in discrete points
 CASE(3)
  CALL vel_discrete_points(pack_index, vel_vec)
- ! write(37,*) norm2(package(pack_index)%pos)/R_star, norm2(vel_vec)
 CASE DEFAULT
  write(*,*) 'velo: velApprox = ', velApprox
  write(*,*) 'this velocity structure is not known'
@@ -43,19 +42,19 @@ END SELECT
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! petr kurfurst's disk model
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- IF ((model_type .EQ. 2) .AND. (inputmodel .EQ. 1)) THEN
-  ! we have to know the velocity of matter in the given point
-  pack_mi = get_package_model_index(pack_index)
-  vel_rad_norm = model_grid(pack_mi)%vel
-  vel_ang_norm = model_grid(pack_mi)%velang
-  ! now we compute given vectors
-  vel_rad = (/ vel_rad_norm * pack_position(1) / vec_length(pack_position(1)), &
-             vel_rad_norm * pack_position(2) / vec_length(pack_position(1)), 0.D0 /)
-  vel_ang = (/ - vel_ang_norm * pack_position(2) / vec_length(pack_position(1)), &
-             vel_ang_norm * pack_position(1) / vec_length(pack_position(1)), 0.D0 /)
-  ! and finally the velocity vector
-  vel_vec = vel_rad + vel_ang
- END IF
+!  IF ((model_type .EQ. 2) .AND. (inputmodel .EQ. 1)) THEN
+!   ! we have to know the velocity of matter in the given point
+!   pack_mi = get_package_model_index(pack_index)
+!   vel_rad_norm = model_grid(pack_mi)%vel
+!   vel_ang_norm = model_grid(pack_mi)%velang
+!   ! now we compute given vectors
+!   vel_rad = (/ vel_rad_norm * pack_position(1) / vec_length(pack_position(1)), &
+!              vel_rad_norm * pack_position(2) / vec_length(pack_position(1)), 0.D0 /)
+!   vel_ang = (/ - vel_ang_norm * pack_position(2) / vec_length(pack_position(1)), &
+!              vel_ang_norm * pack_position(1) / vec_length(pack_position(1)), 0.D0 /)
+!   ! and finally the velocity vector
+!   vel_vec = vel_rad + vel_ang
+!  END IF
  ! write(*,*) 'velo: norm2(vel_vec) = ', norm2(vel_vec)
  IF(norm2(vel_vec) > light_speed) THEN
   write(*,*) 'velo: vel_vec/c = ', norm2(vel_vec)/light_speed, ' Rinf/c = ', V_inf/light_speed
@@ -67,6 +66,6 @@ END SELECT
   CALL abort()
  END IF
 
-! write(30,*) norm2(pack_position), norm2(vel_vec)
+! write(37,*) norm2(package(pack_index)%pos)/R_star, norm2(vel_vec)
 
 END SUBROUTINE velo

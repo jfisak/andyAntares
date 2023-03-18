@@ -38,6 +38,7 @@ USE constants
  INTEGER                                :: cur_approx
 
 IF(debug == 4 .or. debug == 5) procout = .TRUE.
+
       
  n_pack_d = SIZE(package)
  dummypackage = SIZE(package)
@@ -114,6 +115,10 @@ DO WHILE (do_loop)
   tau_line = 0.e0
  END IF
 
+  ! write(*,*) 'event_dist: pack_index = ', pack_index, ' l_dist = ', l_dist
+  ! write(*,*) 'event_dist: l_dist/cell_dist = ', l_dist/cell_dist, ' nextLine = ', nextLine
+  ! write(*,*) 'event_dist: tau_line = ', tau_line, ' tau_cont = ', tau_cont, ' tau_rand = ', tau_rand
+
  IF(inCell .AND. nextLine /= ntransitions + 1 .AND. .NOT. tooRed) THEN
  
  ! Calculate optical depth in the next line (Sobolev, dv/dr dependent)
@@ -125,6 +130,7 @@ DO WHILE (do_loop)
  else
   tau_cont = kappa_cont * cell_dist
  end if
+
  
  if(procout) then
   write(*,*) 'event_dist: pack_index = ', pack_index, ' l_dist/cell_dist = ', l_dist/cell_dist, ' nextLine = ', nextLine

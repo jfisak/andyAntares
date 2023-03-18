@@ -51,6 +51,14 @@ rbond = package(dummypackage)%pos
 ufreq = bfreq
 ubond = rbond
 
+! **testing**
+! ldist = light_speed * (R_inf/V_inf) * ((package(pack_index)%freq_cmf - f_line)/f_line)
+! if(ldist > cell_dist) then
+!  ldist = R_inf
+! end if
+! return
+! **testing**
+
 ! current boundaries (in the current packet position)
 lbond = package(pack_index)%pos
 lfreq = package(pack_index)%freq_cmf
@@ -58,6 +66,7 @@ lfreq = package(pack_index)%freq_cmf
 iteration = .TRUE.
 inCell = .TRUE.
 
+! write(*,*) 'resonance_distance2: f_line/f_cmf = ', f_line/ufreq
 ! test if the line frequency is in the interval
 IF(redshift) THEN
  ! frequency should getting lower
@@ -128,31 +137,6 @@ DO WHILE(iteration)
 
 
 END DO
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 END SUBROUTINE resonance_distance2

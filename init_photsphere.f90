@@ -18,6 +18,8 @@ USE constants
 
   DOUBLE PRECISION                      :: R_bound, ran2
 
+  DOUBLE PRECISION                      :: freq_max, freq_min, ran_num
+
   destroyed_pack = 0
   L_star = 4.D0*pi*(R_star)**2*sigma*T_eff**4
   write(99,*) 'init photsphere...'
@@ -57,6 +59,12 @@ USE constants
     IF ((inputflux .EQ. 0) ) THEN
      IF(homogeneous) THEN
       CALL freq_from_planck(freq, T_eff)   ! here the frequency is sampled from a Planck law
+      ! **testing**
+      !  freq_max = 3.0e15
+      !  freq_min = 1.5e15
+      !  ran_num = freq_min + (freq_max - freq_min) * ran2(idum)
+      !  freq = ran_num
+      ! **testing**
      END IF
      IF(I > tot_saved_packets) package(I)%freq_rf = freq
     ELSE IF ((inputflux .EQ. 1 .OR. inputflux == 2) .AND. (I==1)) THEN

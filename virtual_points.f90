@@ -100,6 +100,7 @@ CASE(1)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CASE(2)
  delta = 1.D-1
+ Nvirtpoint = 100 * n_modelgrid
  ALLOCATE (virtual_point(Nvirtpoint))
  write(99,*) 'number of point: ', Nvirtpoint
  write(99,*) 'computing positions of virtual point...'
@@ -116,10 +117,10 @@ CASE(2)
  END DO
  ! printing number of points for each model grid
  ! OPEN(UNIT=8,FILE='vp_distribution.dat')
-  DO I = 1, n_modelgrid
-   write(8,*) I, nOfPoints(I)
-  END DO
- CLOSE(8)
+ !  DO I = 1, n_modelgrid
+ !   write(8,*) I, nOfPoints(I)
+ !  END DO
+ ! CLOSE(8)
  ! now we will compute given numbers of points for the given spheres
  DO I = 1, Nvirtpoint
   point = 1.D2 * ran2(idum)
