@@ -405,7 +405,18 @@ CASE(10)
    WRITE(72) dyn_cell(I)
   END DO
  CLOSE(72)
-
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! #10 informations about model
+!
+! 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CASE(11)
+ write(99,*) 'R_star = ', R_star/R_sun
+ write(99,*) 'R_inf = ', R_inf/R_sun
+ write(99,*) 'V_inf = ', V_inf
+ ! write(99,*) 'dd
+ write(99,*) 
+ write(99,*) 
 CASE DEFAULT
  write(99,*) 'save_output: this case is not known'
 END SELECT

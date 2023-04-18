@@ -27,6 +27,8 @@ DOUBLE PRECISION                :: fr_line, f_lu
 ! the basic variables
 constanta = (pi * e_charge**2)/( me_g * light_speed)
 
+! write(*,*) 'r_kappa_line: nnextlines = ', nnextlines
+
 tau_line = 0.D0
 DO I = 1, nnextlines
  indexline = nextLine + I - 1
@@ -53,6 +55,7 @@ DO I = 1, nnextlines
  CALL populations(indexe, indexi, lower_level, current_mgi, low_pop)
  CALL populations(indexe, indexi, upper_level, current_mgi, upp_pop)
  
+ ! write(*,*) 'r_kappa_line: low_pop = ', low_pop, ' upp_pop = ', upp_pop
  IF(low_pop <= 1.E-20 .OR. upp_pop <= 1.E-20) THEN
   actirrates%Lline(I) = 0.E0
   actirrates%nline(I) = indexline
@@ -73,6 +76,7 @@ DO I = 1, nnextlines
  actirrates%Lline(I) = light_speed / fr_line * constanta * &
   f_lu * low_pop * corrFactor * ROverV
 
+ ! write(*,*) 'r_kappa_line: ROverV = ', ROverV
  ! write(*,*) 'r_kappa_line: f_lu = ', f_lu, 'freq = ', fr_line, ' Blu = ', Blu
 
  actirrates%nline(I) = indexline

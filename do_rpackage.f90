@@ -63,7 +63,6 @@ END IF
  cur_mgi = get_package_model_index(pack_index)
 
 
-
 IF(debug == 2) THEN
  write(*,*) 'do_rpackage 0: cell_dist = ', cell_dist
  ! IF (cell_dist .LT. 0.D0) STOP 'cell_dist < 0'

@@ -85,6 +85,8 @@ ELSE ! blueshift
 END IF
 
 
+! write(*,*) 'resonance_distance2: calculation of a resonance point'
+! write(*,*) 'resonance_distance2: inCell = ', inCell
 I = 0
 DO WHILE(iteration)
  
@@ -138,6 +140,7 @@ DO WHILE(iteration)
 
 END DO
 
+! write(*,*) 'resonance_distance2: after calc, inCell = ', inCell
 
 END SUBROUTINE resonance_distance2
 

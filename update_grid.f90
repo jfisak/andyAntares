@@ -22,6 +22,7 @@ DO gridcell = 1, n_modelgrid
     ! Calculate electron number density for every model grid cell gridcell
     IF(eldensfile == 0) THEN
      CALL find_e_nd(gridcell, el_nd)
+     ! write(*,*) 'update_grid: gridcell = ', gridcell, ' el_nd = ', el_nd
      ! IF(mod(gridcell,1000)==0) write(*,*) 'update_grid: working on ', gridcell, ' cell'
     ! ELSE
     !  if(gridcell == 1) CALL read_e_nd()

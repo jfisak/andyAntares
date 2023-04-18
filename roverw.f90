@@ -25,40 +25,40 @@ DOUBLE PRECISION, DIMENSION(3)                  :: pos_line
 DOUBLE PRECISION                                :: s_min, s_0, s_pls
 
 IF(velapprox == 0) THEN
- ROverW = R_inf / V_inf
 ! ONLY FOR TESTING !!!
 ! ***TESTING***
  IF(sobolev_approximation == 1) THEN
-  cur_pos = package(pack_index)%pos
-  cur_dir = package(pack_index)%dir
-  cur_freq_rf = package(pack_index)%freq_rf
+  ROverW = R_inf / V_inf
+  ! cur_pos = package(pack_index)%pos
+  ! cur_dir = package(pack_index)%dir
+  ! cur_freq_rf = package(pack_index)%freq_rf
 
-  s_min = l_dist - delta
-  s_0 = l_dist
-  s_pls = l_dist + delta
+  ! s_min = l_dist - delta
+  ! s_0 = l_dist
+  ! s_pls = l_dist + delta
 
-  ! write(*,*) 'roverw: s_min = ', s_min, ' s_0 = ', s_0, ' s_pls = ', s_pls
+  ! ! write(*,*) 'roverw: s_min = ', s_min, ' s_0 = ', s_0, ' s_pls = ', s_pls
 
-  pos_min = cur_pos + cur_dir * s_min
-  pos_line = cur_pos + cur_dir * s_0
-  pos_pls = cur_pos + cur_dir * s_pls
+  ! pos_min = cur_pos + cur_dir * s_min
+  ! pos_line = cur_pos + cur_dir * s_0
+  ! pos_pls = cur_pos + cur_dir * s_pls
 
 
-  CALL cmf_freq(pack_index, pos_min, cur_freq_rf, cmf_min)
+  ! CALL cmf_freq(pack_index, pos_min, cur_freq_rf, cmf_min)
 
-  CALL cmf_freq(pack_index, pos_pls, cur_freq_rf, cmf_pls)
-  ! write(*,*) 'roverw: p+ - p- = ', pos_pls - pos_min
-  ! write(*,*) 'roverw: pos_min = ', pos_min, ' pos_pls = ', pos_pls
-  ! write(*,*) 'roverw: f+ - f- = ', freq_pls - freq_min
+  ! CALL cmf_freq(pack_index, pos_pls, cur_freq_rf, cmf_pls)
+  ! ! write(*,*) 'roverw: p+ - p- = ', pos_pls - pos_min
+  ! ! write(*,*) 'roverw: pos_min = ', pos_min, ' pos_pls = ', pos_pls
+  ! ! write(*,*) 'roverw: f+ - f- = ', freq_pls - freq_min
 
-  deriv_min = (s_0 - s_min)/(fr_line - cmf_min)
-  deriv_pls = (s_pls - s_0)/(cmf_pls - fr_line)
-  ! write(*,*) 'roverw: f-, f0, f+ = ', cmf_min, fr_line, cmf_pls
-  ! write(*,*) 'roverw: s-, s0, s+ = ', s_min, s_0, s_pls
-  ! write(*,*) 'roverw: deriv_pls = ', deriv_pls, ' deriv_min = ', deriv_min
+  ! deriv_min = (s_0 - s_min)/(fr_line - cmf_min)
+  ! deriv_pls = (s_pls - s_0)/(cmf_pls - fr_line)
+  ! ! write(*,*) 'roverw: f-, f0, f+ = ', cmf_min, fr_line, cmf_pls
+  ! ! write(*,*) 'roverw: s-, s0, s+ = ', s_min, s_0, s_pls
+  ! ! write(*,*) 'roverw: deriv_pls = ', deriv_pls, ' deriv_min = ', deriv_min
 
-  der = (deriv_pls - deriv_min)/2.D0
-  roverw = der
+  ! der = (deriv_pls - deriv_min)/2.D0
+  ! roverw = der
   ! write(*,*) 'roverw: der = ', der, ' R_inf/V_inf = ', R_inf/V_inf
  END IF ! sobolev_approximation
 ! ***TESTING***

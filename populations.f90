@@ -51,7 +51,6 @@ CASE(0)
  ! if(indexe == 1 .and. indexi == 1 .and. level == 5) pop_number = 2.00 * pop_number
  ! write(*,*) 'populations: rho = ', rho, ' abund = ', abund, ' temp = ', temp
  ! write(*,*) 'populations: ground_level_pop = ', ground_level_pop
- ! write(*,*) 'populations: 
  IF(pop_number < minpop) pop_number = 1.D-50
 CASE(1)
  STOP 'NLTE is not supported yet'

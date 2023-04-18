@@ -51,5 +51,6 @@ IF (package(pack_index)%freq_cmf < 0) THEN
  !STOP 
 END IF
 package(pack_index)%delta_s = package(pack_index)%delta_s + dist
+! write(79,*) package(pack_index)%delta_s/R_star, package(pack_index)%freq_cmf
 
 END SUBROUTINE move_package
