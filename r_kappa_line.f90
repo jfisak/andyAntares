@@ -23,19 +23,20 @@ INTEGER                         :: n_eqf_lines
 ! calculation of optical depth
 ! the basic variables
 
+
 constanta = (pi * e_charge**2)/( me_g * light_speed)
 dummypackage = SIZE(package)
 package(dummypackage) = package(pack_index)
 
-n_eqf_lines = 1
-DO I = nextLine + 1, ntransitions
- IF(linelist(I)%freq == linelist(nextLine)%freq) THEN
-  n_eqf_lines = n_eqf_lines + 1
-  CYCLE
- END IF
- EXIT
-END DO
-nnextlines = n_eqf_lines
+! n_eqf_lines = 1
+! DO I = nextLine + 1, ntransitions
+!  IF(linelist(I)%freq == linelist(nextLine)%freq) THEN
+!   n_eqf_lines = n_eqf_lines + 1
+!   CYCLE
+!  END IF
+!  EXIT
+! END DO
+! nnextlines = n_eqf_lines
 
 tau_line = 0.D0
 DO I = 1, nnextlines
@@ -64,6 +65,7 @@ DO I = 1, nnextlines
   current_mgi, upp_pop)
  IF(low_pop <= 1.E-20 .OR. upp_pop == 1.E-20) THEN
   actirrates%Lline(I) = 0.E0
+  actirrates%nline(I) = indexline
   CYCLE
  END IF
  ! write(*,*) 'r:r_kappa_line: indexline = ', nextLine + I - 1
@@ -92,6 +94,7 @@ DO I = 1, nnextlines
  !  linelist(indexline)%f_lu * low_pop * corrFactor * ROverV
  actirrates%Lline(I) = light_speed / linelist(indexline)%freq * constanta * &
   linelist(indexline)%f_lu * low_pop * corrFactor * ROverV
+ actirrates%nline(I) = indexline
  !write(*,*) 'r_kappa_line: Lline(', I, ') = ', actirrates%Lline(I)
  ! write(*,*) 'r_kappa_line: f_lu = ', linelist(indexline)%f_lu
  tau_line = tau_line + actirrates%Lline(I)

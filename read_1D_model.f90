@@ -37,14 +37,13 @@ SELECT CASE (inputModel)
  ! READ(11,*) V_inf
 !  READ(11,*) M_dot
  ! READ(11,*) n_modelgrid
+ if(T_eff < 5e3) THEN
+  write(*,*) 'T_eff = ', T_eff
+  STOP 'effective temperature is too low...'
+ end if
  
  
  add_mg = 1
-  ! write(*,*) T_eff, R_star, R_inf, V_inf, M_dot, n_modelgrid
- 
- ! R_star = R_star * r_sun
- ! WRITE(15, *) 0.D0, 0.D0, R_star/R_star
- ! write(*,*) '   ', T_eff, R_star, R_inf, V_inf, M_dot, n_modelgrid
  
  ! Allocate array for model grid structure.
  ! Cell n_modelgrid+1 is associated to propagation grid cells 
@@ -84,6 +83,7 @@ SELECT CASE (inputModel)
         !model_grid(I)%grid_comp(J)%numb_den = tot_nd
      END DO
   END DO
+  CLOSE(11)
 
   ! R_inf  = model_grid(n_modelgrid)%rwind
   ! R_inf = 5.0 * R_star
@@ -181,7 +181,7 @@ SELECT CASE (inputModel)
    by a temperature factor = ', temp_factor
   R_star = model_grid(1)%rwind
   R_inf  = model_grid(n_modelgrid)%rwind
-  V_inf  = model_grid(n_modelgrid)%vel * 10.0**5
+  V_inf  = model_grid(n_modelgrid)%vel! * 10.0**5
   ! Dummy cell to associate to propagation grid cells which have no representation on the model grid.
   ! All cells out of model grid set to 0 and associate to n_modelgrid. 
   ! Other cells will obtainde particular values with memory

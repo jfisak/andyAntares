@@ -13,6 +13,7 @@ SUBROUTINE angle_aberration(dir1, vel, dir2)
   DOUBLE PRECISION, DIMENSION(3)   :: dir1, dir2, vel
   
   D_gamma = 1.D0
+  D_gamma = 1/sqrt(1-norm2(vel)**2.0/light_speed**2)
    
   ! Formula as given by Mihalas & Mihalas, accurate to (v/c)**2
   dir2 = (dir1 - D_gamma * vel/light_speed * &

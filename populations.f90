@@ -46,9 +46,13 @@ CASE(0)
  
  pop_number = ground_level_pop * g_stat / g_gstat * &
         exp(-e_exc / BOLK / model_grid(model_cell)%T )! * &
+ ! if(indexe == 1 .and. indexi == 1 .and. level == 5) pop_number = 2.00 * pop_number
  IF(pop_number < minpop) pop_number = 1.D-50
 CASE(1)
  STOP 'NLTE is not supported yet'
+! populations from a file
+CASE(2)
+ pop_number = elements(indexe)%ions(indexi)%levels(level)%population(model_cell)
 CASE DEFAULT
  STOP 'populations: this choice is not known'
 END SELECT

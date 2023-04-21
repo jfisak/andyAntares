@@ -15,10 +15,9 @@ DOUBLE PRECISION, DIMENSION(3)                  :: corner, width, pos
 DOUBLE PRECISION                                :: freq
 n_pack = SIZE(package) - 1
 L_star = 4.D0*pi*(R_star)**2*sigma*T_eff**4
-SELECT CASE(refr_surface)
+SELECT CASE(abs_surface)
 ! creation of a new packet
 CASE(1)
- ! write(*,*) 'photosphere_interaction: pack_index = ', pack_index
  CALL random_unitvector1(direction, sint, cost, sinp, cosp)
  ! write(*,*) 'init_photsphere: R_star = ', R_star
  package(pack_index)%pos = R_star * direction
@@ -39,6 +38,20 @@ CASE(1)
  corner = dyn_cell(ind_cell_numb)%corner
  width = dyn_cell(ind_cell_numb)%width
  pos = package(pack_index)%pos
+ 
+ CALL freq_from_planck(freq)   ! here the frequency is sampled from the Planck law
+ package(pack_index)%freq_rf = freq
+ package(pack_index)%e_rf = L_star/n_pack  
+ CALL doppler_factor(pack_index, D)
+ package(pack_index)%freq_cmf = package(pack_index)%freq_rf * D 
+ package(pack_index)%e_cmf    = package(pack_index)%e_rf * D  
+ package(pack_index)%last_line = no_line
+ package(pack_index)%delta_s = 0.D0
+
+ package(pack_index)%n_interactions = 0
+ package(pack_index)%next_cross = NONE
+
+
 IF(pos(1) < corner(1) .OR. pos(1) > corner(1) + width(1) .OR. &
  pos(2) < corner(2) .OR. pos(2) > corner(2) + width(2) .OR. &
  pos(3) < corner(3) .OR. pos(3) > corner(3) + width(3) ) THEN
@@ -50,24 +63,9 @@ IF(pos(1) < corner(1) .OR. pos(1) > corner(1) + width(1) .OR. &
   STOP 
 END IF
 
- package(pack_index)%next_cross = NONE
-
- ! Assign rf energy and frequency to the packet
-
- ! Now convert the energy and frequency to their cmf values
- CALL doppler_factor(pack_index, package(pack_index)%pos, package(pack_index)%dir, D)
- CALL freq_from_planck(freq)
- package(pack_index)%freq_rf = freq
- package(pack_index)%e_rf = L_star/n_pack
- package(pack_index)%freq_cmf = package(pack_index)%freq_rf * D
- package(pack_index)%e_cmf = package(pack_index)%e_rf * D
-
- ! Assine 1 to the last_line whith which package is in resonance
- package(pack_index)%last_line = no_line
-
 CASE DEFAULT
  write(99,*) 'photosphere_interaction: the choice'
- write(99,*) refr_surface, ' is not possible'
+ write(99,*) abs_surface, ' is not possible'
  STOP
 END SELECT
 

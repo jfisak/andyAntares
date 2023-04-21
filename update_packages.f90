@@ -18,18 +18,16 @@ DO pack_index = tot_saved_packets + 1, n_pack
  !  initrs = .TRUE.
  ! END IF
   ! write(36, *) 'r-packet: ', pack_index
+  ! write(*,*) 'update_packages: package = ', pack_index
  IF (MODULO(pack_index,100000) .EQ. 0) write(99,*) 'Working on packet ', pack_index,' ...'
  ! IF (MODULO(pack_index,10) .EQ. 0) write(*,*) 'Working on packet ', pack_index,' ...'
  ! write(*,*) 'Working on packet ', pack_index,' ...'
- ! write(*,*) 'Working on packet ', pack_index,' ...'
  ! Do this loop until something happened with package
  DO  WHILE (package(pack_index)%active .EQ. 1)
-  ! write(*,*) 'C'
   IF (package(pack_index)%typ .EQ. type_rpkt) THEN
    IF(package(pack_index)%n_interactions .EQ. 1000000) THEN
     ! write(*,*) 'package ', pack_index, ' interacted for 2000000 times and will be destroyed...'
     package(pack_index)%active = 0
-    !$OMP ATOMIC
     count_des_inte = count_des_inte + 1
    END IF
      ! write(*,*) 'D'

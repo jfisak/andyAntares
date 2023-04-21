@@ -14,28 +14,34 @@ LOGICAL                 :: wasFound
   
 write(99,*) 'updating grid'
 DO gridcell = 1, n_modelgrid
-  IF (model_grid(gridcell)%assoc_cells .GT. 0) THEN
-    IF (iteration .EQ. 1) THEN
-      ! Calculate electron number density for every model grid cell gridcell
-      CALL find_e_nd(gridcell, el_nd)
+ IF (model_grid(gridcell)%assoc_cells .GT. 0) THEN
+  IF (iteration .EQ. 1) THEN
+    ! Calculate electron number density for every model grid cell gridcell
+    IF(eldensfile == 0) THEN
+     CALL find_e_nd(gridcell, el_nd)
     ELSE
-      ! Energy density contribeted to the model grid cell 
-       model_grid(gridcell)%J = model_grid(gridcell)%J / model_grid(gridcell)%volume / (4 * pi)
-       temp = (model_grid(gridcell)%J * pi / sigma )**(1./4.) 
-       ! print*, 'model cell: ', gridcell, ' temperature = ', temp, ' flux = ', model_grid(gridcell)%J, &
-       ! ' volume = ', model_grid(gridcell)%volume
-       ! print*, 'update_grid: temperature: I = ', I, ' T = ', temp
-       model_grid(gridcell)%T = temp
-       ! Calculate electron number density for every model grid cell gridcell
-       !print*, gridcell, model_grid(gridcell)%J, temp
-       CALL find_e_nd(gridcell, el_nd)
-       model_grid(gridcell)%J = 0.D0   
+     if(gridcell == 1) CALL read_e_nd()
     END IF
-    model_grid(gridcell)%e_dens = el_nd 
-    temp = model_grid(gridcell)%T
-
-    !     print*, 'temp and e_nd:', gridcell,  model_grid(gridcell)%rho, temp, el_nd/6.1D14
-  ENDIF
+  ELSE
+    ! Energy density contribeted to the model grid cell 
+     model_grid(gridcell)%J = model_grid(gridcell)%J / model_grid(gridcell)%volume / (4 * pi)
+     temp = (model_grid(gridcell)%J * pi / sigma )**(1./4.) 
+     ! print*, 'model cell: ', gridcell, ' temperature = ', temp, ' flux = ', model_grid(gridcell)%J, &
+     ! ' volume = ', model_grid(gridcell)%volume
+     ! print*, 'update_grid: temperature: I = ', I, ' T = ', temp
+     model_grid(gridcell)%T = temp
+     ! Calculate electron number density for every model grid cell gridcell
+     !print*, gridcell, model_grid(gridcell)%J, temp
+     CALL find_e_nd(gridcell, el_nd)
+     model_grid(gridcell)%J = 0.D0   
+  END IF
+  IF(eldensfile == 0) THEN
+   model_grid(gridcell)%e_dens = el_nd 
+   ! write(*,*) 'update_grid: el_nd = ', el_nd
+  END IF
+  temp = model_grid(gridcell)%T
+  !     print*, 'temp and e_nd:', gridcell,  model_grid(gridcell)%rho, temp, el_nd/6.1D14
+ ENDIF
 END DO
 ! calculation of population numbers
  IF(iteration == 1) THEN

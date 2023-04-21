@@ -26,6 +26,7 @@ IMPLICIT NONE
      INTEGER                         :: n_interactions
      DOUBLE PRECISION, DIMENSION(3)  :: pos, dir 
      INTEGER                         :: l_ele, l_ion, l_lev, n_int = 0
+     LOGICAL                         :: redShift
   END TYPE photon
 
 
@@ -46,7 +47,7 @@ IMPLICIT NONE
      DOUBLE PRECISION                :: volume
      DOUBLE PRECISION                :: T, J, rho, vel, rwind, e_dens
      DOUBLE PRECISION                :: zwind, velang, angle
-     DOUBLE PRECISION, DIMENSION(3)  :: velocity
+     DOUBLE PRECISION, DIMENSION(3)  :: vec_vel, vec_pos
      TYPE(grid_comp_t), ALLOCATABLE  :: grid_comp(:)
   END TYPE modelgrid
 
@@ -71,6 +72,7 @@ IMPLICIT NONE
      CHARACTER(LEN=15)               :: elconf
      LOGICAL                         :: phcrossform
      DOUBLE PRECISION, ALLOCATABLE   :: photcros(:,:), phcrosscoeff(:)
+     DOUBLE PRECISION, ALLOCATABLE   :: population(:)
      DOUBLE PRECISION                :: phfreq
      INTEGER                         :: phfreqi
      INTEGER                         :: levelindex
@@ -106,9 +108,11 @@ IMPLICIT NONE
   DOUBLE PRECISION, DIMENSION(3)     :: basic_cell_width
   INTEGER                            :: nx_cell, ny_cell, nz_cell, Ngrid, destroyed_pack
   INTEGER                            :: dyngrid
+! information about saved propmod grid
+  INTEGER                            :: saved_grid
 ! NLTE
   INTEGER                            :: nlte
-  INTEGER                            :: refr_surface=0
+  INTEGER                            :: abs_surface
 ! properties of a central star
   DOUBLE PRECISION                   :: R_star, R_inf, V_inf, V_0, M_dot, T_eff
   DOUBLE PRECISION                   :: Z_inf
@@ -124,7 +128,6 @@ IMPLICIT NONE
 
 ! fields for the given types
   TYPE(modelgrid), ALLOCATABLE       :: model_grid(:)
-!  TYPE(grid_cell), ALLOCATABLE       :: cell(:)   
   TYPE(dyn_grid_cell), ALLOCATABLE   :: dyn_cell(:)   
   TYPE(photon), ALLOCATABLE          :: package(:)
 
@@ -133,11 +136,14 @@ IMPLICIT NONE
   TYPE(virt_particle), ALLOCATABLE   :: virtual_particle(:)
 ! variable for random number generation
   INTEGER                            :: idum
+! is electron density values stored?
+  INTEGER                            :: eldensfile
+  CHARACTER(180)                      :: inputpopfile
 ! debug mode
   INTEGER                            :: debug
 ! flux from existing input file
   INTEGER                            :: inputflux, inputmodel
-  CHARACTER(80)                         :: inputmodelFile, inputcomposition
+  CHARACTER(160)                         :: inputmodelFile, inputcomposition
 ! number of photoionization cross sections
   INTEGER                               :: n_photcrossect, n_tot_cont, n_ff = 0
 ! number of dummy packages
@@ -170,8 +176,8 @@ IMPLICIT NONE
   INTEGER                            :: my_rank
   INTEGER                            :: ierr
   INTEGER                            :: n_tasks
-  CHARACTER(80)                      :: outputfolder=''
-  CHARACTER(80)                      :: outputfile
+  CHARACTER(160)                      :: outputfolder=''
+  CHARACTER(160)                      :: outputfile
 !! Atomic data
  ! Total number of chemical elements in the simulation
   INTEGER                            :: n_elements
@@ -184,7 +190,7 @@ IMPLICIT NONE
   ! number of packets which will be saved into a file
   INTEGER                               :: n_pack_save
   ! temporary file name
-  CHARACTER(30)                     :: temp_filename = 'temp_packet'
+  CHARACTER(160)                     :: temp_filename = 'temp_packet'
   INTEGER                               :: tot_saved_packets
   ! for testing case
   LOGICAL                               :: simpleTrans, orbitals_nl
@@ -193,26 +199,27 @@ IMPLICIT NONE
 
 !! Physical constants
   DOUBLE PRECISION, PARAMETER        :: pi=3.1415926535897932D+00,&
-                                        me_g=9.109534D-28,&
-                                        mp_g=1.6726485D-24,&
-                                        sigma_e=6.6516D-25,&
-                                        h=6.626176D-27,&
+                                        me_g=9.1093837015D-28,&
+                                        mp_g=1.67262192369D-24,&
+                                        sigma_e=6.6524587321D-25,&
+                                        h=6.62607015D-27,&
                                         light_speed=2.99792458D+10,&
-                                        e_charge=4.803242D-10,&
+                                        e_charge=4.8032068D-10,&
                                         ftran=0.6407D+00, &       
                                         nio=4.5655967D+14,&
                                         const=1.D-04,&
                                         vel_ter=920.0D+05,&
-                                        r_sun=695990.D+05,&
+                                        r_sun=6957.D+07,&
                                         beta=1.3D0,  &   
-                                        BOLK=1.380662D-16,&
-                                        m_sun=1.989D+33,&
-                                        sigma =5.6704D-05 !ergcm^(-2)s(-1)K(-4) !D. H. Cohen et al.2012
-  DOUBLE PRECISION, PARAMETER        :: parsec=30.857D17,&
+                                        BOLK=1.380649D-16,&
+                                        m_sun=1.988409870698051D+33,&
+                                        sigma =5.67037442D-05 !ergcm^(-2)s(-1)K(-4) !D. H. Cohen et al.2012
+  DOUBLE PRECISION, PARAMETER        :: parsec=30.85677814913674D17,&
                                         e_v = 1.60217646D-12,&
-                                        saha_const=2.0706839D-16,&
+                                        ! saha_const=2.0706839D-16,&
                                         ! saha_const=4.1414D-16,&
                                         b = 1.D0
+  DOUBLE PRECISION                      :: saha_const
   ! TEMPORARY CHANGE OF TEMPERATURE STRUCTURE
   DOUBLE PRECISION, PARAMETER        :: temp_factor = 1.0
 

@@ -21,12 +21,25 @@ SUBROUTINE main
 ! definition of MPI variables
 INTEGER                              :: nphit
 
+LOGICAL                                 :: propmod_file_exists
+CHARACTER(60)                           :: propmod_file
+
+
 ! Link data to identify program version
 CHARACTER LINK_DATE*30, LINK_USER*10, LINK_HOST*60
 COMMON / COM_LINKINFO / LINK_DATE, LINK_USER, LINK_HOST
 ! COMMON / RAN_SEED / idum
 
+! the Saha constant calculation
+saha_const = 5.D-1 * (h**2/(2.0*pi*me_g*BOLK))**1.5
 ! CALL EXECUTE_COMMAND_LINE('figlet "3D WIND CODE"')
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! MPI INITIALIZATION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 my_rank = 0
 #if mpi==1
  CALL MPI_INIT(ierr)
@@ -38,16 +51,21 @@ my_rank = 0
  CALL save_output(cur_parameter)
  write(99,*) 'mpi initialization: my_rank = ', my_rank, &
   ' n_tasks = ', n_tasks
-! CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
-! STOP
  WRITE(99,'(2A)') '>>> Program started: Program Version from ',  &
   LINK_DATE ! tag which returns the date the link was created as text
  WRITE(99,'(4A)') '>>> created by ', LINK_USER(:IDX(LINK_USER)), &
   ' at host ', LINK_HOST(:IDX(LINK_HOST))
 
- ! Read input  
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! READ INPUT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  write(99,*) 'read input'
  CALL read_input(n_pack, iseed)
+ CALL analyse_input()
  ! Allocate array for photon packages.
  ALLOCATE (package(n_pack + 2))
  ! write(*,*) 'main: |package| = ', SIZE(package)
@@ -57,6 +75,14 @@ my_rank = 0
  write(99,*) 'read_composition'
  CALL read_composition()
 
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! MONTE CARLO SEED INITIALIZATION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! Initialing seed from the system time
  ! If we set iseed < 0 in input.dat then iseed
  ! will be randomly initializing from the system time
@@ -81,49 +107,80 @@ my_rank = 0
 ! will give information on a packet's history (depending on the actual value of debug)
 debug = 0
 
-! Set up outflow (model grid)
-CALL setup_model_grid()
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! SETTING OF PROPAGATION AND MODEL GRID!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! create virtual particles for the given model cell
-IF (dyngrid /= 0) CALL virtual_particles(model_type)
- xmax = R_inf + 0.5 * R_sun
- ymax = R_inf + 0.5 * R_sun 
-IF(model_type == 1) THEN
- zmax = R_inf + 0.1 * R_sun
-ELSE IF (model_type == 2 .AND. inputmodel == 1) THEN
- zmax = Z_inf! + R_sun
-ELSE IF (model_type == 2 .AND. inputmodel == 2) THEN
- zmax = R_inf + 0.5 * R_sun
+write(propmod_file,"(A, A12)") TRIM(outputfolder), '/propmod.dat'
+INQUIRE(FILE=propmod_file, EXIST=propmod_file_exists)
+
+IF(saved_grid == 1 .and. propmod_file_exists) THEN
+ CALL read_propmod_grid()
 ELSE
- STOP 'main: non-known model type'
-END IF
-write(*,*) 'model grid is set up'
-write(*,*) 'setup propagation grid'
-write(*,*) 'xmax = ', xmax/R_star, ' ymax = ', ymax/R_star, ' zmax = ', zmax/R_star
-write(99,*) 'model grid is set up'
-write(99,*) 'setup propagation grid'
-write(99,*) 'xmax = ', xmax/R_star, ' ymax = ', ymax/R_star, ' zmax = ', zmax/R_star
+ CALL setup_model_grid()
+ IF (dyngrid /= 0) CALL virtual_particles(model_type)
  
-ALLOCATE(current_temp(n_modelgrid + add_mg))
+ ! if model_type == 3 xyzmax are already calculated in setup_model_grid
+ IF(model_type /= 3) THEN
+   xmax = R_inf + 0.5 * R_sun
+   ymax = R_inf + 0.5 * R_sun 
+  IF(model_type == 1) THEN
+   zmax = R_inf + 0.5 * R_sun
+  ELSE IF (model_type == 2 .AND. inputmodel == 1) THEN
+   zmax = Z_inf! + R_sun
+  ELSE IF (model_type == 2 .AND. inputmodel == 2) THEN
+   zmax = R_inf + 0.5 * R_sun
+  ELSE
+   STOP 'main: non-known model type'
+  END IF
+ END IF
+ 
+ write(99,*) 'model grid is set up'
+ write(99,*) 'setup propagation grid'
+ write(99,*) 'xmax = ', xmax/R_star, ' ymax = ', ymax/R_star, ' zmax = ', zmax/R_star
+  
+ 
+ ! Set up of the propagation grid
+ write(99,*) 'setting up the propagation grid'
+ CALL setup_propgrid()
+ 
+ CALL connection_prop_model_grid()
+END IF ! saved propmod grid
 
-! Set up of the propagation grid
-write(99,*) 'setting up the propagation grid'
-CALL cpu_time(time0_agcreation)
-CALL setup_grid2()
-CALL cpu_time(time1_agcreation)
-time_cre = time1_agcreation - time0_agcreation
-
-CALL cpu_time(time0_agconnwpg)
-write(*,*) 'main: connecting prop model grid'
-CALL connection_prop_model_grid()
-CALL cpu_time(time1_agconnwpg)
-time_con = time1_agconnwpg - time0_agconnwpg
+! save propmod_grid?
+IF(saved_grid == 1 .and. .not. propmod_file_exists) THEN
+#if mpi==1
+ IF(my_rank == 0) THEN
+#endif
+ CALL save_propmod_grid()
+#if mpi==1
+ END IF
+#endif
+END IF
 ! connects the propagation grid with the model grid
 write(99,*) 'propagation grid is set up'
 
- IF(my_rank == 0) THEN
-  CALL save_output(8)
-  ! STOP 'testing the propagation grid'
- END IF
+ ! IF(my_rank == 0) THEN
+ !  CALL save_output(8)
+ !  ! STOP 'testing the propagation grid'
+ ! END IF
+
+
+
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! THE MAIN ITERATION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ALLOCATE(current_temp(n_modelgrid + add_mg))
 current_temp = 0.D0
 iteration = 0
 
@@ -131,8 +188,16 @@ iteration = 0
 DO iteration = 1,1
  ! definition of counters
  ! iteration = iteration + 1
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! SETTING THE PLASMA STATE IN THE MODEL GRID!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  IF (iteration .GE. 10) write(99,*) 'No convergency'
  CALL update_grid(iteration)
+ ! if (iteration == 1 .AND. inputpopfile .NE. '') then
+ !  CALL read_populations()
+ ! end if
  CALL i_ion_recomb(1)
  IF(iteration == 100) STOP 'too many iteration in the subroutine main'
  write(99,*) 'Update grid finished' 
@@ -142,19 +207,24 @@ DO iteration = 1,1
  nphit = 1
 !  DO J = 1, nphit
 ! Initialisation of photon packages from the photosphere
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! PACKET MACHINERY !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  CALL init_photsphere(n_pack) 
-
-! Initalisation of photon packages from point source
-! CALL init_photonpack(n_pack)
 
 ! Propagation of the photon in 3D grid
 ! CALL propagation(n_pack, opa_cell, lower_opa, delta_opa)
  write(99,*) 'update packages'
- CALL cpu_time(time0_pp)
+ ! write(*,*) 'update packages'
  CALL update_packages(n_pack)
- CALL cpu_time(time1_pp)
-time_pp = time1_pp - time0_pp
  write(99,*) 'Number of destoyed packages =', destroyed_pack
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! DISTRIBUTE VARIABLES AMONG DIFFERENT TASKS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #if mpi==1
  CALL mpi_distribute_estimators()
  CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
@@ -163,8 +233,11 @@ END DO ! iteration (now of temperature structure)
 ! CLOSE(20)
 
  
- ! write(99,*) 'do spectrum'
- ! CALL do_spectrum(n_pack)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! SAVE OUTPUT FILES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  write(99,*) 'do finalize'
  ! it will save some important output
  CALL save_output(1)
@@ -181,22 +254,7 @@ END DO ! iteration (now of temperature structure)
  ! IF(my_rank == 0) CALL save_output(6)
  ! erase all temporary files with photons
 
- write(*,*) 'main: time CRE: ', time_cre, ' time CON: ', time_con, ' time PP = ', time_pp
-
 CLOSE(2)
 CLOSE(99)
-! #if mpi==1
-!  ! will delete all temporary files
-!  IF(my_rank == 0) THEN
-!   cmdcommand = 'rm '//TRIM(outputfolder)//'/'//TRIM(temp_filename)//'*.dat'
-!  ! write(*,*) 'main: cmdcommand = ', cmdcommand
-!  CALL SYSTEM(cmdcommand)
-!  END IF
-!  CALL MPI_FINALIZE(ierr)
-! #else
-!  cmdcommand = 'rm '//TRIM(outputfolder)//'/'//TRIM(temp_filename)//'*.dat'
-!  write(*,*) 'main: cmdcommand = ', cmdcommand
-!  CALL SYSTEM(cmdcommand)
-! #endif
 
 END SUBROUTINE main

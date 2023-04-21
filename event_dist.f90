@@ -53,6 +53,7 @@ END DO
  tau = 0.D0
  dist = 0.D0
  do_loop = .TRUE.
+ inCell=.FALSE.
 
  !Get the packet's current position on the model grid
  current_mgi = get_package_model_index(pack_index)
@@ -63,16 +64,15 @@ END DO
 
  ! calculates all continuum opacities
  CALL r_kappa_cont(pack_index, kappa_cont, actirrates)
- kappa_cont = 0.D0
+ ! kappa_cont = 0.D0
 
  ! This is the opacity in co-moving frame. Must be transformed to the lab frame
  ! According to Mihalas and Mihalas Eq. 90.8 this is achieved by 
- CALL doppler_factor(pack_index, package(pack_index)%pos, package(pack_index)%dir, D)
+ CALL doppler_factor(pack_index, D)
  kappa_cont = D * kappa_cont
  ! write(*,*) 'event_dist: kappa_cont = ', kappa_cont
 
  ! initialization of n_next_lines to be equal to one
- n_next_lines = 1
  lastLine = package(pack_index)%last_line
 
 nloop = 0
@@ -80,45 +80,37 @@ DO WHILE (do_loop)
 
  nloop = nloop + 1
  IF(nloop == 1000) THEN
- !  write(*,*) 'event_dist: packet = ', pack_index
-  STOP 'nloop == 100'
+  write(*,*) 'event_dist: nextLine = ', lastLine
+  write(*,*) 'event_dist: packet = ', pack_index
+  STOP 'nloop == 1000'
  END IF
 
- IF(nloop > 1) lastLine = nextLine
  ! write(*,*) 'event_dist: pack_index = ', pack_index, ' n_next_lines = ', n_next_lines
  ! write(*,*) 'event_dist: nloop = ', nloop, ' lastLine = ', lastLine, ' ntransitions = ', ntransitions
  
  ! CALL next_line(1, pack_index, lastLine, nextLine, n_next_lines, tooRed)
+ CALL next_line_bluered(1, pack_index, cell_dist, lastLine, nextLine, n_next_lines)
  ! write(*,*) 'event_dist: nextLine = ', nextLine, ' n_next_lines = ', n_next_lines
- CALL resonance_distance(pack_index, lastLine, cell_dist, nextLine, n_next_lines, l_dist, inCell, .TRUE., tooRed)
- ALLOCATE(actirrates%Lline(n_next_lines))
- ! IF(nextLine < ntransitions + 1) THEN
-  ! freq_line = linelist(nextLine)%freq
-!   IF (nextLine < ntransitions - 10) THEN
-!    n_lines = nextLine + 10
-!   ELSE
-!    n_lines = ntransitions
-!   END IF
-!   DO I = nextLine, n_lines
-!    fr_line = linelist(I)%freq
-!    CALL resonance_distance(pack_index, I, fr_line, cell_dist, loc_dist, linCell, .TRUE.)
-!    write(*,*) 'event_dist: line = ', I, ' loc_dist = ', loc_dist/R_star, ' ic = ', linCell
-!   END DO
+ ALLOCATE(actirrates%Lline(n_next_lines), actirrates%nline(n_next_lines))
+ IF(nextLine < ntransitions + 1) THEN
+  freq_line = linelist(nextLine)%freq
+  ! CALL resonance_distance(pack_index, nextLine, freq_line, cell_dist, l_dist, inCell, .TRUE.)
+  CALL resonance_distance2(pack_index, nextLine, cell_dist, inCell, l_dist)
    IF(inCell) THEN
     CALL r_kappa_line(pack_index, current_mgi, nextLine, n_next_lines, actirrates, tau_line)
    END IF
- !  END IF
+  END IF
 
  ! write(*,*) 'event_dist: inCell = ', inCell
  IF(inCell .AND. nextLine /= ntransitions + 1 .AND. .NOT. tooRed) THEN
  
-  ! Calculate optical depth in the next line (Sobolev, dv/dr dependent)
-  ! and continuum optical depth accumulated up to the line
-  !print*, 'before moving package #', pack_index
- 
-  tau_cont = kappa_cont * l_dist
-  ! write(*,*) 'event_dist: l_dist = ', l_dist, ' tau_line = ',&
-  !  tau_line, ' tau_cont = ', tau_cont
+ ! Calculate optical depth in the next line (Sobolev, dv/dr dependent)
+ ! and continuum optical depth accumulated up to the line
+ !print*, 'before moving package #', pack_index
+
+ tau_cont = kappa_cont * l_dist
+ ! write(*,*) 'event_dist: l_dist = ', l_dist, ' tau_line = ',&
+ !  tau_line, ' tau_cont = ', tau_cont
  
  
  
@@ -127,23 +119,31 @@ DO WHILE (do_loop)
  
   ! Now do a step by step analysis of which event occurs and return the 
   ! distance and corresponding event
-  ! IF(pack_index == 2222) write(*,*) 'event_dist: #1', tau_line, tau_cont, tau, tau_rand
   IF ((tau_rand - tau) .GT. tau_cont) THEN
+   ! if #02
    IF ((tau_rand - tau) .GT. (tau_cont + tau_line)) THEN
     dist = l_dist
+    ! if #03
     IF (dist .GT. cell_dist) THEN
      ! In this case the package propagates to the next cell
      e_dist = cell_dist + largeNumber
      do_loop = .FALSE.
      event = rpkt_eventtype_changecell
      if(procout) write(*,*) 'event_dist: rpkt_eventtype_changecell'
+    ! if #03
     ELSE
      ! choosing next line
      tau = tau + tau_cont + tau_line
-     ! nextLine = nextLine + n_next_lines
-     package(pack_index)%last_line = nextLine
+     if(procout) write(*,*) 'event_dist: pack_index = ', pack_index, ' nextLine = ', nextLine
+     if(package(pack_index)%redshift) then
+      lastLine = nextLine + n_next_lines - 1
+     else
+      lastLine = nextLine - n_next_lines + 1
+     end if
      if(procout) write(*,*) 'event_dist: choosing next line nextLine = ', nextLine
+    ! if #03
     END IF
+   ! if #02
    ELSE
     e_dist = l_dist
     do_loop = .FALSE.
@@ -152,41 +152,8 @@ DO WHILE (do_loop)
     !  1.D8 * light_speed / package(pack_index)%freq_rf
     if(procout) write(*,*) 'event_dist: rpkt_eventtype_lineinteraction'
     ! choosing the line
-    IF(n_next_lines > 1) THEN
-     tot_lop = 0.D0
-     DO I = 1, n_next_lines
-      tot_lop = tot_lop + actirrates%Lline(I)
-     END DO
-     ran_numb = ran2(idum) * tot_lop
-     summ = 0.D0
-     ! write(*,*) 'event_dist: tot_lop = ', tot_lop, ' ran_numb = ', ran_numb
-     DO I = 1, n_next_lines
-      act_line = nextLine + I - 1
-      IF(ran_numb > summ .AND. ran_numb < summ + actirrates%Lline(I)) THEN
-       package(pack_index)%last_line = act_line
-       ! write(*,*) 'event_dist: last_line = ', act_line
-       package(pack_index)%l_ele = linelist(act_line)%indexe
-       package(pack_index)%l_ion = linelist(act_line)%indexi
-       package(pack_index)%l_lev = linelist(act_line)%upper
-       if(procout) write(*,*) 'event_dist: #1 chosen line = ', act_line
-       ! write(*,*) 'event_dist: #1 chosen line = ', act_line
-       EXIT
-      END IF
-      summ = summ + actirrates%Lline(I)
-     END DO
-     IF(package(pack_index)%last_line == no_line) THEN
-      write(*,*) 'n_next_lines = ', n_next_lines, ' Lline = ', actirrates%Lline(:)
-      write(*,*) 'tot_lop = ', tot_lop
-      STOP 'event_dist: no line was chosen'
-     END IF
-    ELSE ! we have only one line
-     package(pack_index)%l_ele = linelist(nextLine)%indexe
-     package(pack_index)%l_ion = linelist(nextLine)%indexi
-     package(pack_index)%l_lev = linelist(nextLine)%upper
-     package(pack_index)%last_line = nextLine
-     ! write(*,*) 'event_dist: #2 last_line = ', nextLine
-     if(procout) write(*,*) 'event_dist: #2 choosing chosen line: ', nextLine 
-    END IF 
+    CALL r_choose_line(pack_index, actirrates, n_next_lines, nextLine)
+   ! if #02
    END IF
   ELSE
    ! Continuum process will happen
@@ -214,7 +181,7 @@ DO WHILE (do_loop)
    if(procout) write(*,*) 'event_dist: rpkt_eventtype_continuum 2'
   END IF
  END IF
- DEALLOCATE(actirrates%Lline)
+ DEALLOCATE(actirrates%Lline, actirrates%nline)
  ! write(*,*) 'event_dist: eofloop, do_loop = ', do_loop
 END DO
 ! STOP 'event_dist: testing'  

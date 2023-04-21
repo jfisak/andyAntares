@@ -49,22 +49,13 @@ SUBROUTINE init_photsphere(n_pack)
     ! Now put the photon to the corresponding grid cell
     ! Determine the cell index where is the photon 
     ! This works only for regular grids!!!!
-!    ind_x = FLOOR(package(I)%pos(1)/cell_width + DBLE(nx_cell)/2) + 1
-!    ind_y = FLOOR(package(I)%pos(2)/cell_width + DBLE(ny_cell)/2) + 1
-!    ind_z = FLOOR(package(I)%pos(3)/cell_width + DBLE(nz_cell)/2) + 1
-!    ind_cell_numb = (ind_x - 1) * ny_cell * nz_cell + (ind_y - 1) * nz_cell + ind_z
-!    IF ((ind_cell_numb .GT. nx_cell*ny_cell*nz_cell) .OR. (ind_cell_numb .LT. 1)) THEN
-!     print*, 'ind_cell_numb = ', ind_cell_numb, '...'
-!     STOP 'Subroutine init_photsphere: ERROR in cell_number'
-!    END IF
+    ! write(*,*) 'init_photsphere: calling find_dyn_cell1, pack_index = ', I
     CALL find_dyn_cell1(package(I)%pos,ind_cell_numb)
     IF(ind_cell_numb > SIZE(dyn_cell)) THEN
      write(*,*) 'init_photsphere: wrong cell number'
      CALL abort()
     END IF
     package(I)%cell_numb = ind_cell_numb
-    ! IF(I == 1) write(*,*) 'init_photsphere: WRITING AN INITIAL PACKET POSITION AND CORRESPONDING CELL INTO THE FILE'
-    ! write(16,*) dyn_cell(ind_cell_numb)%corner, dyn_cell(ind_cell_numb)%width, package(I)%pos
 
     ! Flag the packet as an active r-pkt and allow all kind of cell crossings
     package(I)%active     = 1
@@ -74,19 +65,15 @@ SUBROUTINE init_photsphere(n_pack)
 
     ! Assign rf energy and frequency to the packet
     package(I)%e_rf = L_star/n_pack  
-    !IF (I .EQ. 1) print*, package(I)%e_rf
 
     ! Now convert the energy and frequency to their cmf values
     CALL doppler_factor(I, R_star * direction, direction, D)
     package(I)%freq_cmf = package(I)%freq_rf * D 
-    !print*, 'frequencies: ', package(I)%freq_cmf, package(I)%freq_rf
     package(I)%e_cmf    = package(I)%e_rf * D  
 
     ! Assine 1 to the last_line whith which package is in resonance
     package(I)%last_line = no_line
     package(I)%delta_s = 0.D0
-    ! print*, package(I)%cell_numb,package(I)%dir !,  package(I)%pos, package(I)% e_rf
-    ! e_cmf, freq_cmf, freq_rf, cell_numb, pack_numb, active
    END IF
   END DO
 

@@ -1,4 +1,4 @@
-SUBROUTINE move_package(pack_index, dist)
+SUBROUTINE move_package(pack_index, dist, next_cell, change)
 
 ! Move photon package from the curent position for some distance (update package(pack_index)%pos)
 
@@ -10,6 +10,10 @@ IMPLICIT NONE
 INTEGER                           :: pack_index
 DOUBLE PRECISION                  :: dist, D, vec_length
 INTEGER                           :: dummypackage
+
+INTEGER                           :: next_cell
+
+LOGICAL                           :: change
 
 dummypackage = SIZE(package)
 
@@ -24,28 +28,22 @@ if(abs(package(pack_index)%pos(2)) < 1e-1) package(pack_index)%pos(2) = 0e0
 if(abs(package(pack_index)%pos(3)) < 1e-1) package(pack_index)%pos(3) = 0e0
 
 ! Deactivate packets which travel beyond the photosphere
-! length=SQRT(package(pack_index)%pos(1)**2 + package(pack_index)%pos(2)**2 + package(pack_index)%pos(3)**2)  
 IF ((vec_length(package(pack_index)%pos) < R_star) .AND. (pack_index .NE. dummypackage)) THEN
- ! print*, 'package ', pack_index, ' was destroyed because has come back to the photosphere'
- IF(refr_surface >= 1) THEN
-  ! write(*,*) 'move_package: pack_index = ', pack_index
+ IF(abs_surface >= 1) THEN
   CALL photosphere_interaction(pack_index)
-  dist = 0.D0
+  dist = 0.0
+  change=.false.
  ELSE
   package(pack_index)%active = 0
   count_des_phot = count_des_phot + 1
- ! write(37,*) 1.D8 * light_speed / package(pack_index)%freq_rf
  END IF
 END IF
-! write(78,*) pack_index, package(pack_index)%freq_rf, package(pack_index)%freq_cmf, package(pack_index)%freq_cmf / linelist(1)%freq
 ! Rest frame quantities do not change while propagating without any events, 
 ! but cmf quantities need to be updated
-CALL doppler_factor(pack_index, package(pack_index)%pos, package(pack_index)%dir, D)
+IF(change) CALL change_cell(pack_index, next_cell)
+CALL doppler_factor(pack_index, D)
 package(pack_index)%freq_cmf = package(pack_index)%freq_rf * D
 package(pack_index)%e_cmf = package(pack_index)%e_rf * D
-! write(*,*)  'frequency in frame: ', package(pack_index)%freq_rf/1.5e9, &
-!       'frequency in CMF: ', package(pack_index)%freq_cmf/1.5e9, &
-!       ' dir = ', package(pack_index)%dir
 IF (package(pack_index)%freq_cmf < 0) THEN
  write(*,*) 'move_package: package = ', pack_index, ' prop. cell = ', package(pack_index)%cell_numb
  write(*,*) 'FREQUENCY IS LOWER THAN ZERO!!!'

@@ -173,8 +173,17 @@
     !  ' my_end = ', my_end
     ! STOP 'connection_prop_model_grid: testing'
    CASE DEFAULT
-    write(*,*) 'connection_prop_model_grid: wrong inputmodel = ', inputmodel
     STOP
+   END SELECT
+  ELSE IF (model_type == 3) THEN
+   SELECT CASE(inputmodel)
+   ! pseudo 3D testing model
+   CASE(0)
+    DO I = 1, max_n_dcell
+     dyn_cell(I)%model_index = I
+     model_grid(I)%assoc_cells = model_grid(I)%assoc_cells + 1
+    END DO
+   CASE DEFAULT
    END SELECT
   END IF
 ! computing volume of model cells

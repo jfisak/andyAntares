@@ -46,13 +46,11 @@ ELSE IF(velapprox == 1) THEN
  ROverW = 1.0 / (costheta**2.0 * dV_pos + (1.0 - costheta**2.0)* V_pos / R_pos)
  ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * &
  !  ROverW / (4.0 * pi) * corrFactor 
-ELSE IF(velapprox == 4) THEN
- ! CALL vel_discrete_points_constant(pack_index, V_pos_vec)
- ! ROverW = norm2(package(pack_index)%pos)/norm2(V_pos_vec)
+ELSE IF(velapprox == 3) THEN
+ ! temporary
  ROverW = R_inf / V_inf
 ELSE
- write(*,*) 'velapprox: this choice of velapprox = ', velapprox
- write(*,*) 'is not supported in this subroutine!'
+ write(*,*) 'roverw: velapprox = ', velapprox, ' is not a valid choice'
  STOP
 END IF
 

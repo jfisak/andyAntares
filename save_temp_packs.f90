@@ -11,7 +11,7 @@ IMPLICIT NONE
 
 INTEGER                         :: pack_index
 INTEGER                         :: n_file
-CHARACTER(50)                   :: temp_file_name
+CHARACTER(100)                   :: temp_file_name
 INTEGER                         :: I
 
 n_file = INT(FLOAT(pack_index) / FLOAT(n_pack_save))

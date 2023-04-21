@@ -1,5 +1,4 @@
-! this subroutine finds a dynamic cell, where is the given
-! photon located
+! this subroutine finds an adaptive grid cell corresponding to an input position
 ! this subroutine expects a position out of bounds of the dyncells
 SUBROUTINE find_dyn_cell1(pos,actual_cell)
 
@@ -21,16 +20,40 @@ INTEGER                                         :: subind_x, subind_y, subind_z
 INTEGER                                         :: sub_nx, sub_ny, sub_nz
 DOUBLE PRECISION                                :: rat1, rat2, rat3
 
-! write(*,*) 'find_dyn_cell1: pos = ', pos / R_inf
+INTEGER                                         :: I
+INTEGER, DIMENSION(3)                           :: n_cell
+
+DOUBLE PRECISION, PARAMETER                     :: epsilon0 = 1e-6
+
+n_cell = (/ nx_cell, ny_cell, nz_cell /)
+
+! DO I = 1,3
+!  write(*,*) 'find_dyn_cell1: pos  = ', pos(I)
+!  IF(abs(pos(I)) < epsilon0) THEN
+!   pos(I) = 0.D0
+!  END IF
+! END DO
+
+! write(*,*) 'find_dyn_cell1: pos = ', pos 
 ! firstly we can compute which basic cell this point contains
 bcell(1) = FLOOR(pos(1)/basic_cell_width(1) + dble(nx_cell)/2.D0) + 1
 bcell(2) = FLOOR(pos(2)/basic_cell_width(2) + dble(ny_cell)/2.D0) + 1
 bcell(3) = FLOOR(pos(3)/basic_cell_width(3) + dble(nz_cell)/2.D0) + 1
+! tests
+! DO I = 1,3
+!  write(*,*) 'find_dyn_cell1: pos  = ', pos(I)/R_inf
+!  write(*,*) 'find_dyn_cell1: pos/width = ', pos(I)/basic_cell_width(I), ' + '
+!  write(*,*) 'find_dyn_cell1: pos/width = ', dble(n_cell(I))/2.D0, ' = '
+!  write(*,*) 'find_dyn_cell1: pos/width = ', pos(I)/basic_cell_width(I) + dble(n_cell(I))/2.D0
+!  write(*,*) 'find_dyn_cell1: floor = ', FLOOR(pos(I)/basic_cell_width(I) + dble(n_cell(I))/2.D0)
+! END DO
+! write(*,*) 'find_dyn_cell1: bcell = ', bcell
+!
 ! index of the given basic cell
 bindex = (bcell(1) - 1) * ny_cell * nz_cell + (bcell(2) - 1) * nz_cell + bcell(3)
+! write(*,*) 'find_dyn_cell1: bindex = ', bindex
 ! initial setting of the local variable corresponding to the actual cell
 actCell = bindex
-!print*, 'find_dyn_cell1: actCell = ', actCell
 ! if there is no dynamical cell in the given basic cell
 
 IF(dyn_cell(actCell)%up_cell == 0) THEN

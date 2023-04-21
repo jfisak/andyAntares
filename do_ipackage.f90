@@ -136,6 +136,7 @@ DO WHILE (active == 1)
   IF(sstates) write(36,*) 'element_index = ', element_index, ' ion_index = ', ion_index, ' actual_state = ',&
    actual_state
  ! write(*,*) 'do_ipackage: pop = ', act_pop
+ ! calculations of radiative rates
  CALL i_radtrans(current_mgi, element_index, ion_index, actual_state, &
   Zintdownrad, Zintuprad, Zraddeexc, actirates, pack_index)
  CALL i_coltrans(1, pack_index, element_index, ion_index, actual_state, act_pop, &
@@ -144,6 +145,7 @@ DO WHILE (active == 1)
    Zphotiondown, Zphotrecom, actirates)
  CALL i_colion(1, element_index, ion_index, actual_state, pack_index, act_pop, Zcollionup, &
   Zcolliondown,Zcollrecom, actirates)
+! 
 ! testing
 Zcollrecom = 0.D0
 Zcoll = 0.D0
@@ -155,6 +157,8 @@ Zintdowncoll = 0.D0
 Zphotionup = 0.D0
 Zcollionup = 0.D0
 ! end testing
+!
+! control part of calculation
 IF(Zintdowncoll < 0.D0) STOP 'do_ipackage: Zintdowncoll < 0'
 IF(Zintupcoll < 0.D0) STOP 'do_ipackage: Zintupcoll < 0'
 IF(Zcoll < 0.D0) STOP 'do_ipackage:  Zcoll < 0'
@@ -269,7 +273,7 @@ ELSE IF (rand >= Z0 .AND. rand <= Z1) THEN
    ! D = 1.D0
    package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
    package(pack_index)%e_rf = package(pack_index)%e_cmf / D
-   write(37,*) 1.D8 * light_speed / package(pack_index)%freq_rf
+   ! write(37,*) 1.D8 * light_speed / package(pack_index)%freq_rf
    ! save the emitted frequency
    linelist(linetransitions(line))%n_deexc = linelist(linetransitions(line))%n_deexc + 1
    count_i_rad_deex = count_i_rad_deex + 1

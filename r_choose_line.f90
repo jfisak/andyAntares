@@ -1,0 +1,42 @@
+SUBROUTINE r_choose_line(pack_index, actirrates, n_next_lines, n_chosenline)
+
+
+USE types
+USE rates_r
+IMPLICIT NONE
+
+
+TYPE(rrates)                    :: actirrates
+INTEGER                         :: n_next_lines, pack_index
+INTEGER                         :: n_chosenline
+DOUBLE PRECISION                :: ran2
+
+
+INTEGER                         :: I, act_line
+DOUBLE PRECISION                :: tot_lop, summ, ran_numb
+
+IF(n_next_lines == 1) THEN
+ n_chosenline = actirrates%nline(1)
+END IF
+
+DO I = 1, n_next_lines
+ tot_lop = tot_lop + actirrates%Lline(I)
+END DO
+
+ran_numb = ran2(idum) * tot_lop
+DO I = 1, n_next_lines
+ act_line = actirrates%nline(I)
+ IF(ran_numb > summ .AND. ran_numb < summ + actirrates%Lline(I)) THEN
+  package(pack_index)%last_line = act_line
+  ! write(*,*) 'event_dist: last_line = ', act_line
+  package(pack_index)%l_ele = linelist(act_line)%indexe
+  package(pack_index)%l_ion = linelist(act_line)%indexi
+  package(pack_index)%l_lev = linelist(act_line)%upper
+  ! write(*,*) 'event_dist: #1 chosen line = ', act_line
+  EXIT
+ END IF
+ summ = summ + actirrates%Lline(I)
+END DO
+
+
+END SUBROUTINE r_choose_line

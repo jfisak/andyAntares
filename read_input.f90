@@ -16,10 +16,10 @@ SUBROUTINE read_input(n_pack, iseed)
   ny_cell = 100 ! number of cell in y direction
   nz_cell = 100 ! number of cell in z direction
   model_type = 1
-  xmax = 50.    ! coordinates of outer bourder of the wind in units of stellar radius 
-  ymax = 50.  
-  zmax = 50. 
   iseed = -1  
+  eldensfile = 0
+  abs_surface = 0
+  saved_grid = 0
 
 ! 001 n_pack
 ! 002 n_nubin
@@ -38,8 +38,12 @@ SUBROUTINE read_input(n_pack, iseed)
 ! 015 nlte
 ! 016 velApprox
 ! 017 n_pack_save
-! 018 refr_surface
+! 018 abs_surface
 ! 019 inputmodelFile
+! 020 inputcomposition
+! 021 eldensfile
+! 022 inputpopfile
+! 023 saved grid
   DO
     READ (1, '(A)', END=99) LINE
 
@@ -163,12 +167,12 @@ SUBROUTINE read_input(n_pack, iseed)
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I20)', ERR=94) n_pack_save
 
-    ! 018 refr_surface
-    ELSE IF (ACTPAR .EQ. 'refr_surface') THEN
+    ! 018 abs_surface
+    ELSE IF (ACTPAR .EQ. 'abs_surface') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
-    READ (ACTPAR, '(I20)', ERR=94) refr_surface
+    READ (ACTPAR, '(I20)', ERR=94) abs_surface
 
     ! 19 inputmodelFile
     ELSE IF (ACTPAR .EQ. 'inputmodelFile') THEN
@@ -177,11 +181,33 @@ SUBROUTINE read_input(n_pack, iseed)
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(A60)', ERR=94) inputmodelFile
 
+    ! 20 inputComposition
     ELSE IF (ACTPAR .EQ. 'inputComposition') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(A20)', ERR=94) inputcomposition
+
+    ! 21 eldensfile
+    ELSE IF (ACTPAR .EQ. 'eldensfile') THEN
+    CALL SARGC (LINE, NPAR)
+    IF (NPAR .LT. 2) GOTO 90
+    CALL SARGV(LINE,2,ACTPAR)
+    READ (ACTPAR, '(I20)', ERR=94) eldensfile
+
+    ! 22 inputpopfile
+    ELSE IF (ACTPAR .EQ. 'inputpopfile') THEN
+    CALL SARGC (LINE, NPAR)
+    IF (NPAR .LT. 2) GOTO 90
+    CALL SARGV(LINE,2,ACTPAR)
+    READ (ACTPAR, '(A20)', ERR=94) inputpopfile
+
+    ! 23 saved grid
+    ELSE IF (ACTPAR .EQ. 'saved_grid') THEN
+    CALL SARGC (LINE, NPAR)
+    IF (NPAR .LT. 2) GOTO 90
+    CALL SARGV(LINE,2,ACTPAR)
+    READ (ACTPAR, '(I2)', ERR=94) saved_grid
 
     ! end all ifs
     END IF
@@ -189,7 +215,6 @@ SUBROUTINE read_input(n_pack, iseed)
 
 99 CONTINUE
   CLOSE (1)
-
   WRITE (99,'(A,I10)')   'npackages        = ', n_pack
   WRITE (99,'(A,I10)')   'n_nubin          = ', n_nubin
   WRITE (99,'(A,I10)')   'nx_cell          = ', nx_cell
@@ -203,6 +228,9 @@ SUBROUTINE read_input(n_pack, iseed)
   WRITE (99,'(A,I10)') 'inputmodel = ', inputmodel
   WRITE (99,'(A,I10)') 'dyngrid = ', dyngrid
   WRITE (99,'(A,I10)') 'nlte = ', nlte
+  WRITE (99,'(A,I10)') 'eldensfile = ', eldensfile
+  WRITE (99,'(A,I10)') 'velocity profile = ', velApprox
+  WRITE (99,'(A,I10)') 'saved grid = ', saved_grid
   IF (iseed .LE. 0) THEN 
      WRITE (99,'(A)') 'Random-seed value is random '
   ELSE
