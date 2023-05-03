@@ -24,7 +24,13 @@ INTEGER                                 :: cur_mod_cell, cur_prop_cell
 INTEGER                                 :: cur_vmg_A, cur_vmg_B
 INTEGER                                 :: n_zeros, n_propgrid
 
+DOUBLE PRECISION, DIMENSION(2)          :: centre_A, centre_B
 DOUBLE PRECISION, DIMENSION(3)          :: cur_pos
+DOUBLE PRECISION                        :: dist_A, dist_B
+LOGICAL                                 :: win_A, win_B
+
+INTEGER                                 :: cur_n_points, cur_start_index, cur_end_index
+DOUBLE PRECISION, ALLOCATABLE           :: cur_points(:)
 
 ! virtual grid definition
 ! division of virGrid A and B
@@ -156,10 +162,47 @@ DO cur_prop_cell = 1, n_propgrid
    cur_n_r_B = floor((cur_r - rmin)/w_vgrid_r - 1.0/2.0) + 1
    cur_n_t_B = floor((cur_t - tmin)/w_vgrid_t - 1.0/2.0) + 1
    cur_vmg_B = cur_n_r_B + (N_vgrid_r - 1) * (cur_n_t_B - 1)
+  ELSE
+   
   END IF
   
   write(*,*) 'connect_2D_peku: cur_vmg_A = ', cur_vmg_A, ' cur_vmg_B = ', cur_vmg_B
+  ! distances from the centres of the VG A and B
+  centre_A(1) = w_vgrid_r * (cur_n_r_B - 1) + w_vgrid_r/2.0
+  centre_A(2) = w_vgrid_t * (cur_n_t_B - 1) + w_vgrid_t/2.0
+
+  centre_B(1) = w_vgrid_r * (cur_n_r_A - 1) + w_vgrid_r
+  centre_B(2) = w_vgrid_t * (cur_n_t_A - 1) + w_vgrid_t
+
   ! looking for the closest point
+  dist_A = sqrt((cur_r-centre_A(1))**2+(cur_t-centre_A(2))**2)
+  dist_B = sqrt((cur_r-centre_B(1))**2+(cur_t-centre_B(2))**2)
+
+  ! choosing the correct modGrid points
+  IF(dist_A < dist_B) THEN
+   ! A is the winner
+   win_A = .true.
+   ! saving modGrid points to the array
+   cur_n_points = n_points_A(cur_vmg_A)
+   cur_start_index = indices_A(cur_vmg_A)
+   cur_end_index = cur_start_index + cur_n_points - 1
+
+   ALLOCATE(cur_points(cur_n_points))
+
+   cur_points = vg_indexy_A(cur_start_index:cur_end_index,2)
+
+   
+   
+  ELSE IF(dist_A >= dist_B) THEN
+   ! B is the winner
+   win_B = .true.
+  END IF
+
+
+
+
+
+  
 
   ! Heureka! We have got the point!
  ! it is outside the model grid
