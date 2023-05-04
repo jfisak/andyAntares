@@ -12,7 +12,8 @@ DOUBLE PRECISION    :: U, temp, g_level, e_level, e_gl
 INTEGER, DIMENSION(1)   :: indexl0!, indexl1
 
   
-!  print*, 'partition func. called for:', indexe, indexi, temp
+write(*,*) 'partition func. called for:', indexe, indexi, temp
+ IF(temp == 0 ) STOP 'part_fun: temperature = 0...'
 
 IF(.NOT. ALLOCATED(elements(indexe)%ions(indexi)%levels)) THEN
  write(*,*) 'part_fun: indexe = ', indexe, ' indexi = ', indexi
@@ -38,7 +39,6 @@ DO indexl = 1, nlevels
  e_level = elements(indexe)%ions(indexi)%levels(indexl)%exci_energy
  ! write(*,*) 'part_fun: g_level = ', g_level, ' e_level = ', e_level/e_V
  ! Partition function
- IF(temp == 0 ) STOP 'part_fun: temperature = 0...'
  U = U + g_level * EXP(-(e_level - e_gl) / BOLK / temp)  
  ! write(*,*) 'part_fun: delta U = ', g_level * EXP(-(e_level - e_gl) / BOLK / temp)  
 ! IF(indexe == 3 .AND. indexi == 2) write(*,*) '   part.func. calculation:', indexl, g_level, U,&

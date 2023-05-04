@@ -44,6 +44,13 @@ DO I = 1, n_modelgrid
   vel(1) = model_grid(I)%vel
   vel(2) = 0.e0
   vel(3) = 0.e0
+ ELSE IF(model_type == 2) THEN
+  pos(1) = model_grid(I)%rwind
+  pos(2) = model_grid(I)%angle
+  pos(3) = 0.e0
+  vel(1) = model_grid(I)%vel
+  vel(2) = model_grid(I)%velang
+  vel(3) = 0.e0
  ELSE IF(model_type == 3) THEN
   pos = model_grid(I)%vec_pos
   vel = model_grid(I)%vec_vel

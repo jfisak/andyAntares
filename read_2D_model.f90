@@ -22,7 +22,7 @@ INTEGER                                :: max_radius_index
 INTEGER                                :: vacuum
 DOUBLE PRECISION                       :: angle
 
- write(*,*) 'read_2D_model: start'
+ ! write(*,*) 'read_2D_model: start'
  SELECT CASE (inputModel)
   ! reading data from Petr Kurfurst disc model
   ! these files are in this form:
@@ -145,5 +145,5 @@ DOUBLE PRECISION                       :: angle
    STOP 'unknown type of 2D model'
  END SELECT
 
- write(*,*) 'read_2D_model: reading was succesfull'
+ ! write(*,*) 'read_2D_model: reading was succesfull'
 END SUBROUTINE read_2D_model

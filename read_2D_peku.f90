@@ -57,7 +57,7 @@ OPEN(UNIT=15,status='old', FILE=inputmodelFile)
   READ(15,'(A)',IOSTAT = ios) ch_line
   if(ios /= 0) EXIT
   if(ch_line == '') cycle
-  write(*,*) 'read_2d_model: ch_line = ', ch_line
+  ! write(*,*) 'read_2d_model: ch_line = ', ch_line
   READ(ch_line,*) radius, angle, dens, velrad, velang, temp
   model_grid(I)%rwind = radius * 1.D2
   model_grid(I)%angle = angle
