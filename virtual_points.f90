@@ -11,7 +11,7 @@ USE constants
  ! 
  INTEGER                        :: I,J,NP
  ! 1D model: intervals for point distribution
- DOUBLE PRECISION               :: radius, phi
+ DOUBLE PRECISION               :: radius, phi, theta, angle
  DOUBLE PRECISION, DIMENSION(3) :: direction
  INTEGER                        :: np_shell
  ! division of an interval [0, 1] into parts corresponding to a density
@@ -35,6 +35,9 @@ USE constants
 
  TYPE(virt_point)               :: dummy
  DOUBLE PRECISION               :: A
+
+ DOUBLE PRECISION               :: suma
+
 
 
 ! OPEN(20,FILE="virtual_point.dat")
@@ -110,11 +113,17 @@ CASE(2)
  ! firstly we compute a total number of density
  sumr = 0.D0
  DO I = 1, n_modelgrid
-  sumr = sumr + (model_grid(I)%rwind / R_inf) ** delta
+  radius = model_grid(I)%rwind
+  angle = model_grid(I)%angle
+  sumr = sumr + (2.0 * pi * radius * cos(angle)) ** delta
  END DO
  DO I = 1, n_modelgrid
-  nOfPoints(I) = INT(FLOAT(Nvirtpoint) * (model_grid(I)%rwind / R_inf) ** delta / sumr)
+  radius = model_grid(I)%rwind
+  angle = model_grid(I)%angle
+  nOfPoints(I) = FLOOR(FLOAT(Nvirtpoint) * (2.0 * pi * radius * cos(angle)) ** delta / sumr)
+  suma = suma + nOfPoints(I)
  END DO
+ write(*,*) 'virtual_points: suma = ', suma
  ! printing number of points for each model grid
  ! OPEN(UNIT=8,FILE='vp_distribution.dat')
  !  DO I = 1, n_modelgrid
@@ -122,6 +131,7 @@ CASE(2)
  !  END DO
  ! CLOSE(8)
  ! now we will compute given numbers of points for the given spheres
+ write(*,*) 'virtual_points: Nvirtpoint = ', Nvirtpoint
  DO I = 1, Nvirtpoint
   point = 1.D2 * ran2(idum)
   DO J = 1, n_modelgrid
@@ -141,9 +151,10 @@ CASE(2)
   DO J = 1, np_shell
    NP = NP + 1
    phi = 2.D0*pi*ran2(idum)
-   virtual_point(NP)%pos(1) = radius * cos(phi)
-   virtual_point(NP)%pos(2) = radius * sin(phi)
-   virtual_point(NP)%pos(3) = model_grid(I)%zwind
+   theta = model_grid(I)%angle
+   virtual_point(NP)%pos(1) = radius * cos(theta) * cos(phi)
+   virtual_point(NP)%pos(2) = radius * cos(theta) * sin(phi)
+   virtual_point(NP)%pos(3) = radius * sin(theta)
 !    write(20,*) virtual_point(NP)%pos(1), virtual_point(NP)%pos(2), virtual_point(NP)%pos(3)
   END DO
  END DO

@@ -16,7 +16,6 @@ DOUBLE PRECISION                        :: rmax, rmin, tmax, tmin
 INTEGER, DIMENSION (n_modelgrid,2)        :: vg_indexy_A, vg_indexy_B
 INTEGER, DIMENSION(2)                   :: dummy_var_A, dummy_A, dummy_var_B, dummy_B
 INTEGER, ALLOCATABLE                    :: n_points_A(:), n_points_B(:)
-INTEGER, ALLOCATABLE                    :: dummy_counter_A(:), dummy_counter_B(:)
 INTEGER, ALLOCATABLE                    :: indices_A(:), indices_B(:)
 
 INTEGER                                 :: I
@@ -27,7 +26,6 @@ INTEGER                                 :: n_zeros, n_propgrid
 DOUBLE PRECISION, DIMENSION(2)          :: centre_A, centre_B
 DOUBLE PRECISION, DIMENSION(3)          :: cur_pos
 DOUBLE PRECISION                        :: dist_A, dist_B
-LOGICAL                                 :: win_A, win_B
 
 INTEGER                                 :: cur_n_points, cur_start_index, cur_end_index
 DOUBLE PRECISION, ALLOCATABLE           :: cur_points(:)
@@ -35,10 +33,15 @@ DOUBLE PRECISION, ALLOCATABLE           :: cur_points(:)
 INTEGER                                 :: cur_mgi, cur_VG_point
 DOUBLE PRECISION                        :: cur_VG_r, cur_VG_t, delta, dist, min_point
 
+! #00 Set up of virtual grids
+! #01 Calculate VG index of MG cells
+! #02 Sorting
+! #03 Connecting
+
 ! virtual grid definition
 ! division of virGrid A and B
 !_______________________________________________________________
-!                   SET UP OF VIRTUAL GRIDS
+!   #00             SET UP OF VIRTUAL GRIDS
 !_______________________________________________________________
 N_vgrid_r = 10
 N_vgrid_t = 10
@@ -61,7 +64,7 @@ w_vgrid_r = abs(rmax - rmin)/N_vgrid_r
 w_vgrid_t = abs(tmax - tmin)/N_vgrid_t
 
 !_______________________________________________________________
-!              CALCULATE VG INDEX OF MG CELLS
+!   #01        CALCULATE VG INDEX OF MG CELLS
 !_______________________________________________________________
 ! calculation of the virGrid index
 DO cur_point = 1, n_modelgrid
@@ -96,7 +99,7 @@ DO cur_point = 1, n_modelgrid
 END DO
 
 !_______________________________________________________________
-!                   SORTING
+!    #02            SORTING
 !_______________________________________________________________
 ! sort the vg_indexy according to the VG index
 DO cur_point = 2, n_modelgrid
@@ -104,7 +107,7 @@ DO cur_point = 2, n_modelgrid
 
  dummy_var_A = vg_indexy_A(cur_point,:)
 
- DO WHILE(I > 1)
+ DO WHILE(I >= 1)
   IF(vg_indexy_A(I,1) > dummy_var_A(1)) THEN
    ! A grid
    dummy_A = vg_indexy_A(I + 1,:)
@@ -114,12 +117,13 @@ DO cur_point = 2, n_modelgrid
   I = I - 1
  END DO
 END DO
+
 ! sort the vg_indexy according to the VG index
 DO cur_point = 2, n_modelgrid
  I = cur_point - 1
  dummy_var_B = vg_indexy_B(cur_point,:)
  
- DO WHILE(I > 1)
+ DO WHILE(I >= 1)
   IF(vg_indexy_B(I,1) > dummy_var_B(1)) THEN
    ! B grid
    dummy_B = vg_indexy_B(I + 1,:)
@@ -129,17 +133,19 @@ DO cur_point = 2, n_modelgrid
   I = I - 1
  END DO
 END DO
-
+!_______________________________________________________________
 ! index array
 cur_ind_A = 0
 cur_ind_B = n_zeros
 
+!_______________________________________________________________
 ! create arrays with indeces pointing to an ordered list of modCell grids indeces
 DO cur_vpg_cell = 1, N_vgrid_cells_A
  indices_A(cur_vpg_cell) = cur_ind_A + 1
  cur_ind_A = cur_ind_A + n_points_A(cur_vpg_cell)
- write(*,*) 'connect_2D_peku: indices_A(cur_vpg_cell) = ', indices_A(cur_vpg_cell)
+ ! write(*,*) 'connect_2D_peku: indices_A(cur_vpg_cell) = ', indices_A(cur_vpg_cell)
 END DO
+!_______________________________________________________________
 DO cur_vpg_cell = 1, N_vgrid_cells_B
  indices_B(cur_vpg_cell) = cur_ind_B + 1
  cur_ind_B = cur_ind_B + n_points_B(cur_vpg_cell)
@@ -147,11 +153,8 @@ END DO
 
 write(*,*) 'connect_2D_peku: vg_indexy_A = ', vg_indexy_A(:,1)
 ! 
-dummy_counter_A = n_points_A
-dummy_counter_B = n_points_B
-
 !_______________________________________________________________
-!                   CONNECTING
+!  #03              CONNECTING
 !_______________________________________________________________
 
 ! going through model point one by one and calculating the closest point
@@ -181,7 +184,6 @@ DO cur_prop_cell = 1, n_propgrid
     ! write(*,*) 'cur_n_r_B = ', cur_n_r_B, ' cur_n_t_B = ', cur_n_t_B
    ELSE
     cur_n_t_B = 0
-    
    END IF
    
    ! write(*,*) 'connect_2D_peku: cur_vmg_A = ', cur_vmg_A, ' cur_vmg_B = ', cur_vmg_B
@@ -203,7 +205,6 @@ DO cur_prop_cell = 1, n_propgrid
    ! choosing the correct modGrid points
    IF(dist_A < dist_B) THEN
     ! A is the winner
-    win_A = .true.
     ! saving modGrid points to the array
     cur_n_points = n_points_A(cur_vmg_A)
     cur_start_index = indices_A(cur_vmg_A)
@@ -218,8 +219,6 @@ DO cur_prop_cell = 1, n_propgrid
     ! write(*,*) 'connect_2D_peku: vg_indexy_A = ', vg_indexy_A(cur_start_index:cur_end_index,2)
     
    ELSE IF(dist_A >= dist_B) THEN
-    ! B is the winner
-    win_B = .true.
     cur_n_points = n_points_B(cur_vmg_B)
     cur_start_index = indices_B(cur_vmg_B)
     cur_end_index = cur_start_index + cur_n_points - 1
@@ -237,6 +236,7 @@ DO cur_prop_cell = 1, n_propgrid
     write(*,*) 'connect_2D_peku: cur_n_points = 0'
    END IF
    
+   ! finally, looking for the point with the shortest distance
    delta = 1.D99
    DO cur_VG_point = 1, cur_n_points
     cur_mgi = cur_points(cur_VG_point)
@@ -255,13 +255,11 @@ DO cur_prop_cell = 1, n_propgrid
    DEALLOCATE(cur_points)
   ELSE
    dyn_cell(cur_prop_cell)%model_index = n_modelgrid + 1
-  END IF
+  END IF ! if inside the modGrid area
  END IF ! up_cell == 0
-END DO
+END DO ! loop over every propGrid cell to calculate associated modGrid cells
 
 ! STOP 'connect_2D_peku: testing'
-
-! loop over every propGrid cell to calculate associated modGrid cells
 
 
 
