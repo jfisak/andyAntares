@@ -103,7 +103,7 @@ CASE(1)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CASE(2)
  delta = 1.D-1
- Nvirtpoint = 100 * n_modelgrid
+ ! Nvirtpoint = 100 * n_modelgrid
  ALLOCATE (virtual_point(Nvirtpoint))
  write(99,*) 'number of point: ', Nvirtpoint
  write(99,*) 'computing positions of virtual point...'
@@ -117,35 +117,23 @@ CASE(2)
   angle = model_grid(I)%angle
   sumr = sumr + (2.0 * pi * radius * cos(angle)) ** delta
  END DO
+ suma = 0
  DO I = 1, n_modelgrid
   radius = model_grid(I)%rwind
   angle = model_grid(I)%angle
   nOfPoints(I) = FLOOR(FLOAT(Nvirtpoint) * (2.0 * pi * radius * cos(angle)) ** delta / sumr)
   suma = suma + nOfPoints(I)
+  if(suma > Nvirtpoint) then
+   write(*,*) 'virtual_points: I = ', I, ' z ', n_modelgrid
+   STOP 'suma > Nvirtpoint'
+  end if
  END DO
- write(*,*) 'virtual_points: suma = ', suma
- ! printing number of points for each model grid
- ! OPEN(UNIT=8,FILE='vp_distribution.dat')
- !  DO I = 1, n_modelgrid
- !   write(8,*) I, nOfPoints(I)
- !  END DO
- ! CLOSE(8)
  ! now we will compute given numbers of points for the given spheres
- write(*,*) 'virtual_points: Nvirtpoint = ', Nvirtpoint
- DO I = 1, Nvirtpoint
-  point = 1.D2 * ran2(idum)
-  DO J = 1, n_modelgrid
-   IF((bounds(J) > point)) THEN
-    nOfPoints(J) = nOfPoints(J) + 1
-    EXIT
-   END IF
-  END DO
- END DO
  ! we have zero point located
  NP = 0
  ! distribution of point on the shell of the radius R
  DO I = 1, n_modelgrid
-  radius = sqrt(model_grid(I)%rwind**2 - model_grid(I)%zwind**2)
+  radius = model_grid(I)%rwind
   np_shell = nOfPoints(I)
   !IF (np_shell == 0) STOP 'number of virtual point is small'
   DO J = 1, np_shell
@@ -155,7 +143,7 @@ CASE(2)
    virtual_point(NP)%pos(1) = radius * cos(theta) * cos(phi)
    virtual_point(NP)%pos(2) = radius * cos(theta) * sin(phi)
    virtual_point(NP)%pos(3) = radius * sin(theta)
-!    write(20,*) virtual_point(NP)%pos(1), virtual_point(NP)%pos(2), virtual_point(NP)%pos(3)
+!  write(20,*) virtual_point(NP)%pos(1), virtual_point(NP)%pos(2), virtual_point(NP)%pos(3)
   END DO
  END DO
 CASE(3)

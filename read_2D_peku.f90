@@ -24,6 +24,8 @@ INTEGER                                 :: I, J
 
 CHARACTER(len=400)                      :: ch_line
 
+DOUBLE PRECISION, PARAMETER             :: min_temp=1.E4
+
 
 add_mg = 1
 write(99,*) 'we will read input input data from Petr Kurfurst model of stellar disc'
@@ -36,11 +38,9 @@ OPEN(UNIT=15,status='old', FILE=inputmodelFile)
   READ(15,'(A)',IOSTAT = ios) ch_line
   if(ch_line == '') cycle
   if(ios /= 0) EXIT
-  if(I == maxrows) THEN
-   write(99,*) 'maximum number of records exceeded in subroutine read_2d_model'
-   write(99,*) 'exiting program now...'
-   STOP
-  end if
+  ! testing of the temperature: points with too low temperature are excluded
+  READ(ch_line,*) radius, angle, dens, velrad, velang, temp
+  if(temp < min_temp) cycle
  n_modelgrid = n_modelgrid + 1
  END DO
  write(99,*) 'mumber of model grids: ', n_modelgrid
@@ -59,6 +59,7 @@ OPEN(UNIT=15,status='old', FILE=inputmodelFile)
   if(ch_line == '') cycle
   ! write(*,*) 'read_2d_model: ch_line = ', ch_line
   READ(ch_line,*) radius, angle, dens, velrad, velang, temp
+  if(temp < min_temp) cycle
   model_grid(I)%rwind = radius * 1.D2
   model_grid(I)%angle = angle
   model_grid(I)%vel = velrad * 1.D2
