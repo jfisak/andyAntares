@@ -336,8 +336,8 @@ count_vacuum = 0
        ! dyn_cell(cur_pgcell)%model_index = M
       END IF ! if model_index == 0
      END DO ! loop over all propGrid cells
-     write(*,*) 'connection_prop_model_grid: in = ', count_in, ' out = ', count_out, ' vacuum = ', count_vacuum, &
-      ' count_ok = ', count_ok
+     ! write(*,*) 'connection_prop_model_grid: in = ', count_in, ' out = ', count_out, ' vacuum = ', count_vacuum, &
+     !  ' count_ok = ', count_ok
     END IF ! dyncell > 0
    CASE DEFAULT
     write(*,*) 'the choice inputmodel = ', inputmodel, ' is not known'

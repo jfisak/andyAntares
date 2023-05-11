@@ -27,7 +27,7 @@ CHARACTER(len=400)                      :: ch_line
 DOUBLE PRECISION, PARAMETER             :: min_temp=1.E4
 
 
-add_mg = 1
+add_mg = 2
 write(99,*) 'we will read input input data from Petr Kurfurst model of stellar disc'
 ! firstly we calculate number of rows in the file
 n_modelgrid = 0
@@ -68,6 +68,7 @@ OPEN(UNIT=15,status='old', FILE=inputmodelFile)
   model_grid(I)%T = temp
   model_grid(I)%J = 0.D0
   model_grid(I)%assoc_cells = 0
+  ! write(*,*) 'read_2d_model: I = ', I, ' temp = ', temp
   ALLOCATE(model_grid(I)%grid_comp(n_elements))
   ! now we add informations about every included element for every model cell
   DO J = 1, n_elements
@@ -82,7 +83,7 @@ OPEN(UNIT=15,status='old', FILE=inputmodelFile)
   I = I + 1
  END DO
  R_inf = MAXVAL(model_grid(:)%rwind)
- write(*,*) 'read_2d_model: R_inf = ', R_inf, ' R_star = ', R_star
+ ! write(*,*) 'read_2d_model: R_inf = ', R_inf, ' R_star = ', R_star
 CLOSE(15)
 
 
