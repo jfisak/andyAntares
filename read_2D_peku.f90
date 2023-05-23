@@ -24,7 +24,7 @@ INTEGER                                 :: I, J
 
 CHARACTER(len=400)                      :: ch_line
 
-DOUBLE PRECISION, PARAMETER             :: min_temp=1.E4
+DOUBLE PRECISION, PARAMETER             :: min_temp=5.E4
 
 
 add_mg = 2

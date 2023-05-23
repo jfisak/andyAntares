@@ -75,7 +75,6 @@ DO cur_point = 1, n_modelgrid
 
  ! n_rt_A -- numerical index of VG cell
  n_rt_A = cur_n_r_A + N_vgrid_r * (cur_n_t_A - 1)
- ! write(*,*) 'connect_2D_peku: cur_n_t_A = ', cur_n_t_A, ' cur_n_r_A = ', cur_n_r_A, ' n_rt_A = ', n_rt_A
  ! n_points -- number of points for the given cell
  n_points_A(n_rt_A) = n_points_A(n_rt_A) + 1
  ! vg_indexy -- list of indeces model grid --> VG index point
@@ -209,44 +208,31 @@ DO cur_prop_cell = 1, n_propgrid
     cur_n_points = n_points_A(cur_vmg_A)
     cur_start_index = indices_A(cur_vmg_A)
     cur_end_index = cur_start_index + cur_n_points - 1
-    ! write(*,*) 'connect_2D_peku: cur_n_points = ', cur_n_points
 
     ALLOCATE(cur_points(cur_n_points))
 
     cur_points = vg_indexy_A(cur_start_index:cur_end_index,2)
-    ! write(*,*) 'connect_2D_peku: cur_start_index = ', cur_start_index, ' cur_end_index = ', cur_end_index
-    ! write(*,*) 'connect_2D_peku: vg_indexy_A = ', vg_indexy_A(cur_start_index:cur_end_index,1)
-    ! write(*,*) 'connect_2D_peku: vg_indexy_A = ', vg_indexy_A(cur_start_index:cur_end_index,2)
     
    ELSE IF(dist_A >= dist_B) THEN
     cur_n_points = n_points_B(cur_vmg_B)
     cur_start_index = indices_B(cur_vmg_B)
     cur_end_index = cur_start_index + cur_n_points - 1
-    ! write(*,*) 'connect_2D_peku: cur_n_points = ', cur_n_points
 
     ALLOCATE(cur_points(cur_n_points))
 
     cur_points = vg_indexy_B(cur_start_index:cur_end_index,2)
-    ! write(*,*) 'connect_2D_peku: cur_start_index = ', cur_start_index, ' cur_end_index = ', cur_end_index
-    ! write(*,*) 'connect_2D_peku: vg_indexy_B = ', vg_indexy_B(cur_start_index:cur_end_index,1)
-    ! write(*,*) 'connect_2D_peku: vg_indexy_B = ', vg_indexy_B(cur_start_index:cur_end_index,2)
    END IF
 
-   ! IF(cur_n_points == 0) THEN
-   !  write(*,*) 'connect_2D_peku: cur_n_points = 0'
-   ! END IF
-   
    ! finally, looking for the point with the shortest distance
    delta = 1.D99
    DO cur_VG_point = 1, cur_n_points
     cur_mgi = cur_points(cur_VG_point)
-    ! write(*,*) 'connect_2D_peku: cur_mgi = ', cur_mgi
     cur_VG_r = model_grid(cur_VG_point)%rwind
     cur_VG_t = model_grid(cur_VG_point)%angle
     ! dist = sqrt((cur_VG_r - cur_r)**2+(cur_VG_t - cur_t)**2)
     dist = sqrt(cur_VG_r**2 + cur_r**2 - &
      2.0 * cur_VG_r * cur_r * &
-     (cos(cur_t)*cos(cur_VG_t) + sin(cur_t) * cos(cur_VG_t)))
+     (cos(cur_t) * cos(cur_VG_t) + sin(cur_t) * cos(cur_VG_t)))
     IF(dist < delta) THEN
      delta = dist
      min_point = cur_mgi
@@ -259,30 +245,24 @@ DO cur_prop_cell = 1, n_propgrid
    ! Heureka! We have got the point!
    dyn_cell(cur_prop_cell)%model_index = INT(min_point)
 
-
    IF(cur_r < R_star .or. cur_r > R_inf) THEN
     dyn_cell(cur_prop_cell)%model_index = n_modelgrid + 1
    ELSE IF(dyn_cell(cur_prop_cell)%model_index == 0) THEN
     dyn_cell(cur_prop_cell)%model_index = n_modelgrid + 2
    END IF
 
-  ! it is outside the model grid
    DEALLOCATE(cur_points)
+  ! it is outside the model grid
   ELSE
    dyn_cell(cur_prop_cell)%model_index = n_modelgrid + 1
   END IF ! if inside the modGrid area
  ELSE ! up_cell != 0
    dyn_cell(cur_prop_cell)%model_index = 0
  END IF ! up_cell == 0
- ! write(*,*) 'connect_2D_peku: assoc_cell = ', dyn_cell(cur_prop_cell)%model_index
  IF(dyn_cell(cur_prop_cell)%model_index < 0) THEN
   write(*,*) 'connect_2D_peku: cur_prop_cell = ', cur_prop_cell
   STOP 'model_index < 0'
  END IF
 END DO ! loop over every propGrid cell to calculate associated modGrid cells
-
-! STOP 'connect_2D_peku: testing'
-
-
 
 END SUBROUTINE connect_2D_peku

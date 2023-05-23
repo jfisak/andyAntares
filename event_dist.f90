@@ -176,6 +176,7 @@ DO WHILE (do_loop)
     if(procout) write(*,*) 'event_dist: rpkt_eventtype_lineinteraction'
     ! choosing the line
     CALL r_choose_line(pack_index, actirrates, n_next_lines, nextLine)
+    package(pack_index)%last_line = nextLine
    ! if #02
    END IF
   ELSE
