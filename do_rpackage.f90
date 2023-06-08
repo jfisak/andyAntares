@@ -83,6 +83,7 @@ ELSE
  CALL event_dist(pack_index, cell_dist, e_dist, event, actirrates)
 END IF
 
+if(isnan(package(pack_index)%freq_cmf)) STOP 'do_rpackage: freq is NaN'
 
 IF (e_dist .LT. cell_dist) THEN
  change_of_cell = .FALSE.

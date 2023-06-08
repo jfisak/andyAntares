@@ -63,12 +63,12 @@ OPEN(UNIT=15,status='old', FILE=inputmodelFile)
   model_grid(I)%rwind = radius * 1.D2
   model_grid(I)%angle = angle
   model_grid(I)%vel = velrad * 1.D2
+  if(isnan(velrad)) STOP 'read_2d_model: velrad = NaN'
   model_grid(I)%velang = velang * 1.D2
   model_grid(I)%rho = dens * 1.D-3
   model_grid(I)%T = temp
   model_grid(I)%J = 0.D0
   model_grid(I)%assoc_cells = 0
-  ! write(*,*) 'read_2d_model: I = ', I, ' temp = ', temp
   ALLOCATE(model_grid(I)%grid_comp(n_elements))
   ! now we add informations about every included element for every model cell
   DO J = 1, n_elements
@@ -84,6 +84,10 @@ OPEN(UNIT=15,status='old', FILE=inputmodelFile)
  END DO
  R_inf = MAXVAL(model_grid(:)%rwind)
  ! write(*,*) 'read_2d_model: R_inf = ', R_inf, ' R_star = ', R_star
+ model_grid(n_modelgrid + 1)%vel = 0.D0
+ model_grid(n_modelgrid + 2)%vel = 0.D0
+ model_grid(n_modelgrid + 1)%velang = 0.D0
+ model_grid(n_modelgrid + 2)%velang = 0.D0
 CLOSE(15)
 
 

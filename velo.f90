@@ -13,6 +13,7 @@ DOUBLE PRECISION, DIMENSION(3)    :: vel_vec, pack_position
 INTEGER                           :: pack_mi, get_package_model_index
 DOUBLE PRECISION, DIMENSION(3)    :: vel_rad, vel_ang
 DOUBLE PRECISION                  :: vel_rad_norm, vel_ang_norm
+DOUBLE PRECISION                  :: r_pos
 
 INTEGER                            :: cur_mgi
 
@@ -24,7 +25,10 @@ CASE(0)
  vel_vec = pack_position/vec_length(pack_position) * vel_radial
 ! the beta velocity law
 CASE(1)
+ r_pos = norm2(pack_position)
  vel_radial = V_inf * (1.D0 - R_star / norm2(pack_position))**beta
+ if(r_pos < R_star .or. r_pos > R_inf) vel_radial = 0.D0
+ if(isnan(vel_radial)) STOP 'velo: vel_radial = NaN'
  vel_vec = pack_position/vec_length(pack_position) * vel_radial
 CASE(2)
  cur_mgi = get_package_model_index(pack_index)
