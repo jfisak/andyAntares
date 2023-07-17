@@ -50,7 +50,7 @@ OPEN(38, FILE=inputmodelFile)
   READ(38,*) radius, djunk, velocity, djunk, djunk, density, junk
   model_grid(cur_line)%rwind = radius * R_star
   write(*,*) 'read_1D_araya: r = ', radius * R_star
-  model_grid(cur_line)%vel = velocity * 1.D5 ! [velocity] = km/h
+  model_grid(cur_line)%vel = velocity * 1.D5 ! [velocity] = km/s
   model_grid(cur_line)%rho = density
   model_grid(cur_line)%T = T_eff
   ALLOCATE (model_grid(cur_line)%grid_comp(n_elements))

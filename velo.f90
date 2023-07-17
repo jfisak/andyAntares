@@ -37,7 +37,11 @@ CASE(2)
 ! #03
 ! velocity field given by model in discrete points
 CASE(3)
- CALL vel_discrete_points(pack_index, vel_vec)
+ ! IF(dyn_cell == 0) THEN
+  CALL vel_discrete_points(pack_index, vel_vec)
+ ! ELSE IF(dyn_cell /= 0) THEN
+  ! calc velocity based on precalculated interpolated velocity profiles
+ ! END IF
 CASE DEFAULT
  write(*,*) 'velo: velApprox = ', velApprox
  write(*,*) 'this velocity structure is not known'

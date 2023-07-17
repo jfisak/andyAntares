@@ -411,6 +411,7 @@ CASE(10)
 ! 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CASE(11)
+ write(99,*) '**** INFORMATIONS ABOUT MODEL ****'
  write(99,*) 'R_star = ', R_star/R_sun
  write(99,*) 'R_inf = ', R_inf/R_sun
  write(99,*) 'V_inf = ', V_inf

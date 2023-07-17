@@ -23,34 +23,33 @@ RATES= r_kappa_cont.o r_kappa_line.o i_ion_recomb.o i_radtrans.o i_radion.o i_co
        cool_ff.o cool_ionization.o cool_fb.o 
 ATOMIC=read_levels.o read_transitions.o read_e_nd.o 
 CONNECTION=connection_prop_model_grid.o connect_2D_peku.o
+VELOCITY=velo.o velo_vector.o vel_discrete_points.o vel_interpolation.o
 
 OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o 	  \
           random_unitvector.o ran2.o boundary3.o bound_dist.o \
           change_cell.o move_package.o emit_rpackage.o	\
           init_photsphere.o random_unitvector2.o ran2_class.o save_rates.o\
           random_unitvector1.o doppler_factor.o doppler_factor2.o oct_neighbors.o \
-          vec_length.o velo.o angle_aberration.o freq_from_planck.o lin_interpolation.o \
+          vec_length.o angle_aberration.o freq_from_planck.o lin_interpolation.o \
           do_rpackage.o do_ipackage.o event_dist.o get_package_model_index.o  \
           do_rpackage_event.o update_packages.o do_kpackage.o r_choose_line.o \
           read_composition.o read_populations.o \
           sorting-new.o setup_model_grid.o update_grid.o cmf_freq.o \
           saha_boltzmann_factor.o ionization_fraction.o f_edens.o round_number.o\
           find_e_nd.o part_fun.o update_estimators.o freq_from_file.o rob.o \
-          acc_rej_montecarlo.o virtual_points.o setup_propgrid.o velo_vector.o \
+          acc_rej_montecarlo.o virtual_points.o setup_propgrid.o \
           create_dynamical_grid_cells.o find_dyn_cell1.o do_spectrum.o\
           divide_cell_8.o divide_cell_ijk.o do_dpackage.o \
 	  next_cell_down.o next_cell_up.o populations.o  \
-	  gamma_function.o exp_int_func.o \
-	  find_populations.o propgrid_dist.o\
+	  gamma_function.o exp_int_func.o find_populations.o propgrid_dist.o\
 	  flux_function.o find_element_index.o analyse_input.o \
-	  warning.o calc_tau.o\
-	  check_pop.o \
+	  warning.o calc_tau.o check_pop.o \
 	  save_output.o gauntff.o counters.o saha_factor.o find_photion_elindex.o \
 	  mpi_distribute_estimators.o save_temp_packs.o find_unfinished_run.o \
-	  lte_pops.o photosphere_interaction.o roverw.o vel_discrete_points.o \
+	  lte_pops.o photosphere_interaction.o roverw.o \
           next_line_bluered.o resonance_distance2.o save_propmod_grid.o \
 	  read_propmod_grid.o oct_virtcube.o diffusion_approximation.o d_choosenextcell.o \
-	   $(MODELS) $(RATES) $(ATOMIC) $(MODULES) $(CONNECTION)
+	   $(MODELS) $(RATES) $(ATOMIC) $(MODULES) $(CONNECTION) $(VELOCITY)
 # end of procedures
 
 #Rules

@@ -130,6 +130,9 @@ IF(saved_grid == 1 .and. propmod_file_exists) THEN
 ELSE
  IF(debug == 3) write(*,*) 'setting up model grid'
  CALL setup_model_grid()
+
+ ! save basic parameters of the model grid
+ CALL save_output(11)
  
  ! if model_type == 3 xyzmax are already calculated in setup_model_grid
  IF(model_type /= 3) THEN
@@ -216,6 +219,9 @@ DO iteration = 1,1
  ! if (iteration == 1 .AND. inputpopfile .NE. '') then
  !  CALL read_populations()
  ! end if
+ IF(velApprox == 3 .and. dyngrid > 0) THEN
+  CALL vel_interpolation()
+ END IF
  CALL i_ion_recomb(1)
  IF(iteration == 100) STOP 'too many iteration in the subroutine main'
  write(99,*) 'Update grid finished' 

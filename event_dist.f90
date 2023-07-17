@@ -73,7 +73,6 @@ END DO
  electron_density = model_grid(current_mgi)%e_dens
 
  ! calculates all continuum opacities
- ! write(*,*) 'event_dist: calling r_kappa_cont for a packet = ', pack_index
  CALL r_kappa_cont(pack_index, kappa_cont, actirrates)
  kappa_cont = 0.D0
 
