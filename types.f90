@@ -31,6 +31,12 @@ SAVE
      LOGICAL                         :: redShift
   END TYPE photon
 
+  TYPE virtual_packet
+   DOUBLE PRECISION, DIMENSION(3)       :: pos, dir
+   INTEGER                              :: active
+   DOUBLE PRECISION                     :: freq_rf
+  END TYPE virtual_packet
+
 
   TYPE grid_ion_t
      DOUBLE PRECISION                :: gl_pop, tot_pop
@@ -135,6 +141,7 @@ SAVE
   TYPE(modelgrid), ALLOCATABLE       :: model_grid(:)
   TYPE(dyn_grid_cell), ALLOCATABLE, SAVE   :: dyn_cell(:)   
   TYPE(photon), ALLOCATABLE          :: package(:)
+  TYPE(virtual_packet), ALLOCATABLE  :: vpackage(:)
 
   TYPE(line_list), ALLOCATABLE       :: linelist(:)
   TYPE(atom_elements), ALLOCATABLE   :: elements(:)
@@ -194,6 +201,7 @@ SAVE
   ! Specify minimal size of dynamic cell
   DOUBLE PRECISION, PARAMETER          :: minwidth = 1E8
   ! number of packets which will be saved into a file
+  INTEGER                               :: n_add_pack
   INTEGER                               :: n_pack_save
   ! temporary file name
   CHARACTER(160)                     :: temp_filename = 'temp_packet'

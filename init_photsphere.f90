@@ -92,7 +92,7 @@ USE constants
     package(I)%e_rf = L_star/n_pack  
 
     ! Now convert the energy and frequency to their cmf values
-    CALL doppler_factor(I, D)
+    CALL doppler_factor(I, R_star * direction, direction, D)
     package(I)%freq_cmf = package(I)%freq_rf * D 
     package(I)%e_cmf    = package(I)%e_rf * D  
 

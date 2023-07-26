@@ -160,7 +160,6 @@ IF(Zcollrecom < 0.D0) STOP 'do_ipackage: Zcollrecom < 0'
    !  ' actirates%Lma_int_upcoll(I) = ', actirates%Lma_int_upcoll(I)
  END DO
 
-
  Zintup = Zintuprad + Zintupcoll
  ! an internal ionization sum
  Zionization = Zphotionup + Zcollionup

@@ -9,7 +9,7 @@ DOUBLE PRECISION                                :: l_dist
 DOUBLE PRECISION, DIMENSION(3)                  :: V_pos_vec
 DOUBLE PRECISION                                :: costheta
 DOUBLE PRECISION                                :: dV_pos
-DOUBLE PRECISION                                :: cell_dist
+DOUBLE PRECISION                                :: cell_dist, junk
 INTEGER                                         :: dummypackage, next_cell, pack_index
 
 DOUBLE PRECISION, DIMENSION(3)                  :: cur_pos, cur_dir
@@ -43,7 +43,7 @@ ELSE IF(velapprox == 2) THEN
 ELSE IF(velapprox == 1) THEN
  ! package(dummypackage) = package(pack_index)
  ! CALL emit_rpackage(dummypackage)
- CALL boundary3(pack_index, cell_dist, next_cell)
+ CALL boundary3(pack_index, cell_dist, junk, next_cell)
  ! according to (10) in Abbot & Lucy (1985)
  ! r
  R_pos = norm2(package(dummypackage)%pos)

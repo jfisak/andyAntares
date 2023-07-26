@@ -70,7 +70,10 @@ my_rank = 0
  CALL read_input(n_pack, iseed)
  CALL analyse_input()
  ! Allocate array for photon packages.
- ALLOCATE (package(n_pack + 2))
+ ! n_pack + 1 -- dummypackage
+ ! n_pack + 3 -- virtual package
+ n_add_pack = 3
+ ALLOCATE (package(n_pack + n_add_pack))
  ! write(*,*) 'main: |package| = ', SIZE(package)
 
  CALL find_unfinished_run()
@@ -210,8 +213,8 @@ DO iteration = 1,1
  test_end = (/20*R_star, 0.D0, 0.D0/)
  ! test_freq = 1164084775316555.5 ! Hz
  CALL freq_from_planck(test_freq, T_eff)
- CALL calc_tau(test_pos, test_end, test_freq)
- STOP 'main: testing'
+ ! CALL calc_tau(test_pos, test_end, test_freq)
+ ! STOP 'main: testing'
  ! if (iteration == 1 .AND. inputpopfile .NE. '') then
  !  CALL read_populations()
  ! end if
@@ -258,6 +261,13 @@ DO iteration = 1,1
 #endif
 END DO ! iteration (now of temperature structure)
 ! CLOSE(20)
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! GET THE POSITION DEPENDENT SPECTRUM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CALL brtm()
 
  
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
