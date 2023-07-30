@@ -84,8 +84,9 @@ count_vacuum = 0
       delta = large_number
       DO J = 1, n_modelgrid   
        delta2 = ABS(r - model_grid(J)%rwind)
-       !print*,I,J,r/R_star,model_grid(J)%rwind/R_star,delta2/R_star,delta/R_star
+       write(*,*) I, J, r/R_star, model_grid(J)%rwind/R_star, delta2/R_star, delta/R_star
        IF (delta2 .LT. delta) THEN
+        write(*,*) 'connection_prop_model_grid: delta2 < delta'
         delta = delta2 
         M = J           
        END IF

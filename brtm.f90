@@ -21,6 +21,8 @@ ALLOCATE(vpackage(Nvpackets))
 
 
 cur_vpack = 1
+
+vpackage(cur_vpack)%active = 1
 vpackage(cur_vpack)%pos = obs_point
 vpackage(cur_vpack)%dir = (ccd_point - obs_point)/norm2(ccd_point - obs_point)
 CALL do_vpackage(cur_vpack)

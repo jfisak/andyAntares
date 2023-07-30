@@ -37,15 +37,15 @@ n_cell = (/ nx_cell, ny_cell, nz_cell /)
 
 ! bounds test
 
-IF(pos(1) >= xmax .or. pos(1) <= -xmax) THEN
+IF(pos(1) > xmax .or. pos(1) < -xmax) THEN
  actual_cell = -99
  RETURN
 END IF
-IF(pos(2) >= ymax .or. pos(2) <= -ymax) THEN
+IF(pos(2) > ymax .or. pos(2) < -ymax) THEN
  actual_cell = -99
  RETURN
 END IF
-IF(pos(3) >= zmax .or. pos(3) <= -zmax) THEN
+IF(pos(3) > zmax .or. pos(3) < -zmax) THEN
  actual_cell = -99
  RETURN
 END IF
@@ -55,7 +55,7 @@ bcell(1) = FLOOR(pos(1)/basic_cell_width(1) + dble(nx_cell)/2.D0) + 1
 bcell(2) = FLOOR(pos(2)/basic_cell_width(2) + dble(ny_cell)/2.D0) + 1
 bcell(3) = FLOOR(pos(3)/basic_cell_width(3) + dble(nz_cell)/2.D0) + 1
 
-! write(*,*) 'find_dyn_cell1: bcell = ', bcell
+write(*,*) 'find_dyn_cell1: bcell = ', bcell
 
 ! index of the given basic cell
 bindex = (bcell(1) - 1) * ny_cell * nz_cell + (bcell(2) - 1) * nz_cell + bcell(3)
