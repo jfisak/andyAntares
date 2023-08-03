@@ -21,7 +21,8 @@ MODELS= read_1D_model.o read_2D_model.o read_3D_model.o read_1D_araya.o read_3D_
 RATES= r_kappa_cont.o r_kappa_line.o i_ion_recomb.o i_radtrans.o i_radion.o i_colion.o \
        i_coltrans.o i_freq_recomb.o  k_freq_ff.o k_freq_fb.o read_photcs.o 
 ATOMIC=read_levels.o read_transitions.o read_e_nd.o 
-PACKETS=do_rpackage.o do_ipackage.o do_rpackage_event.o do_kpackage.o do_dpackage.o do_vpackage.o
+PACKETS=do_rpackage.o do_ipackage.o do_rpackage_event.o do_kpackage.o do_dpackage.o \
+ do_vpackage.o packet_dynamics.o
 
 OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o 	  \
           random_unitvector.o ran2.o boundary3.o bound_dist.o \
