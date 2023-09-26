@@ -24,6 +24,8 @@ DOUBLE PRECISION                                :: deriv_min, deriv_pls
 DOUBLE PRECISION, DIMENSION(3)                  :: pos_line
 DOUBLE PRECISION                                :: s_min, s_0, s_pls
 
+dummypackage = SIZE(package) - 3 + 1
+
 IF(velapprox == 0) THEN
  ROverW = R_inf / V_inf
  ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * ROverV &

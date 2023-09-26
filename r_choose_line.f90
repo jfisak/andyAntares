@@ -27,9 +27,10 @@ END DO
 ran_numb = ran2(idum) * tot_lop
 DO I = 1, n_next_lines
  act_line = actirrates%nline(I)
+ write(*,*) 'r_choose_line: I = ', I, ' ran_numb = ', ran_numb, ' summ = ', summ
  IF(ran_numb > summ .AND. ran_numb < summ + actirrates%Lline(I)) THEN
   package(pack_index)%last_line = act_line
-  ! write(*,*) 'event_dist: last_line = ', act_line
+  write(*,*) 'event_dist: last_line = ', act_line
   package(pack_index)%l_ele = linelist(act_line)%indexe
   package(pack_index)%l_ion = linelist(act_line)%indexi
   package(pack_index)%l_lev = linelist(act_line)%upper

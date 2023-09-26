@@ -73,7 +73,7 @@ DO I = 1, nnextlines
  actirrates%Lline(I) = light_speed / fr_line * constanta * &
   f_lu * low_pop * corrFactor * ROverV
 
- ! write(*,*) 'r_kappa_line: f_lu = ', f_lu, 'freq = ', fr_line, ' Blu = ', Blu
+ write(*,*) 'r_kappa_line: f_lu = ', f_lu, 'freq = ', fr_line, ' Blu = ', Blu, ' ROverV = ', ROverV
 
  actirrates%nline(I) = indexline
  

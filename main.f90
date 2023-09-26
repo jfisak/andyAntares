@@ -115,7 +115,7 @@ my_rank = 0
 ! 2 -- packet propagation debugging
 ! 3 -- progress of the calculation procedure
 ! 4 -- rikd packet dynamics
-debug = 0
+debug = 2
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -154,6 +154,7 @@ ELSE
  write(99,*) 'model grid is set up'
  write(99,*) 'setup propagation grid'
  write(99,*) 'xmax = ', xmax/R_star, ' ymax = ', ymax/R_star, ' zmax = ', zmax/R_star
+ ! STOP 'main: testing'
   
  
  ! Set up of the propagation grid

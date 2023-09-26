@@ -61,7 +61,7 @@ END IF
 
  CALL boundary3(pack_index, cell_dist, next_cell)
  cur_mgi = get_package_model_index(pack_index)
-
+ write(*,*) 'do_rpackage: cur_mgi = ', cur_mgi
 
 
 IF(debug == 2) THEN
@@ -72,6 +72,7 @@ END IF
 
 IF(cell_dist == 0.e0) STOP 'do_rpackage: cell_dist == 0'
 
+! write(*,*) 'do_rpackage: cur_mgi = ', cur_mgi
 
 IF (cur_mgi > n_modelgrid) THEN
  ! Package is outside the wind model but still inside the propagation grid qube
@@ -80,7 +81,10 @@ IF (cur_mgi > n_modelgrid) THEN
  e_dist = cell_dist + R_inf
 ELSE
  ! write(*,*) 'do_rpackage: calling event_dist'
- IF(cell_dist > 1.D20) write(*,*) 'do_rpackage: pack_index = ', pack_index, ' cell_dist = ', cell_dist
+ IF(cell_dist > 1.D20) THEN
+  write(*,*) 'do_rpackage: pack_index = ', pack_index, ' cell_dist = ', cell_dist
+  write(*,*) 'do_rpackage: pos = ', norm2(package(pack_index)%pos)/R_inf
+ END IF
  CALL event_dist(pack_index, cell_dist, e_dist, event, actirrates)
 END IF
 

@@ -27,6 +27,7 @@ DOUBLE PRECISION                                :: D! , L_star
 INTEGER                                         :: ind_cell_numb, virt_pack_index
 
 LOGICAL                                         :: seeking, photosphere
+DOUBLE PRECISION, PARAMETER                     :: delta_tecka = 1.D1
 
 ! L_star = 4.D0*pi*(R_star)**2*sigma*T_eff**4
 
@@ -86,8 +87,8 @@ IF(pos(1) < xmin .or. pos(1) > xmax .or. pos(2) < ymin .or. pos(2) > ymax .or. &
     I = I - 1
   END DO
  END DO
- write(*,*) 'do_vpackage: ordered, tecka = ', tecka
- write(*,*) 'do_vpackage: ordered, poser = ', poser
+ ! write(*,*) 'do_vpackage: ordered, tecka = ', tecka
+ ! write(*,*) 'do_vpackage: ordered, poser = ', poser
 
  !_______________________________________________________________________________________
  ! now going through value by value, we are seeking for the cross point with the propGrid
@@ -97,11 +98,11 @@ IF(pos(1) < xmin .or. pos(1) > xmax .or. pos(2) < ymin .or. pos(2) > ymax .or. &
   cur_index = cur_index + 1
   cur_tecka = tecka(cur_index)
   cur_poser = poser(cur_index)
-  cur_pos = pos + cur_tecka * dir
-  write(*,*) 'do_vpackage: dir = ', dir
-  write(*,*) 'do_vpackage: cur_index = ', cur_index, ' cur_tecka = ', cur_tecka
-  write(*,*) 'do_vpackage: cur_poser = ', cur_poser
-  write(*,*) 'do_vpackage: position = ', cur_pos(1)/xmin, cur_pos(2)/ymin, cur_pos(3)/zmin
+  cur_pos = pos + (cur_tecka+delta_tecka) * dir
+  ! write(*,*) 'do_vpackage: dir = ', dir
+  ! write(*,*) 'do_vpackage: cur_index = ', cur_index, ' cur_tecka = ', cur_tecka
+  ! write(*,*) 'do_vpackage: cur_poser = ', cur_poser
+  ! write(*,*) 'do_vpackage: position = ', cur_pos(1)/xmin, cur_pos(2)/ymin, cur_pos(3)/zmin
   
   IF(cur_poser == posx .or. cur_poser == negx) THEN
    IF(cur_pos(2) > ymin .and. cur_pos(2) < ymax .and. &
@@ -126,7 +127,7 @@ IF(pos(1) < xmin .or. pos(1) > xmax .or. pos(2) < ymin .or. pos(2) > ymax .or. &
    END IF
   END IF
 
-  write(*,*) 'do_vpackage: seeking = ', seeking
+  ! write(*,*) 'do_vpackage: seeking = ', seeking
 
   ! nothing was found, the packet flies totally out of the propGrid
   IF(cur_index == 6 .and. seeking .EQV. .true.) THEN
@@ -135,17 +136,20 @@ IF(pos(1) < xmin .or. pos(1) > xmax .or. pos(2) < ymin .or. pos(2) > ymax .or. &
   END IF
 
  END DO
-  write(*,*) 'do_vpackage: active = ', vpackage(cur_vpackage)%active
-  write(*,*) 'do_vpackage: pos = ', vpackage(cur_vpackage)%pos(2)/ymin
+ write(*,*) 'do_vpackage: active = ', vpackage(cur_vpackage)%active
+ write(*,*) 'do_vpackage: pos = ', vpackage(cur_vpackage)%pos(2)/ymin
  
 END IF
+ pos = vpackage(cur_vpackage)%pos
  ! the packet is inside the propagation grid
+write(*,*) 'do_vpackage: pos = ', pos, ' y/ymin = ',pos(2)/ymin, 'y/ymax = ', pos(2)/ymax
 IF(pos(1) >= xmin .and. pos(1) <= xmax .and. pos(2) >= ymin .and. pos(2) <= ymax .and. &
-  pos(3) <= zmin .and. pos(3) <= zmax) THEN
+  pos(3) >= zmin .and. pos(3) <= zmax) THEN
  ! we generate a packet which will be propagatet through the propGrid
  ! transcription of the virtual packet properties to the standard packet properties
  virt_pack_index = SIZE(package) - n_add_pack + 3
  cur_pos = vpackage(cur_vpackage)%pos
+ write(*,*) 'do_vpackage: init pos = ', vpackage(cur_vpackage)%pos/xmax
  cur_dir = vpackage(cur_vpackage)%dir
  package(virt_pack_index)%pos = cur_pos
  package(virt_pack_index)%dir = cur_dir
@@ -172,8 +176,10 @@ IF(pos(1) >= xmin .and. pos(1) <= xmax .and. pos(2) >= ymin .and. pos(2) <= ymax
  package(virt_pack_index)%delta_s = 0.D0
  CALL packet_dynamics(virt_pack_index)
  write(*,*) 'do_vpackage: active = ', package(virt_pack_index)%active
+ write(*,*) 'do_vpackage: end pos = ', vpackage(cur_vpackage)%pos/xmax
 END IF ! packet is inside the propGrid
 
-STOP 'do_vpackage: another loop, just testing'
+
+
 
 END SUBROUTINE do_vpackage

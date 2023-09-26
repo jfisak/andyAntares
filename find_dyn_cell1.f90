@@ -37,6 +37,9 @@ n_cell = (/ nx_cell, ny_cell, nz_cell /)
 
 ! bounds test
 
+
+write(*,*) 'find_dyn_cell1: x/xmax = ', pos(1)/xmax, ' y/ymax = ', pos(2)/ymax, ' z/zmax = ', pos(3)/zmax
+write(*,*) 'find_dyn_cell1: x/xmin = ', pos(1)/xmin, ' y/ymin = ', pos(2)/ymin, ' z/zmin = ', pos(3)/zmin
 IF(pos(1) > xmax .or. pos(1) < -xmax) THEN
  actual_cell = -99
  RETURN
@@ -55,7 +58,17 @@ bcell(1) = FLOOR(pos(1)/basic_cell_width(1) + dble(nx_cell)/2.D0) + 1
 bcell(2) = FLOOR(pos(2)/basic_cell_width(2) + dble(ny_cell)/2.D0) + 1
 bcell(3) = FLOOR(pos(3)/basic_cell_width(3) + dble(nz_cell)/2.D0) + 1
 
-write(*,*) 'find_dyn_cell1: bcell = ', bcell
+! correction for the boundaries
+IF(pos(1) == xmax) THEN
+ bcell(1) = bcell(1) - 1
+END IF
+IF(pos(2) == ymax) THEN
+ bcell(2) = bcell(2) - 1
+END IF
+IF(pos(3) == zmax) THEN
+ bcell(3) = bcell(3) - 1
+END IF
+! write(*,*) 'find_dyn_cell1: bcell = ', bcell
 
 ! index of the given basic cell
 bindex = (bcell(1) - 1) * ny_cell * nz_cell + (bcell(2) - 1) * nz_cell + bcell(3)
