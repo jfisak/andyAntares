@@ -33,7 +33,7 @@ SAVE
 
   TYPE virtual_packet
    DOUBLE PRECISION, DIMENSION(3)       :: pos, dir
-   INTEGER                              :: active
+   INTEGER                              :: active, cell_index
    DOUBLE PRECISION                     :: freq_rf
   END TYPE virtual_packet
 

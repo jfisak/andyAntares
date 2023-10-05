@@ -43,6 +43,7 @@ actirrates = rrates()
 cur_pgi = package(pack_index)%cell_numb
 
 ! write(23,*) package(pack_index)%pos
+pos = package(pack_index)%pos
 
 
 IF(debug == 2) THEN
@@ -55,8 +56,13 @@ IF(debug == 2) THEN
  write(*,*) 'do_rpackage I: cell ending = ', (dyn_cell(cur_pgi)%corner + dyn_cell(cur_pgi)%width)/R_sun
 
  write(*,*) 'do_rpackage I: direction = ', package(pack_index)%dir
+ IF(pack_index == 4) THEN
+  write(98,*) pos/R_sun, dyn_cell(cur_pgi)%corner/R_sun, dyn_cell(cur_pgi)%width
+ END IF
 END IF
 
+write(*,*) 'do_rpackage: pos/R_inf = ', pos/R_inf
+! if(pack_index == 4) STOP 'do_rpackage: testing'
 
 
  CALL boundary3(pack_index, cell_dist, next_cell)

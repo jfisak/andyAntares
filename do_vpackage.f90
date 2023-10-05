@@ -15,7 +15,7 @@ DOUBLE PRECISION, DIMENSION(6)                  :: tecka, poser
 DOUBLE PRECISION, DIMENSION(3)                  :: dist
 DOUBLE PRECISION, DIMENSION(3)                  :: cross_point
 DOUBLE PRECISION, DIMENSION(3)                  :: cur_pos, cur_dir
-INTEGER                                         :: cur_poser
+INTEGER                                         :: cur_poser, cur_pgi
 
 DOUBLE PRECISION                                :: A, dummy, dummy2, cur_tecka
 DOUBLE PRECISION                                :: cur_index
@@ -27,7 +27,7 @@ DOUBLE PRECISION                                :: D! , L_star
 INTEGER                                         :: ind_cell_numb, virt_pack_index
 
 LOGICAL                                         :: seeking, photosphere
-DOUBLE PRECISION, PARAMETER                     :: delta_tecka = 1.D1
+DOUBLE PRECISION, PARAMETER                     :: delta_tecka = 1.D2
 
 ! L_star = 4.D0*pi*(R_star)**2*sigma*T_eff**4
 
@@ -99,6 +99,10 @@ IF(pos(1) < xmin .or. pos(1) > xmax .or. pos(2) < ymin .or. pos(2) > ymax .or. &
   cur_tecka = tecka(cur_index)
   cur_poser = poser(cur_index)
   cur_pos = pos + (cur_tecka+delta_tecka) * dir
+  CALL find_dyn_cell1(cur_pos, cur_pgi)
+  write(*,*) 'do_vpackage: cur_pgi = ', cur_pgi
+  vpackage(cur_vpackage)%cell_index = cur_pgi
+  ! STOP 'do_vpackage: testing'
   ! write(*,*) 'do_vpackage: dir = ', dir
   ! write(*,*) 'do_vpackage: cur_index = ', cur_index, ' cur_tecka = ', cur_tecka
   ! write(*,*) 'do_vpackage: cur_poser = ', cur_poser
@@ -133,20 +137,26 @@ IF(pos(1) < xmin .or. pos(1) > xmax .or. pos(2) < ymin .or. pos(2) > ymax .or. &
   IF(cur_index == 6 .and. seeking .EQV. .true.) THEN
    seeking = .false.
    vpackage(cur_vpackage)%active = -99
+   vpackage(cur_vpackage)%cell_index = cur_pgi
   END IF
 
- END DO
+ END DO ! while seeking
  write(*,*) 'do_vpackage: active = ', vpackage(cur_vpackage)%active
  write(*,*) 'do_vpackage: pos = ', vpackage(cur_vpackage)%pos(2)/ymin
  
 END IF
  pos = vpackage(cur_vpackage)%pos
- ! the packet is inside the propagation grid
+!_______________________________________________________________________________________
+!______________________ INSIDE THE PROPGRID ____________________________________________
+!_______________________________________________________________________________________
+! the packet is inside the propagation grid
 write(*,*) 'do_vpackage: pos = ', pos, ' y/ymin = ',pos(2)/ymin, 'y/ymax = ', pos(2)/ymax
 IF(pos(1) >= xmin .and. pos(1) <= xmax .and. pos(2) >= ymin .and. pos(2) <= ymax .and. &
   pos(3) >= zmin .and. pos(3) <= zmax) THEN
  ! we generate a packet which will be propagatet through the propGrid
  ! transcription of the virtual packet properties to the standard packet properties
+ write(*,*) 'do_vpackage: pos/R_inf = ', pos/R_inf
+ ! STOP 'do_vpackage: testing'
  virt_pack_index = SIZE(package) - n_add_pack + 3
  cur_pos = vpackage(cur_vpackage)%pos
  write(*,*) 'do_vpackage: init pos = ', vpackage(cur_vpackage)%pos/xmax
