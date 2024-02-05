@@ -34,6 +34,9 @@ IF (next_cell .LT. 0) THEN
  count_des_esca = count_des_esca + 1
 ELSE
  package(pack_index)%cell_numb = next_cell
+ IF(debug == 2) THEN
+  write(*,*) 'change_cell: change of cell into: ', next_cell
+ END IF
  IF(next_cell > SIZE(dyn_cell)) THEN
   CALL abort()
  END IF

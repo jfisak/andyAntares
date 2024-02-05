@@ -16,6 +16,7 @@ DOUBLE PRECISION                  :: cell_dist, e_dist, &
 DOUBLE PRECISION, PARAMETER           :: mininum = 1.E1
 INTEGER                                 :: I
 DOUBLE PRECISION, DIMENSION(3)          :: pos, corner, width
+DOUBLE PRECISION, DIMENSION(3)          :: cur_cor, cur_width
 
 INTEGER                                         :: n_thomson
 INTEGER                                         :: cur_mgi
@@ -34,9 +35,9 @@ dummypackage = SIZE(package)
 IF(n_ff /= 0) THEN
 ! nothing to be done in this fork
 ELSE
-  n_ff = 1
-  n_thomson = 1
-  n_tot_cont = n_thomson + n_photcrossect + n_ff
+ n_ff = 1
+ n_thomson = 1
+ n_tot_cont = n_thomson + n_photcrossect + n_ff
 END IF
 actirrates = rrates()
 
@@ -44,6 +45,8 @@ cur_pgi = package(pack_index)%cell_numb
 
 ! write(23,*) package(pack_index)%pos
 pos = package(pack_index)%pos
+cur_cor = dyn_cell(cur_pgi)%corner
+cur_width = dyn_cell(cur_pgi)%width
 
 
 IF(debug == 2) THEN
@@ -51,13 +54,22 @@ IF(debug == 2) THEN
  write(*,*) 'do_rpackage I: pack_index = ', pack_index, ' cur_pgi = ', cur_pgi, ' neigbors = ', dyn_cell(cur_pgi)%neighbor
  write(*,*) 'do_rpackage I: pack_index = ', pack_index, ' bunka = ', pomocna_bunka
  
- write(*,*) 'do_rpackage I: cell starting = ', dyn_cell(cur_pgi)%corner/R_sun
- write(*,*) 'do_rpackage I: packet pos = ', package(pack_index)%pos/R_sun
- write(*,*) 'do_rpackage I: cell ending = ', (dyn_cell(cur_pgi)%corner + dyn_cell(cur_pgi)%width)/R_sun
+ ! write(*,*) 'do_rpackage I: cell starting = ', dyn_cell(cur_pgi)%corner/R_sun
+ write(*,*) 'do_rpackage I: cell starting = ', dyn_cell(cur_pgi)%corner/xmax
+!  write(*,*) 'do_rpackage I: packet pos = ', package(pack_index)%pos/R_sun
+!  write(*,*) 'do_rpackage I: cell ending = ', (dyn_cell(cur_pgi)%corner + dyn_cell(cur_pgi)%width)/R_sun
+ write(*,*) 'do_rpackage I: packet pos = ', package(pack_index)%pos/xmax
+ write(*,*) 'do_rpackage I: cell ending = ', (dyn_cell(cur_pgi)%corner + dyn_cell(cur_pgi)%width)/xmax
 
  write(*,*) 'do_rpackage I: direction = ', package(pack_index)%dir
  IF(pack_index == 4) THEN
   write(98,*) pos/R_sun, dyn_cell(cur_pgi)%corner/R_sun, dyn_cell(cur_pgi)%width
+ END IF
+ IF(pos(1) < cur_cor(1) .or. pos(1) > cur_cor(1) + cur_width(1) .or. &
+  pos(2) < cur_cor(2) .or. pos(2) > cur_cor(2) + cur_width(2) .or. &
+  pos(3) < cur_cor(3) .or. pos(3) > cur_cor(3) + cur_width(3)) THEN
+   write(*,*) 'do_rpackage: the packet is out of the propGrid cell'
+   STOP
  END IF
 END IF
 
@@ -68,6 +80,10 @@ write(*,*) 'do_rpackage: pos/R_inf = ', pos/R_inf
  CALL boundary3(pack_index, cell_dist, next_cell)
  cur_mgi = get_package_model_index(pack_index)
  write(*,*) 'do_rpackage: cur_mgi = ', cur_mgi
+ IF(cell_dist > R_inf) THEN
+  write(*,*) 'do_rpackage: cell_dist = ', cell_dist, ' > R_inf'
+  STOP
+ END IF
 
 
 IF(debug == 2) THEN
@@ -124,9 +140,12 @@ IF(debug == 2) THEN
  width = dyn_cell(cur_pgi)%width
  write(*,*) 'do_rpackage II: pack_index = ', pack_index, ' bunka = ', pomocna_bunka
  write(*,*) 'do_rpackage II: cur_pgi = ', cur_pgi
- write(*,*) 'do_rpackage II: cell starting = ', dyn_cell(cur_pgi)%corner/R_sun
- write(*,*) 'do_rpackage II: packet pos = ', package(pack_index)%pos/R_sun
- write(*,*) 'do_rpackage II: cell ending = ', (dyn_cell(cur_pgi)%corner + dyn_cell(cur_pgi)%width)/R_sun
+ ! write(*,*) 'do_rpackage II: cell starting = ', dyn_cell(cur_pgi)%corner/R_sun
+ ! write(*,*) 'do_rpackage II: packet pos = ', package(pack_index)%pos/R_sun
+ ! write(*,*) 'do_rpackage II: cell ending = ', (dyn_cell(cur_pgi)%corner + dyn_cell(cur_pgi)%width)/R_sun
+ write(*,*) 'do_rpackage II: cell starting = ', dyn_cell(cur_pgi)%corner/xmax
+ write(*,*) 'do_rpackage II: packet pos = ', package(pack_index)%pos/xmax
+ write(*,*) 'do_rpackage II: cell ending = ', (dyn_cell(cur_pgi)%corner + dyn_cell(cur_pgi)%width)/xmax
  write(*,*) 'do_rpackage I: direction = ', package(pack_index)%dir
  DO I = 1,3
   IF((pos(I) < corner(I) - mininum .OR. pos(I) > corner(I) + width(I) + mininum) .and. pack_index /= dummypackage ) THEN
