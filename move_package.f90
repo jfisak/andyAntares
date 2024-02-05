@@ -28,10 +28,11 @@ if(abs(package(pack_index)%pos(1)) < 1e-1) package(pack_index)%pos(1) = 0e0
 if(abs(package(pack_index)%pos(2)) < 1e-1) package(pack_index)%pos(2) = 0e0
 if(abs(package(pack_index)%pos(3)) < 1e-1) package(pack_index)%pos(3) = 0e0
 
-IF(pack_index == 4) THEN
- write(*,*) 'move_package: pack_index = ', pack_index, ' dist = ', package(pack_index)%pos/R_star
- STOP 'move_package: testing'
-END IF
+! write(*,*) 'move_package: pack_index = ', pack_index, ' pos/R* = ', package(pack_index)%pos/R_star
+! IF(pack_index == 4) THEN
+!  write(*,*) 'move_package: pack_index = ', pack_index, ' pos/R* = ', package(pack_index)%pos/R_star
+!  STOP 'move_package: testing'
+! END IF
 
 ! Deactivate packets which travel beyond the photosphere
 IF ((vec_length(package(pack_index)%pos) < R_star) .AND. (pack_index .NE. dummypackage)) THEN

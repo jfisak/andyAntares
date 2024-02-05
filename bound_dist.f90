@@ -143,6 +143,9 @@ IF(forbidden == -99 .and. n_pos > 3) THEN
  END IF
 END IF
 
+! this part returns negative number if more than three distances are negative
+! it means that the packet is located in the neighboring cell and its direction has been
+! changed
 IF(n_neg > 3) THEN
  dist = velkeCislo
  ! calculation of perpendicular distance to propGrid cell surfaces
@@ -179,8 +182,9 @@ IF(n_neg > 3) THEN
  dist = -dist
 END IF
 
-IF(n_zer == 1 .and. n_pos < 3 .and. n_zer == 0) THEN
- dist = -1.0
+! if the packet is located on the boundary of propGrid cells, we can se the forbidden cross
+IF(n_zer == 1 .and. n_pos < 3) THEN
+ ! dist = -1.0
  IF(t1 == 0.0) package(pack_index)%next_cross = negx
  IF(t2 == 0.0) package(pack_index)%next_cross = negy
  IF(t3 == 0.0) package(pack_index)%next_cross = negz
@@ -190,9 +194,12 @@ IF(n_zer == 1 .and. n_pos < 3 .and. n_zer == 0) THEN
 END IF
 
 IF(debug == 2) THEN
+ write(*,*) 'bound_dist: posx - bx = ', (pos(1) - (corner(1) + width(1)))/R_star
  write(*,*) 'bound_dist: n_pos = ', n_pos, ' n_neg = ', n_neg
- write(*,*) 'bound_dist: t1 = ', t1, ' t2 = ', t2, ' t3 = ', t3, ' t4 = ', t4, ' t5 = ', t5, ' t6 = ', t6
- write(*,*) 'bound_dist: dist = ', dist
+ write(*,*) 'bound_dist: n_zer = ', n_zer, ' n_par = ', n_par
+ write(*,*) 'bound_dist: t1 = ', t1/R_star, ' t2 = ', t2/R_star, ' t3 = ', t3/R_star, &
+   ' t4 = ', t4/R_star, ' t5 = ', t5/R_star, 't6 = ', t6/R_star
+ write(*,*) 'bound_dist: dist = ', dist/R_star, ' forbidden = ', forbidden
 END IF
 
 

@@ -62,9 +62,7 @@ IF(debug == 2) THEN
  write(*,*) 'do_rpackage I: cell ending = ', (dyn_cell(cur_pgi)%corner + dyn_cell(cur_pgi)%width)/xmax
 
  write(*,*) 'do_rpackage I: direction = ', package(pack_index)%dir
- IF(pack_index == 4) THEN
-  write(98,*) pos/R_sun, dyn_cell(cur_pgi)%corner/R_sun, dyn_cell(cur_pgi)%width
- END IF
+ write(98,*) pos/R_sun, dyn_cell(cur_pgi)%corner/R_sun, dyn_cell(cur_pgi)%width
  IF(pos(1) < cur_cor(1) .or. pos(1) > cur_cor(1) + cur_width(1) .or. &
   pos(2) < cur_cor(2) .or. pos(2) > cur_cor(2) + cur_width(2) .or. &
   pos(3) < cur_cor(3) .or. pos(3) > cur_cor(3) + cur_width(3)) THEN
@@ -73,7 +71,6 @@ IF(debug == 2) THEN
  END IF
 END IF
 
-write(*,*) 'do_rpackage: pos/R_inf = ', pos/R_inf
 ! if(pack_index == 4) STOP 'do_rpackage: testing'
 
 
@@ -110,6 +107,7 @@ ELSE
  CALL event_dist(pack_index, cell_dist, e_dist, event, actirrates)
 END IF
 
+write(*,*) 'do_rpackage: e_dist = ', e_dist, ' cell_dist = ', cell_dist
 
 IF (e_dist .LT. cell_dist) THEN
  change_of_cell = .FALSE.

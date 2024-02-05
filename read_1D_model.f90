@@ -249,9 +249,9 @@ SELECT CASE (inputModel)
     END DO
    END DO
   R_inf  = model_grid(1)%rwind
-  write(*,*) 'read_1D_model: R_inf = ', R_inf / R_star
+  ! write(*,*) 'read_1D_model: R_inf = ', R_inf / R_star
   V_inf  = model_grid(1)%vel
-  write(99,*) 'read_1D_model: R_star = ', R_star, ' R_inf = ', R_inf
+  ! write(99,*) 'read_1D_model: R_star = ', R_star, ' R_inf = ', R_inf
   ! Dummy cell to associate to propagation grid cells which have no
   ! representation on the model grid. All cells out of model grid
   ! set to 0 and associate to n_modelgrid. Other cells will obtainde
