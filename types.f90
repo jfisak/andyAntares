@@ -28,7 +28,7 @@ SAVE
      INTEGER                         :: n_interactions
      DOUBLE PRECISION, DIMENSION(3)  :: pos, dir 
      INTEGER                         :: l_ele, l_ion, l_lev, n_int = 0
-     LOGICAL                         :: redShift
+     LOGICAL                         :: redShift, virtual
   END TYPE photon
 
   TYPE virtual_packet
@@ -171,6 +171,10 @@ SAVE
   INTEGER, PARAMETER                 :: type_kpkt=1
   INTEGER, PARAMETER                 :: type_ipkt=2
   INTEGER, PARAMETER                 :: type_dpkt=3
+  INTEGER, PARAMETER                 :: type_vrpkt=4
+  INTEGER, PARAMETER                 :: type_vkpkt=5
+  INTEGER, PARAMETER                 :: type_vipkt=6
+  INTEGER, PARAMETER                 :: type_vdpkt=7
 
   INTEGER, PARAMETER                 :: rpkt_eventtype_changecell=1
   INTEGER, PARAMETER                 :: rpkt_eventtype_lineinteraction=2

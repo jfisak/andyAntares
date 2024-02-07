@@ -18,8 +18,6 @@ LOGICAL                           :: change
 
 dummypackage = SIZE(package)
 
-! write(*,*) 'move_package: pack_index = ', pack_index, ' dist = ', dist/R_star
-
 ! Calculate the position of package
 package(pack_index)%pos(1) = package(pack_index)%pos(1) + dist * package(pack_index)%dir(1) 
 package(pack_index)%pos(2) = package(pack_index)%pos(2) + dist * package(pack_index)%dir(2) 
@@ -35,7 +33,7 @@ if(abs(package(pack_index)%pos(3)) < 1e-1) package(pack_index)%pos(3) = 0e0
 ! END IF
 
 ! Deactivate packets which travel beyond the photosphere
-IF ((vec_length(package(pack_index)%pos) < R_star) .AND. (pack_index .NE. dummypackage)) THEN
+IF ((NORM2(package(pack_index)%pos) < R_star) .AND. (pack_index .NE. dummypackage)) THEN
  IF(abs_surface >= 1) THEN
   CALL photosphere_interaction(pack_index)
   dist = 0.0

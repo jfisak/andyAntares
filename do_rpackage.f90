@@ -48,18 +48,17 @@ pos = package(pack_index)%pos
 cur_cor = dyn_cell(cur_pgi)%corner
 cur_width = dyn_cell(cur_pgi)%width
 
-
 IF(debug == 2) THEN
  CALL find_dyn_cell1(package(pack_index)%pos, pomocna_bunka)
  write(*,*) 'do_rpackage I: pack_index = ', pack_index, ' cur_pgi = ', cur_pgi, ' neigbors = ', dyn_cell(cur_pgi)%neighbor
  write(*,*) 'do_rpackage I: pack_index = ', pack_index, ' bunka = ', pomocna_bunka
  
  ! write(*,*) 'do_rpackage I: cell starting = ', dyn_cell(cur_pgi)%corner/R_sun
- write(*,*) 'do_rpackage I: cell starting = ', dyn_cell(cur_pgi)%corner/xmax
+ write(*,*) 'do_rpackage I: cell starting = ', dyn_cell(cur_pgi)%corner/R_star
 !  write(*,*) 'do_rpackage I: packet pos = ', package(pack_index)%pos/R_sun
 !  write(*,*) 'do_rpackage I: cell ending = ', (dyn_cell(cur_pgi)%corner + dyn_cell(cur_pgi)%width)/R_sun
- write(*,*) 'do_rpackage I: packet pos = ', package(pack_index)%pos/xmax
- write(*,*) 'do_rpackage I: cell ending = ', (dyn_cell(cur_pgi)%corner + dyn_cell(cur_pgi)%width)/xmax
+ write(*,*) 'do_rpackage I: packet pos = ', package(pack_index)%pos/R_star
+ write(*,*) 'do_rpackage I: cell ending = ', (dyn_cell(cur_pgi)%corner + dyn_cell(cur_pgi)%width)/R_star
 
  write(*,*) 'do_rpackage I: direction = ', package(pack_index)%dir
  write(98,*) pos/R_sun, dyn_cell(cur_pgi)%corner/R_sun, dyn_cell(cur_pgi)%width
@@ -76,10 +75,12 @@ END IF
 
  CALL boundary3(pack_index, cell_dist, next_cell)
  cur_mgi = get_package_model_index(pack_index)
- write(*,*) 'do_rpackage: cur_mgi = ', cur_mgi
- IF(cell_dist > R_inf) THEN
+ IF((cell_dist > R_inf) .and. (package(pack_index)%virtual .EQV. .FALSE.)) THEN
   write(*,*) 'do_rpackage: cell_dist = ', cell_dist, ' > R_inf'
+  write(*,*) 'exiting now'
   STOP
+ ELSE IF((cell_dist > R_inf) .and. (package(pack_index)%virtual .EQV. .TRUE.)) THEN
+  package(pack_index)%active = 0
  END IF
 
 
@@ -106,8 +107,6 @@ ELSE
  END IF
  CALL event_dist(pack_index, cell_dist, e_dist, event, actirrates)
 END IF
-
-write(*,*) 'do_rpackage: e_dist = ', e_dist, ' cell_dist = ', cell_dist
 
 IF (e_dist .LT. cell_dist) THEN
  change_of_cell = .FALSE.
@@ -141,9 +140,9 @@ IF(debug == 2) THEN
  ! write(*,*) 'do_rpackage II: cell starting = ', dyn_cell(cur_pgi)%corner/R_sun
  ! write(*,*) 'do_rpackage II: packet pos = ', package(pack_index)%pos/R_sun
  ! write(*,*) 'do_rpackage II: cell ending = ', (dyn_cell(cur_pgi)%corner + dyn_cell(cur_pgi)%width)/R_sun
- write(*,*) 'do_rpackage II: cell starting = ', dyn_cell(cur_pgi)%corner/xmax
- write(*,*) 'do_rpackage II: packet pos = ', package(pack_index)%pos/xmax
- write(*,*) 'do_rpackage II: cell ending = ', (dyn_cell(cur_pgi)%corner + dyn_cell(cur_pgi)%width)/xmax
+ write(*,*) 'do_rpackage II: cell starting = ', dyn_cell(cur_pgi)%corner/R_star
+ write(*,*) 'do_rpackage II: packet pos = ', package(pack_index)%pos/R_star
+ write(*,*) 'do_rpackage II: cell ending = ', (dyn_cell(cur_pgi)%corner + dyn_cell(cur_pgi)%width)/R_star
  write(*,*) 'do_rpackage I: direction = ', package(pack_index)%dir
  DO I = 1,3
   IF((pos(I) < corner(I) - mininum .OR. pos(I) > corner(I) + width(I) + mininum) .and. pack_index /= dummypackage ) THEN

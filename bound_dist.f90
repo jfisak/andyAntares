@@ -114,6 +114,8 @@ IF( (t6 > 0.e0) .AND. (t6 < dist)  .AND. forbidden /= negz) THEN
  package(pack_index)%next_cross = posz
 END IF
 
+write(*,*) 'bound_dist: calculated dist = ', dist, 'next_cross = ', package(pack_index)%next_cross
+
 IF(forbidden == -99 .and. n_pos > 3) THEN
  mindist = dist
  dist = velkeCislo
@@ -182,16 +184,21 @@ IF(n_neg > 3) THEN
  dist = -dist
 END IF
 
-! if the packet is located on the boundary of propGrid cells, we can se the forbidden cross
-IF(n_zer == 1 .and. n_pos < 3) THEN
- ! dist = -1.0
- IF(t1 == 0.0) package(pack_index)%next_cross = negx
- IF(t2 == 0.0) package(pack_index)%next_cross = negy
- IF(t3 == 0.0) package(pack_index)%next_cross = negz
- IF(t4 == 0.0) package(pack_index)%next_cross = posx
- IF(t5 == 0.0) package(pack_index)%next_cross = posy
- IF(t6 == 0.0) package(pack_index)%next_cross = posz
+! the packet is in the edge or in the corner of the propGrid cells
+IF(n_zer > 1 .and. forbidden == -99) THEN
+ CALL formal_change_cell(pack_index, t1, t2, t3, t4, t5, t6)
 END IF
+
+! if the packet is located on the boundary of propGrid cells, we can se the forbidden cross
+! IF(n_zer == 1 .and. n_pos < 3) THEN
+!  ! dist = -1.0
+!  IF(t1 == 0.0) package(pack_index)%next_cross = posx
+!  IF(t2 == 0.0) package(pack_index)%next_cross = posy
+!  IF(t3 == 0.0) package(pack_index)%next_cross = posz
+!  IF(t4 == 0.0) package(pack_index)%next_cross = negx
+!  IF(t5 == 0.0) package(pack_index)%next_cross = negy
+!  IF(t6 == 0.0) package(pack_index)%next_cross = negz
+! END IF
 
 IF(debug == 2) THEN
  write(*,*) 'bound_dist: posx - bx = ', (pos(1) - (corner(1) + width(1)))/R_star

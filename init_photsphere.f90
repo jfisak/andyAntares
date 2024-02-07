@@ -87,6 +87,7 @@ USE constants
     package(I)%typ        = type_rpkt
     package(I)%n_interactions = 0
     package(I)%next_cross = NONE
+    package(I)%virtual = .FALSE.
 
     ! Assign rf energy and frequency to the packet
     package(I)%e_rf = L_star/n_pack  
