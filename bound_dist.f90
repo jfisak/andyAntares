@@ -18,6 +18,7 @@ INTEGER                         :: forbidden
 DOUBLE PRECISION, PARAMETER     :: minie = 1e1
 
 INTEGER                         :: n_pos, n_neg, n_zer, n_par
+INTEGER                         :: next_cross
 
 DOUBLE PRECISION, PARAMETER     :: velkeCislo = 1.D99
 DOUBLE PRECISION                :: mindist
@@ -185,8 +186,69 @@ IF(n_neg > 3) THEN
 END IF
 
 ! the packet is in the edge or in the corner of the propGrid cells
-IF(n_zer > 1 .and. forbidden == -99) THEN
- CALL formal_change_cell(pack_index, t1, t2, t3, t4, t5, t6)
+IF(n_zer > 1) THEN
+ next_cross = package(pack_index)%next_cross
+ IF((t2 == 0.D0 .or. t5 == 0) .and. (t3 == 0.D0 .or. t6 == 0)) THEN
+  IF(next_cross == posx) THEN
+   package(pack_index)%next_cross = edyz_xp
+   forbidden = negx
+  ELSE IF(next_cross == posy) THEN
+   package(pack_index)%next_cross = edyz_yp
+   forbidden = negy
+  ELSE IF(next_cross == posz) THEN
+   package(pack_index)%next_cross = edyz_zp
+   forbidden = negz
+  ELSE IF(next_cross == negx) THEN
+   package(pack_index)%next_cross = edyz_xn
+   forbidden = posx
+  ELSE IF(next_cross == negy) THEN
+   package(pack_index)%next_cross = edyz_yn
+   forbidden = posy
+  ELSE IF(next_cross == negz) THEN
+   package(pack_index)%next_cross = edyz_zn
+   forbidden = posz
+  END IF
+ ELSE IF((t1 == 0.D0 .or. t4 == 0) .and. (t3 == 0.D0 .or. t6 == 0)) THEN
+  IF(next_cross == posx) THEN
+   package(pack_index)%next_cross = edxz_xp
+   forbidden = negx
+  ELSE IF(next_cross == posy) THEN
+   package(pack_index)%next_cross = edxz_yp
+   forbidden = negy
+  ELSE IF(next_cross == posz) THEN
+   package(pack_index)%next_cross = edxz_zp
+   forbidden = negz
+  ELSE IF(next_cross == negx) THEN
+   package(pack_index)%next_cross = edxz_xn
+   forbidden = posx
+  ELSE IF(next_cross == negy) THEN
+   package(pack_index)%next_cross = edxz_yn
+   forbidden = posy
+  ELSE IF(next_cross == negz) THEN
+   package(pack_index)%next_cross = edxz_zn
+   forbidden = posz
+  END IF
+ ELSE IF((t1 == 0.D0 .or. t4 == 0) .and. (t2 == 0.D0 .or. t5 == 0)) THEN
+  IF(next_cross == posx) THEN
+   package(pack_index)%next_cross = edxy_xp
+   forbidden = negx
+  ELSE IF(next_cross == posy) THEN
+   package(pack_index)%next_cross = edxy_yp
+   forbidden = negy
+  ELSE IF(next_cross == posz) THEN
+   package(pack_index)%next_cross = edxy_zp
+   forbidden = negz
+  ELSE IF(next_cross == negx) THEN
+   package(pack_index)%next_cross = edxy_xn
+   forbidden = posx
+  ELSE IF(next_cross == negy) THEN
+   package(pack_index)%next_cross = edxy_yn
+   forbidden = posy
+  ELSE IF(next_cross == negz) THEN
+   package(pack_index)%next_cross = edxy_zn
+   forbidden = posz
+  END IF
+ END IF
 END IF
 
 ! if the packet is located on the boundary of propGrid cells, we can se the forbidden cross
@@ -201,7 +263,6 @@ END IF
 ! END IF
 
 IF(debug == 2) THEN
- write(*,*) 'bound_dist: posx - bx = ', (pos(1) - (corner(1) + width(1)))/R_star
  write(*,*) 'bound_dist: n_pos = ', n_pos, ' n_neg = ', n_neg
  write(*,*) 'bound_dist: n_zer = ', n_zer, ' n_par = ', n_par
  write(*,*) 'bound_dist: t1 = ', t1/R_star, ' t2 = ', t2/R_star, ' t3 = ', t3/R_star, &
