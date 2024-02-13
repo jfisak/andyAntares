@@ -187,24 +187,9 @@ SAVE
   INTEGER, PARAMETER                 :: negy=4
   INTEGER, PARAMETER                 :: posz=5
   INTEGER, PARAMETER                 :: negz=6
-  INTEGER, PARAMETER                 :: edxy_xn=7
-  INTEGER, PARAMETER                 :: edxy_xp=8
-  INTEGER, PARAMETER                 :: edxy_yn=9
-  INTEGER, PARAMETER                 :: edxy_yp=10
-  INTEGER, PARAMETER                 :: edxy_zn=11
-  INTEGER, PARAMETER                 :: edxy_zp=12
-  INTEGER, PARAMETER                 :: edxz_xn=13
-  INTEGER, PARAMETER                 :: edxz_xp=14
-  INTEGER, PARAMETER                 :: edxz_yn=15
-  INTEGER, PARAMETER                 :: edxz_yp=16
-  INTEGER, PARAMETER                 :: edxz_zn=17
-  INTEGER, PARAMETER                 :: edxz_zp=18
-  INTEGER, PARAMETER                 :: edyz_xn=19
-  INTEGER, PARAMETER                 :: edyz_xp=20
-  INTEGER, PARAMETER                 :: edyz_yn=21
-  INTEGER, PARAMETER                 :: edyz_yp=22
-  INTEGER, PARAMETER                 :: edyz_zn=23
-  INTEGER, PARAMETER                 :: edyz_zp=24
+  INTEGER, PARAMETER                 :: edxy=7
+  INTEGER, PARAMETER                 :: edxz=8
+  INTEGER, PARAMETER                 :: edyz=9
   INTEGER, PARAMETER                 :: NONE = -99
   INTEGER, PARAMETER                 :: no_line = -99
 

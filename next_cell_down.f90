@@ -28,25 +28,21 @@ IF(cross <= 0 ) THEN
  IF(cross < 0) STOP 'next_cell_down: next cross is impossible to find'
 END IF
 
-write(*,*) 'next_cell_down: pack_index = ', pack_index, ' n = ', package(pack_index)%dir
-write(*,*) 'next_cell_down: cross = ', cross
-IF(cross > 6) THEN
- CALL formal_change_cell(pack_index, next_cell)
-ELSE ! cross > 6
- DO
-  n_cell = dyn_cell(act_cell)%neighbor(cross)
-  IF(n_cell == 0) THEN
-   IF(dyn_cell(act_cell)%down_cell == 0) STOP 'next_cell: no cell was found'
-   act_cell = dyn_cell(act_cell)%down_cell
-  ELSE 
-   next_cell = n_cell
-   IF(next_cell > SIZE(dyn_cell)) THEN
-    write(*,*) 'next_cell_down: next_cell = ', next_cell, ' > number of propGrid cells = ', SIZE(dyn_cell)
-    CALL abort()
-   END IF
-   EXIT
+! write(*,*) 'next_cell_down: pack_index = ', pack_index, ' n = ', package(pack_index)%dir
+! write(*,*) 'next_cell_down: cross = ', cross
+DO
+ n_cell = dyn_cell(act_cell)%neighbor(cross)
+ IF(n_cell == 0) THEN
+  IF(dyn_cell(act_cell)%down_cell == 0) STOP 'next_cell: no cell was found'
+  act_cell = dyn_cell(act_cell)%down_cell
+ ELSE 
+  next_cell = n_cell
+  IF(next_cell > SIZE(dyn_cell)) THEN
+   write(*,*) 'next_cell_down: next_cell = ', next_cell, ' > number of propGrid cells = ', SIZE(dyn_cell)
+   CALL abort()
   END IF
- END DO
-END IF ! cross > 6
+  EXIT
+ END IF
+END DO
 
 END SUBROUTINE next_cell_down

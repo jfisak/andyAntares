@@ -43,7 +43,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o 	  \
 	  gamma_function.o exp_int_func.o cool_excit.o \
 	  find_populations.o propgrid_dist.o\
 	  flux_function.o find_element_index.o analyse_input.o \
-	  cool_ff.o warning.o calc_tau.o formal_change_cell.o\
+	  cool_ff.o warning.o calc_tau.o\
 	  cool_ionization.o cool_fb.o check_pop.o \
 	  save_output.o gauntff.o counters.o saha_factor.o find_photion_elindex.o \
 	  mpi_distribute_estimators.o save_temp_packs.o find_unfinished_run.o \

@@ -23,7 +23,7 @@ INTEGER                                         :: cur_mgi
 !INTEGER                                         :: n_tot_cont
 TYPE(rrates)                                    :: actirrates
 INTEGER                                         :: pomocna_bunka, cur_pgi
-INTEGER                                 :: dummypackage
+INTEGER                                 :: dummypackage, next_cross
 ! free free
 
 LOGICAL                                 :: change_of_cell
@@ -75,6 +75,10 @@ END IF
 
  CALL boundary3(pack_index, cell_dist, next_cell)
  cur_mgi = get_package_model_index(pack_index)
+ next_cross = package(pack_index)%next_cross
+
+
+
  IF((cell_dist > R_inf) .and. (package(pack_index)%virtual .EQV. .FALSE.)) THEN
   write(*,*) 'do_rpackage: cell_dist = ', cell_dist, ' > R_inf'
   write(*,*) 'exiting now'
@@ -115,6 +119,7 @@ IF (e_dist .LT. cell_dist) THEN
  IF(e_dist > 0.D0) THEN
   CALL update_estimators(pack_index, e_dist)
   CALL do_rpackage_event(pack_index, event, actirrates)
+ ! this is an exception when the zero distance is calculated
  ELSE IF (e_dist == 0.0) THEN
   CALL bound_dist(pack_index, cur_pgi, cell_dist)
  END IF
@@ -123,9 +128,20 @@ ELSE IF(e_dist > cell_dist .and. cell_dist > 0.e0) THEN
  change_of_cell = .TRUE.
  CALL move_package(pack_index, cell_dist, next_cell, change_of_cell)
  CALL update_estimators(pack_index, cell_dist)
-ELSE IF(cell_dist < 0.e0) THEN
+ELSE IF((cell_dist < 0.e0) .and. (next_cross <= 6) .and. (next_cross >=1)) THEN
  ! next_cell = dyn_cell(cur_pgi)%neighbor(package(pack_index)%next_cross)
  CALL change_cell(pack_index, next_cell)
+ELSE IF((cell_dist < 0.e0) .and. (next_cross > 6)) THEN
+ IF(next_cross == edyz) THEN
+  ! move packet to with the vector (0,1,1)
+  package(pack_index)%pos = package(pack_index)%pos + (/0.D0,1.D0,1.D0/)
+ ELSE IF(next_cross == edxz) THEN
+  ! move packet to with the vector (1,0,1)
+  package(pack_index)%pos = package(pack_index)%pos + (/1.D0,0.D0,1.D0/)
+ ELSE IF(next_cross == edxy) THEN
+  ! move packet to with the vector (0,1,1)
+  package(pack_index)%pos = package(pack_index)%pos + (/1.D0,1.D0,0.D0/)
+ END IF
 END IF
 
 ! check if we are in a correct cell
@@ -145,7 +161,7 @@ IF(debug == 2) THEN
  write(*,*) 'do_rpackage II: cell ending = ', (dyn_cell(cur_pgi)%corner + dyn_cell(cur_pgi)%width)/R_star
  write(*,*) 'do_rpackage I: direction = ', package(pack_index)%dir
  DO I = 1,3
-  IF((pos(I) < corner(I) - mininum .OR. pos(I) > corner(I) + width(I) + mininum) .and. pack_index /= dummypackage ) THEN
+  IF((pos(I) <= corner(I) - mininum .OR. pos(I) >= corner(I) + width(I) + mininum) .and. pack_index /= dummypackage ) THEN
    CALL find_dyn_cell1(pos, pomocna_bunka)
    write(*,*) 'do_rpackage: skutecna bunka = ', pomocna_bunka
    write(4,*) pos, dyn_cell(cur_pgi)%corner, dyn_cell(cur_pgi)%width, get_package_model_index(pack_index)
