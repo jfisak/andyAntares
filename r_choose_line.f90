@@ -38,6 +38,7 @@ DO I = 1, n_next_lines
   package(pack_index)%l_ele = linelist(act_line)%indexe
   package(pack_index)%l_ion = linelist(act_line)%indexi
   package(pack_index)%l_lev = linelist(act_line)%upper
+  package(pack_index)%last_line = act_line
   ! write(*,*) 'event_dist: #1 chosen line = ', act_line
   EXIT
  END IF

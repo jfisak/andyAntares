@@ -1,3 +1,4 @@
+! a basic sbr for the initialization of the backward ray tracing method
 SUBROUTINE brtm()
 
 USE types
@@ -6,13 +7,17 @@ IMPLICIT NONE
 
 DOUBLE PRECISION, DIMENSION(3)                          :: obs_point, ccd_point
 INTEGER                                                 :: cur_vpack
-INTEGER, PARAMETER                                      :: Nvpackets = 100
+INTEGER, PARAMETER                                      :: Nvpackets = 1000000
 ! number of packet flown into the photosphere
 INTEGER                                                 :: n_inside, n_outside
 DOUBLE PRECISION, DIMENSION(3)                          :: cur_pos
 DOUBLE PRECISION                                        :: wale_start, wale_end
 DOUBLE PRECISION                                        :: nu_min, nu_max, ran_freq
 DOUBLE PRECISION                                        :: ran2
+
+DOUBLE PRECISION, DIMENSION(n_nubin)                    :: cur_spectrum, freqs
+
+INTEGER                                                 :: I
 
 wale_start = 200   ! in Angstroms
 wale_end = 20000   ! in Angstroms
@@ -69,11 +74,21 @@ DO cur_vpack = 1, Nvpackets
  ! counting number of packets flown into the photosphere
  IF(norm2(cur_pos) < R_star) THEN
   n_inside = n_inside + 1
+  package(cur_vpack)%typ = type_photosphere
  ELSE
   n_outside = n_outside + 1
+  package(cur_vpack)%typ = type_escaped
  END IF
+ 
+
 END DO ! a loop over virtual packets
 
+CALL do_brtm_spectrum(Nvpackets, nu_min, nu_max, freqs, cur_spectrum)
+
 write(*,*) 'brtm: n_inside = ', n_inside, 'n_outside = ', n_outside
+
+DO I = 1, n_nubin
+ write(39,*) freqs(I), cur_spectrum(I)
+END DO
 
 END SUBROUTINE brtm

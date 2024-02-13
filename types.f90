@@ -167,6 +167,7 @@ SAVE
 ! Globally defined numerical constants 
 !! Different packet types
   INTEGER, PARAMETER                 :: type_escaped=-99 
+  INTEGER, PARAMETER                 :: type_photosphere=99
   INTEGER, PARAMETER                 :: type_rpkt=0 
   INTEGER, PARAMETER                 :: type_kpkt=1
   INTEGER, PARAMETER                 :: type_ipkt=2

@@ -23,6 +23,7 @@ RATES= r_kappa_cont.o r_kappa_line.o i_ion_recomb.o i_radtrans.o i_radion.o i_co
 ATOMIC=read_levels.o read_transitions.o read_e_nd.o 
 PACKETS=do_rpackage.o do_ipackage.o do_rpackage_event.o do_kpackage.o do_dpackage.o \
  do_vpackage.o packet_dynamics.o
+SPECTRA=do_brtm_spectrum.o do_spectrum.o
 
 OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o 	  \
           random_unitvector.o ran2.o boundary3.o bound_dist.o \
@@ -37,7 +38,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o 	  \
           saha_boltzmann_factor.o ionization_fraction.o f_edens.o round_number.o\
           find_e_nd.o part_fun.o update_estimators.o freq_from_file.o rob.o \
           acc_rej_montecarlo.o virtual_points.o setup_propgrid.o velo_vector.o \
-          create_dynamical_grid_cells.o find_dyn_cell1.o do_spectrum.o\
+          create_dynamical_grid_cells.o find_dyn_cell1.o \
           connection_prop_model_grid.o divide_cell_8.o divide_cell_ijk.o \
 	  next_cell_down.o next_cell_up.o populations.o  \
 	  gamma_function.o exp_int_func.o cool_excit.o \
@@ -50,7 +51,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o 	  \
 	  lte_pops.o photosphere_interaction.o roverw.o vel_discrete_points.o \
           next_line_bluered.o resonance_distance2.o save_propmod_grid.o \
 	  read_propmod_grid.o oct_virtcube.o diffusion_approximation.o d_choosenextcell.o \
-	   $(MODELS) $(RATES) $(ATOMIC) $(MODULES) $(PACKETS)
+	   $(MODELS) $(RATES) $(ATOMIC) $(MODULES) $(PACKETS) $(SPECTRA)
 # end of procedures
 
 #Rules

@@ -100,7 +100,7 @@ IF(pos(1) < xmin .or. pos(1) > xmax .or. pos(2) < ymin .or. pos(2) > ymax .or. &
   cur_poser = poser(cur_index)
   cur_pos = pos + (cur_tecka+delta_tecka) * dir
   CALL find_dyn_cell1(cur_pos, cur_pgi)
-  write(*,*) 'do_vpackage: cur_pgi = ', cur_pgi
+  ! write(*,*) 'do_vpackage: cur_pgi = ', cur_pgi
   package(cur_vpackage)%cell_numb = cur_pgi
   ! STOP 'do_vpackage: testing'
   ! write(*,*) 'do_vpackage: dir = ', dir
@@ -141,8 +141,8 @@ IF(pos(1) < xmin .or. pos(1) > xmax .or. pos(2) < ymin .or. pos(2) > ymax .or. &
   END IF
 
  END DO ! while seeking
- write(*,*) 'do_vpackage: active = ', package(cur_vpackage)%active
- write(*,*) 'do_vpackage: pos = ', package(cur_vpackage)%pos(2)/ymin
+ ! write(*,*) 'do_vpackage: active = ', package(cur_vpackage)%active
+ ! write(*,*) 'do_vpackage: pos = ', package(cur_vpackage)%pos(2)/ymin
  
 END IF
  pos = package(cur_vpackage)%pos
@@ -161,7 +161,6 @@ IF(pos(1) >= xmin .and. pos(1) <= xmax .and. pos(2) >= ymin .and. pos(2) <= ymax
  IF(debug == 2) THEN
   write(*,*) 'do_vpackage: pos/R_inf = ', pos/R_inf
  END IF
- ! STOP 'do_vpackage: testing'
  cur_pos = package(cur_vpackage)%pos
 
  IF(debug == 2) THEN
@@ -185,7 +184,12 @@ IF(pos(1) >= xmin .and. pos(1) <= xmax .and. pos(2) >= ymin .and. pos(2) <= ymax
 
  package(cur_vpackage)%freq_cmf = package(cur_vpackage)%freq_rf * D 
  package(cur_vpackage)%e_cmf    = package(cur_vpackage)%e_rf * D  
+
+
+ ! propagation of the packet
+ ! write(*,*) 'do_vpackage: cur_vpackage = ', cur_vpackage
  CALL packet_dynamics(cur_vpackage)
+
 
  IF(debug == 2) THEN
   write(*,*) 'do_vpackage: active = ', package(cur_vpackage)%active
