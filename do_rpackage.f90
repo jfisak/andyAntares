@@ -8,25 +8,26 @@ USE rates_r
 
 IMPLICIT NONE    
 
-INTEGER                           :: pack_index, next_cell, event
-INTEGER                           :: get_package_model_index
-DOUBLE PRECISION                  :: cell_dist, e_dist, &
-                                     rho_cell
+INTEGER                                         :: pack_index, next_cell, event
+INTEGER                                         :: get_package_model_index
+DOUBLE PRECISION                                :: cell_dist, e_dist, &
+                                                   rho_cell
 
-DOUBLE PRECISION, PARAMETER           :: mininum = 1.E1
-INTEGER                                 :: I
-DOUBLE PRECISION, DIMENSION(3)          :: pos, corner, width
-DOUBLE PRECISION, DIMENSION(3)          :: cur_cor, cur_width
+DOUBLE PRECISION, PARAMETER                     :: mininum = 1.E1
+INTEGER                                         :: I
+DOUBLE PRECISION, DIMENSION(3)                  :: pos, corner, width
+DOUBLE PRECISION, DIMENSION(3)                  :: cur_cor, cur_width
+DOUBLE PRECISION, DIMENSION(3)                  :: delta_r, cur_pos, cur_corner
 
 INTEGER                                         :: n_thomson
 INTEGER                                         :: cur_mgi
-!INTEGER                                         :: n_tot_cont
+! INTEGER                                         :: n_tot_cont
 TYPE(rrates)                                    :: actirrates
 INTEGER                                         :: pomocna_bunka, cur_pgi
-INTEGER                                 :: dummypackage, next_cross
+INTEGER                                         :: dummypackage, next_cross
 ! free free
 
-LOGICAL                                 :: change_of_cell
+LOGICAL                                         :: change_of_cell
 
 dummypackage = SIZE(package)
 
@@ -62,12 +63,12 @@ IF(debug == 2) THEN
 
  write(*,*) 'do_rpackage I: direction = ', package(pack_index)%dir
  write(98,*) pos/R_sun, dyn_cell(cur_pgi)%corner/R_sun, dyn_cell(cur_pgi)%width
- IF(pos(1) < cur_cor(1) .or. pos(1) > cur_cor(1) + cur_width(1) .or. &
-  pos(2) < cur_cor(2) .or. pos(2) > cur_cor(2) + cur_width(2) .or. &
-  pos(3) < cur_cor(3) .or. pos(3) > cur_cor(3) + cur_width(3)) THEN
-   write(*,*) 'do_rpackage: the packet is out of the propGrid cell'
-   STOP
- END IF
+ ! IF(pos(1) <= cur_cor(1) .or. pos(1) >= cur_cor(1) + cur_width(1) .or. &
+ !  pos(2) <= cur_cor(2) .or. pos(2) >= cur_cor(2) + cur_width(2) .or. &
+ !  pos(3) <= cur_cor(3) .or. pos(3) >= cur_cor(3) + cur_width(3)) THEN
+ !   write(*,*) 'do_rpackage: the packet is out of the propGrid cell'
+ !   STOP
+ ! END IF
 END IF
 
 ! if(pack_index == 4) STOP 'do_rpackage: testing'
@@ -132,15 +133,21 @@ ELSE IF((cell_dist < 0.e0) .and. (next_cross <= 6) .and. (next_cross >=1)) THEN
  ! next_cell = dyn_cell(cur_pgi)%neighbor(package(pack_index)%next_cross)
  CALL change_cell(pack_index, next_cell)
 ELSE IF((cell_dist < 0.e0) .and. (next_cross > 6)) THEN
+ cur_corner = dyn_cell(cur_pgi)%corner
+ cur_pos = package(pack_index)%pos
+ delta_r = (cur_corner - cur_pos)/NORM2(cur_corner - cur_pos)
+ if(delta_r(1) == 0.D0) delta_r(1) = 1.D0
+ if(delta_r(2) == 0.D0) delta_r(2) = 1.D0
+ if(delta_r(3) == 0.D0) delta_r(3) = 1.D0
  IF(next_cross == edyz) THEN
   ! move packet to with the vector (0,1,1)
-  package(pack_index)%pos = package(pack_index)%pos + (/0.D0,1.D0,1.D0/)
+  package(pack_index)%pos = package(pack_index)%pos + (/0.D0,delta_r(2),delta_r(3)/)
  ELSE IF(next_cross == edxz) THEN
   ! move packet to with the vector (1,0,1)
-  package(pack_index)%pos = package(pack_index)%pos + (/1.D0,0.D0,1.D0/)
+  package(pack_index)%pos = package(pack_index)%pos + (/delta_r(1),0.D0,delta_r(3)/)
  ELSE IF(next_cross == edxy) THEN
   ! move packet to with the vector (0,1,1)
-  package(pack_index)%pos = package(pack_index)%pos + (/1.D0,1.D0,0.D0/)
+  package(pack_index)%pos = package(pack_index)%pos + (/delta_r(1),delta_r(2),0.D0/)
  END IF
 END IF
 
@@ -161,7 +168,7 @@ IF(debug == 2) THEN
  write(*,*) 'do_rpackage II: cell ending = ', (dyn_cell(cur_pgi)%corner + dyn_cell(cur_pgi)%width)/R_star
  write(*,*) 'do_rpackage I: direction = ', package(pack_index)%dir
  DO I = 1,3
-  IF((pos(I) <= corner(I) - mininum .OR. pos(I) >= corner(I) + width(I) + mininum) .and. pack_index /= dummypackage ) THEN
+  IF(((pos(I) <= corner(I) - mininum) .OR. (pos(I) >= corner(I) + width(I) + mininum)) .and. pack_index /= dummypackage ) THEN
    CALL find_dyn_cell1(pos, pomocna_bunka)
    write(*,*) 'do_rpackage: skutecna bunka = ', pomocna_bunka
    write(4,*) pos, dyn_cell(cur_pgi)%corner, dyn_cell(cur_pgi)%width, get_package_model_index(pack_index)

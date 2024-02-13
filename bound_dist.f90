@@ -93,40 +93,27 @@ dist = velkeCislo
 IF( (tnegx > 0.e0) .AND. (tnegx < dist) .AND. forbidden /= posx) THEN
  dist = tnegx
  package(pack_index)%next_cross = negx
- write(*,*) 'bound_dist: tnegx = ', tnegx
- write(*,*) 'bound_dist: next_cross = ', package(pack_index)%next_cross
 END IF
-IF( (tnegy > 0.e0)  .AND. (tnegy < dist)  .AND. forbidden /= posy) THEN
+IF( (tnegy > 0.e0)  .AND. (tnegy < dist) .AND. forbidden /= posy) THEN
  dist = tnegy
  package(pack_index)%next_cross = negy
- write(*,*) 'bound_dist: tnegy = ', tnegy
- write(*,*) 'bound_dist: next_cross = ', package(pack_index)%next_cross
 END IF
-IF( (tnegz > 0.e0) .AND. (tnegz < dist)  .AND. forbidden /=  posz) THEN
+IF( (tnegz > 0.e0) .AND. (tnegz < dist) .AND. forbidden /=  posz) THEN
  dist = tnegz
  package(pack_index)%next_cross = negz
- write(*,*) 'bound_dist: tnegz = ', tnegz
- write(*,*) 'bound_dist: next_cross = ', package(pack_index)%next_cross
 END IF
-IF( (tposx > 0.e0) .AND. (tposx < dist)  .AND. forbidden /=  negx) THEN
+IF( (tposx > 0.e0) .AND. (tposx < dist) .AND. forbidden /=  negx) THEN
  dist = tposx
  package(pack_index)%next_cross = posx
- write(*,*) 'bound_dist: tposx = ', tposx
- write(*,*) 'bound_dist: next_cross = ', package(pack_index)%next_cross
 END IF
-IF( (tposy > 0.e0) .AND. (tposy < dist)  .AND. forbidden /=  negy) THEN
+IF( (tposy > 0.e0) .AND. (tposy < dist) .AND. forbidden /=  negy) THEN
  dist = tposy
  package(pack_index)%next_cross = posy
- write(*,*) 'bound_dist: tposy = ', tposy
- write(*,*) 'bound_dist: next_cross = ', package(pack_index)%next_cross
 END IF
-IF( (tposz > 0.e0) .AND. (tposz < dist)  .AND. forbidden /= negz) THEN
+IF( (tposz > 0.e0) .AND. (tposz < dist) .AND. forbidden /= negz) THEN
  dist = tposz
  package(pack_index)%next_cross = posz
- write(*,*) 'bound_dist: tposz = ', tposz
- write(*,*) 'bound_dist: next_cross = ', package(pack_index)%next_cross
 END IF
-write(*,*) 'bound_dist: final next_cross = ', package(pack_index)%next_cross
 
 IF(forbidden == -99 .and. n_pos > 3) THEN
  mindist = dist
@@ -211,10 +198,14 @@ IF(n_zer > 1) THEN
 END IF
 
 IF(debug == 2) THEN
+ write(*,*) '*********************************************************************'
+ write(*,*) '*********************************************************************'
  write(*,*) 'bound_dist: n_pos = ', n_pos, ' n_neg = ', n_neg
  write(*,*) 'bound_dist: n_zer = ', n_zer, ' n_par = ', n_par
  write(*,*) 'bound_dist: tnegx = ', tnegx/R_star, ' tnegy = ', tnegy/R_star, ' tnegz = ', tnegz/R_star, &
    ' tposx = ', tposx/R_star, ' tposy = ', tposy/R_star, 'tposz = ', tposz/R_star
+ write(*,*) '*********************************************************************'
+ write(*,*) '*********************************************************************'
  write(*,*) 'bound_dist: next_cross = ', package(pack_index)%next_cross
  write(*,*) 'bound_dist: dist = ', dist/R_star, ' forbidden = ', forbidden
 END IF

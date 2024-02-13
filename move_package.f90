@@ -15,6 +15,7 @@ INTEGER                           :: dummypackage
 INTEGER                           :: next_cell
 
 LOGICAL                           :: change
+DOUBLE PRECISION, PARAMETER       :: smallNumber = 1.D-2
 
 dummypackage = SIZE(package)
 
@@ -22,9 +23,9 @@ dummypackage = SIZE(package)
 package(pack_index)%pos(1) = package(pack_index)%pos(1) + dist * package(pack_index)%dir(1) 
 package(pack_index)%pos(2) = package(pack_index)%pos(2) + dist * package(pack_index)%dir(2) 
 package(pack_index)%pos(3) = package(pack_index)%pos(3) + dist * package(pack_index)%dir(3)
-if(abs(package(pack_index)%pos(1)) < 1e-1) package(pack_index)%pos(1) = 0e0
-if(abs(package(pack_index)%pos(2)) < 1e-1) package(pack_index)%pos(2) = 0e0
-if(abs(package(pack_index)%pos(3)) < 1e-1) package(pack_index)%pos(3) = 0e0
+if(abs(package(pack_index)%pos(1)) < smallNumber) package(pack_index)%pos(1) = 0e0
+if(abs(package(pack_index)%pos(2)) < smallNumber) package(pack_index)%pos(2) = 0e0
+if(abs(package(pack_index)%pos(3)) < smallNumber) package(pack_index)%pos(3) = 0e0
 
 ! write(*,*) 'move_package: pack_index = ', pack_index, ' pos/R* = ', package(pack_index)%pos/R_star
 ! IF(pack_index == 4) THEN
