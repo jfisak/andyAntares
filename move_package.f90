@@ -9,7 +9,7 @@ USE counters
 IMPLICIT NONE    
 
 INTEGER                           :: pack_index
-DOUBLE PRECISION                  :: dist, D, vec_length
+DOUBLE PRECISION                  :: dist, D
 INTEGER                           :: dummypackage
 
 INTEGER                           :: next_cell

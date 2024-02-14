@@ -6,7 +6,7 @@ USE constants
 
  IMPLICIT NONE    
 
- INTEGER                           :: I, pack_index, event, get_package_model_index
+ INTEGER                           :: pack_index, event, get_package_model_index
  INTEGER                           :: nextLine, current_mgi
  LOGICAL                           :: do_loop
 !pointer to a field of continuum rates
@@ -22,18 +22,11 @@ USE constants
  TYPE(rrates)                      :: actirrates
  DOUBLE PRECISION                       :: ran2
  ! looking for next line
- INTEGER                           :: act_line
- DOUBLE PRECISION                  :: summ, tot_lop
  LOGICAL                                :: procout=.FALSE.
- LOGICAL                                :: inCell, tooRed
+ LOGICAL                                :: inCell, tooRed = .FALSE.
  LOGICAL                                :: raninit
  INTEGER                           :: lastLine
  INTEGER                           :: nloop
-
- ! temporary variables
- DOUBLE  PRECISION                      :: fr_line, loc_dist
- LOGICAL                                :: linCell
- INTEGER                                :: n_lines
 
  INTEGER                                :: cur_approx
 
@@ -74,7 +67,7 @@ END DO
  ! calculates all continuum opacities
  ! write(*,*) 'event_dist: calling r_kappa_cont for a packet = ', pack_index
  CALL r_kappa_cont(pack_index, kappa_cont, actirrates)
- kappa_cont = 0.D0
+ ! kappa_cont = 0.D0
 
  ! This is the opacity in co-moving frame. Must be transformed to the lab frame
  ! According to Mihalas and Mihalas Eq. 90.8 this is achieved by 

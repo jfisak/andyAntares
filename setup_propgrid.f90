@@ -14,14 +14,6 @@ INTEGER, PARAMETER                     :: Nmax = 1000000000
 INTEGER                                :: max_n_dcell, N_dyn_grid
 INTEGER                                :: xp, xm, yp, ym, zp, zm
 TYPE(dyn_grid_cell), ALLOCATABLE       :: pom2(:)
-TYPE(virt_point), ALLOCATABLE       :: local_point(:), pom(:)
-INTEGER                               :: Npoint
-INTEGER                               :: np
-DOUBLE PRECISION, DIMENSION(3)        :: cell_width_2, corner
-INTEGER                               :: ind_x, ind_y, ind_z, ind_cell_numb
-DOUBLE PRECISION, DIMENSION(3)        :: pos, width
-INTEGER                               :: my_start, my_end, my_n_cells
-INTEGER                               :: N0, Nzbytek, zb
 
 
 ! Number of propagation grid cells

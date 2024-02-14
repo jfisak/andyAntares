@@ -11,8 +11,7 @@ USE constants
   DOUBLE PRECISION, DIMENSION(3)    :: direction, directionn
   DOUBLE PRECISION, DIMENSION(n_pack) :: frequencies
 
-  DOUBLE PRECISION, DIMENSION(3)        :: cur_pos
-  INTEGER                               :: cur_pgi, cur_mgi
+  INTEGER                               :: cur_mgi
   DOUBLE PRECISION                      :: cur_Teff
   LOGICAL, PARAMETER                    :: homogeneous=.true.
 
@@ -64,7 +63,6 @@ USE constants
        cur_Teff = 30000.00 + (270000 * ran2(idum))
       end if
       write(40,*) cur_Teff
-      ! write(*,*) 'init_photsphere: cur_pgi = ', ind_cell_numb, ' cur_mgi = ', cur_mgi, ' n_modelgrid = ', n_modelgrid 
       CALL freq_from_planck(freq, cur_Teff)
       IF(my_rank == 0) write(39,*) freq
      END IF
@@ -93,7 +91,8 @@ USE constants
     package(I)%e_rf = L_star/n_pack  
 
     ! Now convert the energy and frequency to their cmf values
-    CALL doppler_factor(I, R_star * direction, direction, D)
+    ! CALL doppler_factor(I, R_star * direction, direction, D)
+    CALL doppler_factor(I, D)
     package(I)%freq_cmf = package(I)%freq_rf * D 
     package(I)%e_cmf    = package(I)%e_rf * D  
 

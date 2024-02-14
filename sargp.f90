@@ -30,12 +30,12 @@
         INTEGER AS,AE              ! Out: erste u. letzte Position des 
                                    !         Arguments im String
 
-	INTEGER TL,TI
+        INTEGER TL,TI
         INTEGER STATE
 
-	TL=LEN(TEXT)
+        TL=LEN(TEXT)
 
-	state=0
+        state=0
 !	state=0 -> kein Argument aktiv
 !	state=1 -> Argumentende gefunden, naechstes Komma
 !			ist   k e i n   Leerargument
@@ -45,13 +45,13 @@
 
         N=0
         AS=-1
-	AE=TL
+        AE=TL
 
-	DO 100 TI=1,TL
+        DO 100 TI=1,TL
 
 !** Go here looking for next start of an argument
         IF (STATE .EQ. 0) THEN
-	   IF (TEXT(TI:TI) .EQ. ' ') GOTO 100
+           IF (TEXT(TI:TI) .EQ. ' ') GOTO 100
            IF ((TEXT(TI:TI) .EQ. ',') &
            .OR.(TEXT(TI:TI) .EQ. '=') &
            .OR.(TEXT(TI:TI) .EQ. ':')) THEN
@@ -63,56 +63,56 @@
            ENDIF
            IF (TEXT(TI:TI) .EQ. '"') THEN
                            N=N+1
-			   IF (N .EQ. I) AS=TI+1
-			   STATE=3
-			   GOTO 100
+                           IF (N .EQ. I) AS=TI+1
+                           STATE=3
+                           GOTO 100
            ENDIF
-	   STATE=2
-	   N=N+1
+           STATE=2
+           N=N+1
            IF (N .EQ. I) AS=TI
-	   GOTO 100
+           GOTO 100
         ELSEIF (STATE .EQ. 1) THEN
-	   IF (TEXT(TI:TI) .EQ. ' ') GOTO 100
+           IF (TEXT(TI:TI) .EQ. ' ') GOTO 100
            IF ((TEXT(TI:TI) .EQ. ',') &
            .OR.(TEXT(TI:TI) .EQ. '=') &
            .OR.(TEXT(TI:TI) .EQ. ':')) THEN
-			   STATE=0
-			   GOTO 100
+                           STATE=0
+                           GOTO 100
            ENDIF
            IF (TEXT(TI:TI) .EQ. '"') THEN
                            N=N+1
                            IF (N .EQ. I) AS=TI+1
-			   STATE=3
-			   GOTO 100
+                           STATE=3
+                           GOTO 100
            ENDIF
-	   STATE=2
-	   N=N+1
+           STATE=2
+           N=N+1
            IF (N .EQ. I) AS=TI
-	   GOTO 100
+           GOTO 100
         ELSEIF (STATE .EQ. 2) THEN
            IF (TEXT(TI:TI) .EQ. ' ') THEN
                           STATE=1
-			  IF (N .EQ. I) AE=TI
-			  GOTO 100
-	   ENDIF
-	   IF ((TEXT(TI:TI) .EQ. ',') &
+                          IF (N .EQ. I) AE=TI
+                          GOTO 100
+           ENDIF
+           IF ((TEXT(TI:TI) .EQ. ',') &
            .OR.(TEXT(TI:TI) .EQ. '=') &
            .OR.(TEXT(TI:TI) .EQ. ':')) THEN
-			  STATE=0
+                          STATE=0
                           IF (N .EQ. I) AE=TI-1
-			  GOTO 100
+                          GOTO 100
            ENDIF
            GOTO 100
         ELSE 
 !***  ! IF (STATE .EQ. 3)
            IF (TEXT(TI:TI) .EQ. '"') THEN
                           STATE=1
-			  IF (N .EQ. I) AE=TI-1
-			  GOTO 100
+                          IF (N .EQ. I) AE=TI-1
+                          GOTO 100
            ENDIF
         ENDIF
 
-100	CONTINUE
+100     CONTINUE
 
-	RETURN
+        RETURN
         END

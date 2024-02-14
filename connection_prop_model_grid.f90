@@ -19,11 +19,11 @@ DOUBLE PRECISION               :: r, z, r0, z0, phi, phi0
 ! volume of model cell
 DOUBLE PRECISION               :: loc_volume
 INTEGER                        :: gridcell
-INTEGER                        :: my_n_cells
-INTEGER                       :: N0, Nzbytek
-INTEGER                       :: my_start, my_end, zb
+! INTEGER                        :: my_n_cells
+! INTEGER                       :: N0, Nzbytek
+! INTEGER                       :: my_start, my_end, zb
 
-DOUBLE PRECISION, DIMENSION(3) :: cur_center, cur_mpos
+DOUBLE PRECISION, DIMENSION(3) :: cur_center
 DOUBLE PRECISION               :: dist
 INTEGER                        :: cur_mcell
 
@@ -31,18 +31,16 @@ DOUBLE PRECISION, PARAMETER     :: large_number=1.d90
 
 DOUBLE PRECISION, DIMENSION(3)  :: cur_corner, cur_width
 INTEGER                         :: cur_pgcell, cur_pgi
-INTEGER                         :: n_virtpoints, cur_vpoint
+INTEGER                         :: n_virtpoints
 
-DOUBLE PRECISION, DIMENSION(3)  :: cur_vpos
 INTEGER                         :: up_cell, cur_lowcell
   
 INTEGER, ALLOCATABLE            :: list_index(:)
 INTEGER                         :: last_index, new_index
 INTEGER                         :: n_bas_pcell
 
-INTEGER                         :: ind_x, ind_y, ind_z
 INTEGER                         :: cur_bpgi
-DOUBLE PRECISION, DIMENSION(3)  :: width, cur_pos, mod_pos
+DOUBLE PRECISION, DIMENSION(3)  :: cur_pos
 
 INTEGER                         :: down_cell
 INTEGER                         :: start_vp_index, end_vp_index

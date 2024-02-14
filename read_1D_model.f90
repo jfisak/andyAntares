@@ -13,7 +13,7 @@ DOUBLE PRECISION                          :: junk
 INTEGER                                   :: ios
 INTEGER, PARAMETER                        :: maxrows = 6000000
 DOUBLE PRECISION                          :: r, velo, dens, temp
-DOUBLE PRECISION, DIMENSION(n_elements)   :: massfrac
+! DOUBLE PRECISION, DIMENSION(n_elements)   :: massfrac
 DOUBLE PRECISION                          :: cell_index
 CHARACTER(80)                             :: modelfile, jikrfile
 ! variables which are not needed in the code
@@ -141,7 +141,7 @@ SELECT CASE (inputModel)
   add_mg = 1
   CALL GET_ENVIRONMENT_VARIABLE("JIKRMODEL", jikrfile)
   IF(TRIM(jikrfile) == "") STOP "no input model file selected, &
-                                   please set the variable JIKRMODEL"
+                                   & please set the variable JIKRMODEL"
   OPEN(UNIT=12,status='old',FILE=jikrfile)
    READ(12,*) T_eff, R_star, modelfile
   CLOSE(12)
@@ -184,7 +184,7 @@ SELECT CASE (inputModel)
    END DO
   CLOSE(11)
   IF(temp_factor /= 1.0) write(99,*) 'Warning, temperature structure is divided &
-   by a temperature factor = ', temp_factor
+   & by a temperature factor = ', temp_factor
   R_star = model_grid(1)%rwind
   R_inf  = model_grid(n_modelgrid)%rwind
   V_inf  = model_grid(n_modelgrid)%vel! * 10.0**5
@@ -211,7 +211,7 @@ SELECT CASE (inputModel)
   add_mg = 1
   CALL GET_ENVIRONMENT_VARIABLE("POWRMODEL", powrfile)
   IF(TRIM(powrfile) == "") STOP "no input model file selected, &
-                                   please set the variable POWRMODEL"
+                                   & please set the variable POWRMODEL"
   write(99,*) 'read_1D_model: powrfile = ', powrfile
   n_modelgrid = 0
   OPEN(UNIT=11, STATUS="old", FILE=TRIM(powrfile))

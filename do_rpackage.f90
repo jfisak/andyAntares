@@ -10,8 +10,7 @@ IMPLICIT NONE
 
 INTEGER                                         :: pack_index, next_cell, event
 INTEGER                                         :: get_package_model_index
-DOUBLE PRECISION                                :: cell_dist, e_dist, &
-                                                   rho_cell
+DOUBLE PRECISION                                :: cell_dist, e_dist
 
 DOUBLE PRECISION, PARAMETER                     :: mininum = 1.E1
 INTEGER                                         :: I

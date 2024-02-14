@@ -14,7 +14,7 @@ USE constants
   INTEGER, DIMENSION (9)            :: TT
   DOUBLE PRECISION, ALLOCATABLE     :: current_temp(:)
   INTEGER                               :: cur_parameter=0
-  REAL                                  :: time0_agconnwpg, time1_agconnwpg
+  ! REAL                                  :: time0_agconnwpg, time1_agconnwpg
   REAL                                  :: time0_pp, time1_pp
 ! parallelized part
 ! definition of MPI variables

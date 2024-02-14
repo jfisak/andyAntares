@@ -7,8 +7,8 @@ IMPLICIT NONE
 INTEGER                                 :: cur_line
 INTEGER                                 :: indexe, indexi
 INTEGER                                 :: cur_mgi
-INTEGER                                 :: lower_level, upper_level, stat_weight_u
-INTEGER                                 :: stat_weight_l
+INTEGER                                 :: lower_level, upper_level
+INTEGER                                 :: stat_weight_l, stat_weight_u
 DOUBLE PRECISION                        :: ROverV, corrFactor, cur_kappa, cur_radius, cur_rho
 DOUBLE PRECISION                        :: constanta
 DOUBLE PRECISION                        :: cur_wavelength

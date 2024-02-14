@@ -12,10 +12,8 @@ USE constants
  ! DOUBLE PRECISION                  :: event_dist
  DOUBLE PRECISION, DIMENSION(3)         :: pos
 
-INTEGER                                 :: pomocna_bunka, I, old_cell, next_mgi
+INTEGER                                 :: old_cell, next_mgi
 INTEGER                                 :: dummypackage
-
-DOUBLE PRECISION                        :: round_number
 
 LOGICAL                                 :: is_difap
 

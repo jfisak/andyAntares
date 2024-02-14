@@ -12,7 +12,7 @@ INTEGER                                                 :: indexe
 INTEGER                                                 :: indexi, n_ions
 ! model grid information
 DOUBLE PRECISION                                        :: ion_charge
-INTEGER                                                 :: cur_mgi, get_package_model_index
+INTEGER                                                 :: cur_mgi
 DOUBLE PRECISION                                        :: cur_temp, e_dens
 INTEGER                                                 :: act_cooling
 DOUBLE PRECISION                                        :: act_pop, actVal

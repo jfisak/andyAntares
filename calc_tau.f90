@@ -10,15 +10,14 @@ IMPLICIT NONE
 DOUBLE PRECISION, DIMENSION(3)                  :: init_pos, end_pos
 DOUBLE PRECISION, DIMENSION(3)                  :: direction, cur_pos
 DOUBLE PRECISION                                :: frequency
-INTEGER                                         :: next_cross
-LOGICAL                                         :: active, snapped
+LOGICAL                                         :: active
 INTEGER                                         :: cur_packet, cur_approx
 DOUBLE PRECISION                                :: cur_s
 
 INTEGER                                         :: next_cell, init_line, next_line, n_lines, cur_cell
 INTEGER                                         :: cur_mgi, get_package_model_index
 DOUBLE PRECISION                                :: bound_dist, line_dist, dopf, end_dist
-DOUBLE PRECISION                                :: kappa_cont, kappa, tau_line
+DOUBLE PRECISION                                :: kappa_cont, tau_line
 LOGICAL                                         :: in_cell, cell_change
 
 TYPE(rrates)                                    :: actirrates

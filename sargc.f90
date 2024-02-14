@@ -8,7 +8,7 @@
       CHARACTER*(*) TEXT
       INTEGER AS,AE,N,I
 
-      I=0 				! Do not look for any Argument
+      I=0                               ! Do not look for any Argument
       CALL SARGP(TEXT,N,I,AS,AE)
 
       RETURN

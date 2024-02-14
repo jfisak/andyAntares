@@ -21,7 +21,6 @@ INTEGER                                         :: subind_x, subind_y, subind_z
 INTEGER                                         :: sub_nx, sub_ny, sub_nz
 DOUBLE PRECISION                                :: rat1, rat2, rat3
 
-INTEGER                                         :: I
 INTEGER, DIMENSION(3)                           :: n_cell
 
 DOUBLE PRECISION, PARAMETER                     :: epsilon0 = 1e-6

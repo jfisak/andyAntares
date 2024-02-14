@@ -78,7 +78,7 @@ SAVE
   END TYPE line_list
 
   TYPE ion_levels 
-     INTEGER(KIND=2), ALLOCATABLE    :: linetransitions(:), lineuptransitions(:)
+     INTEGER, ALLOCATABLE    :: linetransitions(:), lineuptransitions(:)
      DOUBLE PRECISION                :: exci_energy, stat_waight
      CHARACTER(LEN=30)               :: elconf
      LOGICAL                         :: phcrossform

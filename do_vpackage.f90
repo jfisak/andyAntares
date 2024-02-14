@@ -11,14 +11,14 @@ IMPLICIT NONE
 INTEGER                                         :: cur_vpackage
 
 DOUBLE PRECISION, DIMENSION(3)                  :: pos, dir
-DOUBLE PRECISION, DIMENSION(6)                  :: tecka, poser
+DOUBLE PRECISION, DIMENSION(6)                  :: tecka
 DOUBLE PRECISION, DIMENSION(3)                  :: dist
-DOUBLE PRECISION, DIMENSION(3)                  :: cross_point
 DOUBLE PRECISION, DIMENSION(3)                  :: cur_pos, cur_dir
-INTEGER                                         :: cur_poser, cur_pgi
+INTEGER, DIMENSION(6)                           :: poser
+INTEGER                                         :: cur_poser, cur_pgi, dummy2
 
-DOUBLE PRECISION                                :: A, dummy, dummy2, cur_tecka
-DOUBLE PRECISION                                :: cur_index
+DOUBLE PRECISION                                :: A, dummy, cur_tecka
+INTEGER                                         :: cur_index
 DOUBLE PRECISION, PARAMETER                     :: largeNumber = 1.D90
 INTEGER                                         :: I, J
 INTEGER                                         :: next_cross
@@ -26,7 +26,7 @@ INTEGER                                         :: next_cross
 DOUBLE PRECISION                                :: D! , L_star
 INTEGER                                         :: ind_cell_numb
 
-LOGICAL                                         :: seeking, photosphere
+LOGICAL                                         :: seeking
 DOUBLE PRECISION, PARAMETER                     :: delta_tecka = 1.D2
 
 ! L_star = 4.D0*pi*(R_star)**2*sigma*T_eff**4
@@ -177,7 +177,8 @@ IF(pos(1) >= xmin .and. pos(1) <= xmax .and. pos(2) >= ymin .and. pos(2) <= ymax
  END IF
 
  IF(norm2(cur_pos) < R_inf) THEN
-  CALL doppler_factor(cur_vpackage, cur_pos, cur_dir, D)
+  ! CALL doppler_factor(cur_vpackage, cur_pos, cur_dir, D)
+  CALL doppler_factor(cur_vpackage, D)
  ELSE
   D = 1.D0
  END IF

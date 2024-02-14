@@ -12,8 +12,8 @@ MODULE ran2_class
                                      IQ2 = 52774, &
                                      IR1 = 12211, &
                                      IR2 = 3791, &
-                                     NDIV = 1 + IMM1 / NTAB
- DOUBLE PRECISION, PARAMETER      :: AM = 1. / IM1, &
+                                     NDIV = 1 + INT(IMM1 / NTAB)
+ DOUBLE PRECISION, PARAMETER      :: AM = 1. / DBLE(IM1), &
                                      EPS = 1.2D-7, &
                                      RNMX = 1. - EPS
 

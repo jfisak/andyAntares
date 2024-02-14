@@ -4,25 +4,25 @@ USE types
 USE constants
 IMPLICIT NONE
 
-DOUBLE PRECISION                               :: R_pos, V_pos
+DOUBLE PRECISION                               :: R_pos, V_pos, fr_line
 DOUBLE PRECISION                                :: l_dist
 DOUBLE PRECISION, DIMENSION(3)                  :: V_pos_vec
 DOUBLE PRECISION                                :: costheta
 DOUBLE PRECISION                                :: dV_pos
-DOUBLE PRECISION                                :: cell_dist, junk
+DOUBLE PRECISION                                :: cell_dist
 INTEGER                                         :: dummypackage, next_cell, pack_index
 
-DOUBLE PRECISION, DIMENSION(3)                  :: cur_pos, cur_dir
-DOUBLE PRECISION, DIMENSION(3)                  :: pos_min, pos_pls, pos_lin
-DOUBLE PRECISION                                :: freq_min, freq_pls
-DOUBLE PRECISION                                :: cmf_min, cmf_pls, fr_line
-DOUBLE PRECISION                                :: a_lin, b_lin
-DOUBLE PRECISION                                :: cur_freq_rf
+! DOUBLE PRECISION, DIMENSION(3)                  :: cur_pos, cur_dir
+! DOUBLE PRECISION, DIMENSION(3)                  :: pos_min, pos_pls, pos_lin
+! DOUBLE PRECISION                                :: freq_min, freq_pls
+! DOUBLE PRECISION                                :: cmf_min, cmf_pls
+! DOUBLE PRECISION                                :: a_lin, b_lin
+! DOUBLE PRECISION                                :: cur_freq_rf
 DOUBLE PRECISION, PARAMETER                     :: delta=1.E0
-DOUBLE PRECISION                                :: der
-DOUBLE PRECISION                                :: deriv_min, deriv_pls
-DOUBLE PRECISION, DIMENSION(3)                  :: pos_line
-DOUBLE PRECISION                                :: s_min, s_0, s_pls
+! DOUBLE PRECISION                                :: der
+! DOUBLE PRECISION                                :: deriv_min, deriv_pls
+! DOUBLE PRECISION, DIMENSION(3)                  :: pos_line
+! DOUBLE PRECISION                                :: s_min, s_0, s_pls
 
 dummypackage = SIZE(package) - 3 + 1
 
@@ -45,7 +45,7 @@ ELSE IF(velapprox == 2) THEN
 ELSE IF(velapprox == 1) THEN
  ! package(dummypackage) = package(pack_index)
  ! CALL emit_rpackage(dummypackage)
- CALL boundary3(pack_index, cell_dist, junk, next_cell)
+ CALL boundary3(pack_index, cell_dist, next_cell)
  ! according to (10) in Abbot & Lucy (1985)
  ! r
  R_pos = norm2(package(dummypackage)%pos)

@@ -24,7 +24,7 @@ END DO
 
 DO pack_index = 1, n_vpacks
  ! And take all which actually escaped
- write(*,*) 'do_spectrum: pack_index = ', pack_index, ' typ = ', package(pack_index)%typ
+ ! write(*,*) 'do_spectrum: pack_index = ', pack_index, ' typ = ', package(pack_index)%typ
  IF (package(pack_index)%typ == type_photosphere) THEN
   freq = package(pack_index)%freq_rf
   ! Only bin those packets which are in the allowed frequency range

@@ -12,16 +12,14 @@ INTEGER                                 :: pack_index
 INTEGER                                 :: cur_pgi
 DOUBLE PRECISION, ALLOCATABLE           :: rates(:)
 INTEGER                                 :: dapprox
-INTEGER                                 :: dummypack, I
+INTEGER                                 :: dummypack
 
 DOUBLE PRECISION                        :: loc_sum, Z
-DOUBLE PRECISION, DIMENSION(3)          :: width, corner, ran_dir, pack_dir, cur_center
+DOUBLE PRECISION, DIMENSION(3)          :: width, corner, ran_dir
 DOUBLE PRECISION, DIMENSION(3)          :: new_width
-INTEGER, DIMENSION(3)                   :: cur_dir
 INTEGER                                 :: next_mgi
 DOUBLE PRECISION                        :: ran2, rand
 
-DOUBLE PRECISION                        :: dist
 INTEGER                                 :: next_leak, next_cell
 
 LOGICAL                                 :: active

@@ -5,9 +5,9 @@ USE constants
 IMPLICIT NONE
 
 INTEGER                                 :: cur_mgi, n_mgi
-DOUBLE PRECISION                        :: cur_Teff, cur_rinf, cur_vinf
+DOUBLE PRECISION                        :: cur_rinf, cur_vinf
 DOUBLE PRECISION                        :: x, y, z, vx, vy, vz, rho, temp, lambda
-DOUBLE PRECISION                        :: cur_radius, cur_velocity, cur_rstar
+DOUBLE PRECISION                        :: cur_radius, cur_velocity
 DOUBLE PRECISION                        :: cur_xmax, cur_ymax, cur_zmax
 
 INTEGER                                 :: reading_models
@@ -49,11 +49,9 @@ OPEN(UNIT=11, FILE=modelfile)
 
  REWIND(11)
 
- ! cur_Teff = 1.e20
  READ(11,*) T_eff
  READ(11,*) R_star
  READ(11,*) R_inf
- ! cur_rstar = 1.D40
  cur_rinf = 1.e0
  cur_vinf = 1.e0
  cur_xmax = 0.e0
