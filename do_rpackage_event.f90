@@ -18,7 +18,7 @@ USE constants
   ! total rates for the given processes
   DOUBLE PRECISION                      :: Zthomson, Zphotion, Zff
   DOUBLE PRECISION                      :: ZcontTot
-  LOGICAL                               :: procout = .TRUE.
+  LOGICAL                               :: procout = .FALSE.
   ! DOUBLE PRECISION                      :: D
   LOGICAL                               :: ellastic_scattering = .TRUE.
 
