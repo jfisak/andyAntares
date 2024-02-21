@@ -268,8 +268,6 @@ END DO ! iteration (now of temperature structure)
 ! GET THE POSITION DEPENDENT SPECTRUM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-IF(debug == 3) write(*,*) 'main: calling backward ray-tracing method'
-CALL brtm()
 
  
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -295,5 +293,8 @@ CALL brtm()
 
 CLOSE(2)
 CLOSE(99)
+
+IF(debug == 3) write(*,*) 'main: calling backward ray-tracing method'
+CALL brtm()
 
 END SUBROUTINE main

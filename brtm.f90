@@ -7,10 +7,10 @@ IMPLICIT NONE
 
 DOUBLE PRECISION, DIMENSION(3)                          :: obs_point, ccd_point, ccd_centre
 INTEGER                                                 :: cur_vpack
-INTEGER, PARAMETER                                      :: Nvpackets = 50000
+INTEGER, PARAMETER                                      :: Nvpackets = 5000
 ! number of packet flown into the photosphere
 INTEGER                                                 :: n_inside, n_outside
-DOUBLE PRECISION, DIMENSION(3)                          :: cur_pos
+DOUBLE PRECISION, DIMENSION(3)                          :: cur_pos, cur_direction
 DOUBLE PRECISION                                        :: wale_start, wale_end
 DOUBLE PRECISION                                        :: nu_min, nu_max, ran_freq
 DOUBLE PRECISION                                        :: ran2
@@ -19,13 +19,19 @@ INTEGER                                                 :: I
 
 DOUBLE PRECISION, DIMENSION(n_nubin)                    :: cur_spectrum, freqs
 
+LOGICAL                                                 :: procout=.false.
+
 ! definition of a detector
 INTEGER                                                 :: det_nu, det_nv, cur_ccd, det_tot_nuv
-INTEGER                                                 :: det_cur_nu, det_cur_nv
+INTEGER                                                 :: det_cur_nu, det_cur_nv, cur_nu
 DOUBLE PRECISION                                        :: det_lu, det_lv
 DOUBLE PRECISION, DIMENSION(3)                          :: det_vec_u, det_vec_v
 DOUBLE PRECISION                                        :: det_cell_wu, det_cell_wv
 DOUBLE PRECISION, DIMENSION(3)                          :: uvmin
+DOUBLE PRECISION, ALLOCATABLE                           :: det_matrix(:,:)
+
+INTEGER                                                 :: my_ccd_start, my_ccd_end
+INTEGER                                                 :: N_single, N_zbytek
 
 write(99,*) '___________________________________________________________________'
 write(99,*) '___________________________________________________________________'
@@ -44,17 +50,19 @@ nu_min = light_speed / (wale_end * 1.D-8)
 
 ! a temporary definition of a detector
 ! number of points in each CCD chip
-det_nu = 10
-det_nv = 10
+det_nu = 100
+det_nv = 100
 det_tot_nuv = det_nu * det_nv
 
+ALLOCATE(det_matrix(det_nu, det_nv))
 ! observing point
-obs_point = (/ -2*R_inf  ,  0.D0,  0.D0 /)
-ccd_centre = (/ -2*R_inf - 1.5D1,  0.D0,  0.D0 /)
+obs_point = (/ -1.1*R_inf  ,  0.D0,  0.D0 /)
+ccd_centre = (/ -1.1*R_inf - 1.1D1,  0.D0,  0.D0 /)
 
 ! a size of a detector
 det_lu = 5
 det_lv = 5
+
 
 ! !!! only a temporary solution !!!
 ! a calculation of the vectors u and v
@@ -67,15 +75,37 @@ det_cell_wv = det_lu / DBLE(det_nv)
 
 ! lower coordinates of a ccd chip
 uvmin = ccd_centre - 0.5D00 * (det_vec_u * det_lu + det_vec_v * det_lv)
+write(*,*) 'brtm: uvmin = ', uvmin
+
+! 
+#if mpi == 1
+ N_single = det_tot_nuv/n_tasks
+ N_zbytek = det_tot_nuv - n_tasks * N_single
+ IF(my_rank <= N_zbytek - 1) THEN
+  my_ccd_start = my_rank * (N_single + 1) + 1
+  my_ccd_end = my_rank * (N_single + 1) + N_single
+ ELSE
+  my_ccd_start = N_zbytek * (N_single + 1) + (my_rank - N_zbytek - 1) * N_single + 1
+  my_ccd_end = N_zbytek * (N_single + 1) + (my_rank - N_zbytek - 1) * N_single + N_single +1
+ END IF
+#else
+ my_ccd_start = 1
+ my_ccd_end = det_tot_nuv
+#endif
+write(*,*) 'brtm: N_single = ', N_single, ' N_zbytek = ', N_zbytek
+write(*,*) 'brtm: my_ccd_start = ', my_ccd_start, ' my_ccd_end = ', my_ccd_end
 ! then one by one we will be sending packets through the CCD chip
-DO cur_ccd = 1, det_tot_nuv
+DO cur_ccd = my_ccd_start, my_ccd_end
  det_cur_nv = INT((cur_ccd - 1)/det_nu) + 1
  det_cur_nu = cur_ccd - (det_cur_nv -1) * det_nu
  
  ccd_point = uvmin + det_cell_wu * det_vec_u * (det_cur_nu + 0.5D0) + &
    & det_cell_wv * det_vec_v * (det_cur_nv + 0.5D0)
  
- ! write(*,*) 'brtm: ccd_point = ', ccd_point(2)/det_lu, ccd_point(3)/det_lv
+ ! write(*,*) 'brtm: ccd_point = ', ccd_point(2), ccd_point(3)
+
+ cur_direction = (ccd_point - obs_point)/norm2(ccd_point - obs_point)
+ ! write(*,*) 'brtm: cur_direction = ', cur_direction
 
 ! END DO  
 !  ! ccd_point = 
@@ -91,7 +121,7 @@ DO cur_ccd = 1, det_tot_nuv
  
  DO cur_vpack = 1, Nvpackets
  
-  ! write(*,*) 'brtm: processing the v-packet: cur_vpack = ', cur_vpack
+  if(procout) write(*,*) 'brtm: processing the v-packet: cur_vpack = ', cur_vpack
   ! a basic initialisation of a packet
   package(cur_vpack)%pos = obs_point
   package(cur_vpack)%dir = (ccd_point - obs_point)/norm2(ccd_point - obs_point)
@@ -136,7 +166,14 @@ DO cur_ccd = 1, det_tot_nuv
  ! END DO
 
  DEALLOCATE(package)
+ det_matrix(det_cur_nu, det_cur_nv) = DBLE(n_inside)/DBLE(det_tot_nuv)
 
 END DO ! loop over detector cells
+
+OPEN(449,FILE='ccd_matrix.dat')
+DO cur_nu = 1, det_nu
+ write(449,*) det_matrix(cur_nu,:)
+END DO
+CLOSE(449)
 
 END SUBROUTINE brtm

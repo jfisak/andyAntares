@@ -16,8 +16,6 @@ DOUBLE PRECISION                  :: vel_rad_norm, vel_ang_norm
 
 INTEGER                            :: cur_mgi
 
-write(99,*) 'The variable approx = ', approx, ' is not used yet...'
-
 pack_position = package(pack_index)%pos
 SELECT CASE(velApprox)
 ! homologous expansion

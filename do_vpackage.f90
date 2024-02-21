@@ -26,7 +26,7 @@ INTEGER                                         :: next_cross
 DOUBLE PRECISION                                :: D! , L_star
 INTEGER                                         :: ind_cell_numb
 
-LOGICAL                                         :: seeking
+LOGICAL                                         :: seeking, procout=.FALSE.
 DOUBLE PRECISION, PARAMETER                     :: delta_tecka = 1.D2
 
 ! L_star = 4.D0*pi*(R_star)**2*sigma*T_eff**4
@@ -41,6 +41,7 @@ pos = package(cur_vpackage)%pos
 dir = package(cur_vpackage)%dir
 IF(pos(1) < xmin .or. pos(1) > xmax .or. pos(2) < ymin .or. pos(2) > ymax .or. &
  pos(3) < zmin .or. pos(3) > zmax) THEN
+ IF(procout) write(*,*) 'do_vpackage: the packet is outside the propGrid'
  !________________________________________________________________________
  ! we have to find out, whether the packet crosses the compuational domain
  IF(dir(1) /= 0) THEN
@@ -118,7 +119,7 @@ IF(pos(1) < xmin .or. pos(1) > xmax .or. pos(2) < ymin .or. pos(2) > ymax .or. &
   IF(cur_poser == posy .or. cur_poser == negy) THEN
    IF(cur_pos(1) > xmin .and. cur_pos(1) < xmax .and. &
     cur_pos(3) > zmin .and. cur_pos(3) < zmax) THEN
-     write(*,*) 'do_vpackage: setting a new position for the vpackage'
+     ! write(*,*) 'do_vpackage: setting a new position for the vpackage'
      package(cur_vpackage)%pos = cur_pos
      seeking = .false.
    END IF
@@ -158,6 +159,7 @@ IF(pos(1) >= xmin .and. pos(1) <= xmax .and. pos(2) >= ymin .and. pos(2) <= ymax
   pos(3) >= zmin .and. pos(3) <= zmax) THEN
  ! we generate a packet which will be propagatet through the propGrid
  ! transcription of the virtual packet properties to the standard packet properties
+ IF(procout) write(*,*) 'do_vpackage: the packet is inside the propGrid'
  IF(debug == 2) THEN
   write(*,*) 'do_vpackage: pos/R_inf = ', pos/R_inf
  END IF
