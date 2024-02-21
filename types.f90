@@ -193,6 +193,7 @@ SAVE
   INTEGER, PARAMETER                 :: edyz=9
   INTEGER, PARAMETER                 :: NONE = -99
   INTEGER, PARAMETER                 :: no_line = -99
+  INTEGER, PARAMETER                 :: file_length = 60
 
   INTEGER                            :: my_rank
   INTEGER                            :: ierr

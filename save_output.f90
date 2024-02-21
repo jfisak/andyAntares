@@ -18,7 +18,7 @@ IMPLICIT NONE
 ! type of output
 INTEGER                                 :: otype
 ! folder variables
-CHARACTER(LEN=60)                       :: lineOutput
+CHARACTER(LEN=file_length)                       :: lineOutput
 ! save informations about lines
 INTEGER                                 :: I, J, K
 DOUBLE PRECISION                        :: wavle
@@ -27,9 +27,9 @@ DOUBLE PRECISION                        :: wavle
 INTEGER                                 :: act_elem, act_ion, act_lev
 DOUBLE PRECISION                        :: act_pop
 DOUBLE PRECISION                        :: eenergy
-CHARACTER(LEN=60)                       :: fileTempStruct, fileOccNum
-CHARACTER(LEN=60)                       :: fileHydrogenFrac, fileHeliumFrac
-CHARACTER(LEN=60)                       :: fileGrid, filePart
+CHARACTER(LEN=file_length)                       :: fileTempStruct, fileOccNum
+CHARACTER(LEN=file_length)                       :: fileHydrogenFrac, fileHeliumFrac
+CHARACTER(LEN=file_length)                       :: fileGrid, filePart
 ! ionization fraction files
 DOUBLE PRECISION                        :: frac, N_jk, totElPop
 ! DOUBLE PRECISION                        :: frac1, N_jk1, totElPop1
@@ -37,14 +37,14 @@ DOUBLE PRECISION                        :: frac, N_jk, totElPop
 ! DOUBLE PRECISION                        :: frac3, N_jk3, totElPop3
 INTEGER                                 :: indexe, indexi
 INTEGER                                 :: status
-CHARACTER(LEN=60)                       :: filePackets
+CHARACTER(LEN=file_length)                       :: filePackets
 ! testing PoWR ionization fractions
 DOUBLE PRECISION                        :: ntot, nhi
 INTEGER, PARAMETER                      :: indexH = 1, indexHI = 1, indexHII = 2
 INTEGER, PARAMETER                      :: indexHe = 2, indexHeI = 1, indexHeII = 2, indexHeIII = 3
 DOUBLE PRECISION                        :: abundance, density
-CHARACTER(LEN=60)                       :: fileHI, fileHII, fileHeI, fileHeII, fileHeIII
-CHARACTER(LEN=60)                       :: fileEldens, fileRho, temp_file_name
+CHARACTER(LEN=file_length)                       :: fileHI, fileHII, fileHeI, fileHeII, fileHeIII
+CHARACTER(LEN=file_length)                       :: fileEldens, fileRho, temp_file_name
 INTEGER                                 :: cell_index
 DOUBLE PRECISION                        :: num_tot_pop
 INTEGER                                 :: tot_n_ions, cur_ion, n_ions
