@@ -8,6 +8,8 @@ USE constants
   INTEGER    :: n_pack, iseed, idx, npar
   CHARACTER(LEN=180)  :: LINE, ACTPAR
 
+  INTEGER                               :: calc_brtm_int
+
   OPEN (UNIT=1, FILE='input.dat', STATUS='OLD')
 
 ! Default values
@@ -47,6 +49,7 @@ USE constants
 ! 022 inputpopfile
 ! 023 saved grid
 ! 024 diffusion
+! 025 BRTM
   DO
     READ (1, '(A)', END=99) LINE
 
@@ -212,12 +215,21 @@ USE constants
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I2)', ERR=94) saved_grid
 
-    ! 24 saved grid
+    ! 024 saved grid
     ELSE IF (ACTPAR .EQ. 'diffusive') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I2)', ERR=94) enable_diffusion
+
+    ! 025 BRTM
+    ELSE IF (ACTPAR .EQ. 'calc_brtm_int') THEN
+    CALL SARGC (LINE, NPAR)
+    IF (NPAR .LT. 2) GOTO 90
+    CALL SARGV(LINE,2,ACTPAR)
+    READ (ACTPAR, '(I2)', ERR=94) calc_brtm_int
+    calc_brtm = .true.
+
     ! end all ifs
     END IF
   END DO
@@ -240,6 +252,7 @@ USE constants
   WRITE (99,'(A,I10)') 'eldensfile = ', eldensfile
   WRITE (99,'(A,I10)') 'velocity profile = ', velApprox
   WRITE (99,'(A,I10)') 'saved grid = ', saved_grid
+  WRITE (99,'(A,L)') 'brtm = ', calc_brtm
   IF (iseed .LE. 0) THEN 
      WRITE (99,'(A)') 'Random-seed value is random '
   ELSE

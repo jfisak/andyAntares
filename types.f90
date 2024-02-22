@@ -136,6 +136,8 @@ SAVE
   INTEGER                            :: Nvirtpoint
   ! velocity approximation
   INTEGER                            :: velApprox
+  ! brtm activation
+  LOGICAL                            :: calc_brtm
 
 ! fields for the given types
   TYPE(modelgrid), ALLOCATABLE       :: model_grid(:)

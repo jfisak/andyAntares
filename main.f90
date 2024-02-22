@@ -295,6 +295,6 @@ CLOSE(2)
 CLOSE(99)
 
 IF(debug == 3) write(*,*) 'main: calling backward ray-tracing method'
-CALL brtm()
+IF(calc_brtm) CALL brtm()
 
 END SUBROUTINE main

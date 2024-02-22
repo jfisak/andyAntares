@@ -100,7 +100,7 @@ write(*,*) 'brtm: N_single = ', N_single, ' N_zbytek = ', N_zbytek
 write(*,*) 'brtm: my_ccd_start = ', my_ccd_start, ' my_ccd_end = ', my_ccd_end
 ! then one by one we will be sending packets through the CCD chip
 DO cur_ccd = my_ccd_start, my_ccd_end
- write(*,*) 'brtm: cur_ccd = ', cur_ccd
+ ! write(*,*) 'brtm: cur_ccd = ', cur_ccd
  det_cur_nv = INT((cur_ccd - 1)/det_nu) + 1
  det_cur_nu = cur_ccd - (det_cur_nv -1) * det_nu
  
