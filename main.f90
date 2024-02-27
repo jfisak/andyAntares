@@ -13,7 +13,7 @@ USE constants
   INTEGER                           :: iseed, idx
   INTEGER, DIMENSION (9)            :: TT
   DOUBLE PRECISION, ALLOCATABLE     :: current_temp(:)
-  INTEGER                               :: cur_parameter=0
+  INTEGER                               :: cur_parameter
   ! REAL                                  :: time0_agconnwpg, time1_agconnwpg
   REAL                                  :: time0_pp, time1_pp
 ! parallelized part
@@ -27,6 +27,8 @@ LOGICAL                                 :: timing = .true.
 
 DOUBLE PRECISION                        :: test_freq
 DOUBLE PRECISION, DIMENSION(3)          :: test_pos, test_end
+
+INTEGER, PARAMETER                      :: ind_save_inputfile = 100, ind_save_composition = 101
 
 ! Link data to identify program version
 CHARACTER LINK_DATE*30, LINK_USER*10, LINK_HOST*60
@@ -51,6 +53,7 @@ my_rank = 0
 #endif
 
 
+ cur_parameter = 0
  CALL save_output(cur_parameter)
  write(99,*) 'mpi initialization: my_rank = ', my_rank, &
   ' n_tasks = ', n_tasks
@@ -69,6 +72,7 @@ my_rank = 0
  write(99,*) 'read input'
  CALL read_input(n_pack, iseed)
  CALL analyse_input()
+ CALL save_output(ind_save_inputfile)
  ! Allocate array for photon packages.
  ! n_pack + 1 -- dummypackage
  ! n_pack + 3 -- virtual package
@@ -80,6 +84,7 @@ my_rank = 0
  ! Read composition
  write(99,*) 'read_composition'
  CALL read_composition()
+ CALL save_output(ind_save_composition)
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

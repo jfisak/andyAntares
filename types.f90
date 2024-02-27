@@ -7,6 +7,7 @@ SAVE
 #endif
 
 
+ INTEGER, PARAMETER                 :: file_length = 180
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -100,7 +101,7 @@ SAVE
      INTEGER                         :: indexe, atom_number, nions
      DOUBLE PRECISION                :: atom_mass
      DOUBLE PRECISION                :: abundance
-     CHARACTER(180)                   :: levelfile, transitionfile
+     CHARACTER(LEN=file_length)                   :: levelfile='', transitionfile=''
      TYPE(element_ions), ALLOCATABLE :: ions(:)
   END TYPE atom_elements
 
@@ -195,7 +196,6 @@ SAVE
   INTEGER, PARAMETER                 :: edyz=9
   INTEGER, PARAMETER                 :: NONE = -99
   INTEGER, PARAMETER                 :: no_line = -99
-  INTEGER, PARAMETER                 :: file_length = 60
 
   INTEGER                            :: my_rank
   INTEGER                            :: ierr
