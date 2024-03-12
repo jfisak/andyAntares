@@ -13,7 +13,7 @@ DOUBLE PRECISION                        :: gl_pop, N_jk, U
 
 ! write(*,*) 'lte_pops: indexe = ', indexe, ' indexi = ', indexi
 DO gridcell = 1, n_modelgrid
- IF (model_grid(gridcell)%assoc_cells .GT. 0) THEN
+ IF (model_grid(gridcell)%assoc_cells > 0) THEN
   el_nd = model_grid(gridcell)%e_dens
   temp = model_grid(gridcell)%T
   CALL ionization_fraction(indexe, indexi, temp, el_nd, frac)

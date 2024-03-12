@@ -59,7 +59,7 @@ SELECT CASE (inputModel)
    IF(reading_grid /= 0) EXIT
    n_modelgrid = n_modelgrid + 1
   END DO
-  ALLOCATE (model_grid(n_modelgrid + add_mg))
+  ALLOCATE(model_grid(n_modelgrid + add_mg))
   REWIND(11)
   READ(11,*) junk
   READ(11,*) junk

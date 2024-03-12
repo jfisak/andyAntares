@@ -394,8 +394,12 @@ CASE(9)
   DO J = 1, n_elements
    n_ions = SIZE(elements(J)%ions)
    DO K = 1, n_ions
-    CALL part_fun(J, K, temperature, U)
-    part_functions(cur_ion) = U
+    IF(temperature /= 0.D0) THEN
+     CALL part_fun(J, K, temperature, U)
+     part_functions(cur_ion) = U
+    ELSE
+     part_functions(cur_ion) = 0.D0
+    END IF
     cur_ion = cur_ion + 1
    END DO ! over ions
   END DO ! over elements

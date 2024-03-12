@@ -53,22 +53,21 @@ DO cur_mgi = my_start, my_end
  cur_n_assoccells = model_grid(cur_mgi)%assoc_cells
  IF (cur_n_assoccells .GT. 0) THEN
   IF (iteration == 1) THEN
-    ! Calculate electron number density for every model grid cell gridcell
-    IF(eldensfile == 0) THEN
-     CALL find_e_nd(cur_mgi, el_nd)
-     ! IF(mod(gridcell,1000)==0) write(*,*) 'update_grid: working on ', gridcell, ' cell'
-    ! ELSE
-    !  if(gridcell == 1) CALL read_e_nd()
-    END IF
+   ! Calculate electron number density for every model grid cell gridcell
+   IF(eldensfile == 0) THEN
+    CALL find_e_nd(cur_mgi, el_nd)
+   END IF
+   ! reading the temperature structure
+   cur_temp(cur_mgi) = model_grid(cur_mgi)%T
+   ! write(*,*) 'update_grid: cur_temp = ', cur_temp(cur_mgi)
   ELSE ! iteration > 1
    ! Energy density contribeted to the model grid cell 
-    cur_j(cur_mgi) = model_grid(cur_mgi)%J / model_grid(cur_mgi)%volume / (4 * pi)
-    temp = (model_grid(cur_mgi)%J * pi / sigma )**(1./4.) 
-    write(*,*) 'update_grid: setting temp = ', temp
-    cur_temp(cur_mgi)  = temp
-    ! Calculate electron number density for every model grid cell gridcell
-    CALL find_e_nd(cur_mgi, el_nd)
-    model_grid(cur_mgi)%J = 0.D0   
+   cur_j(cur_mgi) = model_grid(cur_mgi)%J / model_grid(cur_mgi)%volume / (4 * pi)
+   temp = (model_grid(cur_mgi)%J * pi / sigma )**(1./4.) 
+   cur_temp(cur_mgi)  = temp
+   ! Calculate electron number density for every model grid cell gridcell
+   CALL find_e_nd(cur_mgi, el_nd)
+   model_grid(cur_mgi)%J = 0.D0   
   END IF ! test for the first iteration
   IF(eldensfile == 0) THEN
    cur_elnd(cur_mgi) = el_nd 
@@ -86,7 +85,6 @@ DO cur_mgi = my_start, my_end
     CALL diffusion_approximation(cur_mgi)
    END IF
   END IF
-  cur_temp(cur_mgi) = model_grid(cur_mgi)%T
  END IF
 END DO
 
@@ -104,11 +102,11 @@ END DO
 #endif
 
 
-if(my_rank == 0) then
- write(*,*) 'update_grid: cur_elnd = ', model_grid(:)%T
-end if
+! if(my_rank == 0) then
+!  write(*,*) 'update_grid: cur_e_dens = ', model_grid(:)%e_dens
+! end if
 
-STOP 'update_grid: testing'
+! STOP 'update_grid: testing'
 ! calculation of population numbers
  IF(iteration == 1) THEN
   CALL find_populations(wasFound)

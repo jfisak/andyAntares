@@ -130,8 +130,8 @@ write(*,*) 'update_grid: my_rank = ', my_rank, ' my_start = ', my_start, ' my_en
   & MPI_SUM, 0, MPI_COMM_WORLD, ierr)
  CALL MPI_REDUCE(cur_n_assocmodg(:), model_grid(:)%assoc_cells, n_modelgrid, MPI_INTEGER, &
   & MPI_SUM, 0, MPI_COMM_WORLD, ierr)
- CALL MPI_BCAST(dyn_cell(:)%model_index,   max_n_dcell, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
- CALL MPI_BCAST(model_grid(:)%assoc_cells, n_modelgrid, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
+ CALL MPI_BCAST(dyn_cell(:)%model_index, n_propgcells, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
+ CALL MPI_BCAST(model_grid(:)%assoc_cells, n_modelgrid + add_mg, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
 #endif 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! 2D model grid -- Petr Kurfurst's model
