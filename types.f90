@@ -55,7 +55,7 @@ SAVE
      DOUBLE PRECISION                :: width
      DOUBLE PRECISION                :: volume
      DOUBLE PRECISION                :: diff_param
-     DOUBLE PRECISION                :: T, J, rho, vel, rwind, e_dens
+     DOUBLE PRECISION                :: T = 0.D0, J = 0.D0, rho = 0.D0, vel = 0.D0, rwind, e_dens = 0.D0
      DOUBLE PRECISION                :: zwind, velang, angle
      DOUBLE PRECISION, DIMENSION(3)  :: vec_vel, vec_pos
      TYPE(grid_comp_t), ALLOCATABLE  :: grid_comp(:)
@@ -130,7 +130,8 @@ SAVE
   DOUBLE PRECISION                   :: Z_inf
 ! lower boundary condition
   DOUBLE PRECISION, ALLOCATABLE      :: incomingflux(:,:)
-  INTEGER                            :: n_nubin, n_modelgrid
+  ! number of points in a spectrum, nof points in modGrid, nop in propGrid
+  INTEGER                            :: n_nubin, n_modelgrid, n_propgcells
   ! additional model grid variables
   INTEGER                            :: add_mg
   ! number of virtual point

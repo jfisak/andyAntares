@@ -135,10 +135,7 @@ IF(dyngrid /= 0) THEN
 
 END IF
 
-! DO I = 1, max_n_dcell
-!  write(19,*) dyn_cell(I)%corner, dyn_cell(I)%width
-!  dyn_cell(I)%model_index = 0
-! END DO
-! STOP 'setup_propgrid: testing'
+! definition of a total number of propGrid cells
+n_propgcells = max_n_dcell
 
 END SUBROUTINE setup_propgrid
