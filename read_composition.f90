@@ -107,7 +107,6 @@ OPEN (UNIT=7, FILE=inputcomposition)
   ! write(*,*) 'read_composition: filename = ', filename
   CALL find_element_index(atom_number, element_index)
   ! the most important is to read the file
-  ! write(*,*) 'read_composition: element_index = ', element_index
   CALL read_levels(element_index, lowerion,upperion,levels_type,filename)
  END DO
 ! now reading atomic transitions 

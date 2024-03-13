@@ -15,8 +15,6 @@ DOUBLE PRECISION                                        :: wale_start, wale_end
 DOUBLE PRECISION                                        :: nu_min, nu_max, ran_freq
 DOUBLE PRECISION                                        :: ran2
 
-INTEGER                                                 :: I
-
 DOUBLE PRECISION, DIMENSION(n_nubin)                    :: cur_spectrum, freqs
 
 LOGICAL                                                 :: procout=.false.
@@ -29,7 +27,7 @@ DOUBLE PRECISION, DIMENSION(3)                          :: det_vec_u, det_vec_v
 DOUBLE PRECISION                                        :: det_cell_wu, det_cell_wv
 DOUBLE PRECISION, DIMENSION(3)                          :: uvmin
 DOUBLE PRECISION, ALLOCATABLE                           :: det_matrix(:,:), det_spectra(:,:)
-INTEGER                                                 :: cur_specpoint
+! INTEGER                                                 :: cur_specpoint
 
 INTEGER                                                 :: my_ccd_start, my_ccd_end
 INTEGER                                                 :: N_single, N_zbytek

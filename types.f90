@@ -98,10 +98,9 @@ SAVE
   END TYPE element_ions
 
   TYPE atom_elements 
-     INTEGER                         :: indexe, atom_number, nions
+     INTEGER                         :: atom_number, nions
      DOUBLE PRECISION                :: atom_mass
      DOUBLE PRECISION                :: abundance
-     CHARACTER(LEN=file_length)                   :: levelfile='', transitionfile=''
      TYPE(element_ions), ALLOCATABLE :: ions(:)
   END TYPE atom_elements
 

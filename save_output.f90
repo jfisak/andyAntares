@@ -32,7 +32,6 @@ CHARACTER(LEN=file_length)                       :: fileHydrogenFrac, fileHelium
 CHARACTER(LEN=file_length)                       :: fileGrid, filePart
 ! ionization fraction files
 DOUBLE PRECISION                        :: frac, N_jk, totElPop
-INTEGER                                 :: n_pack
 ! DOUBLE PRECISION                        :: frac1, N_jk1, totElPop1
 ! DOUBLE PRECISION                        :: frac2, N_jk2, totElPop2
 ! DOUBLE PRECISION                        :: frac3, N_jk3, totElPop3
@@ -55,8 +54,7 @@ INTEGER                                 :: n_adgrids
 
 ! chemical composition
 INTEGER                                 :: cur_indexe, cur_element, cur_Z, cur_nions
-INTEGER                                 :: cur_atom_mass, cur_abundance
-CHARACTER(LEN=file_length)              :: cur_levelfile, cur_transfile
+DOUBLE PRECISION                        :: cur_atom_mass, cur_abundance, cur_ionpot
 
 !________________________________________________________________________________
 ! #00 output folder
@@ -462,19 +460,26 @@ CASE(101)
  write(99,*) 'composition file'
  write(99,*) '___________________________________________________________'
  write(99,*) '1.) chemical compositiion'
- write(99,*) 'indexe    Z       n_ions  atom_mass       tot_abundance   level file      transition file'
-
+ write(99,*) 'indexe    Z       n_ions  atom_mass       tot_abundance'
  DO cur_element = 1, n_elements
-  cur_indexe = elements(cur_element)%indexe
+  cur_indexe = cur_element
   cur_Z = elements(cur_element)%atom_number
-  cur_nions = elements(cur_element)%nions
   cur_atom_mass = elements(cur_element)%atom_mass
   cur_abundance = elements(cur_element)%abundance
-  cur_levelfile = elements(cur_element)%levelfile
-  cur_transfile = elements(cur_element)%transitionfile
-  write(99,*) , cur_indexe, cur_Z, cur_nions, cur_atom_mass, cur_abundance, cur_levelfile, cur_transfile
+  write(*,*) 'save_output: cur_indexe = ', cur_indexe
+  write(99,*) cur_indexe, cur_Z, cur_atom_mass, cur_abundance
  END DO
- write(99,*) 
+
+ write(99,*) '2.) energy levels'
+ DO cur_element = 1, n_elements
+  cur_indexe = cur_element
+  cur_nions = elements(cur_element)%nions
+  write(99,*) 'n_of_ion, charge, ion_pot'
+  DO cur_ion = 1, cur_nions
+   cur_ionpot = elements(cur_indexe)%ions(cur_ion)%ion_potential
+   write(99,*) cur_ion, cur_ion - 1, cur_ionpot
+  END DO
+ END DO
 
  
 CASE DEFAULT
