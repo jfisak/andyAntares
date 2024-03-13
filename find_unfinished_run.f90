@@ -4,7 +4,7 @@ USE types
 USE constants
 IMPLICIT NONE
 
-CHARACTER(50)                   :: temp_file_name
+CHARACTER(file_length)          :: temp_file_name
 INTEGER                         :: n_file, cur_pack
 LOGICAL                         :: file_exists
 INTEGER                         :: reading_packets
