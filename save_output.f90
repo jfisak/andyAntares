@@ -18,7 +18,7 @@ IMPLICIT NONE
 ! type of output
 INTEGER                                 :: otype
 ! folder variables
-CHARACTER(LEN=60)                       :: lineOutput
+CHARACTER(LEN=file_length)                       :: lineOutput
 ! save informations about lines
 INTEGER                                 :: I, J, K
 DOUBLE PRECISION                        :: wavle
@@ -27,30 +27,37 @@ DOUBLE PRECISION                        :: wavle
 INTEGER                                 :: act_elem, act_ion, act_lev
 DOUBLE PRECISION                        :: act_pop
 DOUBLE PRECISION                        :: eenergy
-CHARACTER(LEN=60)                       :: fileTempStruct, fileOccNum
-CHARACTER(LEN=60)                       :: fileHydrogenFrac, fileHeliumFrac
-CHARACTER(LEN=60)                       :: fileGrid, filePart
+CHARACTER(LEN=file_length)                       :: fileTempStruct, fileOccNum
+CHARACTER(LEN=file_length)                       :: fileHydrogenFrac, fileHeliumFrac
+CHARACTER(LEN=file_length)                       :: fileGrid, filePart
 ! ionization fraction files
 DOUBLE PRECISION                        :: frac, N_jk, totElPop
+INTEGER                                 :: n_pack
 ! DOUBLE PRECISION                        :: frac1, N_jk1, totElPop1
 ! DOUBLE PRECISION                        :: frac2, N_jk2, totElPop2
 ! DOUBLE PRECISION                        :: frac3, N_jk3, totElPop3
 INTEGER                                 :: indexe, indexi
 INTEGER                                 :: status
-CHARACTER(LEN=60)                       :: filePackets
+CHARACTER(LEN=file_length)                       :: filePackets
 ! testing PoWR ionization fractions
 DOUBLE PRECISION                        :: ntot, nhi
 INTEGER, PARAMETER                      :: indexH = 1, indexHI = 1, indexHII = 2
 INTEGER, PARAMETER                      :: indexHe = 2, indexHeI = 1, indexHeII = 2, indexHeIII = 3
 DOUBLE PRECISION                        :: abundance, density
-CHARACTER(LEN=60)                       :: fileHI, fileHII, fileHeI, fileHeII, fileHeIII
-CHARACTER(LEN=60)                       :: fileEldens, fileRho, temp_file_name
+CHARACTER(LEN=file_length)                       :: fileHI, fileHII, fileHeI, fileHeII, fileHeIII
+CHARACTER(LEN=file_length)                       :: fileEldens, fileRho, temp_file_name
 INTEGER                                 :: cell_index
 DOUBLE PRECISION                        :: num_tot_pop
 INTEGER                                 :: tot_n_ions, cur_ion, n_ions
 DOUBLE PRECISION, ALLOCATABLE           :: part_functions(:)
 DOUBLE PRECISION                        :: U, temperature
 INTEGER                                 :: n_adgrids
+
+! chemical composition
+INTEGER                                 :: cur_indexe, cur_element, cur_Z, cur_nions
+INTEGER                                 :: cur_atom_mass, cur_abundance
+CHARACTER(LEN=file_length)              :: cur_levelfile, cur_transfile
+
 !________________________________________________________________________________
 ! #00 output folder
 !
@@ -94,6 +101,12 @@ CASE(0)
  ! ELSE
   OPEN(99, FILE=outputfile) 
   ! write(*,*) 'save_output: opening the file ', outputfile
+  write(99,*) '___________________________________________________________'
+  write(99,*) '___________________________________________________________'
+  write(99,*) 'ANDY ANTARES CODE'
+  write(99,*) 'MŇAU'
+  write(99,*) '___________________________________________________________'
+  write(99,*) '___________________________________________________________'
  ! END IF
 !____________________________________________________________
 ! #02 spectral lines
@@ -381,8 +394,12 @@ CASE(9)
   DO J = 1, n_elements
    n_ions = SIZE(elements(J)%ions)
    DO K = 1, n_ions
-    CALL part_fun(J, K, temperature, U)
-    part_functions(cur_ion) = U
+    IF(temperature /= 0.D0) THEN
+     CALL part_fun(J, K, temperature, U)
+     part_functions(cur_ion) = U
+    ELSE
+     part_functions(cur_ion) = 0.D0
+    END IF
     cur_ion = cur_ion + 1
    END DO ! over ions
   END DO ! over elements
@@ -406,18 +423,60 @@ CASE(10)
   END DO
  CLOSE(72)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! #10 informations about model
-!
+! #100 input file
+! 
 ! 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-CASE(11)
- write(99,*) '**** INFORMATIONS ABOUT MODEL ****'
- write(99,*) 'R_star = ', R_star/R_sun
- write(99,*) 'R_inf = ', R_inf/R_sun
- write(99,*) 'V_inf = ', V_inf
- ! write(99,*) 'dd
+CASE(100)
+ write(99,*) '___________________________________________________________'
+ write(99,*) 'input file'
+ write(99,*) '___________________________________________________________'
+ write(99,*) 'set up variables:'
+ ! write(99,*) 'number of packets: ', n_pack, ' a temporary file saves ', n_pack_save, ' packets'
+ write(99,*) ' a temporary file saves ', n_pack_save, ' packets'
+ write(99,*) 'n_nubin = ', n_nubin
+ write(99,*) 'propagation grid parameters:'
+ write(99,*) 'using a previously saved grid = ', saved_grid
+ write(99,*) 'nx_cell = ', nx_cell, ' ny_cell = ', ny_cell, ' nz_cell = ', nz_cell
+ write(99,*) 'xmax = ', xmax, ' ymax = ', ymax, ' zmax = ', zmax
+ write(99,*) 'adaptive grid type = ', dyngrid
+ write(99,*) 'number of virtual points = ', Nvirtpoint
+ write(99,*) 'model grid parameters:'
+ write(99,*) 'input model file = ', inputmodelFile
+ write(99,*) 'input composition = ', inputcomposition
+ write(99,*) 'input population file = ', inputpopfile
+ write(99,*) 'electron density file = ', eldensfile
+ write(99,*) 'model_type = ', model_type, 'inputmodel = ', inputmodel
+ write(99,*) 'NLTE = ', nlte, ' velocity approximation = ', velApprox
+ write(99,*) 'absortive surface = ', abs_surface
+ write(99,*) 'diffusion = ', enable_diffusion
+ write(99,*) 'calculate BRTM = ', calc_brtm
+ write(99,*) '___________________________________________________________'
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! #101 composition file
+! 
+! 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CASE(101)
+ write(99,*) '___________________________________________________________'
+ write(99,*) 'composition file'
+ write(99,*) '___________________________________________________________'
+ write(99,*) '1.) chemical compositiion'
+ write(99,*) 'indexe    Z       n_ions  atom_mass       tot_abundance   level file      transition file'
+
+ DO cur_element = 1, n_elements
+  cur_indexe = elements(cur_element)%indexe
+  cur_Z = elements(cur_element)%atom_number
+  cur_nions = elements(cur_element)%nions
+  cur_atom_mass = elements(cur_element)%atom_mass
+  cur_abundance = elements(cur_element)%abundance
+  cur_levelfile = elements(cur_element)%levelfile
+  cur_transfile = elements(cur_element)%transitionfile
+  write(99,*) , cur_indexe, cur_Z, cur_nions, cur_atom_mass, cur_abundance, cur_levelfile, cur_transfile
+ END DO
  write(99,*) 
- write(99,*) 
+
+ 
 CASE DEFAULT
  write(99,*) 'save_output: this case is not known'
 END SELECT

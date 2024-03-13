@@ -5,11 +5,8 @@ USE constants
 
 IMPLICIT NONE
 
-DOUBLE PRECISION                          :: junk
 CHARACTER(80)                             :: populationfile
 
-DOUBLE PRECISION                                :: eldens
-INTEGER                                         :: I
 INTEGER                                         :: cur_element, cur_ion, cur_level
 INTEGER                                         :: n_ions, n_levels
 

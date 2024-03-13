@@ -22,8 +22,7 @@ INTEGER, PARAMETER                      :: n_zero = 1, n_x = 2, n_y = 3, n_z = 4
 
 LOGICAL                                                 :: incell
 INTEGER, PARAMETER                      :: dir_x = 1, dir_y = 2, dir_z = 3
-INTEGER                                 :: I, J, dummy, a
-DOUBLE PRECISION, DIMENSION(3)          :: dummy2
+INTEGER                                                 :: I
 
 act_cell = package(pack_index)%cell_numb
 act_pos = package(pack_index)%pos

@@ -9,9 +9,9 @@ DOUBLE PRECISION, DIMENSION(3)                 :: vec1, vec2
 DOUBLE PRECISION                               :: pos0, pos1, pos2
 DOUBLE PRECISION, DIMENSION(3)                 :: int_vector
 DOUBLE PRECISION, DIMENSION(3)                 :: lina, linb
-DOUBLE PRECISION, DIMENSION(3)                 :: vecpos0
-INTEGER, DIMENSION(8)                          :: neighborscells
-INTEGER                                        :: pack_index, I
+! DOUBLE PRECISION, DIMENSION(3)                 :: vecpos0
+! INTEGER, DIMENSION(8)                          :: neighborscells
+INTEGER                                        :: pack_index
 
 if(pos1 == pos2) then
  write(*,*) 'lin_interpolation: pos1 = ', pos1, ' pos2 = ', pos2

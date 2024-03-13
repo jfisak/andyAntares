@@ -12,10 +12,8 @@ USE constants
  ! DOUBLE PRECISION                  :: event_dist
  DOUBLE PRECISION, DIMENSION(3)         :: pos
 
-INTEGER                                 :: pomocna_bunka, I, old_cell, next_mgi
+INTEGER                                 :: old_cell, next_mgi
 INTEGER                                 :: dummypackage
-
-DOUBLE PRECISION                        :: round_number
 
 LOGICAL                                 :: is_difap
 
@@ -34,16 +32,28 @@ IF (next_cell .LT. 0) THEN
  count_des_esca = count_des_esca + 1
 ELSE
  package(pack_index)%cell_numb = next_cell
+ IF(debug == 2) THEN
+  write(*,*) 'change_cell: change of cell into: ', next_cell
+ END IF
+
+ ! test on the propGrid cell index number
  IF(next_cell > SIZE(dyn_cell)) THEN
+  write(*,*) 'change_cell: next_cell > numbre of propGrid cells, exiting now'
   CALL abort()
  END IF
+
+ ! takes into account if the diffusion approximation takes place
  if(enable_diffusion == 1) then
   next_mgi = dyn_cell(next_cell)%model_index
   is_difap = model_grid(next_mgi)%is_difapp
   IF(is_difap) THEN
    package(pack_index)%typ = type_dpkt
+   ! if(package(pack_index)%typ == type_rpkt) package(pack_index)%typ = type_dpkt
+   ! if(package(pack_index)%typ == type_vrpkt) package(pack_index)%typ = type_vdpkt
   ELSE
    package(pack_index)%typ = type_rpkt
+   ! if(package(pack_index)%typ == type_rpkt) package(pack_index)%typ = type_rpkt
+   ! if(package(pack_index)%typ == type_vrpkt) package(pack_index)%typ = type_vrpkt
   END IF
  end if
 END IF

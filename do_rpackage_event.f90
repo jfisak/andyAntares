@@ -13,13 +13,13 @@ USE constants
   DOUBLE PRECISION                      :: summ, rand
   TYPE(rrates)                          :: actirrates
   DOUBLE PRECISION                      :: freq, freqt
-  INTEGER                               :: indexe, indexi, indexl
+  INTEGER(KIND=4)                       :: indexe, indexi, indexl
  DOUBLE PRECISION                       :: ran2
   ! total rates for the given processes
   DOUBLE PRECISION                      :: Zthomson, Zphotion, Zff
   DOUBLE PRECISION                      :: ZcontTot
   LOGICAL                               :: procout = .FALSE.
-  DOUBLE PRECISION                      :: D
+  ! DOUBLE PRECISION                      :: D
   LOGICAL                               :: ellastic_scattering = .TRUE.
 
   IF(debug == 4) procout = .TRUE.
@@ -108,9 +108,9 @@ USE constants
     IF(rand >= summ .AND. rand <= actirrates%Lcont(4, I) + summ) THEN
      ! we have to choose if the packet transofrms onto i or k packet
      ! we will get it from the treshold frequency for the given ion
-     indexe = actirrates%Lcont(1,I)
-     indexi = actirrates%Lcont(2,I)
-     indexl = actirrates%Lcont(3,I)
+     indexe = INT(actirrates%Lcont(1,I))
+     indexi = INT(actirrates%Lcont(2,I))
+     indexl = INT(actirrates%Lcont(3,I))
      ! treshold frequency
      freqt = elements(indexe)%ions(indexi)%levels(indexl)%phfreq
      freq = package(pack_index)%freq_cmf

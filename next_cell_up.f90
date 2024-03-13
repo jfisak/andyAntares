@@ -22,7 +22,6 @@ INTEGER                                 :: upper_cell
 DOUBLE PRECISION, DIMENSION(3)          :: subcells_width
 INTEGER                                 :: subind_x, subind_y, subind_z
 INTEGER                                         :: sub_nx, sub_ny, sub_nz
-DOUBLE PRECISION                                :: rat1, rat2, rat3
 
 INTEGER, DIMENSION(3)                   :: bcell
 INTEGER                                 :: bindex

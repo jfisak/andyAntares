@@ -8,7 +8,7 @@ USE constants
 IMPLICIT NONE 
 
 INTEGER                       :: NR, n_packs
-INTEGER                       :: I,J, K, lw_index, lg_index
+INTEGER                       :: J, K, lw_index, lg_index
 LOGICAL                       :: found
 INTEGER, PARAMETER            :: maxrows = 6000000
 DOUBLE PRECISION, DIMENSION(n_packs) :: freq
@@ -20,14 +20,7 @@ DOUBLE PRECISION              :: sinseed, cosseed
 DOUBLE PRECISION              :: a_linint, b_linint
 DOUBLE PRECISION              :: x1, x2, fx1, fx2
 ! division on several intervals
-DOUBLE PRECISION                :: summ
-DOUBLE PRECISION                :: tot_int_val
-INTEGER                         :: low_bound, upp_bound
-INTEGER                         :: Nints, Npoints
-DOUBLE PRECISION, ALLOCATABLE   :: int_val(:)
-! local number of photons
-INTEGER                         :: loc_npacks, n_created_packs
-DOUBLE PRECISION                :: loc_flux_max, loc_freq_min, loc_freq_max
+INTEGER                         :: Nints
  
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! now we generate a new photonic frequency

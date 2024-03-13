@@ -7,7 +7,6 @@ IMPLICIT NONE
 INTEGER                                 :: pack_index
 DOUBLE PRECISION, DIMENSION(3)          :: vel_vec
 
-INTEGER                                 :: testpacket
 DOUBLE PRECISION, DIMENSION(3)          :: act_corner, act_width, act_pos
 INTEGER                                 :: act_cell
 INTEGER                                 :: act_mgi

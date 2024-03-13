@@ -17,7 +17,7 @@ DOUBLE PRECISION                        :: value_1, value_2
 ! output variables
 DOUBLE PRECISION                        :: gf
 INTEGER                                 :: indexe, indexi
-CHARACTER(LEN=15)                       :: el_conf_lower, el_conf_upper
+CHARACTER(LEN=30)                       :: el_conf_lower, el_conf_upper
 INTEGER                                 :: conf_len_lower, conf_len_upper
 CHARACTER(LEN=2)                        :: sconf_l, sconf_u
 

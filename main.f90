@@ -13,8 +13,8 @@ USE constants
   INTEGER                           :: iseed, idx
   INTEGER, DIMENSION (9)            :: TT
   DOUBLE PRECISION, ALLOCATABLE     :: current_temp(:)
-  INTEGER                               :: cur_parameter=0
-  REAL                                  :: time0_agconnwpg, time1_agconnwpg
+  INTEGER                               :: cur_parameter
+  ! REAL                                  :: time0_agconnwpg, time1_agconnwpg
   REAL                                  :: time0_pp, time1_pp
 ! parallelized part
 ! definition of MPI variables
@@ -27,6 +27,8 @@ LOGICAL                                 :: timing = .true.
 
 DOUBLE PRECISION                        :: test_freq
 DOUBLE PRECISION, DIMENSION(3)          :: test_pos, test_end
+
+INTEGER, PARAMETER                      :: ind_save_inputfile = 100, ind_save_composition = 101
 
 ! Link data to identify program version
 CHARACTER LINK_DATE*30, LINK_USER*10, LINK_HOST*60
@@ -51,6 +53,7 @@ my_rank = 0
 #endif
 
 
+ cur_parameter = 0
  CALL save_output(cur_parameter)
  write(99,*) 'mpi initialization: my_rank = ', my_rank, &
   ' n_tasks = ', n_tasks
@@ -69,14 +72,19 @@ my_rank = 0
  write(99,*) 'read input'
  CALL read_input(n_pack, iseed)
  CALL analyse_input()
+ CALL save_output(ind_save_inputfile)
  ! Allocate array for photon packages.
- ALLOCATE (package(n_pack + 2))
+ ! n_pack + 1 -- dummypackage
+ ! n_pack + 3 -- virtual package
+ n_add_pack = 3
+ ALLOCATE (package(n_pack + n_add_pack))
  ! write(*,*) 'main: |package| = ', SIZE(package)
 
  CALL find_unfinished_run()
  ! Read composition
  write(99,*) 'read_composition'
  CALL read_composition()
+ CALL save_output(ind_save_composition)
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -155,6 +163,7 @@ ELSE
  write(99,*) 'model grid is set up'
  write(99,*) 'setup propagation grid'
  write(99,*) 'xmax = ', xmax/R_star, ' ymax = ', ymax/R_star, ' zmax = ', zmax/R_star
+ ! STOP 'main: testing'
   
  
  ! Set up of the propagation grid
@@ -213,7 +222,7 @@ DO iteration = 1,1
  ! test_pos = (/R_star, 0.D0, 0.D0/)
  ! test_end = (/20*R_star, 0.D0, 0.D0/)
  ! test_freq = 1164084775316555.5 ! Hz
- ! CALL freq_from_planck(test_freq, T_eff)
+ CALL freq_from_planck(test_freq, T_eff)
  ! CALL calc_tau(test_pos, test_end, test_freq)
  ! STOP 'main: testing'
  ! if (iteration == 1 .AND. inputpopfile .NE. '') then
@@ -268,6 +277,13 @@ END DO ! iteration (now of temperature structure)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! GET THE POSITION DEPENDENT SPECTRUM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+ 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! SAVE OUTPUT FILES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -289,5 +305,8 @@ END DO ! iteration (now of temperature structure)
 
 CLOSE(2)
 CLOSE(99)
+
+IF(debug == 3) write(*,*) 'main: calling backward ray-tracing method'
+IF(calc_brtm) CALL brtm()
 
 END SUBROUTINE main

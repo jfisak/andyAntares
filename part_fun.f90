@@ -12,8 +12,9 @@ DOUBLE PRECISION    :: U, temp, g_level, e_level, e_gl
 INTEGER, DIMENSION(1)   :: indexl0!, indexl1
 
   
-! write(*,*) 'partition func. called for:', indexe, indexi, temp
- IF(temp == 0 ) STOP 'part_fun: temperature = 0...'
+ IF(temp == 0 ) THEN
+  STOP 'part_fun: temperature = 0...'
+ END IF
 
 IF(.NOT. ALLOCATED(elements(indexe)%ions(indexi)%levels)) THEN
  write(*,*) 'part_fun: indexe = ', indexe, ' indexi = ', indexi

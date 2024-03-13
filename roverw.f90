@@ -4,7 +4,7 @@ USE types
 USE constants
 IMPLICIT NONE
 
-DOUBLE PRECISION                               :: R_pos, V_pos
+DOUBLE PRECISION                               :: R_pos, V_pos, fr_line
 DOUBLE PRECISION                                :: l_dist
 DOUBLE PRECISION, DIMENSION(3)                  :: V_pos_vec
 DOUBLE PRECISION                                :: costheta
@@ -15,13 +15,16 @@ INTEGER                                         :: dummypackage, next_cell, pack
 DOUBLE PRECISION, DIMENSION(3)                  :: cur_pos, cur_dir
 DOUBLE PRECISION, DIMENSION(3)                  :: pos_min, pos_pls, pos_lin
 DOUBLE PRECISION                                :: freq_min, freq_pls
-DOUBLE PRECISION                                :: cmf_min, cmf_pls, fr_line
+DOUBLE PRECISION                                :: cmf_min, cmf_pls
 DOUBLE PRECISION                                :: a_lin, b_lin
 DOUBLE PRECISION                                :: cur_freq_rf
-DOUBLE PRECISION, PARAMETER                     :: delta=1.D7
-DOUBLE PRECISION                                :: deriv_min, deriv_pls, deriv
+DOUBLE PRECISION, PARAMETER                     :: delta=1.E0
+DOUBLE PRECISION                                :: der, deriv
+DOUBLE PRECISION                                :: deriv_min, deriv_pls
 DOUBLE PRECISION, DIMENSION(3)                  :: pos_line
 DOUBLE PRECISION                                :: s_min, s_0, s_pls
+
+dummypackage = SIZE(package) - 3 + 1
 
 IF(velapprox == 0) THEN
 ! ONLY FOR TESTING !!!

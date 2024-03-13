@@ -11,8 +11,7 @@ USE constants
   DOUBLE PRECISION, DIMENSION(3)    :: direction, directionn
   DOUBLE PRECISION, DIMENSION(n_pack) :: frequencies
 
-  DOUBLE PRECISION, DIMENSION(3)        :: cur_pos
-  INTEGER                               :: cur_pgi, cur_mgi
+  INTEGER                               :: cur_mgi
   DOUBLE PRECISION                      :: cur_Teff
   LOGICAL, PARAMETER                    :: homogeneous=.true.
 
@@ -59,12 +58,15 @@ USE constants
     IF ((inputflux .EQ. 0) ) THEN
      IF(homogeneous) THEN
       CALL freq_from_planck(freq, T_eff)   ! here the frequency is sampled from a Planck law
-      ! **testing**
-      !  freq_max = 3.0e15
-      !  freq_min = 1.5e15
-      !  ran_num = freq_min + (freq_max - freq_min) * ran2(idum)
-      !  freq = ran_num
-      ! **testing**
+     ELSE
+      cur_mgi = dyn_cell(ind_cell_numb)%model_index
+      cur_Teff = model_grid(cur_mgi)%T
+      if(cur_mgi > n_modelgrid) then
+       cur_Teff = 30000.00 + (270000 * ran2(idum))
+      end if
+      write(40,*) cur_Teff
+      CALL freq_from_planck(freq, cur_Teff)
+      IF(my_rank == 0) write(39,*) freq
      END IF
      IF(I > tot_saved_packets) package(I)%freq_rf = freq
     ELSE IF ((inputflux .EQ. 1 .OR. inputflux == 2) .AND. (I==1)) THEN
@@ -85,11 +87,13 @@ USE constants
     package(I)%typ        = type_rpkt
     package(I)%n_interactions = 0
     package(I)%next_cross = NONE
+    package(I)%virtual = .FALSE.
 
     ! Assign rf energy and frequency to the packet
     package(I)%e_rf = L_star/n_pack  
 
     ! Now convert the energy and frequency to their cmf values
+    ! CALL doppler_factor(I, R_star * direction, direction, D)
     CALL doppler_factor(I, D)
     package(I)%freq_cmf = package(I)%freq_rf * D 
     package(I)%e_cmf    = package(I)%e_rf * D  

@@ -12,7 +12,7 @@ USE constants
    ! actual number of grid cell
    INTEGER                              :: max_n_dcell, act_n_dyncell
    INTEGER                              :: I,J
-   INTEGER                              :: Npart, n_points
+   INTEGER                              :: n_points
    ! number of new created cells in cell
    INTEGER                              :: no_dcells
    ! variables for boundaries
@@ -20,7 +20,7 @@ USE constants
    ! maximal number of point in one cell
    INTEGER, PARAMETER                   :: maxPart = 1
    DOUBLE PRECISION, DIMENSION(3)       :: corner, cell_width_2
-   TYPE(virt_point), ALLOCATABLE     :: local_point(:), pom(:)
+   TYPE(virt_point), ALLOCATABLE     :: local_point(:)
    TYPE(dyn_grid_cell), ALLOCATABLE     ::  pom2(:)
    ! dimension of the subcell grid
    INTEGER, DIMENSION(3)                :: dimofsubcells

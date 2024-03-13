@@ -13,7 +13,7 @@ DOUBLE PRECISION                        :: gl_pop, N_jk, U
 
 ! write(*,*) 'lte_pops: indexe = ', indexe, ' indexi = ', indexi
 DO gridcell = 1, n_modelgrid
- IF (model_grid(gridcell)%assoc_cells .GT. 0) THEN
+ IF (model_grid(gridcell)%assoc_cells > 0) THEN
   el_nd = model_grid(gridcell)%e_dens
   temp = model_grid(gridcell)%T
   ! write(*,*) 'lte_pops: el_nd = ', el_nd
@@ -28,10 +28,8 @@ DO gridcell = 1, n_modelgrid
   ! Calculate partition function (U) of element indexe in ionization stage 
   ! indexi at given temperature temp
   CALL part_fun(indexe, indexi, temp, U)
-  ! write(*,*) 'lte_pops: U = ', U
   ! Ground level population number (number density of the atom at ground level)
-  ! write(*,*) 'update_grid: U = ', U
-  indexl0(:) = MINLOC(elements(indexe)%ions(indexi)%levels(:)%exci_energy,1)
+  indexl0(1) = MINLOC(elements(indexe)%ions(indexi)%levels(:)%exci_energy,1)
   gl_pop = ( elements(indexe)%ions(indexi)%levels(indexl0(1))%stat_waight * N_jk ) /  U 
   ! IF(indexe == 1 .AND. indexi == 1) write(*,*) 'update_grid: H I = ', frac
   ! IF(indexe == 1 .AND. indexi == 2) write(*,*) 'update_grid: H II = ', frac

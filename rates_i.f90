@@ -46,7 +46,8 @@ END INTERFACE
 CONTAINS
 FUNCTION rates_construct(nlns, nluns, nlio)
  TYPE(irates)                   :: rates_construct
- INTEGER                        :: nldo, nlup, nlio
+ ! INTEGER                        :: nldo, nlup
+ INTEGER                        :: nlio
 
  ALLOCATE(rates_construct%Lma_int_dorad(nlns))
  ALLOCATE(rates_construct%Lma_int_docoll(nlns))

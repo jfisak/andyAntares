@@ -7,7 +7,7 @@ IMPLICIT NONE
 TYPE rrates
  DOUBLE PRECISION, ALLOCATABLE                   :: Lcont(:,:)
  DOUBLE PRECISION, ALLOCATABLE                   :: Lline(:)
- INTEGER, ALLOCATABLE                            :: nline(:)
+ INTEGER(KIND=4), ALLOCATABLE                            :: nline(:)
 END TYPE rrates
 
 INTERFACE rrates

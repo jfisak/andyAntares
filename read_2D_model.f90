@@ -20,7 +20,6 @@ DOUBLE PRECISION                       :: act_radius, min_radius, max_radius
 DOUBLE PRECISION                       :: act_z, max_z
 INTEGER                                :: max_radius_index
 INTEGER                                :: vacuum
-DOUBLE PRECISION                       :: angle
 
  ! write(*,*) 'read_2D_model: start'
  SELECT CASE (inputModel)

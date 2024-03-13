@@ -8,8 +8,10 @@ USE constants
   IMPLICIT NONE    
     
     INTEGER                 :: pack_index, get_package_model_index
+    INTEGER                     :: cur_cell_numb
 
-   get_package_model_index = dyn_cell(package(pack_index)%cell_numb)%model_index
+   cur_cell_numb = package(pack_index)%cell_numb
+   get_package_model_index = dyn_cell(cur_cell_numb)%model_index
 
   RETURN 
 

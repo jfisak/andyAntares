@@ -7,6 +7,7 @@ SAVE
 #endif
 
 
+ INTEGER, PARAMETER                 :: file_length = 180
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -28,8 +29,14 @@ SAVE
      INTEGER                         :: n_interactions
      DOUBLE PRECISION, DIMENSION(3)  :: pos, dir 
      INTEGER                         :: l_ele, l_ion, l_lev, n_int = 0
-     LOGICAL                         :: redShift
+     LOGICAL                         :: redShift, virtual
   END TYPE photon
+
+  TYPE virtual_packet
+   DOUBLE PRECISION, DIMENSION(3)       :: pos, dir
+   INTEGER                              :: active, cell_index
+   DOUBLE PRECISION                     :: freq_rf
+  END TYPE virtual_packet
 
 
   TYPE grid_ion_t
@@ -48,7 +55,7 @@ SAVE
      DOUBLE PRECISION                :: width
      DOUBLE PRECISION                :: volume
      DOUBLE PRECISION                :: diff_param
-     DOUBLE PRECISION                :: T, J, rho, vel, rwind, e_dens
+     DOUBLE PRECISION                :: T = 0.D0, J = 0.D0, rho = 0.D0, vel = 0.D0, rwind, e_dens = 0.D0
      DOUBLE PRECISION                :: zwind, velang, angle
      DOUBLE PRECISION, DIMENSION(3)  :: vec_vel, vec_pos
      TYPE(grid_comp_t), ALLOCATABLE  :: grid_comp(:)
@@ -72,7 +79,7 @@ SAVE
   END TYPE line_list
 
   TYPE ion_levels 
-     INTEGER(KIND=2), ALLOCATABLE    :: linetransitions(:), lineuptransitions(:)
+     INTEGER, ALLOCATABLE    :: linetransitions(:), lineuptransitions(:)
      DOUBLE PRECISION                :: exci_energy, stat_waight
      CHARACTER(LEN=30)               :: elconf
      LOGICAL                         :: phcrossform
@@ -94,7 +101,7 @@ SAVE
      INTEGER                         :: indexe, atom_number, nions
      DOUBLE PRECISION                :: atom_mass
      DOUBLE PRECISION                :: abundance
-     CHARACTER(180)                   :: levelfile, transitionfile
+     CHARACTER(LEN=file_length)                   :: levelfile='', transitionfile=''
      TYPE(element_ions), ALLOCATABLE :: ions(:)
   END TYPE atom_elements
 
@@ -123,18 +130,22 @@ SAVE
   DOUBLE PRECISION                   :: Z_inf
 ! lower boundary condition
   DOUBLE PRECISION, ALLOCATABLE      :: incomingflux(:,:)
-  INTEGER                            :: n_nubin, n_modelgrid
+  ! number of points in a spectrum, nof points in modGrid, nop in propGrid
+  INTEGER                            :: n_nubin, n_modelgrid, n_propgcells
   ! additional model grid variables
   INTEGER                            :: add_mg
   ! number of virtual point
   INTEGER                            :: Nvirtpoint
   ! velocity approximation
   INTEGER                            :: velApprox
+  ! brtm activation
+  LOGICAL                            :: calc_brtm
 
 ! fields for the given types
   TYPE(modelgrid), ALLOCATABLE       :: model_grid(:)
   TYPE(dyn_grid_cell), ALLOCATABLE, SAVE   :: dyn_cell(:)   
   TYPE(photon), ALLOCATABLE          :: package(:)
+  TYPE(virtual_packet), ALLOCATABLE  :: vpackage(:)
 
   TYPE(line_list), ALLOCATABLE       :: linelist(:)
   TYPE(atom_elements), ALLOCATABLE   :: elements(:)
@@ -160,10 +171,15 @@ SAVE
 ! Globally defined numerical constants 
 !! Different packet types
   INTEGER, PARAMETER                 :: type_escaped=-99 
+  INTEGER, PARAMETER                 :: type_photosphere=99
   INTEGER, PARAMETER                 :: type_rpkt=0 
   INTEGER, PARAMETER                 :: type_kpkt=1
   INTEGER, PARAMETER                 :: type_ipkt=2
   INTEGER, PARAMETER                 :: type_dpkt=3
+  INTEGER, PARAMETER                 :: type_vrpkt=4
+  INTEGER, PARAMETER                 :: type_vkpkt=5
+  INTEGER, PARAMETER                 :: type_vipkt=6
+  INTEGER, PARAMETER                 :: type_vdpkt=7
 
   INTEGER, PARAMETER                 :: rpkt_eventtype_changecell=1
   INTEGER, PARAMETER                 :: rpkt_eventtype_lineinteraction=2
@@ -176,6 +192,9 @@ SAVE
   INTEGER, PARAMETER                 :: negy=4
   INTEGER, PARAMETER                 :: posz=5
   INTEGER, PARAMETER                 :: negz=6
+  INTEGER, PARAMETER                 :: edxy=7
+  INTEGER, PARAMETER                 :: edxz=8
+  INTEGER, PARAMETER                 :: edyz=9
   INTEGER, PARAMETER                 :: NONE = -99
   INTEGER, PARAMETER                 :: no_line = -99
 
@@ -194,6 +213,7 @@ SAVE
   ! Specify minimal size of dynamic cell
   DOUBLE PRECISION, PARAMETER          :: minwidth = 1E8
   ! number of packets which will be saved into a file
+  INTEGER                               :: n_add_pack
   INTEGER                               :: n_pack_save
   ! temporary file name
   CHARACTER(160)                     :: temp_filename = 'temp_packet'

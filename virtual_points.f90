@@ -28,10 +28,8 @@ USE constants
  INTEGER                        :: sumpart = 0, zbytek
  DOUBLE PRECISION, DIMENSION(3) :: pos, width
 
- INTEGER                        :: cur_ncell, cur_nvp
- INTEGER                        :: ind_cell_numb, n_cellsa, Npoint
+ INTEGER                        :: ind_cell_numb, Npoint
  INTEGER                        :: ind_x, ind_y, ind_z
- INTEGER                        :: cur_order, n_cells
 
  TYPE(virt_point)               :: dummy
  DOUBLE PRECISION               :: A

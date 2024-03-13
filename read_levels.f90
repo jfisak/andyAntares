@@ -28,7 +28,8 @@ USE constants
  CHARACTER (LEN=16)              :: junk
  INTEGER                        :: jint
  REAL                           :: jreal
- DOUBLE PRECISION               :: l_energy, ionoffset, s_weight
+ DOUBLE PRECISION               :: l_energy, ionoffset
+ DOUBLE PRECISION                        :: s_weight
  DOUBLE PRECISION, PARAMETER    :: rydberg = 13.5979996 !(eV)
  ! calculation of excitation energy (OP)
  ! current excitation energy

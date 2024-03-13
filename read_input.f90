@@ -8,6 +8,8 @@ USE constants
   INTEGER    :: n_pack, iseed, idx, npar
   CHARACTER(LEN=180)  :: LINE, ACTPAR
 
+  INTEGER                               :: calc_brtm_int
+
   OPEN (UNIT=1, FILE='input.dat', STATUS='OLD')
 
 ! Default values
@@ -19,10 +21,14 @@ USE constants
   model_type = 1
   iseed = -1  
   eldensfile = 0
+  inputpopfile = ''
+  inputmodelFile = ''
+  inputComposition = ''
   abs_surface = 0
   saved_grid = 0
   enable_diffusion = 0
   sobolev_approximation = 1
+  calc_brtm = .FALSE.
 
 ! 001 n_pack
 ! 002 n_nubin
@@ -48,10 +54,12 @@ USE constants
 ! 022 inputpopfile
 ! 023 saved grid
 ! 024 diffusion
-! 025 Sobolev approximation
+! 025 BRTM
+! 026 Sobolev approximation
   DO
     READ (1, '(A)', END=99) LINE
 
+    ! 023 saved grid
     ! 001 n_pack
     CALL SARGV(LINE,1,ACTPAR)
     IF (ACTPAR .EQ. 'n_pack') THEN
@@ -221,7 +229,15 @@ USE constants
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I2)', ERR=94) enable_diffusion
 
-    ! 25 Sobolev approximation
+    ! 025 BRTM
+    ELSE IF (ACTPAR .EQ. 'calc_brtm_int') THEN
+    CALL SARGC (LINE, NPAR)
+    IF (NPAR .LT. 2) GOTO 90
+    CALL SARGV(LINE,2,ACTPAR)
+    READ (ACTPAR, '(I2)', ERR=94) calc_brtm_int
+    IF(calc_brtm_int == 1) calc_brtm = .true.
+
+    ! 26 Sobolev approximation
     ELSE IF (ACTPAR .EQ. 'sobolev') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
@@ -233,52 +249,11 @@ USE constants
 
 99 CONTINUE
   CLOSE (1)
-  WRITE (99,'(A,I10)')   'npackages        = ', n_pack
-  WRITE (99,'(A,I10)')   'n_nubin          = ', n_nubin
-  WRITE (99,'(A,I10)')   'nx_cell          = ', nx_cell
-  WRITE (99,'(A,I10)')   'ny_cell          = ', ny_cell  
-  WRITE (99,'(A,I10)')   'nz_cell          = ', nz_cell
-  WRITE (99,'(A,I10)')   'model_type       = ', model_type
-  WRITE (99,'(A,F10.3)') 'grid_xmax (Rsun) = ', xmax
-  WRITE (99,'(A,F10.3)') 'grid_ymax (Rsun) = ', ymax
-  WRITE (99,'(A,F10.3)') 'grid_zmax (Rsun) = ', zmax
-  WRITE (99,'(A,I10)') 'inputflux = ', inputflux
-  WRITE (99,'(A,I10)') 'inputmodel = ', inputmodel
-  WRITE (99,'(A,I10)') 'dyngrid = ', dyngrid
-  WRITE (99,'(A,I10)') 'nlte = ', nlte
-  WRITE (99,'(A,I10)') 'eldensfile = ', eldensfile
-  WRITE (99,'(A,I10)') 'velocity profile = ', velApprox
-  WRITE (99,'(A,I10)') 'saved grid = ', saved_grid
-  WRITE (99,'(A,I10)') 'diffusion approximation = ', enable_diffusion
-  WRITE (99,'(A,I10)') 'Sobolev approximation = ', sobolev_approximation
   IF (iseed .LE. 0) THEN 
      WRITE (99,'(A)') 'Random-seed value is random '
   ELSE
      WRITE (99,'(A,I6)') 'random_seed = ', iseed
   ENDIF
-  WRITE (99,'(3/)')
-
-  ! Convert quantities to cgs 
-!  xmax = xmax * r_sun
-!  ymax = ymax * r_sun  
-!  zmax = zmax * r_sun
-!!
-!
-!  WRITE (99,'(A,I10)')   'npackages    = ', n_pack
-!  WRITE (99,'(A,I10)')   'n_nubin      = ', n_nubin
-!  WRITE (99,'(A,I10)')   'nx_cell      = ', nx_cell
-!  WRITE (99,'(A,I10)')   'ny_cell      = ', ny_cell  
-!  WRITE (99,'(A,I10)')   'nz_cell      = ', nz_cell
-!  WRITE (99,'(A,I10)')   'model_type   = ', model_type
-!  WRITE (99,'(A,G10.3)') 'grid_xmax    = ', xmax
-!  WRITE (99,'(A,G10.3)') 'grid_ymax    = ', ymax
-!  WRITE (99,'(A,G10.3)') 'grid_zmax    = ', zmax
-!  IF (iseed .le. 0) then 
-!     WRITE (99,'(A)') 'Random-seed value is random '
-!  ELSE
-!     WRITE (99,'(A,I6)') 'random_seed = ', iseed
-!  ENDIF
-!  WRITE (99,'(3/)')
 
 RETURN
 
