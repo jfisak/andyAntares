@@ -180,7 +180,8 @@ ELSE
 END IF ! saved propmod grid
 
 ! save propmod_grid?
-IF(saved_grid == 1 .and. .not. propmod_file_exists) THEN
+IF(saved_grid == 1 .and. .not. propmod_file_exists &
+ & .or. saved_grid == 2) THEN
 #if mpi==1
  IF(my_rank == 0) THEN
 #endif

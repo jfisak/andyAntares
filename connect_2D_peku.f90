@@ -33,6 +33,11 @@ DOUBLE PRECISION, ALLOCATABLE           :: cur_points(:)
 INTEGER                                 :: cur_mgi, cur_VG_point
 DOUBLE PRECISION                        :: cur_VG_r, cur_VG_t, delta, dist, min_point
 
+INTEGER                                 :: N_single, N_zbytek
+INTEGER                                 :: my_start, my_end
+
+INTEGER, DIMENSION(n_propgcells)          :: cur_model_index
+
 ! #00 Set up of virtual grids
 ! #01 Calculate VG index of MG cells
 ! #02 Sorting
@@ -158,7 +163,27 @@ END DO
 
 ! going through model point one by one and calculating the closest point
 
-DO cur_prop_cell = 1, n_propgrid
+! #if mpi == 1
+!  N_single = n_modelgrid/n_tasks
+!  N_zbytek = n_modelgrid - n_tasks * N_single
+!  IF(my_rank <= N_zbytek - 1) THEN
+!   my_start = my_rank * (N_single + 1) + 1
+!   my_end = my_rank * (N_single + 1) + N_single
+!  ELSE IF(N_zbytek == 0) THEN
+!   my_start = my_rank * (N_single + 1) + 1
+!   my_end = my_rank * (N_single + 1) + N_single
+!  ELSE
+!   my_start = N_zbytek * (N_single + 1) + (my_rank - N_zbytek - 1) * N_single + 1
+!   my_end = N_zbytek * (N_single + 1) + (my_rank - N_zbytek - 1) * N_single + N_single +1
+!  END IF
+! #else
+!  my_start = 1
+!  my_end = n_modelgrid
+! #endif
+my_start = 1
+my_end = n_modelgrid
+
+DO cur_prop_cell = my_start, my_end
  ! choosing the grid A or B
  ! coordinates of the PG cell
  ! is the point located inside the Vgrid?
@@ -243,26 +268,32 @@ DO cur_prop_cell = 1, n_propgrid
     END IF
    END DO
    ! Heureka! We have got the point!
-   dyn_cell(cur_prop_cell)%model_index = INT(min_point)
+   cur_model_index(cur_prop_cell) = INT(min_point)
 
    IF(cur_r < R_star .or. cur_r > R_inf) THEN
-    dyn_cell(cur_prop_cell)%model_index = n_modelgrid + 1
-   ELSE IF(dyn_cell(cur_prop_cell)%model_index == 0) THEN
-    dyn_cell(cur_prop_cell)%model_index = n_modelgrid + 2
+    cur_model_index(cur_prop_cell) = n_modelgrid + 1
+   ELSE IF(cur_model_index(cur_prop_cell) == 0) THEN
+    cur_model_index(cur_prop_cell) = n_modelgrid + 2
    END IF
 
    DEALLOCATE(cur_points)
   ! it is outside the model grid
   ELSE
-   dyn_cell(cur_prop_cell)%model_index = n_modelgrid + 1
+   cur_model_index(cur_prop_cell) = n_modelgrid + 1
   END IF ! if inside the modGrid area
  ELSE ! up_cell != 0
-   dyn_cell(cur_prop_cell)%model_index = 0
+   cur_model_index(cur_prop_cell) = 0
  END IF ! up_cell == 0
- IF(dyn_cell(cur_prop_cell)%model_index < 0) THEN
+ IF(cur_model_index(cur_prop_cell) < 0) THEN
   write(*,*) 'connect_2D_peku: cur_prop_cell = ', cur_prop_cell
   STOP 'model_index < 0'
  END IF
 END DO ! loop over every propGrid cell to calculate associated modGrid cells
+
+! #if mpi == 1
+! CALL MPI_REDUCE(cur_model_index(:), dyn_cell(:)%model_index, n_propgcells, MPI_INTEGER, &
+!   & MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+! CALL MPI_BCAST(dyn_cell(:)%model_index, n_propgcells, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
+! #endif
 
 END SUBROUTINE connect_2D_peku

@@ -84,7 +84,7 @@ DO cur_mgi = my_start, my_end
     CALL diffusion_approximation(cur_mgi)
    END IF
   END IF
- END IF
+ END IF ! cur_n_assoccells > 0
 END DO
 
 #if mpi == 1

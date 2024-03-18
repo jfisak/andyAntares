@@ -15,7 +15,7 @@ SAVE
 ! Type Definitions
 
   TYPE dyn_grid_cell
-      INTEGER                        :: model_index, n_virt=0
+      INTEGER                        :: model_index=0, n_virt=0
       INTEGER                        :: up_cell, down_cell
       INTEGER, DIMENSION(6)          :: neighbor
       DOUBLE PRECISION, DIMENSION(3) :: corner, width

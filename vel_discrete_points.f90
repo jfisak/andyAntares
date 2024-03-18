@@ -1,3 +1,9 @@
+! this sbr calculates a velocity vector via trilinear interpolation for the
+! position of the packet
+!
+! INPUT: pack_index
+! 
+! OUTPUT: vel_vec
 SUBROUTINE vel_discrete_points(pack_index, vel_vec)
 
 USE types
