@@ -100,7 +100,7 @@ DO cur_point = 1, n_modelgrid
   vg_indexy_B(cur_point, 2) = cur_point
   n_zeros = n_zeros + 1
  END IF
-END DO
+END DO ! going over all modGrid cels
 
 !_______________________________________________________________
 !    #02            SORTING

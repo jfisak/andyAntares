@@ -172,7 +172,6 @@ ELSE
  CALL setup_propgrid()
 
  write(*,*) 'main: xmax = ', xmax/R_inf, ' ymax = ', ymax/R_inf, ' zmax = ', zmax/R_inf
-
  
  IF(debug == 3) write(*,*) 'connecting prop and mod grids'
  CALL connection_prop_model_grid()
@@ -180,8 +179,7 @@ ELSE
 END IF ! saved propmod grid
 
 ! save propmod_grid?
-IF(saved_grid == 1 .and. .not. propmod_file_exists &
- & .or. saved_grid == 2) THEN
+IF(saved_grid == 1 .and. .not. propmod_file_exists .or. saved_grid == 2) THEN
 #if mpi==1
  IF(my_rank == 0) THEN
 #endif
@@ -229,7 +227,7 @@ DO iteration = 1,1
  ! if (iteration == 1 .AND. inputpopfile .NE. '') then
  !  CALL read_populations()
  ! end if
- IF(velApprox == 3 .and. dyngrid > 0) THEN
+ IF(velApprox == 3) THEN
   CALL vel_interpolation()
  END IF
  CALL i_ion_recomb(1)

@@ -1,17 +1,182 @@
+! this sbr will interpolate the vector field of velocity from the modGrid onto the propGrid
 SUBROUTINE vel_interpolation()
 
 USE types
 IMPLICIT NONE
 
-INTEGER                                         :: n_prop_grid, cur_propgrid_cell
+INTEGER                                 :: N_vgrid_x, N_vgrid_y, N_vgrid_z
+INTEGER                                 :: N_vgrid_cells_A, N_vgrid_cells_B
+DOUBLE PRECISION                        :: w_vgrid_x, w_vgrid_y, w_vgrid_z
+INTEGER                                 :: cur_point
+INTEGER                                 :: n_A, n_B
 
+INTEGER, PARAMETER                      :: min_incell = 10
+INTEGER                                 :: n_in_cell
 
-! going through every propGrid cell
-DO cur_propgrid_cell = 1, n_propgcells
- IF(dyn_cell(cur_propgrid_cell)%up_cell == 0) THEN
-  
- END IF ! dyn_cell(cur_propgrid_cell)%up_cell == 0
+INTEGER, ALLOCATABLE                    :: n_points_A(:), n_points_B(:), &
+                                         & indices_A(:), indices_B(:)
+INTEGER, DIMENSION(n_modelgrid, 2)      :: vg_indexy_A, vg_indexy_B
+
+DOUBLE PRECISION                        :: cur_x, cur_y, cur_z
+INTEGER                                 :: cur_n_x_A, cur_n_y_A, cur_n_z_A
+INTEGER                                 :: cur_n_x_B, cur_n_y_B, cur_n_z_B
+
+INTEGER                                 :: cur_iter
+
+INTEGER, DIMENSION(2)                   :: dummy_var_A, dummy_var_B, dummy_A, dummy_B
+INTEGER                                 :: cur_ind_A, cur_ind_B, cur_vpg_cell
+
+INTEGER                                 :: n_zeros
+
+!_______________________________________________________________
+!   #00             SET UP OF VIRTUAL GRIDS
+!_______________________________________________________________
+n_in_cell = FLOOR((n_modelgrid/min_incell)**(1.0/3.0))
+
+! the size of grid should be at least equal to one
+IF(n_in_cell < 1) n_in_cell = 1
+
+N_vgrid_x = n_in_cell
+N_vgrid_y = n_in_cell
+N_vgrid_z = n_in_cell
+N_vgrid_cells_A = N_vgrid_x * N_vgrid_y * N_vgrid_z
+N_vgrid_cells_B = (N_vgrid_x - 1) * (N_vgrid_y - 1) * (N_vgrid_z - 1)
+ALLOCATE(n_points_A(N_vgrid_cells_A), n_points_B(N_vgrid_cells_B))
+ALLOCATE(indices_A(N_vgrid_cells_A), indices_B(N_vgrid_cells_B))
+n_points_A(:) = 0
+n_points_B(:) = 0
+n_zeros = 0
+
+w_vgrid_x = abs(xmax - xmin)/N_vgrid_x
+w_vgrid_y = abs(ymax - ymin)/N_vgrid_y
+w_vgrid_z = abs(zmax - zmin)/N_vgrid_z
+
+!_______________________________________________________________
+!   #01        CALCULATE VG INDEX OF MG CELLS
+!_______________________________________________________________
+! calculation of the virGrid index
+DO cur_point = 1, n_modelgrid
+ cur_x = model_grid(cur_point)%vec_pos(1)
+ cur_y = model_grid(cur_point)%vec_pos(2)
+ cur_z = model_grid(cur_point)%vec_pos(3)
+ cur_n_x_A = floor((cur_x-xmin)/w_vgrid_x) + 1
+ cur_n_y_A = floor((cur_y-ymin)/w_vgrid_y) + 1
+ cur_n_z_A = floor((cur_z-zmin)/w_vgrid_z) + 1
+
+ ! n_A -- numerical index of VG cell
+ n_A = cur_n_x_A + N_vgrid_x * (cur_n_y_A - 1) + N_vgrid_x * N_vgrid_y * (cur_n_z_A - 1)
+ ! n_points -- number of points for the given cell
+ n_points_A(n_A) = n_points_A(n_A) + 1
+ ! vg_indexy -- list of indeces model grid --> VG index point
+ vg_indexy_A(cur_point, 1) = n_A
+ vg_indexy_A(cur_point, 2) = cur_point
+ !!!!!!!!
+ ! repete for the B grid
+ IF(cur_x > xmin + w_vgrid_x/2.0 .and. cur_x < xmax - w_vgrid_x/2.0 .and.&
+  & cur_y > ymin + w_vgrid_y/2.0 .and. cur_y < ymax - w_vgrid_y/2.0 .and. &
+  & cur_z > zmin + w_vgrid_z/2.0 .and. cur_z < zmax - w_vgrid_z/2.0 ) THEN
+  cur_n_x_B = floor((cur_x - xmin)/w_vgrid_x - 1.0/2.0) + 1
+  cur_n_y_B = floor((cur_y - ymin)/w_vgrid_y - 1.0/2.0) + 1
+  cur_n_z_B = floor((cur_z - zmin)/w_vgrid_z - 1.0/2.0) + 1
+  n_B = cur_n_x_B + (N_vgrid_x - 1) * (cur_n_y_B - 1) + (N_vgrid_x - 1) * (N_vgrid_y - 1) * (cur_n_z_B - 1)
+  n_points_B(n_B) = n_points_B(n_B) + 1
+  vg_indexy_B(cur_point, 1) = n_B
+  vg_indexy_B(cur_point, 2) = cur_point
+ ELSE
+  vg_indexy_B(cur_point, 1) = 0
+  vg_indexy_B(cur_point, 2) = cur_point
+  n_zeros = n_zeros + 1
+ END IF
 END DO
+
+!_______________________________________________________________
+!    #02            SORTING
+!_______________________________________________________________
+! sort the vg_indexy according to the VG index
+DO cur_point = 2, n_modelgrid
+ cur_iter = cur_point - 1
+
+ dummy_var_A = vg_indexy_A(cur_point,:)
+
+ DO WHILE(cur_iter >= 1)
+  IF(vg_indexy_A(cur_iter,1) > dummy_var_A(1)) THEN
+   ! A grid
+   dummy_A = vg_indexy_A(cur_iter + 1,:)
+   vg_indexy_A(cur_iter + 1,:) = vg_indexy_A(cur_iter,:)
+   vg_indexy_A(cur_iter,:) = dummy_A
+  END IF
+  cur_iter = cur_iter - 1
+ END DO
+END DO
+
+! sort the vg_indexy according to the VG index
+DO cur_point = 2, n_modelgrid
+ cur_iter = cur_point - 1
+ dummy_var_B = vg_indexy_B(cur_point,:)
+ 
+ DO WHILE(cur_iter >= 1)
+  IF(vg_indexy_B(cur_iter,1) > dummy_var_B(1)) THEN
+   ! B grid
+   dummy_B = vg_indexy_B(cur_iter + 1,:)
+   vg_indexy_B(cur_iter + 1,:) = vg_indexy_B(cur_iter,:)
+   vg_indexy_B(cur_iter,:) = dummy_B
+  END IF
+  cur_iter = cur_iter - 1
+ END DO
+END DO
+
+!_______________________________________________________________
+! index array
+
+cur_ind_A = 0
+cur_ind_B = n_zeros
+!_______________________________________________________________
+! create arrays with indeces pointing to an ordered list of modCell grids indeces
+DO cur_vpg_cell = 1, N_vgrid_cells_A
+ indices_A(cur_vpg_cell) = cur_ind_A + 1
+ cur_ind_A = cur_ind_A + n_points_A(cur_vpg_cell)
+END DO
+!_______________________________________________________________
+DO cur_vpg_cell = 1, N_vgrid_cells_B
+ indices_B(cur_vpg_cell) = cur_ind_B + 1
+ cur_ind_B = cur_ind_B + n_points_B(cur_vpg_cell)
+END DO
+
+! write(*,*) 'vel_interpolation: indices_B = ', indices_B
+STOP 'vel_interpolation: testing'
+!_______________________________________________________________
+!  #03              INTERPOLATING
+!_______________________________________________________________
+
+! going through the propGrid and finding a velocity vector using the trilinear interpolation
+DO cur_prop_cell = 1, n_propgcells
+ ! the index in the AB grid
+ cur_pos = dyn_cell(cur_prop_cell)%corner + dyn_cell(cur_prop_cell)%width/2.D0
+ cur_n_x_A = floor((cur_x-xmin)/w_vgrid_x) + 1
+ cur_n_y_A = floor((cur_y-ymin)/w_vgrid_y) + 1
+ cur_n_z_A = floor((cur_z-zmin)/w_vgrid_z) + 1
+ n_A = cur_n_x_A + N_vgrid_x * (cur_n_y_A - 1) + N_vgrid_x * N_vgrid_y * (cur_n_z_A - 1)
+
+ IF(cur_x > xmin + w_vgrid_x/2.0 .and. cur_x < xmax - w_vgrid_x/2.0 .and.&
+  & cur_y > ymin + w_vgrid_y/2.0 .and. cur_y < ymax - w_vgrid_y/2.0 .and. &
+  & cur_z > zmin + w_vgrid_z/2.0 .and. cur_z < zmax - w_vgrid_z/2.0 ) THEN
+  cur_n_x_B = floor((cur_x - xmin)/w_vgrid_x - 1.0/2.0) + 1
+  cur_n_y_B = floor((cur_y - ymin)/w_vgrid_y - 1.0/2.0) + 1
+  cur_n_z_B = floor((cur_z - zmin)/w_vgrid_z - 1.0/2.0) + 1
+  n_B = cur_n_x_B + (N_vgrid_x - 1) * (cur_n_y_B - 1) + (N_vgrid_x - 1) * (N_vgrid_y - 1) * (cur_n_z_B - 1)
+ END IF
+
+ 
+
+END DO
+
+
+
+
+
+
+
+
 
 
 
