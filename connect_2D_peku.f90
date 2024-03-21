@@ -239,6 +239,8 @@ DO cur_prop_cell = my_start, my_end
     cur_points = vg_indexy_A(cur_start_index:cur_end_index,2)
     
    ELSE IF(dist_A >= dist_B) THEN
+    ! B is the winner
+    ! saving modGrid points to the array
     cur_n_points = n_points_B(cur_vmg_B)
     cur_start_index = indices_B(cur_vmg_B)
     cur_end_index = cur_start_index + cur_n_points - 1

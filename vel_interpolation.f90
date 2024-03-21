@@ -28,6 +28,16 @@ INTEGER                                 :: cur_ind_A, cur_ind_B, cur_vpg_cell
 
 INTEGER                                 :: n_zeros
 
+DOUBLE PRECISION, DIMENSION(3)          :: cur_pos
+INTEGER                                 :: cur_prop_cell
+
+DOUBLE PRECISION, PARAMETER             :: large_number = 1.D90
+
+DOUBLE PRECISION, ALLOCATABLE           :: cur_points(:)
+DOUBLE PRECISION, DIMENSION(3)          :: cur_center_A, cur_center_B
+INTEGER                                 :: cur_start_index, cur_end_index, cur_n_points
+DOUBLE PRECISION                        :: dist_A, dist_B
+
 !_______________________________________________________________
 !   #00             SET UP OF VIRTUAL GRIDS
 !_______________________________________________________________
@@ -143,7 +153,6 @@ DO cur_vpg_cell = 1, N_vgrid_cells_B
 END DO
 
 ! write(*,*) 'vel_interpolation: indices_B = ', indices_B
-STOP 'vel_interpolation: testing'
 !_______________________________________________________________
 !  #03              INTERPOLATING
 !_______________________________________________________________
@@ -152,24 +161,65 @@ STOP 'vel_interpolation: testing'
 DO cur_prop_cell = 1, n_propgcells
  ! the index in the AB grid
  cur_pos = dyn_cell(cur_prop_cell)%corner + dyn_cell(cur_prop_cell)%width/2.D0
- cur_n_x_A = floor((cur_x-xmin)/w_vgrid_x) + 1
- cur_n_y_A = floor((cur_y-ymin)/w_vgrid_y) + 1
- cur_n_z_A = floor((cur_z-zmin)/w_vgrid_z) + 1
+ cur_n_x_A = floor((cur_x - xmin)/w_vgrid_x) + 1
+ cur_n_y_A = floor((cur_y - ymin)/w_vgrid_y) + 1
+ cur_n_z_A = floor((cur_z - zmin)/w_vgrid_z) + 1
  n_A = cur_n_x_A + N_vgrid_x * (cur_n_y_A - 1) + N_vgrid_x * N_vgrid_y * (cur_n_z_A - 1)
+ cur_center_A = (/ w_vgrid_x * (cur_n_x_A + 5.D-1), w_vgrid_y * (cur_n_y_A + 5.D-1), w_vgrid_z * (cur_n_z_A + 5.D-1) /)
 
- IF(cur_x > xmin + w_vgrid_x/2.0 .and. cur_x < xmax - w_vgrid_x/2.0 .and.&
-  & cur_y > ymin + w_vgrid_y/2.0 .and. cur_y < ymax - w_vgrid_y/2.0 .and. &
-  & cur_z > zmin + w_vgrid_z/2.0 .and. cur_z < zmax - w_vgrid_z/2.0 ) THEN
+ IF(cur_x > xmin + w_vgrid_x / 2.0 .and. cur_x < xmax - w_vgrid_x /  2.0 .and.&
+  & cur_y > ymin + w_vgrid_y / 2.0 .and. cur_y < ymax - w_vgrid_y /  2.0 .and. &
+  & cur_z > zmin + w_vgrid_z / 2.0 .and. cur_z < zmax - w_vgrid_z /  2.0 ) THEN
   cur_n_x_B = floor((cur_x - xmin)/w_vgrid_x - 1.0/2.0) + 1
   cur_n_y_B = floor((cur_y - ymin)/w_vgrid_y - 1.0/2.0) + 1
   cur_n_z_B = floor((cur_z - zmin)/w_vgrid_z - 1.0/2.0) + 1
   n_B = cur_n_x_B + (N_vgrid_x - 1) * (cur_n_y_B - 1) + (N_vgrid_x - 1) * (N_vgrid_y - 1) * (cur_n_z_B - 1)
+  cur_center_B = (/ w_vgrid_x * (cur_n_x_A + 1.D0), w_vgrid_y * (cur_n_y_A + 1.D0), w_vgrid_z * (cur_n_z_A + 1.D0) /)
+ ELSE
+  n_B = 0
  END IF
 
+ ! what is the best grid, A or B?
+ dist_A = sqrt((cur_pos(1) - cur_center_A(1))**2 + (cur_pos(2) - cur_center_A(2))**2 + &
+   & (cur_pos(3) - cur_center_A(3))**2)
+ IF(n_b > 0) THEN
+  dist_B = sqrt((cur_pos(1) - cur_center_B(1))**2 + (cur_pos(2) - cur_center_B(2))**2 + &
+   &(cur_pos(3) - cur_center_B(3))**2)
+ ELSE IF (n_B == 0) THEN
+  dist_B = large_number
+ END IF
+  
+
+ ! choosing the correct modGrid points
+ ! this is done for unification of the forthcoming code (after this if)
+ IF(dist_A < dist_B) THEN
+  cur_n_points = n_points_A(n_A)
+  cur_start_index = indices_A(n_A)
+  cur_end_index = cur_start_index + cur_n_points - 1
+
+  ALLOCATE(cur_points(cur_n_points))
+
+  cur_points = vg_indexy_A(cur_start_index:cur_end_index,2)
+  
+ ELSE
+  cur_n_points = n_points_B(n_B)
+  cur_start_index = indices_B(n_B)
+  cur_end_index = cur_start_index + cur_n_points - 1
+
+  ALLOCATE(cur_points(cur_n_points))
+
+  cur_points = vg_indexy_B(cur_start_index:cur_end_index,2)
+ END IF ! dist_A < dist_B
+
+ write(*,*) 'vel_interpolation: cur_start_index = ', cur_start_index, ' cur_end_index = ', cur_end_index
+ write(*,*) 'vel_interpolation: cur_n_points = ', cur_n_points
  
+ 
+ DEALLOCATE(cur_points)
 
 END DO
 
+ STOP 'vel_interpolation: testing'
 
 
 
