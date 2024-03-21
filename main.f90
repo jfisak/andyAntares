@@ -3,7 +3,8 @@ SUBROUTINE main
   ! Propagate a bunch of photon packets through a stellar wind
 
 ! Use module types (modul.f90)
-  USE types
+USE MPI
+USE types
 USE constants
 
 

@@ -1,5 +1,6 @@
 SUBROUTINE do_spectrum(n_pack)
 
+USE MPI
 USE types
 USE constants
 
@@ -55,11 +56,10 @@ DO pack_index = 1, n_pack
  END IF
 END DO
 
-
 ! DO I = 1, n_nubin
-!     frequency = spectrum(I)%freq
-!     planck =( 2.D0 * h * frequency**3 / light_speed**2  ) * (  1.D0 / ( EXP( (h * frequency) / (BOLK * T_eff) ) - 1.D0 )  )
-!     WRITE(19,*)  frequency, spectrum(I)%flux, spectrum(I)%esc, planck
+!  frequency = spectrum(I)%freq
+!  planck =(2.D0 * h * frequency**3 / light_speed**2) * (1.D0/(EXP((h * frequency)/(BOLK * T_eff)) - 1.D0))
+!  WRITE(19,*)  frequency, spectrum(I)%flux, spectrum(I)%esc, planck
 ! END DO
 
  write(99,*) 'WRITE TO FILE'
@@ -81,8 +81,8 @@ END DO
   DO I = 1, n_nubin  
    lambda = ls_A / freqs(I)
    flambda = specflux(I) * ( ls_A / lambda**2 )
-   planck = ( 2.D0 * h * ls_A**2 / lambda**5 ) * &
-    ( 1.D0 / ( EXP( h * ls_A / (lambda * BOLK * T_eff) ) - 1.D0) )
+   planck = (2.D0 * h * ls_A**2 / lambda**5) * &
+    (1.D0 / (EXP(h * ls_A / (lambda * BOLK * T_eff)) - 1.D0))
    ! write(99,*) 'do_spectrum: lambda = ', lambda, ' flux = ', flambda
    write(19,*) lambda, flambda, planck, flambda/planck, escs(I)
   END DO

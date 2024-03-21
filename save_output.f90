@@ -9,6 +9,7 @@
 ! #07 IONIZATION FRACTIONS
 SUBROUTINE save_output(otype)
 
+USE MPI
 USE types
 USE constants
 USE counters
