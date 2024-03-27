@@ -33,10 +33,20 @@ INTEGER                                 :: cur_prop_cell
 
 DOUBLE PRECISION, PARAMETER             :: large_number = 1.D90
 
-DOUBLE PRECISION, ALLOCATABLE           :: cur_points(:)
+INTEGER, ALLOCATABLE                    :: cur_points(:)
 DOUBLE PRECISION, DIMENSION(3)          :: cur_center_A, cur_center_B
 INTEGER                                 :: cur_start_index, cur_end_index, cur_n_points
 DOUBLE PRECISION                        :: dist_A, dist_B
+
+INTEGER, PARAMETER                      :: n_closest = 6
+DOUBLE PRECISION, ALLOCATABLE           :: interp_vel(:,:), interp_pos(:,:), interp_dist(:)
+
+INTEGER                                 :: chosen_gridAB
+INTEGER, PARAMETER                      :: grid_A = 1, grid_B = 2
+
+DOUBLE PRECISION, DIMENSION(3)          :: cur_centre
+INTEGER                                 :: cur_nearest_point, cur_nop, cur_vg_index, cur_vg_point
+INTEGER                                 :: cur_nx, cur_ny, cur_nz
 
 !_______________________________________________________________
 !   #00             SET UP OF VIRTUAL GRIDS
@@ -200,6 +210,7 @@ DO cur_prop_cell = 1, n_propgcells
   ALLOCATE(cur_points(cur_n_points))
 
   cur_points = vg_indexy_A(cur_start_index:cur_end_index,2)
+  chosen_gridAB = grid_A
   
  ELSE
   cur_n_points = n_points_B(n_B)
@@ -209,24 +220,43 @@ DO cur_prop_cell = 1, n_propgcells
   ALLOCATE(cur_points(cur_n_points))
 
   cur_points = vg_indexy_B(cur_start_index:cur_end_index,2)
+  DO cur_vg_point = 1, cur_n_points
+   cur_vg_index = vg_indexy_B(cur_vg_point,1)
+  END DO
+  chosen_gridAB = grid_B
  END IF ! dist_A < dist_B
 
  write(*,*) 'vel_interpolation: cur_start_index = ', cur_start_index, ' cur_end_index = ', cur_end_index
  write(*,*) 'vel_interpolation: cur_n_points = ', cur_n_points
+
  
+ ALLOCATE(interp_vel(cur_n_points, 3), interp_pos(cur_n_points, 3), interp_dist(cur_n_points))
+
+ interp_dist(:) = large_number
  
- DEALLOCATE(cur_points)
+ ! seeking the n_closest closest points
+ DO cur_nearest_point = 1, cur_n_points
+  cur_nop = cur_points(cur_nearest_point)
+  IF(chosen_gridAB == grid_A) THEN
+   cur_nx = floor((cur_x-xmin)/w_vgrid_x) + 1
+   cur_ny = floor((cur_y-ymin)/w_vgrid_y) + 1
+   cur_nz = floor((cur_z-zmin)/w_vgrid_z) + 1
+   cur_centre = (/ xmin + (cur_nx + 5D-1) * w_vgrid_x, ymin + (cur_ny + 5D-1) * w_vgrid_y, &
+    & zmin + (cur_nz + 5D-1) * w_vgrid_z/)
+  ELSE IF(chosen_gridAB == grid_B) THEN
+   cur_nx = floor((cur_x - xmin)/w_vgrid_x - 1.0/2.0) + 1
+   cur_ny = floor((cur_y - ymin)/w_vgrid_y - 1.0/2.0) + 1
+   cur_nz = floor((cur_z - zmin)/w_vgrid_z - 1.0/2.0) + 1
+   cur_centre = (/ xmin + (cur_nx + 1.D0) * w_vgrid_x, ymin + (cur_ny + 1.D0) * w_vgrid_y, &
+    & zmin + (cur_nz + 1.D0) * w_vgrid_z /)
+  END IF
+ END DO
+
+ DEALLOCATE(cur_points, interp_vel, interp_pos)
 
 END DO
 
  STOP 'vel_interpolation: testing'
-
-
-
-
-
-
-
 
 
 
