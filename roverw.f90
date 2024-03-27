@@ -13,16 +13,15 @@ DOUBLE PRECISION                                :: cell_dist
 INTEGER                                         :: dummypackage, next_cell, pack_index
 
 DOUBLE PRECISION, DIMENSION(3)                  :: cur_pos, cur_dir
-DOUBLE PRECISION, DIMENSION(3)                  :: pos_min, pos_pls, pos_lin
-DOUBLE PRECISION                                :: freq_min, freq_pls
+DOUBLE PRECISION, DIMENSION(3)                  :: pos_min, pos_pls!, pos_lin
+! DOUBLE PRECISION                                :: freq_min, freq_pls
 DOUBLE PRECISION                                :: cmf_min, cmf_pls
-DOUBLE PRECISION                                :: a_lin, b_lin
 DOUBLE PRECISION                                :: cur_freq_rf
 DOUBLE PRECISION, PARAMETER                     :: delta=1.E0
-DOUBLE PRECISION                                :: der, deriv
-DOUBLE PRECISION                                :: deriv_min, deriv_pls
-DOUBLE PRECISION, DIMENSION(3)                  :: pos_line
-DOUBLE PRECISION                                :: s_min, s_0, s_pls
+DOUBLE PRECISION                                :: deriv
+! DOUBLE PRECISION                                :: deriv_min, deriv_pls
+! DOUBLE PRECISION, DIMENSION(3)                  :: pos_line
+DOUBLE PRECISION                                :: s_min, s_pls
 
 dummypackage = SIZE(package) - 3 + 1
 

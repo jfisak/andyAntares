@@ -19,7 +19,7 @@ INTEGER, ALLOCATABLE                    :: n_points_A(:), n_points_B(:)
 INTEGER, ALLOCATABLE                    :: indices_A(:), indices_B(:)
 
 INTEGER                                 :: I
-INTEGER                                 :: cur_mod_cell, cur_prop_cell
+INTEGER                                 :: cur_prop_cell
 INTEGER                                 :: cur_vmg_A, cur_vmg_B
 INTEGER                                 :: n_zeros, n_propgrid
 
@@ -28,12 +28,12 @@ DOUBLE PRECISION, DIMENSION(3)          :: cur_pos
 DOUBLE PRECISION                        :: dist_A, dist_B
 
 INTEGER                                 :: cur_n_points, cur_start_index, cur_end_index
-DOUBLE PRECISION, ALLOCATABLE           :: cur_points(:)
+INTEGER, ALLOCATABLE                    :: cur_points(:)
 
 INTEGER                                 :: cur_mgi, cur_VG_point
 DOUBLE PRECISION                        :: cur_VG_r, cur_VG_t, delta, dist, min_point
 
-INTEGER                                 :: N_single, N_zbytek
+! INTEGER                                 :: N_single, N_zbytek
 INTEGER                                 :: my_start, my_end
 
 INTEGER, DIMENSION(n_propgcells)          :: cur_model_index

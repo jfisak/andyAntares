@@ -1,9 +1,9 @@
 SUBROUTINE update_grid(iteration)
 
-  ! Calculate electron number density, population number of the ground level
-  ! and total population number for every model grid cell for given composition
-  ! and corresponding ionization stages.
-  USE types
+! Calculate electron number density, population number of the ground level
+! and total population number for every model grid cell for given composition
+! and corresponding ionization stages.
+USE types
 USE constants
 
   IMPLICIT NONE    

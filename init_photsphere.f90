@@ -17,8 +17,6 @@ USE constants
 
   DOUBLE PRECISION                      :: R_bound, ran2
 
-  DOUBLE PRECISION                      :: freq_max, freq_min, ran_num
-
   destroyed_pack = 0
   L_star = 4.D0*pi*(R_star)**2*sigma*T_eff**4
   write(99,*) 'init photsphere...'

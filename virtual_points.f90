@@ -19,11 +19,8 @@ USE constants
  ! virtual point distribution
  DOUBLE PRECISION               :: sumr
  DOUBLE PRECISION               :: delta
- ! bound of the division
- DOUBLE PRECISION, DIMENSION(n_modelgrid) :: bounds
  INTEGER, DIMENSION(n_modelgrid) :: nOfPoints
  ! a random point
- DOUBLE PRECISION               :: point
  DOUBLE PRECISION               :: ran2
  INTEGER                        :: sumpart = 0, zbytek
  DOUBLE PRECISION, DIMENSION(3) :: pos, width

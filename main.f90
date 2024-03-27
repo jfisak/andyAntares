@@ -26,7 +26,6 @@ CHARACTER(60)                           :: propmod_file
 LOGICAL                                 :: timing = .true.
 
 DOUBLE PRECISION                        :: test_freq
-DOUBLE PRECISION, DIMENSION(3)          :: test_pos, test_end
 
 INTEGER, PARAMETER                      :: ind_save_inputfile = 100, ind_save_composition = 101
 

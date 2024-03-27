@@ -32,7 +32,6 @@ CHARACTER(LEN=file_length)                       :: fileHydrogenFrac, fileHelium
 CHARACTER(LEN=file_length)                       :: fileGrid, filePart
 ! ionization fraction files
 DOUBLE PRECISION                        :: frac, N_jk, totElPop
-INTEGER                                 :: n_pack
 ! DOUBLE PRECISION                        :: frac1, N_jk1, totElPop1
 ! DOUBLE PRECISION                        :: frac2, N_jk2, totElPop2
 ! DOUBLE PRECISION                        :: frac3, N_jk3, totElPop3

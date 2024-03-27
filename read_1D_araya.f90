@@ -18,8 +18,6 @@ DOUBLE PRECISION                        :: effective_temperature, stellar_radius
 DOUBLE PRECISION                        :: radius, density, djunk
 DOUBLE PRECISION                        :: velocity
 
-INTEGER                                 :: I
-
 CHARACTER(LEN=100)                      :: junk
 
 add_mg = 1
