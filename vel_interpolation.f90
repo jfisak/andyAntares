@@ -38,7 +38,7 @@ DOUBLE PRECISION, DIMENSION(3)          :: cur_center_A, cur_center_B
 INTEGER                                 :: cur_start_index, cur_end_index, cur_n_points
 DOUBLE PRECISION                        :: dist_A, dist_B
 
-INTEGER, PARAMETER                      :: n_closest = 6
+INTEGER, PARAMETER                      :: n_closest = 8
 DOUBLE PRECISION, ALLOCATABLE           :: interp_vel(:,:), interp_pos(:,:), interp_dist(:,:), pom(:,:)
 
 INTEGER                                 :: chosen_gridAB
@@ -53,6 +53,7 @@ DOUBLE PRECISION                        :: dist
 LOGICAL                                 :: seeking
 INTEGER                                 :: cur_index_i
 
+DOUBLE PRECISION, DIMENSION(3)          :: vel_vector
 !_______________________________________________________________
 !   #00             SET UP OF VIRTUAL GRIDS
 !_______________________________________________________________
@@ -84,12 +85,17 @@ DO cur_point = 1, n_modelgrid
  cur_x = model_grid(cur_point)%vec_pos(1)
  cur_y = model_grid(cur_point)%vec_pos(2)
  cur_z = model_grid(cur_point)%vec_pos(3)
- cur_n_x_A = floor((cur_x-xmin)/w_vgrid_x) + 1
- cur_n_y_A = floor((cur_y-ymin)/w_vgrid_y) + 1
- cur_n_z_A = floor((cur_z-zmin)/w_vgrid_z) + 1
+ cur_n_x_A = floor((cur_x - xmin)/w_vgrid_x) + 1
+ cur_n_y_A = floor((cur_y - ymin)/w_vgrid_y) + 1
+ cur_n_z_A = floor((cur_z - zmin)/w_vgrid_z) + 1
+ cur_center_A = (/ w_vgrid_x * (cur_n_x_A + 5.D-1) + xmin, w_vgrid_y * (cur_n_y_A + 5.D-1) + ymin, &
+                 & w_vgrid_z * (cur_n_z_A + 5.D-1) + zmin /)
+ write(*,*) 'vel_interpolation: cur_center_A = ', cur_center_A
 
  ! n_A -- numerical index of VG cell
  n_A = cur_n_x_A + N_vgrid_x * (cur_n_y_A - 1) + N_vgrid_x * N_vgrid_y * (cur_n_z_A - 1)
+ write(*,*) 'vel_interpolation: n_x = ', cur_n_x_A, ' n_y = ', cur_n_y_A, ' n_z = ', cur_n_z_A
+ write(*,*) 'vel_interpolation: n_A = ', n_A
  ! n_points -- number of points for the given cell
  n_points_A(n_A) = n_points_A(n_A) + 1
  ! vg_indexy -- list of indeces model grid --> VG index point
@@ -134,11 +140,12 @@ DO cur_point = 2, n_modelgrid
  END DO
 END DO
 
+!_______________________________________________________________
 ! sort the vg_indexy according to the VG index
 DO cur_point = 2, n_modelgrid
  cur_iter = cur_point - 1
  dummy_var_B = vg_indexy_B(cur_point,:)
- 
+ !_______________________________________________________________
  DO WHILE(cur_iter >= 1)
   IF(vg_indexy_B(cur_iter,1) > dummy_var_B(1)) THEN
    ! B grid
@@ -149,9 +156,11 @@ DO cur_point = 2, n_modelgrid
   cur_iter = cur_iter - 1
  END DO
 END DO
+!_______________________________________________________________
 
 !_______________________________________________________________
 ! index array
+!_______________________________________________________________
 
 cur_ind_A = 0
 cur_ind_B = n_zeros
@@ -179,21 +188,30 @@ DO cur_prop_cell = 1, n_propgcells
  !  #              CHOISE OF GRID A OR B
  !_______________________________________________________________
  ! the index in the AB grid
+ ! cur_prop_cell = 1500
  cur_pg_pos = dyn_cell(cur_prop_cell)%corner + dyn_cell(cur_prop_cell)%width/2.D0
- cur_n_x_A = floor((cur_x - xmin)/w_vgrid_x) + 1
- cur_n_y_A = floor((cur_y - ymin)/w_vgrid_y) + 1
- cur_n_z_A = floor((cur_z - zmin)/w_vgrid_z) + 1
+ cur_n_x_A = floor((cur_pg_pos(1) - xmin)/w_vgrid_x) + 1
+ cur_n_y_A = floor((cur_pg_pos(2) - ymin)/w_vgrid_y) + 1
+ cur_n_z_A = floor((cur_pg_pos(3) - zmin)/w_vgrid_z) + 1
  n_A = cur_n_x_A + N_vgrid_x * (cur_n_y_A - 1) + N_vgrid_x * N_vgrid_y * (cur_n_z_A - 1)
- cur_center_A = (/ w_vgrid_x * (cur_n_x_A + 5.D-1), w_vgrid_y * (cur_n_y_A + 5.D-1), w_vgrid_z * (cur_n_z_A + 5.D-1) /)
+ cur_center_A = (/ w_vgrid_x * (cur_n_x_A + 5.D-1) + xmin, w_vgrid_y * (cur_n_y_A + 5.D-1) + ymin, &
+                 & w_vgrid_z * (cur_n_z_A + 5.D-1) + zmin /)
+ write(*,*) 'vel_interpolation: cur_center_A = ', cur_center_A
+ write(*,*) 'vel_interpolation: N_vgrid_x = ', N_vgrid_x, ' N_vgrid_y = ', N_vgrid_y, ' N_vgrid_z = ', N_vgrid_z
+ write(*,*) 'vel_interpolation: w_vgrid_x = ', w_vgrid_x/R_star, ' w_vgrid_y = ', w_vgrid_y/R_star, &
+                & ' w_vgrid_z = ', w_vgrid_z/R_star
+ write(*,*) 'vel_interpolation: cur_n_x_A = ', cur_n_x_A, ' cur_n_y_A = ', cur_n_y_A, ' cur_n_z_A = ', cur_n_z_A
+ write(*,*) 'vel_interpolation: n_A = ', n_A
 
  IF(cur_x > xmin + w_vgrid_x / 2.0 .and. cur_x < xmax - w_vgrid_x /  2.0 .and.&
   & cur_y > ymin + w_vgrid_y / 2.0 .and. cur_y < ymax - w_vgrid_y /  2.0 .and. &
   & cur_z > zmin + w_vgrid_z / 2.0 .and. cur_z < zmax - w_vgrid_z /  2.0 ) THEN
-  cur_n_x_B = floor((cur_x - xmin)/w_vgrid_x - 1.0/2.0) + 1
-  cur_n_y_B = floor((cur_y - ymin)/w_vgrid_y - 1.0/2.0) + 1
-  cur_n_z_B = floor((cur_z - zmin)/w_vgrid_z - 1.0/2.0) + 1
+  cur_n_x_B = floor((cur_pg_pos(1) - xmin)/w_vgrid_x - 1.0/2.0) + 1
+  cur_n_y_B = floor((cur_pg_pos(2) - ymin)/w_vgrid_y - 1.0/2.0) + 1
+  cur_n_z_B = floor((cur_pg_pos(3) - zmin)/w_vgrid_z - 1.0/2.0) + 1
   n_B = cur_n_x_B + (N_vgrid_x - 1) * (cur_n_y_B - 1) + (N_vgrid_x - 1) * (N_vgrid_y - 1) * (cur_n_z_B - 1)
-  cur_center_B = (/ w_vgrid_x * (cur_n_x_A + 1.D0), w_vgrid_y * (cur_n_y_A + 1.D0), w_vgrid_z * (cur_n_z_A + 1.D0) /)
+  cur_center_B = (/ w_vgrid_x * (cur_n_x_A + 1.D0) + xmin, w_vgrid_y * (cur_n_y_A + 1.D0) + ymin, &
+                   & w_vgrid_z * (cur_n_z_A + 1.D0) + zmin /)
  ELSE
   n_B = 0
  END IF
@@ -201,6 +219,7 @@ DO cur_prop_cell = 1, n_propgcells
  ! what is the best grid, A or B?
  dist_A = sqrt((cur_pg_pos(1) - cur_center_A(1))**2 + (cur_pg_pos(2) - cur_center_A(2))**2 + &
    & (cur_pg_pos(3) - cur_center_A(3))**2)
+ write(*,*) 'vel_interpolation: dist_A = ', dist_A/R_star
  IF(n_b > 0) THEN
   dist_B = sqrt((cur_pg_pos(1) - cur_center_B(1))**2 + (cur_pg_pos(2) - cur_center_B(2))**2 + &
    &(cur_pg_pos(3) - cur_center_B(3))**2)
@@ -245,8 +264,8 @@ DO cur_prop_cell = 1, n_propgcells
  ! DO cur_index_i = 1, SIZE(cur_points)
  !  write(*,*) 'vel_interpolation: pos = ', model_grid(cur_index_i)%vec_pos
  ! END DO
- write(*,*) 'vel_interpolation: cur_start_index = ', cur_start_index, ' cur_end_index = ', cur_end_index
- write(*,*) 'vel_interpolation: cur_n_points = ', cur_n_points
+ ! write(*,*) 'vel_interpolation: cur_start_index = ', cur_start_index, ' cur_end_index = ', cur_end_index
+ ! write(*,*) 'vel_interpolation: cur_n_points = ', cur_n_points
 
  
  !_______________________________________________________________
@@ -254,15 +273,18 @@ DO cur_prop_cell = 1, n_propgcells
  !_______________________________________________________________
  interp_dist(:,ind_dist) = large_number
  seeking = .TRUE.
- write(*,*) 'vel_interpolation: interp_dist = ', interp_dist(:,ind_dist)
+ ! write(*,*) 'vel_interpolation: interp_dist = ', interp_dist(:,ind_dist)
  DO cur_nearest_point = 1, cur_n_points
   cur_nop = cur_points(cur_nearest_point)
   cur_mg_pos = model_grid(cur_nop)%vec_pos
-  write(*,*) 'vel_interpolation: cur_index = ', cur_nearest_point, ' cur_mg_pos = ', cur_mg_pos
+  ! write(*,*) 'vel_interpolation: cur_index = ', cur_nearest_point, ' cur_mg_pos = ', cur_mg_pos
+  write(46,*) cur_mg_pos/R_star
   
   ! distance of a current modGrid point and the 
   dist = sqrt((cur_pg_pos(1) - cur_mg_pos(1))**2 + (cur_pg_pos(2) - cur_mg_pos(2))**2 + &
    & (cur_pg_pos(3) - cur_mg_pos(3))**2)
+  ! write(*,*) 'vel_interpolation pg = ', cur_pg_pos/R_star, 'mg = ', cur_mg_pos/R_star
+  ! write(*,*) 'vel_interpolation: cur_point = ', cur_nearest_point, ' dist = ', dist
 
   ! going through the array interp_dist and sorting from the smallest distances to largest distances
   DO cur_index_pos = 1, n_closest
@@ -273,7 +295,7 @@ DO cur_prop_cell = 1, n_propgcells
    IF(interp_dist(cur_index_pos, ind_dist) > dist) THEN
     pom = interp_dist
     DO cip = cur_index_pos, n_closest
-     write(*,*) 'vel_interpolation: cip = ', cip, ' cur_index_pos = ', cur_index_pos
+     ! write(*,*) 'vel_interpolation: cip = ', cip, ' cur_index_pos = ', cur_index_pos
      IF(cip == cur_index_pos) THEN
       interp_dist(cip, ind_dist) = dist
       interp_dist(cip, ind_index) = cur_nop
@@ -289,8 +311,14 @@ DO cur_prop_cell = 1, n_propgcells
   ! write(*,*) 'vel_interpolation: interp_dist = ', interp_dist(:,ind_dist)
  END DO
  
- write(*,*) 'vel_interpolation:************************************************'
- write(*,*) 'vel_interpolation: interp_dist = ', interp_dist(:,ind_dist)/R_star
+ CALL vel_vector_interpolation(cur_mg_pos, interp_dist(:,2), n_closest, vel_vector)
+ ! write(*,*) 'vel_interpolation:************************************************'
+ ! write(*,*) 'vel_interpolation: interp_dist = ', interp_dist(:,ind_index)
+ write(43,*) cur_pg_pos/R_star
+ DO cur_index_I = 1, n_closest
+  cur_index = interp_dist(cur_index_I, ind_index)
+  write(44,*) model_grid(INT(cur_index))%vec_pos/R_star
+ END DO
  STOP 'vel_interpolation: testing'
  DEALLOCATE(cur_points, interp_vel, interp_pos)
 
