@@ -23,7 +23,8 @@ RATES= r_kappa_cont.o r_kappa_line.o i_ion_recomb.o i_radtrans.o i_radion.o i_co
        cool_ff.o cool_ionization.o cool_fb.o 
 ATOMIC=read_levels.o read_transitions.o read_e_nd.o 
 CONNECTION=connection_prop_model_grid.o connect_2D_peku.o
-VELOCITY=velo.o velo_vector.o vel_discrete_points.o vel_interpolation.o vel_vector_interpolation.o
+VELOCITY=velo.o velo_vector.o vel_discrete_points.o vel_interpolation.o vel_vector_interpolation.o \
+         lin_interpolation_3D.o lin_interpolation.o 
 PACKETS=do_rpackage.o do_ipackage.o do_rpackage_event.o do_kpackage.o do_dpackage.o \
  do_vpackage.o packet_dynamics.o
 SPECTRA=do_brtm_spectrum.o do_spectrum.o
@@ -32,7 +33,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o 	  \
           change_cell.o move_package.o emit_rpackage.o	\
           init_photsphere.o random_unitvector2.o ran2_class.o save_rates.o\
           random_unitvector1.o doppler_factor.o doppler_factor2.o oct_neighbors.o \
-          vec_length.o angle_aberration.o freq_from_planck.o lin_interpolation.o \
+          vec_length.o angle_aberration.o freq_from_planck.o \
            event_dist.o get_package_model_index.o  \
           update_packages.o r_choose_line.o brtm.o \
           read_composition.o read_populations.o \

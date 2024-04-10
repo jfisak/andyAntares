@@ -12,15 +12,17 @@ USE types
 IMPLICIT NONE
 
 DOUBLE PRECISION, DIMENSION(3)                          :: positon, velocity
-INTEGER                                                 :: n_clo_mgi
+INTEGER                                                 :: n_clo_mgi, n_clo_mgi_half
 DOUBLE PRECISION, DIMENSION(n_clo_mgi)                  :: mgi_indexes
 
 DOUBLE PRECISION, DIMENSION(3)                          :: summ_r, cur_pos, centre
 INTEGER                                                 :: cur_I
 
 ! sorting
-INTEGER                                                 :: cur_index, cur_iter, cur_mgi
+INTEGER                                                 :: cur_index, cur_iter, cur_mgi, cur_mgi_iter
 DOUBLE PRECISION                                        :: dummy_var, dummy
+
+INTEGER, PARAMETER                                      :: coor_x = 1, coor_y = 2, coor_z = 3
 
 
 ! the ``centre of the mass'' of the points
@@ -42,32 +44,83 @@ DO cur_index = 2, n_clo_mgi
  cur_iter = cur_index - 1
 
  cur_mgi = mgi_indexes(cur_index)
+ cur_mgi_iter = mgi_indexes(cur_iter)
 
  dummy_var = model_grid(cur_mgi)%vec_pos(3)
 
  DO WHILE(cur_iter >= 1)
-  IF(model_grid(cur_iter)%vec_pos(3) > dummy_var) THEN
-   ! přepsat!!!
-   ! A grid
-   ! dummy = model_grid(cur_iter + 1)%vec_pos(3)
-   ! model_grid(cur_iter + 1)%vec_pos(3) = model_grid(cur_iter)%vec_pos(3)
-   ! model_grid(cur_iter)%vec_pos(3) = dummy
+  IF(model_grid(cur_mgi_iter)%vec_pos(3) > dummy_var) THEN
+   dummy = mgi_indexes(cur_iter + 1)
+   mgi_indexes(cur_iter + 1) = mgi_indexes(cur_iter)
+   mgi_indexes(cur_iter) = dummy
   END IF
   cur_iter = cur_iter - 1
  END DO
 END DO
 
-DO cur_iter = 1, n_clo_mgi
- cur_mgi = mgi_indexes(cur_iter)
- write(*,*) 'vel_vector_interpolation: pos = ', 
+
+! now we have n/2 + n/2 indeces which we sort according the y coordinate
+n_clo_mgi_half = n_clo_mgi / 2
+
+! the first half
+DO cur_index = 2, n_clo_mgi/2
+ cur_iter = cur_index - 1
+
+ cur_mgi = mgi_indexes(cur_index)
+ cur_mgi_iter = mgi_indexes(cur_iter)
+
+ dummy_var = model_grid(cur_mgi)%vec_pos(2)
+
+ DO WHILE(cur_iter >= 1)
+  IF(model_grid(cur_mgi_iter)%vec_pos(2) > dummy_var) THEN
+   dummy = mgi_indexes(cur_iter + 1)
+   mgi_indexes(cur_iter + 1) = mgi_indexes(cur_iter)
+   mgi_indexes(cur_iter) = dummy
+  END IF
+  cur_iter = cur_iter - 1
+ END DO
+END DO
+
+! the second half
+DO cur_index = n_clo_mgi_half + 2, n_clo_mgi
+ cur_iter = cur_index - 1
+
+ cur_mgi = mgi_indexes(cur_index)
+ cur_mgi_iter = mgi_indexes(cur_iter)
+
+ dummy_var = model_grid(cur_mgi)%vec_pos(2)
+
+ DO WHILE(cur_iter >= n_clo_mgi_half + 1)
+  IF(model_grid(cur_mgi_iter)%vec_pos(2) > dummy_var) THEN
+   dummy = mgi_indexes(cur_iter + 1)
+   mgi_indexes(cur_iter + 1) = mgi_indexes(cur_iter)
+   mgi_indexes(cur_iter) = dummy
+  END IF
+  cur_iter = cur_iter - 1
+ END DO
+END DO
+
+DO cur_index = 1, n_clo_mgi
+ cur_mgi = mgi_indexes(cur_index)
+ write(*,*) 'vel_vector_interpolation: pos = ', model_grid(cur_mgi)%vec_pos
 END DO
 
 
+! trilinear interpolation
+! eight points
+cur_coordinate = coor_x
+DO cur_pair = 1, 4
+ cur_mgi1 = mgi_indexes(2 * cur_pair - 1)
+ cur_vel1 = model_grid(cur_mgi1)%vec_vel
+ cur_pos1 = model_grid(cur_mgi1)%vec_pos
 
+ cur_mgi2 = mgi_indexes(2 * cur_pair)
+ cur_vel2 = model_grid(cur_mgi2)%vec_vel
+ cur_pos2 = model_grid(cur_mgi2)%vec_pos
 
+ CALL lin_interpolation_3D()
 
-
-
+END DO
 
 
 
