@@ -65,74 +65,81 @@ count_vacuum = 0
 cur_model_index(:) = 0
 cur_n_assocmodg(:) = 0
 
-  max_n_dcell = SIZE(dyn_cell)
-  ! Establish a connection between the propagation grid and the
-  ! model grid. This depends on the model grid type (1D, 2D, 3D)
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  ! 1D model grid -- radial symetric
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  IF (model_type .EQ. 1) THEN
-   ! This is the algorithm needed for a 1D model grid
-   ! Define which model grid cell coresponds to the propagation grid cell
+max_n_dcell = SIZE(dyn_cell)
+! Establish a connection between the propagation grid and the
+! model grid. This depends on the model grid type (1D, 2D, 3D)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! 1D model grid -- radial symetric
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+IF (model_type .EQ. 1) THEN
+ ! This is the algorithm needed for a 1D model grid
+ ! Define which model grid cell coresponds to the propagation grid cell
 #if mpi == 1
-   N_single = n_propgcells/n_tasks
-   N_zbytek = n_propgcells - n_tasks * N_single
-   IF(my_rank <= N_zbytek - 1) THEN
-    my_start = my_rank * (N_single + 1) + 1
-    my_end = my_rank * (N_single + 1) + N_single
-   ELSE IF(N_zbytek == 0) THEN
-    my_start = my_rank * (N_single) + 1
-    my_end = my_rank * (N_single) + N_single
-   ELSE
-    my_start = N_zbytek * (N_single + 1) + (my_rank - N_zbytek - 1) * N_single + 1
-    my_end = N_zbytek * (N_single + 1) + (my_rank - N_zbytek - 1) * N_single + N_single +1
-   END IF
+ N_single = n_propgcells/n_tasks
+ N_zbytek = n_propgcells - n_tasks * N_single
+ IF(my_rank <= N_zbytek - 1) THEN
+  my_start = my_rank * (N_single + 1) + 1
+  my_end = my_rank * (N_single + 1) + N_single
+ ELSE IF(N_zbytek == 0) THEN
+  my_start = my_rank * (N_single) + 1
+  my_end = my_rank * (N_single) + N_single
+ ELSE
+  my_start = N_zbytek * (N_single + 1) + (my_rank - N_zbytek - 1) * N_single + 1
+  my_end = N_zbytek * (N_single + 1) + (my_rank - N_zbytek - 1) * N_single + N_single +1
+ END IF
 #else
-   my_start = 1
-   my_end = n_propgcells
+ my_start = 1
+ my_end = n_propgcells
 #endif
-write(*,*) 'update_grid: N_single = ', N_single, ' N_zbytek = ', N_zbytek
-write(*,*) 'update_grid: my_rank = ', my_rank, ' my_start = ', my_start, ' my_end = ', my_end
+write(*,*) 'connection_prop_model_grid: N_single = ', N_single, ' N_zbytek = ', N_zbytek
+write(*,*) 'connection_prop_model_grid: my_rank = ', my_rank, ' my_start = ', my_start, ' my_end = ', my_end
 
-
-   DO cur_propcell = my_start, my_end
-    IF(dyn_cell(cur_propcell)%up_cell == 0) THEN
-     ! Absolute radius of the propagation grid cell (midle of the cell)
-     r = SQRT( (dyn_cell(cur_propcell)%corner(1) + dyn_cell(cur_propcell)%width(1)/2.D0)**2 + &
-      (dyn_cell(cur_propcell)%corner(2) + dyn_cell(cur_propcell)%width(2)/2.D0)**2 + &
-      (dyn_cell(cur_propcell)%corner(3) + dyn_cell(cur_propcell)%width(3)/2.D0)**2)
-     ! IF ((r .GT. R_star) .AND. (r .LT. R_inf)) THEN
-     ! Cells with radius larger than the stellar radius but smaller
-     ! than the winds outer radius have an associated model grid cell.
-     ! Find this model grid cell and add a pointer to the propatation
-     ! grid. Finally record the number of asscociated prop. grid cells
-     ! on the model grid
-     delta = large_number
-     best_index = 0
-     DO J = 1, n_modelgrid   
-      delta2 = ABS(r - model_grid(J)%rwind)
-      IF (delta2 .LT. delta) THEN
-       delta = delta2 
-       best_index = J           
-      END IF
-     END DO
-     IF(best_index > 0) THEN
-      cur_model_index(cur_propcell) = best_index
-      cur_n_assocmodg(best_index) = cur_n_assocmodg(best_index) + 1
-     ELSE ! best_index <= 0
-       cur_model_index(cur_propcell) = n_modelgrid + 1
-      cur_n_assocmodg(n_modelgrid + 1) = cur_n_assocmodg(n_modelgrid + 1) + 1
-     END IF ! best_index > 0
-    END IF ! up_cell == 0
-   END DO ! a loop over propGrid cells
+DO cur_propcell = my_start, my_end
+ IF(dyn_cell(cur_propcell)%up_cell == 0) THEN
+  ! Absolute radius of the propagation grid cell (midle of the cell)
+  r = SQRT( (dyn_cell(cur_propcell)%corner(1) + dyn_cell(cur_propcell)%width(1)/2.D0)**2 + &
+   (dyn_cell(cur_propcell)%corner(2) + dyn_cell(cur_propcell)%width(2)/2.D0)**2 + &
+   (dyn_cell(cur_propcell)%corner(3) + dyn_cell(cur_propcell)%width(3)/2.D0)**2)
+  ! IF ((r .GT. R_star) .AND. (r .LT. R_inf)) THEN
+  ! Cells with radius larger than the stellar radius but smaller
+  ! than the winds outer radius have an associated model grid cell.
+  ! Find this model grid cell and add a pointer to the propatation
+  ! grid. Finally record the number of asscociated prop. grid cells
+  ! on the model grid
+  delta = large_number
+  best_index = 0
+  DO J = 1, n_modelgrid   
+   delta2 = ABS(r - model_grid(J)%rwind)
+   IF (delta2 .LT. delta) THEN
+    delta = delta2 
+    best_index = J           
+   END IF
+  END DO
+  IF(best_index > 0) THEN
+   cur_model_index(cur_propcell) = best_index
+   cur_n_assocmodg(best_index) = cur_n_assocmodg(best_index) + 1
+  ELSE ! best_index <= 0
+   cur_model_index(cur_propcell) = n_modelgrid + 1
+   cur_n_assocmodg(n_modelgrid + 1) = cur_n_assocmodg(n_modelgrid + 1) + 1
+  END IF ! best_index > 0
+ END IF ! up_cell == 0
+ ! write(*,*) 'connection_prop_model_grid: index = ', cur_model_index(cur_propcell)
+ ! IF(cur_model_index(cur_propcell) == 0) THEN
+ !  write(*,*) 'connection_prop_model_grid: cur_propcell = ', cur_propcell, ' connected mgi is zero!'
+ !  STOP
+ ! END IF
+END DO ! a loop over propGrid cells
 #if mpi == 1
  IF(n_tasks > 1) THEN
   write(*,*) 'connection_prop_model_grid: ', SIZE(cur_model_index), SIZE(dyn_cell(:)%model_index)
-  CALL MPI_REDUCE(cur_model_index, dyn_cell(:)%model_index, n_propgcells, MPI_INTEGER, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+  CALL MPI_REDUCE(cur_model_index(:), dyn_cell(:)%model_index, n_propgcells, MPI_INTEGER, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
   CALL MPI_REDUCE(cur_n_assocmodg(:), model_grid(:)%assoc_cells, n_modelgrid, MPI_INTEGER, &
    & MPI_SUM, 0, MPI_COMM_WORLD, ierr)
   CALL MPI_BCAST(dyn_cell(:)%model_index, n_propgcells, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
   CALL MPI_BCAST(model_grid(:)%assoc_cells, n_modelgrid + add_mg, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
+ ELSE IF(n_tasks == 1) THEN
+  dyn_cell(:)%model_index = cur_model_index(:)
+  model_grid(:)%assoc_cells = cur_n_assocmodg(:)
  END IF
 #endif 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -399,17 +406,6 @@ write(*,*) 'update_grid: my_rank = ', my_rank, ' my_start = ', my_start, ' my_en
       IF(dyn_cell(cur_pgcell)%model_index == 0) THEN
        dyn_cell(cur_pgcell)%model_index = n_modelgrid + 3
        count_vacuum = count_vacuum + 1
-       ! delta2 = large_number
-       ! DO J = 1, n_modelgrid
-       !  mod_pos = model_grid(J)%vec_pos
-       !  delta = sqrt((cur_center(1)-mod_pos(1))**2.0 + (cur_center(2)-mod_pos(2))**2.0 + (cur_center(3)-mod_pos(3))**2.0)
-       !  if(delta < delta2) THEN
-       !   delta2 = delta
-       !   best_index = J
-       !  end if
-       !  if(mod(cur_propcell,1000)==0) write(*,*) 'connection_prop_model_grid: working on propGrid cell ', cur_propcell, ' from ', max_n_dcell
-       ! END DO ! loop over all modGrid cells
-       ! dyn_cell(cur_pgcell)%model_index = M
       END IF ! if model_index == 0
      END DO ! loop over all propGrid cells
      write(*,*) 'connection_prop_model_grid: in = ', count_in, ' out = ', count_out, ' vacuum = ', count_vacuum, &
@@ -424,8 +420,8 @@ write(*,*) 'update_grid: my_rank = ', my_rank, ' my_start = ', my_start, ' my_en
 DO cur_propcell = 1, max_n_dcell
  IF(dyn_cell(cur_propcell)%up_cell == 0) THEN
   gridcell = dyn_cell(cur_propcell)%model_index
-   loc_volume = dyn_cell(cur_propcell)%width(1) * dyn_cell(cur_propcell)%width(2) * dyn_cell(cur_propcell)%width(3)
-   model_grid(gridcell)%volume = model_grid(gridcell)%volume + loc_volume
+  loc_volume = dyn_cell(cur_propcell)%width(1) * dyn_cell(cur_propcell)%width(2) * dyn_cell(cur_propcell)%width(3)
+  model_grid(gridcell)%volume = model_grid(gridcell)%volume + loc_volume
   ! counters
   IF(dyn_cell(cur_propcell)%model_index /= 0) THEN
    count_pg_mcell = count_pg_mcell + 1
