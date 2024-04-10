@@ -13,7 +13,7 @@ IMPLICIT NONE
 
 DOUBLE PRECISION, DIMENSION(3)                          :: positon, velocity
 INTEGER                                                 :: n_clo_mgi, n_clo_mgi_half
-DOUBLE PRECISION, DIMENSION(n_clo_mgi)                  :: mgi_indexes
+INTEGER, DIMENSION(n_clo_mgi)                           :: mgi_indexes
 
 DOUBLE PRECISION, DIMENSION(3)                          :: summ_r, cur_pos, centre
 INTEGER                                                 :: cur_I
@@ -23,6 +23,8 @@ INTEGER                                                 :: cur_index, cur_iter, 
 DOUBLE PRECISION                                        :: dummy_var, dummy
 
 INTEGER, PARAMETER                                      :: coor_x = 1, coor_y = 2, coor_z = 3
+INTEGER                                                 :: cur_coordinate, cur_mgi1, cur_mgi2, cur_pair
+DOUBLE PRECISION, DIMENSION(3)                          :: cur_pos1, cur_pos2, cur_vel1, cur_vel2
 
 
 ! the ``centre of the mass'' of the points
