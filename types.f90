@@ -19,6 +19,7 @@ SAVE
       INTEGER                        :: up_cell, down_cell
       INTEGER, DIMENSION(6)          :: neighbor
       DOUBLE PRECISION, DIMENSION(3) :: corner, width
+      DOUBLE PRECISION, DIMENSION(3) :: vec_vel
       INTEGER, DIMENSION(3)          :: n_sbgr
   END TYPE dyn_grid_cell
 

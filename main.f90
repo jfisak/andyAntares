@@ -189,6 +189,11 @@ IF(saved_grid == 1 .and. .not. propmod_file_exists .or. saved_grid == 2) THEN
 END IF
 ! connects the propagation grid with the model grid
 write(99,*) 'propagation grid is set up'
+! map modGrid velocity field onto propGrid
+IF(velApprox == 3) THEN
+ CALL vel_interpolation()
+ STOP 'main: testing'
+END IF
 
 
 
@@ -220,15 +225,12 @@ DO iteration = 1,1
  ! test_pos = (/R_star, 0.D0, 0.D0/)
  ! test_end = (/20*R_star, 0.D0, 0.D0/)
  ! test_freq = 1164084775316555.5 ! Hz
- CALL freq_from_planck(test_freq, T_eff)
+ ! CALL freq_from_planck(test_freq, T_eff)
  ! CALL calc_tau(test_pos, test_end, test_freq)
  ! STOP 'main: testing'
  ! if (iteration == 1 .AND. inputpopfile .NE. '') then
  !  CALL read_populations()
  ! end if
- IF(velApprox == 3) THEN
-  CALL vel_interpolation()
- END IF
  CALL i_ion_recomb(1)
  IF(iteration == 100) STOP 'too many iteration in the subroutine main'
  write(99,*) 'Update grid finished' 
