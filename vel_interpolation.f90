@@ -54,6 +54,11 @@ LOGICAL                                 :: seeking
 INTEGER                                 :: cur_index_i
 
 DOUBLE PRECISION, DIMENSION(3)          :: vel_vector
+
+INTEGER                                 :: n_coor_x, n_coor_y, n_coor_z
+INTEGER                                 :: count_x, count_y, count_z
+DOUBLE PRECISION, DIMENSION(3)          :: cur_saved_mg_pos
+LOGICAL                                 :: nahrada
 !_______________________________________________________________
 !   #00             SET UP OF VIRTUAL GRIDS
 !_______________________________________________________________
@@ -184,7 +189,7 @@ ALLOCATE(interp_dist(n_closest,ind_index), pom(n_closest, ind_index))
 
 ! going through the propGrid and finding a velocity vector using the trilinear interpolation
 DO cur_prop_cell = 1, n_propgcells
- write(*,*) 'vel_interpolation: cur_prop_cell = ', cur_prop_cell
+ ! write(*,*) 'vel_interpolation: cur_prop_cell = ', cur_prop_cell
  !_______________________________________________________________
  !  #              CHOISE OF GRID A OR B
  !_______________________________________________________________
@@ -273,11 +278,13 @@ DO cur_prop_cell = 1, n_propgcells
  !            SEEKING FOR THE n_closest CLOSEST POINTS
  !_______________________________________________________________
  interp_dist(:,ind_dist) = large_number
+ interp_dist(:,ind_index) = 0.D0
  seeking = .TRUE.
  ! write(*,*) 'vel_interpolation: interp_dist = ', interp_dist(:,ind_dist)
  DO cur_nearest_point = 1, cur_n_points
   cur_nop = cur_points(cur_nearest_point)
   cur_mg_pos = model_grid(cur_nop)%vec_pos
+  ! write(45,*) cur_mg_pos
   ! write(*,*) 'vel_interpolation: cur_index = ', cur_nearest_point, ' cur_mg_pos = ', cur_mg_pos
   
   ! distance of a current modGrid point and the 
@@ -293,6 +300,54 @@ DO cur_prop_cell = 1, n_propgcells
    !write(*,*) 'vel_interpolation: intpdist = ', interp_dist(cur_index_pos, ind_dist), ' dist = ', dist
    seeking = .TRUE.
    IF(interp_dist(cur_index_pos, ind_dist) > dist) THEN
+    ! testing of the coordinates
+    n_coor_x = 0
+    n_coor_y = 0
+    n_coor_z = 0
+    count_x = 0
+    count_y = 0
+    count_z = 0
+    nahrada = .false.
+    ! going value by value and counting the number of points with very same coordinate
+    ! the number larger than two is useless, therefore we skip this point
+    DO cip = 1, n_closest
+     IF(interp_dist(cip, ind_dist) < large_number .and. INT(interp_dist(cip, ind_index)) /= 0) THEN
+      cur_saved_mg_pos = model_grid(interp_dist(cip, ind_index))%vec_pos
+      write(*,*) 'vel_interpolation: cur_saved_mg_pos = ', cur_saved_mg_pos
+      IF(cur_mg_pos(1) == cur_saved_mg_pos(1)) n_coor_x = n_coor_x + 1
+      IF(cur_mg_pos(2) == cur_saved_mg_pos(2)) n_coor_y = n_coor_y + 1
+      IF(cur_mg_pos(3) == cur_saved_mg_pos(3)) n_coor_z = n_coor_z + 1
+      write(*,*) 'vel_interpolation: n_x = ', n_coor_x, ' n_y = ', n_coor_y, ' n_z = ', n_coor_z
+     END IF
+    END DO
+
+    IF(n_coor_x > 2) THEN
+     DO cip = 1, n_closest
+      IF(INT(interp_dist(cip, ind_index)) /= 0) THEN
+       write(*,*) 'vel_interpolation: index = ', interp_dist(cip, ind_index)
+       cur_saved_mg_pos = model_grid(interp_dist(cip, ind_index))%vec_pos
+       IF(cur_mg_pos(1) == cur_saved_mg_pos(1)) THEN
+        IF(interp_dist(cip, ind_dist) > dist) THEN
+         ! we should test the second, more distant, point
+         IF(count_x == 1) THEN
+          write(*,*) 'vel_interpolation: deleting a point'
+          DO cur_index = cip, n_closest - 1
+           interp_dist(cur_index,:) = interp_dist(cur_index + 1,:)
+          END DO
+          interp_dist(n_closest,ind_dist) = large_number
+          interp_dist(n_closest, ind_index) = 0
+         END IF
+         count_x = count_x + 1
+        END IF
+       END IF
+      END IF ! interp_dist(mod_index) /= 0
+     END DO
+     n_coor_x = 2
+     write(*,*) 'vel_interpolation: n_coor_x = ', n_coor_x
+    END IF ! n_coor_x > 2
+
+
+    ! we can now put the point into the list
     pom = interp_dist
     DO cip = cur_index_pos, n_closest
      ! write(*,*) 'vel_interpolation: cip = ', cip, ' cur_index_pos = ', cur_index_pos
@@ -318,7 +373,7 @@ DO cur_prop_cell = 1, n_propgcells
  DEALLOCATE(cur_points)
 
  dyn_cell(cur_prop_cell)%vec_vel = vel_vector
- write(43,*) cur_pg_pos, vel_vector
+ ! write(43,*) cur_pg_pos, vel_vector
 
 END DO ! a loop over all propGrid cells
 

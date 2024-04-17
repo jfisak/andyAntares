@@ -130,6 +130,14 @@ DO cur_pair = 1, 4
    & (positon(cur_coordinate) - cur_pos1(cur_coordinate))/(cur_pos2(cur_coordinate) - cur_pos1(cur_coordinate))
  IF(isnan(point_pos(1)) .or. isnan(point_pos(2)) .or. isnan(point_pos(3))) THEN
   write(*,*) 'vel_vector_interpolation: pos2(x) = ', cur_pos2(cur_coordinate), ' pos1(x) = ', cur_pos1(cur_coordinate)
+  DO  cur_I = 1, n_clo_mgi
+   cur_mgi = mgi_indexes(cur_I)
+   cur_vel1 = model_grid(cur_mgi)%vec_vel
+   cur_pos1 = model_grid(cur_mgi)%vec_pos
+   write(43,*) cur_pos1, cur_vel1
+   write(44,*) positon
+  END DO
+  STOP 'vel_vector_interpolation: NaNs'
  END IF
  ! saving calculated quantities into an array
  vel_8(cur_pair,:) = velocity(:)
