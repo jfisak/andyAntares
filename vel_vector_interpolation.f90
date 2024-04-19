@@ -135,8 +135,8 @@ DO cur_pair = 1, 4
    cur_vel1 = model_grid(cur_mgi)%vec_vel
    cur_pos1 = model_grid(cur_mgi)%vec_pos
    write(43,*) cur_pos1, cur_vel1
-   write(44,*) positon
   END DO
+  write(44,*) positon
   STOP 'vel_vector_interpolation: NaNs'
  END IF
  ! saving calculated quantities into an array
