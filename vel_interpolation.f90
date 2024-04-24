@@ -45,13 +45,11 @@ INTEGER                                 :: chosen_gridAB
 INTEGER, PARAMETER                      :: grid_A = 1, grid_B = 2
 INTEGER, PARAMETER                      :: ind_dist = 1, ind_index = 2
 
-DOUBLE PRECISION, DIMENSION(3)          :: cur_centre
 INTEGER                                 :: cur_nearest_point, cur_nop, cur_vg_index, cur_vg_point
-INTEGER                                 :: cur_nx, cur_ny, cur_nz
 INTEGER                                 :: cip, cur_index, cur_index_pos
 DOUBLE PRECISION                        :: dist
 LOGICAL                                 :: seeking
-INTEGER                                 :: cur_index_i
+! INTEGER                                 :: cur_index_i
 
 DOUBLE PRECISION, DIMENSION(3)          :: vel_vector
 
@@ -59,6 +57,7 @@ INTEGER                                 :: n_coor_x, n_coor_y, n_coor_z
 INTEGER                                 :: count_x, count_y, count_z
 DOUBLE PRECISION, DIMENSION(3)          :: cur_saved_mg_pos
 LOGICAL                                 :: novyBod
+INTEGER                                 :: cur_iti_mgi
 !_______________________________________________________________
 !   #00             SET UP OF VIRTUAL GRIDS
 !_______________________________________________________________
@@ -312,7 +311,8 @@ DO cur_prop_cell = 1, n_propgcells
     ! the number larger than two is useless, therefore we skip this point
     DO cip = 1, n_closest
      IF(interp_dist(cip, ind_dist) < large_number .and. INT(interp_dist(cip, ind_index)) /= 0) THEN
-      cur_saved_mg_pos = model_grid(interp_dist(cip, ind_index))%vec_pos
+      cur_iti_mgi = INT(interp_dist(cip, ind_index))
+      cur_saved_mg_pos = model_grid(cur_iti_mgi)%vec_pos
       write(*,*) 'vel_interpolation: cur_saved_mg_pos = ', cur_saved_mg_pos
       IF(cur_mg_pos(1) == cur_saved_mg_pos(1)) n_coor_x = n_coor_x + 1
       IF(cur_mg_pos(2) == cur_saved_mg_pos(2)) n_coor_y = n_coor_y + 1
@@ -321,12 +321,14 @@ DO cur_prop_cell = 1, n_propgcells
      END IF
     END DO
 
+    ! x direction
     IF(n_coor_x >= 2) THEN
      write(*,*) 'vel_interpolation: n_coor_x = ', n_coor_x
      DO cip = 1, n_closest
       IF(INT(interp_dist(cip, ind_index)) /= 0) THEN
        write(*,*) 'vel_interpolation: index = ', interp_dist(cip, ind_index)
-       cur_saved_mg_pos = model_grid(interp_dist(cip, ind_index))%vec_pos
+       cur_iti_mgi = INT(interp_dist(cip, ind_index))
+       cur_saved_mg_pos = model_grid(cur_iti_mgi)%vec_pos
        IF(cur_mg_pos(1) == cur_saved_mg_pos(1)) THEN
         ! this is the second occurence of the same coordinate
         ! we can delete this point
@@ -351,12 +353,13 @@ DO cur_prop_cell = 1, n_propgcells
      write(*,*) 'vel_interpolation: n_coor_x = ', n_coor_x
     END IF ! n_coor_x > 2
 
+    ! y direction
     IF(n_coor_y >= 2) THEN
      write(*,*) 'vel_interpolation: n_coor_y = ', n_coor_y
      DO cip = 1, n_closest
       IF(INT(interp_dist(cip, ind_index)) /= 0) THEN
-       write(*,*) 'vel_interpolation: index = ', interp_dist(cip, ind_index)
-       cur_saved_mg_pos = model_grid(interp_dist(cip, ind_index))%vec_pos
+       cur_iti_mgi = INT(interp_dist(cip, ind_index))
+       cur_saved_mg_pos = model_grid(cur_iti_mgi)%vec_pos
        IF(cur_mg_pos(2) == cur_saved_mg_pos(2)) THEN
         ! this is the second occurence of the same coordinate
         ! we can delete this point
@@ -381,12 +384,13 @@ DO cur_prop_cell = 1, n_propgcells
      write(*,*) 'vel_interpolation: n_coor_y = ', n_coor_y
     END IF ! n_coor_y > 2
 
+    ! z direction
     IF(n_coor_z >= 2) THEN
      write(*,*) 'vel_interpolation: n_coor_z = ', n_coor_z
      DO cip = 1, n_closest
       IF(INT(interp_dist(cip, ind_index)) /= 0) THEN
-       write(*,*) 'vel_interpolation: index = ', interp_dist(cip, ind_index)
-       cur_saved_mg_pos = model_grid(interp_dist(cip, ind_index))%vec_pos
+       cur_iti_mgi = INT(interp_dist(cip, ind_index))
+       cur_saved_mg_pos = model_grid(cur_iti_mgi)%vec_pos
        IF(cur_mg_pos(3) == cur_saved_mg_pos(3)) THEN
         ! this is the second occurence of the same coordinate
         ! we can delete this point
@@ -434,6 +438,10 @@ DO cur_prop_cell = 1, n_propgcells
   ! write(*,*) 'vel_interpolation: interp_dist = ', interp_dist(:,ind_dist)
  END DO
  
+ ! DO cur_J = 1, n_closest
+ !  IF(interp_dist(cur_J, ind_index) == 0) THEN
+ !  END IF
+ ! END DO
  ! write(*,*) 'vel_interpolation: interp_dist(:,2) = ', interp_dist(:,2)
  CALL vel_vector_interpolation(cur_pg_pos, interp_dist(:,2), n_closest, vel_vector)
  ! write(*,*) 'vel_interpolation:************************************************'

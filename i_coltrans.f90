@@ -57,8 +57,6 @@ CASE(1)
  ! --
  temperature = model_grid(current_mgi)%T
  el_temperature = temperature
- ! number of lines we are interested in
- nlns = SIZE(linetransitions)
 
  ! we have to know which element and ion we are calculating data for
  ! we will use the knowledge of lines and assume that at it is

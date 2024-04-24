@@ -27,12 +27,15 @@ INTEGER                                                 :: cur_coordinate, cur_m
 DOUBLE PRECISION, DIMENSION(3)                          :: cur_pos1, cur_pos2, cur_vel1, cur_vel2, point_pos
 DOUBLE PRECISION, ALLOCATABLE                           :: vel_8(:,:), pos_8(:,:), vel_4(:,:), pos_4(:,:)
 
+INTEGER                                                 :: cur_mgiind
+
 ! write(*,*) 'vel_vector_interpolation: mgi_indexes = ', mgi_indexes(:)
 
 ! the ``centre of the mass'' of the points
 summ_r(:) = 0.D0
 DO cur_I = 1, n_clo_mgi
- cur_pos = model_grid(INT(mgi_indexes(cur_I)))%vec_pos
+ cur_mgiind = INT(mgi_indexes(cur_I))
+ cur_pos = model_grid(cur_mgiind)%vec_pos
  summ_r(1) = summ_r(1) + cur_pos(1)
  summ_r(2) = summ_r(2) + cur_pos(2)
  summ_r(3) = summ_r(3) + cur_pos(3)
@@ -131,7 +134,7 @@ DO cur_pair = 1, 4
  IF(isnan(point_pos(1)) .or. isnan(point_pos(2)) .or. isnan(point_pos(3))) THEN
   write(*,*) 'vel_vector_interpolation: pos2(x) = ', cur_pos2(cur_coordinate), ' pos1(x) = ', cur_pos1(cur_coordinate)
   DO  cur_I = 1, n_clo_mgi
-   cur_mgi = mgi_indexes(cur_I)
+   cur_mgi = INT(mgi_indexes(cur_I))
    cur_vel1 = model_grid(cur_mgi)%vec_vel
    cur_pos1 = model_grid(cur_mgi)%vec_pos
    write(43,*) cur_pos1, cur_vel1

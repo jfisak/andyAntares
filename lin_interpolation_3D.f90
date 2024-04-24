@@ -7,7 +7,6 @@ DOUBLE PRECISION, DIMENSION(3)                                  :: pos_0, pos_1,
 DOUBLE PRECISION, DIMENSION(3)                                  :: vec_vel
 DOUBLE PRECISION, DIMENSION(3)                                  :: point_pos
 INTEGER                                                         :: cur_coo
-INTEGER                                                         :: cur_dir
 DOUBLE PRECISION, DIMENSION(3)                                  :: lina, linb
 
 

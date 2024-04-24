@@ -17,6 +17,8 @@ DOUBLE PRECISION                  :: r_pos
 
 INTEGER                            :: cur_mgi
 
+approx = velApprox
+
 ! pack_position = package(pack_index)%pos
 SELECT CASE(velApprox)
 ! homologous expansion

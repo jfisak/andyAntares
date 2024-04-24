@@ -54,7 +54,7 @@ INTEGER                                 :: n_adgrids
 
 ! chemical composition
 INTEGER                                 :: cur_indexe, cur_element, cur_Z, cur_nions
-INTEGER                                 :: cur_atom_mass, cur_abundance
+DOUBLE PRECISION                        :: cur_atom_mass, cur_abundance
 CHARACTER(LEN=file_length)              :: cur_levelfile, cur_transfile
 
 !________________________________________________________________________________
