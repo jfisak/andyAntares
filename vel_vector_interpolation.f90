@@ -32,6 +32,7 @@ INTEGER                                                 :: cur_mgiind
 ! write(*,*) 'vel_vector_interpolation: mgi_indexes = ', mgi_indexes(:)
 
 ! the ``centre of the mass'' of the points
+write(*,*) 'vel_vector_interpolation: mgi_indexes = ', mgi_indexes
 summ_r(:) = 0.D0
 DO cur_I = 1, n_clo_mgi
  cur_mgiind = INT(mgi_indexes(cur_I))

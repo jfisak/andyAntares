@@ -46,18 +46,19 @@ INTEGER, PARAMETER                      :: grid_A = 1, grid_B = 2
 INTEGER, PARAMETER                      :: ind_dist = 1, ind_index = 2
 
 INTEGER                                 :: cur_nearest_point, cur_nop, cur_vg_index, cur_vg_point
-INTEGER                                 :: cip, cur_index, cur_index_pos
 DOUBLE PRECISION                        :: dist
-LOGICAL                                 :: seeking
+LOGICAL                                 :: seeking, novyBod
+DOUBLE PRECISION, DIMENSION(3)                          :: cur_saved_mg_pos
+INTEGER                                                 :: cur_index, cip, cur_index_pos
 ! INTEGER                                 :: cur_index_i
 
 DOUBLE PRECISION, DIMENSION(3)          :: vel_vector
 
-INTEGER                                 :: n_coor_x, n_coor_y, n_coor_z
-INTEGER                                 :: count_x, count_y, count_z
-DOUBLE PRECISION, DIMENSION(3)          :: cur_saved_mg_pos
-LOGICAL                                 :: novyBod
-INTEGER                                 :: cur_iti_mgi
+INTEGER                                 :: cur_iti_mgi, cur_J
+INTEGER, DIMENSION(3)                                   :: n_coor, count_xyz
+INTEGER                                                 :: cur_xyz
+INTEGER, PARAMETER                                      :: coor_x = 1, coor_y = 2, coor_z = 3
+DOUBLE PRECISION                                        :: cur_dist
 !_______________________________________________________________
 !   #00             SET UP OF VIRTUAL GRIDS
 !_______________________________________________________________
@@ -280,148 +281,99 @@ DO cur_prop_cell = 1, n_propgcells
  interp_dist(:,ind_index) = 0.D0
  seeking = .TRUE.
  ! write(*,*) 'vel_interpolation: interp_dist = ', interp_dist(:,ind_dist)
+ ! going through the array interp_dist and sorting from the smallest distances to largest distances
  DO cur_nearest_point = 1, cur_n_points
+  write(*,*) 'vel_interpolation: _______________________________________________________________________'
+  write(*,*) 'vel_interpolation: cur_point = ', cur_nearest_point, '/', cur_n_points, ' dist = ', dist
   cur_nop = cur_points(cur_nearest_point)
   cur_mg_pos = model_grid(cur_nop)%vec_pos
   ! write(45,*) cur_mg_pos
-  ! write(*,*) 'vel_interpolation: cur_index = ', cur_nearest_point, ' cur_mg_pos = ', cur_mg_pos
-  
   ! distance of a current modGrid point and the 
   dist = sqrt((cur_pg_pos(1) - cur_mg_pos(1))**2 + (cur_pg_pos(2) - cur_mg_pos(2))**2 + &
    & (cur_pg_pos(3) - cur_mg_pos(3))**2)
-  ! write(*,*) 'vel_interpolation pg = ', cur_pg_pos/R_star, 'mg = ', cur_mg_pos/R_star
-  ! write(*,*) 'vel_interpolation: cur_point = ', cur_nearest_point, ' dist = ', dist
+  write(*,*) 'vel_interpolation pg = ', cur_pg_pos/R_star, 'mg = ', cur_mg_pos/R_star
 
-  ! going through the array interp_dist and sorting from the smallest distances to largest distances
-  DO cur_index_pos = 1, n_closest
-   ! the current distance in the array is larger than the current distance, we should move all values
-   ! one level below and save the new distance to the current index
-   !write(*,*) 'vel_interpolation: intpdist = ', interp_dist(cur_index_pos, ind_dist), ' dist = ', dist
-   seeking = .TRUE.
-   IF(interp_dist(cur_index_pos, ind_dist) > dist) THEN
-    ! testing of the coordinates
-    n_coor_x = 0
-    n_coor_y = 0
-    n_coor_z = 0
-    count_x = 0
-    count_y = 0
-    count_z = 0
-    novyBod = .true.
-    ! going value by value and counting the number of points with very same coordinate
-    ! the number larger than two is useless, therefore we skip this point
-    DO cip = 1, n_closest
-     IF(interp_dist(cip, ind_dist) < large_number .and. INT(interp_dist(cip, ind_index)) /= 0) THEN
-      cur_iti_mgi = INT(interp_dist(cip, ind_index))
-      cur_saved_mg_pos = model_grid(cur_iti_mgi)%vec_pos
-      write(*,*) 'vel_interpolation: cur_saved_mg_pos = ', cur_saved_mg_pos
-      IF(cur_mg_pos(1) == cur_saved_mg_pos(1)) n_coor_x = n_coor_x + 1
-      IF(cur_mg_pos(2) == cur_saved_mg_pos(2)) n_coor_y = n_coor_y + 1
-      IF(cur_mg_pos(3) == cur_saved_mg_pos(3)) n_coor_z = n_coor_z + 1
-      write(*,*) 'vel_interpolation: n_x = ', n_coor_x, ' n_y = ', n_coor_y, ' n_z = ', n_coor_z
-     END IF
+  ! the current distance in the array is larger than the current distance, we should move all values
+  ! one level below and save the new distance to the current index
+  !write(*,*) 'vel_interpolation: intpdist = ', interp_dist(cur_index_pos, ind_dist), ' dist = ', dist
+  seeking = .TRUE.
+  ! testing of the coordinates
+  n_coor(:) = 0
+  novyBod = .true.
+  ! going value by value and counting the number of points with very same coordinate
+  ! the number larger than two is useless, therefore we skip this point
+  write(*,*) 'vel_interpolation: cur_mg_pos = ', cur_mg_pos
+  ! DO cip = 1, n_closest
+  !  IF(interp_dist(cip, ind_dist) < large_number .and. INT(interp_dist(cip, ind_index)) /= 0) THEN
+  !   cur_iti_mgi = INT(interp_dist(cip, ind_index))
+  !   cur_saved_mg_pos = model_grid(cur_iti_mgi)%vec_pos
+  !   write(*,*) 'vel_interpolation: cur_saved_mg_pos = ', cur_saved_mg_pos
+  !   IF(cur_mg_pos(coor_x) == cur_saved_mg_pos(coor_x)) n_coor(coor_x) = n_coor(coor_x) + 1
+  !   IF(cur_mg_pos(coor_y) == cur_saved_mg_pos(coor_y)) n_coor(coor_y) = n_coor(coor_y) + 1
+  !   IF(cur_mg_pos(coor_z) == cur_saved_mg_pos(coor_z)) n_coor(coor_z) = n_coor(coor_z) + 1
+  !   write(*,*) 'vel_interpolation: n_x = ', n_coor(coor_x), ' n_y = ', n_coor(coor_y), ' n_z = ', n_coor(coor_z)
+  !  END IF
+  ! END DO
+
+  ! in this case, we have to go through the saved list o points to see, whether we can save the new point or not
+  ! IF(n_coor(coor_x) >= 2 .or. n_coor(coor_y) >= 2 .or. n_coor(coor_z) >= 2) THEN
+   count_xyz(:) = 0
+   DO cur_index_I = 1, n_closest
+    cur_iti_mgi = INT(interp_dist(cur_index_I, ind_index))
+    DO cur_index_J = cur_index_I + 1, n_closest
+     cur_itj_index = INT(interp_dist(cur_index_J, ind_index))
+     IF(INT(cur_iti_mgi) /= 0) THEN
+      write(*,*) 'vel_interpolation: index = ', interp_dist(cur_index_I, ind_index)
+      cur_saved_mg_pos_A = model_grid(cur_iti_mgi)%vec_pos
+      cur_saved_mg_pos_B = model_grid(cur_itj_mgi)%vec_pos
+
+      vec_AB = (cur_saved_mg_pos_A - cur_saved_mg_pos_B)/NORM2(cur_saved_mg_pos_A - cur_saved_mg_pos_B)
+      vec_AC = (cur_saved_mg_pos_A - cur_mg_pos)/NORM2(cur_saved_mg_pos_A - cur_mg_pos)
+     END IF ! interp_dist(mod_index) /= 0
     END DO
+   END DO ! cur_index_I = 1, n_closest
 
-    ! x direction
-    IF(n_coor_x >= 2) THEN
-     write(*,*) 'vel_interpolation: n_coor_x = ', n_coor_x
-     DO cip = 1, n_closest
-      IF(INT(interp_dist(cip, ind_index)) /= 0) THEN
-       write(*,*) 'vel_interpolation: index = ', interp_dist(cip, ind_index)
-       cur_iti_mgi = INT(interp_dist(cip, ind_index))
-       cur_saved_mg_pos = model_grid(cur_iti_mgi)%vec_pos
-       IF(cur_mg_pos(1) == cur_saved_mg_pos(1)) THEN
+   DO cur_xyz = 1,3
+    write(*,*) 'vel_interpolation: n_coor(cur_xyz) = ', n_coor(cur_xyz)
+       IF(cur_mg_pos(cur_xyz) == cur_saved_mg_pos(cur_xyz)) THEN
         ! this is the second occurence of the same coordinate
         ! we can delete this point
-        write(*,*) 'vel_interpolation: count_x = ', count_x
-        IF(interp_dist(cip, ind_dist) > dist .and. count_x == 1) THEN
+        write(*,*) 'vel_interpolation: count(cur_xyz) = ', count_xyz(cur_xyz)
+        ! if we find a point closer to the position and we compare it with more distant point
+        ! with the same coordinate (defined by a variable count_xyz == 1)
+        IF(dist < interp_dist(cur_index_I, ind_dist) .and. count_xyz(cur_xyz) == 1) THEN
          ! we should test the second, more distant, point
+         cur_index_pos = cur_index
          write(*,*) 'vel_interpolation: deleting a point'
          ! move the indeces one position up
-         DO cur_index = cip, n_closest - 1
+         DO cur_index = cur_index_I, n_closest - 1
           interp_dist(cur_index,:) = interp_dist(cur_index + 1,:)
          END DO
          interp_dist(n_closest,ind_dist) = large_number
          interp_dist(n_closest, ind_index) = 0
         ELSE
          novyBod = .false.
+         EXIT
         END IF
-        count_x = count_x + 1
+        count_xyz(cur_xyz) = count_xyz(cur_xyz) + 1
        END IF
-      END IF ! interp_dist(mod_index) /= 0
-     END DO
-     n_coor_x = 2
-     write(*,*) 'vel_interpolation: n_coor_x = ', n_coor_x
-    END IF ! n_coor_x > 2
-
-    ! y direction
-    IF(n_coor_y >= 2) THEN
-     write(*,*) 'vel_interpolation: n_coor_y = ', n_coor_y
-     DO cip = 1, n_closest
-      IF(INT(interp_dist(cip, ind_index)) /= 0) THEN
-       cur_iti_mgi = INT(interp_dist(cip, ind_index))
-       cur_saved_mg_pos = model_grid(cur_iti_mgi)%vec_pos
-       IF(cur_mg_pos(2) == cur_saved_mg_pos(2)) THEN
-        ! this is the second occurence of the same coordinate
-        ! we can delete this point
-        write(*,*) 'vel_interpolation: count_y = ', count_y
-        IF(interp_dist(cip, ind_dist) > dist .and. count_y == 1) THEN
-         ! we should test the second, more distant, point
-         write(*,*) 'vel_interpolation: deleting a point'
-         ! move the indeces one position up
-         DO cur_index = cip, n_closest - 1
-          interp_dist(cur_index,:) = interp_dist(cur_index + 1,:)
-         END DO
-         interp_dist(n_closest,ind_dist) = large_number
-         interp_dist(n_closest, ind_index) = 0
-        ELSE
-         novyBod = .false.
-        END IF
-        count_y = count_y + 1
-       END IF
-      END IF ! interp_dist(mod_index) /= 0
-     END DO
-     n_coor_y = 2
-     write(*,*) 'vel_interpolation: n_coor_y = ', n_coor_y
-    END IF ! n_coor_y > 2
-
-    ! z direction
-    IF(n_coor_z >= 2) THEN
-     write(*,*) 'vel_interpolation: n_coor_z = ', n_coor_z
-     DO cip = 1, n_closest
-      IF(INT(interp_dist(cip, ind_index)) /= 0) THEN
-       cur_iti_mgi = INT(interp_dist(cip, ind_index))
-       cur_saved_mg_pos = model_grid(cur_iti_mgi)%vec_pos
-       IF(cur_mg_pos(3) == cur_saved_mg_pos(3)) THEN
-        ! this is the second occurence of the same coordinate
-        ! we can delete this point
-        write(*,*) 'vel_interpolation: count_z = ', count_z
-        IF(interp_dist(cip, ind_dist) > dist .and. count_z == 1) THEN
-         ! we should test the second, more distant, point
-         write(*,*) 'vel_interpolation: deleting a point'
-         ! move the indeces one position up
-         DO cur_index = cip, n_closest - 1
-          interp_dist(cur_index,:) = interp_dist(cur_index + 1,:)
-         END DO
-         interp_dist(n_closest,ind_dist) = large_number
-         interp_dist(n_closest, ind_index) = 0
-        ELSE
-         novyBod = .false.
-        END IF
-        count_z = count_z + 1
-       END IF
-      END IF ! interp_dist(mod_index) /= 0
-     END DO
-     n_coor_z = 2
-     write(*,*) 'vel_interpolation: n_coor_z = ', n_coor_z
-    END IF ! n_coor_z > 2
-
-    ! we can now put the point into the list
-    write(*,*) 'vel_interpolation: novyBod = ', novyBod
-
-    IF(novyBod) THEN
-     pom = interp_dist
+    n_coor(cur_xyz) = 2
+    write(*,*) 'vel_interpolation: n_coor(cur_xyz) = ', n_coor(cur_xyz)
+   END DO ! cur_xyz = 1,3
+  ! END IF ! n_coor(:) > 1
+   
+  ! we can now put the new point into the list
+  ! without erassing any other point
+  write(*,*) 'vel_interpolation: novyBod = ', novyBod
+  IF(novyBod) THEN
+   pom = interp_dist
+   write(*,*) 'vel_interpolation: cur_index_pos = ', cur_index_pos, ' n_closest = ', n_closest
+   DO cur_index_pos = 1, n_closest
+    write(*,*) 'vel_interpolation: cip = ', cip, ' cur_index_pos = ', cur_index_pos
+    cur_dist = interp_dist(cur_index_pos, ind_dist)
+    write(*,*) 'vel_interpolation: cur_dist = ', cur_dist, ' dist = ', dist
+    IF(dist < cur_dist) THEN
      DO cip = cur_index_pos, n_closest
-      ! write(*,*) 'vel_interpolation: cip = ', cip, ' cur_index_pos = ', cur_index_pos
       IF(cip == cur_index_pos) THEN
        interp_dist(cip, ind_dist) = dist
        interp_dist(cip, ind_index) = cur_nop
@@ -431,18 +383,31 @@ DO cur_prop_cell = 1, n_propgcells
       END IF
       seeking = .FALSE.
      END DO
-    END IF ! novyBod
-   END IF ! cur_dist < dist in array
-   IF(.NOT. seeking) EXIT
-  END DO ! cur_index_pos
-  ! write(*,*) 'vel_interpolation: interp_dist = ', interp_dist(:,ind_dist)
+     EXIT
+    END IF
+   END DO
+  END IF ! novyBod
+  write(*,*) 'vel_interpolation: interp_dist() = ', interp_dist(:,ind_index)
+  !IF(.NOT. seeking) EXIT
+  ! CALL vel_intp_choice(interp_dist, n_closest, 2, cur_pg_pos)
  END DO
- 
- ! DO cur_J = 1, n_closest
- !  IF(interp_dist(cur_J, ind_index) == 0) THEN
- !  END IF
- ! END DO
+
+
+ DO cur_J = 1, n_closest
+  cur_iti_mgi = INT(interp_dist(cur_J, ind_index))
+  IF(cur_iti_mgi == 0) THEN
+   DO cur_nearest_point = 1, cur_n_points
+    cur_nop = cur_points(cur_nearest_point)
+    cur_mg_pos = model_grid(cur_nop)%vec_pos
+    write(41,*) cur_mg_pos
+   END DO
+   EXIT
+  ELSE
+   write(42,*) model_grid(cur_iti_mgi)%vec_pos
+  END IF
+ END DO
  ! write(*,*) 'vel_interpolation: interp_dist(:,2) = ', interp_dist(:,2)
+ write(40,*) cur_pg_pos
  CALL vel_vector_interpolation(cur_pg_pos, interp_dist(:,2), n_closest, vel_vector)
  ! write(*,*) 'vel_interpolation:************************************************'
  ! write(*,*) 'vel_interpolation: interp_dist = ', interp_dist(:,ind_index)
