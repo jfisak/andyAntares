@@ -128,8 +128,6 @@ DO cur_pair = 1, 4
  cur_pos2 = model_grid(cur_mgi2)%vec_pos
 
  CALL lin_interpolation_3D(positon, cur_pos1, cur_pos2, cur_vel1, cur_vel2, cur_coordinate, velocity)
- ! write(43,*) cur_pos1, cur_vel1
- ! write(43,*) cur_pos2, cur_vel2
  point_pos = cur_pos1 + (cur_pos2 - cur_pos1)* &
    & (positon(cur_coordinate) - cur_pos1(cur_coordinate))/(cur_pos2(cur_coordinate) - cur_pos1(cur_coordinate))
  IF(isnan(point_pos(1)) .or. isnan(point_pos(2)) .or. isnan(point_pos(3))) THEN
@@ -138,7 +136,7 @@ DO cur_pair = 1, 4
    cur_mgi = INT(mgi_indexes(cur_I))
    cur_vel1 = model_grid(cur_mgi)%vec_vel
    cur_pos1 = model_grid(cur_mgi)%vec_pos
-   write(43,*) cur_pos1, cur_vel1
+   write(43,*) cur_pos1, cur_vel1, mgi_indexes(cur_I)
   END DO
   write(44,*) positon
   STOP 'vel_vector_interpolation: NaNs'
