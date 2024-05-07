@@ -32,7 +32,7 @@ INTEGER                                                 :: cur_mgiind
 ! write(*,*) 'vel_vector_interpolation: mgi_indexes = ', mgi_indexes(:)
 
 ! the ``centre of the mass'' of the points
-write(*,*) 'vel_vector_interpolation: mgi_indexes = ', mgi_indexes
+write(*,*) 'vel_vector_interpolation: mgi_indexes = ', INT(mgi_indexes)
 summ_r(:) = 0.D0
 DO cur_I = 1, n_clo_mgi
  cur_mgiind = INT(mgi_indexes(cur_I))
@@ -71,7 +71,7 @@ END DO
 n_clo_mgi_half = n_clo_mgi / 2
 
 ! the first half
-DO cur_index = 2, n_clo_mgi/2
+DO cur_index = 2, n_clo_mgi / 2
  cur_iter = cur_index - 1
 
  cur_mgi = INT(mgi_indexes(cur_index))
@@ -130,17 +130,17 @@ DO cur_pair = 1, 4
  CALL lin_interpolation_3D(positon, cur_pos1, cur_pos2, cur_vel1, cur_vel2, cur_coordinate, velocity)
  point_pos = cur_pos1 + (cur_pos2 - cur_pos1)* &
    & (positon(cur_coordinate) - cur_pos1(cur_coordinate))/(cur_pos2(cur_coordinate) - cur_pos1(cur_coordinate))
- IF(isnan(point_pos(1)) .or. isnan(point_pos(2)) .or. isnan(point_pos(3))) THEN
-  write(*,*) 'vel_vector_interpolation: pos2(x) = ', cur_pos2(cur_coordinate), ' pos1(x) = ', cur_pos1(cur_coordinate)
-  DO  cur_I = 1, n_clo_mgi
-   cur_mgi = INT(mgi_indexes(cur_I))
-   cur_vel1 = model_grid(cur_mgi)%vec_vel
-   cur_pos1 = model_grid(cur_mgi)%vec_pos
-   write(43,*) cur_pos1, cur_vel1, mgi_indexes(cur_I)
-  END DO
-  write(44,*) positon
-  STOP 'vel_vector_interpolation: NaNs'
- END IF
+!  IF(isnan(point_pos(1)) .or. isnan(point_pos(2)) .or. isnan(point_pos(3))) THEN
+!   write(*,*) 'vel_vector_interpolation: pos2(x) = ', cur_pos2(cur_coordinate), ' pos1(x) = ', cur_pos1(cur_coordinate)
+!   DO  cur_I = 1, n_clo_mgi
+!    cur_mgi = INT(mgi_indexes(cur_I))
+!    cur_vel1 = model_grid(cur_mgi)%vec_vel
+!    cur_pos1 = model_grid(cur_mgi)%vec_pos
+!    write(43,*) cur_pos1, cur_vel1, mgi_indexes(cur_I)
+!   END DO
+!   write(44,*) positon
+!   STOP 'vel_vector_interpolation: NaNs'
+!  END IF
  ! saving calculated quantities into an array
  vel_8(cur_pair,:) = velocity(:)
  pos_8(cur_pair,:) = point_pos(:)

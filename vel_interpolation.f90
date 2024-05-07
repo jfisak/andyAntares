@@ -1,4 +1,10 @@
-! this sbr will interpolate the vector field of velocity from the modGrid onto the propGrid
+! this sbr interpolates the vector field of velocity from the modGrid into the propGrid
+! 
+! input: none
+!
+! output: saves new velocity vector for each* propGrid cell
+!
+!
 SUBROUTINE vel_interpolation()
 
 USE types
@@ -54,7 +60,7 @@ INTEGER                                                 :: cur_index, cip, cur_i
 
 DOUBLE PRECISION, DIMENSION(3)          :: vel_vector
 
-INTEGER                                 :: cur_iti_mgi, cur_J
+INTEGER                                 :: cur_iti_mgi
 INTEGER, DIMENSION(3)                                   :: n_coor, count_xyz
 INTEGER                                                 :: cur_xyz
 INTEGER, PARAMETER                                      :: coor_x = 1, coor_y = 2, coor_z = 3
@@ -64,7 +70,7 @@ INTEGER                                                 :: cur_index_I, cur_inde
 DOUBLE PRECISION, DIMENSION(3)                          :: cur_saved_mg_pos_A, cur_saved_mg_pos_B
 DOUBLE PRECISION, DIMENSION(3)                          :: vec_AB, vec_AC
 
-INTEGER, DIMENSION(3)                                   :: f_indexy, index_delete
+INTEGER, DIMENSION(3)                                   :: f_indexy, index_delete, mgi_indexy
 INTEGER                                                 :: cur_del_index, cur_mgi
 
 LOGICAL                                                 :: procout=.true.
@@ -311,12 +317,13 @@ DO cur_prop_cell = 1, n_propgcells
   nahrada = .false.
   index_delete(:) = 0
   f_indexy(:) = 0
+  mgi_indexy(:) = 0
   ! going value by value and counting the number of points with very same coordinate
   ! the number larger than two is useless, therefore we skip this point
   write(*,*) 'vel_interpolation: cur_mg_pos = ', cur_mg_pos
 
-  ! if the current point is not closer than the most far point in the interp_dist, we do not have to do anything
-  ! and go to the following point
+  ! if the current point is not closer than the most far (last index) point in the interp_dist,
+  ! we do not have to do anything and go to the following point
   IF(interp_dist(n_closest, ind_dist) < dist) THEN
    IF(procout) write(*,*) 'vel_interpolation: the point ', cur_nearest_point, ' is too far away'
    CYCLE
@@ -346,8 +353,9 @@ DO cur_prop_cell = 1, n_propgcells
       & ((vec_AB(1) == -vec_AC(1)) .and. (vec_AB(2) == -vec_AC(2)) .and. (vec_AB(3) == -vec_AC(3)))) THEN 
       ! zatím to risknu a vezmu ten druhý index, který by měl být index vzdálenějšího bodu
       f_indexy(cur_del_index) = cur_index_J
+      mgi_indexy(cur_del_index) = cur_itj_mgi
       cur_del_index = cur_del_index + 1
-      IF(procout) write(*,*) 'vel_interpolation: f_indexy = ', f_indexy
+      IF(procout) write(*,*) 'vel_interpolation: for delete = ', cur_index_J
       novyBod = .FALSE.
      END IF ! vec1 = +- vec2
     END IF ! interp_dist(mod_index) /= 0
@@ -392,7 +400,7 @@ DO cur_prop_cell = 1, n_propgcells
       & interp_dist(index_delete(cur_index_K), ind_index)
      DO cur_index_I = 1, n_closest
       cur_mgi = interp_dist(cur_index_I, ind_index)
-      IF(cur_mgi == interp_dist(cur_index_I, ind_index)) THEN
+      IF(cur_mgi == mgi_indexy(cur_index_K)) THEN
        IF(procout) write(*,*) 'vel_interpolation: smazani indexu: ', cur_mgi
        DO cur_index_J = cur_index_I, n_closest
         IF(cur_index_J < n_closest) THEN
@@ -434,30 +442,47 @@ DO cur_prop_cell = 1, n_propgcells
     END IF
    END DO
   END IF ! novyBod
-  write(*,*) 'vel_interpolation: interp_dist() = ', interp_dist(:,ind_index)
+  write(*,*) 'vel_interpolation: interp_dist() = ', INT(interp_dist(:,ind_index))
   !IF(.NOT. seeking) EXIT
   ! CALL vel_intp_choice(interp_dist, n_closest, 2, cur_pg_pos)
  END DO ! #L00 loop over all possible points
 
 
- ! DO cur_J = 1, n_closest
- !  cur_iti_mgi = INT(interp_dist(cur_J, ind_index))
- !  IF(cur_iti_mgi == 0) THEN
- !   DO cur_nearest_point = 1, cur_n_points
- !    cur_nop = cur_points(cur_nearest_point)
- !    cur_mg_pos = model_grid(cur_nop)%vec_pos
- !    write(41,*) cur_mg_pos
- !   END DO
- !   EXIT
- !  ELSE
- !   write(42,*) model_grid(cur_iti_mgi)%vec_pos
- !  END IF
- ! END DO
+ DO cur_index_J = 1, n_closest
+  cur_iti_mgi = INT(interp_dist(cur_index_J, ind_index))
+  IF(cur_iti_mgi == 0) THEN
+   DO cur_nearest_point = 1, cur_n_points
+    cur_nop = cur_points(cur_nearest_point)
+    cur_mg_pos = model_grid(cur_nop)%vec_pos
+    write(41,*) cur_mg_pos
+   END DO
+   STOP 'vel_interpolation: testing'
+   EXIT
+  ELSE
+   write(42,*) model_grid(cur_iti_mgi)%vec_pos
+  END IF
+ END DO
  ! write(*,*) 'vel_interpolation: interp_dist(:,2) = ', interp_dist(:,2)
  ! write(40,*) cur_pg_pos
  CALL vel_vector_interpolation(cur_pg_pos, interp_dist(:,2), n_closest, vel_vector)
  ! write(*,*) 'vel_interpolation:************************************************'
  ! write(*,*) 'vel_interpolation: interp_dist = ', interp_dist(:,ind_index)
+
+ IF(isnan(vel_vector(1)) .or. isnan(vel_vector(2)) .or. isnan(vel_vector(3))) THEN 
+  DO cur_index_I = 1, cur_n_points
+   cur_index = cur_points(cur_index_I)
+   cur_mg_pos = model_grid(cur_index)%vec_pos
+   write(45,*) cur_mg_pos
+  END DO
+  DO  cur_index_I = 1, n_closest
+   cur_mgi = INT(interp_dist(cur_index_I, ind_index))
+   cur_mg_pos = model_grid(cur_mgi)%vec_pos
+   write(43,*) cur_mg_pos, vel_vector, INT(interp_dist(cur_index_I, ind_index))
+  END DO
+  write(44,*) cur_pg_pos
+  STOP 'vel_vector_interpolation: NaNs'
+ END IF
+
  DEALLOCATE(cur_points)
 
  dyn_cell(cur_prop_cell)%vec_vel = vel_vector
