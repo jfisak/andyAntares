@@ -471,7 +471,7 @@ CASE(101)
   cur_abundance = elements(cur_element)%abundance
   cur_levelfile = elements(cur_element)%levelfile
   cur_transfile = elements(cur_element)%transitionfile
-  write(99,*) , cur_indexe, cur_Z, cur_nions, cur_atom_mass, cur_abundance, cur_levelfile, cur_transfile
+  write(99,*) cur_indexe, cur_Z, cur_nions, cur_atom_mass, cur_abundance, cur_levelfile, cur_transfile
  END DO
  write(99,*) 
 

@@ -54,7 +54,6 @@ INTEGER, PARAMETER                      :: ind_dist = 1, ind_index = 2
 INTEGER                                 :: cur_nearest_point, cur_nop, cur_vg_index, cur_vg_point
 DOUBLE PRECISION                        :: dist
 LOGICAL                                 :: seeking, novyBod, nahrada
-DOUBLE PRECISION, DIMENSION(3)                          :: cur_saved_mg_pos
 INTEGER                                                 :: cur_index, cip, cur_index_pos
 ! INTEGER                                 :: cur_index_i
 
@@ -62,7 +61,6 @@ DOUBLE PRECISION, DIMENSION(3)          :: vel_vector
 
 INTEGER                                 :: cur_iti_mgi
 INTEGER, DIMENSION(3)                                   :: n_coor, count_xyz
-INTEGER                                                 :: cur_xyz
 INTEGER, PARAMETER                                      :: coor_x = 1, coor_y = 2, coor_z = 3
 DOUBLE PRECISION                                        :: cur_dist
 
@@ -399,7 +397,7 @@ DO cur_prop_cell = 1, n_propgcells
      if(procout) write(*,*) 'vel_interpolation: smazani bodu ', index_delete(cur_index_K), ' mod_grid = ',&
       & interp_dist(index_delete(cur_index_K), ind_index)
      DO cur_index_I = 1, n_closest
-      cur_mgi = interp_dist(cur_index_I, ind_index)
+      cur_mgi = INT(interp_dist(cur_index_I, ind_index))
       IF(cur_mgi == mgi_indexy(cur_index_K)) THEN
        IF(procout) write(*,*) 'vel_interpolation: smazani indexu: ', cur_mgi
        DO cur_index_J = cur_index_I, n_closest

@@ -153,7 +153,8 @@ write(*,*) 'update_grid: my_rank = ', my_rank, ' my_start = ', my_start, ' my_en
     END IF ! up_cell == 0
    END DO ! a loop over propGrid cells
 #if mpi == 1
- write(*,*) 'connection_prop_model_grid: ', SIZE(cur_model_index), SIZE(dyn_cell(:)%model_index)
+ ! write(*,*) 'connection_prop_model_grid: ', SIZE(cur_model_index), SIZE(dyn_cell(:)%model_index), n_propgcells
+ ! STOP 'connection_prop_model_grid: testing'
  CALL MPI_REDUCE(cur_model_index(:), dyn_cell(:)%model_index, n_propgcells, MPI_INTEGER, &
   & MPI_SUM, 0, MPI_COMM_WORLD, ierr)
  CALL MPI_REDUCE(cur_n_assocmodg(:), model_grid(:)%assoc_cells, n_modelgrid, MPI_INTEGER, &
