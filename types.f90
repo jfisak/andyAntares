@@ -223,6 +223,7 @@ SAVE
   LOGICAL                               :: simpleTrans, orbitals_nl
   INTEGER                               :: enable_diffusion
   INTEGER                               :: sobolev_approximation
+  LOGICAL                               :: vel_propgrid = .false., vel_modgrid = .true.
 
 
 

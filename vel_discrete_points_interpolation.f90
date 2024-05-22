@@ -1,3 +1,11 @@
+! this sbr interpolates a velocity in the defined position in the propGrid
+! it uses the trilinear interpolation
+!
+! input: pack_index -- an index of a packet
+!
+! output: vel_vec -- calculated velocity vector
+!
+!
 SUBROUTINE vel_discrete_points_interpolation(pack_index, vel_vec)
 
 USE types
@@ -130,17 +138,25 @@ DO cur_dim = 1, 3
  END IF
  pos_0 = cur_center
  ! velocities
- IF(model_type == 1) THEN
-  vel_m = model_grid(mgi_m)%vel * pos_m / norm2(pos_m)
-  vel_p = model_grid(mgi_p)%vel * pos_p / norm2(pos_p)
-  vel_0 = model_grid(cur_mgi)%vel * pos_0 / norm2(pos_0)
-  write(*,*) 'vel_discrete_points: vel_0 = ', vel_0, ' pos_0 = ', pos_0
- ELSE IF(model_type == 2) THEN
-  mgi_m = dyn_cell(cur_neighbor_m)%model_index
-  vel_m = model_grid(mgi_m)%velocity
-  mgi_p = dyn_cell(cur_neighbor_p)%model_index
-  vel_p = model_grid(mgi_p)%velocity
-  vel_0 = model_grid(cur_mgi)%velocity
+ IF(velApprox == 3 .and. vel_modgrid) THEN
+  IF(model_type == 1) THEN
+   vel_m = model_grid(mgi_m)%vel * pos_m / norm2(pos_m)
+   vel_p = model_grid(mgi_p)%vel * pos_p / norm2(pos_p)
+   vel_0 = model_grid(cur_mgi)%vel * pos_0 / norm2(pos_0)
+   write(*,*) 'vel_discrete_points: vel_0 = ', vel_0, ' pos_0 = ', pos_0
+  ELSE IF(model_type == 2) THEN
+   mgi_m = dyn_cell(cur_neighbor_m)%model_index
+   vel_m = model_grid(mgi_m)%velocity
+   mgi_p = dyn_cell(cur_neighbor_p)%model_index
+   vel_p = model_grid(mgi_p)%velocity
+   vel_0 = model_grid(cur_mgi)%velocity
+  ELSE IF(model_type == 3) THEN
+   STOP 'vel_discrete_points: this type of intput is not supported yet'
+  END IF
+ ELSE IF(velApprox == 4 .or. vel_propgrid) THEN ! velocity is pre-calculated in each propagation cell
+  vel_m = dyn_cell(cur_neighbor_m)%vec_vel
+  vel_p = dyn_cell(cur_neighbor_p)%vec_vel
+  vel_0 = dyn_cell(act_cell)%vec_vel
  END IF
  ! sums
  sumx = pos_m(cur_dim) + pos_0(cur_dim) + pos_p(cur_dim)
@@ -148,11 +164,11 @@ DO cur_dim = 1, 3
  sumy = vel_m(cur_dim) + vel_0(cur_dim) + vel_p(cur_dim)
  sumysq = vel_m(cur_dim)**2 + vel_0(cur_dim)**2 + vel_p(cur_dim)**2
  sumxy = pos_m(cur_dim) * vel_m(cur_dim) + pos_0(cur_dim) * vel_0(cur_dim) + &
-  pos_p(cur_dim) * vel_p(cur_dim)
+  & pos_p(cur_dim) * vel_p(cur_dim)
  write(*,*) 'vel_discrete_points: sumx = ', sumx, ' sumy = ', sumy
 
- inda(cur_dim) = (n_points * sumxy - sumx * sumy)/(n_points * sumxsq - sumx**2)
- indb(cur_dim) = (sumxsq * sumy - sumx * sumxy)/(n_points * sumxsq - sumx**2)
+ inda(cur_dim) = (n_points * sumxy - sumx * sumy) / (n_points * sumxsq - sumx**2)
+ indb(cur_dim) = (sumxsq * sumy - sumx * sumxy)   / (n_points * sumxsq - sumx**2)
  n_index = n_index + 2
 END DO
 
@@ -162,64 +178,6 @@ END DO
 
 vel_ana = V_inf/R_inf * norm2(package(pack_index)%pos)
 write(*,*) 'vel_discrete_points: ||v||/v_an = ', norm2(vel_vec)/vel_ana
-!  matA(1:2,1) = (/ cur_center(1)**2.0, cur_center(1) /)
-!  matA(3:4,1) = (/ cur_center(2)**2.0, cur_center(2) /)
-!  matA(5:7,1) = (/ cur_center(3)**2.0, cur_center(3), 1.D0 /)
-!  vecB(:, 1) = cur_vel(:)
-!  ! neighbor velocities
-!  DO I = 1, 6
-!   cur_neighbor = neighbors(I)
-!   IF(cur_neighbor > 0) THEN
-!    cur_corner = dyn_cell(cur_neighbor)%corner
-!    cur_width = dyn_cell(cur_neighbor)%width
-!    cur_center = cur_corner + cur_width / 2.0
-!    cur_nmgi = dyn_cell(cur_neighbor)%model_index
-!    cur_vel_norm = model_grid(cur_nmgi)%vel
-!    cur_vel = cur_vel_norm * cur_center / norm2(cur_center)
-!    ! write(*,*) 'vel_discrete_points: n = ', cur_center / norm2(cur_center), &
-!    !  ' ||v|| = ', cur_vel_norm
-!    velocity_field(I + 1, :) = cur_vel
-!   ELSE
-!    velocity_field(I + 1, :) = velocity_field(1, :)
-!   END IF
-!   matA(1:2, I + 1) = (/ cur_center(1)**2.0, cur_center(1) /)
-!   matA(3:4, I + 1) = (/ cur_center(2)**2.0, cur_center(2) /)
-!   matA(5:7, I + 1) = (/ cur_center(3)**2.0, cur_center(3), 1.D0 /)
-!   vecB(:, I + 1) = cur_vel(:)
-!  END DO
-
-! test for the inverse matrix calculation
-! matA(:,1) = (/1, 0, 0, 0, 0, 0, 0 /)
-! matA(:,2) = (/0, 1, 0, 0, 0, 0, 0 /)
-! matA(:,3) = (/0, 0, 1, 0, 0, 0, 0 /)
-! matA(:,4) = (/0, 0, 0, 1, 0, 0, 0 /)
-! matA(:,5) = (/0, 0, 0, 0, 1, 0, 0 /)
-! matA(:,6) = (/0, 0, 0, 0, 0, 1, 0 /)
-! matA(:,7) = (/1, 0, 0, 0, 0, 0, 1 /)
-
-! write(*,*) 'vel_discrete_points: matA = ', matA
-
-! CALL DGETRF(7, 7, matA, 7, ipiv, info)
-! CALL DGETRI(7, matA, 7, ipiv, work, 7, info)
-! 
-! ! calculation of coefficients (a ... g)
-! DO K = 1, 3
-!  DO I = 1, 7
-!   act_coeff = 0.0
-!   DO J = 1, 7
-!    act_coeff = act_coeff + matA(J, I) * vecB(K, J)
-!   END DO
-!   coeffs(K, I) = act_coeff
-!  END DO
-! END DO
-! ! write(*,*) 'vel_discrete_points: vecB = ', vecB
-! DO I = 1, 3
-!  vel_vec(I) = coeffs(I, 1) * act_pos(1)**2.0 + coeffs(I, 2) * act_pos(1) + &
-!   coeffs(I, 3) * act_pos(2) + coeffs(I, 4) * act_pos(2) + &
-!   coeffs(I, 5) * act_pos(3) + coeffs(I, 6) * act_pos(3) + coeffs(I, 7)
-! END DO
- 
-! STOP 'vel_discrete_points: testing'
 
 
 

@@ -21,10 +21,12 @@ approx = velApprox
 
 ! pack_position = package(pack_index)%pos
 SELECT CASE(velApprox)
+! #00
 ! homologous expansion
 CASE(0)
  vel_radial = V_inf/R_inf * vec_length(pack_position)
  vel_vec = pack_position/vec_length(pack_position) * vel_radial
+! #01
 ! the beta velocity law
 CASE(1)
  r_pos = norm2(pack_position)
@@ -32,6 +34,7 @@ CASE(1)
  if(r_pos < R_star .or. r_pos > R_inf) vel_radial = 0.D0
  if(isnan(vel_radial)) STOP 'velo: vel_radial = NaN'
  vel_vec = pack_position/vec_length(pack_position) * vel_radial
+! #02
 CASE(2)
  cur_mgi = get_package_model_index(pack_index)
  vel_radial = model_grid(cur_mgi)%vel
@@ -40,7 +43,8 @@ CASE(2)
 ! velocity field given by model in discrete points
 CASE(3)
  ! IF(dyn_cell == 0) THEN
-  CALL vel_discrete_points(pack_index, vel_vec)
+ CALL vel_discrete_points(pack_index, vel_vec)
+ ! write(*,*) 'velo: vel_vec = ', vel_vec
  ! ELSE IF(dyn_cell /= 0) THEN
   ! calc velocity based on precalculated interpolated velocity profiles
  ! END IF

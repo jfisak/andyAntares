@@ -15,7 +15,7 @@ linkuser=$(shell whoami)
 linkhost=$(shell hostname)
 
 #Objects
-MODULES=types.o rates_i.o rates_k.o rates_r.o constants.o
+MODULES=types.o rates_i.o rates_k.o rates_r.o constants.o dummypacket.o
 MODELS= read_1D_model.o read_2D_model.o read_3D_model.o read_1D_araya.o read_3D_nico.o\
         read_3D_pseudo3D.o read_2D_peku.o
 RATES= r_kappa_cont.o r_kappa_line.o i_ion_recomb.o i_radtrans.o i_radion.o i_colion.o \
@@ -71,6 +71,8 @@ ran2_class.o: ran2_class.f90
 counters.o: counters.f90
 	$(F90) $(FCFLAGS) -o $@ -c $<
 constants.o: constants.f90
+	$(F90) $(FCFLAGS) -o $@ -c $<
+dummypacket.o: dummypacket.f90 
 	$(F90) $(FCFLAGS) -o $@ -c $<
 
 %.for:

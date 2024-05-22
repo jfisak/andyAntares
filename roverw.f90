@@ -2,6 +2,7 @@ DOUBLE PRECISION FUNCTION roverw(pack_index, l_dist, fr_line)
 
 USE types
 USE constants
+USE dummypacket
 IMPLICIT NONE
 
 DOUBLE PRECISION                               :: R_pos, V_pos, fr_line
@@ -10,70 +11,55 @@ DOUBLE PRECISION, DIMENSION(3)                  :: V_pos_vec
 DOUBLE PRECISION                                :: costheta
 DOUBLE PRECISION                                :: dV_pos
 DOUBLE PRECISION                                :: cell_dist
-INTEGER                                         :: dummypackage, next_cell, pack_index
+INTEGER                                         :: dummypack_index, dummypack_index0, next_cell, pack_index
 
 DOUBLE PRECISION, DIMENSION(3)                  :: cur_pos, cur_dir
 DOUBLE PRECISION, DIMENSION(3)                  :: pos_min, pos_pls!, pos_lin
 ! DOUBLE PRECISION                                :: freq_min, freq_pls
 DOUBLE PRECISION                                :: cmf_min, cmf_pls
 DOUBLE PRECISION                                :: cur_freq_rf
-DOUBLE PRECISION, PARAMETER                     :: delta=1.E0
+! DOUBLE PRECISION, PARAMETER                     :: delta=1.E0
+! DOUBLE PRECISION                                :: delta
 DOUBLE PRECISION                                :: deriv
 ! DOUBLE PRECISION                                :: deriv_min, deriv_pls
 ! DOUBLE PRECISION, DIMENSION(3)                  :: pos_line
 DOUBLE PRECISION                                :: s_min, s_pls
+DOUBLE PRECISION, DIMENSION(3,3)                :: deriVel
+LOGICAL                                         :: isposx, isposy, isposz
+INTEGER, DIMENSION(3,3)                         :: directions
+INTEGER, DIMENSION(3)                           :: crossy, neighb_cells
+DOUBLE PRECISION, DIMENSION(3)                :: distances
+TYPE(dummyphoton)                               :: testPacket
 
-dummypackage = SIZE(package) - 3 + 1
+DOUBLE PRECISION, DIMENSION(3)                  :: cur_corner, cur_width, act_pos, cur_centre
+INTEGER                                         :: down_cell
+INTEGER                                         :: cur_pg, cur_xyz_dir
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! toto budu muset ještě změnit
+! DOČASNÉ ŘEŠENÍ
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+dummypack_index = 1
+dummypack_index0 = SIZE(package) - 3 + 1
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 IF(velapprox == 0) THEN
 ! ONLY FOR TESTING !!!
-! ***TESTING***
  IF(sobolev_approximation == 1) THEN
   ROverW = R_inf / V_inf
-  ! cur_pos = package(pack_index)%pos
-  ! cur_dir = package(pack_index)%dir
-  ! cur_freq_rf = package(pack_index)%freq_rf
-
-  ! s_min = l_dist - delta
-  ! s_0 = l_dist
-  ! s_pls = l_dist + delta
-
-  ! ! write(*,*) 'roverw: s_min = ', s_min, ' s_0 = ', s_0, ' s_pls = ', s_pls
-
-  ! pos_min = cur_pos + cur_dir * s_min
-  ! pos_line = cur_pos + cur_dir * s_0
-  ! pos_pls = cur_pos + cur_dir * s_pls
-
-
-  ! CALL cmf_freq(pack_index, pos_min, cur_freq_rf, cmf_min)
-
-  ! CALL cmf_freq(pack_index, pos_pls, cur_freq_rf, cmf_pls)
-  ! ! write(*,*) 'roverw: p+ - p- = ', pos_pls - pos_min
-  ! ! write(*,*) 'roverw: pos_min = ', pos_min, ' pos_pls = ', pos_pls
-  ! ! write(*,*) 'roverw: f+ - f- = ', freq_pls - freq_min
-
-  ! deriv_min = (s_0 - s_min)/(fr_line - cmf_min)
-  ! deriv_pls = (s_pls - s_0)/(cmf_pls - fr_line)
-  ! ! write(*,*) 'roverw: f-, f0, f+ = ', cmf_min, fr_line, cmf_pls
-  ! ! write(*,*) 'roverw: s-, s0, s+ = ', s_min, s_0, s_pls
-  ! ! write(*,*) 'roverw: deriv_pls = ', deriv_pls, ' deriv_min = ', deriv_min
-
-  ! der = (deriv_pls - deriv_min)/2.D0
-  ! roverw = der
-  ! write(*,*) 'roverw: der = ', der, ' R_inf/V_inf = ', R_inf/V_inf
  END IF ! sobolev_approximation
-! ***TESTING***
 ELSE IF(velapprox == 2) THEN
 
  ! according to (10) in Abbot & Lucy (1985)
  ! r
- R_pos = norm2(package(dummypackage)%pos)
+ R_pos = norm2(package(dummypack_index)%pos)
  ! ||v||
  V_pos = V_inf * (1.0 - R_star / R_pos ) ** beta
  ! v = (v_x, v_y, v_z)
- V_pos_vec = V_pos * package(dummypackage)%pos / norm2(package(dummypackage)%pos)
- costheta = dot_product(package(dummypackage)%dir, V_pos_vec) / norm2(V_pos_vec)
- ROverW = (V_inf - V_0) / (R_inf - R_star) + 1 / R_pos * (1 - costheta**2.0) *&
+ V_pos_vec = V_pos * package(dummypack_index)%pos / norm2(package(dummypack_index)%pos)
+ costheta = dot_product(package(dummypack_index)%dir, V_pos_vec) / norm2(V_pos_vec)
+ ROverW = (V_inf - V_0) / (R_inf - R_star) + 1 / R_pos * (1 - costheta**2.0) * &
   (V_0 * R_inf - V_inf * R_star) / (R_inf - R_star)
 ELSE IF(velapprox == 1) THEN
  CALL boundary3(pack_index, cell_dist, next_cell)
@@ -94,35 +80,128 @@ ELSE IF(velapprox == 1) THEN
 ELSE IF(velapprox == 3) THEN
  ! we will have to find CMF frequencies at two points, the middle location is the Sobolev point
  IF(sobolev_approximation == 1) THEN
-  cur_pos = package(pack_index)%pos
-  cur_dir = package(pack_index)%dir
-  cur_freq_rf = package(pack_index)%freq_rf
+  
+  act_pos = package(pack_index)%pos
+  cur_pg = package(pack_index)%cell_numb
+  cur_corner = dyn_cell(cur_pg)%corner
+  cur_width = dyn_cell(cur_pg)%width
+  cur_centre = cur_corner + cur_width/2.0
 
-  s_min = l_dist - delta
-  s_pls = l_dist + delta
+  ! a calculation of a velocity gradient
+  ! velocities in three different directions
+  ! according to this quantities we will choose the neighbouring cells
+  ! x
+  IF(package(pack_index)%dir(1) > 0) THEN
+   isposx = .true.
+  ELSE
+   isposx = .false.
+  END IF
 
-  pos_min = cur_pos + cur_dir * s_min
-  pos_pls = cur_pos + cur_dir * s_pls
+  ! y
+  IF(package(pack_index)%dir(2) > 0) THEN
+   isposy = .true.
+  ELSE
+   isposy = .false.
+  END IF
 
-  ! write(*,*) 'roverw: pos_min = ', norm2(pos_min), ' pos_pls = ', norm2(pos_pls)
-  ! write(*,*) 'roverw: pos/s_min = ', norm2(cur_pos)/s_min
+  ! z
+  IF(package(pack_index)%dir(3) > 0) THEN
+   isposz = .true.
+  ELSE
+   isposz = .false.
+  END IF
+  
+  ! find the neighboring cells
+  ! we will send a testPacket into all six directions
+  ! x+-, y+-, z+- and find next cells (six cell approximation)
+  
+  ! six possible  directions, distances to the boundaries and crosses
+  IF(isposx) THEN
+   directions(1,:) = (/ 1, 0, 0 /)
+   distances(1) = cur_corner(1) + cur_width(1) - act_pos(1)
+   crossy(1) = posx
+  ELSE
+   directions(1,:) = (/-1, 0, 0 /)
+   distances(1) = act_pos(1) - cur_corner(1)
+   crossy(1) = negx
+  END IF
 
-  CALL cmf_freq(pack_index, pos_min, cur_freq_rf, cmf_min)
-  CALL cmf_freq(pack_index, pos_pls, cur_freq_rf, cmf_pls)
+  IF(isposy) THEN
+   directions(2,:) = (/ 0, 1, 0 /)
+   distances(2) = cur_corner(2) + cur_width(2) - act_pos(2)
+   crossy(2) = posy
+  ELSE
+   directions(2,:) = (/ 0,-1, 0 /)
+   distances(2) = act_pos(2) - cur_corner(2)
+   crossy(2) = negy
+  END IF
 
-  ! write(*,*) 'roverw: p+ - p- = ', pos_pls - pos_min
-  ! write(*,*) 'roverw: pos_min = ', pos_min, ' pos_pls = ', pos_pls
-  ! write(*,*) 'roverw: f+ - f- = ', cmf_pls - cmf_min
+  IF(isposz) THEN
+   directions(3,:) = (/ 0, 0,  1 /)
+   distances(3) = cur_corner(3) + cur_width(3) - act_pos(3)
+   crossy(3) = posz
+  ELSE
+   directions(3,:) = (/ 0, 0, -1 /)
+   distances(3) = act_pos(3) - cur_corner(3)
+   crossy(3) = negz
+  END IF
 
-  deriv = (s_pls - s_min)/(cmf_pls - cmf_min)
-  write(*,*) 'roverw deriv = ', deriv
-  ! write(*,*) 'roverw: f-, f0, f+ = ', cmf_min, fr_line, cmf_pls
-  ! write(*,*) 'roverw: s-, s0, s+ = ', s_min, s_0, s_pls
-  ! write(*,*) 'roverw: deriv_pls = ', deriv_pls, ' deriv_min = ', deriv_min
+  DO cur_xyz_dir = 1,3
+   testPacket%dir = directions(cur_xyz_dir, :)
+   testPacket%next_cross = crossy(cur_xyz_dir)
+   testPacket%cell_numb = package(pack_index)%cell_numb
+   testPacket%pos = package(pack_index)%pos
+   write(*,*) 'roverw: dummypack_index = ', dummypack_index
+   dummypackage(dummypack_index) = testPacket
+   CALL next_cell_down(SIZE(package) + 10 + dummypack_index, down_cell)
+   IF(dyngrid == 0) THEN
+    next_cell = down_cell
+   ELSE 
+    CALL next_cell_up(SIZE(package) + 10 + dummypack_index, distances(cur_xyz_dir), down_cell, next_cell)
+   END IF
+   write(*,*) 'roverw: next_cell = ', next_cell
+   
+   neighb_cells(cur_xyz_dir) = next_cell
+  END DO
+  
+  write(*,*) 'roverw: neighb_cells = ', neighb_cells
+  STOP 'roverw: testing'
 
-  roverw = deriv
-  write(*,*) 'roverw: R_inf/V_inf = ', R_inf/V_inf
-  roverw = R_inf / V_inf
+
+
+
+ !  cur_pos = package(pack_index)%pos
+ !  cur_dir = package(pack_index)%dir
+ !  cur_freq_rf = package(pack_index)%freq_rf
+
+ !  s_min = l_dist - delta
+ !  s_pls = l_dist + delta
+
+ !  pos_min = cur_pos + cur_dir * s_min
+ !  pos_pls = cur_pos + cur_dir * s_pls
+
+ !  ! write(*,*) 'roverw: pos_min = ', norm2(pos_min), ' pos_pls = ', norm2(pos_pls)
+ !  ! write(*,*) 'roverw: pos/s_min = ', norm2(cur_pos)/s_min
+
+ !  CALL cmf_freq(pack_index, pos_min, cur_freq_rf, cmf_min)
+ !  CALL cmf_freq(pack_index, pos_pls, cur_freq_rf, cmf_pls)
+
+ !  IF(cmf_min == cmf_pls) THEN
+ !   write(*,*) 'roverw: l_dist = ', l_dist/R_star
+ !   STOP 'roverw: cmf_min == cmf_pls'
+ !  END IF
+ !  ! write(*,*) 'roverw: p+ - p- = ', pos_pls - pos_min
+ !  ! write(*,*) 'roverw: pos_min = ', pos_min, ' pos_pls = ', pos_pls
+ !  ! write(*,*) 'roverw: f+ - f- = ', cmf_pls - cmf_min
+
+ !  deriv = (s_pls - s_min)/(cmf_pls - cmf_min)
+ !  write(*,*) 'roverw deriv = ', deriv
+ !  write(*,*) 'roverw: f-, f0, f+ = ', cmf_min, fr_line, cmf_pls
+ !  write(*,*) 'roverw: s-, s0, s+ = ', s_min, s_pls
+
+ !  roverw = deriv
+ !  write(*,*) 'roverw: R_inf/V_inf = ', R_inf/V_inf
+ !  roverw = R_inf / V_inf
  END IF ! sobolev_approximation
 ELSE
  write(*,*) 'roverw: velapprox = ', velapprox, ' is not a valid choice'
