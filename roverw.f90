@@ -24,17 +24,23 @@ DOUBLE PRECISION                                :: deriv
 ! DOUBLE PRECISION                                :: deriv_min, deriv_pls
 ! DOUBLE PRECISION, DIMENSION(3)                  :: pos_line
 DOUBLE PRECISION                                :: s_min, s_pls
-DOUBLE PRECISION, DIMENSION(3,3)                :: deriVel
+DOUBLE PRECISION, DIMENSION(3,3)                :: deriVel, vel_vectors
 LOGICAL                                         :: isposx, isposy, isposz
 INTEGER, DIMENSION(3,3)                         :: directions
-INTEGER, DIMENSION(3)                           :: crossy, neighb_cells
+INTEGER, DIMENSION(3)                           :: crossy, neighb_cells, mgi_index
 DOUBLE PRECISION, DIMENSION(3)                :: distances
 TYPE(dummyphoton)                               :: testPacket
 
 DOUBLE PRECISION, DIMENSION(3)                  :: cur_corner, cur_width, act_pos, cur_centre
 INTEGER                                         :: down_cell
 INTEGER                                         :: cur_pg, cur_xyz_dir
+DOUBLE PRECISION, DIMENSION(3,3)                :: tensor_divj
 
+INTEGER                                         :: cur_index_i, cur_index_j, cur_mgi
+DOUBLE PRECISION, DIMENSION(3)                  :: cur_vel, cur_dist
+DOUBLE PRECISION                                :: cur_sum, nvn
+
+DOUBLE PRECISION, PARAMETER                     :: large_number = 1.D90
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! toto budu muset ještě změnit
@@ -77,15 +83,24 @@ ELSE IF(velapprox == 1) THEN
  ROverW = 1.0 / (costheta**2.0 * dV_pos + (1.0 - costheta**2.0)* V_pos / R_pos)
  ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * &
  !  ROverW / (4.0 * pi) * corrFactor 
+!_____________________________________________________________________________________________
+! 3D velocity approximation
 ELSE IF(velapprox == 3) THEN
  ! we will have to find CMF frequencies at two points, the middle location is the Sobolev point
  IF(sobolev_approximation == 1) THEN
   
   act_pos = package(pack_index)%pos
   cur_pg = package(pack_index)%cell_numb
+  cur_dir = package(pack_index)%dir
   cur_corner = dyn_cell(cur_pg)%corner
   cur_width = dyn_cell(cur_pg)%width
   cur_centre = cur_corner + cur_width/2.0
+  IF(vel_propgrid) THEN
+   cur_vel = dyn_cell(cur_pg)%vec_vel
+  ELSE IF(vel_modgrid) THEN
+   cur_mgi = dyn_cell(cur_pg)%model_index
+   cur_vel = model_grid(cur_mgi)%vec_vel
+  END IF
 
   ! a calculation of a velocity gradient
   ! velocities in three different directions
@@ -162,12 +177,56 @@ ELSE IF(velapprox == 3) THEN
    write(*,*) 'roverw: next_cell = ', next_cell
    
    neighb_cells(cur_xyz_dir) = next_cell
+   cur_dist(cur_xyz_dir) = (dyn_cell(cur_pg)%width(cur_xyz_dir) + dyn_cell(next_cell)%width(cur_xyz_dir))/2.0
   END DO
   
-  write(*,*) 'roverw: neighb_cells = ', neighb_cells
-  STOP 'roverw: testing'
+ write(*,*) 'roverw: vel_modgrid = ', vel_modgrid, ' vel_propgrid = ', vel_propgrid
+ IF(velApprox == 3 .and. vel_modgrid) THEN
+  IF(model_type == 3) THEN
+   mgi_index(1) = dyn_cell(neighb_cells(1))%model_index
+   vel_vectors(1,:) = model_grid(mgi_index(1))%vec_vel
+   mgi_index(2) = dyn_cell(neighb_cells(2))%model_index
+   vel_vectors(2,:) = model_grid(mgi_index(2))%vec_vel
+   mgi_index(3) = dyn_cell(neighb_cells(3))%model_index
+   vel_vectors(3,:) = model_grid(mgi_index(3))%vec_vel
+  ELSE IF(model_type == 3) THEN
+   STOP 'vel_discrete_points: this type of intput is not supported yet'
+  END IF
+ ELSE IF(velApprox == 4 .or. vel_propgrid) THEN ! velocity is pre-calculated in each propagation cell
+  vel_vectors(1,:) = dyn_cell(neighb_cells(1))%vec_vel
+  vel_vectors(2,:) = dyn_cell(neighb_cells(2))%vec_vel
+  vel_vectors(3,:) = dyn_cell(neighb_cells(3))%vec_vel
+ END IF
 
+ ! the calculation of the velocity gradient
+ DO cur_index_i = 1,3 ! index of a derivative
+  DO cur_index_j = 1,3 ! index of a vector v
+   vel_vectors(cur_index_i,cur_index_j) = (cur_vel(cur_index_j) - vel_vectors(cur_index_i, cur_index_j))/cur_dist(cur_index_i)
+   write(*,*) 'roverw: vel_0 = ', cur_vel(cur_index_j), ' vel_j = ', vel_vectors(cur_index_i, cur_index_j)
+   write(*,*) 'roverw: dist = ', cur_dist(cur_index_i)
+   write(*,*) 'roverw: vel_vectors( ', cur_index_i, ', ', cur_index_j, ' ) = ', vel_vectors(cur_index_i,cur_index_j)
+  END DO
+ END DO
 
+ nvn = 0.D0
+ ! a multiplication with direction vectors
+ DO cur_index_i = 1,3
+  cur_sum = 0.D0
+  DO cur_index_j = 1,3
+   cur_sum = cur_sum + cur_dir(cur_index_j) * vel_vectors(cur_index_i, cur_index_j)
+  END DO
+  nvn = nvn + cur_sum * cur_dir(cur_index_i)
+ END DO
+
+ ! and finally the absolute value
+ nvn = abs(nvn)
+ write(*,*) 'roverw: nvn = ', nvn
+
+ IF(nvn == 0.D0) THEN
+  roverw = large_number
+ ELSE
+  roverw = 1/nvn
+ END IF
 
 
  !  cur_pos = package(pack_index)%pos

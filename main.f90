@@ -190,6 +190,9 @@ END IF
 ! connects the propagation grid with the model grid
 write(99,*) 'propagation grid is set up'
 ! map modGrid velocity field onto propGrid
+IF(velApprox == 3 .AND. model_type == 3 .AND. inputmodel == 0) THEN
+ CALL vel_pseudo3D_model()
+END IF
 IF(velApprox == 4) THEN
  CALL vel_interpolation()
  STOP 'main: testing'
