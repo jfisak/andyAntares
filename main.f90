@@ -28,6 +28,8 @@ LOGICAL                                 :: timing = .true.
 ! DOUBLE PRECISION                        :: test_freq
 
 INTEGER, PARAMETER                      :: ind_save_inputfile = 100, ind_save_composition = 101
+INTEGER, PARAMETER                      :: ind_save_modgrid = 102
+INTEGER, PARAMETER                      :: ind_save_velfield = 11
 
 ! Link data to identify program version
 CHARACTER LINK_DATE*30, LINK_USER*10, LINK_HOST*60
@@ -138,8 +140,9 @@ ELSE
  IF(debug == 3) write(*,*) 'setting up model grid'
  CALL setup_model_grid()
 
+ CALL save_output(ind_save_modgrid)
  ! save basic parameters of the model grid
- CALL save_output(11)
+ ! CALL save_output(11)
  
  ! if model_type == 3 xyzmax are already calculated in setup_model_grid
  IF(model_type /= 3) THEN
@@ -192,6 +195,7 @@ write(99,*) 'propagation grid is set up'
 ! map modGrid velocity field onto propGrid
 IF(velApprox == 3 .AND. model_type == 3 .AND. inputmodel == 0) THEN
  CALL vel_pseudo3D_model()
+ CALL save_output(ind_save_velfield)
 END IF
 IF(velApprox == 4) THEN
  CALL vel_interpolation()

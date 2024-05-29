@@ -166,7 +166,7 @@ ELSE IF(velapprox == 3) THEN
    testPacket%next_cross = crossy(cur_xyz_dir)
    testPacket%cell_numb = package(pack_index)%cell_numb
    testPacket%pos = package(pack_index)%pos
-   write(*,*) 'roverw: dummypack_index = ', dummypack_index
+   ! write(*,*) 'roverw: dummypack_index = ', dummypack_index
    dummypackage(dummypack_index) = testPacket
    CALL next_cell_down(SIZE(package) + 10 + dummypack_index, down_cell)
    IF(dyngrid == 0) THEN
@@ -174,13 +174,13 @@ ELSE IF(velapprox == 3) THEN
    ELSE 
     CALL next_cell_up(SIZE(package) + 10 + dummypack_index, distances(cur_xyz_dir), down_cell, next_cell)
    END IF
-   write(*,*) 'roverw: next_cell = ', next_cell
+   ! write(*,*) 'roverw: next_cell = ', next_cell
    
    neighb_cells(cur_xyz_dir) = next_cell
    cur_dist(cur_xyz_dir) = (dyn_cell(cur_pg)%width(cur_xyz_dir) + dyn_cell(next_cell)%width(cur_xyz_dir))/2.0
   END DO
   
- write(*,*) 'roverw: vel_modgrid = ', vel_modgrid, ' vel_propgrid = ', vel_propgrid
+ ! write(*,*) 'roverw: vel_modgrid = ', vel_modgrid, ' vel_propgrid = ', vel_propgrid
  IF(velApprox == 3 .and. vel_modgrid) THEN
   IF(model_type == 3) THEN
    mgi_index(1) = dyn_cell(neighb_cells(1))%model_index
@@ -202,9 +202,9 @@ ELSE IF(velapprox == 3) THEN
  DO cur_index_i = 1,3 ! index of a derivative
   DO cur_index_j = 1,3 ! index of a vector v
    vel_vectors(cur_index_i,cur_index_j) = (cur_vel(cur_index_j) - vel_vectors(cur_index_i, cur_index_j))/cur_dist(cur_index_i)
-   write(*,*) 'roverw: vel_0 = ', cur_vel(cur_index_j), ' vel_j = ', vel_vectors(cur_index_i, cur_index_j)
-   write(*,*) 'roverw: dist = ', cur_dist(cur_index_i)
-   write(*,*) 'roverw: vel_vectors( ', cur_index_i, ', ', cur_index_j, ' ) = ', vel_vectors(cur_index_i,cur_index_j)
+   ! write(*,*) 'roverw: vel_0 = ', cur_vel(cur_index_j), ' vel_j = ', vel_vectors(cur_index_i, cur_index_j)
+   ! write(*,*) 'roverw: dist = ', cur_dist(cur_index_i)
+   ! write(*,*) 'roverw: vel_vectors( ', cur_index_i, ', ', cur_index_j, ' ) = ', vel_vectors(cur_index_i,cur_index_j)
   END DO
  END DO
 
@@ -220,7 +220,7 @@ ELSE IF(velapprox == 3) THEN
 
  ! and finally the absolute value
  nvn = abs(nvn)
- write(*,*) 'roverw: nvn = ', nvn
+ ! write(*,*) 'roverw: nvn = ', nvn
 
  IF(nvn == 0.D0) THEN
   roverw = large_number

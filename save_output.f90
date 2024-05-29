@@ -57,6 +57,9 @@ INTEGER                                 :: cur_indexe, cur_element, cur_Z, cur_n
 DOUBLE PRECISION                        :: cur_atom_mass, cur_abundance
 CHARACTER(LEN=file_length)              :: cur_levelfile, cur_transfile
 
+DOUBLE PRECISION, DIMENSION(3)          :: cur_vel, cur_centre
+INTEGER                                 :: cur_index_I
+
 !________________________________________________________________________________
 ! #00 output folder
 !
@@ -411,7 +414,7 @@ CASE(9)
 ! 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CASE(10)
- write(temp_file_name,"(A, A11, I3.3, A4)") TRIM(outputfolder), '/temp_adgrid', my_rank, ".dat"
+ write(temp_file_name,"(A, A12, I3.3, A4)") TRIM(outputfolder), '/temp_adgrid', my_rank, ".dat"
  write(*,*) 'save_output: temp_file_name = ', temp_file_name
  Ngrid = nx_cell * ny_cell * nz_cell
  n_adgrids = SIZE(dyn_cell)
@@ -421,6 +424,22 @@ CASE(10)
    WRITE(72) dyn_cell(I)
   END DO
  CLOSE(72)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! #10 velocity field in the propGrid cells
+!
+! 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CASE(11)
+ write(temp_file_name,"(A, A11, I3.3, A4)") TRIM(outputfolder), '/velo_field', my_rank, ".dat"
+ write(*,*) 'save_output: temp_file_name = ', temp_file_name
+ OPEN(73, FILE=temp_file_name)
+  DO cur_index_I = 1, n_propgcells
+   cur_centre = dyn_cell(cur_index_I)%corner + dyn_cell(cur_index_I)%width/2.0
+   cur_vel = dyn_cell(cur_index_I)%vec_vel
+   write(73,*) cur_centre, cur_vel
+  END DO
+ CLOSE(73)
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! #100 input file
 ! 
@@ -474,7 +493,20 @@ CASE(101)
   write(99,*) cur_indexe, cur_Z, cur_nions, cur_atom_mass, cur_abundance, cur_levelfile, cur_transfile
  END DO
  write(99,*) 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! #102 model grid description
+! 
+! 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+CASE(102)
+ 
+ write(99,*) '__________________________________________________'
+ write(99,*) '_________MODEL GRID DESCRIPTION___________________'
+ write(99,*) '__________________________________________________'
+ write(99,*) 'R_star = ', R_star/R_sun, 'R_inf = ', R_inf/R_sun
+
+ write(99,*) '__________________________________________________'
  
 CASE DEFAULT
  write(99,*) 'save_output: this case is not known'

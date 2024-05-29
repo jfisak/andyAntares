@@ -36,6 +36,7 @@ OPEN(UNIT=11, FILE=modelfile)
 
  add_mg = 2
 
+ write(*,*) 'read_3D_pseudo3D: R_star = ', R_star, ' R_inf = ', R_inf, ' R_inf/R_star = ', R_inf/R_star
 
  write(99,*) 'setting new propagation grid size to: nx_cell =', nx_cell, ' ny_cell = ', ny_cell, &
   ' nz_cell = ', nz_cell
@@ -85,8 +86,13 @@ OPEN(UNIT=11, FILE=modelfile)
  ! All cells out of model grid set to 0 and associate to n_modelgrid.
  ! Other cells will obtainde particular values with memory
  model_grid(n_modelgrid + add_mg)%vec_vel = (/ 0.e0, 0.e0, 0.e0 /)
- model_grid(n_modelgrid+add_mg)%rwind = 0.D0
- model_grid(n_modelgrid+add_mg)%vel   = 0.D0
+ ! cells below the lower boundary
+ model_grid(n_modelgrid+add_mg - 1)%rwind = 0.D0
+ model_grid(n_modelgrid+add_mg - 1)%vel   = 0.D0
+ model_grid(n_modelgrid+add_mg - 1)%rho   = 0.D0
+ ! cells beyond the outer boundary
+ model_grid(n_modelgrid+add_mg)%rwind = R_inf
+ model_grid(n_modelgrid+add_mg)%vel   = V_inf
  model_grid(n_modelgrid+add_mg)%rho   = 0.D0
 
  mod_xmin = MINVAL(model_grid(:)%vec_pos(1))
