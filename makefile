@@ -4,7 +4,7 @@
 # F90=ifort
 F90=mpifort.mpich
 FCFLAGS = -g -cpp -O0 -Dmpi=1 -check all -llapack 
-FCFLAGS = -g -cpp -O0 -fbounds-check -Dmpi=1 -fcheck=all -Wall -pg -llapack # -fprofile-arcs# -ffpe-trap=zero,overflow,invalid,underflow
+FCFLAGS = -g -cpp -O0 -fbounds-check -Dmpi=1 -fcheck=all -Wall -llapack # -pg -fprofile-arcs# -ffpe-trap=zero,overflow,invalid,underflow
 
 #Variables
 progname = main
