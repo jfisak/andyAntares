@@ -56,6 +56,40 @@ IF(velapprox == 0) THEN
 ! ONLY FOR TESTING !!!
  IF(sobolev_approximation == 1) THEN
   ROverW = R_inf / V_inf
+  !__________________________________________________________________________
+  ! testing part
+  cur_pos = package(pack_index)%pos
+  cur_dir = package(pack_index)%dir
+  cur_freq_rf = package(pack_index)%freq_rf
+
+  delta = l_dist/2.0
+
+  s_min = l_dist - delta
+  s_pls = l_dist + delta
+
+  pos_min = cur_pos + cur_dir * s_min
+  pos_pls = cur_pos + cur_dir * s_pls
+
+  ! write(*,*) 'roverw: pos_min = ', norm2(pos_min), ' pos_pls = ', norm2(pos_pls)
+  ! write(*,*) 'roverw: pos/s_min = ', norm2(cur_pos)/s_min
+
+  CALL cmf_freq(pack_index, pos_min, cur_freq_rf, cmf_min)
+  CALL cmf_freq(pack_index, pos_pls, cur_freq_rf, cmf_pls)
+
+  IF(cmf_min == cmf_pls) THEN
+   roverw = 0.D0
+   return
+  END IF
+  ! write(*,*) 'roverw: p+ - p- = ', pos_pls - pos_min
+  ! write(*,*) 'roverw: pos_min = ', pos_min, ' pos_pls = ', pos_pls
+  ! write(*,*) 'roverw: f+ - f- = ', cmf_pls - cmf_min
+
+  deriv = (s_pls - s_min)/(cmf_pls - cmf_min)
+!   write(*,*) 'roverw deriv = ', deriv
+!   write(*,*) 'roverw: f-, f0, f+ = ', cmf_min, fr_line, cmf_pls
+!   write(*,*) 'roverw: s-, s0, s+ = ', s_min, s_pls
+
+  ROverW = deriv
  END IF ! sobolev_approximation
 ELSE IF(velapprox == 2) THEN
 
@@ -258,13 +292,13 @@ ELSE IF(velapprox == 3) THEN
  ! write(*,*) 'roverw: f+ - f- = ', cmf_pls - cmf_min
 
  deriv = (s_pls - s_min)/(cmf_pls - cmf_min)
- write(*,*) 'roverw deriv = ', deriv
- write(*,*) 'roverw: f-, f0, f+ = ', cmf_min, fr_line, cmf_pls
- write(*,*) 'roverw: s-, s0, s+ = ', s_min, s_pls
+!  write(*,*) 'roverw deriv = ', deriv
+!  write(*,*) 'roverw: f-, f0, f+ = ', cmf_min, fr_line, cmf_pls
+!  write(*,*) 'roverw: s-, s0, s+ = ', s_min, s_pls
 
- ! roverw = deriv
+ roverw = deriv
  ! write(*,*) 'roverw: R_inf/V_inf = ', R_inf/V_inf
- roverw = R_inf / V_inf
+ ! roverw = R_inf / V_inf
  END IF ! sobolev_approximation
 ELSE
  write(*,*) 'roverw: velapprox = ', velapprox, ' is not a valid choice'

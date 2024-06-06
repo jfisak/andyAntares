@@ -1,6 +1,8 @@
 #!/bin/bash
 
-
+# basic variables definition
+program='mpirun.mpich'
+pythonVersion='python3.11'
 
 outputfolder=${2}
 
@@ -32,10 +34,10 @@ if [ -e $PREVFILE0 ]; then
  rm $PREVFILE
 fi
 
-mpirun.mpich -np $1 ./main.run
+$program -np $1 ./main.run
 
 rm $FOLDERPATH
 
 cp input.dat $outputfolder
 
-python3.8 spec2.py $outputfolder
+$pythonVersion spec2.py $outputfolder
