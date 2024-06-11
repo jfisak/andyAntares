@@ -26,6 +26,7 @@ SELECT CASE(velApprox)
 CASE(0)
  vel_radial = V_inf/R_inf * vec_length(pack_position)
  vel_vec = pack_position/vec_length(pack_position) * vel_radial
+ ! write(37,*) norm2(package(pack_index)%pos)/R_star, norm2(vel_vec)
 ! #01
 ! the beta velocity law
 CASE(1)

@@ -55,7 +55,6 @@ dummypack_index0 = SIZE(package) - 3 + 1
 IF(velapprox == 0) THEN
 ! ONLY FOR TESTING !!!
  IF(sobolev_approximation == 1) THEN
-  ROverW = R_inf / V_inf
   !__________________________________________________________________________
   ! testing part
   cur_pos = package(pack_index)%pos
@@ -90,6 +89,8 @@ IF(velapprox == 0) THEN
 !   write(*,*) 'roverw: s-, s0, s+ = ', s_min, s_pls
 
   ROverW = deriv
+  ROverW = R_inf / V_inf
+  ! write(72,*) norm2(cur_pos), deriv, ROverW
  END IF ! sobolev_approximation
 ELSE IF(velapprox == 2) THEN
 

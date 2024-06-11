@@ -19,9 +19,12 @@ DOUBLE PRECISION                                        :: cosphi, sinphi, costh
 SELECT CASE(model_type)
  ! spherically symmetric models
  CASE(1)
-  IF(norm2(pos) < R_star .or. norm2(pos) > R_inf) THEN
+  IF(norm2(pos) < R_star) THEN
    vel_vec = (/ 0.0, 0.0, 0.0 /)
    RETURN
+  ELSE IF(norm2(pos) > R_inf) THEN
+   rad_vel = V_inf
+   vel_vec = rad_vel * pos / norm2(pos)
   END IF
   rad_vel = model_grid(mod_index)%vel
   vel_vec = rad_vel * pos / norm2(pos)
@@ -51,10 +54,12 @@ SELECT CASE(model_type)
  CASE(3)
   IF(mod_index <= n_modelgrid) THEN
    vel_vec = model_grid(mod_index)%vec_vel
+  ELSE IF(mod_index == n_modelgrid + 1) THEN
+   vel_vec = (/ 0.0, 0.0, 0.0 /)
+  ELSE IF(mod_index == n_modelgrid + 2) THEN
+   vel_vec = R_inf * pos/norm2(pos)
   ELSE IF(mod_index == n_modelgrid + 3) THEN ! special treatment for vacuum cells
    vel_vec = (/-2.0, -3.0, -5.0/)
-  ELSE
-   vel_vec = (/ 0.0, 0.0, 0.0 /)
   END IF
  CASE DEFAULT
  write(*,*) 'velo_vector: the choice of model_type = ', model_type, ' is not known...'
