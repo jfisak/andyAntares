@@ -3,6 +3,8 @@ SUBROUTINE cmf_freq(pack_index, cur_pos, cur_freq_rf, cur_freq_cmf)
 
 USE constants
 USE types
+USE dummypacket
+
 IMPLICIT NONE
 
 INTEGER                                 :: pack_index

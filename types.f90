@@ -24,7 +24,7 @@ SAVE
   END TYPE dyn_grid_cell
 
   TYPE photon 
-     INTEGER                         :: cell_numb, pack_numb, active
+     INTEGER                         :: cell_numb, active
      DOUBLE PRECISION                :: e_cmf, e_rf, freq_cmf, freq_rf, delta_s
      INTEGER                         :: typ, next_cross, last_line
      INTEGER                         :: n_interactions
@@ -196,6 +196,11 @@ SAVE
   INTEGER, PARAMETER                 :: edxy=7
   INTEGER, PARAMETER                 :: edxz=8
   INTEGER, PARAMETER                 :: edyz=9
+
+  INTEGER, PARAMETER                 :: ind_x = 1
+  INTEGER, PARAMETER                 :: ind_y = 2
+  INTEGER, PARAMETER                 :: ind_z = 3
+
   INTEGER, PARAMETER                 :: NONE = -99
   INTEGER, PARAMETER                 :: no_line = -99
 
@@ -224,6 +229,8 @@ SAVE
   INTEGER                               :: enable_diffusion
   INTEGER                               :: sobolev_approximation
   LOGICAL                               :: vel_propgrid = .false., vel_modgrid = .true.
+
+  INTEGER, PARAMETER                    :: const_dimofspace = 3
 
 
 

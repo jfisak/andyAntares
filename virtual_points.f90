@@ -26,7 +26,7 @@ USE constants
  DOUBLE PRECISION, DIMENSION(3) :: pos, width
 
  INTEGER                        :: ind_cell_numb, Npoint
- INTEGER                        :: ind_x, ind_y, ind_z
+ INTEGER                        :: index_x, index_y, index_z
 
  TYPE(virt_point)               :: dummy
  DOUBLE PRECISION               :: A
@@ -158,10 +158,10 @@ Npoint = SIZE(virtual_point)
 DO I = 1, Npoint
  pos = virtual_point(I)%pos
  width = dyn_cell(1)%width
- ind_x = FLOOR(pos(1)/width(1) + DBLE(nx_cell)/2) + 1
- ind_y = FLOOR(pos(2)/width(2) + DBLE(ny_cell)/2) + 1
- ind_z = FLOOR(pos(3)/width(3) + DBLE(nz_cell)/2) + 1
- ind_cell_numb = (ind_x - 1) * ny_cell * nz_cell + (ind_y - 1) * nz_cell + ind_z
+ index_x = FLOOR(pos(1)/width(1) + DBLE(nx_cell)/2) + 1
+ index_y = FLOOR(pos(2)/width(2) + DBLE(ny_cell)/2) + 1
+ index_z = FLOOR(pos(3)/width(3) + DBLE(nz_cell)/2) + 1
+ ind_cell_numb = (index_x - 1) * ny_cell * nz_cell + (index_y - 1) * nz_cell + index_z
  virtual_point(I)%ind_pcell = ind_cell_numb
  dyn_cell(ind_cell_numb)%n_virt = dyn_cell(ind_cell_numb)%n_virt + 1
 END DO

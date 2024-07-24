@@ -30,7 +30,8 @@ USE constants
   loop_index = 1
   DO 
     IF (loop_index .GT. max_it) THEN
-        PRINT*, 'No solution for the electron density found in cell', model_grid_index
+        write(*,*) 'find_e_nd: No solution for the electron density found in cell', model_grid_index
+        write(*,*) 'temperature = ', model_grid(model_grid_index)%T
         STOP
     END IF
     ! Calculate the function func1 which is the root of the electron number density

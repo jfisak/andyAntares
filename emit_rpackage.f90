@@ -26,7 +26,7 @@ CALL random_unitvector(cmf_direction) ! Only for cmf
 ! Transform direction from cmf to rf. Take negativ velocity for the
 ! aberration formula (rf to cmf trafo would require positive
 ! velocity). See e.g. Mihalas and Mihalas Eq. 89.6
-CALL velo(pack_index, cur_pos, cur_mgi, vel_vec, velApprox)
+CALL velo(pack_index, cur_mgi, vel_vec, velApprox)
 CALL angle_aberration(cmf_direction, -1.D0*vel_vec, rf_direction)
 package(pack_index)%dir = rf_direction
 
