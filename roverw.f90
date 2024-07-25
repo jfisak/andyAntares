@@ -108,8 +108,8 @@ ELSE IF(velapprox == 3) THEN
  ! write(*,*) 'roverw: pos_min = ', norm2(pos_min), ' pos_pls = ', norm2(pos_pls)
  ! write(*,*) 'roverw: pos/s_min = ', norm2(cur_pos)/s_min
 
- CALL cmf_freq(pack_index, pos_min, cur_freq_rf, cmf_min)
- CALL cmf_freq(pack_index, pos_pls, cur_freq_rf, cmf_pls)
+ CALL cmf_freq(pack_index, cur_freq_rf, cmf_min)
+ CALL cmf_freq(pack_index, cur_freq_rf, cmf_pls)
 
  IF(cmf_min == cmf_pls) THEN
   roverw = 0.D0

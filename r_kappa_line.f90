@@ -110,38 +110,46 @@ DO I = 1, nnextlines
  dummypack_index = cur_dummypack + SIZE(package)
  CALL copy_package(pack_index, cur_dummypack)
  ! for testing purposes with analytical homologous approximation (only the position of a packet is needed)
- dummypackage(cur_dummypack)%pos = pos_min
- CALL velo(dummypack_index, pos_min, current_mgi, vel_vec_1, 0)
- dummypackage(cur_dummypack)%pos = pos_pls
- CALL velo(dummypack_index, pos_pls, current_mgi, vel_vec_2, 0)
+ ! move packet to the pos_min
+ CALL teleport_dummypacket(cur_dummypack, pos_min)
+ CALL velo(dummypack_index, vel_vec_1, 0)
+ ! move packet to the pos_pls
+ CALL teleport_dummypacket(cur_dummypack, pos_pls)
+ CALL velo(dummypack_index, vel_vec_2, 0)
 
  rad_unit = cur_pos/norm2(cur_pos)
  
  delta_v = dot_product(vel_vec_1, rad_unit) - dot_product(vel_vec_2, rad_unit)
  delta_r = norm2(pos_min) - norm2(pos_pls)
 
- deriv2 = delta_v/delta_r
+ deriv2 = delta_r/delta_v
  write(*,*) 'r_kappa_line: vel_vec_1 = ', vel_vec_1, ' vel_vec_2 = ', vel_vec_2
  write(*,*) 'r_kappa_line: delta_v = ', delta_v, ' delta_r = ', delta_r
  write(*,*) 'r_kappa_line: deriv2 = ', deriv2
+ write(73,*) norm2(cur_pos)/R_star, deriv2
 
- dummypackage(cur_dummypack)%pos = pos_min
- CALL cmf_freq(dummypack_index, pos_min, cur_freq_rf, cmf_min, 0)
- dummypackage(cur_dummypack)%pos = pos_pls
- CALL cmf_freq(dummypack_index, pos_pls, cur_freq_rf, cmf_pls, 0)
+ ! move packet to the pos_min
+ CALL teleport_dummypacket(cur_dummypack, pos_min)
+ CALL cmf_freq(dummypack_index, cur_freq_rf, cmf_min)
+ ! move packet to the pos_pls
+ CALL teleport_dummypacket(cur_dummypack, pos_pls)
+ CALL cmf_freq(dummypack_index, cur_freq_rf, cmf_pls)
 
  write(*,*) 'r_kappa_line: cur_dummypack = ', cur_dummypack
 
  deriv = abs((s_pls - s_min)/(cmf_pls - cmf_min))
  write(*,*) 'r_kappa_line: delta_s = ', s_pls - s_min, ' delta_nu = ', cmf_pls - cmf_min
 
- tau_line_2 = low_pop * constanta * light_speed * f_lu / (4.0 * fr_line) * corrFactor * deriv
+ ! tau_line_2 = low_pop * constanta * light_speed * f_lu / (4.0 * fr_line) * corrFactor * deriv
+ tau_line_2 = light_speed / fr_line * constanta * f_lu * low_pop * corrFactor * deriv2
  
  write(*,*) 'r_kappa_line: tau_line = ', actirrates%Lline(I), ' tau_line_2 = ', tau_line_2
  ! STOP 'r_kappa_line: testing'
  write(72,*) norm2(cur_pos)/R_star, actirrates%Lline(I), tau_line_2
 
  actirrates%nline(I) = indexline
+
+ CALL deactivate_dummy_packet(cur_dummypack)
 
  
  tau_line = tau_line + actirrates%Lline(I)

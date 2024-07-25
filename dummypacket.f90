@@ -31,11 +31,39 @@ CONTAINS
   DO cur_index = 1, n_dummy_packs
    is_occup = dummypackage(cur_index)%occupied
    IF(.NOT. is_occup) THEN
+    dummypackage(cur_index)%occupied = .true.
     find_free_index = cur_index
     EXIT
    END IF
   END DO
+  IF(is_occup .and. cur_index == n_dummy_packs) THEN
+   write(*,*) 'dummypacket, find_free_index: no free index found!'
+   write(*,*) 'probably some dummy packages have not been deactivated'
+   STOP 'dummypacket, find_free_index'
+  END IF
  end function
+
+ SUBROUTINE deactivate_dummy_packet(pack_index)
+  USE types
+
+  IMPLICIT NONE
+
+  INTEGER                               :: pack_index
+
+  dummypackage(pack_index)%occupied = .false.
+  dummypackage(pack_index)%pos = (/ 0.D0, 0.D0, 0.D0 /)
+  dummypackage(pack_index)%dir = (/ 0.D0, 0.D0, 0.D0 /)
+  dummypackage(pack_index)%cell_numb = 0
+  dummypackage(pack_index)%freq_cmf = 0.D0
+  dummypackage(pack_index)%freq_rf = 0.D0
+  dummypackage(pack_index)%e_cmf = 0.D0
+  dummypackage(pack_index)%e_rf = 0.D0
+  dummypackage(pack_index)%typ = NONE
+  dummypackage(pack_index)%next_cross = 0
+  dummypackage(pack_index)%last_line = NONE
+
+
+ END SUBROUTINE
 
  ! copy a normal package to a dummy packet
  SUBROUTINE copy_package(input_packet, ind_dummy_packet)
@@ -58,6 +86,18 @@ CONTAINS
 
  END SUBROUTINE
 
+ SUBROUTINE teleport_dummypacket(pack_index, new_pos)
+  USE types
 
+  IMPLICIT NONE
+
+  INTEGER                                               :: pack_index
+  DOUBLE PRECISION, DIMENSION(const_dimofspace)         :: new_pos
+
+
+  ! setting a new position
+  dummypackage(pack_index)%pos = new_pos
+
+ END SUBROUTINE
 
 END MODULE dummypacket

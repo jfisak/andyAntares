@@ -32,7 +32,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o 	  \
           random_unitvector.o ran2.o boundary3.o bound_dist.o \
           change_cell.o move_package.o emit_rpackage.o	\
           init_photsphere.o random_unitvector2.o ran2_class.o save_rates.o\
-          random_unitvector1.o doppler_factor.o doppler_factor2.o oct_neighbors.o \
+          random_unitvector1.o doppler_factor.o oct_neighbors.o \
           vec_length.o angle_aberration.o freq_from_planck.o \
            event_dist.o get_package_model_index.o  \
           update_packages.o r_choose_line.o brtm.o \

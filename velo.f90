@@ -1,4 +1,4 @@
-SUBROUTINE velo(pack_index, cur_mgi, vel_vec, approx)
+SUBROUTINE velo(pack_index, vel_vec, approx)
 
 USE types
 USE constants
@@ -27,14 +27,12 @@ ELSE IF(pack_index > SIZE(package)) THEN
  pack_position = dummypackage(cur_dummy_index)%pos
 END IF
 
-
 SELECT CASE(velApprox)
 ! #00
 ! homologous expansion
 CASE(0)
-  vel_radial = V_inf/R_inf * norm2(pack_position)
+ vel_radial = V_inf/R_inf * norm2(pack_position)
  vel_vec = pack_position/norm2(pack_position) * vel_radial
- ! write(*,*) 'velo: vel_radial = ', vel_radial
 ! #01
 ! the beta velocity law
 CASE(1)
@@ -100,6 +98,7 @@ END SELECT
  ELSE IF(norm2(pack_position) > R_inf) THEN
   vel_vec = V_inf * pack_position/norm2(pack_position)
  END IF
+ write(34,*) norm2(pack_position)/R_star, norm2(vel_vec)
  ! write(*,*) 'velo: norm2(vel_vec) = ', norm2(vel_vec)
  IF(norm2(vel_vec) > light_speed) THEN
   write(*,*) 'velo: vel_vec/c = ', norm2(vel_vec)/light_speed, ' Rinf/c = ', V_inf/light_speed
