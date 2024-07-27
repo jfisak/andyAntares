@@ -26,10 +26,13 @@ dummypackage = SIZE(package)
 ! write(*,*) 'change_cell: pack_index = ', pack_index
 pos = package(pack_index)%pos
 old_cell = package(pack_index)%cell_numb
+if(debug == 2) write(*,*) 'change_cell: next_cell = ', next_cell
 IF (next_cell .LT. 0) THEN 
  package(pack_index)%typ = type_escaped
  package(pack_index)%active = 0
  count_des_esca = count_des_esca + 1
+ IF(debug == 2) write(*,*) 'change_cell: packet escaped'
+ IF(debug == 2) write(*,*) 'change_cell: ||r|| = ', norm2(package(pack_index)%pos)/R_inf
 ELSE
  package(pack_index)%cell_numb = next_cell
  IF(debug == 2) THEN

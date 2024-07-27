@@ -98,7 +98,7 @@ END SELECT
  ELSE IF(norm2(pack_position) > R_inf) THEN
   vel_vec = V_inf * pack_position/norm2(pack_position)
  END IF
- write(34,*) norm2(pack_position)/R_star, norm2(vel_vec)
+ ! write(34,*) norm2(pack_position)/R_star, norm2(vel_vec)
  ! write(*,*) 'velo: norm2(vel_vec) = ', norm2(vel_vec)
  IF(norm2(vel_vec) > light_speed) THEN
   write(*,*) 'velo: vel_vec/c = ', norm2(vel_vec)/light_speed, ' Rinf/c = ', V_inf/light_speed

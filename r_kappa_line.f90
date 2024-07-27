@@ -35,7 +35,7 @@ DOUBLE PRECISION                                :: s_min, s_pls
 DOUBLE PRECISION                                :: tau_line_2
 
 ! testing the optical depth in line calculation
-DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: rad_unit
+DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: rad_unit1, rad_unit2
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: vel_vec_1, vel_vec_2 
 INTEGER                                         :: cur_dummypack, dummypack_index
                                                                         
@@ -90,15 +90,15 @@ DO I = 1, nnextlines
  ! ROverV
  ROverV = roverw(pack_index, line_dist, fr_line)
  f_lu = linelist(indexline)%f_lu
- actirrates%Lline(I) = light_speed / fr_line * constanta * &
-  f_lu * low_pop * corrFactor * ROverV
+ ! actirrates%Lline(I) = light_speed / fr_line * constanta * &
+ !  f_lu * low_pop * corrFactor * ROverV
 
  ! only for the testing purpose
  cur_pos = package(pack_index)%pos
  cur_dir = package(pack_index)%dir
  cur_freq_rf = package(pack_index)%freq_rf
 
- delta = line_dist/2.0
+ delta = basic_cell_width(1)/100.0
 
  s_min = line_dist - delta
  s_pls = line_dist + delta
@@ -117,16 +117,21 @@ DO I = 1, nnextlines
  CALL teleport_dummypacket(cur_dummypack, pos_pls)
  CALL velo(dummypack_index, vel_vec_2, 0)
 
- rad_unit = cur_pos/norm2(cur_pos)
+ rad_unit1 = pos_pls/norm2(pos_pls)
+ rad_unit2 = pos_min/norm2(pos_min)
  
- delta_v = dot_product(vel_vec_1, rad_unit) - dot_product(vel_vec_2, rad_unit)
+ delta_v = dot_product(vel_vec_1, rad_unit1) - dot_product(vel_vec_2, rad_unit2)
  delta_r = norm2(pos_min) - norm2(pos_pls)
 
- deriv2 = delta_r/delta_v
- write(*,*) 'r_kappa_line: vel_vec_1 = ', vel_vec_1, ' vel_vec_2 = ', vel_vec_2
- write(*,*) 'r_kappa_line: delta_v = ', delta_v, ' delta_r = ', delta_r
- write(*,*) 'r_kappa_line: deriv2 = ', deriv2
- write(73,*) norm2(cur_pos)/R_star, deriv2
+ IF(delta_v == 0.D0) THEN
+  deriv2 = 0.D0
+ ELSE
+  deriv2 = delta_r/delta_v
+ END IF
+ ! write(*,*) 'r_kappa_line: vel_vec_1 = ', vel_vec_1, ' vel_vec_2 = ', vel_vec_2
+ ! write(*,*) 'r_kappa_line: delta_v = ', delta_v, ' delta_r = ', delta_r
+ ! write(*,*) 'r_kappa_line: deriv2 = ', deriv2
+ ! write(73,*) norm2(cur_pos)/R_star, deriv2
 
  ! move packet to the pos_min
  CALL teleport_dummypacket(cur_dummypack, pos_min)
@@ -135,18 +140,19 @@ DO I = 1, nnextlines
  CALL teleport_dummypacket(cur_dummypack, pos_pls)
  CALL cmf_freq(dummypack_index, cur_freq_rf, cmf_pls)
 
- write(*,*) 'r_kappa_line: cur_dummypack = ', cur_dummypack
+ ! write(*,*) 'r_kappa_line: cur_dummypack = ', cur_dummypack
 
  deriv = abs((s_pls - s_min)/(cmf_pls - cmf_min))
- write(*,*) 'r_kappa_line: delta_s = ', s_pls - s_min, ' delta_nu = ', cmf_pls - cmf_min
+ ! write(*,*) 'r_kappa_line: delta_s = ', s_pls - s_min, ' delta_nu = ', cmf_pls - cmf_min
 
  ! tau_line_2 = low_pop * constanta * light_speed * f_lu / (4.0 * fr_line) * corrFactor * deriv
- tau_line_2 = light_speed / fr_line * constanta * f_lu * low_pop * corrFactor * deriv2
+ tau_line_2 = low_pop * constanta * f_lu * corrFactor * deriv
+ ! tau_line_2 = light_speed / fr_line * constanta * f_lu * low_pop * corrFactor * deriv2
  
- write(*,*) 'r_kappa_line: tau_line = ', actirrates%Lline(I), ' tau_line_2 = ', tau_line_2
+ ! write(*,*) 'r_kappa_line: tau_line = ', actirrates%Lline(I), ' tau_line_2 = ', tau_line_2
  ! STOP 'r_kappa_line: testing'
- write(72,*) norm2(cur_pos)/R_star, actirrates%Lline(I), tau_line_2
-
+ ! write(72,*) norm2(cur_pos)/R_star, actirrates%Lline(I), tau_line_2, deriv
+ actirrates%Lline(I) = tau_line_2
  actirrates%nline(I) = indexline
 
  CALL deactivate_dummy_packet(cur_dummypack)
