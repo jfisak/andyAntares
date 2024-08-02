@@ -20,11 +20,12 @@ SELECT CASE(model_type)
  ! spherically symmetric models
  CASE(1)
   IF(norm2(pos) < R_star) THEN
-   vel_vec = (/ 0.0, 0.0, 0.0 /)
+   ! rad_vel = R_star / R_inf * V_inf
+   ! vel_vec = V_inf * pos / norm2(pos)
+   vel_vec = (/ 0.D0, 0.D0, 0.D0 /)
    RETURN
   ELSE IF(norm2(pos) > R_inf) THEN
-   rad_vel = V_inf
-   vel_vec = rad_vel * pos / norm2(pos)
+   vel_vec = V_inf * pos / norm2(pos)
   END IF
   rad_vel = model_grid(mod_index)%vel
   vel_vec = rad_vel * pos / norm2(pos)

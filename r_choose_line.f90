@@ -46,6 +46,8 @@ DO I = 1, n_next_lines
 END DO
 
 IF(package(pack_index)%last_line <= 0) THEN
+ write(*,*) 'r_choose_line: number of lines = ', actirrates%nline(:)
+ write(*,*) 'r_choose_line: Lline = ', actirrates%Lline(:)
  write(*,*) 'r_choose_line: the chosen line = ', package(pack_index)%last_line, ' < 0'
  STOP 
 END IF

@@ -3,25 +3,27 @@ SUBROUTINE resonance_distance2(pack_index, nextLine, cell_dist, inCell, ldist)
 
 USE types
 USE constants
+USE dummypacket
 
 IMPLICIT NONE
 
 INTEGER                                 :: pack_index, nextLine
+INTEGER                                 :: cur_dummypack, dummypack_index
 DOUBLE PRECISION                        :: cell_dist
 LOGICAL                                 :: inCell, redshift
 DOUBLE PRECISION                        :: ldist
 
 
-INTEGER                                 :: dummypackage, cell_number
+INTEGER                                 :: cell_number
 LOGICAL                                 :: iteration, change_of_cell
-DOUBLE PRECISION                        :: minint
+DOUBLE PRECISION, PARAMETER             :: minint = 1.D-3
 
 DOUBLE PRECISION                        :: bfreq, lfreq, ufreq, f_line
 DOUBLE PRECISION, DIMENSION(3)          :: rbond, lbond, ubond
 DOUBLE PRECISION                        :: halffreq
 DOUBLE PRECISION, DIMENSION(3)          :: halfpos
 
-DOUBLE PRECISION                        :: D
+DOUBLE PRECISION                        :: D_doppler
 DOUBLE PRECISION                        :: chint
 
 INTEGER                                 :: I
@@ -33,21 +35,21 @@ redshift = package(pack_index)%redshift
 f_line = linelist(nextLine)%freq
 ! write(*,*) 'resonance_distance2: redshift = ', redshift
 
-dummypackage = SIZE(package)
-package(dummypackage) = package(pack_index)
-cell_number = package(pack_index)%cell_numb
-minint = 1.D-3
+cur_dummypack = find_free_index() 
+CALL copy_package(pack_index, cur_dummypack)
+dummypack_index = cur_dummypack + SIZE(package)
 
+cell_number = package(pack_index)%cell_numb
 
 ! we just move dummypackage to the boundary to calculate its CMF frequency
 ! a change of cell is not required
 change_of_cell = .FALSE.
-CALL move_package(dummypackage, cell_dist, cell_number, change_of_cell)
+CALL move_package(dummypack_index, cell_dist, cell_number, change_of_cell)
 
 ! forward boundaries
-bfreq = package(dummypackage)%freq_cmf
+bfreq = dummypackage(cur_dummypack)%freq_cmf
 ! write(*,*) 'resonance_distance2: f_rf = ', package(dummypackage)%freq_rf, 'f_cmf/f_line = ', package(dummypackage)%freq_cmf/f_line
-rbond = package(dummypackage)%pos
+rbond = dummypackage(cur_dummypack)%pos
 ufreq = bfreq
 ubond = rbond
 
@@ -74,12 +76,14 @@ IF(redshift) THEN
   ! write(*,*) 'resonance_distance2: packet = ', pack_index, ' f_line < bfreq .or. f_line > lfreq'
   inCell = .false.
   ldist = R_inf
+  CALL deactivate_dummy_packet(cur_dummypack)
   RETURN
  END IF
 ELSE ! blueshift
  IF(f_line > bfreq .or. f_line < lfreq) THEN
   inCell = .false.
   ldist = R_inf
+  CALL deactivate_dummy_packet(cur_dummypack)
   RETURN
  END IF
 END IF
@@ -102,9 +106,9 @@ DO WHILE(iteration)
  ! moving a virtual packet to the center between packet and boundary
  halfpos = ubond * 5.D-1 + lbond * 5.D-1
  ! write(*,*) 'resonance_distance2: halfpos = ', halfpos
- package(dummypackage)%pos = halfpos
- CALL doppler_factor(dummypackage, D)
- halffreq = package(pack_index)%freq_rf * D
+ dummypackage(cur_dummypack)%pos = halfpos
+ CALL doppler_factor(dummypack_index, D_doppler)
+ halffreq = package(pack_index)%freq_rf * D_doppler
 
  ! test of convergence
  chint = abs(halffreq - f_line) / f_line
@@ -140,6 +144,7 @@ DO WHILE(iteration)
 
 END DO
 
+CALL deactivate_dummy_packet(cur_dummypack)
 ! write(*,*) 'resonance_distance2: after calc, inCell = ', inCell
 
 END SUBROUTINE resonance_distance2

@@ -16,6 +16,9 @@ DOUBLE PRECISION, DIMENSION(3)    :: vel_rad, vel_ang
 DOUBLE PRECISION                  :: vel_rad_norm, vel_ang_norm
 DOUBLE PRECISION                  :: r_pos
 
+LOGICAL, PARAMETER                :: velocityTesting = .true.
+INTEGER, PARAMETER                :: max_n_of_velopackets = 200
+
 INTEGER                            :: cur_mgi, cur_dummy_index
 
 
@@ -50,9 +53,6 @@ CASE(2)
 ! velocity field given by model in discrete points
 CASE(3)
  ! IF(dyn_cell == 0) THEN
- write(*,*) '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
- write(*,*) 'velo: vel_discrete_points not yet implemented dummypackage module'
- write(*,*) '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
  CALL vel_discrete_points(pack_index, vel_vec)
  ! write(*,*) 'velo: vel_vec = ', vel_vec
  ! ELSE IF(dyn_cell /= 0) THEN
@@ -63,6 +63,34 @@ CASE DEFAULT
  write(*,*) 'this velocity structure is not known'
  CALL abort()
 END SELECT
+
+ IF(norm2(pack_position) < R_star) THEN
+  vel_vec = (/ 0.D0, 0.D0, 0.D0 /)
+ ELSE IF(norm2(pack_position) > R_inf) THEN
+  vel_vec = V_inf * pack_position/norm2(pack_position)
+ END IF
+IF(velocityTesting) THEN
+ IF(pack_index <= max_n_of_velopackets) THEN
+  write(34,*) norm2(pack_position)/R_star, norm2(vel_vec)
+ END IF
+END IF
+ ! write(*,*) 'velo: norm2(vel_vec) = ', norm2(vel_vec)
+ IF(norm2(vel_vec) > light_speed) THEN
+  write(*,*) 'velo: vel_vec/c = ', norm2(vel_vec)/light_speed, ' Rinf/c = ', V_inf/light_speed
+  write(*,*) 'velo: V_inf = ', V_inf, ' R_star = ', R_star, ' beta = ', beta,&
+   ' ||pack_position|| = ', norm2(pack_position)
+  write(*,*) 'velo: pack_index = ', pack_index, ' position = ', vec_length(pack_position)/R_inf,&
+  norm2(pack_position)/R_star
+  write(*,*) 'velocity is larger than the speed of light'
+  CALL abort()
+ END IF
+
+
+END SUBROUTINE velo
+
+
+
+
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! petr kurfurst's disk model
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -92,23 +120,3 @@ END SELECT
 !  ! and finally the velocity vector
 !  vel_vec = vel_rad + vel_ang
 ! END IF
-
- IF(norm2(pack_position) < R_star) THEN
-  vel_vec = (/ 0.D0, 0.D0, 0.D0 /)
- ELSE IF(norm2(pack_position) > R_inf) THEN
-  vel_vec = V_inf * pack_position/norm2(pack_position)
- END IF
- ! write(34,*) norm2(pack_position)/R_star, norm2(vel_vec)
- ! write(*,*) 'velo: norm2(vel_vec) = ', norm2(vel_vec)
- IF(norm2(vel_vec) > light_speed) THEN
-  write(*,*) 'velo: vel_vec/c = ', norm2(vel_vec)/light_speed, ' Rinf/c = ', V_inf/light_speed
-  write(*,*) 'velo: V_inf = ', V_inf, ' R_star = ', R_star, ' beta = ', beta,&
-   ' ||pack_position|| = ', norm2(pack_position)
-  write(*,*) 'velo: pack_index = ', pack_index, ' position = ', vec_length(pack_position)/R_inf,&
-  norm2(pack_position)/R_star
-  write(*,*) 'velocity is larger than the speed of light'
-  CALL abort()
- END IF
-
-
-END SUBROUTINE velo

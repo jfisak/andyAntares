@@ -8,9 +8,10 @@ SUBROUTINE vel_discrete_points(pack_index, vel_vec)
 
 USE types
 USE constants
+USE dummypacket
 IMPLICIT NONE
 
-INTEGER                                 :: pack_index
+INTEGER                                 :: pack_index, dummypack_index
 DOUBLE PRECISION, DIMENSION(3)          :: vel_vec
 
 DOUBLE PRECISION, DIMENSION(3)          :: act_corner, act_width, act_pos
@@ -34,14 +35,18 @@ DOUBLE PRECISION, DIMENSION(3,2)        :: w_point, w_pos
 
 LOGICAL                                 :: incellmode
 
-INTEGER                                 :: dummypackage
-
 DOUBLE PRECISION, DIMENSION(8,3)        :: cube_pos
 
 
-dummypackage = SIZE(package)
-act_cell = package(pack_index)%cell_numb
-act_pos = package(pack_index)%pos
+! write(*,*) 'vel_discrete_points: pack_index = ', pack_index, ' dim(package) = ', SIZE(package)
+IF(pack_index <= SIZE(package)) THEN
+ act_cell = package(pack_index)%cell_numb
+ act_pos = package(pack_index)%pos
+ELSE IF(pack_index > SIZE(package)) THEN
+ dummypack_index = pack_index - SIZE(package)
+ act_cell = dummypackage(dummypack_index)%cell_numb
+ act_pos = dummypackage(dummypack_index)%pos
+END IF
 act_mgi = dyn_cell(act_cell)%model_index
 act_corner = dyn_cell(act_cell)%corner
 act_width = dyn_cell(act_cell)%width
@@ -120,8 +125,8 @@ ELSE ! incellmode
  
  ! y-direction -- two points
  DO I = 1,2
-  cur_vel1 = e_point(:,2*I-1)
-  cur_pos1 = e_pos(:,2*I - 1)
+  cur_vel1 = e_point(:, 2*I - 1)
+  cur_pos1 = e_pos(:, 2*I - 1)
  
   cur_vel2 = e_point(:,2*I)
   cur_pos2 = e_pos(:,2*I)
