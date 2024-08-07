@@ -31,6 +31,8 @@ DOUBLE PRECISION, ALLOCATABLE                           :: det_matrix(:,:), det_
 INTEGER                                                 :: my_ccd_start, my_ccd_end
 INTEGER                                                 :: N_single, N_zbytek
 
+DOUBLE PRECISION                                        :: ccdc_phi, ccdc_rad, ccdc_theta
+
 write(99,*) '___________________________________________________________________'
 write(99,*) '___________________________________________________________________'
 write(99,*) '______________BACKWARD RAY TRACING METHOD__________________________'
@@ -57,6 +59,25 @@ ALLOCATE(det_matrix(det_nu, det_nv), det_spectra(det_tot_nuv, n_nubin))
 obs_point = (/ -R_inf  ,  0.D0,  0.D0 /)
 ccd_centre = (/ -R_inf - 1.1D1,  0.D0,  0.D0 /)
 
+ccdc_rad = sqrt(ccd_centre(1)**2+ccd_centre(2)**2+ccd_centre(3))
+ccdc_theta = acos(ccd_centre(3)/ccdc_rad)
+! phi is more complicated to calculate
+IF(ccd_centre(1) > 0.0) THEN
+ IF(ccd_centre(2) >= 0.0) THEN
+  ccdc_phi = atan(ccd_centre(1)/ccd_centre(1))
+ ELSE IF(ccd_centre(2) < 0.0) THEN
+  ccdc_phi = atan(ccd_centre(1)/ccd_centre(1)) + 2.0 * pi
+ END IF
+ELSE IF(ccd_centre(1) == 0.0) THEN
+ IF(ccd_centre(2) > 0.0) THEN
+  ccdc_phi = pi/2.0
+ ELSE IF(ccd_centre(2) < 0.0) THEN
+  ccdc_phi = 3.0 * pi/2.0
+ END IF
+ELSE IF(ccd_centre(1) < 0.0) THEN
+ ccdc_phi = atan(ccd_centre(1)/ccd_centre(1)) + pi
+END IF
+
 ! a size of a detector
 det_lu = 5
 det_lv = 5
@@ -64,8 +85,8 @@ det_lv = 5
 
 ! !!! only a temporary solution !!!
 ! a calculation of the vectors u and v
-det_vec_u = (/ 0, 1, 0 /)
-det_vec_v = (/ 0, 0, 1 /)
+det_vec_u = (/ sin(ccdc_theta) * cos(ccdc_phi), sin(ccdc_theta) * sin(ccdc_phi), -cos(ccdc_theta) /)
+det_vec_v = (/ -sin(ccdc_phi), cos(ccdc_phi), 0.D0 /)
 
 ! a size of a single cell
 det_cell_wu = det_lv / DBLE(det_nu)
