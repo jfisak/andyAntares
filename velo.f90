@@ -41,9 +41,10 @@ CASE(0)
 CASE(1)
  r_pos = norm2(pack_position)
  vel_radial = V_inf * (1.D0 - R_star / norm2(pack_position))**beta
- if(r_pos < R_star .or. r_pos > R_inf) vel_radial = 0.D0
+ ! write(*,*) 'velo: pack_position = ', pack_position
+ if(r_pos <= R_star .or. r_pos > R_inf) vel_radial = 0.D0
  if(isnan(vel_radial)) STOP 'velo: vel_radial = NaN'
- vel_vec = pack_position/vec_length(pack_position) * vel_radial
+ vel_vec = pack_position/NORM2(pack_position) * vel_radial
 ! #02
 CASE(2)
  cur_mgi = get_package_model_index(pack_index)

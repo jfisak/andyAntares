@@ -70,21 +70,24 @@ ELSE IF(velapprox == 2) THEN
  ROverW = (V_inf - V_0) / (R_inf - R_star) + 1 / R_pos * (1 - costheta**2.0) * &
   (V_0 * R_inf - V_inf * R_star) / (R_inf - R_star)
 ELSE IF(velapprox == 1) THEN
- CALL boundary3(pack_index, cell_dist, next_cell)
  ! according to (10) in Abbot & Lucy (1985)
  ! r
  R_pos = norm2(package(pack_index)%pos)
  ! ||v||
  V_pos = V_inf * (1.0 - R_star / R_pos ) ** beta
+ ! write(*,*) 'roverw: V_pos = ', V_pos, ' R_star = ', R_star/R_star, ' R_pos = ', R_pos/R_star, ' V_inf = ', V_inf
  ! v = (v_x, v_y, v_z)
  V_pos_vec = V_pos * package(pack_index)%pos / norm2(package(pack_index)%pos)
  ! \mu
- costheta = dot_product(package(pack_index)%dir, V_pos_vec) / norm2(V_pos_vec)
+ costheta = dot_product(package(pack_index)%dir, V_pos_vec) / V_pos
+ ! write(*,*) 'ROverW: dir = ', package(pack_index)%dir, ' V_pos_vec = ', V_pos_vec, ' V_pos = ', V_pos
  ! dv/dr
- dV_pos = beta * R_star * V_inf / R_pos**2 * (1.0 - R_star / R_pos)**(beta-1)
- ROverW = 1.0 / (costheta**2.0 * dV_pos + (1.0 - costheta**2.0)* V_pos / R_pos)
- ! actirrates%Lline(I) = low_pop * Blu * h * light_speed * &
- !  ROverW / (4.0 * pi) * corrFactor 
+ dV_pos = beta * R_star * V_inf / R_pos**2 * (1.0 - R_star / R_pos)**(beta - 1)
+ IF(R_pos <= R_star) THEN
+  ROverW = 0.D0
+ ELSE
+  ROverW = 1.0 / (costheta**2.0 * dV_pos + (1.0 - costheta**2.0)* V_pos / R_pos)
+ END IF
 !_____________________________________________________________________________________________
 ! 3D velocity approximation
 ELSE IF(velapprox == 3) THEN

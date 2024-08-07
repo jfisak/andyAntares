@@ -167,6 +167,8 @@ DO WHILE (do_loop)
     !  1.D8 * light_speed / package(pack_index)%freq_rf
     if(procout) write(*,*) 'event_dist: rpkt_eventtype_lineinteraction'
     ! choosing the line
+    ! write(*,*) 'event_dist: Lline = ', actirrates%Lline(:), ' n_next_lines = ', n_next_lines
+    ! write(*,*) 'event_dist: next_line = ', package(pack_index)%last_line
     CALL r_choose_line(pack_index, actirrates, n_next_lines, nextLine)
     package(pack_index)%last_line = nextLine
    ! if #02

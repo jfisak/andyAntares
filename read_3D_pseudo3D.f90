@@ -119,9 +119,11 @@ OPEN(UNIT=11, FILE=modelfile)
  zmax = mod_zmax + width_z / 2.0
  
   write(*,*) 'read_3D_pseudo3D: T_eff = ', T_eff, 'R_star = ', R_star, ' R_inf = ', R_inf, ' V_inf = ', V_inf
-  write(*,*) 'read_3D_pseudo3D: xmax = ', xmax, ' ymax = ', ymax, ' zmax = ', zmax
-
+  write(*,*) 'read_3D_pseudo3D: xmax = ', xmax/R_star, ' ymax = ', ymax/R_star, ' zmax = ', zmax/R_star
 
 CLOSE(11)
+
+
+
 
 END SUBROUTINE read_3D_pseudo3D

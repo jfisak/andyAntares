@@ -26,6 +26,11 @@ SELECT CASE(model_type)
    RETURN
   ELSE IF(norm2(pos) > R_inf) THEN
    vel_vec = V_inf * pos / norm2(pos)
+   IF(velApprox == 1) THEN
+    rad_vel = V_inf * (1.0 - R_star / R_inf)**beta
+    vel_vec = rad_vel * pos/NORM2(pos)
+   END IF
+   RETURN
   END IF
   rad_vel = model_grid(mod_index)%vel
   vel_vec = rad_vel * pos / norm2(pos)
