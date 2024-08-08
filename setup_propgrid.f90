@@ -18,7 +18,6 @@ TYPE(dyn_grid_cell), ALLOCATABLE       :: pom2(:)
 
 ! Number of propagation grid cells
 Ngrid = nx_cell * ny_cell * nz_cell
-write(*,*) 'create_dynamical_grid_cells: Ngrid = ', Ngrid
 
 IF (Ngrid .GT. Nmax) THEN
    PRINT*, 'ERROR: N > Nmax', Ngrid
@@ -38,7 +37,6 @@ basic_cell_width(1) = 2.E0 * xmax / DBLE(nx_cell)
 basic_cell_width(2) = 2.E0 * ymax / DBLE(ny_cell)
 basic_cell_width(3) = 2.E0 * zmax / DBLE(nz_cell)
 
-write(*,*) 'create_dynamical_grid_cells: basic_cell_width = ', basic_cell_width/R_inf
 
 L = 1
 DO I=1, nx_cell

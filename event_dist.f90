@@ -30,7 +30,8 @@ USE constants
 
  INTEGER                                :: cur_approx
 
-IF(debug == 4) procout = .TRUE.
+IF(debug == 4 .or. debug == 5) procout = .TRUE.
+
       
  n_pack_d = SIZE(package)
  dummypackage = SIZE(package)
@@ -65,9 +66,8 @@ END DO
  electron_density = model_grid(current_mgi)%e_dens
 
  ! calculates all continuum opacities
- ! write(*,*) 'event_dist: calling r_kappa_cont for a packet = ', pack_index
  CALL r_kappa_cont(pack_index, kappa_cont, actirrates)
- ! kappa_cont = 0.D0
+ kappa_cont = 0.D0
 
  ! This is the opacity in co-moving frame. Must be transformed to the lab frame
  ! According to Mihalas and Mihalas Eq. 90.8 this is achieved by 
@@ -107,16 +107,27 @@ DO WHILE (do_loop)
   tau_line = 0.e0
  END IF
 
- if(procout) write(*,*) 'event_dist: l_dist = ', l_dist, ' tau_line = ',&
-  tau_line, ' tau_cont = ', tau_cont, ' tau_rand = ', tau_rand
+  ! write(*,*) 'event_dist: pack_index = ', pack_index, ' l_dist = ', l_dist
+  ! write(*,*) 'event_dist: l_dist/cell_dist = ', l_dist/cell_dist, ' nextLine = ', nextLine
+  ! write(*,*) 'event_dist: tau_line = ', tau_line, ' tau_cont = ', tau_cont, ' tau_rand = ', tau_rand
+
  IF(inCell .AND. nextLine /= ntransitions + 1 .AND. .NOT. tooRed) THEN
  
  ! Calculate optical depth in the next line (Sobolev, dv/dr dependent)
  ! and continuum optical depth accumulated up to the line
  !print*, 'before moving package #', pack_index
 
- tau_cont = kappa_cont * l_dist
+ if(inCell) then
+  tau_cont = kappa_cont * l_dist
+ else
+  tau_cont = kappa_cont * cell_dist
+ end if
+
  
+ if(procout) then
+  write(*,*) 'event_dist: pack_index = ', pack_index, ' l_dist/cell_dist = ', l_dist/cell_dist, ' nextLine = ', nextLine
+  write(*,*) 'event_dist: tau_line = ', tau_line, ' tau_cont = ', tau_cont, ' tau_rand = ', tau_rand
+ end if
  
   IF(current_mgi .EQ. n_modelgrid + 2) tau_cont = 0.D0
   ! write(*,*) 'event_dist:', tau_line, tau_cont, tau_rand, tau
@@ -156,6 +167,8 @@ DO WHILE (do_loop)
     !  1.D8 * light_speed / package(pack_index)%freq_rf
     if(procout) write(*,*) 'event_dist: rpkt_eventtype_lineinteraction'
     ! choosing the line
+    ! write(*,*) 'event_dist: Lline = ', actirrates%Lline(:), ' n_next_lines = ', n_next_lines
+    ! write(*,*) 'event_dist: next_line = ', package(pack_index)%last_line
     CALL r_choose_line(pack_index, actirrates, n_next_lines, nextLine)
     package(pack_index)%last_line = nextLine
    ! if #02

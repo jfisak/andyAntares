@@ -2,9 +2,10 @@ SUBROUTINE oct_virtcube(pack_index, rel_pos, cube_pos, incell)
 
 USE types
 USE constants
+USE dummypacket
 IMPLICIT NONE
 
-INTEGER                                                 :: pack_index
+INTEGER                                                 :: pack_index, dummypack_index
 
 INTEGER, PARAMETER                                      :: n_oct=8
 
@@ -24,6 +25,14 @@ LOGICAL                                                 :: incell
 INTEGER, PARAMETER                      :: dir_x = 1, dir_y = 2, dir_z = 3
 INTEGER                                                 :: I
 
+IF(pack_index <= SIZE(package)) THEN
+ act_cell = package(pack_index)%cell_numb
+ act_pos = package(pack_index)%pos
+ELSE IF(pack_index > SIZE(package)) THEN
+ dummypack_index = pack_index - SIZE(package)
+ act_cell = dummypackage(dummypack_index)%cell_numb
+ act_pos = dummypackage(dummypack_index)%pos
+END IF
 act_cell = package(pack_index)%cell_numb
 act_pos = package(pack_index)%pos
 act_corner = dyn_cell(act_cell)%corner

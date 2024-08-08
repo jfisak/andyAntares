@@ -2,6 +2,7 @@ SUBROUTINE next_cell_down(pack_index, next_cell)
 
 USE types
 USE constants
+USE dummypacket
 
 IMPLICIT NONE
 
@@ -19,17 +20,21 @@ INTEGER                                 :: act_cell
 DOUBLE PRECISION                        :: di
 INTEGER                                 :: nc
 
-act_cell = package(pack_index)%cell_numb
-cross = package(pack_index)%next_cross
+IF(pack_index > SIZE(package) + 10) THEN
+ pack_index = pack_index - SIZE(package) - 10
+ act_cell = dummypackage(pack_index)%cell_numb
+ cross = dummypackage(pack_index)%next_cross
+ELSE
+ act_cell = package(pack_index)%cell_numb
+ cross = package(pack_index)%next_cross
+END IF
+
 IF(cross <= 0 ) THEN
  CALL bound_dist(pack_index, nc, di)
  ! cross = package(pack_index)%next_cross
- write(*,*) 'next_cell_down: act_cell = ', act_cell, ' cross = ', cross
  IF(cross < 0) STOP 'next_cell_down: next cross is impossible to find'
 END IF
 
-! write(*,*) 'next_cell_down: pack_index = ', pack_index, ' n = ', package(pack_index)%dir
-! write(*,*) 'next_cell_down: cross = ', cross
 DO
  n_cell = dyn_cell(act_cell)%neighbor(cross)
  IF(n_cell == 0) THEN

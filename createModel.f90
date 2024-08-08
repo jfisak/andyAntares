@@ -1,3 +1,8 @@
+!_______________________________________________________________________________________________
+! this program creates a data file containg an analytical physical model defined with parameters
+! by a user
+! output file: 'synthetic_model.dat'
+!_______________________________________________________________________________________________
 PROGRAM skipDensity
 
 IMPLICIT NONE
@@ -27,16 +32,26 @@ DOUBLE PRECISION                                :: xmax, ymax, zmax
 DOUBLE PRECISION                                :: radial, cur_vel
 DOUBLE PRECISION, DIMENSION(3)                  :: cur_vel_vec
 
+DOUBLE PRECISION                                :: temperature
+DOUBLE PRECISION                                :: Tstar, Tinf
+DOUBLE PRECISION                                :: cur_temp
+
+
+! model_type
+! 1 -- spherically symmetric model
+! 3 -- full 3D model
 model_type = 3
-vel_approx = 0
+! vel_approx
+! -1 -- zero velocity
+! 0 -- homologous approximation
+! 1 -- modified homologous approximation
+! 2 -- sin velocity field
+vel_approx = 2
 clump_type = 1
 ! 3D grid informations
 Nx = 5
 Ny = 5
 Nz = 5
-xmax = 11
-ymax = 11
-zmax = 11
 ! star info
 Teff = 1.473441441281968036e+04
 Rstar = 5.616000000000000000e+14
@@ -47,10 +62,10 @@ sigma = 0.7D0
 stred1 = 6.05D0
 stred2 = 6.45D0
 
-rho0 = 1.D-13
+rho0 = 1.D-8
 rhocl = 1.D-12
 
-delta = 0.25
+delta = 0.02
 deltacl = 0.01
 
 Rinf = 10.0 * Rstar
@@ -58,9 +73,17 @@ rdist = 1.0
 Vinf = 30000.D+5
 
 
+xmax = 1.1 
+ymax = 1.1 
+zmax = 1.1 
+
+Tstar = 90000
+Tinf = 30000
+
+
 I = 0
 
-OPEN(1, FILE='skip_model.dat')
+OPEN(1, FILE='synthetic_model.dat')
 
 write(1, *) Teff
 write(1, *) Rstar
@@ -120,11 +143,11 @@ CASE(3)
      cur_vel_vec = (/ 0.0, 0.0, 0.0 /)
     END IF
 
+    cur_temp = temperature(0, radial, Tstar, Tinf, Rstar, Rinf)
 
     actrho = rho(radial, R1, R2, sigma, stred1, stred2, rho0, rhocl, clump, &
      turnclumpoff, clump_type)
-    write(*,*) cur_vel_vec
-    write(1,*) xsour, ysour, zsour, cur_vel_vec, actrho, 15500
+    write(1,*) xsour, ysour, zsour, cur_vel_vec, actrho, cur_temp
    END DO
   END DO
  END DO
@@ -160,6 +183,8 @@ ELSE
  rho = rho0 * r**(-2)
 END IF
 
+IF(r == 0) rho = 0e0
+
 
 END FUNCTION rho
 
@@ -175,6 +200,8 @@ DOUBLE PRECISION                :: aindex, bindex
 SELECT CASE(approx)
 
 ! homologous approximation
+CASE(-1)
+ velocity = 0.0
 CASE(0)
  velocity = r*Rstar/Rinf * Vinf
  RETURN
@@ -189,5 +216,23 @@ CASE(2)
  velocity = 0.4 * Vinf * sin(4.0 * r*Rstar/(Rinf - Rstar)) + Vinf*0.5
 END SELECT
 
+
+END FUNCTION
+
+
+FUNCTION temperature(approx, r, Tstar, Tinf, Rstar, Rinf)
+
+ INTEGER                                :: approx
+ DOUBLE PRECISION                       :: r
+ DOUBLE PRECISION                       :: temperature
+ DOUBLE PRECISION                       :: Teff, Tstar, Rstar, Rinf, Tinf
+ DOUBLE PRECISION                       :: a_ind, b_ind
+
+
+ a_ind = (Tinf - Tstar)/(Rinf - Rstar)
+ b_ind = (Tstar * Rinf - Tinf * Rstar)/(Rinf - Rstar)
+
+ temperature = a_ind * r * Rstar + b_ind
+ if(temperature < 0.0) temperature = 100
 
 END FUNCTION

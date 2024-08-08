@@ -263,6 +263,7 @@ SELECT CASE (inputModel)
   ! STOP 'read_1D_model: testing...'
  ! araya model
  CASE(3)
+  write(*,*) 'read_1D_araya: reading 1D araya'
   CALL read_1D_araya()
  CASE DEFAULT
   write(99,*) 'the choice of the variable inputModel = ', inputModel, 'is not known...'

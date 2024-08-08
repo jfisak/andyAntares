@@ -15,8 +15,8 @@ DOUBLE PRECISION                        :: N, D, SUMM
 DOUBLE PRECISION                        :: sb_factor
 LOGICAL                                 :: too_large
 
-!  print*, 'START SUBROUTINE ionization_fraction' 
-!  print*, 'Ion.frac. is called for:',indexe, indexi, temp, el_nd
+! write(*,*)  'START SUBROUTINE ionization_fraction' 
+! write(*,*)  'Ion.frac. is called for:',indexe, indexi, temp, el_nd
 
 numb_ions = elements(indexe)%nions
 ! write(*,*) '  numb.ions:', numb_ions
@@ -31,7 +31,7 @@ CASE(0)
   ! write(*,*) 'saha Boltzman factor: ', I, sb_factor, N, too_large
   IF(too_large .EQV. .TRUE.) CYCLE
   N = N * el_nd * sb_factor
- ! write(*,*) 'ionization_fraction: e * sf = ', el_nd * sb_factor, ' N = ', N
+ ! write(*,*) 'ionization_fraction: e  = ', el_nd, ' sf = ', sb_factor, ' N = ', N
  END DO
  
  SUMM = 0.D0

@@ -21,7 +21,7 @@ DOUBLE PRECISION                       :: act_z, max_z
 INTEGER                                :: max_radius_index
 INTEGER                                :: vacuum
 
- write(*,*) 'read_2D_model: start'
+ ! write(*,*) 'read_2D_model: start'
  SELECT CASE (inputModel)
   ! reading data from Petr Kurfurst disc model
   ! these files are in this form:
@@ -144,5 +144,5 @@ INTEGER                                :: vacuum
    STOP 'unknown type of 2D model'
  END SELECT
 
- write(*,*) 'read_2D_model: reading was succesfull'
+ ! write(*,*) 'read_2D_model: reading was succesfull'
 END SUBROUTINE read_2D_model

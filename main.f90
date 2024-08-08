@@ -26,10 +26,11 @@ CHARACTER(60)                           :: propmod_file
 
 LOGICAL                                 :: timing = .true.
 
-DOUBLE PRECISION                        :: test_freq
-DOUBLE PRECISION, DIMENSION(3)          :: test_pos, test_end
+! DOUBLE PRECISION                        :: test_freq
 
 INTEGER, PARAMETER                      :: ind_save_inputfile = 100, ind_save_composition = 101
+INTEGER, PARAMETER                      :: ind_save_modgrid = 102
+INTEGER, PARAMETER                      :: ind_save_velfield = 11
 
 ! Link data to identify program version
 CHARACTER LINK_DATE*30, LINK_USER*10, LINK_HOST*60
@@ -121,6 +122,7 @@ my_rank = 0
 ! 2 -- packet propagation debugging
 ! 3 -- progress of the calculation procedure
 ! 4 -- rikd packet dynamics
+! 5 -- line interactions
 debug = 0
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -138,6 +140,10 @@ IF(saved_grid == 1 .and. propmod_file_exists) THEN
 ELSE
  IF(debug == 3) write(*,*) 'setting up model grid'
  CALL setup_model_grid()
+
+ CALL save_output(ind_save_modgrid)
+ ! save basic parameters of the model grid
+ ! CALL save_output(11)
  
  ! if model_type == 3 xyzmax are already calculated in setup_model_grid
  IF(model_type /= 3) THEN
@@ -169,7 +175,6 @@ ELSE
  CALL setup_propgrid()
 
  write(*,*) 'main: xmax = ', xmax/R_inf, ' ymax = ', ymax/R_inf, ' zmax = ', zmax/R_inf
-
  
  IF(debug == 3) write(*,*) 'connecting prop and mod grids'
  CALL connection_prop_model_grid()
@@ -177,7 +182,7 @@ ELSE
 END IF ! saved propmod grid
 
 ! save propmod_grid?
-IF(saved_grid == 1 .and. .not. propmod_file_exists) THEN
+IF(saved_grid == 1 .and. .not. propmod_file_exists .or. saved_grid == 2) THEN
 #if mpi==1
  IF(my_rank == 0) THEN
 #endif
@@ -188,6 +193,15 @@ IF(saved_grid == 1 .and. .not. propmod_file_exists) THEN
 END IF
 ! connects the propagation grid with the model grid
 write(99,*) 'propagation grid is set up'
+! map modGrid velocity field onto propGrid
+IF(velApprox == 3 .AND. model_type == 3 .AND. inputmodel == 0) THEN
+ CALL vel_pseudo3D_model()
+ CALL save_output(ind_save_velfield)
+END IF
+IF(velApprox == 4) THEN
+ CALL vel_interpolation()
+ STOP 'main: testing'
+END IF
 
 
 
@@ -216,10 +230,10 @@ DO iteration = 1,1
  CALL update_grid(iteration)
  IF(debug == 3) write(*,*) 'modGrid was updated'
  ! opacity tables
- test_pos = (/R_star, 0.D0, 0.D0/)
- test_end = (/20*R_star, 0.D0, 0.D0/)
+ ! test_pos = (/R_star, 0.D0, 0.D0/)
+ ! test_end = (/20*R_star, 0.D0, 0.D0/)
  ! test_freq = 1164084775316555.5 ! Hz
- CALL freq_from_planck(test_freq, T_eff)
+ ! CALL freq_from_planck(test_freq, T_eff)
  ! CALL calc_tau(test_pos, test_end, test_freq)
  ! STOP 'main: testing'
  ! if (iteration == 1 .AND. inputpopfile .NE. '') then

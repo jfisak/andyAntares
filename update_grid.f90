@@ -29,7 +29,6 @@ cur_temp(:) = 0.D0
 cur_elnd(:) = 0.D0
   
 write(99,*) 'updating grid'
-
 #if mpi == 1
  N_single = n_modelgrid/n_tasks
  N_zbytek = n_modelgrid - n_tasks * N_single
@@ -86,7 +85,7 @@ DO cur_mgi = my_start, my_end
     CALL diffusion_approximation(cur_mgi)
    END IF
   END IF
- END IF
+ END IF ! cur_n_assoccells > 0
 END DO
 
 #if mpi == 1

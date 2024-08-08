@@ -5,23 +5,31 @@ SUBROUTINE doppler_factor(pack_index, D)
 
 USE types
 USE constants
+USE dummypacket
 
 IMPLICIT NONE    
 
 INTEGER                           :: pack_index
 DOUBLE PRECISION                  :: D_gamma, D
-DOUBLE PRECISION, DIMENSION(3)    :: vel_vec
+DOUBLE PRECISION, DIMENSION(const_dimofspace)    :: vel_vec, cur_dir
 
-DOUBLE PRECISION, DIMENSION(3)          :: cur_pos
 INTEGER                                 :: cur_mgi, get_package_model_index
+INTEGER                                 :: dummypack_index
   
-cur_pos = package(pack_index)%pos
 cur_mgi = get_package_model_index(pack_index)
+IF(pack_index <= SIZE(package)) THEN
+ cur_dir = package(pack_index)%dir
+ELSE IF(pack_index > SIZE(package)) THEN
+ dummypack_index = pack_index - SIZE(package)
+ cur_dir = dummypackage(dummypack_index)%dir
+END IF
+
 
 D_gamma = 1.D0 ! For non-relativistic case    
- CALL velo(pack_index, cur_pos, cur_mgi, vel_vec, velApprox)
-D_gamma = 1/sqrt(1-norm2(vel_vec)**2.0/light_speed**2.00)
-D = D_gamma * (1.D0 -  DOT_PRODUCT(package(pack_index)%dir,vel_vec)/light_speed)
+CALL velo(pack_index, vel_vec, 0)
+! for the relativistic case
+! D_gamma = 1/sqrt(1-norm2(vel_vec)**2.0/light_speed**2.00)
+D = D_gamma * (1.D0 -  DOT_PRODUCT(cur_dir,vel_vec)/light_speed)
 
 
 END SUBROUTINE doppler_factor

@@ -27,6 +27,7 @@ USE constants
   abs_surface = 0
   saved_grid = 0
   enable_diffusion = 0
+  sobolev_approximation = 1
   calc_brtm = .FALSE.
 
 ! 001 n_pack
@@ -54,9 +55,11 @@ USE constants
 ! 023 saved grid
 ! 024 diffusion
 ! 025 BRTM
+! 026 Sobolev approximation
   DO
     READ (1, '(A)', END=99) LINE
 
+    ! 023 saved grid
     ! 001 n_pack
     CALL SARGV(LINE,1,ACTPAR)
     IF (ACTPAR .EQ. 'n_pack') THEN
@@ -219,7 +222,7 @@ USE constants
     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I2)', ERR=94) saved_grid
 
-    ! 024 saved grid
+    ! 24 diffusion approximation
     ELSE IF (ACTPAR .EQ. 'diffusive') THEN
     CALL SARGC (LINE, NPAR)
     IF (NPAR .LT. 2) GOTO 90
@@ -234,6 +237,12 @@ USE constants
     READ (ACTPAR, '(I2)', ERR=94) calc_brtm_int
     IF(calc_brtm_int == 1) calc_brtm = .true.
 
+    ! 26 Sobolev approximation
+    ELSE IF (ACTPAR .EQ. 'sobolev') THEN
+    CALL SARGC (LINE, NPAR)
+    IF (NPAR .LT. 2) GOTO 90
+    CALL SARGV(LINE,2,ACTPAR)
+    READ (ACTPAR, '(I2)', ERR=94) sobolev_approximation
     ! end all ifs
     END IF
   END DO

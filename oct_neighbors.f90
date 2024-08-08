@@ -3,11 +3,12 @@ SUBROUTINE oct_neighbors(pack_index, rel_pos, velgridcells, incell)
 
 USE types
 USE constants
+USE dummypacket
 IMPLICIT NONE
 
 INTEGER, PARAMETER                      :: n_oct=8
 
-INTEGER                                 :: pack_index
+INTEGER                                 :: pack_index, dummypack_index
 DOUBLE PRECISION, DIMENSION(3)          :: rel_pos
 
 INTEGER                                 :: act_cell
@@ -32,8 +33,14 @@ INTEGER                                 :: neigxy, neigxz, neigxyz, neigyz
 DOUBLE PRECISION, DIMENSION(3)          :: act_pos
 
 
-act_cell = package(pack_index)%cell_numb
-act_pos = package(pack_index)%pos
+IF(pack_index <= SIZE(package)) THEN
+ act_cell = package(pack_index)%cell_numb
+ act_pos = package(pack_index)%pos
+ELSE IF(pack_index > SIZE(package)) THEN
+ dummypack_index = pack_index - SIZE(package)
+ act_cell = dummypackage(dummypack_index)%cell_numb
+ act_pos = dummypackage(dummypack_index)%pos
+END IF
 act_corner = dyn_cell(act_cell)%corner
 act_width = dyn_cell(act_cell)%width
 act_center = act_corner + act_width/2.0

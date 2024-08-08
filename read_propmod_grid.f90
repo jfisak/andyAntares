@@ -21,6 +21,10 @@ INTEGER                                         :: atom_number, numbions, assoc_
 
 LOGICAL                                         :: is_diff
 
+write(*,*) '**************************************'
+write(*,*) 'READING THE PROPMOD GRID FROM THE FILE'
+write(*,*) '**************************************'
+
 ! now it works only for 3D models!!!
 write(propmod_file,"(A, A12)") TRIM(outputfolder), '/propmod.dat'
 

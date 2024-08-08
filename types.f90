@@ -15,11 +15,12 @@ INTEGER, PARAMETER                 :: file_length = 180
       INTEGER                        :: up_cell, down_cell
       INTEGER, DIMENSION(6)          :: neighbor
       DOUBLE PRECISION, DIMENSION(3) :: corner, width
+      DOUBLE PRECISION, DIMENSION(3) :: vec_vel
       INTEGER, DIMENSION(3)          :: n_sbgr
   END TYPE dyn_grid_cell
 
   TYPE photon 
-     INTEGER                         :: cell_numb, pack_numb, active
+     INTEGER                         :: cell_numb, active
      DOUBLE PRECISION                :: e_cmf, e_rf, freq_cmf, freq_rf, delta_s
      INTEGER                         :: typ, next_cross, last_line
      INTEGER                         :: n_interactions
@@ -97,6 +98,7 @@ INTEGER, PARAMETER                 :: file_length = 180
      INTEGER                         :: atom_number, nions
      DOUBLE PRECISION                :: atom_mass
      DOUBLE PRECISION                :: abundance
+     CHARACTER(LEN=file_length)      :: levelfile='', transitionfile=''
      TYPE(element_ions), ALLOCATABLE :: ions(:)
   END TYPE atom_elements
 
@@ -190,14 +192,21 @@ INTEGER, PARAMETER                 :: file_length = 180
   INTEGER, PARAMETER                 :: edxy=7
   INTEGER, PARAMETER                 :: edxz=8
   INTEGER, PARAMETER                 :: edyz=9
+
+  INTEGER, PARAMETER                 :: ind_x = 1
+  INTEGER, PARAMETER                 :: ind_y = 2
+  INTEGER, PARAMETER                 :: ind_z = 3
+
   INTEGER, PARAMETER                 :: NONE = -99
   INTEGER, PARAMETER                 :: no_line = -99
+
+  INTEGER, PARAMETER                 :: filename_lenght = 120
 
   INTEGER                            :: my_rank
   INTEGER                            :: ierr
   INTEGER                            :: n_tasks
-  CHARACTER(160)                      :: outputfolder=''
-  CHARACTER(160)                      :: outputfile
+  CHARACTER(filename_lenght)                      :: outputfolder=''
+  CHARACTER(filename_lenght)                      :: outputfile
 !! Atomic data
  ! Total number of chemical elements in the simulation
   INTEGER                            :: n_elements
@@ -211,11 +220,15 @@ INTEGER, PARAMETER                 :: file_length = 180
   INTEGER                               :: n_add_pack
   INTEGER                               :: n_pack_save
   ! temporary file name
-  CHARACTER(160)                     :: temp_filename = 'temp_packet'
+  CHARACTER(filename_lenght)                     :: temp_filename = 'temp_packet'
   INTEGER                               :: tot_saved_packets
   ! for testing case
   LOGICAL                               :: simpleTrans, orbitals_nl
   INTEGER                               :: enable_diffusion
+  INTEGER                               :: sobolev_approximation
+  LOGICAL                               :: vel_propgrid = .false., vel_modgrid = .true.
+
+  INTEGER, PARAMETER                    :: const_dimofspace = 3
 
 
 

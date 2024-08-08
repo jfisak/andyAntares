@@ -11,6 +11,10 @@ CHARACTER(80)                             :: modelfile
 DOUBLE PRECISION                                :: eldens
 INTEGER                                         :: I
 
+write(*,*) '******************************************'
+write(*,*) 'READING THE ELECTRON DENSITY FROM THE FILE'
+write(*,*) '******************************************'
+
 modelfile=TRIM(inputmodelFile)
 
 IF(model_type == 1) THEN

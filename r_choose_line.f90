@@ -28,13 +28,13 @@ END DO
 
 ran_numb = ran2(idum) * tot_lop
 summ = 0.D0
-write(*,*) 'r_choose_line: n_next_lines = ', n_next_lines
+! write(*,*) 'r_choose_line: n_next_lines = ', n_next_lines
 DO I = 1, n_next_lines
  act_line = actirrates%nline(I)
- write(*,*) 'r_choose_line: I = ', I, ' ran_numb = ', ran_numb, ' summ = ', summ
- write(*,*) 'r_choose_line: I = ', I, ' Lline = ', actirrates%Lline(I)
+ ! write(*,*) 'r_choose_line: I = ', I, ' ran_numb = ', ran_numb, ' summ = ', summ
+ ! write(*,*) 'r_choose_line: I = ', I, ' Lline = ', actirrates%Lline(I)
  IF(ran_numb > summ .AND. ran_numb < summ + actirrates%Lline(I)) THEN
-  write(*,*) 'event_dist: last_line = ', act_line
+  ! write(*,*) 'event_dist: last_line = ', act_line
   package(pack_index)%l_ele = linelist(act_line)%indexe
   package(pack_index)%l_ion = linelist(act_line)%indexi
   package(pack_index)%l_lev = linelist(act_line)%upper
@@ -46,6 +46,8 @@ DO I = 1, n_next_lines
 END DO
 
 IF(package(pack_index)%last_line <= 0) THEN
+ write(*,*) 'r_choose_line: number of lines = ', actirrates%nline(:)
+ write(*,*) 'r_choose_line: Lline = ', actirrates%Lline(:)
  write(*,*) 'r_choose_line: the chosen line = ', package(pack_index)%last_line, ' < 0'
  STOP 
 END IF

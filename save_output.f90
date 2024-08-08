@@ -55,7 +55,13 @@ INTEGER                                 :: n_adgrids
 
 ! chemical composition
 INTEGER                                 :: cur_indexe, cur_element, cur_Z, cur_nions
-DOUBLE PRECISION                        :: cur_atom_mass, cur_abundance, cur_ionpot
+DOUBLE PRECISION                        :: cur_atom_mass, cur_abundance
+CHARACTER(LEN=file_length)              :: cur_levelfile, cur_transfile
+
+DOUBLE PRECISION, DIMENSION(3)          :: cur_vel, cur_centre
+INTEGER                                 :: cur_index_I
+
+INTEGER, PARAMETER                      :: cpu_zero = 0, flag_6 = 6
 
 !________________________________________________________________________________
 ! #00 output folder
@@ -73,10 +79,10 @@ DOUBLE PRECISION                        :: cur_atom_mass, cur_abundance, cur_ion
   END IF
 #if mpi==1
   DO I = 1, n_tasks - 1
-   CALL MPI_SEND(outputfolder, 80, MPI_CHAR, I, 6, MPI_COMM_WORLD, ierr)
+   CALL MPI_SEND(outputfolder, filename_lenght, MPI_CHAR, I, flag_6, MPI_COMM_WORLD, ierr)
   END DO
  ELSE IF (outputfolder == '') THEN
-  CALL MPI_RECV(outputfolder, 80, MPI_CHAR, 0, 6, MPI_COMM_WORLD, status, ierr)
+  CALL MPI_RECV(outputfolder, filename_lenght, MPI_CHAR, cpu_zero, flag_6, MPI_COMM_WORLD, status, ierr)
  END IF
 #endif
 
@@ -411,7 +417,7 @@ CASE(9)
 ! 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CASE(10)
- write(temp_file_name,"(A, A11, I3.3, A4)") TRIM(outputfolder), '/temp_adgrid', my_rank, ".dat"
+ write(temp_file_name,"(A, A12, I3.3, A4)") TRIM(outputfolder), '/temp_adgrid', my_rank, ".dat"
  write(*,*) 'save_output: temp_file_name = ', temp_file_name
  Ngrid = nx_cell * ny_cell * nz_cell
  n_adgrids = SIZE(dyn_cell)
@@ -421,6 +427,22 @@ CASE(10)
    WRITE(72) dyn_cell(I)
   END DO
  CLOSE(72)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! #10 velocity field in the propGrid cells
+!
+! 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CASE(11)
+ write(temp_file_name,"(A, A11, I3.3, A4)") TRIM(outputfolder), '/velo_field', my_rank, ".dat"
+ write(*,*) 'save_output: temp_file_name = ', temp_file_name
+ OPEN(73, FILE=temp_file_name)
+  DO cur_index_I = 1, n_propgcells
+   cur_centre = dyn_cell(cur_index_I)%corner + dyn_cell(cur_index_I)%width/2.0
+   cur_vel = dyn_cell(cur_index_I)%vec_vel
+   write(73,*) cur_centre, cur_vel
+  END DO
+ CLOSE(73)
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! #100 input file
 ! 
@@ -467,21 +489,25 @@ CASE(101)
   cur_Z = elements(cur_element)%atom_number
   cur_atom_mass = elements(cur_element)%atom_mass
   cur_abundance = elements(cur_element)%abundance
-  write(*,*) 'save_output: cur_indexe = ', cur_indexe
-  write(99,*) cur_indexe, cur_Z, cur_atom_mass, cur_abundance
+  cur_levelfile = elements(cur_element)%levelfile
+  cur_transfile = elements(cur_element)%transitionfile
+  write(99,*) cur_indexe, cur_Z, cur_nions, cur_atom_mass, cur_abundance, cur_levelfile, cur_transfile
  END DO
+ write(99,*) 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! #102 model grid description
+! 
+! 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
- write(99,*) '2.) energy levels'
- DO cur_element = 1, n_elements
-  cur_indexe = cur_element
-  cur_nions = elements(cur_element)%nions
-  write(99,*) 'n_of_ion, charge, ion_pot'
-  DO cur_ion = 1, cur_nions
-   cur_ionpot = elements(cur_indexe)%ions(cur_ion)%ion_potential
-   write(99,*) cur_ion, cur_ion - 1, cur_ionpot
-  END DO
- END DO
+CASE(102)
+ 
+ write(99,*) '__________________________________________________'
+ write(99,*) '_________MODEL GRID DESCRIPTION___________________'
+ write(99,*) '__________________________________________________'
+ write(99,*) 'R_star = ', R_star/R_sun, 'R_inf = ', R_inf/R_sun
 
+ write(99,*) '__________________________________________________'
  
 CASE DEFAULT
  write(99,*) 'save_output: this case is not known'

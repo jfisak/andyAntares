@@ -16,10 +16,13 @@ DO gridcell = 1, n_modelgrid
  IF (model_grid(gridcell)%assoc_cells > 0) THEN
   el_nd = model_grid(gridcell)%e_dens
   temp = model_grid(gridcell)%T
+  ! write(*,*) 'lte_pops: el_nd = ', el_nd
   CALL ionization_fraction(indexe, indexi, temp, el_nd, frac)
   ! Total population number of the element indexe in ionization stage indexi
   ! and particular gridcell (total number of atoms in particular ionization stage)
   N_jk = frac * model_grid(gridcell)%rho * model_grid(gridcell)%grid_comp(indexe)%abund / elements(indexe)%atom_mass
+  ! write(*,*) 'lte_pops: frac = ', frac, ' rho = ', model_grid(gridcell)%rho, &
+  !  ' a = ', model_grid(gridcell)%grid_comp(indexe)%abund, ' m_a = ', elements(indexe)%atom_mass
   ! CALL ionization_fraction(indexe, indexi, temp, el_nd, frac)
   ! print*, gridcell, indexe, indexi, N_jk/1d10, frac
   ! Calculate partition function (U) of element indexe in ionization stage 
