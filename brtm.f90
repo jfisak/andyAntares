@@ -75,19 +75,19 @@ ccdc_theta = acos(ccd_centre(3)/ccdc_rad)
 write(*,*) 'brtm: ccdc_rad = ', ccdc_rad, ' ccdc_theta = ', ccdc_theta
 ! phi is more complicated to calculate
 IF(ccd_centre(1) > 0.0) THEN
- IF(ccd_centre(2) >= 0.0) THEN
-  ccdc_phi = atan(ccd_centre(1)/ccd_centre(1))
- ELSE IF(ccd_centre(2) < 0.0) THEN
-  ccdc_phi = atan(ccd_centre(1)/ccd_centre(1)) + 2.0 * pi
- END IF
+ ccdc_phi = atan(ccd_centre(2)/ccd_centre(1))
 ELSE IF(ccd_centre(1) == 0.0) THEN
  IF(ccd_centre(2) > 0.0) THEN
   ccdc_phi = pi/2.0
  ELSE IF(ccd_centre(2) < 0.0) THEN
-  ccdc_phi = 3.0 * pi/2.0
+  ccdc_phi = -pi/2.0
  END IF
 ELSE IF(ccd_centre(1) < 0.0) THEN
- ccdc_phi = atan(ccd_centre(1)/ccd_centre(1)) + pi
+ IF(ccd_centre(2) >= 0.0) THEN
+  ccdc_phi = atan(ccd_centre(2)/ccd_centre(1)) + pi
+ ELSE IF(ccd_centre(2) < 0.0) THEN
+  ccdc_phi = atan(ccd_centre(2)/ccd_centre(1)) - pi
+ END IF
 END IF
 
 write(*,*) 'brtm: ccdc_rad = ', ccdc_rad/R_star, ' ccdc_phi = ', ccdc_phi, ' ccdc_theta = ', ccdc_theta
