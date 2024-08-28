@@ -51,8 +51,8 @@ nu_min = light_speed / (wale_end * 1.D-8)
 
 ! a temporary definition of a detector
 ! number of points in each CCD chip
-det_nu = 20
-det_nv = 20
+det_nu = 10
+det_nv = 10
 det_tot_nuv = det_nu * det_nv
 
 ! a size of a detector
@@ -65,7 +65,7 @@ ALLOCATE(det_matrix(det_nu, det_nv), det_spectra(det_tot_nuv, n_nubin))
 ! obs_point = (/ -R_inf  ,  0.D0,  0.D0 /)
 obs_ccd_dist = 0.2*sqrt(det_lu**2+det_lv**2)
 ! ccd_centre = (/ -R_inf/2.0,  R_inf/2.D0,  R_inf/4.D0 /)
-ccd_centre = (/ -R_inf,  0.D0,  0.D0 /)
+ccd_centre = (/ -0.25*R_inf,  -.25*R_inf,  -.25*R_inf /)
 write(48,*) ccd_centre
 obs_point = ccd_centre + obs_ccd_dist * ccd_centre/norm2(ccd_centre)
 write(48,*) obs_point
