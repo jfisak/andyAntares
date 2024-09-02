@@ -17,12 +17,12 @@ linkhost=$(shell hostname)
 #Objects
 MODULES=types.o rates_i.o rates_k.o rates_r.o constants.o dummypacket.o
 MODELS= read_1D_model.o read_2D_model.o read_3D_model.o read_1D_araya.o read_3D_nico.o\
-        read_3D_pseudo3D.o read_2D_peku.o
+        read_3D_pseudo3D.o read_2D_peku.o read_2D_basic.o
 RATES= r_kappa_cont.o r_kappa_line.o i_ion_recomb.o i_radtrans.o i_radion.o i_colion.o \
        i_coltrans.o i_freq_recomb.o  k_freq_ff.o k_freq_fb.o read_photcs.o cool_excit.o \
        cool_ff.o cool_ionization.o cool_fb.o 
 ATOMIC=read_levels.o read_transitions.o read_e_nd.o 
-CONNECTION=connection_prop_model_grid.o connect_2D_peku.o
+CONNECTION=connection_prop_model_grid.o connect_2D_peku.o connect_2D_basic.o
 VELOCITY=velo.o velo_vector.o vel_discrete_points.o vel_interpolation.o vel_vector_interpolation.o \
          lin_interpolation_3D.o lin_interpolation.o vel_pseudo3D_model.o
 PACKETS=do_rpackage.o do_ipackage.o do_rpackage_event.o do_kpackage.o do_dpackage.o \
