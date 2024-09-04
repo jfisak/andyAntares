@@ -19,15 +19,20 @@ DOUBLE PRECISION                       :: act_radius, min_radius, max_radius
 DOUBLE PRECISION                       :: act_z, max_z
 INTEGER                                :: max_radius_index
 INTEGER                                :: vacuum
+INTEGER                                 :: cur_mgi
 
+DOUBLE PRECISION                        :: unit_length, unit_velocity, unit_density
 
+unit_length = 12.64759321736591 * R_sun
+unit_velocity = 1.D8
+unit_density = 1.41314878888978971775872825028550241D-0006
 
  add_mg = 2
- write(99,*) 'we will read input input data from Petr Kurfurst model of stellar disc'
+ write(99,*) 'we will read input input data from the basic 2D model'
  ! firstly we calculate number of rows in the file
  n_modelgrid = 0
   T_eff = 30000
- OPEN(UNIT=15,status='old', FILE='disc_model.dat')
+ OPEN(UNIT=15,status='old', FILE=inputmodelFile)
   DO I = 1, maxrows
    READ(15,*,IOSTAT = ios) junk, junk, junk, junk, junk, junk
    if(ios /= 0) EXIT
@@ -49,11 +54,11 @@ INTEGER                                :: vacuum
  REWIND(15)
  DO I = 1, n_modelgrid
   READ(15,*) radius, perpend, dens, velrad, velang, temp
-  model_grid(I)%rwind = radius * 1.D2
-  model_grid(I)%zwind = perpend * 1.D2
-  model_grid(I)%vel = velrad * 1.D2
-  model_grid(I)%velang = velang * 1.D2
-  model_grid(I)%rho = dens * 1.D-3
+  model_grid(I)%rwind = radius * unit_length
+  model_grid(I)%angle = perpend
+  model_grid(I)%vel = velrad * unit_velocity
+  model_grid(I)%velang = velang * unit_velocity
+  model_grid(I)%rho = dens * unit_density
   model_grid(I)%T = temp
   model_grid(I)%J = 0.D0
   model_grid(I)%assoc_cells = 0
@@ -94,14 +99,21 @@ INTEGER                                :: vacuum
   END IF
  END DO
  write(99,*) 'R_star = ', R_star
- R_inf = max_radius
- Z_inf = max_z
  V_inf = model_grid(max_radius_index)%vel
- !R_star = model_grid(1)%rwind * 1.D2
- !R_inf = (model_grid(n_modelgrid)%rwind + model_grid(n_modelgrid)%rwind/1.D2) * 1.D2
- !R_inf = model_grid(n_modelgrid)%rwind * 1.D2
- !V_inf = model_grid(n_modelgrid)%rwind * 1.D2
+ R_star = MINVAL(model_grid(:)%rwind)
+ R_inf = MAXVAL(model_grid(:)%rwind)
+ Z_inf = R_inf
+ write(*,*) 'read_2D_basic: R_star = ', R_star, ' R_inf = ', R_inf, 'R_inf/R_star = ', R_inf/R_star
  write(99,*) 'computed R_star = ', R_star, ' R_inf = ', R_inf
+
+ xmax = R_inf
+ ymax = R_inf
+ zmax = R_inf
+ xmin = -xmax
+ ymin = -ymax
+ zmin = -zmax
+
+ ! setting up vacuum and outward model cells
  model_grid(n_modelgrid + 1)%assoc_cells = 0
  model_grid(n_modelgrid + 1)%rwind = 0.D0
  model_grid(n_modelgrid + 1)%zwind = 0.D0
@@ -128,5 +140,11 @@ INTEGER                                :: vacuum
    ! model_grid(I)%grid_comp(J)%numb_den = tot_nd
   END DO
 
+ ! OPEN(77, FILE='input_2D_model.dat')
+ !  DO cur_mgi = 1, n_modelgrid
+ !   write(77,*) model_grid(cur_mgi)%rwind, model_grid(cur_mgi)%angle, model_grid(cur_mgi)%rho, model_grid(cur_mgi)%T, &
+ !    model_grid(cur_mgi)%vel, model_grid(cur_mgi)%velang
+ !  END DO
+ ! CLOSE(77)
 
  END SUBROUTINE read_2D_basic

@@ -15,7 +15,7 @@ INTEGER                        :: max_n_dcell
 ! propagation and model cell
 DOUBLE PRECISION               :: delta, delta2
 ! radial and vertical distance
-DOUBLE PRECISION               :: r, z, r0, z0, phi, phi0
+DOUBLE PRECISION               :: r, z, r0, phi, phi0
 ! volume of model cell
 DOUBLE PRECISION               :: loc_volume
 INTEGER                        :: gridcell

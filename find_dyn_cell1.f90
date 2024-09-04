@@ -60,9 +60,9 @@ bcell(1) = FLOOR(pobcw(1) + dble(nx_cell)/2.D0) + 1
 bcell(2) = FLOOR(pobcw(2) + dble(ny_cell)/2.D0) + 1
 bcell(3) = FLOOR(pobcw(3) + dble(nz_cell)/2.D0) + 1
 
-write(*,*) 'find_dyn_cell1: bcell = ', bcell, ' pobcw = ', pobcw
-write(*,*) 'find_dyn_cell1: pos(1)/width(1) = ', pos(:)/basic_cell_width(:), ' n_x/2 = ', dble(nx_cell)/2.D0
-write(*,*) 'find_dyn_cell1: (...) = ', pos(1)/basic_cell_width(1) - FLOOR(pos(1)/basic_cell_width(1))
+! write(*,*) 'find_dyn_cell1: bcell = ', bcell, ' pobcw = ', pobcw
+! write(*,*) 'find_dyn_cell1: pos(1)/width(1) = ', pos(:)/basic_cell_width(:), ' n_x/2 = ', dble(nx_cell)/2.D0
+! write(*,*) 'find_dyn_cell1: (...) = ', pos(1)/basic_cell_width(1) - FLOOR(pos(1)/basic_cell_width(1))
 
 ! correction for the boundaries
 IF(pos(1) == xmax) THEN
@@ -77,12 +77,15 @@ END IF
 
 IF(pos(1) < xmax .and. bcell(1) == nx_cell + 1) THEN
  bcell(1) = bcell(1) - 1
+ write(*,*) 'find_dyn_cell1: korekce na bunku ve smeru x'
 END IF
 IF(pos(2) < xmax .and. bcell(2) == nx_cell + 1) THEN
  bcell(2) = bcell(2) - 1
+ write(*,*) 'find_dyn_cell1: korekce na bunku ve smeru y'
 END IF
 IF(pos(3) < xmax .and. bcell(3) == nx_cell + 1) THEN
  bcell(3) = bcell(3) - 1
+ write(*,*) 'find_dyn_cell1: korekce na bunku ve smeru z'
 END IF
 
 ! write(*,*) 'find_dyn_cell1: bcell = ', bcell

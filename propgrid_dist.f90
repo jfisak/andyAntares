@@ -81,25 +81,4 @@ if(snapped) then
 else
 end if
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 END SUBROUTINE propgrid_dist

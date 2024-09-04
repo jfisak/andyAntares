@@ -28,6 +28,8 @@ VELOCITY=velo.o velo_vector.o vel_discrete_points.o vel_interpolation.o vel_vect
 PACKETS=do_rpackage.o do_ipackage.o do_rpackage_event.o do_kpackage.o do_dpackage.o \
  do_vpackage.o packet_dynamics.o
 SPECTRA=do_brtm_spectrum.o do_spectrum.o
+GRIDS=propmodgrid_diagnostics.o setup_model_grid.o update_grid.o setup_propgrid.o create_dynamical_grid_cells.o \
+      propgrid_dist.o save_propmod_grid.o read_propmod_grid.o 
 OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o 	  \
           random_unitvector.o ran2.o boundary3.o bound_dist.o \
           change_cell.o move_package.o emit_rpackage.o	\
@@ -37,22 +39,23 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o 	  \
            event_dist.o get_package_model_index.o  \
           update_packages.o r_choose_line.o brtm.o \
           read_composition.o read_populations.o \
-          sorting-new.o setup_model_grid.o update_grid.o cmf_freq.o \
+          sorting-new.o cmf_freq.o \
           saha_boltzmann_factor.o ionization_fraction.o f_edens.o round_number.o\
           find_e_nd.o part_fun.o update_estimators.o freq_from_file.o rob.o \
-          acc_rej_montecarlo.o virtual_points.o setup_propgrid.o \
-          create_dynamical_grid_cells.o find_dyn_cell1.o \
+          acc_rej_montecarlo.o virtual_points.o \
+          find_dyn_cell1.o \
           divide_cell_8.o divide_cell_ijk.o \
 	  next_cell_down.o next_cell_up.o populations.o  \
-	  gamma_function.o exp_int_func.o find_populations.o propgrid_dist.o\
+	  gamma_function.o exp_int_func.o find_populations.o\
 	  flux_function.o find_element_index.o analyse_input.o \
 	  warning.o calc_tau.o check_pop.o \
 	  save_output.o gauntff.o counters.o saha_factor.o find_photion_elindex.o \
 	  mpi_distribute_estimators.o save_temp_packs.o find_unfinished_run.o \
 	  lte_pops.o photosphere_interaction.o roverw.o \
-          next_line_bluered.o resonance_distance2.o save_propmod_grid.o \
-	  read_propmod_grid.o oct_virtcube.o diffusion_approximation.o d_choosenextcell.o \
-	  $(MODELS) $(RATES) $(ATOMIC) $(MODULES) $(CONNECTION) $(VELOCITY) $(PACKETS) $(SPECTRA)
+          next_line_bluered.o resonance_distance2.o \
+	  oct_virtcube.o diffusion_approximation.o d_choosenextcell.o \
+	  $(MODELS) $(RATES) $(ATOMIC) $(MODULES) $(CONNECTION) $(VELOCITY) $(PACKETS) $(SPECTRA) \
+	  $(GRIDS)
 # end of procedures
 
 #Rules
