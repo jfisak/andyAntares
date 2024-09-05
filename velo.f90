@@ -47,9 +47,7 @@ CASE(1)
  vel_vec = pack_position/NORM2(pack_position) * vel_radial
 ! #02
 CASE(2)
- cur_mgi = get_package_model_index(pack_index)
- vel_radial = model_grid(cur_mgi)%vel
- vel_vec = pack_position/norm2(pack_position) * vel_radial
+ CALL vel_discrete_points(pack_index, vel_vec)
 ! #03
 ! velocity field given by model in discrete points
 CASE(3)
