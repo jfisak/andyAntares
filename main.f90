@@ -179,6 +179,7 @@ ELSE
  CALL connection_prop_model_grid()
  IF(debug == 3) write(*,*) 'prop and mod grids are connected'
 END IF ! saved propmod grid
+ CALL propmodgrid_diagnostics()
 
 ! save propmod_grid?
 IF(saved_grid == 1 .and. .not. propmod_file_exists .or. saved_grid == 2) THEN

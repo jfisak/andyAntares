@@ -400,23 +400,5 @@ write(*,*) 'update_grid: my_rank = ', my_rank, ' my_start = ', my_start, ' my_en
     STOP
    END SELECT
   END IF
-! computing volume of model cells
-DO cur_propcell = 1, max_n_dcell
- IF(dyn_cell(cur_propcell)%up_cell == 0) THEN
-  gridcell = dyn_cell(cur_propcell)%model_index
-   loc_volume = dyn_cell(cur_propcell)%width(1) * dyn_cell(cur_propcell)%width(2) * dyn_cell(cur_propcell)%width(3)
-   model_grid(gridcell)%volume = model_grid(gridcell)%volume + loc_volume
-  ! counters
-  IF(dyn_cell(cur_propcell)%model_index /= 0) THEN
-   count_pg_mcell = count_pg_mcell + 1
-  ELSE IF(dyn_cell(cur_propcell)%model_index == n_modelgrid + 3) THEN
-   count_pg_vacuum = count_pg_vacuum + 1
-  END IF
- END IF
-END DO
-
-write(99,*) 'propGrid statistics:'
-write(99,*) 'count_pg_mcell = ', count_pg_mcell
-write(99,*) 'count_pg_vacuum = ', count_pg_vacuum
 
 END SUBROUTINE connection_prop_model_grid

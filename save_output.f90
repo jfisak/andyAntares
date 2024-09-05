@@ -7,6 +7,8 @@
 ! #04 TEMPERATURE STRUCTURE AND IONIZATION BALANCE
 ! #06 PACKETS INFORMATION
 ! #07 IONIZATION FRACTIONS
+! #10 VELOCITY FIELD IN THE PROPGRID CELLS
+! #11 PROPMOD SLICES
 SUBROUTINE save_output(otype)
 
 USE types
@@ -59,6 +61,13 @@ CHARACTER(LEN=file_length)              :: cur_levelfile, cur_transfile
 
 DOUBLE PRECISION, DIMENSION(3)          :: cur_vel, cur_centre
 INTEGER                                 :: cur_index_I
+
+INTEGER                                         :: Nx_cov, Ny_cov, Nz_cov, ind_I, ind_J
+DOUBLE PRECISION                                :: x_cov, z_cov, cur_physvar
+DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: cur_pos
+REAL, ALLOCATABLE                               :: coverage_matrix(:,:)
+INTEGER                                         :: cur_mgi, cur_pgi
+
 
 !________________________________________________________________________________
 ! #00 output folder
@@ -439,7 +448,120 @@ CASE(11)
    write(73,*) cur_centre, cur_vel
   END DO
  CLOSE(73)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! #11 velocity field in the propGrid cells
+!
+! 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CASE(12)
+ 
+! maps of a coverage
+! creates a matrix with a specified physical quantity
+Nx_cov = nx_cell
+Ny_cov = ny_cell
+Nz_cov = nz_cell
+x_cov = 0.D0
+z_cov = 0.D0
 
+ALLOCATE(coverage_matrix(Nx_cov, Ny_cov))
+coverage_matrix(:,:) = -1.0
+
+write(temp_file_name_t,"(A, A19)") TRIM(outputfolder), '/propmod_t_xy.dat'
+write(temp_file_name_rho,"(A, A19)") TRIM(outputfolder), '/propmod_rho_xy.dat'
+IF(model_type == 1) THEN
+ write(temp_file_name_v1,"(A, A19)") TRIM(outputfolder), '/propmod_vel1_xy.dat'
+ELSE IF(model_type == 2) THEN
+ write(temp_file_name_v1,"(A, A19)") TRIM(outputfolder), '/propmod_vel1_xy.dat'
+ write(temp_file_name_v2,"(A, A19)") TRIM(outputfolder), '/propmod_vel2_xy.dat'
+ELSE IF(model_type == 3) THEN
+ write(temp_file_name_v1,"(A, A19)") TRIM(outputfolder), '/propmod_vel1_xy.dat'
+ write(temp_file_name_v2,"(A, A19)") TRIM(outputfolder), '/propmod_vel2_xy.dat'
+ write(temp_file_name_v3,"(A, A19)") TRIM(outputfolder), '/propmod_vel3_xy.dat'
+END IF
+! probably a temporary solution
+cur_pos(ind_z) = z_cov
+! xy plane
+DO ind_I = 1, Nx_cov
+ cur_pos(ind_x) = ((xmax - xmin) * ind_I + (Nx_cov * xmin - xmax))/DBLE(Nx_cov - 1)
+ DO ind_J = 1, Ny_cov
+  cur_pos(ind_y) = ((ymax - ymin) * ind_J + (Ny_cov * ymin - ymax))/DBLE(Ny_cov - 1)
+  ! looking for a current propGrid cell index
+  CALL find_dyn_cell1(cur_pos, cur_pgi)
+  IF(cur_pgi > 0) THEN
+   cur_mgi = dyn_cell(cur_pgi)%model_index
+   IF(cur_mgi > 0) THEN
+    cur_physvar = model_grid(cur_mgi)%vel
+    coverage_matrix(ind_I, ind_J) = REAL(cur_physvar)
+   END IF
+  END IF ! cur_pgi > 0
+ END DO
+END DO
+
+OPEN(173, FILE=temp_file_name_t)
+OPEN(174, FILE=temp_file_name_rho)
+IF(model_type == 1) THEN
+ OPEN(175, FILE=temp_file_name_v1)
+ELSE IF(model_type == 2) THEN
+ OPEN(175, FILE=temp_file_name_v1)
+ OPEN(176, FILE=temp_file_name_v2)
+ELSE IF(model_type == 3) THEN
+ OPEN(175, FILE=temp_file_name_v1)
+ OPEN(176, FILE=temp_file_name_v2)
+ OPEN(177, FILE=temp_file_name_v3)
+END IF
+
+DO ind_I = 1, Ny_cov
+ write(173,*) coverage_matrix_T(:,ind_I)
+ write(174,*) coverage_matrix_rho(:,ind_I)
+ IF(model_type == 1) THEN
+ write(175,*) coverage_matrix_v1(:,ind_I)
+ ELSE IF(model_type == 2) THEN
+  write(175,*) coverage_matrix_v1(:,ind_I)
+  write(176,*) coverage_matrix_v2(:,ind_I)
+ ELSE IF(model_type == 3) THEN
+  write(175,*) coverage_matrix_v1(:,ind_I)
+  write(176,*) coverage_matrix_v2(:,ind_I)
+  write(177,*) coverage_matrix_v3(:,ind_I)
+ END IF
+END DO
+
+CLOSE(173)
+CLOSE(174)
+IF(model_type == 1) THEN
+ CLOSE(175)
+ELSE IF(model_type == 2) THEN
+ CLOSE(175)
+ CLOSE(176)
+ELSE IF(model_type == 3) THEN
+ CLOSE(175)
+ CLOSE(176)
+ CLOSE(177)
+END IF
+
+coverage_matrix(:,:) = -1.0
+
+! yz plane
+cur_pos(ind_x) = x_cov
+write(temp_file_name,"(A, A19)") TRIM(outputfolder), '/propmod_vel_yz.dat'
+DO ind_I = 1, Ny_cov
+ cur_pos(ind_y) = ((ymax - ymin) * ind_I + (Ny_cov * ymin - ymax))/DBLE(Ny_cov - 1)
+ DO ind_J = 1, Nz_cov
+  cur_pos(ind_z) = ((zmax - zmin) * ind_J + (Nz_cov * zmin - zmax))/DBLE(Nz_cov - 1)
+  ! looking for a current propGrid cell index
+  CALL find_dyn_cell1(cur_pos, cur_pgi)
+  IF(cur_pgi > 0) THEN
+   cur_mgi = dyn_cell(cur_pgi)%model_index
+   IF(cur_mgi > 0) THEN
+    cur_physvar = model_grid(cur_mgi)%vel
+    coverage_matrix(ind_I, ind_J) = REAL(cur_physvar)
+   END IF
+  END IF ! cur_pgi > 0
+ END DO
+END DO
+
+DO ind_I = 1, Nz_cov
+ write(174,*) coverage_matrix(:,ind_I)
+END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! #100 input file
 ! 

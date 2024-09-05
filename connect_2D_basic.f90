@@ -93,8 +93,8 @@ DO cur_propcell = my_start, my_end
     dyn_cell(cur_propcell)%model_index = n_modelgrid + 1     
     !model_grid(n_modelgrid + 1)%assoc_cells = model_grid(n_modelgrid + 1)%assoc_cells + 1
    END IF
-   write(*,*) 'connect_2D_basic: cur_propcell = ', cur_propcell
-   write(*,*) 'connect_2D_basic: modGrid index = ', dyn_cell(cur_propcell)%model_index
+   ! write(*,*) 'connect_2D_basic: cur_propcell = ', cur_propcell
+   ! write(*,*) 'connect_2D_basic: modGrid index = ', dyn_cell(cur_propcell)%model_index
  END IF
 END DO ! loop over propGrid cells
 write(99,*) 'number of propagation cells in vacuum: ', model_grid(n_modelgrid + add_mg)%assoc_cells
