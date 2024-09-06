@@ -1,3 +1,11 @@
+! a sbr connecting propGrid with the modGrid
+! for a 2D model with defined
+!
+! radius and a lateral coordinate
+!
+! input: NONE
+! output: NONE
+!
 SUBROUTINE connect_2D_basic()
 
 USE types
@@ -24,6 +32,8 @@ INTEGER                         :: cur_neighbour
 INTEGER                         :: my_start, my_end
 INTEGER                         :: N_single, N_zbytek
 INTEGER                                 :: cur_mgi
+DOUBLE PRECISION                :: tot_delta = 0.D0
+INTEGER                         :: n_adjonced = 0
 
 #if mpi == 1
    N_single = n_propgcells/n_tasks
@@ -73,6 +83,8 @@ DO cur_propcell = my_start, my_end
      IF( delta2 < delta ) THEN
        delta = delta2
        best_index = cur_mgi
+       n_adjonced = n_adjonced + 1
+       tot_delta = tot_delta + delta2
      END IF
      ! if the propagation cell is too far from the nearest model point
      ! we will associate this cell to the dummy cells

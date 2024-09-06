@@ -187,15 +187,15 @@ SAVE
   INTEGER, PARAMETER                 :: rpkt_eventtype_continuum=3
 
 !! Packet's memory of which cell surface it crossed last
-  INTEGER, PARAMETER                 :: posx=1
-  INTEGER, PARAMETER                 :: negx=2
-  INTEGER, PARAMETER                 :: posy=3
-  INTEGER, PARAMETER                 :: negy=4
-  INTEGER, PARAMETER                 :: posz=5
-  INTEGER, PARAMETER                 :: negz=6
-  INTEGER, PARAMETER                 :: edxy=7
-  INTEGER, PARAMETER                 :: edxz=8
-  INTEGER, PARAMETER                 :: edyz=9
+  INTEGER, PARAMETER,                  :: posx=1
+  INTEGER, PARAMETER,                  :: negx=2
+  INTEGER, PARAMETER,                  :: posy=3
+  INTEGER, PARAMETER,                  :: negy=4
+  INTEGER, PARAMETER,                  :: posz=5
+  INTEGER, PARAMETER,                  :: negz=6
+  INTEGER, PARAMETER,                  :: edxy=7
+  INTEGER, PARAMETER,                  :: edxz=8
+  INTEGER, PARAMETER,                  :: edyz=9
 
   INTEGER, PARAMETER                 :: ind_x = 1
   INTEGER, PARAMETER                 :: ind_y = 2

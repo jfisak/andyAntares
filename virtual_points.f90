@@ -9,7 +9,7 @@ USE constants
  ! input variables
  INTEGER                        :: dimIM
  ! 
- INTEGER                        :: I,J,NP
+ INTEGER                        :: ind_I,ind_J,NP
  ! 1D model: intervals for point distribution
  DOUBLE PRECISION               :: radius, phi, theta, angle
  DOUBLE PRECISION, DIMENSION(3) :: direction
@@ -57,21 +57,21 @@ CASE(1)
  ! computing number of points on a shell from a density
  ! firstly we compute a total number of density
  sumr = 0.D0
- DO I = 1, n_modelgrid
+ DO ind_I = 1, n_modelgrid
   sumr = sumr + (model_grid(I)%rwind / R_inf) ** delta
  END DO
  ! now we will compute given numbers of points for the given spheres
- DO I = 1, n_modelgrid
-  nOfPoints(I) = INT(FLOAT(Nvirtpoint) * (model_grid(I)%rwind / R_inf) ** delta / sumr)
+ DO ind_I = 1, n_modelgrid
+  nOfPoints(ind_I) = INT(FLOAT(Nvirtpoint) * (model_grid(ind_I)%rwind / R_inf) ** delta / sumr)
  END DO
- DO J = 1, n_modelgrid 
-  sumpart = sumpart + nOfPoints(J)
+ DO ind_J = 1, n_modelgrid 
+  sumpart = sumpart + nOfPoints(ind_J)
  END DO
  zbytek = Nvirtpoint - sumpart
  nOfPoints(n_modelgrid) = nOfPoints(n_modelgrid) + zbytek
  sumpart = 0
  DO J = 1, n_modelgrid 
-  sumpart = sumpart + nOfPoints(J)
+  sumpart = sumpart + nOfPoints(ind_J)
  END DO
  ! printing number of points for each model grid
 ! OPEN(UNIT=8,FILE='vp_distribution.dat')
@@ -127,17 +127,17 @@ CASE(2)
  ! we have zero point located
  NP = 0
  ! distribution of point on the shell of the radius R
- DO I = 1, n_modelgrid
+ DO ind_I = 1, n_modelgrid
   radius = model_grid(I)%rwind
   np_shell = nOfPoints(I)
   !IF (np_shell == 0) STOP 'number of virtual point is small'
-  DO J = 1, np_shell
+  DO ind_J = 1, np_shell
    NP = NP + 1
    phi = 2.D0*pi*ran2(idum)
-   theta = model_grid(I)%angle
-   virtual_point(NP)%pos(1) = radius * cos(theta) * cos(phi)
-   virtual_point(NP)%pos(2) = radius * cos(theta) * sin(phi)
-   virtual_point(NP)%pos(3) = radius * sin(theta)
+   theta = model_grid(ind_I)%angle
+   virtual_point(NP)%pos(ind_x) = radius * cos(theta) * cos(phi)
+   virtual_point(NP)%pos(ind_y) = radius * cos(theta) * sin(phi)
+   virtual_point(NP)%pos(ind_z) = radius * sin(theta)
 !  write(20,*) virtual_point(NP)%pos(1), virtual_point(NP)%pos(2), virtual_point(NP)%pos(3)
   END DO
  END DO

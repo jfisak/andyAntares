@@ -29,7 +29,7 @@ PACKETS=do_rpackage.o do_ipackage.o do_rpackage_event.o do_kpackage.o do_dpackag
  do_vpackage.o packet_dynamics.o
 SPECTRA=do_brtm_spectrum.o do_spectrum.o
 GRIDS=propmodgrid_diagnostics.o setup_model_grid.o update_grid.o setup_propgrid.o create_dynamical_grid_cells.o \
-      propgrid_dist.o save_propmod_grid.o read_propmod_grid.o 
+      propgrid_dist.o save_propmod_grid.o read_propmod_grid.o
 OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o 	  \
           random_unitvector.o ran2.o boundary3.o bound_dist.o \
           change_cell.o move_package.o emit_rpackage.o	\
@@ -39,7 +39,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o 	  \
            event_dist.o get_package_model_index.o  \
           update_packages.o r_choose_line.o brtm.o \
           read_composition.o read_populations.o \
-          sorting-new.o cmf_freq.o \
+          sorting-new.o cmf_freq.o n_closest_points_2D.o\
           saha_boltzmann_factor.o ionization_fraction.o f_edens.o round_number.o\
           find_e_nd.o part_fun.o update_estimators.o freq_from_file.o rob.o \
           acc_rej_montecarlo.o virtual_points.o \

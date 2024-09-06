@@ -151,7 +151,7 @@ ELSE
   IF(model_type == 1) THEN
    zmax = R_inf + 0.5 * R_sun
   ELSE IF (model_type == 2 .AND. inputmodel == 1) THEN
-   zmax = Z_inf! + R_sun
+   zmax = Z_inf + 0.5 * R_sun
   ELSE IF (model_type == 2 .AND. inputmodel == 2) THEN
    zmax = R_inf + 0.5 * R_sun
   ELSE
