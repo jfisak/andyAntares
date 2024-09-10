@@ -20,6 +20,8 @@ REAL, PARAMETER                                 :: min_rel_coverage = 0.9
 
 INTEGER                                         :: gridcell, cur_pgi
 DOUBLE PRECISION                                :: loc_volume, tot_model_volume, tot_nonmodel_volume
+INTEGER, ALLOCATABLE                            :: list_points(:)
+INTEGER                                         :: np_wewant
 
 
 
@@ -97,6 +99,24 @@ DO cur_pgi = 1, n_propgcells
  END IF
 END DO
 
+! obtaining a number of points we need to calculate a volume for each modGrid cell
+IF(model_type == 1) THEN
+ np_wewant = 2
+ELSE IF(model_type == 2) THEN
+ np_wewant = 4
+ELSE IF(model_type == 3) THEN
+ np_wewant = 6
+END IF
+ALLOCATE(list_points(np_wewant))
+
+DO cur_mgi = 1, n_modelgrid
+ ! find the closest neighbors
+ IF(model_type == 1) THEN
+ ELSE IF(model_type == 2) THEN
+  CALL n_closest_points_2D(cur_mgi, np_wewant, list_points)
+ ELSE IF(model_type == 3) THEN
+ END IF
+END DO
 
 ! DO cur_mgi = 1, n_modelgrid
 !  write(*,*) 'propmodgrid_diagnostics: cur_mgi = ', cur_mgi, ' vol = ', model_grid(cur_mgi)%volume
@@ -107,16 +127,10 @@ write(*,*) 'propmodgrid_diagnostics: tot_nonmodel_volume = ', tot_nonmodel_volum
 
 CALL save_output(12)
 
- write(*,*) 'propmodgrid_diagnostics: n_assoc = ', n_assoc, ' n_alone = ', n_alone
- STOP 'propmodgrid_diagnostics: testing'
 
 
-
-
-
-
-
-
+write(*,*) 'propmodgrid_diagnostics: n_assoc = ', n_assoc, ' n_alone = ', n_alone
+STOP 'propmodgrid_diagnostics: testing'
 
 
 

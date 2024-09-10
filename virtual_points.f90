@@ -58,7 +58,7 @@ CASE(1)
  ! firstly we compute a total number of density
  sumr = 0.D0
  DO ind_I = 1, n_modelgrid
-  sumr = sumr + (model_grid(I)%rwind / R_inf) ** delta
+  sumr = sumr + (model_grid(ind_I)%rwind / R_inf) ** delta
  END DO
  ! now we will compute given numbers of points for the given spheres
  DO ind_I = 1, n_modelgrid
@@ -70,7 +70,7 @@ CASE(1)
  zbytek = Nvirtpoint - sumpart
  nOfPoints(n_modelgrid) = nOfPoints(n_modelgrid) + zbytek
  sumpart = 0
- DO J = 1, n_modelgrid 
+ DO ind_J = 1, n_modelgrid 
   sumpart = sumpart + nOfPoints(ind_J)
  END DO
  ! printing number of points for each model grid
@@ -82,11 +82,11 @@ CASE(1)
  ! we have zero point located
  NP = 0
  ! distribution of point on the shell of the radius R
- DO I = 1, n_modelgrid
-  radius = model_grid(I)%rwind
-  np_shell = nOfPoints(I)
+ DO ind_I = 1, n_modelgrid
+  radius = model_grid(ind_I)%rwind
+  np_shell = nOfPoints(ind_I)
   !IF (np_shell == 0) STOP 'number of virtual point is small'
-  DO J = 1, np_shell
+  DO ind_J = 1, np_shell
    NP = NP + 1
    CALL random_unitvector(direction)
    virtual_point(NP)%pos = radius * direction
@@ -107,19 +107,19 @@ CASE(2)
  ! computing number of points on a shell from a density
  ! firstly we compute a total number of density
  sumr = 0.D0
- DO I = 1, n_modelgrid
-  radius = model_grid(I)%rwind
-  angle = model_grid(I)%angle
+ DO ind_I = 1, n_modelgrid
+  radius = model_grid(ind_I)%rwind
+  angle = model_grid(ind_I)%angle
   sumr = sumr + (2.0 * pi * radius * cos(angle)) ** delta
  END DO
  suma = 0
- DO I = 1, n_modelgrid
-  radius = model_grid(I)%rwind
-  angle = model_grid(I)%angle
-  nOfPoints(I) = FLOOR(FLOAT(Nvirtpoint) * (2.0 * pi * radius * cos(angle)) ** delta / sumr)
-  suma = suma + nOfPoints(I)
+ DO ind_I = 1, n_modelgrid
+  radius = model_grid(ind_I)%rwind
+  angle = model_grid(ind_I)%angle
+  nOfPoints(ind_I) = FLOOR(FLOAT(Nvirtpoint) * (2.0 * pi * radius * cos(angle)) ** delta / sumr)
+  suma = suma + nOfPoints(ind_I)
   if(suma > Nvirtpoint) then
-   write(*,*) 'virtual_points: I = ', I, ' z ', n_modelgrid
+   write(*,*) 'virtual_points: I = ', ind_I, ' z ', n_modelgrid
    STOP 'suma > Nvirtpoint'
   end if
  END DO
@@ -128,8 +128,8 @@ CASE(2)
  NP = 0
  ! distribution of point on the shell of the radius R
  DO ind_I = 1, n_modelgrid
-  radius = model_grid(I)%rwind
-  np_shell = nOfPoints(I)
+  radius = model_grid(ind_I)%rwind
+  np_shell = nOfPoints(ind_I)
   !IF (np_shell == 0) STOP 'number of virtual point is small'
   DO ind_J = 1, np_shell
    NP = NP + 1
@@ -144,9 +144,9 @@ CASE(2)
 CASE(3)
  ALLOCATE(virtual_point(n_modelgrid))
  write(*,*) 'virtual_point: dim vp = ', SIZE(virtual_point)
- DO I = 1, n_modelgrid
-  virtual_point(I)%pos = model_grid(I)%vec_pos
-  virtual_point(I)%ind_mcell = I
+ DO ind_I = 1, n_modelgrid
+  virtual_point(ind_I)%pos = model_grid(ind_I)%vec_pos
+  virtual_point(ind_I)%ind_mcell = ind_I
  END DO
 CASE DEFAULT
  STOP 'wrong choice of input model dimension...'
@@ -155,28 +155,28 @@ END SELECT
 
 ! every virtual point is located in the basic cell, which index can be already estimated
 Npoint = SIZE(virtual_point)
-DO I = 1, Npoint
- pos = virtual_point(I)%pos
+DO ind_I = 1, Npoint
+ pos = virtual_point(ind_I)%pos
  width = dyn_cell(1)%width
  index_x = FLOOR(pos(1)/width(1) + DBLE(nx_cell)/2) + 1
  index_y = FLOOR(pos(2)/width(2) + DBLE(ny_cell)/2) + 1
  index_z = FLOOR(pos(3)/width(3) + DBLE(nz_cell)/2) + 1
  ind_cell_numb = (index_x - 1) * ny_cell * nz_cell + (index_y - 1) * nz_cell + index_z
- virtual_point(I)%ind_pcell = ind_cell_numb
+ virtual_point(ind_I)%ind_pcell = ind_cell_numb
  dyn_cell(ind_cell_numb)%n_virt = dyn_cell(ind_cell_numb)%n_virt + 1
 END DO
 
 ! sort virtual points by its number
-DO J = 2, Npoint
- I = J - 1
- A = virtual_point(J)%ind_pcell
- DO WHILE (I .GE. 1)
-  IF(virtual_point(I)%ind_pcell > A) THEN
-   dummy = virtual_point(I + 1)
-   virtual_point(I + 1) = virtual_point(I) 
-   virtual_point(I) = dummy
+DO ind_J = 2, Npoint
+ ind_I = ind_J - 1
+ A = virtual_point(ind_J)%ind_pcell
+ DO WHILE (ind_I .GE. 1)
+  IF(virtual_point(ind_I)%ind_pcell > A) THEN
+   dummy = virtual_point(ind_I + 1)
+   virtual_point(ind_I + 1) = virtual_point(ind_I) 
+   virtual_point(ind_I) = dummy
   END IF
-   I = I - 1
+   ind_I = ind_I - 1
  END DO
 END DO
 ! DO I = 1, Npoint
