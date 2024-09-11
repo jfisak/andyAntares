@@ -110,16 +110,17 @@ CASE(2)
  DO ind_I = 1, n_modelgrid
   radius = model_grid(ind_I)%rwind
   angle = model_grid(ind_I)%angle
-  sumr = sumr + (2.0 * const_pi * radius * cos(angle)) ** delta
+  sumr = sumr + (2.0 * const_pi * radius * sin(angle)) ** delta
  END DO
  suma = 0
  DO ind_I = 1, n_modelgrid
   radius = model_grid(ind_I)%rwind
   angle = model_grid(ind_I)%angle
-  nOfPoints(ind_I) = FLOOR(FLOAT(Nvirtpoint) * (2.0 * const_pi * radius * cos(angle)) ** delta / sumr)
+  nOfPoints(ind_I) = FLOOR(FLOAT(Nvirtpoint) * (2.0 * const_pi * radius * sin(angle)) ** delta / sumr)
   suma = suma + nOfPoints(ind_I)
   if(suma > Nvirtpoint) then
    write(*,*) 'virtual_points: I = ', ind_I, ' z ', n_modelgrid
+   write(*,*) 'virtual_points: suma = ', suma, ' Nvirtpoint = ', Nvirtpoint
    STOP 'suma > Nvirtpoint'
   end if
  END DO

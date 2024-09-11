@@ -3,8 +3,9 @@ SUBROUTINE main
   ! Propagate a bunch of photon packets through a stellar wind
 
 ! Use module types (modul.f90)
-  USE types
+USE types
 USE constants
+USE virt_gridAB
 
 
   IMPLICIT NONE
@@ -179,6 +180,7 @@ ELSE
  CALL connection_prop_model_grid()
  IF(debug == 3) write(*,*) 'prop and mod grids are connected'
 END IF ! saved propmod grid
+ CALL virt_gridAB_init()
  CALL propmodgrid_diagnostics()
 
 ! save propmod_grid?

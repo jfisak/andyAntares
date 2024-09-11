@@ -34,6 +34,7 @@ INTEGER                                 :: n_A, n_B
 INTEGER                                 :: n_in_cell
 INTEGER                                 :: n_zeros
 DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: cur_center_A, cur_center_B
+INTEGER, PARAMETER                      :: min_incell = 10
 
 INTEGER                                 :: cur_iter
 
@@ -41,7 +42,11 @@ DOUBLE PRECISION                        :: cur_x, cur_y, cur_z
 INTEGER                                 :: cur_n_x_A, cur_n_y_A, cur_n_z_A
 INTEGER                                 :: cur_n_x_B, cur_n_y_B, cur_n_z_B
 
+INTEGER                                 :: cur_vgi, cur_ind_sorted, cur_mgi
 
+INTEGER, ALLOCATABLE                    :: counter_A(:), counter_B(:)
+
+ n_in_cell = FLOOR((n_modelgrid/min_incell)**(1.0/3.0))
  IF(n_in_cell < 1) n_in_cell = 1
  
  N_vgrid_x = n_in_cell
@@ -97,6 +102,8 @@ INTEGER                                 :: cur_n_x_B, cur_n_y_B, cur_n_z_B
  !_______________________________________________________________
  ! calculation of the virGrid index
  DO cur_point = 1, n_modelgrid
+  IF(model_grid(cur_point)%assoc_cells == 0) CYCLE
+
   IF(model_type == 1) THEN
    cur_x = model_grid(cur_point)%rwind
    cur_y = 0.D0
@@ -180,44 +187,10 @@ INTEGER                                 :: cur_n_x_B, cur_n_y_B, cur_n_z_B
  !    #02            SORTING
  !_______________________________________________________________
  ! sort the vg_indexy according to the VG index
- DO cur_point = 2, n_modelgrid
-  cur_iter = cur_point - 1
- 
-  dummy_var_A = vg_indexy_A(cur_point,:)
- 
-  DO WHILE(cur_iter >= 1)
-   IF(vg_indexy_A(cur_iter,1) > dummy_var_A(1)) THEN
-    ! A grid
-    dummy_A = vg_indexy_A(cur_iter + 1,:)
-    vg_indexy_A(cur_iter + 1,:) = vg_indexy_A(cur_iter,:)
-    vg_indexy_A(cur_iter,:) = dummy_A
-   END IF
-   cur_iter = cur_iter - 1
-  END DO
- END DO
- 
- !_______________________________________________________________
- ! sort the vg_indexy according to the VG index
- DO cur_point = 2, n_modelgrid
-  cur_iter = cur_point - 1
-  dummy_var_B = vg_indexy_B(cur_point,:)
-  !_______________________________________________________________
-  DO WHILE(cur_iter >= 1)
-   IF(vg_indexy_B(cur_iter,1) > dummy_var_B(1)) THEN
-    ! B grid
-    dummy_B = vg_indexy_B(cur_iter + 1,:)
-    vg_indexy_B(cur_iter + 1,:) = vg_indexy_B(cur_iter,:)
-    vg_indexy_B(cur_iter,:) = dummy_B
-   END IF
-   cur_iter = cur_iter - 1
-  END DO
- END DO
- !_______________________________________________________________
- 
- !_______________________________________________________________
- ! index array
- !_______________________________________________________________
- 
+ write(*,*) 'virt_gridAB_init: started sorting A'
+ ! calculating number of points in each vg grid cell (A)
+ ! now we know where the indeces will be located, we set up an array
+ ! containing the initial indeces for all vg indeces
  cur_ind_A = 0
  cur_ind_B = n_zeros
  !_______________________________________________________________
@@ -231,6 +204,48 @@ INTEGER                                 :: cur_n_x_B, cur_n_y_B, cur_n_z_B
   indices_B(cur_vpg_cell) = cur_ind_B + 1
   cur_ind_B = cur_ind_B + n_points_B(cur_vpg_cell)
  END DO
+
+ counter_A = n_points_A
+ counter_B = n_points_B
+
+ DO cur_mgi = 1, n_modelgrid
+  ! A
+  cur_vgi = vg_indexy_A(cur_mgi, 1)
+  IF(counter_A(cur_vgi) > 0) THEN
+   cur_ind_sorted = indices_A(cur_vgi) + counter_A(cur_vgi) - 1
+  ELSE
+   write(*,*) 'virt_gridAB_init: sorting is not OK'
+   write(*,*) 'want to add a point of cur_vgi = ', cur_vgi
+   write(*,*) 'with no point left'
+   STOP 'virt_gridAB_init'
+  END IF
+  counter_A(cur_vgi) = counter_A(cur_vgi) - 1
+  ! B
+  cur_vgi = vg_indexy_B(cur_mgi, 1)
+  IF(counter_B(cur_vgi) > 0) THEN
+   cur_ind_sorted = indices_B(cur_vgi) + counter_B(cur_vgi) - 1
+  ELSE
+   write(*,*) 'virt_gridAB_init: sorting is not OK'
+   write(*,*) 'want to add a point of cur_vgi = ', cur_vgi
+   write(*,*) 'with no point left'
+   STOP 'virt_gridAB_init'
+  END IF
+  counter_B(cur_vgi) = counter_B(cur_vgi) - 1
+ END DO
+
+
+ write(*,*) 'virt_gridAB_init: ended sorting A'
+ 
+ !_______________________________________________________________
+ ! sort the vg_indexy according to the VG index
+ write(*,*) 'virt_gridAB_init: started sorting B'
+ !_______________________________________________________________
+ write(*,*) 'virt_gridAB_init: ended sorting B'
+ 
+ !_______________________________________________________________
+ ! index array
+ !_______________________________________________________________
+ 
 
  is_initialized = .true.
 
