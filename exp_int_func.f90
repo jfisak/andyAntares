@@ -31,8 +31,8 @@ CASE(2)
  nintervals = 1e4
  ALLOCATE(expintfunc(nintervals))
  ! coefficients of linear points describing the interval division
- al = (pi / 2 - atan(x))/(nintervals - 1)
- bl = (nintervals * atan(x) - pi / 2) / (nintervals - 1)
+ al = (const_pi / 2 - atan(x))/(nintervals - 1)
+ bl = (nintervals * atan(x) - const_pi / 2) / (nintervals - 1)
  
  DO I = 1, nintervals
   y = al * FLOAT(I) + bl

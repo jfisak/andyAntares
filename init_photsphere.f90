@@ -18,10 +18,10 @@ USE constants
   DOUBLE PRECISION                      :: R_bound, ran2
 
   destroyed_pack = 0
-  L_star = 4.D0*pi*(R_star)**2*sigma*T_eff**4
+  L_star = 4.D0*const_pi*(R_star)**2*sigma*T_eff**4
   write(99,*) 'init photsphere...'
   write(99,*) 'init_photsphere: R_star = ', R_star, ' T_eff = ', T_eff, ' L_star = ', L_star
-  !print*, L_star, pi, R_star/r_sun,sigma, T_eff
+  !print*, L_star, const_pi, R_star/r_sun,sigma, T_eff
 
   ! delete
   R_bound = R_star

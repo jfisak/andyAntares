@@ -36,14 +36,10 @@ DOUBLE PRECISION                                :: tau_line_2, tau_line_3
 INTEGER, PARAMETER                              :: max_n_of_velopackets = 200
 
 ! testing the optical depth in line calculation
-DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: rad_unit1, rad_unit2
-DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: vel_vec_1, vel_vec_2 
 INTEGER                                         :: cur_dummypack, dummypack_index
-                                                                        
-DOUBLE PRECISION                                :: delta_r, delta_v, deriv2
 
 ! the basic variables
-constanta = (pi * e_charge**2)/( me_g * light_speed)
+constanta = (const_pi * e_charge**2)/( me_g * light_speed)
 
 ! write(*,*) 'r_kappa_line: nnextlines = ', nnextlines
 

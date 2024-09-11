@@ -12,8 +12,6 @@ DOUBLE PRECISION                        :: cur_freq_rf, cur_freq_cmf
 
 DOUBLE PRECISION                        :: doppler
 
-INTEGER                                 :: cur_mgi
-
 CALL doppler_factor(pack_index, doppler)
 
 cur_freq_cmf = cur_freq_rf * doppler

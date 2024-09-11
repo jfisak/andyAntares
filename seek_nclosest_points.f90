@@ -1,4 +1,4 @@
-SUBROUTINE seek_nclosest_points(cur_pos, n_closest, interp_dist)
+SUBROUTINE seek_nclosest_points(cur_pos, n_closest, interp_dist, cur_n_points, cur_points)
 
 USE types
 IMPLICIT NONE
@@ -7,25 +7,21 @@ DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: cur_pos
 
 DOUBLE PRECISION, ALLOCATABLE           :: interp_dist(:,:), pom(:,:)
 
-INTEGER                                 :: chosen_gridAB
 INTEGER, PARAMETER                      :: grid_A = 1, grid_B = 2
-INTEGER, PARAMETER                      :: n_closest = 8
+INTEGER                                 :: n_closest
 INTEGER, PARAMETER                      :: ind_dist = 1, ind_index = 2
-DOUBLE PRECISION, DIMENSION(2)           :: cur_center_A, cur_center_B
 DOUBLE PRECISION, DIMENSION(3)          :: cur_mg_pos
-INTEGER                                 :: cur_start_index, cur_end_index, cur_n_points
+INTEGER                                 :: cur_n_points
 
-INTEGER                                 :: cur_nearest_point, cur_nop, cur_vg_index, cur_vg_point
+INTEGER                                 :: cur_nearest_point, cur_nop
 DOUBLE PRECISION                        :: dist
 LOGICAL                                 :: seeking, novyBod, nahrada
-INTEGER                                                 :: cur_index, cip, cur_index_pos
-INTEGER, ALLOCATABLE                    :: cur_points(:)
+INTEGER                                 :: cip, cur_index_pos
+INTEGER, DIMENSION(cur_n_points)        :: cur_points
 DOUBLE PRECISION                        :: dist_A, dist_B, dist_C
 ! INTEGER                                 :: cur_index_i
 
 DOUBLE PRECISION, PARAMETER             :: large_number = 1.D90
-
-DOUBLE PRECISION, DIMENSION(3)          :: vel_vector
 
 INTEGER                                 :: cur_iti_mgi
 INTEGER, DIMENSION(3)                                   :: n_coor, count_xyz
@@ -38,8 +34,6 @@ DOUBLE PRECISION, DIMENSION(3)                          :: vec_AB, vec_AC
 
 INTEGER, DIMENSION(3)                                   :: f_indexy, index_delete, mgi_indexy
 INTEGER                                                 :: cur_del_index, cur_mgi
-
-DOUBLE PRECISION                                        :: cur_r, cur_theta
 
 LOGICAL                                                 :: procout=.true.
 
@@ -204,6 +198,5 @@ DO cur_nearest_point = 1, cur_n_points ! #L00
  ! CALL vel_intp_choice(interp_dist, n_closest, 2, cur_pg_pos)
 END DO ! #L00 loop over all possible points
 
-DEALLOCATE(cur_points)
 
 END SUBROUTINE seek_nclosest_points

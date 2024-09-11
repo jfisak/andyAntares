@@ -1,7 +1,6 @@
 MODULE virt_gridAB
 
 USE types
-USE constants
 
 IMPLICIT NONE
 
@@ -19,17 +18,12 @@ DOUBLE PRECISION                        :: vg_xmin, vg_xmax, vg_ymin, vg_ymax, v
 
 LOGICAL                                 :: is_initialized = .false.
 
-
-
-!_____________________________________________________________________________________________
-! basic subroutines
-!_____________________________________________________________________________________________
 CONTAINS
-
 
 SUBROUTINE virt_gridAB_init()
 
  USE types
+ USE constants
  IMPLICIT NONE
 
 INTEGER, DIMENSION(2)                   :: dummy_var_A, dummy_var_B, dummy_A, dummy_B
@@ -79,8 +73,8 @@ INTEGER                                 :: cur_n_x_B, cur_n_y_B, cur_n_z_B
    vg_xmax = R_inf
    w_vgrid_x = (R_inf - R_star)/N_vgrid_x
    vg_ymin = 0.D0
-   vg_ymax = 2.D0 * pi
-   w_vgrid_y = pi/N_vgrid_y
+   vg_ymax = 2.D0 * const_pi
+   w_vgrid_y = const_pi/N_vgrid_y
    vg_zmin = zmin
    vg_zmax = zmax
    w_vgrid_z = 0.D0
@@ -241,7 +235,5 @@ INTEGER                                 :: cur_n_x_B, cur_n_y_B, cur_n_z_B
  is_initialized = .true.
 
 END SUBROUTINE virt_gridAB_init
-
-
 
 END MODULE virt_gridAB

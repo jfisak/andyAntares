@@ -7,8 +7,6 @@ IMPLICIT NONE
 INTEGER                                         :: I, J
 CHARACTER(LEN=60)                               :: propmod_file
 
-INTEGER                                         :: n_propgrid
-
 DOUBLE PRECISION, DIMENSION(3)                  :: pos, vel, width
 DOUBLE PRECISION                                :: rho, temp, volume, el_dens
 

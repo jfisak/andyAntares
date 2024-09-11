@@ -1,5 +1,9 @@
-! this procedure will choose a frequency using
+! this procedure will find frequencies for n_packs packets using
 ! acception/rejection method Monte Carlo
+!
+! INPUT: n_packs, INT -- number of packets
+! OUTPUT: freq, DBLE(n_packs) -- frequencies of packets with a chosen distribution
+!
 SUBROUTINE acc_rej_montecarlo(n_packs,freq)
 
 USE types
@@ -46,7 +50,6 @@ DO K = 1, n_packs
   !cosseed=INT(100*abs(cos(seed)))
   ran_freq = freq_min + (freq_max-freq_min)*sinseed
   ran_flux = cosseed*flux_max
-  !print*, 'random frequency and flux values: ', ran_freq, ran_flux
   ! now we have to say if this points are located under the flux curve
   ! how we do it? 
   ! 1.) find if the random frequency is on some point in the frequency file

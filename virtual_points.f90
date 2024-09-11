@@ -110,13 +110,13 @@ CASE(2)
  DO ind_I = 1, n_modelgrid
   radius = model_grid(ind_I)%rwind
   angle = model_grid(ind_I)%angle
-  sumr = sumr + (2.0 * pi * radius * cos(angle)) ** delta
+  sumr = sumr + (2.0 * const_pi * radius * cos(angle)) ** delta
  END DO
  suma = 0
  DO ind_I = 1, n_modelgrid
   radius = model_grid(ind_I)%rwind
   angle = model_grid(ind_I)%angle
-  nOfPoints(ind_I) = FLOOR(FLOAT(Nvirtpoint) * (2.0 * pi * radius * cos(angle)) ** delta / sumr)
+  nOfPoints(ind_I) = FLOOR(FLOAT(Nvirtpoint) * (2.0 * const_pi * radius * cos(angle)) ** delta / sumr)
   suma = suma + nOfPoints(ind_I)
   if(suma > Nvirtpoint) then
    write(*,*) 'virtual_points: I = ', ind_I, ' z ', n_modelgrid
@@ -133,7 +133,7 @@ CASE(2)
   !IF (np_shell == 0) STOP 'number of virtual point is small'
   DO ind_J = 1, np_shell
    NP = NP + 1
-   phi = 2.D0*pi*ran2(idum)
+   phi = 2.D0*const_pi*ran2(idum)
    theta = model_grid(ind_I)%angle
    virtual_point(NP)%pos(ind_x) = radius * cos(theta) * cos(phi)
    virtual_point(NP)%pos(ind_y) = radius * cos(theta) * sin(phi)

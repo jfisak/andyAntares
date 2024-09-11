@@ -7,8 +7,8 @@ USE constants
 IMPLICIT NONE
 
 
-DOUBLE PRECISION, DIMENSION(3)                  :: init_pos, end_pos
-DOUBLE PRECISION, DIMENSION(3)                  :: direction, cur_pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: init_pos, end_pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: direction, cur_pos
 DOUBLE PRECISION                                :: frequency
 LOGICAL                                         :: active
 INTEGER                                         :: cur_packet, cur_approx
@@ -127,9 +127,9 @@ DO WHILE(active)
   else if (bound_dist < 0.e0 .and. active) then
    CALL change_cell(cur_packet, next_cell)
   end if
- ELSE IF(cur_pos(1) < xmin .or. cur_pos(1) > xmax .or. &
-  cur_pos(2) < ymin .or. cur_pos(2) > ymax .or. &
-  cur_pos(3) < zmin .or. cur_pos(3) > zmax) THEN
+ ELSE IF(cur_pos(ind_x) < xmin .or. cur_pos(ind_x) > xmax .or. &
+  cur_pos(ind_y) < ymin .or. cur_pos(ind_y) > ymax .or. &
+  cur_pos(ind_z) < zmin .or. cur_pos(ind_z) > zmax) THEN
   write(*,*) 'calc_tau: calling propgrid_dist'
   CALL propgrid_dist(package(cur_packet), bound_dist)
  ELSE IF(cur_r < R_star) THEN

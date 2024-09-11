@@ -6,22 +6,6 @@ USE constants
 
 IMPLICIT NONE
  
-! variables for reading from a file
-INTEGER                                :: ios
-INTEGER, PARAMETER                     :: maxrows = 60000000
-DOUBLE PRECISION                          :: junk
-! loop variables
-INTEGER                                :: I, J
-! readen physical quantities
-DOUBLE PRECISION                       :: radius, perpend, dens, velrad, velang, temp
-INTEGER                                :: atom_number, numbions
-! calcultaion a stellar radius
-DOUBLE PRECISION                       :: act_radius, min_radius, max_radius
-DOUBLE PRECISION                       :: act_z, max_z
-INTEGER                                :: max_radius_index
-INTEGER                                :: vacuum
-
- ! write(*,*) 'read_2D_model: start'
  SELECT CASE (inputModel)
   ! reading data from Petr Kurfurst disc model
   ! these files are in this form:
@@ -40,5 +24,4 @@ INTEGER                                :: vacuum
    STOP 'unknown type of 2D model'
  END SELECT
 
- ! write(*,*) 'read_2D_model: reading was succesfull'
 END SUBROUTINE read_2D_model

@@ -15,7 +15,7 @@ INTEGER                                         :: ind_cell_numb
 DOUBLE PRECISION, DIMENSION(3)                  :: corner, width, pos
 DOUBLE PRECISION                                :: freq
 n_pack = SIZE(package) - 1
-L_star = 4.D0*pi*(R_star)**2*sigma*T_eff**4
+L_star = 4.D0*const_pi*(R_star)**2*sigma*T_eff**4
 SELECT CASE(abs_surface)
 ! creation of a new packet
 CASE(1)

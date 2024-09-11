@@ -62,9 +62,9 @@ CALL populations(indexe, indexi, indexl, cur_mgi, act_pop)
 ran_num = ran2(idum)
 ! ! calculation of initial frequency
 init_freq = (MINVAL(elements(indexe)%ions(indexi + 1)%levels(:)%exci_energy) - &
-       elements(indexe)%ions(indexi)%levels(indexl)%exci_energy) / h
+       elements(indexe)%ions(indexi)%levels(indexl)%exci_energy) / const_h
 ! write(*,*) 'k_freq_fb: el = ', indexe, ' ion = ', indexi, ' lev = ', indexl, &
-!  ' init_freq = ', init_freq, ' energy = ', init_freq * h / e_v
+!  ' init_freq = ', init_freq, ' energy = ', init_freq * const_h / e_v
 ! STOP 'k_freq_fb: testing'
 ! getting the first point
 !initPoint = 0
@@ -85,7 +85,7 @@ IF(initPoint == 0) STOP 'k_freq_fb: initPoint = 0'
 ! calculation of the first integral
 ! firstly filling the arrays
 DO I = 1, nfreq
- x = ( h * freq(I)) / ( BOLK * temp )
+ x = ( const_h * freq(I)) / ( BOLK * temp )
  func(I) = cross(I) * freq(I)**3.0 * exp(-x)
 END DO
 DO I = 1, nfreq - 1

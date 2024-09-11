@@ -5,12 +5,12 @@ USE types
 USE constants
 IMPLICIT NONE
 
-DOUBLE PRECISION, DIMENSION(3)                          :: obs_point, ccd_point, ccd_centre
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: obs_point, ccd_point, ccd_centre
 INTEGER                                                 :: cur_vpack
 INTEGER, PARAMETER                                      :: Nvpackets = 500
 ! number of packet flown into the photosphere
 INTEGER                                                 :: n_inside, n_outside
-DOUBLE PRECISION, DIMENSION(3)                          :: cur_pos, cur_direction
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: cur_pos, cur_direction
 DOUBLE PRECISION                                        :: wale_start, wale_end
 DOUBLE PRECISION                                        :: nu_min, nu_max, ran_freq
 DOUBLE PRECISION                                        :: ran2
@@ -23,9 +23,9 @@ LOGICAL                                                 :: procout=.false.
 INTEGER                                                 :: det_nu, det_nv, cur_ccd, det_tot_nuv
 INTEGER                                                 :: det_cur_nu, det_cur_nv, cur_nu
 DOUBLE PRECISION                                        :: det_lu, det_lv
-DOUBLE PRECISION, DIMENSION(3)                          :: det_vec_u, det_vec_v
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: det_vec_u, det_vec_v
 DOUBLE PRECISION                                        :: det_cell_wu, det_cell_wv
-DOUBLE PRECISION, DIMENSION(3)                          :: uvmin
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: uvmin
 DOUBLE PRECISION, ALLOCATABLE                           :: det_matrix(:,:), det_spectra(:,:)
 
 INTEGER                                                 :: my_ccd_start, my_ccd_end
@@ -70,23 +70,23 @@ write(48,*) ccd_centre
 obs_point = ccd_centre + obs_ccd_dist * ccd_centre/norm2(ccd_centre)
 write(48,*) obs_point
 
-ccdc_rad = sqrt(ccd_centre(1)**2+ccd_centre(2)**2+ccd_centre(3))
-ccdc_theta = acos(ccd_centre(3)/ccdc_rad)
+ccdc_rad = sqrt(ccd_centre(ind_x)**2+ccd_centre(ind_y)**2+ccd_centre(ind_z))
+ccdc_theta = acos(ccd_centre(ind_z)/ccdc_rad)
 write(*,*) 'brtm: ccdc_rad = ', ccdc_rad, ' ccdc_theta = ', ccdc_theta
 ! phi is more complicated to calculate
-IF(ccd_centre(1) > 0.0) THEN
- ccdc_phi = atan(ccd_centre(2)/ccd_centre(1))
-ELSE IF(ccd_centre(1) == 0.0) THEN
- IF(ccd_centre(2) > 0.0) THEN
-  ccdc_phi = pi/2.0
- ELSE IF(ccd_centre(2) < 0.0) THEN
-  ccdc_phi = -pi/2.0
+IF(ccd_centre(ind_x) > 0.0) THEN
+ ccdc_phi = atan(ccd_centre(ind_y)/ccd_centre(ind_x))
+ELSE IF(ccd_centre(ind_x) == 0.0) THEN
+ IF(ccd_centre(ind_y) > 0.0) THEN
+  ccdc_phi = const_pi/2.0
+ ELSE IF(ccd_centre(ind_y) < 0.0) THEN
+  ccdc_phi = -const_pi/2.0
  END IF
-ELSE IF(ccd_centre(1) < 0.0) THEN
- IF(ccd_centre(2) >= 0.0) THEN
-  ccdc_phi = atan(ccd_centre(2)/ccd_centre(1)) + pi
- ELSE IF(ccd_centre(2) < 0.0) THEN
-  ccdc_phi = atan(ccd_centre(2)/ccd_centre(1)) - pi
+ELSE IF(ccd_centre(ind_x) < 0.0) THEN
+ IF(ccd_centre(ind_y) >= 0.0) THEN
+  ccdc_phi = atan(ccd_centre(ind_y)/ccd_centre(ind_x)) + const_pi
+ ELSE IF(ccd_centre(ind_y) < 0.0) THEN
+  ccdc_phi = atan(ccd_centre(ind_y)/ccd_centre(ind_x)) - const_pi
  END IF
 END IF
 
@@ -138,7 +138,7 @@ DO cur_ccd = my_ccd_start, my_ccd_end
  ccd_point = uvmin + det_cell_wu * det_vec_u * (det_cur_nu - 0.5D0) + &
    & det_cell_wv * det_vec_v * (det_cur_nv - 0.5D0)
  
- write(*,*) 'brtm: ccd_point = ', ccd_point(2) - ccd_centre(2), ccd_point(3) - ccd_centre(3)
+ write(*,*) 'brtm: ccd_point = ', ccd_point(ind_y) - ccd_centre(ind_y), ccd_point(ind_z) - ccd_centre(ind_z)
 
  cur_direction = (ccd_point - obs_point)/norm2(ccd_point - obs_point)
  write(46,*) obs_point, ccd_point - obs_point

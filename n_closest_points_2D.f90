@@ -4,54 +4,43 @@
 ! INPUT: N_points, INT -- number of points
 ! OUTPUT: closest_points, INT(N_points) -- returns indeces of the points
 !
-SUBROUTINE n_closest_points_2D(cur_mgi_point, N_points, closest_points)
+SUBROUTINE n_closest_points_2D(cur_mgi, N_points, closest_points)
+
 
 USE types
 USE virt_gridAB
+IMPLICIT NONE
 
-INTEGER                                 :: cur_mgi_point
+INTEGER                                 :: N_points
+INTEGER, DIMENSION(N_points)            :: closest_points
 INTEGER, PARAMETER                      :: min_incell = 10
-
-INTEGER                                 :: cur_prop_cell
+DOUBLE PRECISION, DIMENSION(N_points, 2)        :: interp_dist
 
 DOUBLE PRECISION, PARAMETER             :: large_number = 1.D90
 
 INTEGER, ALLOCATABLE                    :: cur_points(:)
 INTEGER                                 :: cur_start_index, cur_end_index, cur_n_points
-DOUBLE PRECISION                        :: dist_A, dist_B, dist_C
+DOUBLE PRECISION                        :: dist_A, dist_B! , dist_C
 
 INTEGER, PARAMETER                      :: n_closest = 8
-DOUBLE PRECISION, ALLOCATABLE           :: interp_dist(:,:), pom(:,:)
 
 INTEGER                                 :: chosen_gridAB
 INTEGER, PARAMETER                      :: grid_A = 1, grid_B = 2
 INTEGER, PARAMETER                      :: ind_dist = 1, ind_index = 2
 DOUBLE PRECISION, DIMENSION(2)           :: cur_center_A, cur_center_B
 
-INTEGER                                 :: cur_nearest_point, cur_nop, cur_vg_index, cur_vg_point
-DOUBLE PRECISION                        :: dist
-LOGICAL                                 :: seeking, novyBod, nahrada
-INTEGER                                                 :: cur_index, cip, cur_index_pos
-! INTEGER                                 :: cur_index_i
+INTEGER                                 :: cur_vg_index, cur_vg_point
 
-DOUBLE PRECISION, DIMENSION(3)          :: vel_vector
+DOUBLE PRECISION                        :: cur_x, cur_y, cur_z
+DOUBLE PRECISION                        :: cur_n_x_A, cur_n_y_A!, cur_n_z_A
+DOUBLE PRECISION                        :: cur_n_x_B, cur_n_y_B! , cur_n_z_B
+INTEGER                                 :: n_A, n_B
 
-INTEGER                                 :: cur_iti_mgi
-INTEGER, DIMENSION(3)                                   :: n_coor, count_xyz
 INTEGER, PARAMETER                                      :: coor_x = 1, coor_y = 2, coor_z = 3
-DOUBLE PRECISION                                        :: cur_dist
 
-INTEGER                                                 :: cur_index_I, cur_index_J, cur_itj_mgi, cur_index_K
-DOUBLE PRECISION, DIMENSION(3)                          :: cur_saved_mg_pos_A, cur_saved_mg_pos_B
-DOUBLE PRECISION, DIMENSION(3)                          :: vec_AB, vec_AC
+INTEGER                                                 :: cur_mgi
 
-INTEGER, DIMENSION(3)                                   :: f_indexy, index_delete, mgi_indexy
-INTEGER                                                 :: cur_del_index, cur_mgi
-
-DOUBLE PRECISION                                        :: cur_r, cur_theta
 DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: cur_pos
-
-LOGICAL                                                 :: procout=.true.
 
 cur_x = model_grid(cur_mgi)%rwind
 cur_y = model_grid(cur_mgi)%angle
@@ -61,7 +50,7 @@ cur_pos = (/ cur_x, cur_y, cur_z/)
 ! calculation of the current grid indeces
 cur_n_x_A = floor((cur_pos(ind_x) - xmin)/w_vgrid_x) + 1
 cur_n_y_A = floor((cur_pos(ind_y) - ymin)/w_vgrid_y) + 1
-n_A = cur_n_x_A + N_vgrid_x * (cur_n_y_A - 1)! + N_vgrid_x * N_vgrid_y * (cur_n_z_A - 1)
+n_A = INT(cur_n_x_A + N_vgrid_x * (cur_n_y_A - 1))! + N_vgrid_x * N_vgrid_y * (cur_n_z_A - 1)
 cur_center_A = (/ w_vgrid_x * (cur_n_x_A + 5.D-1) + xmin, w_vgrid_y * (cur_n_y_A + 5.D-1) + ymin /)!, &
                  ! & w_vgrid_z * (cur_n_z_A + 5.D-1) + zmin /)
 
@@ -70,14 +59,14 @@ cur_center_A = (/ w_vgrid_x * (cur_n_x_A + 5.D-1) + xmin, w_vgrid_y * (cur_n_y_A
 !  #              CHOISE OF GRID A OR B
 !_______________________________________________________________
 ! the index in the AB grid
-n_A = cur_n_x_A + N_vgrid_x * (cur_n_y_A - 1) + N_vgrid_x * N_vgrid_y * (cur_n_z_A - 1)
+n_A = INT(cur_n_x_A + N_vgrid_x * (cur_n_y_A - 1))! + N_vgrid_x * N_vgrid_y * (cur_n_z_A - 1)
 cur_center_A = (/ w_vgrid_x * (cur_n_x_A + 5.D-1) + vg_xmin, w_vgrid_y * (cur_n_y_A + 5.D-1)/)
 
 IF(cur_pos(ind_x) > vg_xmin + w_vgrid_x / 2.0 .and. cur_pos(ind_x) < vg_xmax - w_vgrid_x /  2.0 .and.&
  & cur_pos(ind_y) > vg_ymin + w_vgrid_y / 2.0 .and. cur_pos(ind_y) < vg_ymax - w_vgrid_y /  2.0) THEN
  cur_n_x_B = floor((cur_pos(ind_x) - vg_xmin)/w_vgrid_x - 1.0/2.0) + 1
  cur_n_y_B = floor((cur_pos(ind_y) - vg_ymin)/w_vgrid_y - 1.0/2.0) + 1
- n_B = cur_n_x_B + (N_vgrid_x - 1) * (cur_n_y_B - 1)! + (N_vgrid_x - 1) * (N_vgrid_y - 1) * (cur_n_z_B - 1)
+ n_B = INT(cur_n_x_B + (N_vgrid_x - 1) * (cur_n_y_B - 1))! + (N_vgrid_x - 1) * (N_vgrid_y - 1) * (cur_n_z_B - 1)
  cur_center_B = (/ w_vgrid_x * (cur_n_x_A + 1.D0) + vg_xmin, w_vgrid_y * (cur_n_y_A + 1.D0) + vg_ymin /)!, &
                   ! & w_vgrid_z * (cur_n_z_A + 1.D0) + vg_zmin /)
 ELSE
@@ -114,9 +103,6 @@ ELSE
  cur_end_index = cur_start_index + cur_n_points - 1
 
  ! write(*,*) 'vel_interpolation: n_closest = ', n_closest
- ! interp_dist(I,J)
- ! interp_dist(:,1) -- distance
- ! interp_dist(:,2) -- index of the point
  ALLOCATE(cur_points(cur_n_points))
 
  cur_points = vg_indexy_B(cur_start_index:cur_end_index,2)
@@ -126,7 +112,7 @@ ELSE
  chosen_gridAB = grid_B
 END IF ! dist_A < dist_B
 
-CALL seek_nclosest_points(cur_pos, interp_dist)
+CALL seek_nclosest_points(cur_pos, N_points, interp_dist, cur_n_points, cur_points)
 
 
 

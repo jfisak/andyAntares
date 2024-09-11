@@ -44,7 +44,7 @@ freqs(:) = elements(indexe)%ions(indexi -1)%levels(indexl)%photcros(1,:)
 css(:) = elements(indexe)%ions(indexi -1)%levels(indexl)%photcros(2,:)
 
 freqt = (MINVAL(elements(indexe)%ions(indexI)%levels(:)%exci_energy) - &
- elements(indexe)%ions(indexi - 1)%levels(indexl)%exci_energy) / h
+ elements(indexe)%ions(indexi - 1)%levels(indexl)%exci_energy) / const_h
 ! write(*,*) 'i_freq_recomb: phfreq1 = ', elements(indexe)%ions(indexi - 1)%levels(indexl)%phfreq,&
 ! ' phfreq2 = ', freqt
 ! ran_frequency = freqt
@@ -76,14 +76,14 @@ rand_z = ran2(idum)
 ! saving field of exponentials, it will speed up the calculation procedure
 DO I=1,n_points
  act_freq = freqs(I)
- exps(I) = exp(-( h * act_freq ) / ( BOLK * temp ))
+ exps(I) = exp(-( const_h * act_freq ) / ( BOLK * temp ))
  ! write(*,*) 'exps(I) = ', exps(I)
 END DO
 ! calculation of the integral value
 act_sum = 0.D0
 ints(Istart) = 0.D0
 DO I=Istart,n_points - 1
- act_value = 2.D0  * h / light_speed**2 *&
+ act_value = 2.D0  * const_h / light_speed**2 *&
   (css(I + 1) * freqs(I + 1)**3 * exps( I + 1) + css(I) * freqs(I)**3 * exps(I)) &
   * (freqs(I + 1) - freqs(I)) / 2.D0
  ints(I + 1) = act_sum + act_value

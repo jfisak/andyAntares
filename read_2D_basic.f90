@@ -19,7 +19,6 @@ DOUBLE PRECISION                       :: act_radius, min_radius, max_radius
 DOUBLE PRECISION                       :: act_z, max_z
 INTEGER                                :: max_radius_index
 INTEGER                                :: vacuum
-INTEGER                                 :: cur_mgi
 
 DOUBLE PRECISION                        :: unit_length, unit_velocity, unit_density
 

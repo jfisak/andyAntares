@@ -6,7 +6,6 @@ USE constants
 
       IMPLICIT NONE 
 
-!      DOUBLE PRECISION, PARAMETER      :: pi=3.1415926535897932D0 
       DOUBLE PRECISION                 :: sint, cost, sinp, cosp, phi, ran2
       DOUBLE PRECISION, DIMENSION(3)   :: direction
 !      INTEGER                          :: idum
@@ -14,8 +13,8 @@ USE constants
 
       cost=2.D0*ran2(idum) - 1.D0
       sint=SQRT(1.D0 - cost*cost)
-      !phi=2.D0*pi*ran2(idum)
-      phi=2.D0*pi*ran2(idum)
+      !phi=2.D0*const_pi*ran2(idum)
+      phi=2.D0*const_pi*ran2(idum)
       cosp=COS(phi)
       sinp=SIN(phi)
       direction(1)=sint*cosp

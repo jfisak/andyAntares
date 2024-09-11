@@ -65,7 +65,7 @@ INTEGER                                 :: cur_index_I
 !________________________________________________________________________________
 ! #11
 INTEGER                                         :: Nx_cov, Ny_cov, Nz_cov, ind_I, ind_J
-DOUBLE PRECISION                                :: x_cov, z_cov, cur_physvar
+DOUBLE PRECISION                                :: x_cov, z_cov
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: cur_pos
 REAL, ALLOCATABLE                               :: coverage_matrix_T(:,:), coverage_matrix_rho(:,:), &
                                                    coverage_matrix_v(:,:)
@@ -473,9 +473,9 @@ ELSE IF(dyngrid > 0) THEN
  width(ind_x) = MINVAL(dyn_cell(:)%width(ind_x))
  width(ind_y) = MINVAL(dyn_cell(:)%width(ind_y))
  width(ind_z) = MINVAL(dyn_cell(:)%width(ind_z))
- Nx_cov = (xmax - xmin)/width(ind_x)
- Ny_cov = (ymax - ymin)/width(ind_y)
- Nz_cov = (zmax - zmin)/width(ind_z)
+ Nx_cov = INT((xmax - xmin)/width(ind_x))
+ Ny_cov = INT((ymax - ymin)/width(ind_y))
+ Nz_cov = INT((zmax - zmin)/width(ind_z))
 END IF
 x_cov = 0.D0
 z_cov = 0.D0

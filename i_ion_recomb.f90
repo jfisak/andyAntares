@@ -94,7 +94,7 @@ DO indexe = 1, n_elements
    freq(1:npoints) = elements(indexe)%ions(indexi)%levels(indexl)%photcros(1,1:npoints)
    cross(1:npoints) = elements(indexe)%ions(indexi)%levels(indexl)%photcros(2,1:npoints)
    freqt = (MINVAL(elements(indexe)%ions(indexi + 1)%levels(:)%exci_energy) - &
-    elements(indexe)%ions(indexi)%levels(indexl)%exci_energy) / h
+    elements(indexe)%ions(indexi)%levels(indexl)%exci_energy) / const_h
    ! looking for starting point
    Istart = 0
    DO I = 1, npoints
@@ -115,16 +115,16 @@ DO indexe = 1, n_elements
     cur_temp = i_temps(index_temp)
     DO I = Istart, npoints 
      flux = flux_function(0,freq(I), cur_temp, R_star)
-     x = h * freq(I) / (BOLK * cur_temp)
-    ! func(I) = cross(I) * flux / ( h * freq(I))
-     func1(I - Istart + 1) = flux * cross(I) / (h * freq(I)) * (1.0 - exp(-x))
-     func2(I - Istart + 1) = cross(I) / (h * freq(I)) * &
-      (2.0 * h * freq(I)**3.0) / light_speed**2.0 * exp(-x)
+     x = const_h * freq(I) / (BOLK * cur_temp)
+    ! func(I) = cross(I) * flux / ( const_h * freq(I))
+     func1(I - Istart + 1) = flux * cross(I) / (const_h * freq(I)) * (1.0 - exp(-x))
+     func2(I - Istart + 1) = cross(I) / (const_h * freq(I)) * &
+      (2.0 * const_h * freq(I)**3.0) / light_speed**2.0 * exp(-x)
      ! func3(I - Istart + 1) = cross(I) * &
-     !  (2.0 * h * freq(I)**3.0) / light_speed**2.0 * exp(-x)
+     !  (2.0 * const_h * freq(I)**3.0) / light_speed**2.0 * exp(-x)
     ! write(*,*) 'i_ion_recomb: J = ', I - Istart + 1
     ! write(*,*)  'flux = ', flux, ' cross(I) = ', cross(I), ' func1(J) = ', func1(I - Istart + 1), &
-    !  ' func2(J) = ', func2(I - Istart + 1), ' h * freq = ', h * freq(I)
+    !  ' func2(J) = ', func2(I - Istart + 1), ' const_h * freq = ', const_h * freq(I)
     END DO ! integral calculation
     summ1 = 0.D0
     summ2 = 0.D0
@@ -140,8 +140,8 @@ DO indexe = 1, n_elements
     iints(act_int)%indexe = indexe
     iints(act_int)%indexi = indexi
     iints(act_int)%indexl = indexl
-    iints(act_int)%gammaijk(index_temp) = 4.D0 * pi * summ1 
-    iints(act_int)%alphaijk(index_temp) = 4.D0 * pi * summ2 * sfactor
+    iints(act_int)%gammaijk(index_temp) = 4.D0 * const_pi * summ1 
+    iints(act_int)%alphaijk(index_temp) = 4.D0 * const_pi * summ2 * sfactor
     ! iints(act_int)%etaijk(index_temp) = summ3
     ! write(*,*) 'i_ion_recomb: gamma = ', iints(act_int)%gammaijk(index_temp)
     ! write(*,*) 'i_ion_recomb: act_int = ', act_int, ' index_temp = ', index_temp, ' alpha = ', iints(act_int)%alphaijk(index_temp)

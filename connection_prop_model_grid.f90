@@ -16,9 +16,6 @@ INTEGER                        :: max_n_dcell
 DOUBLE PRECISION               :: delta, delta2
 ! radial and vertical distance
 DOUBLE PRECISION               :: r, z, r0, phi, phi0
-! volume of model cell
-DOUBLE PRECISION               :: loc_volume
-INTEGER                        :: gridcell
 
 DOUBLE PRECISION, DIMENSION(3) :: cur_center
 DOUBLE PRECISION               :: dist
@@ -33,10 +30,11 @@ INTEGER                         :: n_virtpoints
 INTEGER                         :: up_cell, cur_lowcell
   
 INTEGER, ALLOCATABLE            :: list_index(:)
-INTEGER                         :: last_index, new_index
+INTEGER                         :: new_index
 INTEGER                         :: n_bas_pcell
 
 INTEGER                         :: cur_bpgi
+INTEGER                         :: cur_neighbour, last_index
 DOUBLE PRECISION, DIMENSION(3)  :: cur_pos
 
 INTEGER                         :: down_cell
@@ -45,7 +43,7 @@ INTEGER                         :: cur_vp_nearest, cur_vp_index
 INTEGER                         :: act_pgcell, cur_vp, cur_mgi
 
 INTEGER                         :: count_vacuum, count_out, count_in, count_ok
-INTEGER                         :: cur_neighbour, cur_n_mgi
+INTEGER                         :: cur_n_mgi
 
 ! parallelization
 INTEGER                         :: my_start, my_end

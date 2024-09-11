@@ -10,7 +10,7 @@ USE constants
 
  INTEGER                           :: pack_index, next_cell
  ! DOUBLE PRECISION                  :: event_dist
- DOUBLE PRECISION, DIMENSION(3)         :: pos
+ DOUBLE PRECISION, DIMENSION(const_dimofspace)         :: pos
 
 INTEGER                                 :: old_cell, next_mgi
 INTEGER                                 :: dummypackage

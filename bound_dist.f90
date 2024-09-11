@@ -1,3 +1,16 @@
+! calculates the distance to the closest propGrid cell boundary which a packet
+! firstly crosses, there are implemented severral numerical corrections in this
+! sbr: a correction againts double crossing the same boundary (without scattering)
+! and other numerical problems
+! except a calculation of the distance it also sets a forbidden boundary of the packet
+! in the case of problems with the packet propagation, there are several diagnostics numbers:
+! it analyzes distances and counts, how many are positive, negative and zero, based on this
+! analysis, the sbr chooses a treatment
+! 
+! INPUT: pack_index, INT -- index of a packet
+!        cell_numb, INT -- index of the current propGrid cell
+! OUTPUT: dist, DBLE -- calculated distance
+!
 SUBROUTINE bound_dist(pack_index, cell_numb, dist)
 
 USE types
@@ -12,8 +25,8 @@ INTEGER                         :: pack_index, cell_numb
 DOUBLE PRECISION                :: dist
 ! variables for dynamic cells
 DOUBLE PRECISION                :: tnegx, tnegy, tnegz, tposx, tposy, tposz
-DOUBLE PRECISION, DIMENSION(3)  :: corner, width
-DOUBLE PRECISION, DIMENSION(3)  :: dir, pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)  :: corner, width
+DOUBLE PRECISION, DIMENSION(const_dimofspace)  :: dir, pos
 INTEGER                         :: forbidden
 DOUBLE PRECISION, PARAMETER     :: minie = 1e1
 
@@ -42,9 +55,9 @@ pos = package(pack_index)%pos
 forbidden = package(pack_index)%next_cross
 
 ! we will calculate parameters tnegx, ..., tposz
-IF(dir(1) /= 0) THEN
- tnegx = (corner(1) - pos(1))/(dir(1))
- tposx = (corner(1) + width(1) - pos(1))/(dir(1))
+IF(dir(ind_x) /= 0) THEN
+ tnegx = (corner(ind_x) - pos(ind_x))/(dir(ind_x))
+ tposx = (corner(ind_x) + width(ind_x) - pos(ind_x))/(dir(ind_x))
  IF(tnegx > 0) n_pos = n_pos + 1
  IF(tposx > 0) n_pos = n_pos + 1
  IF(tnegx < 0) n_neg = n_neg + 1
@@ -56,9 +69,9 @@ ELSE
  tposx = -velkeCislo
  n_par = n_par + 2
 END IF
-IF(dir(2) /= 0) THEN
- tnegy = (corner(2) - pos(2))/(dir(2))
- tposy = (corner(2) + width(2) - pos(2))/(dir(2))
+IF(dir(ind_y) /= 0) THEN
+ tnegy = (corner(ind_y) - pos(ind_y))/(dir(ind_y))
+ tposy = (corner(ind_y) + width(ind_y) - pos(ind_y))/(dir(ind_y))
  IF(tnegy > 0) n_pos = n_pos + 1
  IF(tposy > 0) n_pos = n_pos + 1
  IF(tnegy < 0) n_neg = n_neg + 1
@@ -70,9 +83,9 @@ ELSE
  tposy = -velkeCislo
  n_par = n_par + 2
 END IF
-IF(dir(3) /= 0) THEN
- tnegz = (corner(3) - pos(3))/(dir(3))
- tposz = (corner(3) + width(3) - pos(3))/(dir(3))
+IF(dir(ind_z) /= 0) THEN
+ tnegz = (corner(ind_z) - pos(ind_z))/(dir(ind_z))
+ tposz = (corner(ind_z) + width(ind_z) - pos(ind_z))/(dir(ind_z))
  IF(tnegz > 0) n_pos = n_pos + 1
  IF(tposz > 0) n_pos = n_pos + 1
  IF(tnegz < 0) n_neg = n_neg + 1
@@ -151,32 +164,32 @@ END IF
 IF(n_neg > 3) THEN
  dist = velkeCislo
  ! calculation of perpendicular distance to propGrid cell surfaces
- tnegx = pos(1) - corner(1)
+ tnegx = pos(ind_x) - corner(ind_x)
  if(abs(tnegx) < dist) then
   dist = abs(tnegx)
   package(pack_index)%next_cross = negx
  end if
- tposx = pos(1) - corner(1) - width(1)
+ tposx = pos(ind_x) - corner(ind_x) - width(ind_x)
  if(abs(tposx) < dist) then
   dist = abs(tposx)
   package(pack_index)%next_cross = posx
  end if
- tnegy = pos(2) - corner(2)
+ tnegy = pos(ind_y) - corner(ind_y)
  if(abs(tnegy) < dist) then
   dist = abs(tnegy)
   package(pack_index)%next_cross = negy
  end if
- tposy = pos(2) - corner(2) - width(2)
+ tposy = pos(ind_y) - corner(ind_y) - width(ind_y)
  if(abs(tposy) < dist) then
   dist = abs(tposy)
   package(pack_index)%next_cross = posy
  end if
- tnegz = pos(3) - corner(3)
+ tnegz = pos(ind_z) - corner(ind_z)
  if(abs(tnegz) < dist) then
   dist = abs(tnegz)
   package(pack_index)%next_cross = negz
  end if
- tposz = pos(3) - corner(3) - width(3)
+ tposz = pos(ind_z) - corner(ind_z) - width(ind_z)
  if(abs(tposz) < dist) then
   dist = abs(tposz)
   package(pack_index)%next_cross = posz

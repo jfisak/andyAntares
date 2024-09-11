@@ -47,7 +47,7 @@ DO pack_index = 1, n_pack
   IF ((freq .GT. nu_min) .AND. (freq .LT. nu_max)) THEN
    nubin = floor( (freq - nu_min) / delta_nu ) + 1
    ! put the star to 100 parsecs
-   delta_e = (package(pack_index)%e_rf / delta_nu)! / (4.D0 * pi * (1.D2 * parsec)**2)
+   delta_e = (package(pack_index)%e_rf / delta_nu)! / (4.D0 * const_pi * (1.D2 * parsec)**2)
    ! write(*,*) 'do_spectrum: e_rf = ', package(pack_index)%e_rf
    specflux(nubin) = specflux(nubin) + delta_e
    escs(nubin) = escs(nubin) + 1
@@ -58,7 +58,7 @@ END DO
 
 ! DO I = 1, n_nubin
 !     frequency = spectrum(I)%freq
-!     planck =( 2.D0 * h * frequency**3 / light_speed**2  ) * (  1.D0 / ( EXP( (h * frequency) / (BOLK * T_eff) ) - 1.D0 )  )
+!     planck =( 2.D0 * const_h * frequency**3 / light_speed**2  ) * (  1.D0 / ( EXP( (const_h * frequency) / (BOLK * T_eff) ) - 1.D0 )  )
 !     WRITE(19,*)  frequency, spectrum(I)%flux, spectrum(I)%esc, planck
 ! END DO
 
@@ -81,8 +81,8 @@ END DO
   DO I = 1, n_nubin  
    lambda = ls_A / freqs(I)
    flambda = specflux(I) * ( ls_A / lambda**2 )
-   planck = ( 2.D0 * h * ls_A**2 / lambda**5 ) * &
-    ( 1.D0 / ( EXP( h * ls_A / (lambda * BOLK * T_eff) ) - 1.D0) )
+   planck = ( 2.D0 * const_h * ls_A**2 / lambda**5 ) * &
+    ( 1.D0 / ( EXP( const_h * ls_A / (lambda * BOLK * T_eff) ) - 1.D0) )
    ! write(99,*) 'do_spectrum: lambda = ', lambda, ' flux = ', flambda
    write(19,*) lambda, flambda, planck, flambda/planck, escs(I)
   END DO

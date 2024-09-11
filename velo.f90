@@ -11,15 +11,15 @@ INTEGER                           :: pack_index
 DOUBLE PRECISION                  :: vel_radial, vec_length
 DOUBLE PRECISION, DIMENSION(3)    :: vel_vec, pack_position
 ! Petr Kurfurst's disk model variables
-INTEGER                           :: pack_mi, get_package_model_index
-DOUBLE PRECISION, DIMENSION(3)    :: vel_rad, vel_ang
-DOUBLE PRECISION                  :: vel_rad_norm, vel_ang_norm
+! INTEGER                           :: pack_mi, get_package_model_index
+! DOUBLE PRECISION, DIMENSION(3)    :: vel_rad, vel_ang
+! DOUBLE PRECISION                  :: vel_rad_norm, vel_ang_norm
 DOUBLE PRECISION                  :: r_pos
 
 LOGICAL, PARAMETER                :: velocityTesting = .true.
 INTEGER, PARAMETER                :: max_n_of_velopackets = 200
 
-INTEGER                            :: cur_mgi, cur_dummy_index
+INTEGER                            :: cur_dummy_index
 
 
 ! dosti nelogické využívání dvakrát té stejné proměnné...
