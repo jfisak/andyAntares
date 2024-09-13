@@ -5,7 +5,8 @@ IMPLICIT NONE
 
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: cur_pos
 
-DOUBLE PRECISION, ALLOCATABLE           :: interp_dist(:,:), pom(:,:)
+DOUBLE PRECISION, ALLOCATABLE           :: pom(:,:)
+DOUBLE PRECISION, DIMENSION(n_closest, 2) :: interp_dist
 
 INTEGER, PARAMETER                      :: grid_A = 1, grid_B = 2
 INTEGER                                 :: n_closest
@@ -43,7 +44,6 @@ LOGICAL                                                 :: procout=.true.
  ! interp_dist(I,J)
  ! interp_dist(:,1) -- distance
  ! interp_dist(:,2) -- index of the point
-ALLOCATE(interp_dist(n_closest,ind_index), pom(n_closest, ind_index))
 interp_dist(:,ind_dist) = large_number
 interp_dist(:,ind_index) = 0.D0
 seeking = .TRUE.

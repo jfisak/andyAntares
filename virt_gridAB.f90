@@ -12,6 +12,7 @@ INTEGER, ALLOCATABLE                    :: n_points_A(:), n_points_B(:), &
 DOUBLE PRECISION                        :: w_vgrid_x, w_vgrid_y, w_vgrid_z
 
 INTEGER, ALLOCATABLE                    :: vg_indexy_A(:,:), vg_indexy_B(:,:)
+INTEGER, ALLOCATABLE                    :: vg_pom_A(:,:), vg_pom_B(:,:)
 
 
 DOUBLE PRECISION                        :: vg_xmin, vg_xmax, vg_ymin, vg_ymax, vg_zmin, vg_zmax
@@ -36,7 +37,7 @@ INTEGER                                 :: n_zeros
 DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: cur_center_A, cur_center_B
 INTEGER, PARAMETER                      :: min_incell = 10
 
-INTEGER                                 :: cur_iter
+INTEGER                                 :: cur_iter, cur_index_mgi
 
 DOUBLE PRECISION                        :: cur_x, cur_y, cur_z
 INTEGER                                 :: cur_n_x_A, cur_n_y_A, cur_n_z_A
@@ -45,10 +46,17 @@ INTEGER                                 :: cur_n_x_B, cur_n_y_B, cur_n_z_B
 INTEGER                                 :: cur_vgi, cur_ind_sorted, cur_mgi
 
 INTEGER, ALLOCATABLE                    :: counter_A(:), counter_B(:)
+INTEGER                                 :: n_assoc
 
  n_in_cell = FLOOR((n_modelgrid/min_incell)**(1.0/3.0))
  IF(n_in_cell < 1) n_in_cell = 1
  
+ ! we allocate arays only for modGrid cells associated to at least one propGrid cell
+ n_assoc = 0
+ DO cur_mgi = 1, n_modelgrid
+  IF(model_grid(cur_mgi)%assoc_cells > 0) n_assoc = n_assoc + 1
+ END DO
+ write(*,*) 'virt_gridAB_init: n_assoc = ', n_assoc
  N_vgrid_x = n_in_cell
  N_vgrid_y = n_in_cell
  N_vgrid_z = n_in_cell
@@ -56,7 +64,8 @@ INTEGER, ALLOCATABLE                    :: counter_A(:), counter_B(:)
  N_vgrid_cells_B = (N_vgrid_x - 1) * (N_vgrid_y - 1) * (N_vgrid_z - 1)
  ALLOCATE(n_points_A(N_vgrid_cells_A), n_points_B(N_vgrid_cells_B))
  ALLOCATE(indices_A(N_vgrid_cells_A), indices_B(N_vgrid_cells_B))
- ALLOCATE(vg_indexy_A(n_modelgrid, 2), vg_indexy_B(n_modelgrid, 2))
+ ALLOCATE(vg_indexy_A(n_assoc, 2), vg_indexy_B(n_assoc, 2))
+ ALLOCATE(vg_pom_A(n_assoc, 2), vg_pom_B(n_assoc, 2))
  n_points_A(:) = 0
  n_points_B(:) = 0
  n_zeros = 0
@@ -101,8 +110,10 @@ INTEGER, ALLOCATABLE                    :: counter_A(:), counter_B(:)
  !   #01        CALCULATE VG INDEX OF MG CELLS
  !_______________________________________________________________
  ! calculation of the virGrid index
+ cur_index_mgi = 0
  DO cur_point = 1, n_modelgrid
-  IF(model_grid(cur_point)%assoc_cells == 0) CYCLE
+  IF(model_grid(cur_point)%assoc_cells <= 0) CYCLE
+  cur_index_mgi = cur_index_mgi + 1
 
   IF(model_type == 1) THEN
    cur_x = model_grid(cur_point)%rwind
@@ -152,8 +163,9 @@ INTEGER, ALLOCATABLE                    :: counter_A(:), counter_B(:)
   ! n_points -- number of points for the given cell
   n_points_A(n_A) = n_points_A(n_A) + 1
   ! vg_indexy -- list of indeces model grid --> VG index point
-  vg_indexy_A(cur_point, 1) = n_A
-  vg_indexy_A(cur_point, 2) = cur_point
+  write(*,*) 'virt_gridAB_init: n_A( ', cur_index_mgi, ') = ', n_A
+  vg_indexy_A(cur_index_mgi, 1) = n_A
+  vg_indexy_A(cur_index_mgi, 2) = cur_point
   !!!!!!!!
   ! repete for the B grid
   IF(cur_x > vg_xmin + w_vgrid_x/2.0 .and. cur_x < vg_xmax - w_vgrid_x/2.0 .and.&
@@ -174,11 +186,11 @@ INTEGER, ALLOCATABLE                    :: counter_A(:), counter_B(:)
    END IF
    n_B = cur_n_x_B + (N_vgrid_x - 1) * (cur_n_y_B - 1) + (N_vgrid_x - 1) * (N_vgrid_y - 1) * (cur_n_z_B - 1)
    n_points_B(n_B) = n_points_B(n_B) + 1
-   vg_indexy_B(cur_point, 1) = n_B
-   vg_indexy_B(cur_point, 2) = cur_point
+   vg_indexy_B(cur_index_mgi, 1) = n_B
+   vg_indexy_B(cur_index_mgi, 2) = cur_point
   ELSE
-   vg_indexy_B(cur_point, 1) = 0
-   vg_indexy_B(cur_point, 2) = cur_point
+   vg_indexy_B(cur_index_mgi, 1) = 0
+   vg_indexy_B(cur_index_mgi, 2) = cur_point
    n_zeros = n_zeros + 1
   END IF
  END DO
@@ -208,11 +220,14 @@ INTEGER, ALLOCATABLE                    :: counter_A(:), counter_B(:)
  counter_A = n_points_A
  counter_B = n_points_B
 
+
  DO cur_mgi = 1, n_modelgrid
+  IF(model_grid(cur_point)%assoc_cells == 0) CYCLE
   ! A
   cur_vgi = vg_indexy_A(cur_mgi, 1)
   IF(counter_A(cur_vgi) > 0) THEN
    cur_ind_sorted = indices_A(cur_vgi) + counter_A(cur_vgi) - 1
+   vg_pom_A(cur_ind_sorted,:) = vg_indexy_A(cur_mgi,:)
   ELSE
    write(*,*) 'virt_gridAB_init: sorting is not OK'
    write(*,*) 'want to add a point of cur_vgi = ', cur_vgi
@@ -224,6 +239,7 @@ INTEGER, ALLOCATABLE                    :: counter_A(:), counter_B(:)
   cur_vgi = vg_indexy_B(cur_mgi, 1)
   IF(counter_B(cur_vgi) > 0) THEN
    cur_ind_sorted = indices_B(cur_vgi) + counter_B(cur_vgi) - 1
+   vg_pom_B(cur_ind_sorted,:) = vg_indexy_B(cur_mgi,:)
   ELSE
    write(*,*) 'virt_gridAB_init: sorting is not OK'
    write(*,*) 'want to add a point of cur_vgi = ', cur_vgi
@@ -233,6 +249,8 @@ INTEGER, ALLOCATABLE                    :: counter_A(:), counter_B(:)
   counter_B(cur_vgi) = counter_B(cur_vgi) - 1
  END DO
 
+ vg_indexy_A = vg_pom_A
+ vg_indexy_B = vg_pom_B
 
  write(*,*) 'virt_gridAB_init: ended sorting A'
  

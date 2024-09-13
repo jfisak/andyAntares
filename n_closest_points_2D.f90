@@ -61,11 +61,11 @@ cur_center_A = (/ w_vgrid_x * (cur_n_x_A + 5.D-1) + vg_xmin, w_vgrid_y * (cur_n_
 ! the index in the AB grid
 n_A = INT(cur_n_x_A + N_vgrid_x * (cur_n_y_A - 1))! + N_vgrid_x * N_vgrid_y * (cur_n_z_A - 1)
 cur_center_A = (/ w_vgrid_x * (cur_n_x_A + 5.D-1) + vg_xmin, w_vgrid_y * (cur_n_y_A + 5.D-1)/)
-write(*,*) 'n_closest_points_2D: cur_pos = ', cur_pos
-write(*,*) 'n_closest_points_2D: w_vgrid_x = ', w_vgrid_x, ' w_vgrid_y = ', w_vgrid_y
-write(*,*) 'n_closest_points_2D: vg_xmin = ', vg_xmin, ' vg_ymin = ', vg_ymin
-write(*,*) 'n_closest_points_2D: cur_n_x_A = ', cur_n_x_A, ' cur_n_y_A = ', cur_n_y_A
-write(*,*) 'n_closest_points_2D: n_A = ', n_A
+! write(*,*) 'n_closest_points_2D: cur_pos = ', cur_pos
+! write(*,*) 'n_closest_points_2D: w_vgrid_x = ', w_vgrid_x, ' w_vgrid_y = ', w_vgrid_y
+! write(*,*) 'n_closest_points_2D: vg_xmin = ', vg_xmin, ' vg_ymin = ', vg_ymin
+! write(*,*) 'n_closest_points_2D: cur_n_x_A = ', cur_n_x_A, ' cur_n_y_A = ', cur_n_y_A
+! write(*,*) 'n_closest_points_2D: n_A = ', n_A
 
 IF(cur_pos(ind_x) > vg_xmin + w_vgrid_x / 2.0 .and. cur_pos(ind_x) < vg_xmax - w_vgrid_x /  2.0 .and.&
  & cur_pos(ind_y) > vg_ymin + w_vgrid_y / 2.0 .and. cur_pos(ind_y) < vg_ymax - w_vgrid_y /  2.0) THEN
@@ -119,7 +119,8 @@ END IF ! dist_A < dist_B
 
 CALL seek_nclosest_points(cur_pos, N_points, interp_dist, cur_n_points, cur_points)
 
-
+write(*,*) 'n_closest_points_2D: interp_dist = ', interp_dist
+STOP 'n_closest_points_2D: testing'
 
 
 

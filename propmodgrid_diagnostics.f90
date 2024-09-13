@@ -55,8 +55,7 @@ rel_coverage = real(n_assoc) / real(n_modelgrid)
 n_plusone = model_grid(n_modelgrid + 1)%assoc_cells
 IF(add_mg == 2) THEN
  n_plustwo = model_grid(n_modelgrid + add_mg)%assoc_cells
-END IF
-IF(add_mg == 3) THEN
+ELSE IF(add_mg == 3) THEN
  n_plustwo = model_grid(n_modelgrid + 2)%assoc_cells
  n_plusthree = model_grid(n_modelgrid + add_mg)%assoc_cells
 END IF
