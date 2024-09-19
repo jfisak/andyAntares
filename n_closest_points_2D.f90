@@ -14,7 +14,6 @@ IMPLICIT NONE
 INTEGER                                 :: N_points
 INTEGER, DIMENSION(N_points)            :: closest_points
 INTEGER, PARAMETER                      :: min_incell = 10
-DOUBLE PRECISION, DIMENSION(N_points, 2)        :: interp_dist
 
 DOUBLE PRECISION, PARAMETER             :: large_number = 1.D90
 
@@ -99,6 +98,7 @@ IF(dist_A < dist_B) THEN
 
  ALLOCATE(cur_points(cur_n_points))
 
+ ! write(*,*) 'n_closest_points_2D: vg_indexy_A = ', vg_indexy_A(:,:)
  cur_points = vg_indexy_A(cur_start_index:cur_end_index,2)
  chosen_gridAB = grid_A
  
@@ -110,6 +110,7 @@ ELSE
  ! write(*,*) 'vel_interpolation: n_closest = ', n_closest
  ALLOCATE(cur_points(cur_n_points))
 
+ ! write(*,*) 'n_closest_points_2D: vg_indexy_B = ', vg_indexy_B(:,:)
  cur_points = vg_indexy_B(cur_start_index:cur_end_index,2)
  DO cur_vg_point = 1, cur_n_points
   cur_vg_index = vg_indexy_B(cur_vg_point,1)
@@ -117,17 +118,12 @@ ELSE
  chosen_gridAB = grid_B
 END IF ! dist_A < dist_B
 
-CALL seek_nclosest_points(cur_pos, N_points, interp_dist, cur_n_points, cur_points)
+! write(*,*) 'n_closest_points_2D: cur_points = ', cur_points
+CALL seek_nclosest_points(cur_pos, cur_points, N_points, cur_n_points, closest_points)
 
-write(*,*) 'n_closest_points_2D: interp_dist = ', interp_dist
-STOP 'n_closest_points_2D: testing'
+write(*,*) 'n_closest_points_2D: cur_points = ', cur_points
 
-
-
-
-
-
-
+write(*,*) 'n_closest_points_2D: closest_points = ', closest_points
 
 
 END SUBROUTINE n_closest_points_2D
