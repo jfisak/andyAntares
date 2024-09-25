@@ -105,7 +105,7 @@ CASE(2)
     IF(save_cs .EQV. .TRUE.) THEN
      !freq = freq * freqt
      ! elements(indexe)%ions(indexI)%levels(indexclev)%photcros(1,I) = freq * freqt
-     elements(indexe)%ions(indexI)%levels(indexclev)%photcros(1,I) = freq * Rydberg * e_v / const_h
+     elements(indexe)%ions(indexI)%levels(indexclev)%photcros(1,I) = freq * Rydberg * const_ev / const_h
      ! write(*,*) 'read_photcs: photfreq = ', freq * Rydberg * e_v / h
      elements(indexe)%ions(indexI)%levels(indexclev)%photcros(2,I) = cross * 1.D-18
      ! write(32,*) indexe, indexI, indexclev, freq * Rydberg * e_v / h, cross * 1.D-15

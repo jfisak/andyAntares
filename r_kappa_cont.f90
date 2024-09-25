@@ -60,7 +60,7 @@ IF(current_mgi .EQ. n_modelgrid + 2) electron_density = 0.D0
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Thomson scattering
-thomson = sigma_e * electron_density
+thomson = const_sigma_e * electron_density
 act_continuum = 1
 actirrates%Lcont(1, act_continuum) = 0
 actirrates%Lcont(2, act_continuum) = 0 

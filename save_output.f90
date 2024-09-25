@@ -219,7 +219,7 @@ CASE(3)
       num_tot_pop = num_tot_pop + act_pop
       WRITE(13, *) '002', elements(act_elem)%atom_number, act_ion, act_lev, &
       elements(act_elem)%ions(act_ion)%levels(act_lev)%stat_waight, &
-      eenergy / e_v, act_pop
+      eenergy / const_ev, act_pop
      END DO
      WRITE(13, *) '003', elements(act_elem)%atom_number, act_ion, ' TOT ', &
      model_grid(I)%grid_comp(act_elem)%grid_ion(act_ion)%tot_pop / num_tot_pop, &

@@ -39,7 +39,7 @@ INTEGER, PARAMETER                              :: max_n_of_velopackets = 200
 INTEGER                                         :: cur_dummypack, dummypack_index
 
 ! the basic variables
-constanta = (const_pi * e_charge**2)/( me_g * light_speed)
+constanta = (const_pi * e_charge**2)/( const_me_g * light_speed)
 
 ! write(*,*) 'r_kappa_line: nnextlines = ', nnextlines
 

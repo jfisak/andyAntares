@@ -38,7 +38,7 @@ COMMON / COM_LINKINFO / LINK_DATE, LINK_USER, LINK_HOST
 ! COMMON / RAN_SEED / idum
 
 ! the Saha constant calculation
-saha_const = 5.D-1 * (const_h**2/(2.0*const_pi*me_g*BOLK))**1.5
+saha_const = 5.D-1 * (const_h**2/(2.0*const_pi*const_me_g*BOLK))**1.5
 ! CALL EXECUTE_COMMAND_LINE('figlet "3D WIND CODE"')
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

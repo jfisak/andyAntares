@@ -24,10 +24,6 @@ DOUBLE PRECISION               :: pgi_radius, pgi_theta, pgi_radius0, pgi_theta0
 DOUBLE PRECISION                                :: mgi_radius, mgi_theta
 DOUBLE PRECISION, PARAMETER     :: large_number=1.d90
 
-INTEGER                         :: last_index
-
-INTEGER                         :: cur_neighbour
-
 ! parallelization
 INTEGER                         :: my_start, my_end
 INTEGER                         :: N_single, N_zbytek

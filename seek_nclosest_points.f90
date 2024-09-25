@@ -33,20 +33,20 @@ DOUBLE PRECISION                        :: dist_A, dist_B, dist_C
 DOUBLE PRECISION, PARAMETER             :: large_number = 1.D90
 
 INTEGER                                 :: cur_iti_mgi
-INTEGER, DIMENSION(3)                                   :: n_coor, count_xyz
+INTEGER, DIMENSION(const_dimofspace)                    :: n_coor, count_xyz
 INTEGER, PARAMETER                                      :: coor_x = 1, coor_y = 2, coor_z = 3
 DOUBLE PRECISION                                        :: cur_dist
 
 INTEGER                                                 :: cur_index_I, cur_index_J, cur_itj_mgi, cur_index_K
-DOUBLE PRECISION, DIMENSION(3)                          :: cur_saved_mg_pos_A, cur_saved_mg_pos_B
-DOUBLE PRECISION, DIMENSION(3)                          :: vec_AB, vec_AC
+DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: cur_saved_mg_pos_A, cur_saved_mg_pos_B
+DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: vec_AB, vec_AC
 
-INTEGER, DIMENSION(3)                                   :: f_indexy, index_delete, mgi_indexy
+INTEGER, DIMENSION(const_dimofspace)                    :: f_indexy, index_delete, mgi_indexy
 INTEGER                                                 :: cur_del_index, cur_mgi
 
 LOGICAL                                                 :: procout=.true.
 
-! write(*,*) 'seek_nclosest_points: cur_points = ', cur_points
+write(*,*) 'seek_nclosest_points: cur_points = ', cur_points
 !_______________________________________________________________
 !            SEEKING FOR THE n_closest CLOSEST POINTS
 !_______________________________________________________________

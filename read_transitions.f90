@@ -48,7 +48,7 @@ USE constants
 orbitals_nl = .FALSE.
 
 ! calculate the constant for the oscilator strength calculation
-oconstant = (me_g * light_speed ** 3)/(8.D0 * const_pi ** 2 * e_charge**2)
+oconstant = (const_me_g * light_speed ** 3)/(8.D0 * const_pi ** 2 * e_charge**2)
 n_ions = 0
 ! element: atomic number, could be different from el_index
 element = elements(el_index)%atom_number

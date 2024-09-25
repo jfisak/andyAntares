@@ -16,7 +16,7 @@ INTEGER, ALLOCATABLE                    :: lineuptransitions(:)
 DOUBLE PRECISION                        :: population
 ! constans
 DOUBLE PRECISION, PARAMETER             :: c0 = 5.465D-11
-DOUBLE PRECISION, PARAMETER             :: IH = 13.6 * e_v
+DOUBLE PRECISION, PARAMETER             :: IH = 13.6 * const_ev
 DOUBLE PRECISION, PARAMETER             :: coll_const = 14.5
 ! indexes
 INTEGER                                 :: act_line

@@ -40,7 +40,7 @@ LOGICAL                                 :: stmasnab=.false.
 
 DOUBLE PRECISION                        :: cur_r
 
-constanta = (const_pi * e_charge**2)/( me_g * light_speed)
+constanta = (const_pi * e_charge**2)/( const_me_g * light_speed)
 
 cur_r = norm2(package(pack_index)%pos)
 ! initialization of total rates
@@ -108,9 +108,9 @@ DO I = 1, nlns
  betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
 
 
- Blu = 4 * const_pi**2 * e_charge**2 / (me_g * light_speed * const_h * fr_line) * linelist(act_line)%f_lu
+ Blu = 4 * const_pi**2 * e_charge**2 / (const_me_g * light_speed * const_h * fr_line) * linelist(act_line)%f_lu
  Bul = stat_weight_l / stat_weight_u * Blu
- Aul = 8.D0 * fr_line**2 * const_pi**2 * e_charge**2/ (me_g * light_speed**3) *&
+ Aul = 8.D0 * fr_line**2 * const_pi**2 * e_charge**2/ (const_me_g * light_speed**3) *&
   stat_weight_l / stat_weight_u * linelist(act_line)%f_lu
 
 
@@ -175,7 +175,7 @@ DO I = 1, nluns
  Jlu = flux_function(1, fr_line, model_grid(current_mgi)%T, cur_r)
 
 
- Blu = 4 * const_pi**2 * e_charge**2 / (me_g * light_speed * const_h * fr_line) * linelist(act_line)%f_lu
+ Blu = 4 * const_pi**2 * e_charge**2 / (const_me_g * light_speed * const_h * fr_line) * linelist(act_line)%f_lu
  Bul = DBLE(stat_weight_l) / DBLE(stat_weight_u) * Blu
  Aul = 2 * const_h * fr_line**3 / light_speed**2 * Bul
 
