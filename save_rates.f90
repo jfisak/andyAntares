@@ -25,7 +25,7 @@ DOUBLE PRECISION                        :: Blu, Bul, fr_line
 
 DOUBLE PRECISION                        :: flux_function
 
-constanta = (pi * e_charge**2)/( me_g * light_speed)
+constanta = (const_pi * e_charge**2)/( const_me_g * light_speed)
 
 file_linetrans = trim(outputfolder)//'/r_linetrans.dat'
 
@@ -67,7 +67,7 @@ DO cur_mgi = 1, n_modelgrid
   taulu = light_speed / fr_line * constanta * &
    linelist(cur_line)%f_lu * upp_pop * ROverV * corrFactor
   betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
-  Aul = 8.D0 * fr_line**2 * pi**2 * e_charge**2/ (me_g * light_speed**3) *&
+  Aul = 8.D0 * fr_line**2 * const_pi**2 * e_charge**2/ (const_me_g * light_speed**3) *&
    stat_weight_l / stat_weight_u * linelist(cur_line)%f_lu
   Jlu = flux_function(0, fr_line, model_grid(cur_mgi)%T, model_grid(cur_mgi)%rwind)
 
@@ -79,7 +79,7 @@ DO cur_mgi = 1, n_modelgrid
   ! internal upward jump rate
 
   
-  Blu = 4 * pi**2 * e_charge**2 / (me_g * light_speed * h * fr_line) * linelist(cur_line)%f_lu
+  Blu = 4 * const_pi**2 * e_charge**2 / (const_me_g * light_speed * const_h * fr_line) * linelist(cur_line)%f_lu
   Bul = DBLE(stat_weight_l) / DBLE(stat_weight_u) * Blu
 
   actVal = (Blu * low_pop - Bul * upp_pop) * betalu * Jlu

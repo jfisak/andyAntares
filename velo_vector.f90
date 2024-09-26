@@ -1,3 +1,9 @@
+! this sbr calculates a velocity vector saved in the current model grid
+!
+! input: pos -- DBLE(3) vector of a position
+!        mod_index -- INT modGrid cell index
+! output: vel_vec -- DBLE(3) vector of a velocity
+!
 SUBROUTINE velo_vector(pos, mod_index, vel_vec)
 
 USE types
@@ -7,6 +13,8 @@ IMPLICIT NONE
 DOUBLE PRECISION, DIMENSION(3)                          :: pos
 INTEGER                                                 :: mod_index
 
+INTEGER                                                 :: cur_pgi
+
 DOUBLE PRECISION, DIMENSION(3)                          :: vel_vec
 
 DOUBLE PRECISION                                        :: rad_vel
@@ -15,6 +23,11 @@ DOUBLE PRECISION                                        :: vr, vtheta
 DOUBLE PRECISION                                        :: x, y, z
 DOUBLE PRECISION                                        :: cosphi, sinphi, costheta, sintheta
 
+! calculation of the model index if it is not defined in the input
+IF(mod_index == -99) THEN
+ CALL find_dyn_cell1(pos, cur_pgi)
+ mod_index = dyn_cell(cur_pgi)%model_index
+END IF
 
 SELECT CASE(model_type)
  ! spherically symmetric models
@@ -41,9 +54,9 @@ SELECT CASE(model_type)
   vr = model_grid(mod_index)%vel
   vtheta = model_grid(mod_index)%velang
 
-  x = pos(1)
-  y = pos(2)
-  z = pos(3)
+  x = pos(ind_x)
+  y = pos(ind_y)
+  z = pos(ind_z)
 
   cosphi = y / norm2(pos)
   sinphi = x / norm2(pos)
@@ -52,9 +65,12 @@ SELECT CASE(model_type)
   sintheta = z/norm2(pos)
 
   ! output vector
-  vel_vec(1) = vr * costheta * cosphi - vtheta * sintheta * cosphi
-  vel_vec(2) = vr * costheta * sinphi - vtheta * sintheta * sinphi
-  vel_vec(3) = vr * sintheta + vtheta * costheta
+  ! vel_vec(1) = vr * costheta * cosphi - vtheta * sintheta * cosphi
+  ! vel_vec(2) = vr * costheta * sinphi - vtheta * sintheta * sinphi
+  ! vel_vec(3) = vr * sintheta + vtheta * costheta
+  vel_vec(ind_x) = vr * costheta * cosphi - vtheta * cosphi
+  vel_vec(ind_y) = vr * costheta * sinphi - vtheta * sinphi
+  vel_vec(ind_z) = vr * sintheta
  
  !________________________________________________________
  CASE(3)

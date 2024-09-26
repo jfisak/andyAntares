@@ -7,8 +7,6 @@ IMPLICIT NONE
 INTEGER                                         :: I, J
 CHARACTER(LEN=60)                               :: propmod_file
 
-INTEGER                                         :: n_propgrid
-
 DOUBLE PRECISION, DIMENSION(3)                  :: pos, vel, width
 DOUBLE PRECISION                                :: rho, temp, volume, el_dens
 
@@ -82,10 +80,10 @@ model_grid(n_modelgrid+1)%vel   = 0.D0
 model_grid(n_modelgrid+1)%rho   = 0.D0
 
 
-read(49, *) n_propgrid
-write(*,*) 'read_propmod_grid. n_propgrid = ', n_propgrid
-ALLOCATE(dyn_cell(n_propgrid))
-DO I = 1, n_propgrid
+read(49, *) n_propgcells
+write(*,*) 'read_propmod_grid. n_propgcells = ', n_propgcells
+ALLOCATE(dyn_cell(n_propgcells))
+DO I = 1, n_propgcells
  read(49, *) pos, width, up_cell, down_cell, neighbors, model_index
  
  dyn_cell(I)%corner = pos

@@ -23,7 +23,7 @@ USE constants
 
 
    ! All H is ionized because and it is larger value for the el_nd 
-   el_nd_2 = model_grid(model_grid_index)%rho / mp_g
+   el_nd_2 = model_grid(model_grid_index)%rho / const_mp_g
 
   
 

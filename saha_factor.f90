@@ -27,7 +27,7 @@ indexl0(:) = MINLOC(elements(indexe)%ions(indexi)%levels(:)%exci_energy)
 ! ' electron_density = ', electron_density
 !write(*,*) 'saha_factor: sfactor = ', sfactor
 
-sahaconst = 5.D-1 * (h**2 / (2.0 * pi * me_g * BOLK))**(3.0/2.0)
+sahaconst = 5.D-1 * (const_h**2 / (2.0 * const_pi * const_me_g * BOLK))**(3.0/2.0)
 gijk = elements(indexe)%ions(indexi - 1)%levels(indexl)%stat_waight
 g0 = elements(indexe)%ions(indexi)%levels(indexl0(1))%stat_waight
 eijk = elements(indexe)%ions(indexi - 1)%levels(indexl)%exci_energy

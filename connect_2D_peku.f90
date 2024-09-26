@@ -35,8 +35,10 @@ DOUBLE PRECISION                        :: cur_VG_r, cur_VG_t, delta, dist, min_
 
 ! INTEGER                                 :: N_single, N_zbytek
 INTEGER                                 :: my_start, my_end
+INTEGER                                 :: N_single, N_zbytek
 
 INTEGER, DIMENSION(n_propgcells)          :: cur_model_index
+
 
 ! #00 Set up of virtual grids
 ! #01 Calculate VG index of MG cells
@@ -163,25 +165,25 @@ END DO
 
 ! going through model point one by one and calculating the closest point
 
-! #if mpi == 1
-!  N_single = n_modelgrid/n_tasks
-!  N_zbytek = n_modelgrid - n_tasks * N_single
-!  IF(my_rank <= N_zbytek - 1) THEN
-!   my_start = my_rank * (N_single + 1) + 1
-!   my_end = my_rank * (N_single + 1) + N_single
-!  ELSE IF(N_zbytek == 0) THEN
-!   my_start = my_rank * (N_single + 1) + 1
-!   my_end = my_rank * (N_single + 1) + N_single
-!  ELSE
-!   my_start = N_zbytek * (N_single + 1) + (my_rank - N_zbytek - 1) * N_single + 1
-!   my_end = N_zbytek * (N_single + 1) + (my_rank - N_zbytek - 1) * N_single + N_single +1
-!  END IF
-! #else
-!  my_start = 1
-!  my_end = n_modelgrid
-! #endif
-my_start = 1
-my_end = n_modelgrid
+#if mpi == 1
+ N_single = n_modelgrid/n_tasks
+ N_zbytek = n_modelgrid - n_tasks * N_single
+ IF(my_rank <= N_zbytek - 1) THEN
+  my_start = my_rank * (N_single + 1) + 1
+  my_end = my_rank * (N_single + 1) + N_single
+ ELSE IF(N_zbytek == 0) THEN
+  my_start = my_rank * (N_single + 1) + 1
+  my_end = my_rank * (N_single + 1) + N_single
+ ELSE
+  my_start = N_zbytek * (N_single + 1) + (my_rank - N_zbytek - 1) * N_single + 1
+  my_end = N_zbytek * (N_single + 1) + (my_rank - N_zbytek - 1) * N_single + N_single +1
+ END IF
+#else
+ my_start = 1
+ my_end = n_modelgrid
+#endif
+! my_start = 1
+! my_end = n_modelgrid
 
 DO cur_prop_cell = my_start, my_end
  ! choosing the grid A or B

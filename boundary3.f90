@@ -1,10 +1,13 @@
-SUBROUTINE boundary3(pack_index, dist, next_cell) 
-! write nx_cell, ny_cell, nz_cell as global variable
-
 ! Calculate the shortest distance to the cell surface which photon will cross and return this 
 ! distance (dist), the cell the photon will go to (next_cell, -99 in case of photon leaving 
 ! the simulation grid(volume)), and make the photon remember which surface will cross (update 
 ! package(pack_index)%last_cross).
+!
+! INPUT: pack_index, INT -- index of a packet
+! OUTPUT: dist, DBLE -- distance to the closest boundary of the propGrid cell
+!         next_cell, INT -- index of the next propGrid cell
+!
+SUBROUTINE boundary3(pack_index, dist, next_cell) 
 
 USE types
 USE constants

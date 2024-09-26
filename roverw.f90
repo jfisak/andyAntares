@@ -10,7 +10,6 @@ DOUBLE PRECISION                                :: l_dist
 DOUBLE PRECISION, DIMENSION(3)                  :: V_pos_vec
 DOUBLE PRECISION                                :: costheta
 DOUBLE PRECISION                                :: dV_pos
-DOUBLE PRECISION                                :: cell_dist
 INTEGER                                         :: dummypack_index, dummypack_index0, next_cell, pack_index
 
 DOUBLE PRECISION, DIMENSION(3)                  :: cur_pos, cur_dir
@@ -24,7 +23,7 @@ DOUBLE PRECISION                                :: deriv
 ! DOUBLE PRECISION                                :: deriv_min, deriv_pls
 ! DOUBLE PRECISION, DIMENSION(3)                  :: pos_line
 DOUBLE PRECISION                                :: s_min, s_pls
-DOUBLE PRECISION, DIMENSION(3,3)                :: deriVel, vel_vectors
+DOUBLE PRECISION, DIMENSION(3,3)                :: vel_vectors
 LOGICAL                                         :: isposx, isposy, isposz
 INTEGER, DIMENSION(3,3)                         :: directions
 INTEGER, DIMENSION(3)                           :: crossy, neighb_cells, mgi_index
@@ -34,7 +33,6 @@ TYPE(dummyphoton)                               :: testPacket
 DOUBLE PRECISION, DIMENSION(3)                  :: cur_corner, cur_width, act_pos, cur_centre
 INTEGER                                         :: down_cell
 INTEGER                                         :: cur_pg, cur_xyz_dir
-DOUBLE PRECISION, DIMENSION(3,3)                :: tensor_divj
 
 INTEGER                                         :: cur_index_i, cur_index_j, cur_mgi
 DOUBLE PRECISION, DIMENSION(3)                  :: cur_vel, cur_dist

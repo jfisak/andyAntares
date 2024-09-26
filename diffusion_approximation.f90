@@ -30,7 +30,7 @@ IF(model_type == 3 .and. inputmodel == 1) THEN
  ! write(*,*) 'diffusion_approximation: cur_mgi = ', cur_mgi, ' cur_lambda = ', cur_lambda, ' is_diff? = ', is_diff
 ELSE
  electron_density = model_grid(cur_mgi)%e_dens
- chi_cont = sigma_e * electron_density
+ chi_cont = const_sigma_e * electron_density
  
  IF(chi_cont > chi_min) THEN
   is_diff = .true.

@@ -140,7 +140,7 @@ END DO
  ! write(*,*) 'read_3D_nico: T_eff = ', T_eff, 'R_star = ', R_star/R_inf, ' R_inf = ', R_inf/R_sun, ' V_inf = ', V_inf
  ! write(*,*) 'read_3D_nico: xmax = ', xmax/R_inf, ' ymax = ', ymax/R_inf, ' zmax = ', zmax/R_inf
  !  write(*,*) 'read_3D_nico: xmax/R_inf = ', xmax/R_inf
- write(*,*) 'read_3D_nico: V_prop/V_inf = ', 6.0*(xmax/R_inf)*(ymax/R_inf)*(zmax/R_inf)/pi
+ write(*,*) 'read_3D_nico: V_prop/V_inf = ', 6.0*(xmax/R_inf)*(ymax/R_inf)*(zmax/R_inf)/const_pi
 
 CLOSE(11)
 

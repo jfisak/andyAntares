@@ -7,6 +7,8 @@
 ! #04 TEMPERATURE STRUCTURE AND IONIZATION BALANCE
 ! #06 PACKETS INFORMATION
 ! #07 IONIZATION FRACTIONS
+! #10 VELOCITY FIELD IN THE PROPGRID CELLS
+! #11 PROPMOD SLICES
 SUBROUTINE save_output(otype)
 
 USE MPI
@@ -62,6 +64,18 @@ DOUBLE PRECISION, DIMENSION(3)          :: cur_vel, cur_centre
 INTEGER                                 :: cur_index_I
 
 INTEGER, PARAMETER                      :: cpu_zero = 0, flag_6 = 6
+
+!________________________________________________________________________________
+! #11
+INTEGER                                         :: Nx_cov, Ny_cov, Nz_cov, ind_I, ind_J
+DOUBLE PRECISION                                :: x_cov, z_cov
+DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: cur_pos
+REAL, ALLOCATABLE                               :: coverage_matrix_T(:,:), coverage_matrix_rho(:,:), &
+                                                   coverage_matrix_v(:,:)
+INTEGER                                         :: cur_mgi, cur_pgi, cur_index
+DOUBLE PRECISION                                :: cur_rho, cur_temp
+CHARACTER(LEN=file_length)                      :: temp_file_name_t, temp_file_name_rho, temp_file_name_v 
+DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: width
 
 !________________________________________________________________________________
 ! #00 output folder
@@ -208,7 +222,7 @@ CASE(3)
       num_tot_pop = num_tot_pop + act_pop
       WRITE(13, *) '002', elements(act_elem)%atom_number, act_ion, act_lev, &
       elements(act_elem)%ions(act_ion)%levels(act_lev)%stat_waight, &
-      eenergy / e_v, act_pop
+      eenergy / const_ev, act_pop
      END DO
      WRITE(13, *) '003', elements(act_elem)%atom_number, act_ion, ' TOT ', &
      model_grid(I)%grid_comp(act_elem)%grid_ion(act_ion)%tot_pop / num_tot_pop, &
@@ -442,6 +456,139 @@ CASE(11)
    write(73,*) cur_centre, cur_vel
   END DO
  CLOSE(73)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! #11 density and temperature slices
+!
+! 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CASE(12)
+ 
+# if mpi == 1
+ IF(my_rank == 0) THEN
+# endif
+! maps of a coverage
+! creates a matrix with a specified physical quantity
+IF(dyngrid == 0) THEN
+ Nx_cov = nx_cell
+ Ny_cov = ny_cell
+ Nz_cov = nz_cell
+ELSE IF(dyngrid > 0) THEN
+ width(ind_x) = MINVAL(dyn_cell(:)%width(ind_x))
+ width(ind_y) = MINVAL(dyn_cell(:)%width(ind_y))
+ width(ind_z) = MINVAL(dyn_cell(:)%width(ind_z))
+ Nx_cov = INT((xmax - xmin)/width(ind_x))
+ Ny_cov = INT((ymax - ymin)/width(ind_y))
+ Nz_cov = INT((zmax - zmin)/width(ind_z))
+END IF
+x_cov = 0.D0
+z_cov = 0.D0
+
+ALLOCATE(coverage_matrix_rho(Nx_cov, Ny_cov), coverage_matrix_t(Nx_cov, Ny_cov), &
+  coverage_matrix_v(Nx_cov * Ny_cov, 2 * const_dimofspace))
+coverage_matrix_rho(:,:) = -1.0
+coverage_matrix_t(:,:) = -1.0
+coverage_matrix_v(:,:) = -1.0
+
+write(temp_file_name_t,"(A, A17)") TRIM(outputfolder), '/propmod_t_xy.dat'
+write(temp_file_name_rho,"(A, A19)") TRIM(outputfolder), '/propmod_rho_xy.dat'
+write(temp_file_name_v,"(A, A19)") TRIM(outputfolder), '/propmod_vel_xy.dat'
+write(*,*) 'save_output: temp_file_name_t = ', temp_file_name_t
+! probably a temporary solution
+cur_pos(ind_z) = z_cov
+! xy plane
+cur_index = 0
+DO ind_I = 1, Nx_cov
+ cur_pos(ind_x) = ((xmax - xmin) * ind_I + (Nx_cov * xmin - xmax))/DBLE(Nx_cov - 1)
+ DO ind_J = 1, Ny_cov
+  cur_index = cur_index + 1
+  cur_pos(ind_y) = ((ymax - ymin) * ind_J + (Ny_cov * ymin - ymax))/DBLE(Ny_cov - 1)
+  ! looking for a current propGrid cell index
+  CALL find_dyn_cell1(cur_pos, cur_pgi)
+  IF(cur_pgi > 0) THEN
+   cur_mgi = dyn_cell(cur_pgi)%model_index
+   IF(cur_mgi > 0) THEN
+    cur_temp = model_grid(cur_mgi)%T
+    cur_rho = model_grid(cur_mgi)%rho
+    coverage_matrix_T(ind_I, ind_J) = REAL(cur_temp)
+    coverage_matrix_rho(ind_I, ind_J) = REAL(cur_rho)
+    coverage_matrix_v(cur_index, 1:3) = REAL(cur_pos)
+    CALL velo_vector(cur_pos, cur_mgi, cur_vel)
+    coverage_matrix_v(cur_index, 4:6) = REAL(cur_vel)
+   END IF
+  END IF ! cur_pgi > 0
+ END DO
+END DO
+
+OPEN(173, FILE=temp_file_name_t)
+OPEN(174, FILE=temp_file_name_rho)
+OPEN(175, FILE=temp_file_name_v)
+
+DO ind_I = 1, Ny_cov
+ write(173,*) coverage_matrix_T(:,ind_I)
+ write(174,*) coverage_matrix_rho(:,ind_I)
+END DO
+DO ind_I = 1, Nx_cov * Ny_cov
+ write(175,*) coverage_matrix_v(ind_I,:)
+END DO
+
+CLOSE(173)
+CLOSE(174)
+CLOSE(175)
+
+coverage_matrix_rho(:,:) = -1.0
+coverage_matrix_t(:,:) = -1.0
+coverage_matrix_v(:,:) = -1.0
+
+write(temp_file_name_t,"(A, A17)") TRIM(outputfolder), '/propmod_t_yz.dat'
+write(temp_file_name_rho,"(A, A19)") TRIM(outputfolder), '/propmod_rho_yz.dat'
+write(temp_file_name_v,"(A, A19)") TRIM(outputfolder), '/propmod_vel_yz.dat'
+
+! probably a temporary solution
+cur_pos(ind_x) = x_cov
+! yz plane
+cur_index = 0
+DO ind_I = 1, Ny_cov
+ cur_pos(ind_y) = ((ymax - ymin) * ind_I + (Ny_cov * ymin - ymax))/DBLE(Ny_cov - 1)
+ DO ind_J = 1, Ny_cov
+  cur_index = cur_index + 1
+  cur_pos(ind_z) = ((zmax - zmin) * ind_J + (Nz_cov * zmin - zmax))/DBLE(Nz_cov - 1)
+  ! looking for a current propGrid cell index
+  CALL find_dyn_cell1(cur_pos, cur_pgi)
+  IF(cur_pgi > 0) THEN
+   cur_mgi = dyn_cell(cur_pgi)%model_index
+   IF(cur_mgi > 0) THEN
+    cur_temp = model_grid(cur_mgi)%T
+    cur_rho = model_grid(cur_mgi)%rho
+    coverage_matrix_T(ind_I, ind_J) = REAL(cur_temp)
+    coverage_matrix_rho(ind_I, ind_J) = REAL(cur_rho)
+    coverage_matrix_v(cur_index, 1:3) = REAL(cur_pos)
+    CALL velo_vector(cur_pos, cur_mgi, cur_vel)
+    coverage_matrix_v(cur_index, 4:6) = REAL(cur_vel)
+   END IF
+  END IF ! cur_pgi > 0
+ END DO
+END DO
+
+OPEN(173, FILE=temp_file_name_t)
+OPEN(174, FILE=temp_file_name_rho)
+OPEN(175, FILE=temp_file_name_v)
+
+DO ind_I = 1, Ny_cov
+ write(173,*) coverage_matrix_T(:,ind_I)
+ write(174,*) coverage_matrix_rho(:,ind_I)
+END DO
+DO ind_I = 1, Ny_cov * Nz_cov
+ write(175,*) coverage_matrix_v(ind_I,:)
+END DO
+
+CLOSE(173)
+CLOSE(174)
+CLOSE(175)
+
+# if mpi == 1
+ END IF
+# endif
+
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! #100 input file

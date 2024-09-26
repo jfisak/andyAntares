@@ -153,7 +153,7 @@ OPEN(8,status='old',FILE=filename)
    ! READ(line,*) levelindex, junk, junk, junk, l_index, iconf, l_energy, s_weight
    IF(l_energy > 0.D0) CYCLE
    J = J + 1
-   elements(el_index)%ions(indexi)%levels(J)%exci_energy = l_energy * rydberg * e_v
+   elements(el_index)%ions(indexi)%levels(J)%exci_energy = l_energy * rydberg * const_ev
    elements(el_index)%ions(indexi)%levels(J)%levelindex = levelindex
    ! write(99,*) 'read_levels: kindex = ', kindex, ' element = ', el_index, 'ion = ', indexi, &
    !  ' J = ', J, ' exci_energy = ', &
@@ -221,7 +221,7 @@ OPEN(8,status='old',FILE=filename)
    READ(8,*) el_index, indexi, ipot
    indexi = indexi + 1
    ! write(*,*) 'read_levels: el_index = ', el_index, ' indexi = ', indexi, ' ipot = ', ipot
-   elements(el_index)%ions(indexi)%ion_potential = DBLE(ipot) * e_V
+   elements(el_index)%ions(indexi)%ion_potential = DBLE(ipot) * const_eV
    ! write(*,*) 'reading_levels: ipot = ', elements(el_index)%ions(indexi)%ion_potential
   END DO
   ! computing number of energy levels for the given ions

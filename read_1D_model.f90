@@ -165,7 +165,7 @@ SELECT CASE (inputModel)
      model_grid(I)%T = temp ! should be temp 
      model_grid(I)%J = 0.D0 
      model_grid(I)%assoc_cells = 0
-     model_grid(I)%T = model_grid(I)%T / temp_factor
+     model_grid(I)%T = model_grid(I)%T
 !     write(*,*) 'testing model grid...'
 !     write(*,*) model_grid(I)%rwind, model_grid(I)%vel, &
 !        model_grid(I)%rho, model_grid(I)%T, model_grid(I)%J, &
@@ -183,8 +183,6 @@ SELECT CASE (inputModel)
      END DO
    END DO
   CLOSE(11)
-  IF(temp_factor /= 1.0) write(99,*) 'Warning, temperature structure is divided &
-   & by a temperature factor = ', temp_factor
   R_star = model_grid(1)%rwind
   R_inf  = model_grid(n_modelgrid)%rwind
   V_inf  = model_grid(n_modelgrid)%vel! * 10.0**5
@@ -228,7 +226,7 @@ SELECT CASE (inputModel)
     ! write(*,*) 'read_1D_model: I = ', I, ' r = ', r, ' velo = ', velo, ' dens = ', dens, ' temp = ', temp
     model_grid(I)%rwind = r * R_star
     model_grid(I)%vel = velo * 1.E5
-    model_grid(I)%rho = dens * meanAtMass * mp_g
+    model_grid(I)%rho = dens * meanAtMass * const_mp_g
     model_grid(I)%T = temp 
     model_grid(I)%J = 0.D0 
     model_grid(I)%assoc_cells = 0

@@ -48,7 +48,7 @@ USE constants
 orbitals_nl = .FALSE.
 
 ! calculate the constant for the oscilator strength calculation
-oconstant = (me_g * light_speed ** 3)/(8.D0 * pi ** 2 * e_charge**2)
+oconstant = (const_me_g * light_speed ** 3)/(8.D0 * const_pi ** 2 * e_charge**2)
 n_ions = 0
 ! element: atomic number, could be different from el_index
 element = elements(el_index)%atom_number
@@ -253,7 +253,7 @@ CASE(2)
    ! linelist(ntransitions)%freq = 1.E+8 * light_speed / l_freq
    deltaE = elements(el_index)%ions(current_ion)%levels(act_upper)%exci_energy - &
     elements(el_index)%ions(current_ion)%levels(act_lower)%exci_energy
-   linelist(ntransitions)%freq =  deltaE / h
+   linelist(ntransitions)%freq =  deltaE / const_h
    ! write(*,*) 'read_transitions: lambda = ', light_speed / linelist(ntransitions)%freq * 1.E8
    IF(simpleTrans) THEN
     linelist(ntransitions)%A_ul = abs(A)
@@ -479,7 +479,7 @@ CASE(8)
    ! linelist(ntransitions)%freq = 1.E+8 * light_speed / l_freq
    deltaE = elements(el_index)%ions(current_ion)%levels(act_upper)%exci_energy - &
     elements(el_index)%ions(current_ion)%levels(act_lower)%exci_energy
-   linelist(ntransitions)%freq =  deltaE / h
+   linelist(ntransitions)%freq =  deltaE / const_h
    linelist(ntransitions)%A_ul = A
    linelist(ntransitions)%f_lu = col_str
    ! write(*,*) 'read_transitions: lambda = ', light_speed / linelist(ntransitions)%freq * 1.E8

@@ -16,10 +16,7 @@ INTEGER                        :: max_n_dcell
 ! propagation and model cell
 DOUBLE PRECISION               :: delta, delta2
 ! radial and vertical distance
-DOUBLE PRECISION               :: r, z, r0, z0, phi, phi0
-! volume of model cell
-DOUBLE PRECISION               :: loc_volume
-INTEGER                        :: gridcell
+DOUBLE PRECISION               :: r, z, r0, phi, phi0
 
 DOUBLE PRECISION, DIMENSION(3) :: cur_center
 DOUBLE PRECISION               :: dist
@@ -34,10 +31,11 @@ INTEGER                         :: n_virtpoints
 INTEGER                         :: up_cell, cur_lowcell
   
 INTEGER, ALLOCATABLE            :: list_index(:)
-INTEGER                         :: last_index, new_index
+INTEGER                         :: new_index
 INTEGER                         :: n_bas_pcell
 
 INTEGER                         :: cur_bpgi
+INTEGER                         :: cur_neighbour, last_index
 DOUBLE PRECISION, DIMENSION(3)  :: cur_pos
 
 INTEGER                         :: down_cell
@@ -46,7 +44,7 @@ INTEGER                         :: cur_vp_nearest, cur_vp_index
 INTEGER                         :: act_pgcell, cur_vp, cur_mgi
 
 INTEGER                         :: count_vacuum, count_out, count_in, count_ok
-INTEGER                         :: cur_neighbour, cur_n_mgi
+INTEGER                         :: cur_n_mgi
 
 ! parallelization
 INTEGER                         :: my_start, my_end
@@ -168,57 +166,9 @@ write(*,*) 'connection_prop_model_grid: my_rank = ', my_rank, ' my_start = ', my
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ELSE IF (model_type .EQ. 2) THEN
    SELECT CASE (inputmodel)
-   ! PeKu disk model
+   ! basic 2D model
    CASE(1)
-   add_mg = 2
-   DO cur_propcell = my_start, my_end
-    ! IF(mod(cur_propcell,10000) .EQ. 0) print*, 'associating propagation grid', cur_propcell, REAL(cur_propcell)/REAL(max_n_dcell) * 1.E2, ' % completed'
-    IF(dyn_cell(cur_propcell)%up_cell == 0) THEN
-      ! Absolute radius of the propagation grid cell (midle of the cell)
-      r = SQRT((dyn_cell(cur_propcell)%corner(1) + dyn_cell(cur_propcell)%width(1)/2.D0)**2 + &
-               (dyn_cell(cur_propcell)%corner(2) + dyn_cell(cur_propcell)%width(2)/2.D0)**2 + &
-               (dyn_cell(cur_propcell)%corner(3) + dyn_cell(cur_propcell)%width(3)/2.D0)**2)
-      r0 = SQRT(dyn_cell(cur_propcell)%corner(1)**2 + dyn_cell(cur_propcell)%corner(2)**2 + &
-               dyn_cell(cur_propcell)%corner(3)**2)
-      z = dyn_cell(cur_propcell)%corner(3) + dyn_cell(cur_propcell)%width(3)/2.D0
-      z0 = dyn_cell(cur_propcell)%corner(3)
-      !print*,cur_propcell,r/R_star
-      IF ((r .GT. R_star) .AND. (r .LT. R_inf)) THEN
-       ! Cells with radius larger than the stellar radius but smaller
-       ! than the winds outer radius have an associated model grid cell.
-       ! Find this model grid cell and add a pointer to the propatation
-       ! grid. Finally record the number of asscociated prop. grid cells
-       ! on the model grid
-       delta = 1.D99
-       DO J = 1, n_modelgrid
-        delta2 = sqrt((sqrt(r**2 - z**2) - &
-                (sqrt(model_grid(J)%rwind**2 - model_grid(J)%zwind**2)))**2 + &
-                (model_grid(J)%zwind - z)**2)
-        IF( delta2 < delta ) THEN
-          delta = delta2
-          best_index = J
-        END IF
-        ! if the propagation cell is too far from the nearest model point
-        ! we will associate this cell to the dummy cells
-       END DO
-        diagonal = sqrt(dyn_cell(cur_propcell)%width(1)**2+dyn_cell(cur_propcell)%width(3)**2)/2.D0
-        IF((delta > diagonal) .AND. (dyn_cell(cur_propcell)%width(1) > basic_cell_width(1)/2.D0**6)) THEN
-         dyn_cell(cur_propcell)%model_index = n_modelgrid + add_mg
-         model_grid(n_modelgrid + add_mg)%assoc_cells = model_grid(n_modelgrid + add_mg)%assoc_cells + 1
-        ELSE
-         dyn_cell(cur_propcell)%model_index = best_index     
-         model_grid(best_index)%assoc_cells = model_grid(best_index)%assoc_cells + 1
-        END IF
-      ELSE
-       ! Cells with radius smaller than the stellar radius or larger
-       ! than the winds outer radius have no associated model grid cell
-       ! Make them point to the dummy model grid cell
-       dyn_cell(cur_propcell)%model_index = n_modelgrid + 1     
-       !model_grid(n_modelgrid + 1)%assoc_cells = model_grid(n_modelgrid + 1)%assoc_cells + 1
-      END IF
-    END IF
-   END DO
-   write(99,*) 'number of propagation cells in vacuum: ', model_grid(n_modelgrid + add_mg)%assoc_cells
+    CALL connect_2D_basic()
    ! PeKu model
    CASE(2)
     CALL connect_2D_peku()
@@ -439,19 +389,19 @@ write(*,*) 'connection_prop_model_grid: my_rank = ', my_rank, ' my_start = ', my
    END SELECT
   END IF
 ! computing volume of model cells
-DO cur_propcell = 1, max_n_dcell
- IF(dyn_cell(cur_propcell)%up_cell == 0) THEN
-  gridcell = dyn_cell(cur_propcell)%model_index
-  loc_volume = dyn_cell(cur_propcell)%width(1) * dyn_cell(cur_propcell)%width(2) * dyn_cell(cur_propcell)%width(3)
-  model_grid(gridcell)%volume = model_grid(gridcell)%volume + loc_volume
-  ! counters
-  IF(dyn_cell(cur_propcell)%model_index /= 0) THEN
-   count_pg_mcell = count_pg_mcell + 1
-  ELSE IF(dyn_cell(cur_propcell)%model_index == n_modelgrid + 3) THEN
-   count_pg_vacuum = count_pg_vacuum + 1
-  END IF
- END IF
-END DO
+! DO cur_propcell = 1, max_n_dcell
+!  IF(dyn_cell(cur_propcell)%up_cell == 0) THEN
+!   gridcell = dyn_cell(cur_propcell)%model_index
+!   loc_volume = dyn_cell(cur_propcell)%width(1) * dyn_cell(cur_propcell)%width(2) * dyn_cell(cur_propcell)%width(3)
+!   model_grid(gridcell)%volume = model_grid(gridcell)%volume + loc_volume
+!   ! counters
+!   IF(dyn_cell(cur_propcell)%model_index /= 0) THEN
+!    count_pg_mcell = count_pg_mcell + 1
+!   ELSE IF(dyn_cell(cur_propcell)%model_index == n_modelgrid + 3) THEN
+!    count_pg_vacuum = count_pg_vacuum + 1
+!   END IF
+!  END IF
+! END DO
 
 write(99,*) 'propGrid statistics:'
 write(99,*) 'count_pg_mcell = ', count_pg_mcell

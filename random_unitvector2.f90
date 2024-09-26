@@ -13,7 +13,7 @@ USE constants
       cost=ran2(idum)
       cost=SQRT(cost)
       sint=SQRT(1.D0 - cost*cost)
-      phi=2.D0*pi*ran2(idum)
+      phi=2.D0*const_pi*ran2(idum)
       cosp=COS(phi)
       sinp=SIN(phi)
       direction(1)=sint*cosp

@@ -16,7 +16,7 @@ INTEGER, ALLOCATABLE                    :: lineuptransitions(:)
 DOUBLE PRECISION                        :: population
 ! constans
 DOUBLE PRECISION, PARAMETER             :: c0 = 5.465D-11
-DOUBLE PRECISION, PARAMETER             :: IH = 13.6 * e_v
+DOUBLE PRECISION, PARAMETER             :: IH = 13.6 * const_ev
 DOUBLE PRECISION, PARAMETER             :: coll_const = 14.5
 ! indexes
 INTEGER                                 :: act_line
@@ -79,13 +79,13 @@ lineuptransitions = elements(indexe)%ions(indexi)%levels(level)%lineuptransition
   exci_energy_u = elements(indexe)%ions(indexi)%levels(linelist(act_line)%upper)%exci_energy
   ! frequency of transition
   freq = linelist(act_line)%freq
-  x = (h * freq) / (BOLK * temperature)
+  x = (const_h * freq) / (BOLK * temperature)
   ! gamma function
   CALL gamma_function(x, act_line, gf)
   ! value of the collision coefficient c_{i, j, k -> i', j, k}
   actVal = electron_density * c0 * (temperature)**(1.0/2.0) * &
-   coll_const * (IH / (h * freq)) * osc_str * ((h * freq) / (BOLK * el_temperature)) * &
-   exp(-(h * freq) / (BOLK * el_temperature)) * gf
+   coll_const * (IH / (const_h * freq)) * osc_str * ((const_h * freq) / (BOLK * el_temperature)) * &
+   exp(-(const_h * freq) / (BOLK * el_temperature)) * gf
 !  actVal = actVal * (linelist(act_line)%upper - linelist(act_line)%lower)
  ! internal downward jump
   ! CALL populations(indexe, indexi, linelist(act_line)%lower, current_mgi, low_pop)
@@ -111,14 +111,14 @@ lineuptransitions = elements(indexe)%ions(indexi)%levels(level)%lineuptransition
   exci_energy_l = elements(indexe)%ions(indexi)%levels(linelist(act_line)%lower)%exci_energy
   ! frequency of transition
   freq = linelist(act_line)%freq
-  x = (h * freq) / (BOLK * temperature)
+  x = (const_h * freq) / (BOLK * temperature)
   ! gamma function
   CALL gamma_function(x, act_line, gf)
   ! value of the collision coefficient
   actVal = population * electron_density * c0 * (temperature)**(1.0/2.0) * &
-        coll_const * (IH / (h * freq)) * osc_str * &
-        ((h * freq) / (BOLK * el_temperature)) * &
-        exp(-(h * freq) / (BOLK * el_temperature)) * gf
+        coll_const * (IH / (const_h * freq)) * osc_str * &
+        ((const_h * freq) / (BOLK * el_temperature)) * &
+        exp(-(const_h * freq) / (BOLK * el_temperature)) * gf
   actirates%Lma_int_upcoll(I) = actVal * exci_energy_l
   Zup = Zup + actirates%Lma_int_upcoll(I)
   ! write(*,*) 'i_coltrans: Lma_int_upcoll = ', actirates%Lma_int_upcoll(I), ' population = ', population

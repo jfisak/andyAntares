@@ -6,6 +6,7 @@ SUBROUTINE main
 USE MPI
 USE types
 USE constants
+USE virt_gridAB
 
 
   IMPLICIT NONE
@@ -38,7 +39,7 @@ COMMON / COM_LINKINFO / LINK_DATE, LINK_USER, LINK_HOST
 ! COMMON / RAN_SEED / idum
 
 ! the Saha constant calculation
-saha_const = 5.D-1 * (h**2/(2.0*pi*me_g*BOLK))**1.5
+saha_const = 5.D-1 * (const_h**2/(2.0*const_pi*const_me_g*BOLK))**1.5
 ! CALL EXECUTE_COMMAND_LINE('figlet "3D WIND CODE"')
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -123,7 +124,7 @@ my_rank = 0
 ! 3 -- progress of the calculation procedure
 ! 4 -- rikd packet dynamics
 ! 5 -- line interactions
-debug = 0
+debug = 2
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -152,7 +153,7 @@ ELSE
   IF(model_type == 1) THEN
    zmax = R_inf + 0.5 * R_sun
   ELSE IF (model_type == 2 .AND. inputmodel == 1) THEN
-   zmax = Z_inf! + R_sun
+   zmax = Z_inf + 0.5 * R_sun
   ELSE IF (model_type == 2 .AND. inputmodel == 2) THEN
    zmax = R_inf + 0.5 * R_sun
   ELSE
@@ -180,6 +181,8 @@ ELSE
  CALL connection_prop_model_grid()
  IF(debug == 3) write(*,*) 'prop and mod grids are connected'
 END IF ! saved propmod grid
+ CALL virt_gridAB_init()
+ CALL propmodgrid_diagnostics()
 
 ! save propmod_grid?
 IF(saved_grid == 1 .and. .not. propmod_file_exists .or. saved_grid == 2) THEN

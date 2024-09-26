@@ -50,7 +50,7 @@ INTEGER, PARAMETER                 :: file_length = 180
   TYPE modelgrid 
      INTEGER                         :: assoc_cells
      DOUBLE PRECISION                :: width
-     DOUBLE PRECISION                :: volume
+     DOUBLE PRECISION                :: volume = 0.D0
      DOUBLE PRECISION                :: diff_param
      DOUBLE PRECISION                :: T = 0.D0, J = 0.D0, rho = 0.D0, vel = 0.D0, rwind, e_dens = 0.D0
      DOUBLE PRECISION                :: zwind, velang, angle

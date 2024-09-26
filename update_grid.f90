@@ -62,8 +62,8 @@ DO cur_mgi = my_start, my_end
    ! write(*,*) 'update_grid: cur_temp = ', cur_temp(cur_mgi)
   ELSE ! iteration > 1
    ! Energy density contribeted to the model grid cell 
-   cur_j(cur_mgi) = model_grid(cur_mgi)%J / model_grid(cur_mgi)%volume / (4 * pi)
-   temp = (model_grid(cur_mgi)%J * pi / sigma )**(1./4.) 
+   cur_j(cur_mgi) = model_grid(cur_mgi)%J / model_grid(cur_mgi)%volume / (4 * const_pi)
+   temp = (model_grid(cur_mgi)%J * const_pi / sigma )**(1./4.) 
    cur_temp(cur_mgi)  = temp
    ! Calculate electron number density for every model grid cell gridcell
    CALL find_e_nd(cur_mgi, el_nd)

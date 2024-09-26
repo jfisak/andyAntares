@@ -58,9 +58,9 @@ CASE (1)
    ! number density of a ground state of ion indexi + 1, indexe
    ! frequency
    freq = (elements(indexe)%ions(indexi + 1)%levels(1)%exci_energy - &
-           elements(indexe)%ions(indexi)%levels(act_level)%exci_energy) / h
+           elements(indexe)%ions(indexi)%levels(act_level)%exci_energy) / const_h
    ! argument of E_1(x)
-   x = (h * freq) / (BOLK * temp)
+   x = (const_h * freq) / (BOLK * temp)
    ! exponential integral function (calculation of eif)
    CALL exp_int_func(1, x, eif)
    ! photoionization cross section
@@ -130,13 +130,13 @@ CASE (1)
       crossfreq(1:npoints) = elements(indexe)%ions(indexi - 1)%levels(I)%photcros(1, 1:npoints)
       ! frequency
       freq = (MINVAL(elements(indexe)%ions(indexi)%levels(:)%exci_energy) - &
-              elements(indexe)%ions(indexi - 1)%levels(I)%exci_energy) / h
+              elements(indexe)%ions(indexi - 1)%levels(I)%exci_energy) / const_h
       !write(*,*) 'i_colion: excienergy1 = ', &
       ! elements(indexe)%ions(indexi)%levels(act_level)%exci_energy, &
       ! ' excienergy2 =  ',  &
       ! elements(indexe)%ions(indexi - 1)%levels(I)%exci_energy, &
       ! 'freq = ', freq
-      x = (h * freq) / (BOLK * temp)
+      x = (const_h * freq) / (BOLK * temp)
       ! exponential integral function (calculation of eif)
       CALL exp_int_func(1, x, eif)
       actPoint = 0

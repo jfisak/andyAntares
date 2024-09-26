@@ -5,12 +5,12 @@ USE types
 USE constants
 IMPLICIT NONE
 
-DOUBLE PRECISION, DIMENSION(3)                          :: obs_point, ccd_point, ccd_centre
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: obs_point, ccd_point, ccd_centre
 INTEGER                                                 :: cur_vpack
-INTEGER, PARAMETER                                      :: Nvpackets = 5000
+INTEGER, PARAMETER                                      :: Nvpackets = 500
 ! number of packet flown into the photosphere
 INTEGER                                                 :: n_inside, n_outside
-DOUBLE PRECISION, DIMENSION(3)                          :: cur_pos, cur_direction
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: cur_pos, cur_direction
 DOUBLE PRECISION                                        :: wale_start, wale_end
 DOUBLE PRECISION                                        :: nu_min, nu_max, ran_freq
 DOUBLE PRECISION                                        :: ran2
@@ -23,15 +23,16 @@ LOGICAL                                                 :: procout=.false.
 INTEGER                                                 :: det_nu, det_nv, cur_ccd, det_tot_nuv
 INTEGER                                                 :: det_cur_nu, det_cur_nv, cur_nu
 DOUBLE PRECISION                                        :: det_lu, det_lv
-DOUBLE PRECISION, DIMENSION(3)                          :: det_vec_u, det_vec_v
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: det_vec_u, det_vec_v
 DOUBLE PRECISION                                        :: det_cell_wu, det_cell_wv
-DOUBLE PRECISION, DIMENSION(3)                          :: uvmin
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: uvmin
 DOUBLE PRECISION, ALLOCATABLE                           :: det_matrix(:,:), det_spectra(:,:)
 
 INTEGER                                                 :: my_ccd_start, my_ccd_end
 INTEGER                                                 :: N_single, N_zbytek
 
 DOUBLE PRECISION                                        :: ccdc_phi, ccdc_rad, ccdc_theta
+DOUBLE PRECISION                                        :: obs_ccd_dist
 
 write(99,*) '___________________________________________________________________'
 write(99,*) '___________________________________________________________________'
@@ -50,51 +51,63 @@ nu_min = light_speed / (wale_end * 1.D-8)
 
 ! a temporary definition of a detector
 ! number of points in each CCD chip
-det_nu = 20
-det_nv = 20
+det_nu = 10
+det_nv = 10
 det_tot_nuv = det_nu * det_nv
+
+! a size of a detector
+det_lu = 5.0
+det_lv = 5.0
+
 
 ALLOCATE(det_matrix(det_nu, det_nv), det_spectra(det_tot_nuv, n_nubin))
 ! observing point
-obs_point = (/ -R_inf  ,  0.D0,  0.D0 /)
-ccd_centre = (/ -R_inf - 1.1D1,  0.D0,  0.D0 /)
+! obs_point = (/ -R_inf  ,  0.D0,  0.D0 /)
+obs_ccd_dist = 0.2*sqrt(det_lu**2+det_lv**2)
+! ccd_centre = (/ -R_inf/2.0,  R_inf/2.D0,  R_inf/4.D0 /)
+ccd_centre = (/ -0.25*R_inf,  -.25*R_inf,  -.25*R_inf /)
+write(48,*) ccd_centre
+obs_point = ccd_centre + obs_ccd_dist * ccd_centre/norm2(ccd_centre)
+write(48,*) obs_point
 
-ccdc_rad = sqrt(ccd_centre(1)**2+ccd_centre(2)**2+ccd_centre(3))
-ccdc_theta = acos(ccd_centre(3)/ccdc_rad)
+ccdc_rad = sqrt(ccd_centre(ind_x)**2+ccd_centre(ind_y)**2+ccd_centre(ind_z))
+ccdc_theta = acos(ccd_centre(ind_z)/ccdc_rad)
+write(*,*) 'brtm: ccdc_rad = ', ccdc_rad, ' ccdc_theta = ', ccdc_theta
 ! phi is more complicated to calculate
-IF(ccd_centre(1) > 0.0) THEN
- IF(ccd_centre(2) >= 0.0) THEN
-  ccdc_phi = atan(ccd_centre(1)/ccd_centre(1))
- ELSE IF(ccd_centre(2) < 0.0) THEN
-  ccdc_phi = atan(ccd_centre(1)/ccd_centre(1)) + 2.0 * pi
+IF(ccd_centre(ind_x) > 0.0) THEN
+ ccdc_phi = atan(ccd_centre(ind_y)/ccd_centre(ind_x))
+ELSE IF(ccd_centre(ind_x) == 0.0) THEN
+ IF(ccd_centre(ind_y) > 0.0) THEN
+  ccdc_phi = const_pi/2.0
+ ELSE IF(ccd_centre(ind_y) < 0.0) THEN
+  ccdc_phi = -const_pi/2.0
  END IF
-ELSE IF(ccd_centre(1) == 0.0) THEN
- IF(ccd_centre(2) > 0.0) THEN
-  ccdc_phi = pi/2.0
- ELSE IF(ccd_centre(2) < 0.0) THEN
-  ccdc_phi = 3.0 * pi/2.0
+ELSE IF(ccd_centre(ind_x) < 0.0) THEN
+ IF(ccd_centre(ind_y) >= 0.0) THEN
+  ccdc_phi = atan(ccd_centre(ind_y)/ccd_centre(ind_x)) + const_pi
+ ELSE IF(ccd_centre(ind_y) < 0.0) THEN
+  ccdc_phi = atan(ccd_centre(ind_y)/ccd_centre(ind_x)) - const_pi
  END IF
-ELSE IF(ccd_centre(1) < 0.0) THEN
- ccdc_phi = atan(ccd_centre(1)/ccd_centre(1)) + pi
 END IF
 
-! a size of a detector
-det_lu = 5
-det_lv = 5
+write(*,*) 'brtm: ccdc_rad = ', ccdc_rad/R_star, ' ccdc_phi = ', ccdc_phi, ' ccdc_theta = ', ccdc_theta
+
 
 
 ! !!! only a temporary solution !!!
 ! a calculation of the vectors u and v
-det_vec_u = (/ sin(ccdc_theta) * cos(ccdc_phi), sin(ccdc_theta) * sin(ccdc_phi), -cos(ccdc_theta) /)
+det_vec_u = (/ cos(ccdc_theta) * cos(ccdc_phi), cos(ccdc_theta) * sin(ccdc_phi), -sin(ccdc_theta) /)
 det_vec_v = (/ -sin(ccdc_phi), cos(ccdc_phi), 0.D0 /)
-
+write(31,*) ccd_centre, det_vec_u
+write(31,*) ccd_centre, det_vec_v
+write(31,*) ccd_centre, ccd_centre
 ! a size of a single cell
 det_cell_wu = det_lv / DBLE(det_nu)
 det_cell_wv = det_lu / DBLE(det_nv)
 
 ! lower coordinates of a ccd chip
 uvmin = ccd_centre - 0.5D00 * (det_vec_u * det_lu + det_vec_v * det_lv)
-write(*,*) 'brtm: uvmin = ', uvmin
+write(48,*) uvmin
 
 ! 
 #if mpi == 1
@@ -120,15 +133,17 @@ write(*,*) 'brtm: my_ccd_start = ', my_ccd_start, ' my_ccd_end = ', my_ccd_end
 DO cur_ccd = my_ccd_start, my_ccd_end
  ! write(*,*) 'brtm: cur_ccd = ', cur_ccd
  det_cur_nv = INT((cur_ccd - 1)/det_nu) + 1
- det_cur_nu = cur_ccd - (det_cur_nv -1) * det_nu
+ det_cur_nu = INT(cur_ccd - (det_cur_nv -1) * det_nu)
  
- ccd_point = uvmin + det_cell_wu * det_vec_u * (det_cur_nu + 0.5D0) + &
-   & det_cell_wv * det_vec_v * (det_cur_nv + 0.5D0)
+ ccd_point = uvmin + det_cell_wu * det_vec_u * (det_cur_nu - 0.5D0) + &
+   & det_cell_wv * det_vec_v * (det_cur_nv - 0.5D0)
  
- ! write(*,*) 'brtm: ccd_point = ', ccd_point(2), ccd_point(3)
+ write(*,*) 'brtm: ccd_point = ', ccd_point(ind_y) - ccd_centre(ind_y), ccd_point(ind_z) - ccd_centre(ind_z)
 
  cur_direction = (ccd_point - obs_point)/norm2(ccd_point - obs_point)
- ! write(*,*) 'brtm: cur_direction = ', cur_direction
+ write(46,*) obs_point, ccd_point - obs_point
+ write(47,*) ccd_point
+
 
 ! END DO  
 !  ! ccd_point = 
@@ -179,6 +194,7 @@ DO cur_ccd = my_ccd_start, my_ccd_end
   
  
  END DO ! a loop over virtual packets
+ write(*,*) 'brtm: det_cur_nv = ', det_cur_nv, ' det_cur_nu = ', det_cur_nu, ' n_inside = ', n_inside, ' n_outside = ', n_outside
  
  CALL do_brtm_spectrum(Nvpackets, nu_min, nu_max, freqs, cur_spectrum)
  

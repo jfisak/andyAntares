@@ -1,4 +1,9 @@
 ! this sbr analyses input from the file input.dat
+! it is looking for input models and input composition
+! if one of these files does not exist, the program stops
+!
+! INPUT: none
+! OUTPUT: none
 SUBROUTINE analyse_input()
 
 USE types

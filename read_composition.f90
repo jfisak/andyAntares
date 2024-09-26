@@ -66,7 +66,7 @@ OPEN (UNIT=7, FILE=inputcomposition)
    READ(line,*) Z, abundance, lowerion, upperion, mass
    write(99,*) Z, abundance, lowerion, upperion, mass
    elements(I)%atom_number = Z
-   elements(I)%atom_mass = mass * mp_g
+   elements(I)%atom_mass = mass * const_mp_g
    ! Number of ions 
    nions =  upperion - lowerion + 1
    !write(99,*) 'Z = ', Z, ' nions = ', nions

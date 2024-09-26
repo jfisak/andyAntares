@@ -1,6 +1,9 @@
 ! this subroutine finds an adaptive grid cell corresponding to an input position
 ! this subroutine expects a position out of bounds of the dyncells
-SUBROUTINE find_dyn_cell1(pos,actual_cell)
+!
+! INPUT         pos             position
+! OUTPUT        actual_cell     returns an index of the current cell
+SUBROUTINE find_dyn_cell1(pos, actual_cell)
 
 USE types
 USE constants
@@ -24,6 +27,7 @@ DOUBLE PRECISION                                :: rat1, rat2, rat3
 INTEGER, DIMENSION(3)                           :: n_cell
 
 DOUBLE PRECISION, PARAMETER                     :: epsilon0 = 1e-6
+DOUBLE PRECISION, DIMENSION(3)                  :: pobcw
 
 n_cell = (/ nx_cell, ny_cell, nz_cell /)
 
@@ -37,8 +41,6 @@ n_cell = (/ nx_cell, ny_cell, nz_cell /)
 ! bounds test
 
 
-! write(*,*) 'find_dyn_cell1: x/xmax = ', pos(1)/xmax, ' y/ymax = ', pos(2)/ymax, ' z/zmax = ', pos(3)/zmax
-! write(*,*) 'find_dyn_cell1: x/xmin = ', pos(1)/xmin, ' y/ymin = ', pos(2)/ymin, ' z/zmin = ', pos(3)/zmin
 IF(pos(1) > xmax .or. pos(1) < -xmax) THEN
  actual_cell = -99
  RETURN
@@ -53,9 +55,14 @@ IF(pos(3) > zmax .or. pos(3) < -zmax) THEN
 END IF
 
 ! firstly we can compute which basic cell this point contains
-bcell(1) = FLOOR(pos(1)/basic_cell_width(1) + dble(nx_cell)/2.D0) + 1
-bcell(2) = FLOOR(pos(2)/basic_cell_width(2) + dble(ny_cell)/2.D0) + 1
-bcell(3) = FLOOR(pos(3)/basic_cell_width(3) + dble(nz_cell)/2.D0) + 1
+pobcw = pos(:)/basic_cell_width(:)
+bcell(1) = FLOOR(pobcw(1) + dble(nx_cell)/2.D0) + 1
+bcell(2) = FLOOR(pobcw(2) + dble(ny_cell)/2.D0) + 1
+bcell(3) = FLOOR(pobcw(3) + dble(nz_cell)/2.D0) + 1
+
+! write(*,*) 'find_dyn_cell1: bcell = ', bcell, ' pobcw = ', pobcw
+! write(*,*) 'find_dyn_cell1: pos(1)/width(1) = ', pos(:)/basic_cell_width(:), ' n_x/2 = ', dble(nx_cell)/2.D0
+! write(*,*) 'find_dyn_cell1: (...) = ', pos(1)/basic_cell_width(1) - FLOOR(pos(1)/basic_cell_width(1))
 
 ! correction for the boundaries
 IF(pos(1) == xmax) THEN
@@ -67,6 +74,20 @@ END IF
 IF(pos(3) == zmax) THEN
  bcell(3) = bcell(3) - 1
 END IF
+
+IF(pos(1) < xmax .and. bcell(1) == nx_cell + 1) THEN
+ bcell(1) = bcell(1) - 1
+ write(*,*) 'find_dyn_cell1: korekce na bunku ve smeru x'
+END IF
+IF(pos(2) < xmax .and. bcell(2) == nx_cell + 1) THEN
+ bcell(2) = bcell(2) - 1
+ write(*,*) 'find_dyn_cell1: korekce na bunku ve smeru y'
+END IF
+IF(pos(3) < xmax .and. bcell(3) == nx_cell + 1) THEN
+ bcell(3) = bcell(3) - 1
+ write(*,*) 'find_dyn_cell1: korekce na bunku ve smeru z'
+END IF
+
 ! write(*,*) 'find_dyn_cell1: bcell = ', bcell
 
 ! index of the given basic cell
