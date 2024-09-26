@@ -44,9 +44,9 @@ DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: vec_AB, vec_AC
 INTEGER, DIMENSION(const_dimofspace)                    :: f_indexy, index_delete, mgi_indexy
 INTEGER                                                 :: cur_del_index, cur_mgi
 
-LOGICAL                                                 :: procout=.true.
+LOGICAL                                                 :: procout=.false.
 
-write(*,*) 'seek_nclosest_points: cur_points = ', cur_points
+! write(*,*) 'seek_nclosest_points: cur_points = ', cur_points
 !_______________________________________________________________
 !            SEEKING FOR THE n_closest CLOSEST POINTS
 !_______________________________________________________________
@@ -88,7 +88,7 @@ DO cur_nearest_point = 1, cur_n_points ! #L00
  mgi_indexy(:) = 0
  ! going value by value and counting the number of points with very same coordinate
  ! the number larger than two is useless, therefore we skip this point
- write(*,*) 'seek_nclosest_points: cur_mg_pos = ', cur_mg_pos
+ ! write(*,*) 'seek_nclosest_points: cur_mg_pos = ', cur_mg_pos
 
  ! if the current point is not closer than the most far (last index) point in the interp_dist,
  ! we do not have to do anything and go to the following point
@@ -199,14 +199,14 @@ DO cur_nearest_point = 1, cur_n_points ! #L00
   
  ! we can now put the new point into the list
  ! without erassing any other point
- write(*,*) 'seek_nclosest_points: novyBod = ', novyBod
+ ! write(*,*) 'seek_nclosest_points: novyBod = ', novyBod
  IF(novyBod .or. nahrada) THEN
   pom = interp_dist
-  write(*,*) 'seek_nclosest_points: cur_index_pos = ', cur_index_pos, ' n_closest = ', n_closest
+  ! write(*,*) 'seek_nclosest_points: cur_index_pos = ', cur_index_pos, ' n_closest = ', n_closest
   DO cur_index_pos = 1, n_closest
-   write(*,*) 'seek_nclosest_points: cip = ', cip, ' cur_index_pos = ', cur_index_pos
+   ! write(*,*) 'seek_nclosest_points: cip = ', cip, ' cur_index_pos = ', cur_index_pos
    cur_dist = interp_dist(cur_index_pos, ind_dist)
-   write(*,*) 'seek_nclosest_points: cur_dist = ', cur_dist, ' dist = ', dist
+   ! write(*,*) 'seek_nclosest_points: cur_dist = ', cur_dist, ' dist = ', dist
    IF(dist < cur_dist) THEN
     DO cip = cur_index_pos, n_closest
      IF(cip == cur_index_pos) THEN
@@ -222,12 +222,12 @@ DO cur_nearest_point = 1, cur_n_points ! #L00
    END IF
   END DO
  END IF ! novyBod
- write(*,*) 'seek_nclosest_points: interp_dist() = ', INT(interp_dist(:,ind_index))
+ ! write(*,*) 'seek_nclosest_points: interp_dist() = ', INT(interp_dist(:,ind_index))
 END DO ! #L00 loop over all possible points
 
 closest_points = INT(interp_dist(:,ind_index))
 
-write(*,*) 'seek_nclosest_points: interp_dist = ', interp_dist(:,ind_index)
-write(*,*) 'seek_nclosest_points: interp_dist = ', interp_dist(:,ind_dist)
+! write(*,*) 'seek_nclosest_points: interp_dist = ', interp_dist(:,ind_index)
+! write(*,*) 'seek_nclosest_points: interp_dist = ', interp_dist(:,ind_dist)
 
 END SUBROUTINE seek_nclosest_points

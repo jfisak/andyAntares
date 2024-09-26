@@ -93,22 +93,25 @@ END IF
 ! this is done for unification of the forthcoming code (after this if)
 IF(dist_A < dist_B) THEN
  cur_n_points = n_points_A(n_A)
- cur_start_index = indices_A(n_A)
- cur_end_index = cur_start_index + cur_n_points - 1
-
  ALLOCATE(cur_points(cur_n_points))
+ IF(cur_n_points > 0) THEN
+  cur_start_index = indices_A(n_A)
+  cur_end_index = cur_start_index + cur_n_points - 1
+  cur_points = vg_indexy_A(cur_start_index:cur_end_index,2)
+  chosen_gridAB = grid_A
+ ELSE
+  cur_start_index = -1
+  cur_end_index = -1
+ END IF
 
- ! write(*,*) 'n_closest_points_2D: vg_indexy_A = ', vg_indexy_A(:,:)
- cur_points = vg_indexy_A(cur_start_index:cur_end_index,2)
- chosen_gridAB = grid_A
  
 ELSE
  cur_n_points = n_points_B(n_B)
+ ALLOCATE(cur_points(cur_n_points))
  cur_start_index = indices_B(n_B)
  cur_end_index = cur_start_index + cur_n_points - 1
 
  ! write(*,*) 'vel_interpolation: n_closest = ', n_closest
- ALLOCATE(cur_points(cur_n_points))
 
  ! write(*,*) 'n_closest_points_2D: vg_indexy_B = ', vg_indexy_B(:,:)
  cur_points = vg_indexy_B(cur_start_index:cur_end_index,2)
@@ -118,12 +121,11 @@ ELSE
  chosen_gridAB = grid_B
 END IF ! dist_A < dist_B
 
-! write(*,*) 'n_closest_points_2D: cur_points = ', cur_points
 CALL seek_nclosest_points(cur_pos, cur_points, N_points, cur_n_points, closest_points)
 
-write(*,*) 'n_closest_points_2D: cur_points = ', cur_points
+! write(*,*) 'n_closest_points_2D: cur_points = ', cur_points
 
-write(*,*) 'n_closest_points_2D: closest_points = ', closest_points
+! write(*,*) 'n_closest_points_2D: closest_points = ', closest_points
 
 
 END SUBROUTINE n_closest_points_2D
