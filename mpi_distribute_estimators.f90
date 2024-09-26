@@ -1,6 +1,5 @@
 SUBROUTINE mpi_distribute_estimators()
 
-USE MPI
 USE types
 USE constants
 IMPLICIT NONE
