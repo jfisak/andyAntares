@@ -106,14 +106,14 @@ CALL saha_factor(indexe, indexi, indexl, temp, sfactor)
 ! saving field of exponentials, it will speed up the calculation procedure
 ! DO I = Istart, n_points
 !  act_freq = freqs(I)
-!  exps(I - Istart + 1) = exp(- ( h * act_freq ) / ( BOLK * temp ))
+!  exps(I - Istart + 1) = exp(- ( h * act_freq ) / ( const_kB * temp ))
 !  ! write(*,*) 'exps(I) = ', exps(I)
 ! END DO
 ! calculation of the integral value
 ! act_sum = 0.D0
 ! ints(1) = 0.D0
 ! DO I = 1, n_points - Istart
-!  act_value = 2.D0  * h / light_speed**2 *&
+!  act_value = 2.D0  * h / const_c**2 *&
 !   ( css(I + 1) * freqs(I + 1)**3 * exps( I + 1) + css(I) * freqs(I)**3 * exps(I)) &
 !   * (freqs(I + 1) - freqs(I)) / 2.D0
 !  ints(I + 1) = act_sum + act_value
@@ -131,13 +131,13 @@ DEALLOCATE(exps)
 ! we found interval of frequency, where the new frequency is placed
 act_sum = 0.D0
 
-fI = (2.0 * h * freqs(n_points) / light_speed**2.0) * css(n_points) *&
- exp(-(h * freqs(n_points)) / (BOLK * temp))
+fI = (2.0 * h * freqs(n_points) / const_c**2.0) * css(n_points) *&
+ exp(-(h * freqs(n_points)) / (const_kB * temp))
 DO I=2, n_points - 1
  ind = n_points - I + 1
  fI1 = fI
- fI = (2.0 * h * freqs(ind)**3.0 / light_speed**2.0) * css(ind) *&
- exp(-(h * freqs(ind)) / (BOLK * temp))
+ fI = (2.0 * h * freqs(ind)**3.0 / const_c**2.0) * css(ind) *&
+ exp(-(h * freqs(ind)) / (const_kB * temp))
  area = 5.D-1 * (fI + fI1) * (freqs(ind) - freqs(ind - 1))
  act_sum = act_sum + area
   ! write(*,*) 'i_freq_recomb: ints = ', act_sum, ' int_value = ', int_value

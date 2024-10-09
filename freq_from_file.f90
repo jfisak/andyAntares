@@ -83,8 +83,8 @@ CASE (1)
     ! wl in log(Angstroms), flux in erg / cm^2 / s / Hz
     READ(11,*) logwv, Iflux
     ! CHECK ONCE MORE !!!!!!!!!!!!!!!!!
-    incomingflux(NR - I + 1, 1) = 1.D6 * light_speed * exp(- logwv)
-    ! incomingflux(I, 2) = light_speed * Iflux / (incomingflux(I, 1) ** 2.0)
+    incomingflux(NR - I + 1, 1) = 1.D6 * const_c * exp(- logwv)
+    ! incomingflux(I, 2) = const_c * Iflux / (incomingflux(I, 1) ** 2.0)
     incomingflux(I, 2) = Iflux
     ! write(*,*) 'freq_from_file: I = ', I, ' logwv = ', logwv, ' freq = ', incomingflux(I, 1), ' flux = ', incomingflux(I, 2)
    END DO

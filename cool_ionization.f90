@@ -64,7 +64,7 @@ CASE (1)
               elements(indexe)%ions(indexi)%levels(indexl)%exci_energy) / const_h
      !write(*,*) 'cool_ionization: indexe = ', indexe, ' indexi = ', indexi, ' indexl = ', indexl, ' freq = ', freq
      ! argument of E_1(x)
-     x = (const_h * freq) / (BOLK * temp)
+     x = (const_h * freq) / (const_kB * temp)
      ! exponential integral function (calculation of eif)
      CALL exp_int_func(1, x, eif)
      ! write(*,*) 'cool_ionization: calling populations...'

@@ -22,7 +22,7 @@ INTEGER                                :: vacuum
 
 DOUBLE PRECISION                        :: unit_length, unit_velocity, unit_density
 
-unit_length = 12.64759321736591 * R_sun
+unit_length = 12.64759321736591 * const_Rsun
 unit_velocity = 1.D8
 unit_density = 1.41314878888978971775872825028550241D-0006
 
@@ -43,6 +43,7 @@ unit_density = 1.41314878888978971775872825028550241D-0006
   n_modelgrid = n_modelgrid + 1
  END DO
  write(99,*) 'mumber of model grids: ', n_modelgrid
+ write(*,*) 'mumber of model grids: ', n_modelgrid
  IF (n_modelgrid .EQ. 0) STOP 'no model grid cells were found...'
  ! n_modelgrid + 1 ... for dummy cells
  ! n_modelgrid + 2 ... for cells with r < R_inf but too far from some model grid point
@@ -61,6 +62,7 @@ unit_density = 1.41314878888978971775872825028550241D-0006
   model_grid(I)%T = temp
   model_grid(I)%J = 0.D0
   model_grid(I)%assoc_cells = 0
+  IF(temp < 1000) STOP 'read_2D_basic: temp < 1000'
   ALLOCATE (model_grid(I)%grid_comp(n_elements))
   ! now we add informations about every included element for every model cell
   DO J = 1, n_elements
@@ -146,4 +148,6 @@ unit_density = 1.41314878888978971775872825028550241D-0006
  !  END DO
  ! CLOSE(77)
 
- END SUBROUTINE read_2D_basic
+write(*,*) 'read_2D_basic: minval temp = ', MINVAL(model_grid(:)%T)
+
+END SUBROUTINE read_2D_basic

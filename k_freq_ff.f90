@@ -22,7 +22,7 @@ cur_mgi = get_package_model_index(pack_index)
 e_dens = model_grid(cur_mgi)%e_dens
 temp = model_grid(cur_mgi)%t
 
-ran_freq = - BOLK * temp / const_h * log(ran_z)
+ran_freq = - const_kB * temp / const_h * log(ran_z)
 
 
 END SUBROUTINE k_freq_ff

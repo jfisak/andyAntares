@@ -25,7 +25,7 @@ DOUBLE PRECISION                        :: Blu, Bul, fr_line
 
 DOUBLE PRECISION                        :: flux_function
 
-constanta = (const_pi * e_charge**2)/( const_me_g * light_speed)
+constanta = (const_pi * const_e**2)/( const_me_g * const_c)
 
 file_linetrans = trim(outputfolder)//'/r_linetrans.dat'
 
@@ -41,7 +41,7 @@ DO cur_mgi = 1, n_modelgrid
   ! line optical depths
  DO cur_line = 1, ntransitions
   fr_line = linelist(cur_line)%freq
-  cur_wavelength = 1e8 * light_speed / fr_line
+  cur_wavelength = 1e8 * const_c / fr_line
   indexe = linelist(cur_line)%indexe
   indexi = linelist(cur_line)%indexi
   lower_level = linelist(cur_line)%lower
@@ -64,10 +64,10 @@ DO cur_mgi = 1, n_modelgrid
 
 
   ! i opacities
-  taulu = light_speed / fr_line * constanta * &
+  taulu = const_c / fr_line * constanta * &
    linelist(cur_line)%f_lu * upp_pop * ROverV * corrFactor
   betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
-  Aul = 8.D0 * fr_line**2 * const_pi**2 * e_charge**2/ (const_me_g * light_speed**3) *&
+  Aul = 8.D0 * fr_line**2 * const_pi**2 * const_e**2/ (const_me_g * const_c**3) *&
    stat_weight_l / stat_weight_u * linelist(cur_line)%f_lu
   Jlu = flux_function(0, fr_line, model_grid(cur_mgi)%T, model_grid(cur_mgi)%rwind)
 
@@ -79,7 +79,7 @@ DO cur_mgi = 1, n_modelgrid
   ! internal upward jump rate
 
   
-  Blu = 4 * const_pi**2 * e_charge**2 / (const_me_g * light_speed * const_h * fr_line) * linelist(cur_line)%f_lu
+  Blu = 4 * const_pi**2 * const_e**2 / (const_me_g * const_c * const_h * fr_line) * linelist(cur_line)%f_lu
   Bul = DBLE(stat_weight_l) / DBLE(stat_weight_u) * Blu
 
   actVal = (Blu * low_pop - Bul * upp_pop) * betalu * Jlu

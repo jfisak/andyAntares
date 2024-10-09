@@ -69,12 +69,12 @@ OPEN(UNIT=11, FILE=modelfile)
 
   READ(line,*) x, y, z, vx, vy, vz, rho, temp, lambda
   
-  model_grid(cur_mgi)%vec_pos(1) = x * R_sun
-  model_grid(cur_mgi)%vec_pos(2) = y * R_sun
-  model_grid(cur_mgi)%vec_pos(3) = z * R_sun
-  model_grid(cur_mgi)%rwind = sqrt(x**2 + y**2 + z**2) * R_sun
+  model_grid(cur_mgi)%vec_pos(1) = x * const_Rsun
+  model_grid(cur_mgi)%vec_pos(2) = y * const_Rsun
+  model_grid(cur_mgi)%vec_pos(3) = z * const_Rsun
+  model_grid(cur_mgi)%rwind = sqrt(x**2 + y**2 + z**2) * const_Rsun
 
-  cur_radius = R_sun * sqrt(x**2 + y**2 + z**2)
+  cur_radius = const_Rsun * sqrt(x**2 + y**2 + z**2)
 
   model_grid(cur_mgi)%vec_vel(1) = vx
   model_grid(cur_mgi)%vec_vel(2) = vy
@@ -83,7 +83,7 @@ OPEN(UNIT=11, FILE=modelfile)
   model_grid(cur_mgi)%diff_param = lambda
 
   cur_velocity = sqrt(vx**2 + vy**2 + vz**2)
-  IF(cur_velocity > light_speed) THEN
+  IF(cur_velocity > const_c) THEN
    write(*,*) 'read_3D_nico: the velocity of the point I = ', cur_velocity,&
     ' is larger than the speed of light'
    CALL abort()
@@ -134,10 +134,10 @@ DO I = 1, add_mg
 END DO
   
  V_inf = cur_vinf/10.0
- xmax = (cur_xmax + cur_xmax / R_star / 100.0) * R_sun  
- ymax = (cur_ymax + cur_ymax / R_star / 100.0) * R_sun 
- zmax = (cur_zmax + cur_zmax / R_star / 100.0) * R_sun 
- ! write(*,*) 'read_3D_nico: T_eff = ', T_eff, 'R_star = ', R_star/R_inf, ' R_inf = ', R_inf/R_sun, ' V_inf = ', V_inf
+ xmax = (cur_xmax + cur_xmax / R_star / 100.0) * const_Rsun  
+ ymax = (cur_ymax + cur_ymax / R_star / 100.0) * const_Rsun 
+ zmax = (cur_zmax + cur_zmax / R_star / 100.0) * const_Rsun 
+ ! write(*,*) 'read_3D_nico: T_eff = ', T_eff, 'R_star = ', R_star/R_inf, ' R_inf = ', R_inf/const_Rsun, ' V_inf = ', V_inf
  ! write(*,*) 'read_3D_nico: xmax = ', xmax/R_inf, ' ymax = ', ymax/R_inf, ' zmax = ', zmax/R_inf
  !  write(*,*) 'read_3D_nico: xmax/R_inf = ', xmax/R_inf
  write(*,*) 'read_3D_nico: V_prop/V_inf = ', 6.0*(xmax/R_inf)*(ymax/R_inf)*(zmax/R_inf)/const_pi

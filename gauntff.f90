@@ -32,7 +32,7 @@ DOUBLE PRECISION                                :: freq, temp
 DOUBLE PRECISION                                :: gff
 !
 DOUBLE PRECISION                                :: theta, lam, x
-DOUBLE PRECISION                                :: light_speed_m = 1.D-2 * light_speed
+DOUBLE PRECISION                                :: light_speed_m = 1.D-2 * const_c
 
 theta = thetaConst / temp
 lam = light_speed_m / freq

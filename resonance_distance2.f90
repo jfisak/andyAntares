@@ -54,7 +54,7 @@ ufreq = bfreq
 ubond = rbond
 
 ! **testing**
-! ldist = light_speed * (R_inf/V_inf) * ((package(pack_index)%freq_cmf - f_line)/f_line)
+! ldist = const_c * (R_inf/V_inf) * ((package(pack_index)%freq_cmf - f_line)/f_line)
 ! if(ldist > cell_dist) then
 !  ldist = R_inf
 ! end if

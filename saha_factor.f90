@@ -27,13 +27,17 @@ indexl0(:) = MINLOC(elements(indexe)%ions(indexi)%levels(:)%exci_energy)
 ! ' electron_density = ', electron_density
 !write(*,*) 'saha_factor: sfactor = ', sfactor
 
-sahaconst = 5.D-1 * (const_h**2 / (2.0 * const_pi * const_me_g * BOLK))**(3.0/2.0)
-gijk = elements(indexe)%ions(indexi - 1)%levels(indexl)%stat_waight
-g0 = elements(indexe)%ions(indexi)%levels(indexl0(1))%stat_waight
-eijk = elements(indexe)%ions(indexi - 1)%levels(indexl)%exci_energy
-e0 = elements(indexe)%ions(indexi)%levels(indexl0(1))%exci_energy
-
-sfactor = gijk / g0 * sahaconst / temp**(3.0/2.0) * exp((e0 - eijk) / (BOLK * temp))
+IF(temp > 0.D0) THEN
+ sahaconst = 5.D-1 * (const_h**2 / (2.0 * const_pi * const_me_g * const_kB))**(3.0/2.0)
+ gijk = elements(indexe)%ions(indexi - 1)%levels(indexl)%stat_waight
+ g0 = elements(indexe)%ions(indexi)%levels(indexl0(1))%stat_waight
+ eijk = elements(indexe)%ions(indexi - 1)%levels(indexl)%exci_energy
+ e0 = elements(indexe)%ions(indexi)%levels(indexl0(1))%exci_energy
+ 
+ sfactor = gijk / g0 * sahaconst / temp**(3.0/2.0) * exp((e0 - eijk) / (const_kB * temp))
+ELSE IF (temp == 0.D0) THEN
+ sfactor = 0.D0
+END IF
 
 
 IF(isnan(sfactor) .or. sfactor > greatNumber) THEN

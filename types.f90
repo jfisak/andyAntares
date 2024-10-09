@@ -223,6 +223,7 @@ SAVE
   INTEGER                               :: n_pack_save
   ! temporary file name
   CHARACTER(160)                     :: temp_filename = 'temp_packet'
+  CHARACTER(180)                        :: put_a_note
   INTEGER                               :: tot_saved_packets
   ! for testing case
   LOGICAL                               :: simpleTrans, orbitals_nl
@@ -231,6 +232,8 @@ SAVE
   LOGICAL                               :: vel_propgrid = .false., vel_modgrid = .true.
 
   INTEGER, PARAMETER                    :: const_dimofspace = 3
+
+  DOUBLE PRECISION, PARAMETER           :: beta = 1.3D0
 
 
 

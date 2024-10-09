@@ -85,7 +85,7 @@ IF(initPoint == 0) STOP 'k_freq_fb: initPoint = 0'
 ! calculation of the first integral
 ! firstly filling the arrays
 DO I = 1, nfreq
- x = ( const_h * freq(I)) / ( BOLK * temp )
+ x = ( const_h * freq(I)) / ( const_kB * temp )
  func(I) = cross(I) * freq(I)**3.0 * exp(-x)
 END DO
 DO I = 1, nfreq - 1

@@ -56,6 +56,7 @@ USE constants
 ! 024 diffusion
 ! 025 BRTM
 ! 026 Sobolev approximation
+! 027 Note
   DO
     READ (1, '(A)', END=99) LINE
 
@@ -239,11 +240,18 @@ USE constants
 
     ! 26 Sobolev approximation
     ELSE IF (ACTPAR .EQ. 'sobolev') THEN
-    CALL SARGC (LINE, NPAR)
-    IF (NPAR .LT. 2) GOTO 90
-    CALL SARGV(LINE,2,ACTPAR)
+     CALL SARGC (LINE, NPAR)
+     IF (NPAR .LT. 2) GOTO 90
+     CALL SARGV(LINE,2,ACTPAR)
     READ (ACTPAR, '(I2)', ERR=94) sobolev_approximation
-    ! end all ifs
+     ! 27 Note
+     ! ELSE IF (ACTPAR .EQ. 'note') THEN
+     ! CALL SARGC (LINE, NPAR)
+     ! IF (NPAR .LT. 2) GOTO 90
+     ! CALL SARGV(LINE,2,ACTPAR)
+     ! DO
+     ! write(*,*) 'read_input: note = ', put_a_note
+     ! end all ifs
     END IF
   END DO
 

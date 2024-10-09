@@ -148,7 +148,7 @@ SELECT CASE (inputModel)
   OPEN(UNIT=11,status='old',FILE=modelfile)
    ! at first the number of rows calculation...
    n_modelgrid = 0
-  R_star = R_star * r_sun
+  R_star = R_star * const_Rsun
 !  T_eff = 37500
   DO I=1,maxrows
     READ(11,*,IOSTAT=ios) junk, junk, junk, junk, junk, junk, junk
@@ -204,7 +204,7 @@ SELECT CASE (inputModel)
  ! 4. temperature / K
  CASE(2)
   write(99,*) 'we will read the TESTCASE from the PoWR code...'
-  R_star = 20.066 * R_sun
+  R_star = 20.066 * const_Rsun
   T_eff = 37000
   add_mg = 1
   CALL GET_ENVIRONMENT_VARIABLE("POWRMODEL", powrfile)

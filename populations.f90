@@ -47,7 +47,7 @@ CASE(0)
  temp = model_grid(model_cell)%T
  
  pop_number = ground_level_pop * g_stat / g_gstat * &
-        exp(-e_exc / BOLK / temp )! * &
+        exp(-e_exc / const_kB / temp )! * &
  ! if(indexe == 1 .and. indexi == 1 .and. level == 5) pop_number = 2.00 * pop_number
  ! write(*,*) 'populations: rho = ', rho, ' abund = ', abund, ' temp = ', temp
  ! write(*,*) 'populations: ground_level_pop = ', ground_level_pop

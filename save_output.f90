@@ -136,12 +136,12 @@ CASE(1)
  ! line rates
  write(lineOutput,"(A, A9, I3.3, A4)") trim(outputfolder), '/linevar.', my_rank, '.dat'
  OPEN(11,FILE=lineOutput)
-  DO I = 1, ntransitions
+  DO ind_I = 1, ntransitions
    ! wavelength is in Angstroms
-   wavle = 1e8 * light_speed / linelist(I)%freq
-   WRITE(11,*) I, elements(linelist(I)%indexe)%atom_number, linelist(I)%indexi, wavle,&
-    linelist(I)%lower, linelist(I)%upper, &
-    linelist(I)%f_lu, linelist(I)%n_int, linelist(I)%n_deexc, linelist(I)%counted
+   wavle = 1e8 * const_c / linelist(ind_I)%freq
+   WRITE(11,*) ind_I, elements(linelist(ind_I)%indexe)%atom_number, linelist(ind_I)%indexi, &
+    wavle, linelist(I)%lower, linelist(ind_I)%upper, linelist(ind_I)%f_lu, &
+    linelist(ind_I)%n_int, linelist(ind_I)%n_deexc, linelist(ind_I)%counted
   END DO
  CLOSE(11)
 !________________________________________________________________________________
@@ -651,7 +651,7 @@ CASE(102)
  write(99,*) '__________________________________________________'
  write(99,*) '_________MODEL GRID DESCRIPTION___________________'
  write(99,*) '__________________________________________________'
- write(99,*) 'R_star = ', R_star/R_sun, 'R_inf = ', R_inf/R_sun
+ write(99,*) 'R_star = ', R_star/const_Rsun, 'R_inf = ', R_inf/const_Rsun
 
  write(99,*) '__________________________________________________'
  

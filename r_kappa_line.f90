@@ -39,7 +39,7 @@ INTEGER, PARAMETER                              :: max_n_of_velopackets = 200
 INTEGER                                         :: cur_dummypack, dummypack_index
 
 ! the basic variables
-constanta = (const_pi * e_charge**2)/( const_me_g * light_speed)
+constanta = (const_pi * const_e**2)/( const_me_g * const_c)
 
 ! write(*,*) 'r_kappa_line: nnextlines = ', nnextlines
 
@@ -79,7 +79,7 @@ DO I = 1, nnextlines
  f_lu = linelist(indexline)%f_lu
  IF(velApprox == 0 .or. velApprox == 1) THEN
   ROverV = roverw(pack_index, line_dist, fr_line)
-  actirrates%Lline(I) = light_speed / fr_line * constanta * &
+  actirrates%Lline(I) = const_c / fr_line * constanta * &
    f_lu * low_pop * corrFactor * ROverV
   actirrates%nline(I) = indexline
  ELSE IF(velApprox == 3) THEN
@@ -137,7 +137,7 @@ DO I = 1, nnextlines
   ! write(*,*) 'r_kappa_line: delta_s = ', s_pls - s_min, ' delta_nu = ', cmf_pls - cmf_min
  
   tau_line_2 = low_pop * constanta * f_lu * corrFactor * deriv
-  ! tau_line_2 = light_speed / fr_line * constanta * f_lu * low_pop * corrFactor * deriv2
+  ! tau_line_2 = const_c / fr_line * constanta * f_lu * low_pop * corrFactor * deriv2
   actirrates%Lline(I) = tau_line_2
   actirrates%nline(I) = indexline
 
@@ -145,7 +145,7 @@ DO I = 1, nnextlines
   ! costheta = dot_product(package(pack_index)%dir, V_pos_vec) / V_pos
   ! ROverV = 1.0 / (costheta**2.0 * dV_pos + (1.0 - costheta**2.0)* V_pos / R_pos)
   ! ROverV = roverw(pack_index, line_dist, fr_line)
-  tau_line_3 = light_speed / fr_line * constanta * &
+  tau_line_3 = const_c / fr_line * constanta * &
    f_lu * low_pop * corrFactor * R_inf/V_inf
   actirrates%Lline(I) = tau_line_2
   IF(pack_index < max_n_of_velopackets) THEN

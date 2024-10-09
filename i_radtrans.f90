@@ -40,7 +40,7 @@ LOGICAL                                 :: stmasnab=.false.
 
 DOUBLE PRECISION                        :: cur_r
 
-constanta = (const_pi * e_charge**2)/( const_me_g * light_speed)
+constanta = (const_pi * const_e**2)/( const_me_g * const_c)
 
 cur_r = norm2(package(pack_index)%pos)
 ! initialization of total rates
@@ -101,16 +101,16 @@ DO I = 1, nlns
  ROverV = roverw(pack_index, R_star, fr_line)
 
 
- taulu = light_speed / fr_line * constanta * &
+ taulu = const_c / fr_line * constanta * &
    linelist(act_line)%f_lu * up_pop * ROverV * corrFactor
 
 
  betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
 
 
- Blu = 4 * const_pi**2 * e_charge**2 / (const_me_g * light_speed * const_h * fr_line) * linelist(act_line)%f_lu
+ Blu = 4 * const_pi**2 * const_e**2 / (const_me_g * const_c * const_h * fr_line) * linelist(act_line)%f_lu
  Bul = stat_weight_l / stat_weight_u * Blu
- Aul = 8.D0 * fr_line**2 * const_pi**2 * e_charge**2/ (const_me_g * light_speed**3) *&
+ Aul = 8.D0 * fr_line**2 * const_pi**2 * const_e**2/ (const_me_g * const_c**3) *&
   stat_weight_l / stat_weight_u * linelist(act_line)%f_lu
 
 
@@ -175,14 +175,14 @@ DO I = 1, nluns
  Jlu = flux_function(1, fr_line, model_grid(current_mgi)%T, cur_r)
 
 
- Blu = 4 * const_pi**2 * e_charge**2 / (const_me_g * light_speed * const_h * fr_line) * linelist(act_line)%f_lu
+ Blu = 4 * const_pi**2 * const_e**2 / (const_me_g * const_c * const_h * fr_line) * linelist(act_line)%f_lu
  Bul = DBLE(stat_weight_l) / DBLE(stat_weight_u) * Blu
- Aul = 2 * const_h * fr_line**3 / light_speed**2 * Bul
+ Aul = 2 * const_h * fr_line**3 / const_c**2 * Bul
 
 
  ROverV = roverw(pack_index, R_star, fr_line)
 
- taulu = light_speed / fr_line * constanta * &
+ taulu = const_c / fr_line * constanta * &
   linelist(act_line)%f_lu * low_pop * corrFactor * ROverV
 
 

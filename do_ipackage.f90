@@ -245,19 +245,19 @@ IF(Zcollrecom < 0.D0) STOP 'do_ipackage: Zcollrecom < 0'
    IF(rand >= summ .AND. rand <= summ + actirates%Lma_rad(line)) THEN
    ! write(*,*) 'do_ipackage: summ = ', summ, ' rand = ', rand, ' summ + act = ', summ + actirates%Lma_rad(line)
    IF(procout) write(*,*) 'do_ipackage: packet: ', pack_index, ' radiative deexcitation...'
-    ! write(*,*) 'do_ipackage: wale = ', 1.D8 * light_speed / linelist(linetransitions(line))%freq
+    ! write(*,*) 'do_ipackage: wale = ', 1.D8 * const_c / linelist(linetransitions(line))%freq
     ! write(*,*) 'do_ipackage: I = ', I
     ! we found the given cell now we have to compute only a new frequency
     new_freq = linelist(linetransitions(line))%freq
     ! testing
-    ! new_freq = light_speed / (4.D3 * 1.D-8)
+    ! new_freq = const_c / (4.D3 * 1.D-8)
     package(pack_index)%freq_cmf = new_freq
     CALL doppler_factor(pack_index, D)
-    IF(sstates) write(36, *) 'RDEEX linewl = ', 1.D8 * light_speed / linelist(linetransitions(line))%freq
+    IF(sstates) write(36, *) 'RDEEX linewl = ', 1.D8 * const_c / linelist(linetransitions(line))%freq
     ! D = 1.D0
     package(pack_index)%freq_rf = package(pack_index)%freq_cmf / D
     package(pack_index)%e_rf = package(pack_index)%e_cmf / D
-    ! write(37,*) 1.D8 * light_speed / package(pack_index)%freq_rf
+    ! write(37,*) 1.D8 * const_c / package(pack_index)%freq_rf
     ! save the emitted frequency
     linelist(linetransitions(line))%n_deexc = linelist(linetransitions(line))%n_deexc + 1
     count_i_rad_deex = count_i_rad_deex + 1

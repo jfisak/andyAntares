@@ -40,15 +40,15 @@ INTEGER, DIMENSION (9)                  :: TT
                                         const_mp_g=1.6726485D-24,&
                                         const_sigma_e=6.6516D-25,&
                                         h=6.626176D-27,&
-                                        light_speed=2.99792458D+10,&
-                                        e_charge=4.803242D-10,&
+                                        const_c=2.99792458D+10,&
+                                        const_e=4.803242D-10,&
                                         ftran=0.6407D+00, &       
                                         nio=4.5655967D+14,&
                                         const=1.D-04,&
                                         vel_ter=920.0D+05,&
                                         r_sun=695990.D+05,&
                                         beta=2.11638D+00,  &   
-                                        BOLK=1.380662D-16,&
+                                        const_kB=1.380662D-16,&
                                         m_sun=1.989D+33,&
                                         sigma =5.6704D-05 !ergcm^(-2)s(-1)K(-4) !D. H. Cohen et al.2012
   DOUBLE PRECISION, PARAMETER        :: parsec=30.857D17, const_ev = 1.60217646D-12, saha_const=2.0706839D-16, b = 1.D0
@@ -95,8 +95,8 @@ ELSE
  READ(minwale,*) min_wale
 END IF
 ! calculation of maximal and minimal frequency
-nu_max = light_speed / (DBLE(minwale) * 1.D-8)
-nu_min = light_speed / (DBLE(maxwale) * 1.D-8)
+nu_max = const_c / (DBLE(minwale) * 1.D-8)
+nu_min = const_c / (DBLE(maxwale) * 1.D-8)
 write(*,*) 'nu_max = ', nu_max, ' nu_min = ', nu_min
 
 ! calculates number of packets
@@ -186,11 +186,11 @@ END DO
 
 ! DO I = 1, n_nubin
 !     frequency = spectrum(I)%freq
-!     planck =( 2.D0 * h * frequency**3 / light_speed**2  ) * (  1.D0 / ( EXP( (h * frequency) / (BOLK * T_eff) ) - 1.D0 )  )
+!     planck =( 2.D0 * h * frequency**3 / const_c**2  ) * (  1.D0 / ( EXP( (h * frequency) / (const_kB * T_eff) ) - 1.D0 )  )
 !     WRITE(19,*)  frequency, spectrum(I)%flux, spectrum(I)%esc, planck
 ! END DO
 
- ls_A = light_speed * 1.D8
+ ls_A = const_c * 1.D8
 
  CALL DATE_AND_TIME(VALUES = TT)
  write(outputspecfile,"(A, A5, i4.4, I2.2, I2.2, I2.2, I2.2, I2.2, A4)") &
@@ -200,7 +200,7 @@ END DO
    lambda = ls_A / freqs(I)
    flambda = specflux(I) * ( ls_A / lambda**2 )
    planck = ( 2.D0 * h * ls_A**2 / lambda**5 ) * &
-    ( 1.D0 / ( EXP( h * ls_A / (lambda * BOLK * DBLE(T_eff)) ) - 1.D0) )
+    ( 1.D0 / ( EXP( h * ls_A / (lambda * const_kB * DBLE(T_eff)) ) - 1.D0) )
    ! write(99,*) 'do_spectrum: lambda = ', lambda, ' flux = ', flambda
    write(19,*) lambda, flambda, planck, flambda/planck, escs(I)
   END DO

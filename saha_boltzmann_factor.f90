@@ -19,7 +19,7 @@ CALL part_fun(indexe, indexi+1, temp, U2)
 ! write(*,*) '  Part.func:', U1, U2, indexi
 ! write(*,*) 'saha_boltzmann_factor: ion_pot = ', elements(indexe)%ions(indexi)%ion_potential
 sb_factor = U1 / U2 * saha_const * temp**(-3.D0/2.D0) * &
- EXP( elements(indexe)%ions(indexi)%ion_potential / (BOLK * temp) )
+ EXP( elements(indexe)%ions(indexi)%ion_potential / (const_kB * temp) )
 IF(sb_factor > large_number) THEN
  too_large = .TRUE.
 ELSE

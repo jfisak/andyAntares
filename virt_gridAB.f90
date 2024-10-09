@@ -27,17 +27,14 @@ SUBROUTINE virt_gridAB_init()
  USE constants
  IMPLICIT NONE
 
-INTEGER, DIMENSION(2)                   :: dummy_var_A, dummy_var_B, dummy_A, dummy_B
-
 INTEGER                                 :: cur_ind_A, cur_ind_B, cur_vpg_cell
 INTEGER                                 :: cur_point
 INTEGER                                 :: n_A, n_B
 INTEGER                                 :: n_in_cell
 INTEGER                                 :: n_zeros
-DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: cur_center_A, cur_center_B
 INTEGER, PARAMETER                      :: min_incell = 10
 
-INTEGER                                 :: cur_iter, cur_index_mgi
+INTEGER                                 :: cur_index_mgi
 
 DOUBLE PRECISION                        :: cur_x, cur_y, cur_z
 INTEGER                                 :: cur_n_x_A, cur_n_y_A, cur_n_z_A
@@ -131,7 +128,8 @@ LOGICAL                                 :: confirmed, lower_resolution
   !_______________________________________________________________
   ! calculation of the virGrid index
   cur_index_mgi = 0
-  DO cur_point = 1, n_modelgrid
+  DO cur_point = 1, n_modelgrid - add_mg
+   write(*,*) 'virt_gridAB_init: assoc_cells = ', model_grid(cur_point)%assoc_cells
    IF(model_grid(cur_point)%assoc_cells <= 0) CYCLE
    cur_index_mgi = cur_index_mgi + 1
 
@@ -141,9 +139,10 @@ LOGICAL                                 :: confirmed, lower_resolution
     cur_z = 0.D0
    ELSE IF(model_type == 2) THEN
     IF(inputmodel == 1) THEN
-     cur_x = model_grid(cur_point)%rwind
+     cur_x = model_grid(cur_index_mgi)%rwind
      cur_y = model_grid(cur_point)%angle
      cur_z = 0.D0
+     write(*,*) 'virt_gridAB_init: cur_point = ', cur_point, ' rwind = ', model_grid(cur_point)%rwind
     END IF
    END IF
    IF(model_type == 3) THEN
@@ -160,15 +159,12 @@ LOGICAL                                 :: confirmed, lower_resolution
     cur_n_x_A = floor((cur_x - vg_xmin)/w_vgrid_x) + 1
     cur_n_y_A = floor((cur_y - vg_ymin)/w_vgrid_y) + 1
     cur_n_z_A = 1
+    write(*,*) 'virGrid: cur_x/R_star = ', cur_x/R_star
    ELSE IF(model_type == 3) THEN
     cur_n_x_A = floor((cur_x - vg_xmin)/w_vgrid_x) + 1
     cur_n_y_A = floor((cur_y - vg_ymin)/w_vgrid_y) + 1
     cur_n_z_A = floor((cur_z - vg_zmin)/w_vgrid_z) + 1
    END IF
-   
-   cur_center_A = (/ w_vgrid_x * (cur_n_x_A + 5.D-1) + vg_xmin, w_vgrid_y * (cur_n_y_A + 5.D-1) + vg_ymin, &
-                   & w_vgrid_z * (cur_n_z_A + 5.D-1) + vg_zmin /)
-   ! write(*,*) 'vel_interpolation: cur_center_A = ', cur_center_A
   
    ! n_A -- numerical index of VG cell
    IF(model_type == 1) THEN
@@ -178,13 +174,13 @@ LOGICAL                                 :: confirmed, lower_resolution
    ELSE IF(model_type == 3) THEN
     n_A = cur_n_x_A + N_vgrid_x * (cur_n_y_A - 1) + N_vgrid_x * N_vgrid_y * (cur_n_z_A - 1)
    END IF
-   ! write(*,*) 'vel_interpolation: n_x = ', cur_n_x_A, ' n_y = ', cur_n_y_A, ' n_z = ', cur_n_z_A
-   ! write(*,*) 'vel_interpolation: n_A = ', n_A
+   write(*,*) 'virt_gridAB_init: n_x = ', cur_n_x_A, ' n_y = ', cur_n_y_A, ' n_z = ', cur_n_z_A
+   write(*,*) 'virt_gridAB_init: n_A = ', n_A
    ! n_points -- number of points for the given cell
    n_points_A(n_A) = n_points_A(n_A) + 1
    ! vg_indexy -- list of indeces model grid --> VG index point
-   ! write(*,*) 'virt_gridAB_init: n_A( ', cur_index_mgi, ') = ', n_A
-   ! write(*,*) 'virt_gridAB_init: n_points_A(', cur_index_mgi, ') = ', n_points_A(n_A)
+   write(*,*) 'virt_gridAB_init: n_A( ', cur_index_mgi, ') = ', n_A
+   write(*,*) 'virt_gridAB_init: n_points_A(', cur_index_mgi, ') = ', n_points_A(n_A)
    vg_indexy_A(cur_index_mgi, 1) = n_A
    vg_indexy_A(cur_index_mgi, 2) = cur_point
    !!!!!!!!

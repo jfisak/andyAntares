@@ -163,8 +163,8 @@ DO WHILE (do_loop)
     e_dist = l_dist
     do_loop = .FALSE.
     event = rpkt_eventtype_lineinteraction
-    ! write(*,*) 1.D8 * light_speed / package(pack_index)%freq_cmf, &
-    !  1.D8 * light_speed / package(pack_index)%freq_rf
+    ! write(*,*) 1.D8 * const_c / package(pack_index)%freq_cmf, &
+    !  1.D8 * const_c / package(pack_index)%freq_rf
     if(procout) write(*,*) 'event_dist: rpkt_eventtype_lineinteraction'
     ! choosing the line
     ! write(*,*) 'event_dist: Lline = ', actirrates%Lline(:), ' n_next_lines = ', n_next_lines

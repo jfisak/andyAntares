@@ -38,7 +38,7 @@ COMMON / COM_LINKINFO / LINK_DATE, LINK_USER, LINK_HOST
 ! COMMON / RAN_SEED / idum
 
 ! the Saha constant calculation
-saha_const = 5.D-1 * (const_h**2/(2.0*const_pi*const_me_g*BOLK))**1.5
+saha_const = 5.D-1 * (const_h**2/(2.0*const_pi*const_me_g*const_kB))**1.5
 ! CALL EXECUTE_COMMAND_LINE('figlet "3D WIND CODE"')
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -55,6 +55,17 @@ my_rank = 0
 #endif
 
 
+
+!  write(99,*) '********************************************************************************'
+!  write(99,*) '********************************************************************************'
+!  write(99,*) put_a_note
+!  write(99,*) '********************************************************************************'
+!  write(99,*) '********************************************************************************'
+!  write(*,*) '********************************************************************************'
+!  write(*,*) '********************************************************************************'
+!  write(*,*) put_a_note
+!  write(*,*) '********************************************************************************'
+!  write(*,*) '********************************************************************************'
  cur_parameter = 0
  CALL save_output(cur_parameter)
  write(99,*) 'mpi initialization: my_rank = ', my_rank, &
@@ -147,14 +158,14 @@ ELSE
  
  ! if model_type == 3 xyzmax are already calculated in setup_model_grid
  IF(model_type /= 3) THEN
-   xmax = R_inf + 0.5 * R_sun
-   ymax = R_inf + 0.5 * R_sun 
+   xmax = R_inf + 0.5 * const_Rsun
+   ymax = R_inf + 0.5 * const_Rsun 
   IF(model_type == 1) THEN
-   zmax = R_inf + 0.5 * R_sun
+   zmax = R_inf + 0.5 * const_Rsun
   ELSE IF (model_type == 2 .AND. inputmodel == 1) THEN
-   zmax = Z_inf + 0.5 * R_sun
+   zmax = Z_inf + 0.5 * const_Rsun
   ELSE IF (model_type == 2 .AND. inputmodel == 2) THEN
-   zmax = R_inf + 0.5 * R_sun
+   zmax = R_inf + 0.5 * const_Rsun
   ELSE
    STOP 'main: non-known model type'
   END IF
@@ -178,6 +189,7 @@ ELSE
  
  IF(debug == 3) write(*,*) 'connecting prop and mod grids'
  CALL connection_prop_model_grid()
+ write(*,*) 'main: n_modelgrid = ', n_modelgrid
  IF(debug == 3) write(*,*) 'prop and mod grids are connected'
 END IF ! saved propmod grid
  CALL virt_gridAB_init()

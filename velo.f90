@@ -21,6 +21,7 @@ INTEGER, PARAMETER                :: max_n_of_velopackets = 200
 
 INTEGER                            :: cur_dummy_index
 
+approx = approx
 
 ! dosti nelogické využívání dvakrát té stejné proměnné...
 IF(pack_index <= SIZE(package)) THEN
@@ -74,8 +75,8 @@ IF(velocityTesting) THEN
  END IF
 END IF
  ! write(*,*) 'velo: norm2(vel_vec) = ', norm2(vel_vec)
- IF(norm2(vel_vec) > light_speed) THEN
-  write(*,*) 'velo: vel_vec/c = ', norm2(vel_vec)/light_speed, ' Rinf/c = ', V_inf/light_speed
+ IF(norm2(vel_vec) > const_c) THEN
+  write(*,*) 'velo: vel_vec/c = ', norm2(vel_vec)/const_c, ' Rinf/c = ', V_inf/const_c
   write(*,*) 'velo: V_inf = ', V_inf, ' R_star = ', R_star, ' beta = ', beta,&
    ' ||pack_position|| = ', norm2(pack_position)
   write(*,*) 'velo: pack_index = ', pack_index, ' position = ', vec_length(pack_position)/R_inf,&

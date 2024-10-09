@@ -40,8 +40,8 @@ DO indexl = 1, nlevels
  e_level = elements(indexe)%ions(indexi)%levels(indexl)%exci_energy
  ! write(*,*) 'part_fun: g_level = ', g_level, ' e_level = ', e_level/e_V
  ! Partition function
- U = U + g_level * EXP(-(e_level - e_gl) / BOLK / temp)  
- ! write(*,*) 'part_fun: delta U = ', g_level * EXP(-(e_level - e_gl) / BOLK / temp)  
+ U = U + g_level * EXP(-(e_level - e_gl) / const_kB / temp)  
+ ! write(*,*) 'part_fun: delta U = ', g_level * EXP(-(e_level - e_gl) / const_kB / temp)  
 ! IF(indexe == 3 .AND. indexi == 2) write(*,*) '   part.func. calculation:', indexl, g_level, U,&
 !  e_level/e_V, e_gl/e_V
 END DO

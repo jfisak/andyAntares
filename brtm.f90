@@ -46,8 +46,8 @@ DEALLOCATE(package)
 wale_start = 200   ! in Angstroms
 wale_end = 400   ! in Angstroms
 
-nu_max = light_speed / (wale_start * 1.D-8)
-nu_min = light_speed / (wale_end * 1.D-8)
+nu_max = const_c / (wale_start * 1.D-8)
+nu_min = const_c / (wale_end * 1.D-8)
 
 ! a temporary definition of a detector
 ! number of points in each CCD chip

@@ -43,8 +43,8 @@ int_vector = lina*pos0 + linb
 
 ! write(*,*) 'lin_interpolation: vec1 = ', vec1, ' vec2 = ', vec2
 ! write(*,*) 'lin_interpolation: pos2 = ', pos2, ' pos1 = ', pos1
-! write(*,*) 'lin_interpolation: vec1 = ', norm2(vec1)/light_speed, ' vec2 = ', norm2(vec2)/light_speed
+! write(*,*) 'lin_interpolation: vec1 = ', norm2(vec1)/const_c, ' vec2 = ', norm2(vec2)/const_c
 ! write(*,*) 'lin_interpolation: int_vector = ', int_vector
-! write(*,*) 'lin_interpolation: int_vector = ', norm2(int_vector)/light_speed
+! write(*,*) 'lin_interpolation: int_vector = ', norm2(int_vector)/const_c
 
 END SUBROUTINE lin_interpolation

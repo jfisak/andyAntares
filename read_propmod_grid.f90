@@ -49,13 +49,15 @@ Ngrid = nx_cell * ny_cell * nz_cell
 
 DO I = 1, n_modelgrid
  read(49, *) pos, vel, rho, temp, volume, assoc_cells, el_dens, is_diff
+ write(*,*) 'read_propmod_grid: pos = ', pos
 
  IF(model_type == 1) THEN
   model_grid(I)%rwind = pos(1)
   model_grid(I)%vel = vel(1)
  ELSE IF(model_type == 3) THEN
   model_grid(I)%vec_pos = pos
-  model_grid(I)%rwind = norm2(pos)
+  model_grid(I)%rwind = pos(1)
+  model_grid(I)%angle = pos(2)
   model_grid(I)%vec_vel = vel
  END IF
  model_grid(I)%rho = rho
