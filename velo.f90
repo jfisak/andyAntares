@@ -21,7 +21,7 @@ INTEGER, PARAMETER                :: max_n_of_velopackets = 200
 
 INTEGER                            :: cur_dummy_index
 
-approx = approx
+! approx = approx
 
 ! dosti nelogické využívání dvakrát té stejné proměnné...
 IF(pack_index <= SIZE(package)) THEN

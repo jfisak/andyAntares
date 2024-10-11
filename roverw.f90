@@ -40,7 +40,7 @@ DOUBLE PRECISION                                :: cur_sum, nvn
 
 DOUBLE PRECISION, PARAMETER                     :: large_number = 1.D90
 
-write(*,*) 'roverw: fr_line = ', fr_line
+! write(*,*) 'roverw: fr_line = ', fr_line
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! toto budu muset ještě změnit
 ! DOČASNÉ ŘEŠENÍ

@@ -44,7 +44,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o 	  \
           find_e_nd.o part_fun.o update_estimators.o freq_from_file.o rob.o \
           acc_rej_montecarlo.o virtual_points.o \
           find_dyn_cell1.o seek_nclosest_points.o\
-          divide_cell_8.o divide_cell_ijk.o \
+          divide_cell_8.o divide_cell_ijk.o correction_propagation.o \
 	  next_cell_down.o next_cell_up.o populations.o  \
 	  gamma_function.o exp_int_func.o find_populations.o\
 	  flux_function.o find_element_index.o analyse_input.o \

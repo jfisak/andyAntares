@@ -133,6 +133,7 @@ SAVE
   DOUBLE PRECISION, ALLOCATABLE      :: incomingflux(:,:)
   ! number of points in a spectrum, nof points in modGrid, nop in propGrid
   INTEGER                            :: n_nubin, n_modelgrid, n_propgcells
+  INTEGER                            :: photosphere_index, vacuum_index, outerspace_index
   ! additional model grid variables
   INTEGER                            :: add_mg
   ! number of virtual point

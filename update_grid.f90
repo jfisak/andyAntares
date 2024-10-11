@@ -46,12 +46,12 @@ write(99,*) 'updating grid'
  my_end = n_modelgrid
 #endif
 
-write(*,*) 'update_grid: my_start = ', my_start, ' my_end = ', my_end
+! write(*,*) 'update_grid: my_start = ', my_start, ' my_end = ', my_end
 
 DO cur_mgi = my_start, my_end
  cur_n_assoccells = model_grid(cur_mgi)%assoc_cells
  IF (cur_n_assoccells .GT. 0) THEN
-  write(*,*) 'update_grid: temp = ', model_grid(cur_mgi)%T
+  ! write(*,*) 'update_grid: temp = ', model_grid(cur_mgi)%T
   IF (iteration == 1) THEN
    ! Calculate electron number density for every model grid cell gridcell
    IF(eldensfile == 0) THEN

@@ -47,4 +47,6 @@ INTEGER                         :: count_d_rad_end = 0
 INTEGER                         :: count_pg_vacuum = 0
 INTEGER                         :: count_pg_mcell = 0
 
+INTEGER                         :: count_too_dist = 0
+
 END MODULE counters
