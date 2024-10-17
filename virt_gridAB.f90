@@ -73,7 +73,7 @@ LOGICAL                                 :: confirmed, lower_resolution
   ! 2D: x ~ radius, y ~ angle, z: no meaning
   ! 3D: x, y, z: standard meaning
   n_assoc = 0
-  DO cur_mgi = 1, n_modelgrid
+  DO cur_mgi = 1, n_modelgrid - add_mg
    IF(model_grid(cur_mgi)%assoc_cells > 0) n_assoc = n_assoc + 1
   END DO
   ! write(*,*) 'virt_gridAB_init: n_assoc = ', n_assoc
@@ -82,9 +82,9 @@ LOGICAL                                 :: confirmed, lower_resolution
   N_vgrid_z = n_in_cell
   N_vgrid_cells_A = N_vgrid_x * N_vgrid_y * N_vgrid_z
   N_vgrid_cells_B = (N_vgrid_x - 1) * (N_vgrid_y - 1) * (N_vgrid_z - 1)
-  ALLOCATE(n_points_A(N_vgrid_cells_A), n_points_B(N_vgrid_cells_B))
-  ALLOCATE(indices_A(N_vgrid_cells_A), indices_B(N_vgrid_cells_B))
-  ALLOCATE(counter_A(N_vgrid_cells_A), counter_B(N_vgrid_cells_B))
+  ALLOCATE(n_points_A(N_vgrid_cells_A), n_points_B(N_vgrid_cells_B + 1))
+  ALLOCATE(indices_A(N_vgrid_cells_A), indices_B(N_vgrid_cells_B + 1))
+  ALLOCATE(counter_A(N_vgrid_cells_A), counter_B(N_vgrid_cells_B + 1))
   ALLOCATE(vg_indexy_A(n_assoc, 2), vg_indexy_B(n_assoc, 2))
   ALLOCATE(vg_pom_A(n_assoc, 2), vg_pom_B(n_assoc, 2))
   n_points_A(:) = 0
@@ -192,6 +192,13 @@ LOGICAL                                 :: confirmed, lower_resolution
    ! write(*,*) 'virt_gridAB_init: n_points_A(', cur_index_mgi, ') = ', n_points_A(n_A)
    vg_indexy_A(cur_index_mgi, 1) = n_A
    vg_indexy_A(cur_index_mgi, 2) = cur_point
+   IF(n_A > N_vgrid_cells_A) THEN
+    write(*,*) 'virt_gridAB_init: cur_n_x_A = ', cur_n_x_A
+    write(*,*) 'virt_gridAB_init: cur_n_y_A = ', cur_n_y_A
+    write(*,*) 'virt_gridAB_init: cur_n_z_A = ', cur_n_z_A
+    STOP 'virt_gridAB_init n_A > N_vgrid_cells_A'
+   END IF
+   ! write(*,*) 'virt_gridAB_init: n_A = ', n_A, ' cur_point = ', cur_point
    !!!!!!!!
    ! repete for the B grid
    IF(cur_x > vg_xmin + w_vgrid_x/2.0 .and. cur_x < vg_xmax - w_vgrid_x/2.0 .and.&
@@ -259,52 +266,56 @@ LOGICAL                                 :: confirmed, lower_resolution
  END DO
 
  ! write(*,*) 'virt_gridAB_init: min A: ', MINVAL(n_points_A, MASK=(n_points_A > 0)),&
- !  ' min B: ', MINVAL(n_points_B, MASK=(n_points_B > 0))
+ ! ' min B: ', MINVAL(n_points_B, MASK=(n_points_B > 0))
 
  counter_A(:) = n_points_A(:)
  counter_B(:) = n_points_B(:)
+ counter_B(N_vgrid_cells_B + 1) = n_zeros
  ! write(*,*) 'virt_gridAB_init: counter_A = ', counter_A
 
- DO cur_mgi = 1, n_modelgrid
-  IF(model_grid(cur_point)%assoc_cells == 0) CYCLE
+ cur_point = 0
+ DO cur_mgi = 1, n_modelgrid - add_mg
+  IF(model_grid(cur_mgi)%assoc_cells <= 0) CYCLE
+  cur_point = cur_point + 1
   ! A
-  cur_vgi = vg_indexy_A(cur_mgi, 1)
+  cur_vgi = vg_indexy_A(cur_point, 1)
+  ! write(*,*) 'virt_gridAB_init: vg_indexy_A = ', cur_vgi
   IF(counter_A(cur_vgi) > 0) THEN
    cur_ind_sorted = indices_A(cur_vgi) + counter_A(cur_vgi) - 1
-   vg_pom_A(cur_ind_sorted,:) = vg_indexy_A(cur_mgi,:)
-   ! write(*,*) 'virt_gridAB_init: vg_pom_A(', cur_ind_sorted, ', :) = ', vg_indexy_A(cur_mgi,:)
+   vg_pom_A(cur_ind_sorted,:) = vg_indexy_A(cur_point,:)
   ELSE
    write(*,*) 'virt_gridAB_init: sorting is not OK'
    write(*,*) 'want to add a point of cur_vgi = ', cur_vgi
    write(*,*) 'with no point left'
    STOP 'virt_gridAB_init'
   END IF
+
   counter_A(cur_vgi) = counter_A(cur_vgi) - 1
   ! B
-  cur_vgi = vg_indexy_B(cur_mgi, 1)
+  cur_vgi = vg_indexy_B(cur_point, 1)
   ! write(*,*) 'virt_gridAB_init: cur_vgi = ', cur_vgi
-  IF(counter_B(cur_vgi) > 0) THEN
-   cur_ind_sorted = indices_B(cur_vgi) + counter_B(cur_vgi) - 1
-   vg_pom_B(cur_ind_sorted,:) = vg_indexy_B(cur_mgi,:)
-  ELSE
-   write(*,*) 'virt_gridAB_init: sorting is not OK'
-   write(*,*) 'want to add a point of cur_vgi = ', cur_vgi
-   write(*,*) 'with no point left'
-   STOP 'virt_gridAB_init'
+  IF(cur_vgi > 0 ) THEN
+   IF(counter_B(cur_vgi) > 0) THEN
+    cur_ind_sorted = indices_B(cur_vgi) + counter_B(cur_vgi) - 1
+    vg_pom_B(cur_ind_sorted,:) = vg_indexy_B(cur_point,:)
+   ELSE
+    write(*,*) 'virt_gridAB_init: sorting is not OK'
+    write(*,*) 'want to add a point of cur_vgi = ', cur_vgi
+    write(*,*) 'with no point left'
+    STOP 'virt_gridAB_init'
+   END IF
+   counter_B(cur_vgi) = counter_B(cur_vgi) - 1
+  ELSE IF(cur_vgi == 0) THEN
+   cur_ind_sorted = counter_B(N_vgrid_cells_B + 1) - 1
+   counter_B(N_vgrid_cells_B + 1) = counter_B(N_vgrid_cells_B + 1) - 1
   END IF
-  counter_B(cur_vgi) = counter_B(cur_vgi) - 1
  END DO
 
  ! vg_indexy_A = vg_pom_A
  ! vg_indexy_B = vg_pom_B
 
- ! write(*,*) 'virt_gridAB_init: ended sorting A'
- 
- !_______________________________________________________________
- ! sort the vg_indexy according to the VG index
- ! write(*,*) 'virt_gridAB_init: started sorting B'
- !_______________________________________________________________
- ! write(*,*) 'virt_gridAB_init: ended sorting B'
+ ! write(*,*) 'virt_gridAB_init: vg_indexy_B = ', vg_indexy_B(:,1)
+
  
  !_______________________________________________________________
  ! index array
