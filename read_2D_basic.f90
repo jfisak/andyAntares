@@ -92,6 +92,7 @@ unit_density = 1.41314878888978971775872825028550241D-0006
    max_radius_index = I
   END IF
  END DO
+ R_inf = max_radius
  max_z = 1.D0
  DO I = 1, n_modelgrid
   act_z = model_grid(I)%zwind
@@ -99,10 +100,8 @@ unit_density = 1.41314878888978971775872825028550241D-0006
    max_z = act_z
   END IF
  END DO
+ Z_inf = max_z
  write(99,*) 'R_star = ', R_star
- V_inf = model_grid(max_radius_index)%vel
- R_star = MINVAL(model_grid(:)%rwind)
- R_inf = MAXVAL(model_grid(:)%rwind)
  Z_inf = R_inf
  write(*,*) 'read_2D_basic: R_star = ', R_star, ' R_inf = ', R_inf, 'R_inf/R_star = ', R_inf/R_star
  write(99,*) 'computed R_star = ', R_star, ' R_inf = ', R_inf
@@ -148,6 +147,5 @@ unit_density = 1.41314878888978971775872825028550241D-0006
  !  END DO
  ! CLOSE(77)
 
-write(*,*) 'read_2D_basic: minval temp = ', MINVAL(model_grid(:)%T)
 
 END SUBROUTINE read_2D_basic
