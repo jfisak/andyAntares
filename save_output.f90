@@ -14,6 +14,7 @@ SUBROUTINE save_output(otype)
 USE types
 USE constants
 USE counters
+! USE mpi
 IMPLICIT NONE
 
 
@@ -38,7 +39,7 @@ DOUBLE PRECISION                        :: frac, N_jk, totElPop
 ! DOUBLE PRECISION                        :: frac2, N_jk2, totElPop2
 ! DOUBLE PRECISION                        :: frac3, N_jk3, totElPop3
 INTEGER                                 :: indexe, indexi
-INTEGER                                 :: status
+INTEGER                                 :: status(MPI_STATUS_SIZE)
 CHARACTER(LEN=file_length)                       :: filePackets
 ! testing PoWR ionization fractions
 DOUBLE PRECISION                        :: ntot, nhi
@@ -109,7 +110,7 @@ SELECT CASE(otype)
 CASE(0)
  ! write(*,*) 'save_output: outpfol = ', trim(outputfolder), ' my_rank = ', my_rank
  write(outputfile,"(A, A7, I3.3, A4)") trim(outputfolder), "/output", my_rank, '.dat'
- ! write(*,*) 'save_output: outputfile = ', outputfile
+ write(*,*) 'save_output: outputfile = ', outputfile
  ! inquire(unit=99, opened=itsopen)
  ! write(*,*) 'save_output: itsopen = ', itsopen
  ! IF(itsopen) THEN
@@ -120,7 +121,6 @@ CASE(0)
   write(99,*) '___________________________________________________________'
   write(99,*) '___________________________________________________________'
   write(99,*) 'ANDY ANTARES CODE'
-  write(99,*) 'MŇAU'
   write(99,*) '___________________________________________________________'
   write(99,*) '___________________________________________________________'
  ! END IF

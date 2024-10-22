@@ -6,6 +6,7 @@ SUBROUTINE main
 USE types
 USE constants
 USE virt_gridAB
+! USE mpi
 
 
   IMPLICIT NONE
@@ -154,7 +155,7 @@ ELSE
 
  CALL save_output(ind_save_modgrid)
  ! save basic parameters of the model grid
- ! CALL save_output(11)
+ CALL save_output(11)
  
  ! if model_type == 3 xyzmax are already calculated in setup_model_grid
  IF(model_type /= 3) THEN

@@ -7,7 +7,7 @@ SAVE
 #endif
 
 
- INTEGER, PARAMETER                 :: file_length = 180
+ INTEGER, PARAMETER                 :: file_length = 500
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -82,7 +82,7 @@ SAVE
   TYPE ion_levels 
      INTEGER, ALLOCATABLE    :: linetransitions(:), lineuptransitions(:)
      DOUBLE PRECISION                :: exci_energy, stat_waight
-     CHARACTER(LEN=30)               :: elconf
+     CHARACTER(LEN=file_length)               :: elconf
      LOGICAL                         :: phcrossform
      DOUBLE PRECISION, ALLOCATABLE   :: photcros(:,:), phcrosscoeff(:)
      DOUBLE PRECISION, ALLOCATABLE   :: population(:)
@@ -156,12 +156,12 @@ SAVE
   INTEGER                            :: idum
 ! is electron density values stored?
   INTEGER                            :: eldensfile
-  CHARACTER(180)                      :: inputpopfile
+  CHARACTER(file_length)                      :: inputpopfile
 ! debug mode
   INTEGER                            :: debug
 ! flux from existing input file
   INTEGER                            :: inputflux, inputmodel
-  CHARACTER(160)                         :: inputmodelFile, inputcomposition
+  CHARACTER(file_length)                         :: inputmodelFile, inputcomposition
 ! number of photoionization cross sections
   INTEGER                               :: n_photcrossect, n_tot_cont, n_ff = 0
 ! number of dummy packages
@@ -208,8 +208,8 @@ SAVE
   INTEGER                            :: my_rank
   INTEGER                            :: ierr
   INTEGER                            :: n_tasks
-  CHARACTER(160)                      :: outputfolder=''
-  CHARACTER(160)                      :: outputfile
+  CHARACTER(file_length)                      :: outputfolder=''
+  CHARACTER(file_length)                      :: outputfile
 !! Atomic data
  ! Total number of chemical elements in the simulation
   INTEGER                            :: n_elements
@@ -223,8 +223,8 @@ SAVE
   INTEGER                               :: n_add_pack
   INTEGER                               :: n_pack_save
   ! temporary file name
-  CHARACTER(160)                     :: temp_filename = 'temp_packet'
-  CHARACTER(180)                        :: put_a_note
+  CHARACTER(file_length)                     :: temp_filename = 'temp_packet'
+  CHARACTER(file_length)                        :: put_a_note
   INTEGER                               :: tot_saved_packets
   ! for testing case
   LOGICAL                               :: simpleTrans, orbitals_nl
