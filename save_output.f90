@@ -11,6 +11,7 @@
 ! #11 PROPMOD SLICES
 SUBROUTINE save_output(otype)
 
+USE MPI
 USE types
 USE constants
 USE counters
@@ -20,7 +21,7 @@ IMPLICIT NONE
 ! type of output
 INTEGER                                 :: otype
 ! folder variables
-CHARACTER(LEN=file_length)                       :: lineOutput
+CHARACTER(LEN=filename_length)                       :: lineOutput
 ! save informations about lines
 INTEGER                                 :: I, J, K
 DOUBLE PRECISION                        :: wavle
@@ -29,24 +30,24 @@ DOUBLE PRECISION                        :: wavle
 INTEGER                                 :: act_elem, act_ion, act_lev
 DOUBLE PRECISION                        :: act_pop
 DOUBLE PRECISION                        :: eenergy
-CHARACTER(LEN=file_length)                       :: fileTempStruct, fileOccNum
-CHARACTER(LEN=file_length)                       :: fileHydrogenFrac, fileHeliumFrac
-CHARACTER(LEN=file_length)                       :: fileGrid, filePart
+CHARACTER(LEN=filename_length)                       :: fileTempStruct, fileOccNum
+CHARACTER(LEN=filename_length)                       :: fileHydrogenFrac, fileHeliumFrac
+CHARACTER(LEN=filename_length)                       :: fileGrid, filePart
 ! ionization fraction files
 DOUBLE PRECISION                        :: frac, N_jk, totElPop
 ! DOUBLE PRECISION                        :: frac1, N_jk1, totElPop1
 ! DOUBLE PRECISION                        :: frac2, N_jk2, totElPop2
 ! DOUBLE PRECISION                        :: frac3, N_jk3, totElPop3
 INTEGER                                 :: indexe, indexi
-INTEGER                                 :: status
-CHARACTER(LEN=file_length)                       :: filePackets
+INTEGER                                 :: status(MPI_STATUS_SIZE)
+CHARACTER(LEN=filename_length)                       :: filePackets
 ! testing PoWR ionization fractions
 DOUBLE PRECISION                        :: ntot, nhi
 INTEGER, PARAMETER                      :: indexH = 1, indexHI = 1, indexHII = 2
 INTEGER, PARAMETER                      :: indexHe = 2, indexHeI = 1, indexHeII = 2, indexHeIII = 3
 DOUBLE PRECISION                        :: abundance, density
-CHARACTER(LEN=file_length)                       :: fileHI, fileHII, fileHeI, fileHeII, fileHeIII
-CHARACTER(LEN=file_length)                       :: fileEldens, fileRho, temp_file_name
+CHARACTER(LEN=filename_length)                       :: fileHI, fileHII, fileHeI, fileHeII, fileHeIII
+CHARACTER(LEN=filename_length)                       :: fileEldens, fileRho, temp_file_name
 INTEGER                                 :: cell_index
 DOUBLE PRECISION                        :: num_tot_pop
 INTEGER                                 :: tot_n_ions, cur_ion, n_ions
@@ -57,7 +58,7 @@ INTEGER                                 :: n_adgrids
 ! chemical composition
 INTEGER                                 :: cur_indexe, cur_element, cur_Z, cur_nions
 DOUBLE PRECISION                        :: cur_atom_mass, cur_abundance
-CHARACTER(LEN=file_length)              :: cur_levelfile, cur_transfile
+CHARACTER(LEN=filename_length)              :: cur_levelfile, cur_transfile
 
 DOUBLE PRECISION, DIMENSION(3)          :: cur_vel, cur_centre
 INTEGER                                 :: cur_index_I
@@ -73,7 +74,7 @@ REAL, ALLOCATABLE                               :: coverage_matrix_T(:,:), cover
                                                    coverage_matrix_v(:,:)
 INTEGER                                         :: cur_mgi, cur_pgi, cur_index
 DOUBLE PRECISION                                :: cur_rho, cur_temp
-CHARACTER(LEN=file_length)                      :: temp_file_name_t, temp_file_name_rho, temp_file_name_v 
+CHARACTER(LEN=filename_length)                      :: temp_file_name_t, temp_file_name_rho, temp_file_name_v 
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: width
 
 !________________________________________________________________________________
@@ -92,10 +93,10 @@ DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: width
   END IF
 #if mpi==1
   DO I = 1, n_tasks - 1
-   CALL MPI_SEND(outputfolder, filename_lenght, MPI_CHAR, I, flag_6, MPI_COMM_WORLD, ierr)
+   CALL MPI_SEND(outputfolder, filename_length, MPI_CHAR, I, flag_6, MPI_COMM_WORLD, ierr)
   END DO
  ELSE IF (outputfolder == '') THEN
-  CALL MPI_RECV(outputfolder, filename_lenght, MPI_CHAR, cpu_zero, flag_6, MPI_COMM_WORLD, status, ierr)
+  CALL MPI_RECV(outputfolder, filename_length, MPI_CHAR, cpu_zero, flag_6, MPI_COMM_WORLD, status, ierr)
  END IF
 #endif
 
@@ -111,7 +112,7 @@ SELECT CASE(otype)
 CASE(0)
  ! write(*,*) 'save_output: outpfol = ', trim(outputfolder), ' my_rank = ', my_rank
  write(outputfile,"(A, A7, I3.3, A4)") trim(outputfolder), "/output", my_rank, '.dat'
- ! write(*,*) 'save_output: outputfile = ', outputfile
+ write(*,*) 'save_output: outputfile = ', outputfile
  ! inquire(unit=99, opened=itsopen)
  ! write(*,*) 'save_output: itsopen = ', itsopen
  ! IF(itsopen) THEN
@@ -122,7 +123,6 @@ CASE(0)
   write(99,*) '___________________________________________________________'
   write(99,*) '___________________________________________________________'
   write(99,*) 'ANDY ANTARES CODE'
-  write(99,*) 'MŇAU'
   write(99,*) '___________________________________________________________'
   write(99,*) '___________________________________________________________'
  ! END IF
@@ -138,12 +138,12 @@ CASE(1)
  ! line rates
  write(lineOutput,"(A, A9, I3.3, A4)") trim(outputfolder), '/linevar.', my_rank, '.dat'
  OPEN(11,FILE=lineOutput)
-  DO I = 1, ntransitions
+  DO ind_I = 1, ntransitions
    ! wavelength is in Angstroms
-   wavle = 1e8 * light_speed / linelist(I)%freq
-   WRITE(11,*) I, elements(linelist(I)%indexe)%atom_number, linelist(I)%indexi, wavle,&
-    linelist(I)%lower, linelist(I)%upper, &
-    linelist(I)%f_lu, linelist(I)%n_int, linelist(I)%n_deexc, linelist(I)%counted
+   wavle = 1e8 * const_c / linelist(ind_I)%freq
+   WRITE(11,*) ind_I, elements(linelist(ind_I)%indexe)%atom_number, linelist(ind_I)%indexi, &
+    wavle, linelist(I)%lower, linelist(ind_I)%upper, linelist(ind_I)%f_lu, &
+    linelist(ind_I)%n_int, linelist(ind_I)%n_deexc, linelist(ind_I)%counted
   END DO
  CLOSE(11)
 !________________________________________________________________________________
@@ -651,7 +651,7 @@ CASE(102)
  write(99,*) '__________________________________________________'
  write(99,*) '_________MODEL GRID DESCRIPTION___________________'
  write(99,*) '__________________________________________________'
- write(99,*) 'R_star = ', R_star/R_sun, 'R_inf = ', R_inf/R_sun
+ write(99,*) 'R_star = ', R_star/const_Rsun, 'R_inf = ', R_inf/const_Rsun
 
  write(99,*) '__________________________________________________'
  

@@ -1,5 +1,6 @@
 SUBROUTINE do_spectrum(n_pack)
 
+USE MPI
 USE types
 USE constants
 
@@ -17,8 +18,8 @@ DOUBLE PRECISION                      :: nu_max, nu_min
 wale_start = 500   ! in Angstroms
 wale_end = 20000   ! in Angstroms
 
-nu_max = light_speed / (wale_start * 1.D-8)
-nu_min = light_speed / (wale_end * 1.D-8)
+nu_max = const_c / (wale_start * 1.D-8)
+nu_min = const_c / (wale_end * 1.D-8)
 
 write(outputspecfile, "(A, A13)") trim(outputfolder), "/spectrum.dat"
 ! Set up the frequency grid to extract spectrum
@@ -47,7 +48,7 @@ DO pack_index = 1, n_pack
   IF ((freq .GT. nu_min) .AND. (freq .LT. nu_max)) THEN
    nubin = floor( (freq - nu_min) / delta_nu ) + 1
    ! put the star to 100 parsecs
-   delta_e = (package(pack_index)%e_rf / delta_nu)! / (4.D0 * const_pi * (1.D2 * parsec)**2)
+   delta_e = (package(pack_index)%e_rf / delta_nu)! / (4.D0 * const_pi * (1.D2 * const_pc)**2)
    ! write(*,*) 'do_spectrum: e_rf = ', package(pack_index)%e_rf
    specflux(nubin) = specflux(nubin) + delta_e
    escs(nubin) = escs(nubin) + 1
@@ -57,13 +58,13 @@ END DO
 
 ! DO I = 1, n_nubin
 !     frequency = spectrum(I)%freq
-!     planck =( 2.D0 * const_h * frequency**3 / light_speed**2  ) * (  1.D0 / ( EXP( (const_h * frequency) / (BOLK * T_eff) ) - 1.D0 )  )
+!     planck =( 2.D0 * const_h * frequency**3 / const_c**2  ) * (  1.D0 / ( EXP( (const_h * frequency) / (const_kB * T_eff) ) - 1.D0 )  )
 !     WRITE(19,*)  frequency, spectrum(I)%flux, spectrum(I)%esc, planck
 ! END DO
 
  write(99,*) 'WRITE TO FILE'
  
- ls_A = light_speed * 1.D8
+ ls_A = const_c * 1.D8
 
 #if mpi==1
  ! IF(my_rank /= 0) THEN
@@ -81,7 +82,7 @@ END DO
    lambda = ls_A / freqs(I)
    flambda = specflux(I) * ( ls_A / lambda**2 )
    planck = ( 2.D0 * const_h * ls_A**2 / lambda**5 ) * &
-    ( 1.D0 / ( EXP( const_h * ls_A / (lambda * BOLK * T_eff) ) - 1.D0) )
+    ( 1.D0 / ( EXP( const_h * ls_A / (lambda * const_kB * T_eff) ) - 1.D0) )
    ! write(99,*) 'do_spectrum: lambda = ', lambda, ' flux = ', flambda
    write(19,*) lambda, flambda, planck, flambda/planck, escs(I)
   END DO

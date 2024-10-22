@@ -120,13 +120,13 @@ DO indexe = 1, n_elements
     ! write(33,*) freq, cross_sect
     CALL populations(indexe, indexi, indexl, current_mgi, act_pop)
     ! write(*,*)  'r_kappa_cont: cross_sect = ', cross_sect, ' act_continuum = ', act_continuum, &
-    !  'act_pop = ', act_pop, ' 1-exp() = ', (1-exp(-(const_h * freq)/(BOLK * temp)))
+    !  'act_pop = ', act_pop, ' 1-exp() = ', (1-exp(-(const_h * freq)/(const_kB * temp)))
     act_continuum = act_continuum + 1
     ! valid only for LTE approximation
     actirrates%Lcont(1, act_continuum) = indexe
     actirrates%Lcont(2, act_continuum) = indexi 
     actirrates%Lcont(3, act_continuum) = indexl
-    actirrates%Lcont(4, act_continuum) = cross_sect * act_pop * (1-exp(-(const_h * freq)/(BOLK * temp)))
+    actirrates%Lcont(4, act_continuum) = cross_sect * act_pop * (1-exp(-(const_h * freq)/(const_kB * temp)))
     ! write(*,*) 'r_kappa_cont: act_continuum = ', act_continuum, &
     !  ' actirrates%Lcont(1, act_continuum) = ', actirrates%Lcont(1, act_continuum), &
     !  ' actirrates%Lcont(2, act_continuum) = ', actirrates%Lcont(2, act_continuum), &
@@ -157,9 +157,9 @@ DO indexe = 1, n_elements
   ! write(*,*) 'r_kappa_cont: ffconst = ', ffconst, ' i - 1 ^2 = ', DBLE((indexi - 1)**2), &
   !  ' gff = ', gff, ' sT = ', sqrt(temp), 'freq = ', freq
   kappaff = kappaff + electron_density * act_pop * alphaff * &
-   (1.E0 - exp(-(const_h * freq) / (BOLK * temp)))
+   (1.E0 - exp(-(const_h * freq) / (const_kB * temp)))
   ! write(*,*) 'r_kappa_cont: electron_density = ', electron_density, ' act_pop = ', &
-  !  act_pop, ' alphaff = ', alphaff, ' 1-exp() = ', 1.E0 - exp(-(const_h * freq) / (BOLK * temp))
+  !  act_pop, ' alphaff = ', alphaff, ' 1-exp() = ', 1.E0 - exp(-(const_h * freq) / (const_kB * temp))
   ! write(*,*) 'r_kappa_cont: indexe = ', indexe, ' indexi = ', indexi, ' kappaff = ', kappaff
  END DO
 END DO

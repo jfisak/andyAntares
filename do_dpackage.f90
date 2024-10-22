@@ -71,9 +71,9 @@ IF(debug == 3) THEN
  write(*,*) 'do_rpackage I: pack_index = ', pack_index, ' cur_pgi = ', cur_pgi, ' neigbors = ', dyn_cell(cur_pgi)%neighbor
  write(*,*) 'do_rpackage I: pack_index = ', pack_index, ' bunka = ', pomocna_bunka
  
- write(*,*) 'do_rpackage I: cell starting = ', dyn_cell(cur_pgi)%corner/R_sun
- write(*,*) 'do_rpackage I: packet pos = ', package(pack_index)%pos/R_sun
- write(*,*) 'do_rpackage I: cell ending = ', (dyn_cell(cur_pgi)%corner + dyn_cell(cur_pgi)%width)/R_sun
+ write(*,*) 'do_rpackage I: cell starting = ', dyn_cell(cur_pgi)%corner/const_Rsun
+ write(*,*) 'do_rpackage I: packet pos = ', package(pack_index)%pos/const_Rsun
+ write(*,*) 'do_rpackage I: cell ending = ', (dyn_cell(cur_pgi)%corner + dyn_cell(cur_pgi)%width)/const_Rsun
 
  write(*,*) 'do_rpackage I: direction = ', package(pack_index)%dir
 END IF

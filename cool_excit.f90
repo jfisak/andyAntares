@@ -48,7 +48,7 @@ CASE(1)
   osc_str = linelist(line)%f_lu
   ! frequency of transition
   freq = linelist(line)%freq
-  x = (const_h * freq) / (BOLK * temperature)
+  x = (const_h * freq) / (const_kB * temperature)
   exc_upper = elements(element_index)%ions(ion_index)%levels(linelist(line)%upper)%exci_energy
   exc_lower = elements(element_index)%ions(ion_index)%levels(linelist(line)%lower)%exci_energy
   ! gamma function
@@ -56,7 +56,7 @@ CASE(1)
   
   actVal = electron_density * c0 * (temperature)**(1.0/2.0) * &
         coll_const * (IH / (const_h * freq)) * osc_str * &
-        ((const_h * freq) / (BOLK * el_temperature)) * &
+        ((const_h * freq) / (const_kB * el_temperature)) * &
         exp(-x) * gf * (exc_upper - exc_lower)
   ! print*, 'cool_excit: pop = ', pop, ' electron_density = ', electron_density, &
   !        ' temperature = ', temperature, ' gf = ', gf, ' osc_str = ', osc_str, &

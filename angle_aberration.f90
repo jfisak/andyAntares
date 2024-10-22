@@ -14,17 +14,17 @@ DOUBLE PRECISION                 :: D_gamma
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: dir1, dir2, vel
 
 D_gamma = 1.D0
-D_gamma = 1/sqrt(1-norm2(vel)**2.0/light_speed**2)
+D_gamma = 1/sqrt(1-norm2(vel)**2.0/const_c**2)
  
 ! Formula as given by Mihalas & Mihalas, accurate to (v/c)**2
-dir2 = (dir1 - D_gamma * vel/light_speed * &
-     (1.D0 - D_gamma/(D_gamma + 1) * DOT_PRODUCT(dir1,vel)/light_speed)) / &
-     (D_gamma*(1-DOT_PRODUCT(dir1,vel)/light_speed))
+dir2 = (dir1 - D_gamma * vel/const_c * &
+     (1.D0 - D_gamma/(D_gamma + 1) * DOT_PRODUCT(dir1,vel)/const_c)) / &
+     (D_gamma*(1-DOT_PRODUCT(dir1,vel)/const_c))
 
 
 ! Simplified version accurate to v/c as given by Abott & Luy and
 ! Mazzali & Lucy. Use this for the comparison to my 1D code.
-! dir2 = (dir1 - D_gamma * vel/light_speed) / (D_gamma*(1-DOT_PRODUCT(dir1,vel)/light_speed))
+! dir2 = (dir1 - D_gamma * vel/const_c) / (D_gamma*(1-DOT_PRODUCT(dir1,vel)/const_c))
 
 
 

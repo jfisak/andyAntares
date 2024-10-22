@@ -76,14 +76,14 @@ rand_z = ran2(idum)
 ! saving field of exponentials, it will speed up the calculation procedure
 DO I=1,n_points
  act_freq = freqs(I)
- exps(I) = exp(-( const_h * act_freq ) / ( BOLK * temp ))
+ exps(I) = exp(-( const_h * act_freq ) / ( const_kB * temp ))
  ! write(*,*) 'exps(I) = ', exps(I)
 END DO
 ! calculation of the integral value
 act_sum = 0.D0
 ints(Istart) = 0.D0
 DO I=Istart,n_points - 1
- act_value = 2.D0  * const_h / light_speed**2 *&
+ act_value = 2.D0  * const_h / const_c**2 *&
   (css(I + 1) * freqs(I + 1)**3 * exps( I + 1) + css(I) * freqs(I)**3 * exps(I)) &
   * (freqs(I + 1) - freqs(I)) / 2.D0
  ints(I + 1) = act_sum + act_value

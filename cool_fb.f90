@@ -106,10 +106,10 @@ DO indexe = 1, n_elements
     ALLOCATE(func(nfreq - actPoint + 1), func2(nfreq - actPoint + 1))
     DO J = actPoint, nfreq
      ! write(*,*) 'cool_ionization: J = ', J, ' al(crfr) = ', ALLOCATED(crossfreq)
-     x = ( const_h * crossfreq(J) ) / ( BOLK * temp)
-     func(J - actPoint + 1) = cross(J) / (const_h * init_freq) * const_h * crossfreq(J)**3.0 / light_speed**2.0 * exp(-x)
+     x = ( const_h * crossfreq(J) ) / ( const_kB * temp)
+     func(J - actPoint + 1) = cross(J) / (const_h * init_freq) * const_h * crossfreq(J)**3.0 / const_c**2.0 * exp(-x)
      ! write(*,*) 'cool_ionization: cross = ', cross(J), ' init_freq = ', init_freq
-     func2(J - actPoint + 1) = cross(J) / (const_h * crossfreq(J)) * const_h * crossfreq(J)**3.0 / light_speed**2.0 * exp(-x)
+     func2(J - actPoint + 1) = cross(J) / (const_h * crossfreq(J)) * const_h * crossfreq(J)**3.0 / const_c**2.0 * exp(-x)
     END DO ! calculation of the integral
     ! calculation of integral using the trapezoid rule
     summ = 0.D0
@@ -118,7 +118,7 @@ DO indexe = 1, n_elements
      summ = summ + actInt
      ! write(*,*) 'cool_fb: summ = ', summ
     END DO
-    alphEspont = 4.D0 * const_pi * summ ! / light_speed**2 / init_freq * summ
+    alphEspont = 4.D0 * const_pi * summ ! / const_c**2 / init_freq * summ
     ! write(*,*) 'cool_fb: summ = ', summ, ' alphEspont = ', alphEspont, ' init_freq = ', init_freq
     ! alpha spont after Kromer() eq. (4.35)
     summ = 0.D0
@@ -126,7 +126,7 @@ DO indexe = 1, n_elements
      actInt = (func2(J)  + func2(J + 1) ) * (crossfreq(J + 1) - crossfreq(J))
      summ = summ + actInt
     END DO
-    alphaSpont = 4.D0 * const_pi * summ ! / light_speed**2 * summ
+    alphaSpont = 4.D0 * const_pi * summ ! / const_c**2 * summ
     ! write(*,*) 'cool_ionization: alphaSpont = ', alphaSpont, 'alphEspont = ', alphEspont
     CALL saha_factor(indexe, indexi, indexl, temp,  sfactor)
     ! population of the given ion

@@ -12,8 +12,8 @@ DOUBLE PRECISION                                :: costheta
 DOUBLE PRECISION                                :: dV_pos
 INTEGER                                         :: dummypack_index, dummypack_index0, next_cell, pack_index
 
-DOUBLE PRECISION, DIMENSION(3)                  :: cur_pos, cur_dir
-DOUBLE PRECISION, DIMENSION(3)                  :: pos_min, pos_pls!, pos_lin
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: cur_pos, cur_dir
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: pos_min, pos_pls!, pos_lin
 ! DOUBLE PRECISION                                :: freq_min, freq_pls
 DOUBLE PRECISION                                :: cmf_min, cmf_pls
 DOUBLE PRECISION                                :: cur_freq_rf
@@ -23,23 +23,24 @@ DOUBLE PRECISION                                :: deriv
 ! DOUBLE PRECISION                                :: deriv_min, deriv_pls
 ! DOUBLE PRECISION, DIMENSION(3)                  :: pos_line
 DOUBLE PRECISION                                :: s_min, s_pls
-DOUBLE PRECISION, DIMENSION(3,3)                :: vel_vectors
+DOUBLE PRECISION, DIMENSION(3,const_dimofspace)                :: vel_vectors
 LOGICAL                                         :: isposx, isposy, isposz
-INTEGER, DIMENSION(3,3)                         :: directions
-INTEGER, DIMENSION(3)                           :: crossy, neighb_cells, mgi_index
+INTEGER, DIMENSION(3,const_dimofspace)                         :: directions
+INTEGER, DIMENSION(const_dimofspace)                           :: crossy, neighb_cells, mgi_index
 DOUBLE PRECISION, DIMENSION(3)                :: distances
 TYPE(dummyphoton)                               :: testPacket
 
-DOUBLE PRECISION, DIMENSION(3)                  :: cur_corner, cur_width, act_pos, cur_centre
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: cur_corner, cur_width, act_pos, cur_centre
 INTEGER                                         :: down_cell
 INTEGER                                         :: cur_pg, cur_xyz_dir
 
 INTEGER                                         :: cur_index_i, cur_index_j, cur_mgi
-DOUBLE PRECISION, DIMENSION(3)                  :: cur_vel, cur_dist
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: cur_vel, cur_dist
 DOUBLE PRECISION                                :: cur_sum, nvn
 
 DOUBLE PRECISION, PARAMETER                     :: large_number = 1.D90
 
+! write(*,*) 'roverw: fr_line = ', fr_line
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! toto budu muset ještě změnit
 ! DOČASNÉ ŘEŠENÍ

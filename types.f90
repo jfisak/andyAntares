@@ -2,13 +2,11 @@ MODULE types
 
 IMPLICIT NONE
 SAVE
-#if mpi==1
- include 'mpif.h'
-#endif
+! #if mpi==1
+!  include 'mpif.h'
+! #endif
 
-INTEGER, PARAMETER                 :: file_length = 180
-
-
+ INTEGER, PARAMETER                 :: filename_length = 500
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -83,7 +81,7 @@ INTEGER, PARAMETER                 :: file_length = 180
   TYPE ion_levels 
      INTEGER, ALLOCATABLE    :: linetransitions(:), lineuptransitions(:)
      DOUBLE PRECISION                :: exci_energy, stat_waight
-     CHARACTER(LEN=30)               :: elconf
+     CHARACTER(LEN=filename_length)               :: elconf
      LOGICAL                         :: phcrossform
      DOUBLE PRECISION, ALLOCATABLE   :: photcros(:,:), phcrosscoeff(:)
      DOUBLE PRECISION, ALLOCATABLE   :: population(:)
@@ -103,7 +101,7 @@ INTEGER, PARAMETER                 :: file_length = 180
      INTEGER                         :: atom_number, nions
      DOUBLE PRECISION                :: atom_mass
      DOUBLE PRECISION                :: abundance
-     CHARACTER(LEN=file_length)      :: levelfile='', transitionfile=''
+     CHARACTER(LEN=filename_length)      :: levelfile='', transitionfile=''
      TYPE(element_ions), ALLOCATABLE :: ions(:)
   END TYPE atom_elements
 
@@ -134,6 +132,7 @@ INTEGER, PARAMETER                 :: file_length = 180
   DOUBLE PRECISION, ALLOCATABLE      :: incomingflux(:,:)
   ! number of points in a spectrum, nof points in modGrid, nop in propGrid
   INTEGER                            :: n_nubin, n_modelgrid, n_propgcells
+  INTEGER                            :: photosphere_index, vacuum_index, outerspace_index
   ! additional model grid variables
   INTEGER                            :: add_mg
   ! number of virtual point
@@ -156,12 +155,12 @@ INTEGER, PARAMETER                 :: file_length = 180
   INTEGER                            :: idum
 ! is electron density values stored?
   INTEGER                            :: eldensfile
-  CHARACTER(180)                      :: inputpopfile
+  CHARACTER(filename_length)                      :: inputpopfile
 ! debug mode
   INTEGER                            :: debug
 ! flux from existing input file
   INTEGER                            :: inputflux, inputmodel
-  CHARACTER(160)                         :: inputmodelFile, inputcomposition
+  CHARACTER(filename_length)                         :: inputmodelFile, inputcomposition
 ! number of photoionization cross sections
   INTEGER                               :: n_photcrossect, n_tot_cont, n_ff = 0
 ! number of dummy packages
@@ -205,13 +204,11 @@ INTEGER, PARAMETER                 :: file_length = 180
   INTEGER, PARAMETER                 :: NONE = -99
   INTEGER, PARAMETER                 :: no_line = -99
 
-  INTEGER, PARAMETER                 :: filename_lenght = 120
-
   INTEGER                            :: my_rank
   INTEGER                            :: ierr
   INTEGER                            :: n_tasks
-  CHARACTER(filename_lenght)                      :: outputfolder=''
-  CHARACTER(filename_lenght)                      :: outputfile
+  CHARACTER(filename_length)                      :: outputfolder=''
+  CHARACTER(filename_length)                      :: outputfile
 !! Atomic data
  ! Total number of chemical elements in the simulation
   INTEGER                            :: n_elements
@@ -225,7 +222,8 @@ INTEGER, PARAMETER                 :: file_length = 180
   INTEGER                               :: n_add_pack
   INTEGER                               :: n_pack_save
   ! temporary file name
-  CHARACTER(filename_lenght)                     :: temp_filename = 'temp_packet'
+  CHARACTER(filename_length)                     :: temp_filename = 'temp_packet'
+  CHARACTER(filename_length)                        :: put_a_note
   INTEGER                               :: tot_saved_packets
   ! for testing case
   LOGICAL                               :: simpleTrans, orbitals_nl
@@ -234,6 +232,8 @@ INTEGER, PARAMETER                 :: file_length = 180
   LOGICAL                               :: vel_propgrid = .false., vel_modgrid = .true.
 
   INTEGER, PARAMETER                    :: const_dimofspace = 3
+
+  DOUBLE PRECISION, PARAMETER           :: beta = 1.3D0
 
 
 

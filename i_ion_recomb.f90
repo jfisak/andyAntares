@@ -115,13 +115,13 @@ DO indexe = 1, n_elements
     cur_temp = i_temps(index_temp)
     DO I = Istart, npoints 
      flux = flux_function(0,freq(I), cur_temp, R_star)
-     x = const_h * freq(I) / (BOLK * cur_temp)
+     x = const_h * freq(I) / (const_kB * cur_temp)
     ! func(I) = cross(I) * flux / ( const_h * freq(I))
      func1(I - Istart + 1) = flux * cross(I) / (const_h * freq(I)) * (1.0 - exp(-x))
      func2(I - Istart + 1) = cross(I) / (const_h * freq(I)) * &
-      (2.0 * const_h * freq(I)**3.0) / light_speed**2.0 * exp(-x)
+      (2.0 * const_h * freq(I)**3.0) / const_c**2.0 * exp(-x)
      ! func3(I - Istart + 1) = cross(I) * &
-     !  (2.0 * const_h * freq(I)**3.0) / light_speed**2.0 * exp(-x)
+     !  (2.0 * const_h * freq(I)**3.0) / const_c**2.0 * exp(-x)
     ! write(*,*) 'i_ion_recomb: J = ', I - Istart + 1
     ! write(*,*)  'flux = ', flux, ' cross(I) = ', cross(I), ' func1(J) = ', func1(I - Istart + 1), &
     !  ' func2(J) = ', func2(I - Istart + 1), ' const_h * freq = ', const_h * freq(I)

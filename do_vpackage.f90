@@ -29,7 +29,7 @@ INTEGER                                         :: ind_cell_numb
 LOGICAL                                         :: seeking, procout=.FALSE.
 DOUBLE PRECISION, PARAMETER                     :: delta_tecka = 1.D2
 
-! L_star = 4.D0*pi*(R_star)**2*sigma*T_eff**4
+! L_star = 4.D0*pi*(R_star)**2*const_stefbolz*T_eff**4
 
 
 ! poser: an array of directions

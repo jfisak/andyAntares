@@ -28,8 +28,8 @@ END IF
 D_gamma = 1.D0 ! For non-relativistic case    
 CALL velo(pack_index, vel_vec, 0)
 ! for the relativistic case
-! D_gamma = 1/sqrt(1-norm2(vel_vec)**2.0/light_speed**2.00)
-D = D_gamma * (1.D0 -  DOT_PRODUCT(cur_dir,vel_vec)/light_speed)
+! D_gamma = 1/sqrt(1-norm2(vel_vec)**2.0/const_c**2.00)
+D = D_gamma * (1.D0 -  DOT_PRODUCT(cur_dir,vel_vec)/const_c)
 
 
 END SUBROUTINE doppler_factor

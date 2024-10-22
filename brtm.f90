@@ -46,8 +46,8 @@ DEALLOCATE(package)
 wale_start = 200   ! in Angstroms
 wale_end = 400   ! in Angstroms
 
-nu_max = light_speed / (wale_start * 1.D-8)
-nu_min = light_speed / (wale_end * 1.D-8)
+nu_max = const_c / (wale_start * 1.D-8)
+nu_min = const_c / (wale_end * 1.D-8)
 
 ! a temporary definition of a detector
 ! number of points in each CCD chip
@@ -68,7 +68,7 @@ obs_ccd_dist = 0.2*sqrt(det_lu**2+det_lv**2)
 ccd_centre = (/ -0.25*R_inf,  -.25*R_inf,  -.25*R_inf /)
 write(48,*) ccd_centre
 obs_point = ccd_centre + obs_ccd_dist * ccd_centre/norm2(ccd_centre)
-write(48,*) obs_point
+! write(48,*) obs_point
 
 ccdc_rad = sqrt(ccd_centre(ind_x)**2+ccd_centre(ind_y)**2+ccd_centre(ind_z))
 ccdc_theta = acos(ccd_centre(ind_z)/ccdc_rad)
@@ -98,16 +98,16 @@ write(*,*) 'brtm: ccdc_rad = ', ccdc_rad/R_star, ' ccdc_phi = ', ccdc_phi, ' ccd
 ! a calculation of the vectors u and v
 det_vec_u = (/ cos(ccdc_theta) * cos(ccdc_phi), cos(ccdc_theta) * sin(ccdc_phi), -sin(ccdc_theta) /)
 det_vec_v = (/ -sin(ccdc_phi), cos(ccdc_phi), 0.D0 /)
-write(31,*) ccd_centre, det_vec_u
-write(31,*) ccd_centre, det_vec_v
-write(31,*) ccd_centre, ccd_centre
+! write(31,*) ccd_centre, det_vec_u
+! write(31,*) ccd_centre, det_vec_v
+! write(31,*) ccd_centre, ccd_centre
 ! a size of a single cell
 det_cell_wu = det_lv / DBLE(det_nu)
 det_cell_wv = det_lu / DBLE(det_nv)
 
 ! lower coordinates of a ccd chip
 uvmin = ccd_centre - 0.5D00 * (det_vec_u * det_lu + det_vec_v * det_lv)
-write(48,*) uvmin
+! write(48,*) uvmin
 
 ! 
 #if mpi == 1

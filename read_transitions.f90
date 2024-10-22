@@ -48,7 +48,7 @@ USE constants
 orbitals_nl = .FALSE.
 
 ! calculate the constant for the oscilator strength calculation
-oconstant = (const_me_g * light_speed ** 3)/(8.D0 * const_pi ** 2 * e_charge**2)
+oconstant = (const_me_g * const_c ** 3)/(8.D0 * const_pi ** 2 * const_e**2)
 n_ions = 0
 ! element: atomic number, could be different from el_index
 element = elements(el_index)%atom_number
@@ -237,6 +237,9 @@ CASE(2)
     ! write(99,*) 'element: ', element, ' ion = ', ion_index, ' line from ', low_conf, ' to ', up_conf, &
     !   'low_vsplit = ', low_vsplit, ' up_vsplit = ', up_vsplit, '  was not included...'
     n_not_included = n_not_included + 1
+    ! this configuration will not be taken into account and we will read the next line
+    ! write(99,*) 'element: ', element, ' ion = ', ion_index, ' line from ', low_conf, ' to ', up_conf, &
+    !   'low_vsplit = ', low_vsplit, ' up_vsplit = ', up_vsplit, '  was not included...'
     CYCLE
    ELSE
     ntransitions = ntransitions + 1
@@ -250,11 +253,11 @@ CASE(2)
    g_lower = elements(el_index)%ions(current_ion)%levels(act_lower)%stat_waight
    linelist(ntransitions)%indexe = el_index
    linelist(ntransitions)%indexi = current_ion
-   ! linelist(ntransitions)%freq = 1.E+8 * light_speed / l_freq
+   ! linelist(ntransitions)%freq = 1.E+8 * const_c / l_freq
    deltaE = elements(el_index)%ions(current_ion)%levels(act_upper)%exci_energy - &
     elements(el_index)%ions(current_ion)%levels(act_lower)%exci_energy
    linelist(ntransitions)%freq =  deltaE / const_h
-   ! write(*,*) 'read_transitions: lambda = ', light_speed / linelist(ntransitions)%freq * 1.E8
+   ! write(*,*) 'read_transitions: lambda = ', const_c / linelist(ntransitions)%freq * 1.E8
    IF(simpleTrans) THEN
     linelist(ntransitions)%A_ul = abs(A)
     linelist(ntransitions)%f_lu = abs(col_str)
@@ -276,6 +279,8 @@ CASE(2)
   END DO
   ! write(99,*) 'read_transitions: el = ', el_index, ' ion = ', current_ion, n_not_included, 'lines were not included'
  END DO
+ write(99,*) 'read_transitions: el_index = ', el_index, ' ion_index = ', ion_index, &
+  ' number of not included transitions = ', n_not_included
  !STOP 'read_transitions: testing'
  ! if we did now use every transition in the file we will reallocate the array
  ! linelist so it will not be so large
@@ -476,13 +481,13 @@ CASE(8)
    g_lower = elements(el_index)%ions(current_ion)%levels(act_lower)%stat_waight
    linelist(ntransitions)%indexe = el_index
    linelist(ntransitions)%indexi = current_ion
-   ! linelist(ntransitions)%freq = 1.E+8 * light_speed / l_freq
+   ! linelist(ntransitions)%freq = 1.E+8 * const_c / l_freq
    deltaE = elements(el_index)%ions(current_ion)%levels(act_upper)%exci_energy - &
     elements(el_index)%ions(current_ion)%levels(act_lower)%exci_energy
    linelist(ntransitions)%freq =  deltaE / const_h
    linelist(ntransitions)%A_ul = A
    linelist(ntransitions)%f_lu = col_str
-   ! write(*,*) 'read_transitions: lambda = ', light_speed / linelist(ntransitions)%freq * 1.E8
+   ! write(*,*) 'read_transitions: lambda = ', const_c / linelist(ntransitions)%freq * 1.E8
    linelist(ntransitions)%n_int = 0
    ! write(99,*) 'line: ', ntransitions, ' el = ', el_index, ' ion = ', current_ion,&
    !  ' lower level energy = ', &

@@ -45,7 +45,7 @@ OPEN(38, FILE=inputmodelFile)
 
  T_eff = effective_temperature
  R_star = stellar_radius
- ! write(*,*) 'read_1D_model: R_star = ', R_star/R_sun
+ ! write(*,*) 'read_1D_model: R_star = ', R_star/const_Rsun
 
  DO cur_line = 1, n_mg_points
   READ(38,*) radius, djunk, velocity, djunk, djunk, density, junk
@@ -54,7 +54,7 @@ OPEN(38, FILE=inputmodelFile)
   model_grid(cur_line)%vel = velocity * 1.D5 ! [velocity] = km/s
   model_grid(cur_line)%rho = density
   model_grid(cur_line)%T = T_eff
-  ! write(*,*) 'read_1D_model: r = ', radius * R_star / R_sun
+  ! write(*,*) 'read_1D_model: r = ', radius * R_star / const_Rsun
   ALLOCATE (model_grid(cur_line)%grid_comp(n_elements))
   DO J = 1, n_elements      
    numbions = elements(J)%nions

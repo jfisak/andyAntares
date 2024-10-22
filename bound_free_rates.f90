@@ -36,7 +36,7 @@ CASE (1)
  freq = (element(indexe)%ion(indexi + 1)%level(0) - &
         element(indexe)%ion(indexi)%level(act_level)) / h
  ! argument of E_1(x)
- x = (h * freq) / (BOLK * temp)
+ x = (h * freq) / (const_kB * temp)
  
 
 CASE DEFAULT

@@ -1,8 +1,9 @@
 SUBROUTINE update_grid(iteration)
 
-  ! Calculate electron number density, population number of the ground level
-  ! and total population number for every model grid cell for given composition
-  ! and corresponding ionization stages.
+! Calculate electron number density, population number of the ground level
+! and total population number for every model grid cell for given composition
+! and corresponding ionization stages.
+USE MPI
 USE types
 USE constants
 
@@ -46,11 +47,12 @@ write(99,*) 'updating grid'
  my_end = n_modelgrid
 #endif
 
-write(*,*) 'update_grid: my_start = ', my_start, ' my_end = ', my_end
+! write(*,*) 'update_grid: my_start = ', my_start, ' my_end = ', my_end
 
 DO cur_mgi = my_start, my_end
  cur_n_assoccells = model_grid(cur_mgi)%assoc_cells
  IF (cur_n_assoccells .GT. 0) THEN
+  ! write(*,*) 'update_grid: temp = ', model_grid(cur_mgi)%T
   IF (iteration == 1) THEN
    ! Calculate electron number density for every model grid cell gridcell
    IF(eldensfile == 0) THEN
@@ -62,7 +64,7 @@ DO cur_mgi = my_start, my_end
   ELSE ! iteration > 1
    ! Energy density contribeted to the model grid cell 
    cur_j(cur_mgi) = model_grid(cur_mgi)%J / model_grid(cur_mgi)%volume / (4 * const_pi)
-   temp = (model_grid(cur_mgi)%J * const_pi / sigma )**(1./4.) 
+   temp = (model_grid(cur_mgi)%J * const_pi / const_stefbolz )**(1./4.) 
    cur_temp(cur_mgi)  = temp
    ! Calculate electron number density for every model grid cell gridcell
    CALL find_e_nd(cur_mgi, el_nd)
@@ -88,18 +90,28 @@ DO cur_mgi = my_start, my_end
 END DO
 
 #if mpi == 1
- IF(n_tasks > 1) THEN
-  CALL mpi_reduce(cur_j(:), model_grid(:)%j, n_modelgrid + add_mg, &
-   & mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  CALL MPI_REDUCE(cur_temp(:), model_grid(:)%T, n_modelgrid + add_mg, &
-   & MPI_DOUBLE_PRECISION, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
-  CALL MPI_REDUCE(cur_elnd(:), model_grid(:)%e_dens, n_modelgrid + add_mg, &
-   & MPI_DOUBLE_PRECISION, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
-  ! distribute all the data among all of the processes
-  CALL MPI_BCAST(model_grid(:)%e_dens, n_modelgrid + add_mg, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
-  CALL MPI_BCAST(model_grid(:)%j, n_modelgrid + add_mg, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
-  CALL MPI_BCAST(model_grid(:)%T, n_modelgrid + add_mg, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
- END IF
+ ! IF(n_tasks > 1) THEN
+ !  CALL mpi_reduce(cur_j(:), model_grid(:)%j, n_modelgrid + add_mg, &
+ !   & mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+ !  CALL MPI_REDUCE(cur_temp(:), model_grid(:)%T, n_modelgrid + add_mg, &
+ !   & MPI_DOUBLE_PRECISION, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+ !  CALL MPI_REDUCE(cur_elnd(:), model_grid(:)%e_dens, n_modelgrid + add_mg, &
+ !   & MPI_DOUBLE_PRECISION, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+ !  ! distribute all the data among all of the processes
+ !  CALL MPI_BCAST(model_grid(:)%e_dens, n_modelgrid + add_mg, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
+ !  CALL MPI_BCAST(model_grid(:)%j, n_modelgrid + add_mg, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
+ !  CALL MPI_BCAST(model_grid(:)%T, n_modelgrid + add_mg, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
+ ! END IF
+ CALL MPI_REDUCE(cur_j(:), model_grid(:)%j, n_modelgrid + add_mg, &
+  & mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+ CALL MPI_REDUCE(cur_temp(:), model_grid(:)%T, n_modelgrid + add_mg, &
+  & MPI_DOUBLE_PRECISION, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+ CALL MPI_REDUCE(cur_elnd(:), model_grid(:)%e_dens, n_modelgrid + add_mg, &
+  & MPI_DOUBLE_PRECISION, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+ ! distribute all the data among all of the processes
+ CALL MPI_BCAST(model_grid(:)%e_dens, n_modelgrid + add_mg, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
+ CALL MPI_BCAST(model_grid(:)%j, n_modelgrid + add_mg, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
+ CALL MPI_BCAST(model_grid(:)%T, n_modelgrid + add_mg, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
 #endif
 
 
