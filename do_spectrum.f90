@@ -1,5 +1,6 @@
 SUBROUTINE do_spectrum(n_pack)
 
+USE MPI
 USE types
 USE constants
 

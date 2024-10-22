@@ -3,10 +3,10 @@ SUBROUTINE main
   ! Propagate a bunch of photon packets through a stellar wind
 
 ! Use module types (modul.f90)
+USE MPI
 USE types
 USE constants
 USE virt_gridAB
-! USE mpi
 
 
   IMPLICIT NONE

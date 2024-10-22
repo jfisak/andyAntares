@@ -11,10 +11,10 @@
 ! #11 PROPMOD SLICES
 SUBROUTINE save_output(otype)
 
+USE MPI
 USE types
 USE constants
 USE counters
-! USE mpi
 IMPLICIT NONE
 
 

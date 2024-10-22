@@ -2,9 +2,9 @@ MODULE types
 
 IMPLICIT NONE
 SAVE
-#if mpi==1
- include 'mpif.h'
-#endif
+! #if mpi==1
+!  include 'mpif.h'
+! #endif
 
 
  INTEGER, PARAMETER                 :: file_length = 500

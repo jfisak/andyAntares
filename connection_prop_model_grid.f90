@@ -1,5 +1,6 @@
 SUBROUTINE connection_prop_model_grid()
 
+USE MPI
 USE types
 USE constants
 USE counters
