@@ -18,7 +18,7 @@ INTEGER                                 :: cur_mgi
 INTEGER                                 :: my_start, my_end
 
 LOGICAL                                 :: propmod_file_exists
-CHARACTER(60)                           :: propmod_file
+CHARACTER(file_length)                           :: propmod_file
 
 INTEGER                                 :: cur_n_assoccells
 
@@ -30,8 +30,9 @@ cur_elnd(:) = 0.D0
   
 write(99,*) 'updating grid'
 #if mpi == 1
- N_single = n_modelgrid/n_tasks
- N_zbytek = n_modelgrid - n_tasks * N_single
+ N_single = (n_modelgrid-add_mg)/n_tasks
+ N_zbytek = n_modelgrid - add_mg - n_tasks * N_single
+ write(*,*) 'update_grid: N_single = ', N_single, ' N_zbytek = ', N_zbytek
  IF(my_rank <= N_zbytek - 1) THEN
   my_start = my_rank * (N_single + 1) + 1
   my_end = my_rank * (N_single + 1) + N_single
@@ -47,10 +48,13 @@ write(99,*) 'updating grid'
  my_end = n_modelgrid
 #endif
 
-! write(*,*) 'update_grid: my_start = ', my_start, ' my_end = ', my_end
+write(*,*) 'update_grid: my_start = ', my_start, ' my_end = ', my_end
+CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
+STOP 'update_grid: testing'
 
 DO cur_mgi = my_start, my_end
  cur_n_assoccells = model_grid(cur_mgi)%assoc_cells
+ write(*,*) 'update_grid: my_rank = ', my_rank, ' cur_n_assoccells = ', cur_n_assoccells
  IF (cur_n_assoccells .GT. 0) THEN
   ! write(*,*) 'update_grid: temp = ', model_grid(cur_mgi)%T
   IF (iteration == 1) THEN
@@ -86,8 +90,11 @@ DO cur_mgi = my_start, my_end
     CALL diffusion_approximation(cur_mgi)
    END IF
   END IF
+  write(*,*) 'update_grid: temp = ', model_grid(cur_mgi)%T
  END IF ! cur_n_assoccells > 0
 END DO
+
+write(*,*) 'update_grid: the physical structure is computed'
 
 #if mpi == 1
  CALL MPI_REDUCE(cur_j(:), model_grid(:)%j, n_modelgrid + add_mg, &
@@ -100,12 +107,16 @@ END DO
  CALL MPI_BCAST(model_grid(:)%e_dens, n_modelgrid + add_mg, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
  CALL MPI_BCAST(model_grid(:)%j, n_modelgrid + add_mg, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
  CALL MPI_BCAST(model_grid(:)%T, n_modelgrid + add_mg, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
+ DO cur_mgi = 1, n_modelgrid
+  IF(model_grid(cur_mgi)%assoc_cells > 0) THEN
+   IF(my_rank == 1) THEN
+    write(*,*) 'update_grid: temp = ', model_grid(cur_mgi)%T
+   END IF
+  END IF
+ END DO
 #endif
 
 
-! if(my_rank == 0) then
-!  write(*,*) 'update_grid: cur_e_dens = ', model_grid(:)%e_dens
-! end if
 
 ! STOP 'update_grid: testing'
 ! calculation of population numbers

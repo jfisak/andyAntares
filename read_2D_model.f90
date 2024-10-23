@@ -1,4 +1,8 @@
 ! subroutine for reading a 2D model grid
+!
+! INPUT: NONE
+! OUTPUT: NONE
+!
 SUBROUTINE read_2D_model()
 
 USE types

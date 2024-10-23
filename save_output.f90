@@ -23,7 +23,7 @@ INTEGER                                 :: otype
 ! folder variables
 CHARACTER(LEN=file_length)                       :: lineOutput
 ! save informations about lines
-INTEGER                                 :: I, J, K
+INTEGER                                 :: ind_K
 DOUBLE PRECISION                        :: wavle
 ! occupation numbers
 ! levels index variables
@@ -63,6 +63,7 @@ CHARACTER(LEN=file_length)              :: cur_levelfile, cur_transfile
 DOUBLE PRECISION, DIMENSION(3)          :: cur_vel, cur_centre
 INTEGER                                 :: cur_index_I
 
+
 !________________________________________________________________________________
 ! #11
 INTEGER                                         :: Nx_cov, Ny_cov, Nz_cov, ind_I, ind_J
@@ -74,6 +75,7 @@ INTEGER                                         :: cur_mgi, cur_pgi, cur_index
 DOUBLE PRECISION                                :: cur_rho, cur_temp
 CHARACTER(LEN=file_length)                      :: temp_file_name_t, temp_file_name_rho, temp_file_name_v 
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: width
+CHARACTER(LEN=2)                                :: cur_name, get_element_name
 
 !________________________________________________________________________________
 ! #00 output folder
@@ -90,11 +92,11 @@ DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: width
    CALL GET_ENVIRONMENT_VARIABLE("outputfolder", outputfolder)
   END IF
 #if mpi==1
-  DO I = 1, n_tasks - 1
-   CALL MPI_SEND(outputfolder, 80, MPI_CHAR, I, 6, MPI_COMM_WORLD, ierr)
+  DO ind_I = 1, n_tasks - 1
+   CALL MPI_SEND(outputfolder, file_length, MPI_CHAR, ind_I, 6, MPI_COMM_WORLD, ierr)
   END DO
  ELSE IF (outputfolder == '') THEN
-  CALL MPI_RECV(outputfolder, 80, MPI_CHAR, 0, 6, MPI_COMM_WORLD, status, ierr)
+  CALL MPI_RECV(outputfolder, file_length, MPI_CHAR, 0, 6, MPI_COMM_WORLD, status, ierr)
  END IF
 #endif
 
@@ -108,7 +110,7 @@ SELECT CASE(otype)
 ! saves standard output into the file 99
 !____________________________________________________________
 CASE(0)
- ! write(*,*) 'save_output: outpfol = ', trim(outputfolder), ' my_rank = ', my_rank
+ write(*,*) 'save_output: outpfol = ', trim(outputfolder), ' my_rank = ', my_rank
  write(outputfile,"(A, A7, I3.3, A4)") trim(outputfolder), "/output", my_rank, '.dat'
  write(*,*) 'save_output: outputfile = ', outputfile
  ! inquire(unit=99, opened=itsopen)
@@ -140,7 +142,7 @@ CASE(1)
    ! wavelength is in Angstroms
    wavle = 1e8 * const_c / linelist(ind_I)%freq
    WRITE(11,*) ind_I, elements(linelist(ind_I)%indexe)%atom_number, linelist(ind_I)%indexi, &
-    wavle, linelist(I)%lower, linelist(ind_I)%upper, linelist(ind_I)%f_lu, &
+    wavle, linelist(ind_I)%lower, linelist(ind_I)%upper, linelist(ind_I)%f_lu, &
     linelist(ind_I)%n_int, linelist(ind_I)%n_deexc, linelist(ind_I)%counted
   END DO
  CLOSE(11)
@@ -189,9 +191,9 @@ CASE(3)
  fileTempStruct = trim(outputfolder)//'/tempStruct.dat'
  ! write(fileTempStruct,"(A6,I3.3)") trim(outputfolder), tem
  OPEN(12, FILE=fileTempStruct)
-  DO I = 1, n_modelgrid
-   IF(model_grid(I)%assoc_cells == 0) CYCLE
-   WRITE(12, *) model_grid(I)%rwind, model_grid(I)%T, model_grid(I)%e_dens
+  DO ind_I = 1, n_modelgrid
+   IF(model_grid(ind_I)%assoc_cells == 0) CYCLE
+   WRITE(12, *) model_grid(ind_I)%rwind, model_grid(ind_I)%T, model_grid(ind_I)%e_dens
   END DO
  CLOSE(12)
  ! saving population numbers
@@ -202,11 +204,11 @@ CASE(3)
   ! 001 -- chemical composition
   ! 002 -- level population
   ! 003 -- total ion population
-  DO I = 1, n_modelgrid
-   IF(model_grid(I)%assoc_cells == 0) CYCLE
-   WRITE(13, *) '000', I, model_grid(I)%rwind, model_grid(I)%t, model_grid(I)%rho, model_grid(I)%e_dens
-   DO J = 1, n_elements
-     WRITE(13, *) '001', elements(J)%atom_number, elements(J)%abundance
+  DO ind_I = 1, n_modelgrid
+   IF(model_grid(ind_I)%assoc_cells == 0) CYCLE
+   WRITE(13, *) '000', ind_I, model_grid(ind_I)%rwind, model_grid(ind_I)%t, model_grid(ind_I)%rho, model_grid(ind_I)%e_dens
+   DO ind_J = 1, n_elements
+     WRITE(13, *) '001', elements(ind_J)%atom_number, elements(ind_J)%abundance
    END DO
    ! write the occupation numbers
    DO act_elem = 1, n_elements
@@ -215,15 +217,15 @@ CASE(3)
      num_tot_pop = 0.D0
      DO act_lev = 1, SIZE(elements(act_elem)%ions(act_ion)%levels)
       eenergy = elements(act_elem)%ions(act_ion)%levels(act_lev)%exci_energy
-      CALL populations(act_elem, act_ion, act_lev, I, act_pop)
+      CALL populations(act_elem, act_ion, act_lev, ind_I, act_pop)
       num_tot_pop = num_tot_pop + act_pop
       WRITE(13, *) '002', elements(act_elem)%atom_number, act_ion, act_lev, &
       elements(act_elem)%ions(act_ion)%levels(act_lev)%stat_waight, &
       eenergy / const_ev, act_pop
      END DO
      WRITE(13, *) '003', elements(act_elem)%atom_number, act_ion, ' TOT ', &
-     model_grid(I)%grid_comp(act_elem)%grid_ion(act_ion)%tot_pop / num_tot_pop, &
-      model_grid(I)%grid_comp(act_elem)%grid_ion(act_ion)%tot_pop
+     model_grid(ind_I)%grid_comp(act_elem)%grid_ion(act_ion)%tot_pop / num_tot_pop, &
+      model_grid(ind_I)%grid_comp(act_elem)%grid_ion(act_ion)%tot_pop
     END DO
    END DO
   END DO
@@ -237,15 +239,15 @@ CASE(3)
 CASE(4)
  fileHydrogenFrac = trim(outputfolder)//'/hydrogenFrac.dat'
  OPEN(14, FILE=fileHydrogenFrac)
-  DO I = 1, n_modelgrid
+  DO ind_I = 1, n_modelgrid
    indexe = 1
    indexi = 1
-   IF(model_grid(I)%assoc_cells == 0) CYCLE
-   totElPop = model_grid(I)%rho * model_grid(I)%grid_comp(indexe)%abund / &
+   IF(model_grid(ind_I)%assoc_cells == 0) CYCLE
+   totElPop = model_grid(ind_I)%rho * model_grid(ind_I)%grid_comp(indexe)%abund / &
     elements(indexe)%atom_mass
-   N_jk = model_grid(I)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
+   N_jk = model_grid(ind_I)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
    frac = N_jk / totElPop
-   write(14,*) model_grid(I)%rwind / R_inf, frac
+   write(14,*) model_grid(ind_I)%rwind / R_inf, frac
   END DO
  CLOSE(14)
  fileHeliumFrac = trim(outputfolder)//'/heliumFrac.dat'
@@ -278,8 +280,8 @@ CASE(5)
   "/packets", my_rank, '.dat'
  write(99,*) 'save_output: filePackets = ', filePackets
  OPEN(98, FILE=filePackets)
-  DO I = 1, SIZE(package) - 1
-   write(98,*) package(I)%typ, package(I)%freq_rf, package(I)%e_rf
+  DO ind_I = 1, SIZE(package) - 1
+   write(98,*) package(ind_I)%typ, package(ind_I)%freq_rf, package(ind_I)%e_rf
   END DO
  CLOSE(98)
 #if mpi==1
@@ -295,67 +297,67 @@ CASE(6)
  fileHI = trim(outputfolder)//'/HI.dat'
  ! write(*,*) 'save_output: fileHI'
  OPEN(40, FILE=fileHI)
-  DO I = 1, n_modelgrid
-   IF(model_grid(I)%assoc_cells == 0) CYCLE
-   abundance = model_grid(I)%grid_comp(indexH)%abund
-   density = model_grid(I)%rho
+  DO ind_I = 1, n_modelgrid
+   IF(model_grid(ind_I)%assoc_cells == 0) CYCLE
+   abundance = model_grid(ind_I)%grid_comp(indexH)%abund
+   density = model_grid(ind_I)%rho
    ntot = abundance * density / elements(indexH)%atom_mass
-   nhi = model_grid(I)%grid_comp(indexH)%grid_ion(indexHI)%gl_pop
-   cell_index = n_modelgrid - I + 1
-   write(40,*) I, log10(ntot), log10(nhi/ntot)
+   nhi = model_grid(ind_I)%grid_comp(indexH)%grid_ion(indexHI)%gl_pop
+   cell_index = n_modelgrid - ind_I + 1
+   write(40,*) ind_I, log10(ntot), log10(nhi/ntot)
   END DO
  CLOSE(40)
  ! write(*,*) 'save_output: fileHII'
  fileHII = trim(outputfolder)//'/HII.dat'
  OPEN(40, FILE=fileHII)
-  DO I = 1, n_modelgrid
-   IF(model_grid(I)%assoc_cells == 0) CYCLE
-   abundance = model_grid(I)%grid_comp(indexH)%abund
-   density = model_grid(I)%rho
+  DO ind_I = 1, n_modelgrid
+   IF(model_grid(ind_I)%assoc_cells == 0) CYCLE
+   abundance = model_grid(ind_I)%grid_comp(indexH)%abund
+   density = model_grid(ind_I)%rho
    ntot = abundance * density / elements(indexH)%atom_mass
-   nhi = model_grid(I)%grid_comp(indexH)%grid_ion(indexHII)%gl_pop
-   cell_index = n_modelgrid - I + 1
-   write(40,*) I, log10(ntot), log10(nhi/ntot)
+   nhi = model_grid(ind_I)%grid_comp(indexH)%grid_ion(indexHII)%gl_pop
+   cell_index = n_modelgrid - ind_I + 1
+   write(40,*) ind_I, log10(ntot), log10(nhi/ntot)
   END DO
  CLOSE(40)
  ! write(*,*) 'save_output: fileHeI'
  fileHeI = trim(outputfolder)//'/HeI.dat'
  OPEN(40, FILE=fileHeI)
-  DO I = 1, n_modelgrid
-   IF(model_grid(I)%assoc_cells == 0) CYCLE
-   abundance = model_grid(I)%grid_comp(indexHe)%abund
-   density = model_grid(I)%rho
+  DO ind_I = 1, n_modelgrid
+   IF(model_grid(ind_I)%assoc_cells == 0) CYCLE
+   abundance = model_grid(ind_I)%grid_comp(indexHe)%abund
+   density = model_grid(ind_I)%rho
    ntot = abundance * density / elements(indexHe)%atom_mass
-   nhi = model_grid(I)%grid_comp(indexHe)%grid_ion(indexHeI)%gl_pop
-   cell_index = n_modelgrid - I + 1
-   write(40,*) I, log10(ntot), log10(nhi/ntot)
+   nhi = model_grid(ind_I)%grid_comp(indexHe)%grid_ion(indexHeI)%gl_pop
+   cell_index = n_modelgrid - ind_I + 1
+   write(40,*) ind_I, log10(ntot), log10(nhi/ntot)
   END DO
  CLOSE(40)
  ! write(*,*) 'save_output: fileHeII'
  fileHeII = trim(outputfolder)//'/HeII.dat'
  OPEN(40, FILE=fileHeII)
-  DO I = 1, n_modelgrid
-   IF(model_grid(I)%assoc_cells == 0) CYCLE
-   abundance = model_grid(I)%grid_comp(indexHe)%abund
-   density = model_grid(I)%rho
+  DO ind_I = 1, n_modelgrid
+   IF(model_grid(ind_I)%assoc_cells == 0) CYCLE
+   abundance = model_grid(ind_I)%grid_comp(indexHe)%abund
+   density = model_grid(ind_I)%rho
    ntot = abundance * density / elements(indexHe)%atom_mass
-   nhi = model_grid(I)%grid_comp(indexHe)%grid_ion(indexHeII)%gl_pop
-   cell_index = n_modelgrid - I + 1
-   write(40,*) I, log10(ntot), log10(nhi/ntot)
+   nhi = model_grid(ind_I)%grid_comp(indexHe)%grid_ion(indexHeII)%gl_pop
+   cell_index = n_modelgrid - ind_I + 1
+   write(40,*) ind_I, log10(ntot), log10(nhi/ntot)
   END DO
  CLOSE(40)
  ! write(*,*) 'save_output: fileHeIII'
  fileHeIII = trim(outputfolder)//'/HeIII.dat'
  OPEN(40, FILE=fileHeIII)
-  DO I = 1, n_modelgrid
-   IF(model_grid(I)%assoc_cells == 0) CYCLE
-   abundance = model_grid(I)%grid_comp(indexHe)%abund
-   density = model_grid(I)%rho
+  DO ind_I = 1, n_modelgrid
+   IF(model_grid(ind_I)%assoc_cells == 0) CYCLE
+   abundance = model_grid(ind_I)%grid_comp(indexHe)%abund
+   density = model_grid(ind_I)%rho
    ntot = abundance * density / elements(indexHe)%atom_mass
-   ! nhi = model_grid(I)%grid_comp(indexHe)%grid_ion(indexHeIII)%gl_pop
-   nhi = model_grid(I)%grid_comp(indexHe)%grid_ion(indexHeIII)%tot_pop
-   cell_index = n_modelgrid - I + 1
-   write(40,*) I, log10(ntot), log10(nhi/ntot)
+   ! nhi = model_grid(ind_I)%grid_comp(indexHe)%grid_ion(indexHeIII)%gl_pop
+   nhi = model_grid(ind_I)%grid_comp(indexHe)%grid_ion(indexHeIII)%tot_pop
+   cell_index = n_modelgrid - ind_I + 1
+   write(40,*) ind_I, log10(ntot), log10(nhi/ntot)
   END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! #07 electron density and mass density
@@ -365,16 +367,16 @@ CASE(6)
 CASE(7)
  fileEldens = trim(outputfolder)//'/elDens.dat'
  OPEN(40, FILE=fileEldens)
-  DO I = 1, n_modelgrid
-   IF(model_grid(I)%assoc_cells == 0) CYCLE
-   write(40,'(I3,d12.4,d12.4)') I, model_grid(I)%rwind, model_grid(I)%e_dens
+  DO ind_I = 1, n_modelgrid
+   IF(model_grid(ind_I)%assoc_cells == 0) CYCLE
+   write(40,'(I3,d12.4,d12.4)') ind_I, model_grid(ind_I)%rwind, model_grid(ind_I)%e_dens
   END DO
  CLOSE(40)
  fileRho = trim(outputfolder)//'/rho.dat'
  OPEN(40, FILE=fileRho)
-  DO I = 1, n_modelgrid
-   IF(model_grid(I)%assoc_cells == 0) CYCLE
-   write(40,*) I, model_grid(I)%rwind/R_star, model_grid(I)%rho
+  DO ind_I = 1, n_modelgrid
+   IF(model_grid(ind_I)%assoc_cells == 0) CYCLE
+   write(40,*) ind_I, model_grid(ind_I)%rwind/R_star, model_grid(ind_I)%rho
   END DO
  CLOSE(40)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -386,8 +388,9 @@ CASE(8)
  fileGrid=trim(outputfolder)//'/dyn_cells.dat'
  OPEN(16,FILE=fileGrid)
  write(*,*) 'setup_grid2: SAVING CELLS INTO A FILE dyn_cells.dat'
-  DO I = 1, SIZE(dyn_cell)
-   write(16,*) I, dyn_cell(I)%corner, dyn_cell(I)%width, dyn_cell(I)%up_cell, dyn_cell(I)%model_index
+  DO ind_I = 1, SIZE(dyn_cell)
+   write(16,*) ind_I, dyn_cell(ind_I)%corner, dyn_cell(ind_I)%width, dyn_cell(ind_I)%up_cell, &
+    dyn_cell(ind_I)%model_index
   END DO
  CLOSE(16)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -398,20 +401,20 @@ CASE(8)
 CASE(9)
  filePart=trim(outputfolder)//'/partitionFunction.dat'
  tot_n_ions = 0
- DO J = 1, n_elements
-  n_ions = SIZE(elements(J)%ions)
+ DO ind_J = 1, n_elements
+  n_ions = SIZE(elements(ind_J)%ions)
   tot_n_ions = tot_n_ions + n_ions
  END DO
  ALLOCATE(part_functions(tot_n_ions))
  OPEN(17, FILE=filePart)
- DO I = 1, n_modelgrid
-  temperature = model_grid(I)%T
+ DO ind_I = 1, n_modelgrid
+  temperature = model_grid(ind_I)%T
   cur_ion = 1
-  DO J = 1, n_elements
-   n_ions = SIZE(elements(J)%ions)
-   DO K = 1, n_ions
+  DO ind_J = 1, n_elements
+   n_ions = SIZE(elements(ind_J)%ions)
+   DO ind_K = 1, n_ions
     IF(temperature /= 0.D0) THEN
-     CALL part_fun(J, K, temperature, U)
+     CALL part_fun(ind_J, ind_K, temperature, U)
      part_functions(cur_ion) = U
     ELSE
      part_functions(cur_ion) = 0.D0
@@ -419,7 +422,7 @@ CASE(9)
     cur_ion = cur_ion + 1
    END DO ! over ions
   END DO ! over elements
-  write(17,*) I, part_functions(1:)
+  write(17,*) ind_I, part_functions(1:)
  END DO ! over model cells
  CLOSE(17)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -434,8 +437,8 @@ CASE(10)
  n_adgrids = SIZE(dyn_cell)
  IF(Ngrid == n_adgrids) RETURN
  OPEN(72, form='unformatted', FILE=temp_file_name)
-  DO I = Ngrid, n_adgrids
-   WRITE(72) dyn_cell(I)
+  DO ind_I = Ngrid, n_adgrids
+   WRITE(72) dyn_cell(ind_I)
   END DO
  CLOSE(72)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -632,12 +635,13 @@ CASE(101)
  DO cur_element = 1, n_elements
   cur_indexe = elements(cur_element)%indexe
   cur_Z = elements(cur_element)%atom_number
+  cur_name = get_element_name(cur_Z)
   cur_nions = elements(cur_element)%nions
   cur_atom_mass = elements(cur_element)%atom_mass
   cur_abundance = elements(cur_element)%abundance
   cur_levelfile = elements(cur_element)%levelfile
   cur_transfile = elements(cur_element)%transitionfile
-  write(99,*) cur_indexe, cur_Z, cur_nions, cur_atom_mass, cur_abundance, cur_levelfile, cur_transfile
+  write(99,*) cur_name, cur_Z, cur_nions, cur_atom_mass, cur_abundance
  END DO
  write(99,*) 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
