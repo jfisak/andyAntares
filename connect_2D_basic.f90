@@ -8,6 +8,7 @@
 !
 SUBROUTINE connect_2D_basic()
 
+USE MPI
 USE types
 USE constants
 
@@ -48,8 +49,11 @@ INTEGER                         :: n_adjonced = 0
    my_start = 1
    my_end = n_propgcells
 #endif
-my_start = 1
-my_end = n_propgcells
+
+write(*,*) 'connect_2D_basic: my_rank = ', my_rank, ' n_modelgrid = ', n_modelgrid
+write(*,*) 'connect_2D_basic: my_start = ', my_start, ' my_end = ', my_end
+
+
 DO cur_propcell = my_start, my_end
  ! IF(mod(cur_propcell,10000) .EQ. 0) print*, 'associating propagation grid', cur_propcell, REAL(cur_propcell)/REAL(max_n_dcell) * 1.E2, ' % completed'
  IF(dyn_cell(cur_propcell)%up_cell == 0) THEN
@@ -109,6 +113,11 @@ DO cur_propcell = my_start, my_end
  END IF
 END DO ! loop over propGrid cells
 write(99,*) 'number of propagation cells in vacuum: ', model_grid(vacuum_index)%assoc_cells
+
+CALL MPI_ALLREDUCE(dyn_cell(:)%model_index, dyn_cell(:)%model_index, n_propgcells, &
+  MPI_INT, MPI_SUM, mpi_comm_world, ierr)
+CALL MPI_ALLREDUCE(model_grid(:)%assoc_cells, model_grid(:)%assoc_cells, n_modelgrid + add_mg, &
+  MPI_INT, MPI_SUM, mpi_comm_world, ierr)
 
 DO cur_propcell = 1, n_propgcells
  IF(dyn_cell(cur_propcell)%up_cell == 0) THEN

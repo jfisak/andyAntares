@@ -53,7 +53,7 @@ SAVE
 
 
   TYPE modelgrid 
-     INTEGER                         :: assoc_cells
+     INTEGER                         :: assoc_cells = 0
      DOUBLE PRECISION                :: width
      DOUBLE PRECISION                :: volume = 0.D0
      DOUBLE PRECISION                :: diff_param
