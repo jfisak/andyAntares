@@ -1,3 +1,17 @@
+! connects propGrid and modGrid cells
+! for each propGrid finds a corresponding modGrid cell
+! the variable is saved into dyn_cell(:)%model_index (INT)
+! and counted in the model_grid(:)%assoc_cells (INT)
+! 1 ... n_modelgrid
+! or
+! photosphere_index
+! outerspace_index
+! vacuum_index
+!
+! INPUT: NONE
+! OUTPUT: NONE
+!
+! the included function will be moved to special subroutines as well as the 3D case
 SUBROUTINE connection_prop_model_grid()
 
 USE MPI
@@ -11,86 +25,64 @@ IMPLICIT NONE
 DOUBLE PRECISION               :: diagonal
 ! loop variables
 INTEGER                        :: cur_propcell, J, best_index
-INTEGER                        :: max_n_dcell
 ! variables for calculating the shortest distance between
 ! propagation and model cell
 DOUBLE PRECISION               :: delta, delta2
 ! radial and vertical distance
 DOUBLE PRECISION               :: r, z, r0, phi, phi0
 
-DOUBLE PRECISION, DIMENSION(3) :: cur_center
 DOUBLE PRECISION               :: dist
-INTEGER                        :: cur_mcell
 
 DOUBLE PRECISION, PARAMETER     :: large_number=1.d90
 
-DOUBLE PRECISION, DIMENSION(3)  :: cur_corner, cur_width
-INTEGER                         :: cur_pgcell, cur_pgi
-INTEGER                         :: n_virtpoints
-
-INTEGER                         :: up_cell, cur_lowcell
   
-INTEGER, ALLOCATABLE            :: list_index(:)
-INTEGER                         :: new_index
-INTEGER                         :: n_bas_pcell
-
-INTEGER                         :: cur_bpgi
-INTEGER                         :: cur_neighbour, last_index
-DOUBLE PRECISION, DIMENSION(3)  :: cur_pos
-
-INTEGER                         :: down_cell
-INTEGER                         :: start_vp_index, end_vp_index
-INTEGER                         :: cur_vp_nearest, cur_vp_index
-INTEGER                         :: act_pgcell, cur_vp, cur_mgi
-
-INTEGER                         :: count_vacuum, count_out, count_in, count_ok
-INTEGER                         :: cur_n_mgi
 
 ! parallelization
 INTEGER                         :: my_start, my_end
-INTEGER                         :: N_single, N_zbytek
+INTEGER                         :: N_single, N_zbytek, N_tot_zbytek
 
 INTEGER, DIMENSION(n_propgcells)                :: cur_model_index
 INTEGER, DIMENSION(n_modelgrid + add_mg)        :: cur_n_assocmodg
 
-LOGICAL                                         :: vacuum_found
-
-count_ok = 0
-count_in = 0
-count_out = 0
-count_vacuum = 0
 
 cur_model_index(:) = 0
 cur_n_assocmodg(:) = 0
 
-  max_n_dcell = SIZE(dyn_cell)
-  ! Establish a connection between the propagation grid and the
-  ! model grid. This depends on the model grid type (1D, 2D, 3D)
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  ! 1D model grid -- radial symetric
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  IF (model_type .EQ. 1) THEN
-   ! This is the algorithm needed for a 1D model grid
-   ! Define which model grid cell coresponds to the propagation grid cell
+! Establish a connection between the propagation grid and the
+! model grid. This depends on the model grid type (1D, 2D, 3D)
+!__________________________________________________________________________________________________
+!__________________________________________________________________________________________________
+! 1D case
+!__________________________________________________________________________________________________
+!__________________________________________________________________________________________________
+IF (model_type .EQ. 1) THEN
+ ! This is the algorithm needed for a 1D model grid
+ ! Define which model grid cell coresponds to the propagation grid cell
 #if mpi == 1
-   N_single = n_propgcells/n_tasks
-   N_zbytek = n_propgcells - n_tasks * N_single
-   IF(my_rank <= N_zbytek - 1) THEN
-    my_start = my_rank * (N_single + 1) + 1
-    my_end = my_rank * (N_single + 1) + N_single
-   ELSE IF(N_zbytek == 0) THEN
-    my_start = my_rank * (N_single) + 1
-    my_end = my_rank * (N_single) + N_single
-   ELSE
-    my_start = N_zbytek * (N_single + 1) + (my_rank - N_zbytek - 1) * N_single + 1
-    my_end = N_zbytek * (N_single + 1) + (my_rank - N_zbytek - 1) * N_single + N_single +1
-   END IF
+ N_single = (n_modelgrid)/n_tasks
+ N_zbytek = n_modelgrid - n_tasks * N_single
+ IF(N_zbytek /= 0) N_tot_zbytek = (N_zbytek + 1) * (N_single + 1) + N_zbytek
+ write(*,*) 'update_grid: N_single = ', N_single, ' N_zbytek = ', N_zbytek
+ IF(my_rank <= N_zbytek - 1) THEN
+  my_start = my_rank * (N_single + 1) + my_rank
+  my_end = (my_rank + 1) * (N_single + 1) + N_single
+ ELSE IF(N_zbytek == 0) THEN
+  my_start = my_rank * N_single + 1
+  my_end = (my_rank + 1) * N_single
+ ELSE IF(my_rank > N_zbytek - 1) THEN
+  my_start = N_tot_zbytek + 1 + (my_rank - N_zbytek) * N_single + (my_rank - N_zbytek)
+  my_end = N_tot_zbytek + 1 + (my_rank - N_zbytek + 1) * N_single + (my_rank - N_zbytek)
+ END IF
+ IF(my_rank == n_tasks - 1) THEN
+  my_end = n_modelgrid
+ END IF
 #else
    my_start = 1
    my_end = n_propgcells
 #endif
-write(*,*) 'update_grid: N_single = ', N_single, ' N_zbytek = ', N_zbytek
-write(*,*) 'update_grid: my_rank = ', my_rank, ' my_start = ', my_start, ' my_end = ', my_end
+write(*,*) 'connection_prop_model_grid: my_rank = ', my_rank, ' n_modelgrid = ', n_modelgrid
+write(*,*) 'connection_prop_model_grid: N_single = ', N_single, ' N_zbytek = ', N_zbytek
+write(*,*) 'connection_prop_model_grid: my_rank = ', my_rank, ' my_start = ', my_start, ' my_end = ', my_end
 
 
    DO cur_propcell = my_start, my_end
@@ -161,9 +153,11 @@ write(*,*) 'update_grid: my_rank = ', my_rank, ' my_start = ', my_start, ' my_en
  CALL MPI_BCAST(dyn_cell(:)%model_index, n_propgcells, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
  CALL MPI_BCAST(model_grid(:)%assoc_cells, n_modelgrid + add_mg, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
 #endif 
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  ! 2D model grid -- Petr Kurfurst's model
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !__________________________________________________________________________________________________
+  !__________________________________________________________________________________________________
+  ! 2D case
+  !__________________________________________________________________________________________________
+  !__________________________________________________________________________________________________
   ELSE IF (model_type .EQ. 2) THEN
    SELECT CASE (inputmodel)
    ! basic 2D model
@@ -173,7 +167,7 @@ write(*,*) 'update_grid: my_rank = ', my_rank, ' my_start = ', my_start, ' my_en
    CASE(2)
     CALL connect_2D_peku()
     ! connect every single cell to its model cell
-    DO cur_propcell = 1, max_n_dcell
+    DO cur_propcell = 1, n_propgcells
      r = SQRT((dyn_cell(cur_propcell)%corner(1) + dyn_cell(cur_propcell)%width(1)/2.D0)**2 + &
               (dyn_cell(cur_propcell)%corner(2) + dyn_cell(cur_propcell)%width(2)/2.D0)**2 + &
               (dyn_cell(cur_propcell)%corner(3) + dyn_cell(cur_propcell)%width(3)/2.D0)**2)
@@ -219,181 +213,19 @@ write(*,*) 'update_grid: my_rank = ', my_rank, ' my_start = ', my_start, ' my_en
    CASE DEFAULT
     STOP
    END SELECT
+  !__________________________________________________________________________________________________
+  !__________________________________________________________________________________________________
+  ! 3D case
+  !__________________________________________________________________________________________________
+  !__________________________________________________________________________________________________
   ELSE IF (model_type == 3) THEN
    SELECT CASE(inputmodel)
    ! pseudo 3D testing model
    CASE(0)
-    DO cur_propcell = 1, max_n_dcell
-     dyn_cell(cur_propcell)%model_index = cur_propcell
-     model_grid(cur_propcell)%assoc_cells = model_grid(cur_propcell)%assoc_cells + 1
-    END DO
+    CALL connect_3D_pseudo()
+   ! hydronico model
    CASE(1)
-    ! create an array with saved indexes
-    ! write(*,*) 'connection_prop_model_grid: inputmodel = ', inputmodel, ' dyngrid = ', dyngrid
-    IF(dyngrid > 0) THEN
-     n_bas_pcell = nx_cell * ny_cell * nz_cell
-     ALLOCATE(list_index(n_bas_pcell))
-     ! initial setup
-     DO cur_propcell = 1, n_bas_pcell
-      list_index(cur_propcell) = 0
-     END DO
-     ! calculating of indeces
-     last_index = 0
-     n_virtpoints = SIZE(virtual_point)
-     DO cur_propcell = 1, n_virtpoints
-      new_index = virtual_point(cur_propcell)%ind_pcell
-      IF(new_index /= last_index) THEN
-       list_index(new_index) = cur_propcell
-       last_index = new_index
-      END IF
-     END DO
-
-     ! we calculate associated cells for the rest of propGrid cells
-     DO cur_pgcell = 1, max_n_dcell
-      up_cell = dyn_cell(cur_pgcell)%up_cell
-      IF(up_cell == 0) THEN
-       cur_corner = dyn_cell(cur_pgcell)%corner
-       cur_width = dyn_cell(cur_pgcell)%width
-       cur_center = cur_corner + cur_width/2.0
-       cur_lowcell = dyn_cell(cur_pgcell)%down_cell
-       r0 = sqrt(cur_center(1)**2.0 + cur_center(2)**2.0 + &
-        cur_center(3)**2.0)
-       ! add_mg = 1 r < R_star
-       ! add_mg = 2 r > R_inf
-       ! add_mg = 3 r > R_star && r < R_inf, vacuum cell
-       IF(r0 < R_star) THEN
-        dyn_cell(cur_pgcell)%model_index = n_modelgrid + 1
-       ELSE IF(r0 > R_inf) THEN
-        dyn_cell(cur_pgcell)%model_index = n_modelgrid + 2
-       ELSE 
-        ! we connect a modgrid from the current basic cell
-        act_pgcell = cur_pgcell
-        DO
-         down_cell = dyn_cell(act_pgcell)%down_cell
-         IF(down_cell == 0) EXIT
-         act_pgcell = down_cell
-        END DO
-        cur_bpgi = act_pgcell
-
-        start_vp_index = list_index(cur_bpgi)
-        
-
-        IF(start_vp_index == 0) THEN
-         dyn_cell(cur_pgcell)%model_index = n_modelgrid + 3
-        ELSE
-         ! we must find an end index
-         cur_vp_index = start_vp_index
-         DO
-          cur_vp_index = cur_vp_index + 1
-          if(cur_vp_index == n_virtpoints) then
-           end_vp_index = cur_vp_index
-           EXIT
-          end if
-          if(virtual_point(cur_vp_index)%ind_pcell /= cur_bpgi) then
-           end_vp_index = cur_vp_index - 1
-           EXIT
-          end if
-         END DO
-
-         delta = large_number
-         cur_vp_nearest = 0
-         DO cur_vp = start_vp_index, end_vp_index
-          cur_pos = virtual_point(cur_vp)%pos
-          dist = sqrt((cur_center(1) - cur_pos(1))**2.0 +&
-           (cur_center(2) - cur_pos(2))**2.0 +&
-           (cur_center(3) - cur_pos(3))**2.0)
-          if(dist< delta) then
-           delta = dist
-           cur_vp_nearest = cur_vp
-          end if
-         END DO
-         cur_mgi = virtual_point(cur_vp_nearest)%ind_mcell
-         dyn_cell(cur_pgcell)%model_index = cur_mgi
-         model_grid(cur_mgi)%assoc_cells = model_grid(cur_mgi)%assoc_cells + 1
-!         write(*,*) 'connection_prop_model_grid: cur_pgcell = ', cur_pgcell, ' modindex = ', virtual_point(cur_vp_nearest)%ind_mcell
-
-        END IF
-       END IF
-      END IF ! up_cell == 0
-     END DO 
-    ELSE IF(dyngrid == 0) THEN
-     DO cur_propcell = 1, n_modelgrid
-      cur_pos = model_grid(cur_propcell)%vec_pos
-      CALL find_dyn_cell1(cur_pos, cur_pgi)
-      IF(dyn_cell(cur_pgi)%model_index == 0) THEN
-       dyn_cell(cur_pgi)%model_index = cur_propcell
-       model_grid(cur_propcell)%assoc_cells = model_grid(cur_propcell)%assoc_cells + 1
-       count_ok = count_ok + 1
-      END IF
-      DO J = 1,6
-       cur_neighbour = dyn_cell(cur_pgi)%neighbor(J)
-       IF(cur_neighbour > 0) then
-        cur_n_mgi = dyn_cell(cur_neighbour)%model_index
-        IF(cur_n_mgi == 0) THEN
-         dyn_cell(cur_neighbour)%model_index = cur_propcell
-         model_grid(cur_propcell)%assoc_cells = model_grid(cur_propcell)%assoc_cells + 1
-         count_ok = count_ok + 1
-        END IF
-       END IF
-      END DO
-     END DO
-     ! 
-     vacuum_found = .true.
-     DO WHILE(vacuum_found)
-      vacuum_found = .false.
-      DO cur_pgi = 1, max_n_dcell
-       cur_mcell = dyn_cell(cur_pgi)%model_index
-       if(cur_mcell == 0) then
-        vacuum_found = .true.
-       else
-        DO J = 1,6
-         IF(J == 5) cycle
-         cur_neighbour = dyn_cell(cur_pgi)%neighbor(J)
-         if(cur_neighbour > 0) then
-          cur_n_mgi = dyn_cell(cur_neighbour)%model_index
-          if(cur_n_mgi == 0) then
-           dyn_cell(cur_neighbour)%model_index = cur_mcell
-           model_grid(cur_mcell)%assoc_cells = model_grid(cur_mcell)%assoc_cells + 1
-           ! write(*,*) 'connection_prop_model_grid: cur_pgcell = ', cur_pgcell, ' cur_mcell = ', cur_mcell
-          end if ! cur_n_mgi == 0
-         end if ! cur_neighbour > 0
-        END DO 
-       end if ! cur_mcell == 0
-      END DO
-     END DO
-     ! other cells
-     DO cur_pgcell = 1, max_n_dcell
-      cur_corner = dyn_cell(cur_pgcell)%corner/R_star
-      cur_width = dyn_cell(cur_pgcell)%width/R_star
-      cur_center = cur_corner + cur_width/2.0
-      r0 = sqrt(cur_center(1)**2.0 + cur_center(2)**2.0 + &
-       cur_center(3)**2.0)
-      IF(r0 < 1.0) THEN
-       dyn_cell(cur_pgcell)%model_index = n_modelgrid + 1
-       count_in = count_in + 1
-      ELSE IF(r0 > R_inf/R_star) THEN
-       dyn_cell(cur_pgcell)%model_index = n_modelgrid + 2
-       count_out = count_out + 1
-      END IF
-      IF(dyn_cell(cur_pgcell)%model_index == 0) THEN
-       dyn_cell(cur_pgcell)%model_index = n_modelgrid + 3
-       count_vacuum = count_vacuum + 1
-       ! delta2 = large_number
-       ! DO J = 1, n_modelgrid
-       !  mod_pos = model_grid(J)%vec_pos
-       !  delta = sqrt((cur_center(1)-mod_pos(1))**2.0 + (cur_center(2)-mod_pos(2))**2.0 + (cur_center(3)-mod_pos(3))**2.0)
-       !  if(delta < delta2) THEN
-       !   delta2 = delta
-       !   best_index = J
-       !  end if
-       !  if(mod(cur_propcell,1000)==0) write(*,*) 'connection_prop_model_grid: working on propGrid cell ', cur_propcell, ' from ', max_n_dcell
-       ! END DO ! loop over all modGrid cells
-       ! dyn_cell(cur_pgcell)%model_index = M
-      END IF ! if model_index == 0
-     END DO ! loop over all propGrid cells
-     ! write(*,*) 'connection_prop_model_grid: in = ', count_in, ' out = ', count_out, ' vacuum = ', count_vacuum, &
-     !  ' count_ok = ', count_ok
-    END IF ! dyncell > 0
+    CALL connect_3D_hydronico()
    CASE DEFAULT
     write(*,*) 'the choice inputmodel = ', inputmodel, ' is not known'
     STOP

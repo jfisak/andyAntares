@@ -40,7 +40,7 @@ unit_length = 12.64759321736591 * const_Rsun
 unit_velocity = 1.D8
 unit_density = 1.41314878888978971775872825028550241D-0006
 
- add_mg = 2
+ add_mg = 3
  write(99,*) 'we will read input input data from the basic 2D model'
  ! firstly we calculate number of rows in the file
  n_modelgrid = 0
@@ -65,7 +65,8 @@ unit_density = 1.41314878888978971775872825028550241D-0006
  ALLOCATE(model_grid(n_modelgrid + add_mg))
  ! define special indeces
  outerspace_index = n_modelgrid + 1
- vacuum_index = n_modelgrid + add_mg
+ photosphere_index = n_modelgrid + 2
+ vacuum_index = n_modelgrid + 3
 
  REWIND(15)
  DO ind_I = 1, n_modelgrid
@@ -130,6 +131,13 @@ unit_density = 1.41314878888978971775872825028550241D-0006
  zmin = -zmax
 
  ! setting up vacuum and outward model cells
+ ! photosphere index
+ model_grid(photosphere_index)%assoc_cells = 0
+ model_grid(photosphere_index)%rwind = 0.D0
+ model_grid(photosphere_index)%zwind = 0.D0
+ model_grid(photosphere_index)%vel   = 0.D0
+ model_grid(photosphere_index)%velang   = 0.D0
+ model_grid(photosphere_index)%rho   = 0.D0
  model_grid(outerspace_index)%assoc_cells = 0
  model_grid(outerspace_index)%rwind = 0.D0
  model_grid(outerspace_index)%zwind = 0.D0
@@ -150,7 +158,7 @@ unit_density = 1.41314878888978971775872825028550241D-0006
    numbions = elements(ind_J)%nions
    ALLOCATE (model_grid(n_modelgrid + add_mg)%grid_comp(ind_J)%grid_ion(numbions))
    atom_number = elements(ind_J)%atom_number
-   model_grid(n_modelgrid + 2)%grid_comp(ind_J)%abund = 0.D0
+   model_grid(vacuum_index)%grid_comp(ind_J)%abund = 0.D0
    ! Calculate total number density for included species
    ! tot_nd = model_grid(I)%grid_comp(J)%abund / elements(J)%atom_mass 
    ! model_grid(I)%grid_comp(J)%numb_den = tot_nd
@@ -162,6 +170,5 @@ unit_density = 1.41314878888978971775872825028550241D-0006
  !    model_grid(cur_mgi)%vel, model_grid(cur_mgi)%velang
  !  END DO
  ! CLOSE(77)
-
 
 END SUBROUTINE read_2D_basic

@@ -22,7 +22,8 @@ RATES= r_kappa_cont.o r_kappa_line.o i_ion_recomb.o i_radtrans.o i_radion.o i_co
        i_coltrans.o i_freq_recomb.o  k_freq_ff.o k_freq_fb.o read_photcs.o cool_excit.o \
        cool_ff.o cool_ionization.o cool_fb.o 
 ATOMIC=read_levels.o read_transitions.o read_e_nd.o 
-CONNECTION=connection_prop_model_grid.o connect_2D_peku.o connect_2D_basic.o
+CONNECTION=connection_prop_model_grid.o connect_2D_peku.o connect_2D_basic.o connect_3D_pseudo.o \
+           connect_3D_hydronico.o
 VELOCITY=velo.o velo_vector.o vel_discrete_points.o vel_interpolation.o vel_vector_interpolation.o \
          lin_interpolation_3D.o lin_interpolation.o vel_pseudo3D_model.o
 PACKETS=do_rpackage.o do_ipackage.o do_rpackage_event.o do_kpackage.o do_dpackage.o \

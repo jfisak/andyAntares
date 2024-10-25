@@ -48,8 +48,8 @@ INTEGER                         :: n_adjonced = 0
    my_start = 1
    my_end = n_propgcells
 #endif
-
-add_mg = 2
+my_start = 1
+my_end = n_propgcells
 DO cur_propcell = my_start, my_end
  ! IF(mod(cur_propcell,10000) .EQ. 0) print*, 'associating propagation grid', cur_propcell, REAL(cur_propcell)/REAL(max_n_dcell) * 1.E2, ' % completed'
  IF(dyn_cell(cur_propcell)%up_cell == 0) THEN
@@ -88,22 +88,37 @@ DO cur_propcell = my_start, my_end
 
      diagonal = sqrt(dyn_cell(cur_propcell)%width(1)**2+dyn_cell(cur_propcell)%width(3)**2)/2.D0
      IF((delta > diagonal) .AND. (dyn_cell(cur_propcell)%width(1) > basic_cell_width(1)/2.D0**6)) THEN
-      dyn_cell(cur_propcell)%model_index = n_modelgrid + add_mg
-      model_grid(n_modelgrid + add_mg)%assoc_cells = model_grid(n_modelgrid + add_mg)%assoc_cells + 1
+      dyn_cell(cur_propcell)%model_index = vacuum_index
+      model_grid(vacuum_index)%assoc_cells = model_grid(vacuum_index)%assoc_cells + 1
      ELSE
       dyn_cell(cur_propcell)%model_index = best_index     
       model_grid(best_index)%assoc_cells = model_grid(best_index)%assoc_cells + 1
      END IF
-   ELSE
+   ELSE IF(pgi_radius < R_star) THEN
     ! Cells with radius smaller than the stellar radius or larger
     ! than the winds outer radius have no associated model grid cell
     ! Make them point to the dummy model grid cell
-    dyn_cell(cur_propcell)%model_index = n_modelgrid + 1     
-    !model_grid(n_modelgrid + 1)%assoc_cells = model_grid(n_modelgrid + 1)%assoc_cells + 1
+    dyn_cell(cur_propcell)%model_index = photosphere_index     
+    model_grid(photosphere_index)%assoc_cells = model_grid(photosphere_index)%assoc_cells + 1
+   ELSE IF(pgi_radius > R_inf) THEN
+    dyn_cell(cur_propcell)%model_index = outerspace_index     
+    model_grid(outerspace_index)%assoc_cells = model_grid(outerspace_index)%assoc_cells + 1
    END IF
    ! write(*,*) 'connect_2D_basic: cur_propcell = ', cur_propcell
    ! write(*,*) 'connect_2D_basic: modGrid index = ', dyn_cell(cur_propcell)%model_index
  END IF
 END DO ! loop over propGrid cells
-write(99,*) 'number of propagation cells in vacuum: ', model_grid(n_modelgrid + add_mg)%assoc_cells
+write(99,*) 'number of propagation cells in vacuum: ', model_grid(vacuum_index)%assoc_cells
+
+DO cur_propcell = 1, n_propgcells
+ IF(dyn_cell(cur_propcell)%up_cell == 0) THEN
+  IF(dyn_cell(cur_propcell)%model_index == 0) THEN
+   write(*,*) 'connect_2D_basic: error, cur_propcell = ', cur_propcell
+   STOP 'connect_2D_basic: model_index = 0'
+  END IF
+ END IF
+END DO
+
+
+
 END SUBROUTINE connect_2D_basic
