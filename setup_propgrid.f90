@@ -151,32 +151,32 @@ n_propgcells = max_n_dcell
  CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
  IF(my_rank == 0) THEN
   DO ind_I = 1, n_tasks - 1
-   CALL MPI_SEND(max_n_dcell, 1, MPI_INT, ind_I, 1, MPI_COMM_WORLD, ierr)
+   CALL MPI_SEND(n_propgcells, 1, MPI_INT, ind_I, 1, MPI_COMM_WORLD, ierr)
   END DO
  ELSE
-  CALL MPI_RECV(max_n_dcell, 1, MPI_INT, 0, 1, MPI_COMM_WORLD, status, ierr)
-  ALLOCATE(dyn_cell(max_n_dcell))
+  CALL MPI_RECV(n_propgcells, 1, MPI_INT, 0, 1, MPI_COMM_WORLD, status, ierr)
+  ALLOCATE(dyn_cell(n_propgcells))
  END IF
 
  ! sending the physical quantities to all other processes
- ! DO cur_pgi = 1, max_n_dcell
+ ! DO cur_pgi = 1, n_propgcells
  write(*,*) 'setup_propgrid: sending the propGrid informations'
- write(*,*) 'setup_propgrid: max_n_dcell = ', max_n_dcell
+ write(*,*) 'setup_propgrid: n_propgcells = ', n_propgcells
  ! vector variables
  DO cur_xyz = 1,3
   IF(my_rank == 0) THEN
    DO ind_I = 1, n_tasks - 1
-    CALL MPI_SEND(dyn_cell(:)%corner(cur_xyz), max_n_dcell, MPI_DOUBLE, ind_I, 1, MPI_COMM_WORLD, ierr)
-    CALL MPI_SEND(dyn_cell(:)%width(cur_xyz), max_n_dcell, MPI_DOUBLE, ind_I, 2, MPI_COMM_WORLD, ierr)
-    CALL MPI_SEND(dyn_cell(:)%vec_vel(cur_xyz), max_n_dcell, MPI_DOUBLE, ind_I, 3, MPI_COMM_WORLD, ierr)
-    CALL MPI_SEND(dyn_cell(:)%n_sbgr(cur_xyz), max_n_dcell, MPI_INT, ind_I, 4, MPI_COMM_WORLD, ierr)
+    CALL MPI_SEND(dyn_cell(:)%corner(cur_xyz), n_propgcells, MPI_DOUBLE, ind_I, 1, MPI_COMM_WORLD, ierr)
+    CALL MPI_SEND(dyn_cell(:)%width(cur_xyz), n_propgcells, MPI_DOUBLE, ind_I, 2, MPI_COMM_WORLD, ierr)
+    CALL MPI_SEND(dyn_cell(:)%vec_vel(cur_xyz), n_propgcells, MPI_DOUBLE, ind_I, 3, MPI_COMM_WORLD, ierr)
+    CALL MPI_SEND(dyn_cell(:)%n_sbgr(cur_xyz), n_propgcells, MPI_INT, ind_I, 4, MPI_COMM_WORLD, ierr)
     CALL MPI_SEND(basic_cell_width(cur_xyz), 1, MPI_DOUBLE, ind_I, 5, MPI_COMM_WORLD, ierr)
    END DO
   ELSE
-   CALL MPI_RECV(dyn_cell(:)%corner(cur_xyz), max_n_dcell, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, status, ierr)
-   CALL MPI_RECV(dyn_cell(:)%width(cur_xyz), max_n_dcell, MPI_DOUBLE, 0, 2, MPI_COMM_WORLD, status, ierr)
-   CALL MPI_RECV(dyn_cell(:)%vec_vel(cur_xyz), max_n_dcell, MPI_DOUBLE, 0, 3, MPI_COMM_WORLD, status, ierr)
-   CALL MPI_RECV(dyn_cell(:)%n_sbgr(cur_xyz), max_n_dcell, MPI_INT, 0, 4, MPI_COMM_WORLD, status, ierr)
+   CALL MPI_RECV(dyn_cell(:)%corner(cur_xyz), n_propgcells, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, status, ierr)
+   CALL MPI_RECV(dyn_cell(:)%width(cur_xyz), n_propgcells, MPI_DOUBLE, 0, 2, MPI_COMM_WORLD, status, ierr)
+   CALL MPI_RECV(dyn_cell(:)%vec_vel(cur_xyz), n_propgcells, MPI_DOUBLE, 0, 3, MPI_COMM_WORLD, status, ierr)
+   CALL MPI_RECV(dyn_cell(:)%n_sbgr(cur_xyz), n_propgcells, MPI_INT, 0, 4, MPI_COMM_WORLD, status, ierr)
    CALL MPI_RECV(basic_cell_width(cur_xyz), 1, MPI_DOUBLE, 0, 5, MPI_COMM_WORLD, status, ierr)
   END IF
   CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
@@ -185,22 +185,22 @@ n_propgcells = max_n_dcell
  ! scalar variables
  IF(my_rank == 0) THEN
   DO ind_I = 1, n_tasks - 1
-   CALL MPI_SEND(dyn_cell(:)%up_cell, max_n_dcell, MPI_INT, ind_I, 1, MPI_COMM_WORLD, ierr)
-   CALL MPI_SEND(dyn_cell(:)%down_cell, max_n_dcell, MPI_INT, ind_I, 1, MPI_COMM_WORLD, ierr)
+   CALL MPI_SEND(dyn_cell(:)%up_cell, n_propgcells, MPI_INT, ind_I, 1, MPI_COMM_WORLD, ierr)
+   CALL MPI_SEND(dyn_cell(:)%down_cell, n_propgcells, MPI_INT, ind_I, 1, MPI_COMM_WORLD, ierr)
   END DO
  ELSE
-  CALL MPI_RECV(dyn_cell(:)%up_cell, max_n_dcell, MPI_INT, 0, 1, MPI_COMM_WORLD, status, ierr)
-  CALL MPI_RECV(dyn_cell(:)%down_cell, max_n_dcell, MPI_INT, 0, 1, MPI_COMM_WORLD, status, ierr)
+  CALL MPI_RECV(dyn_cell(:)%up_cell, n_propgcells, MPI_INT, 0, 1, MPI_COMM_WORLD, status, ierr)
+  CALL MPI_RECV(dyn_cell(:)%down_cell, n_propgcells, MPI_INT, 0, 1, MPI_COMM_WORLD, status, ierr)
  END IF
  CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
  ! another vector variable with double dimension
  DO cur_xyz = 1,6
   IF(my_rank == 0) THEN
    DO ind_I = 1, n_tasks - 1
-    CALL MPI_SEND(dyn_cell(:)%neighbor(cur_xyz), max_n_dcell, MPI_INT, ind_I, 1, MPI_COMM_WORLD, ierr)
+    CALL MPI_SEND(dyn_cell(:)%neighbor(cur_xyz), n_propgcells, MPI_INT, ind_I, 1, MPI_COMM_WORLD, ierr)
    END DO
   ELSE
-   CALL MPI_RECV(dyn_cell(:)%neighbor(cur_xyz), max_n_dcell, MPI_INT, 0, 1, MPI_COMM_WORLD, status, ierr)
+   CALL MPI_RECV(dyn_cell(:)%neighbor(cur_xyz), n_propgcells, MPI_INT, 0, 1, MPI_COMM_WORLD, status, ierr)
   END IF
   CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
  END DO
