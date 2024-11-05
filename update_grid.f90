@@ -116,13 +116,15 @@ END DO
 !  END IF
 ! END DO
 
- CALL MPI_ALLREDUCE(model_grid(:)%j, model_grid(:)%j, n_modelgrid + add_mg, &
-  MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
- CALL MPI_ALLREDUCE(model_grid(:)%T, model_grid(:)%T, n_modelgrid + add_mg, &
-  MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
- CALL MPI_ALLREDUCE(model_grid(:)%e_dens, model_grid(:)%e_dens, n_modelgrid + add_mg, &
-  MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
- CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
+ IF(n_tasks > 1) THEN
+  CALL MPI_ALLREDUCE(model_grid(:)%j, model_grid(:)%j, n_modelgrid + add_mg, &
+   MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
+  CALL MPI_ALLREDUCE(model_grid(:)%T, model_grid(:)%T, n_modelgrid + add_mg, &
+   MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
+  CALL MPI_ALLREDUCE(model_grid(:)%e_dens, model_grid(:)%e_dens, n_modelgrid + add_mg, &
+   MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
+  CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
+ END IF
 #endif
 
 

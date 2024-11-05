@@ -16,6 +16,7 @@ DO gridcell = 1, n_modelgrid
  IF (model_grid(gridcell)%assoc_cells > 0) THEN
   el_nd = model_grid(gridcell)%e_dens
   temp = model_grid(gridcell)%T
+  IF(temp <= 0) CYCLE
   ! write(*,*) 'lte_pops: el_nd = ', el_nd
   CALL ionization_fraction(indexe, indexi, temp, el_nd, frac)
   ! Total population number of the element indexe in ionization stage indexi

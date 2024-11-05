@@ -209,6 +209,7 @@ SAVE
   INTEGER                            :: my_rank
   INTEGER                            :: ierr
   INTEGER                            :: n_tasks
+  LOGICAL                            :: clean_modelGrid
   CHARACTER(file_length)                      :: outputfolder=''
   CHARACTER(file_length)                      :: outputfile
 !! Atomic data

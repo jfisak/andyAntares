@@ -23,7 +23,7 @@ USE virt_gridAB
 INTEGER                              :: nphit
 
 LOGICAL                                 :: propmod_file_exists
-CHARACTER(60)                           :: propmod_file
+CHARACTER(file_length)                           :: propmod_file
 
 LOGICAL                                 :: timing = .true.
 
@@ -151,9 +151,11 @@ INQUIRE(FILE=propmod_file, EXIST=propmod_file_exists)
 
 IF(saved_grid == 1 .and. propmod_file_exists) THEN
  CALL read_propmod_grid()
+ CALL virt_gridAB_init()
 ELSE
  IF(debug == 3) write(*,*) 'setting up model grid'
  CALL setup_model_grid()
+ CALL virt_gridAB_init()
 
  CALL save_output(ind_save_modgrid)
  ! save basic parameters of the model grid
@@ -195,8 +197,8 @@ ELSE
  write(*,*) 'main: n_modelgrid = ', n_modelgrid
  IF(debug == 3) write(*,*) 'prop and mod grids are connected'
 END IF ! saved propmod grid
- CALL virt_gridAB_init()
- CALL propmodgrid_diagnostics()
+
+CALL propmodgrid_diagnostics()
 
 ! save propmod_grid?
 IF(saved_grid == 1 .and. .not. propmod_file_exists .or. saved_grid == 2) THEN
@@ -217,7 +219,7 @@ IF(velApprox == 3 .AND. model_type == 3 .AND. inputmodel == 0) THEN
 END IF
 IF(velApprox == 4) THEN
  CALL vel_interpolation()
- STOP 'main: testing'
+ ! STOP 'main: testing'
 END IF
 
 

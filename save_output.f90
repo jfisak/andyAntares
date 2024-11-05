@@ -193,43 +193,53 @@ CASE(3)
  OPEN(12, FILE=fileTempStruct)
   DO ind_I = 1, n_modelgrid
    IF(model_grid(ind_I)%assoc_cells == 0) CYCLE
-   WRITE(12, *) model_grid(ind_I)%rwind, model_grid(ind_I)%T, model_grid(ind_I)%e_dens
+   IF(model_type == 1) THEN
+    WRITE(12, *) model_grid(ind_I)%rwind, model_grid(ind_I)%T, model_grid(ind_I)%e_dens
+   ELSE IF(model_type == 2) THEN
+    WRITE(12, *) model_grid(ind_I)%rwind, model_grid(ind_I)%angle, model_grid(ind_I)%T, model_grid(ind_I)%e_dens
+   END IF
   END DO
  CLOSE(12)
  ! saving population numbers
- fileOccNum = trim(outputfolder)//'/occNums.dat'
- OPEN(13, FILE = fileOccNum)
-  ! writing basic informations about chemical composition
-  ! 000 -- model cell information
-  ! 001 -- chemical composition
-  ! 002 -- level population
-  ! 003 -- total ion population
-  DO ind_I = 1, n_modelgrid
-   IF(model_grid(ind_I)%assoc_cells == 0) CYCLE
-   WRITE(13, *) '000', ind_I, model_grid(ind_I)%rwind, model_grid(ind_I)%t, model_grid(ind_I)%rho, model_grid(ind_I)%e_dens
-   DO ind_J = 1, n_elements
-     WRITE(13, *) '001', elements(ind_J)%atom_number, elements(ind_J)%abundance
-   END DO
-   ! write the occupation numbers
-   DO act_elem = 1, n_elements
-    DO act_ion = 1, SIZE(elements(act_elem)%ions)
-     ! WRITE(13, *) model_grid(I)%grid_comp(act_elem)%grid_ion(act_ion)%tot_pop
-     num_tot_pop = 0.D0
-     DO act_lev = 1, SIZE(elements(act_elem)%ions(act_ion)%levels)
-      eenergy = elements(act_elem)%ions(act_ion)%levels(act_lev)%exci_energy
-      CALL populations(act_elem, act_ion, act_lev, ind_I, act_pop)
-      num_tot_pop = num_tot_pop + act_pop
-      WRITE(13, *) '002', elements(act_elem)%atom_number, act_ion, act_lev, &
-      elements(act_elem)%ions(act_ion)%levels(act_lev)%stat_waight, &
-      eenergy / const_ev, act_pop
-     END DO
-     WRITE(13, *) '003', elements(act_elem)%atom_number, act_ion, ' TOT ', &
-     model_grid(ind_I)%grid_comp(act_elem)%grid_ion(act_ion)%tot_pop / num_tot_pop, &
-      model_grid(ind_I)%grid_comp(act_elem)%grid_ion(act_ion)%tot_pop
-    END DO
-   END DO
-  END DO
- CLOSE(13)
+ ! fileOccNum = trim(outputfolder)//'/occNums.dat'
+ ! OPEN(13, FILE = fileOccNum)
+ !  ! writing basic informations about chemical composition
+ !  ! 000 -- model cell information
+ !  ! 001 -- chemical composition
+ !  ! 002 -- level population
+ !  ! 003 -- total ion population
+ !  DO ind_I = 1, n_modelgrid
+ !   IF(model_grid(ind_I)%assoc_cells == 0) CYCLE
+ !   IF(model_type == 1) THEN
+ !    WRITE(13, *) '000', ind_I, model_grid(ind_I)%rwind, model_grid(ind_I)%t, model_grid(ind_I)%rho, model_grid(ind_I)%e_dens
+ !   ELSE IF(model_type == 2) THEN
+ !    IF(inputmodel == 0)  THEN
+ !     WRITE(13, *) '000', ind_I, model_grid(ind_I)%rwind, model_grid(ind_I)%angle, model_grid(ind_I)%t, model_grid(ind_I)%rho, model_grid(ind_I)%e_dens
+ !    END IF
+ !   END IF
+ !   DO ind_J = 1, n_elements
+ !     WRITE(13, *) '001', elements(ind_J)%atom_number, elements(ind_J)%abundance
+ !   END DO
+ !   ! write the occupation numbers
+ !   DO act_elem = 1, n_elements
+ !    DO act_ion = 1, SIZE(elements(act_elem)%ions)
+ !     ! WRITE(13, *) model_grid(I)%grid_comp(act_elem)%grid_ion(act_ion)%tot_pop
+ !     num_tot_pop = 0.D0
+ !     DO act_lev = 1, SIZE(elements(act_elem)%ions(act_ion)%levels)
+ !      eenergy = elements(act_elem)%ions(act_ion)%levels(act_lev)%exci_energy
+ !      CALL populations(act_elem, act_ion, act_lev, ind_I, act_pop)
+ !      num_tot_pop = num_tot_pop + act_pop
+ !      WRITE(13, *) '002', elements(act_elem)%atom_number, act_ion, act_lev, &
+ !      elements(act_elem)%ions(act_ion)%levels(act_lev)%stat_waight, &
+ !      eenergy / const_ev, act_pop
+ !     END DO
+ !     WRITE(13, *) '003', elements(act_elem)%atom_number, act_ion, ' TOT ', &
+ !     model_grid(ind_I)%grid_comp(act_elem)%grid_ion(act_ion)%tot_pop / num_tot_pop, &
+ !      model_grid(ind_I)%grid_comp(act_elem)%grid_ion(act_ion)%tot_pop
+ !    END DO
+ !   END DO
+ !  END DO
+ ! CLOSE(13)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! #04 IONIZATION BALANCE
 !
