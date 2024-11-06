@@ -13,14 +13,16 @@ INTEGER             :: indexe, indexi, numb_ions, iteration
 DOUBLE PRECISION    :: el_nd, temp
 LOGICAL                 :: wasFound
 
-INTEGER                                 :: N_single, N_zbytek
+INTEGER                                 :: N_single, N_zbytek, N_tot_zbytek
 INTEGER                                 :: cur_mgi
 INTEGER                                 :: my_start, my_end
+INTEGER                                 :: status(MPI_STATUS_SIZE)
 
 LOGICAL                                 :: propmod_file_exists
-CHARACTER(60)                           :: propmod_file
+CHARACTER(file_length)                           :: propmod_file
 
 INTEGER                                 :: cur_n_assoccells
+DOUBLE PRECISION                        :: test_temp
 
 DOUBLE PRECISION, DIMENSION(n_modelgrid + add_mg)    :: cur_j, cur_temp, cur_elnd
 
@@ -30,28 +32,36 @@ cur_elnd(:) = 0.D0
   
 write(99,*) 'updating grid'
 #if mpi == 1
- N_single = n_modelgrid/n_tasks
+ N_single = (n_modelgrid)/n_tasks
  N_zbytek = n_modelgrid - n_tasks * N_single
+ IF(N_zbytek /= 0) N_tot_zbytek = (N_zbytek + 1) * (N_single + 1) + N_zbytek
+ write(*,*) 'update_grid: N_single = ', N_single, ' N_zbytek = ', N_zbytek
  IF(my_rank <= N_zbytek - 1) THEN
-  my_start = my_rank * (N_single + 1) + 1
-  my_end = my_rank * (N_single + 1) + N_single
+  my_start = my_rank * (N_single + 1) + my_rank
+  my_end = (my_rank + 1) * (N_single + 1) + N_single
  ELSE IF(N_zbytek == 0) THEN
-  my_start = my_rank * (N_single + 1) + 1
-  my_end = my_rank * (N_single + 1) + N_single
- ELSE
-  my_start = N_zbytek * (N_single + 1) + (my_rank - N_zbytek - 1) * N_single + 1
-  my_end = N_zbytek * (N_single + 1) + (my_rank - N_zbytek - 1) * N_single + N_single +1
+  my_start = my_rank * N_single + 1
+  my_end = (my_rank + 1) * N_single
+ ELSE IF(my_rank > N_zbytek - 1) THEN
+  my_start = N_tot_zbytek + 1 + (my_rank - N_zbytek) * N_single + (my_rank - N_zbytek)
+  my_end = N_tot_zbytek + 1 + (my_rank - N_zbytek + 1) * N_single + (my_rank - N_zbytek)
+ END IF
+ IF(my_rank == n_tasks - 1) THEN
+  my_end = n_modelgrid
  END IF
 #else
  my_start = 1
  my_end = n_modelgrid
 #endif
 
+! write(*,*) 'update_grid: my_rank = ', my_rank, ' n_modelgrid = ', n_modelgrid
 ! write(*,*) 'update_grid: my_start = ', my_start, ' my_end = ', my_end
+CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
 
 DO cur_mgi = my_start, my_end
  cur_n_assoccells = model_grid(cur_mgi)%assoc_cells
- IF (cur_n_assoccells .GT. 0) THEN
+ ! write(*,*) 'update_grid: my_rank = ', my_rank, ' cur_n_assoccells = ', cur_n_assoccells
+ IF (cur_n_assoccells > 0 .and. cur_mgi <= n_modelgrid) THEN
   ! write(*,*) 'update_grid: temp = ', model_grid(cur_mgi)%T
   IF (iteration == 1) THEN
    ! Calculate electron number density for every model grid cell gridcell
@@ -60,7 +70,6 @@ DO cur_mgi = my_start, my_end
    END IF
    ! reading the temperature structure
    cur_temp(cur_mgi) = model_grid(cur_mgi)%T
-   ! write(*,*) 'update_grid: cur_temp = ', cur_temp(cur_mgi)
   ELSE ! iteration > 1
    ! Energy density contribeted to the model grid cell 
    cur_j(cur_mgi) = model_grid(cur_mgi)%J / model_grid(cur_mgi)%volume / (4 * const_pi)
@@ -86,38 +95,39 @@ DO cur_mgi = my_start, my_end
     CALL diffusion_approximation(cur_mgi)
    END IF
   END IF
+  ! write(*,*) 'update_grid: temp = ', model_grid(cur_mgi)%T
  END IF ! cur_n_assoccells > 0
 END DO
 
+! write(*,*) 'update_grid: my_rank = ', my_rank, ' the physical structure is computed'
+
 #if mpi == 1
- ! IF(n_tasks > 1) THEN
- !  CALL mpi_reduce(cur_j(:), model_grid(:)%j, n_modelgrid + add_mg, &
- !   & mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
- !  CALL MPI_REDUCE(cur_temp(:), model_grid(:)%T, n_modelgrid + add_mg, &
- !   & MPI_DOUBLE_PRECISION, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
- !  CALL MPI_REDUCE(cur_elnd(:), model_grid(:)%e_dens, n_modelgrid + add_mg, &
- !   & MPI_DOUBLE_PRECISION, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
- !  ! distribute all the data among all of the processes
- !  CALL MPI_BCAST(model_grid(:)%e_dens, n_modelgrid + add_mg, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
- !  CALL MPI_BCAST(model_grid(:)%j, n_modelgrid + add_mg, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
- !  CALL MPI_BCAST(model_grid(:)%T, n_modelgrid + add_mg, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
- ! END IF
- CALL MPI_REDUCE(cur_j(:), model_grid(:)%j, n_modelgrid + add_mg, &
-  & mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
- CALL MPI_REDUCE(cur_temp(:), model_grid(:)%T, n_modelgrid + add_mg, &
-  & MPI_DOUBLE_PRECISION, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
- CALL MPI_REDUCE(cur_elnd(:), model_grid(:)%e_dens, n_modelgrid + add_mg, &
-  & MPI_DOUBLE_PRECISION, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
- ! distribute all the data among all of the processes
- CALL MPI_BCAST(model_grid(:)%e_dens, n_modelgrid + add_mg, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
- CALL MPI_BCAST(model_grid(:)%j, n_modelgrid + add_mg, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
- CALL MPI_BCAST(model_grid(:)%T, n_modelgrid + add_mg, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
+
+! DO cur_mgi = my_start, my_end
+!  ! test_temp = model_grid(cur_mgi)%T
+!  IF(model_grid(cur_mgi)%assoc_cells > 0) THEN
+!   test_temp = cur_temp(cur_mgi)
+!   write(*,*) 'update_grid: my_rank = ', my_rank, ' cur_temp = ', cur_temp(cur_mgi)
+!   IF(test_temp == 0.D00) THEN
+!    write(*,*) 'update_grid: before reduce'
+!    write(*,*) 'update_grid: my_rank = ', my_rank, ' cur_mgi = ', cur_mgi
+!    STOP 'update_grid: temp = 0 K'
+!   END IF
+!  END IF
+! END DO
+
+ IF(n_tasks > 1) THEN
+  CALL MPI_ALLREDUCE(model_grid(:)%j, model_grid(:)%j, n_modelgrid + add_mg, &
+   MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
+  CALL MPI_ALLREDUCE(model_grid(:)%T, model_grid(:)%T, n_modelgrid + add_mg, &
+   MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
+  CALL MPI_ALLREDUCE(model_grid(:)%e_dens, model_grid(:)%e_dens, n_modelgrid + add_mg, &
+   MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
+  CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
+ END IF
 #endif
 
 
-! if(my_rank == 0) then
-!  write(*,*) 'update_grid: cur_e_dens = ', model_grid(:)%e_dens
-! end if
 
 ! STOP 'update_grid: testing'
 ! calculation of population numbers

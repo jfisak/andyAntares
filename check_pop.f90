@@ -23,7 +23,7 @@ filename = trim(outputfolder)//'/ionFracs.dat'
 OPEN(59,FILE=filename)
 
 DO cur_mgi = 1, n_modelgrid
- IF (model_grid(cur_mgi)%assoc_cells == 0) CYCLE
+ IF (model_grid(cur_mgi)%assoc_cells <= 0) CYCLE
  DO indexe = 1, n_elements
   n_ions = SIZE(elements(indexe)%ions)
   cur_radius = model_grid(cur_mgi)%rwind

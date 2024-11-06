@@ -8,7 +8,7 @@ USE constants
   INTEGER    :: n_pack, iseed, idx, npar
   CHARACTER(LEN=180)  :: LINE, ACTPAR
 
-  INTEGER                               :: calc_brtm_int
+  INTEGER                               :: calc_brtm_int, clean_mg
 
   OPEN (UNIT=1, FILE='input.dat', STATUS='OLD')
 
@@ -57,6 +57,7 @@ USE constants
 ! 025 BRTM
 ! 026 Sobolev approximation
 ! 027 Note
+! 028 Clean modelGrid
   DO
     READ (1, '(A)', END=99) LINE
 
@@ -252,6 +253,13 @@ USE constants
      ! DO
      ! write(*,*) 'read_input: note = ', put_a_note
      ! end all ifs
+    ! 026 clean modelGrid
+    ELSE IF (ACTPAR .EQ. 'clean_mgi') THEN
+    CALL SARGC (LINE, NPAR)
+    IF (NPAR .LT. 2) GOTO 90
+    CALL SARGV(LINE,2,ACTPAR)
+    READ (ACTPAR, '(I2)', ERR=94) clean_mg
+    IF(clean_mg == 1) clean_modelGrid = .true.
     END IF
   END DO
 

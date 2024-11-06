@@ -1,8 +1,22 @@
+! the root subroutine of the whole Andy Antares code
+! the most important parts
+!
+! 1) MPI INITIALIZATION
+! 2) READ INPUT
+! 3) MONTE CARLO SEED INITIALIZATION
+! 4) SETTING OF PROPAGATION AND MODEL GRID
+! 5) THEM MAIN ITERATION
+! 6) SETTING THE PLASMA STATE IN THE MODEL GRID
+! 7) PACKET MACHINERY
+! 8) DISTRIBUTE VARIABLES AMONG DIFFERENT TASKS
+! 9) GET THE POSITION DEPENDENT SPECTRUM
+! 10) SAVE OUTPUT FILES
+!
+! INPUT: NONE
+! OUTPUT: NONE
+!
 SUBROUTINE main
 
-  ! Propagate a bunch of photon packets through a stellar wind
-
-! Use module types (modul.f90)
 USE MPI
 USE types
 USE constants
@@ -23,11 +37,9 @@ USE virt_gridAB
 INTEGER                              :: nphit
 
 LOGICAL                                 :: propmod_file_exists
-CHARACTER(60)                           :: propmod_file
+CHARACTER(file_length)                           :: propmod_file
 
 LOGICAL                                 :: timing = .true.
-
-! DOUBLE PRECISION                        :: test_freq
 
 INTEGER, PARAMETER                      :: ind_save_inputfile = 100, ind_save_composition = 101
 INTEGER, PARAMETER                      :: ind_save_modgrid = 102
@@ -36,7 +48,6 @@ INTEGER, PARAMETER                      :: ind_save_velfield = 11
 ! Link data to identify program version
 CHARACTER LINK_DATE*30, LINK_USER*10, LINK_HOST*60
 COMMON / COM_LINKINFO / LINK_DATE, LINK_USER, LINK_HOST
-! COMMON / RAN_SEED / idum
 
 ! the Saha constant calculation
 saha_const = 5.D-1 * (const_h**2/(2.0*const_pi*const_me_g*const_kB))**1.5
@@ -48,11 +59,13 @@ saha_const = 5.D-1 * (const_h**2/(2.0*const_pi*const_me_g*const_kB))**1.5
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-my_rank = 0
 #if mpi==1
  CALL MPI_INIT(ierr)
  CALL MPI_COMM_RANK(MPI_COMM_WORLD, my_rank, ierr)
  CALL MPI_COMM_SIZE(MPI_COMM_WORLD, n_tasks, ierr)
+#elif
+ my_rank = 0
+ n_tasks = 1
 #endif
 
 
@@ -149,9 +162,11 @@ INQUIRE(FILE=propmod_file, EXIST=propmod_file_exists)
 
 IF(saved_grid == 1 .and. propmod_file_exists) THEN
  CALL read_propmod_grid()
+ CALL virt_gridAB_init()
 ELSE
  IF(debug == 3) write(*,*) 'setting up model grid'
  CALL setup_model_grid()
+ CALL virt_gridAB_init()
 
  CALL save_output(ind_save_modgrid)
  ! save basic parameters of the model grid
@@ -193,8 +208,8 @@ ELSE
  write(*,*) 'main: n_modelgrid = ', n_modelgrid
  IF(debug == 3) write(*,*) 'prop and mod grids are connected'
 END IF ! saved propmod grid
- CALL virt_gridAB_init()
- CALL propmodgrid_diagnostics()
+
+CALL propmodgrid_diagnostics()
 
 ! save propmod_grid?
 IF(saved_grid == 1 .and. .not. propmod_file_exists .or. saved_grid == 2) THEN
@@ -215,7 +230,7 @@ IF(velApprox == 3 .AND. model_type == 3 .AND. inputmodel == 0) THEN
 END IF
 IF(velApprox == 4) THEN
  CALL vel_interpolation()
- STOP 'main: testing'
+ ! STOP 'main: testing'
 END IF
 
 

@@ -157,7 +157,7 @@ END IF
   END IF
 
   ! packet can be changed into an r-packet or just move to another diffusive cell
-  IF(next_mgi .ne. n_modelgrid + 1) THEN
+  IF(next_mgi .ne. photosphere_index) THEN
    next_diff = model_grid(next_mgi)%is_difapp
    ! moving to another diffusive cell
    IF(next_diff) THEN

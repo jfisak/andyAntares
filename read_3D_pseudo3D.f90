@@ -34,8 +34,9 @@ OPEN(UNIT=11, FILE=modelfile)
  READ(11,*) V_inf
  READ(11,*) Nx, Ny, Nz
 
- add_mg = 2
+ add_mg = 3
 
+ write(*,*) 'read_3D_pseudo3D: my_rank = ', my_rank
  write(*,*) 'read_3D_pseudo3D: R_star = ', R_star, ' R_inf = ', R_inf, ' R_inf/R_star = ', R_inf/R_star
 
  write(99,*) 'setting new propagation grid size to: nx_cell =', nx_cell, ' ny_cell = ', ny_cell, &
@@ -85,22 +86,29 @@ OPEN(UNIT=11, FILE=modelfile)
  ! Dummy cell to associate to propagation grid cells which have no representation on the model grid.
  ! All cells out of model grid set to 0 and associate to n_modelgrid.
  ! Other cells will obtainde particular values with memory
+ photosphere_index = n_modelgrid + 1
+ outerspace_index = n_modelgrid + 2
+ vacuum_index = n_modelgrid + 3
  model_grid(n_modelgrid + add_mg)%vec_vel = (/ 0.e0, 0.e0, 0.e0 /)
  ! cells below the lower boundary
- model_grid(n_modelgrid+add_mg - 1)%rwind = 0.D0
- model_grid(n_modelgrid+add_mg - 1)%vel   = 0.D0
- model_grid(n_modelgrid+add_mg - 1)%rho   = 0.D0
+ model_grid(photosphere_index)%rwind = 0.D0
+ model_grid(photosphere_index)%vel   = 0.D0
+ model_grid(photosphere_index)%rho   = 0.D0
  ! cells beyond the outer boundary
- model_grid(n_modelgrid+add_mg)%rwind = R_inf
- model_grid(n_modelgrid+add_mg)%vel   = V_inf
- model_grid(n_modelgrid+add_mg)%rho   = 0.D0
+ model_grid(outerspace_index)%rwind = R_inf
+ model_grid(outerspace_index)%vel   = V_inf
+ model_grid(outerspace_index)%rho   = 0.D0
+ ! vacuum cells
+ model_grid(vacuum_index)%rwind = 0.D0
+ model_grid(vacuum_index)%vel   = 0.D0
+ model_grid(vacuum_index)%rho   = 0.D0
 
- mod_xmin = MINVAL(model_grid(:)%vec_pos(1))
- mod_ymin = MINVAL(model_grid(:)%vec_pos(2))
- mod_zmin = MINVAL(model_grid(:)%vec_pos(3))
- mod_xmax = MAXVAL(model_grid(:)%vec_pos(1))
- mod_ymax = MAXVAL(model_grid(:)%vec_pos(2))
- mod_zmax = MAXVAL(model_grid(:)%vec_pos(3))
+ mod_xmin = MINVAL(model_grid(:)%vec_pos(ind_x))
+ mod_ymin = MINVAL(model_grid(:)%vec_pos(ind_y))
+ mod_zmin = MINVAL(model_grid(:)%vec_pos(ind_z))
+ mod_xmax = MAXVAL(model_grid(:)%vec_pos(ind_x))
+ mod_ymax = MAXVAL(model_grid(:)%vec_pos(ind_y))
+ mod_zmax = MAXVAL(model_grid(:)%vec_pos(ind_z))
 
  len_x = mod_xmax - mod_xmin
  len_y = mod_ymax - mod_ymin

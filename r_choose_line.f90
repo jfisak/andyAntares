@@ -13,7 +13,7 @@ INTEGER                         :: n_chosenline
 DOUBLE PRECISION                :: ran2
 
 
-INTEGER                         :: I, act_line
+INTEGER                         :: ind_I, act_line
 DOUBLE PRECISION                :: tot_lop, summ, ran_numb
 
 IF(n_next_lines == 1) THEN
@@ -22,18 +22,18 @@ IF(n_next_lines == 1) THEN
 END IF
 
 tot_lop = 0.D0
-DO I = 1, n_next_lines
- tot_lop = tot_lop + actirrates%Lline(I)
+DO ind_I = 1, n_next_lines
+ tot_lop = tot_lop + actirrates%Lline(ind_I)
 END DO
 
 ran_numb = ran2(idum) * tot_lop
 summ = 0.D0
 ! write(*,*) 'r_choose_line: n_next_lines = ', n_next_lines
-DO I = 1, n_next_lines
- act_line = actirrates%nline(I)
- ! write(*,*) 'r_choose_line: I = ', I, ' ran_numb = ', ran_numb, ' summ = ', summ
- ! write(*,*) 'r_choose_line: I = ', I, ' Lline = ', actirrates%Lline(I)
- IF(ran_numb > summ .AND. ran_numb < summ + actirrates%Lline(I)) THEN
+DO ind_I = 1, n_next_lines
+ act_line = actirrates%nline(ind_I)
+ ! write(*,*) 'r_choose_line: ind_I = ', I, ' ran_numb = ', ran_numb, ' summ = ', summ
+ ! write(*,*) 'r_choose_line: ind_I = ', I, ' Lline = ', actirrates%Lline(ind_I)
+ IF(ran_numb > summ .AND. ran_numb < summ + actirrates%Lline(ind_I)) THEN
   ! write(*,*) 'event_dist: last_line = ', act_line
   package(pack_index)%l_ele = linelist(act_line)%indexe
   package(pack_index)%l_ion = linelist(act_line)%indexi
@@ -42,14 +42,14 @@ DO I = 1, n_next_lines
   ! write(*,*) 'event_dist: #1 chosen line = ', act_line
   EXIT
  END IF
- summ = summ + actirrates%Lline(I)
+ summ = summ + actirrates%Lline(ind_I)
 END DO
 
 IF(package(pack_index)%last_line <= 0) THEN
  write(*,*) 'r_choose_line: number of lines = ', actirrates%nline(:)
  write(*,*) 'r_choose_line: Lline = ', actirrates%Lline(:)
  write(*,*) 'r_choose_line: the chosen line = ', package(pack_index)%last_line, ' < 0'
- STOP 
+ STOP 'r_choose_line'
 END IF
 
 END SUBROUTINE r_choose_line

@@ -40,7 +40,6 @@ n_cell = (/ nx_cell, ny_cell, nz_cell /)
 
 ! bounds test
 
-
 IF(pos(1) > xmax .or. pos(1) < -xmax) THEN
  actual_cell = -99
  RETURN

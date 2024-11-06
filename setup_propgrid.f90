@@ -1,20 +1,31 @@
 ! Set up propagation grid cells using dynamic cells
+! the sbr supports the adaptive propGrid as well
+!
+! INPUT: NONE
+! OUTPUT: NONE
+!
 SUBROUTINE setup_propgrid() 
 
 
+USE MPI
 USE types
 USE constants
 
 IMPLICIT NONE    
 
 ! loop variables
-INTEGER                                :: I, J, K, L
+INTEGER                                :: ind_I, ind_J, K, L, cur_xyz
 INTEGER, PARAMETER                     :: Nmax = 1000000000               
 ! variables describing dynamic cells
 INTEGER                                :: max_n_dcell, N_dyn_grid
 INTEGER                                :: xp, xm, yp, ym, zp, zm
 TYPE(dyn_grid_cell), ALLOCATABLE       :: pom2(:)
+INTEGER                                 :: status(MPI_STATUS_SIZE)
 
+
+#if mpi==1
+ IF(my_rank == 0) THEN
+#endif
 
 ! Number of propagation grid cells
 Ngrid = nx_cell * ny_cell * nz_cell
@@ -33,52 +44,52 @@ END IF
 
 ! Size of the basic grid cells in x,y, and z direction (now they are with
 ! the same size i.e. regular gred)
-basic_cell_width(1) = 2.E0 * xmax / DBLE(nx_cell)
-basic_cell_width(2) = 2.E0 * ymax / DBLE(ny_cell)
-basic_cell_width(3) = 2.E0 * zmax / DBLE(nz_cell)
+basic_cell_width(ind_x) = 2.E0 * xmax / DBLE(nx_cell)
+basic_cell_width(ind_y) = 2.E0 * ymax / DBLE(ny_cell)
+basic_cell_width(ind_z) = 2.E0 * zmax / DBLE(nz_cell)
 
 
 L = 1
-DO I=1, nx_cell
- DO J=1, ny_cell
+DO ind_I=1, nx_cell
+ DO ind_J=1, ny_cell
   DO K=1, nz_cell
    ! Index(number) of each cell in x,y, and z direction
    !dyn_cell(L)%indexc(1) = I
-   !dyn_cell(L)%indexc(2) = J
+   !dyn_cell(L)%indexc(2) = ind_J
    !dyn_cell(L)%indexc(3) = K
    ! Coordinates of the lower left corner of each cell
-   dyn_cell(L)%corner(1)  = - xmax + DBLE((I - 1)) * basic_cell_width(1)
-   dyn_cell(L)%corner(2)  = - ymax + DBLE((J - 1)) * basic_cell_width(2)     
-   dyn_cell(L)%corner(3)  = - zmax + DBLE((K - 1)) * basic_cell_width(3) 
+   dyn_cell(L)%corner(ind_x)  = - xmax + DBLE((ind_I - 1)) * basic_cell_width(ind_x)
+   dyn_cell(L)%corner(ind_y)  = - ymax + DBLE((ind_J - 1)) * basic_cell_width(ind_y)     
+   dyn_cell(L)%corner(ind_z)  = - zmax + DBLE((K - 1)) * basic_cell_width(ind_z) 
    ! cell width
-   dyn_cell(L)%width(1) = basic_cell_width(1)
-   dyn_cell(L)%width(2) = basic_cell_width(2)
-   dyn_cell(L)%width(3) = basic_cell_width(3)
+   dyn_cell(L)%width(ind_x) = basic_cell_width(ind_x)
+   dyn_cell(L)%width(ind_y) = basic_cell_width(ind_y)
+   dyn_cell(L)%width(ind_z) = basic_cell_width(ind_z)
    ! number of down cell is equal to zero
    dyn_cell(L)%down_cell = 0
    dyn_cell(L)%up_cell = 0
    dyn_cell(L)%n_sbgr = (/ 0, 0, 0 /)
    ! calculation of neighbors
    ! x+
-   IF(I == nx_cell) THEN
+   IF(ind_I == nx_cell) THEN
     xp = -99
    ELSE
     xp = L + ny_cell * nz_cell
    END IF
    ! x-
-   IF(I == 1) THEN
+   IF(ind_I == 1) THEN
     xm = -99
    ELSE
     xm = L - ny_cell * nz_cell
    END IF
    ! y+
-   IF(J == ny_cell) THEN
+   IF(ind_J == ny_cell) THEN
     yp = -99
    ELSE
     yp = L + nz_cell
    END IF
    ! y-
-   IF(J == 1) THEN
+   IF(ind_J == 1) THEN
     ym = -99
    ELSE
     ym = L - nz_cell
@@ -116,8 +127,8 @@ END IF
 max_n_dcell = Ngrid
 
 IF(dyngrid /= 0) THEN
- DO I = 1, Ngrid
-    CALL create_dynamical_grid_cells(I, max_n_dcell)
+ DO ind_I = 1, Ngrid
+    CALL create_dynamical_grid_cells(ind_I, max_n_dcell)
  END DO
 
 ! we will resize the field dyn_cell
@@ -130,10 +141,75 @@ IF(dyngrid /= 0) THEN
   dyn_cell(:) = pom2(:)
  DEALLOCATE(pom2)
  N_dyn_grid = max_n_dcell
-
 END IF
 
 ! definition of a total number of propGrid cells
 n_propgcells = max_n_dcell
+#if mpi==1
+ END IF
+
+ CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
+ IF(my_rank == 0) THEN
+  DO ind_I = 1, n_tasks - 1
+   CALL MPI_SEND(n_propgcells, 1, MPI_INT, ind_I, 1, MPI_COMM_WORLD, ierr)
+  END DO
+  write(*,*) 'setup_propgrid: my_rank = ', my_rank, ' n_propgcells = ', n_propgcells
+ ELSE
+  CALL MPI_RECV(n_propgcells, 1, MPI_INT, 0, 1, MPI_COMM_WORLD, status, ierr)
+  write(*,*) 'setup_propgrid: my_rank = ', my_rank, ' n_propgcells = ', n_propgcells
+  ALLOCATE(dyn_cell(n_propgcells))
+ END IF
+
+ ! sending the physical quantities to all other processes
+ ! DO cur_pgi = 1, n_propgcells
+ write(*,*) 'setup_propgrid: sending the propGrid informations'
+ write(*,*) 'setup_propgrid: n_propgcells = ', n_propgcells
+ ! vector variables
+ DO cur_xyz = 1,3
+  IF(my_rank == 0) THEN
+   DO ind_I = 1, n_tasks - 1
+    CALL MPI_SEND(dyn_cell(:)%corner(cur_xyz), n_propgcells, MPI_DOUBLE, ind_I, 1, MPI_COMM_WORLD, ierr)
+    CALL MPI_SEND(dyn_cell(:)%width(cur_xyz), n_propgcells, MPI_DOUBLE, ind_I, 2, MPI_COMM_WORLD, ierr)
+    CALL MPI_SEND(dyn_cell(:)%vec_vel(cur_xyz), n_propgcells, MPI_DOUBLE, ind_I, 3, MPI_COMM_WORLD, ierr)
+    CALL MPI_SEND(dyn_cell(:)%n_sbgr(cur_xyz), n_propgcells, MPI_INT, ind_I, 4, MPI_COMM_WORLD, ierr)
+    CALL MPI_SEND(basic_cell_width(cur_xyz), 1, MPI_DOUBLE, ind_I, 5, MPI_COMM_WORLD, ierr)
+   END DO
+  ELSE
+   CALL MPI_RECV(dyn_cell(:)%corner(cur_xyz), n_propgcells, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, status, ierr)
+   CALL MPI_RECV(dyn_cell(:)%width(cur_xyz), n_propgcells, MPI_DOUBLE, 0, 2, MPI_COMM_WORLD, status, ierr)
+   CALL MPI_RECV(dyn_cell(:)%vec_vel(cur_xyz), n_propgcells, MPI_DOUBLE, 0, 3, MPI_COMM_WORLD, status, ierr)
+   CALL MPI_RECV(dyn_cell(:)%n_sbgr(cur_xyz), n_propgcells, MPI_INT, 0, 4, MPI_COMM_WORLD, status, ierr)
+   CALL MPI_RECV(basic_cell_width(cur_xyz), 1, MPI_DOUBLE, 0, 5, MPI_COMM_WORLD, status, ierr)
+  END IF
+  CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
+ END DO
+ CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
+ ! scalar variables
+ IF(my_rank == 0) THEN
+  DO ind_I = 1, n_tasks - 1
+   CALL MPI_SEND(dyn_cell(:)%up_cell, n_propgcells, MPI_INT, ind_I, 1, MPI_COMM_WORLD, ierr)
+   CALL MPI_SEND(dyn_cell(:)%down_cell, n_propgcells, MPI_INT, ind_I, 1, MPI_COMM_WORLD, ierr)
+  END DO
+ ELSE
+  CALL MPI_RECV(dyn_cell(:)%up_cell, n_propgcells, MPI_INT, 0, 1, MPI_COMM_WORLD, status, ierr)
+  CALL MPI_RECV(dyn_cell(:)%down_cell, n_propgcells, MPI_INT, 0, 1, MPI_COMM_WORLD, status, ierr)
+ END IF
+ CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
+ ! another vector variable with double dimension
+ DO cur_xyz = 1,6
+  IF(my_rank == 0) THEN
+   DO ind_I = 1, n_tasks - 1
+    CALL MPI_SEND(dyn_cell(:)%neighbor(cur_xyz), n_propgcells, MPI_INT, ind_I, 1, MPI_COMM_WORLD, ierr)
+   END DO
+  ELSE
+   CALL MPI_RECV(dyn_cell(:)%neighbor(cur_xyz), n_propgcells, MPI_INT, 0, 1, MPI_COMM_WORLD, status, ierr)
+  END IF
+  CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
+ END DO
+
+#endif
+
+
+
 
 END SUBROUTINE setup_propgrid

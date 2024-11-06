@@ -18,6 +18,13 @@ USE dummypacket
     cur_cell_numb = dummypackage(dummy_pack_index)%cell_numb
    END IF
    get_package_model_index = dyn_cell(cur_cell_numb)%model_index
+   ! write(*,*) 'get_package_model_index: cur_cell_numb = ', cur_cell_numb
+   ! write(*,*) 'get_package_model_index: get_package_model_index = ', get_package_model_index
+   IF(dyn_cell(cur_cell_numb)%model_index == 0) THEN
+    write(*,*) 'get_package_model_index: cur_cell_numb = ', cur_cell_numb, ' n_propgridcells = ', n_propgcells
+    write(*,*) 'get_package_model_index: up_cell = ', dyn_cell(cur_cell_numb)%up_cell
+    STOP 'get_package_model_index: model_index = 0'
+   END IF
 
   RETURN 
 

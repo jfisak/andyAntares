@@ -7,6 +7,7 @@ SAVE
 ! #endif
 
  INTEGER, PARAMETER                 :: filename_length = 500
+ INTEGER, PARAMETER                    :: const_dimofspace = 3
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -17,9 +18,9 @@ SAVE
       INTEGER                        :: model_index=0, n_virt=0
       INTEGER                        :: up_cell, down_cell
       INTEGER, DIMENSION(6)          :: neighbor
-      DOUBLE PRECISION, DIMENSION(3) :: corner, width
-      DOUBLE PRECISION, DIMENSION(3) :: vec_vel
-      INTEGER, DIMENSION(3)          :: n_sbgr
+      DOUBLE PRECISION, DIMENSION(const_dimofspace) :: corner, width
+      DOUBLE PRECISION, DIMENSION(const_dimofspace) :: vec_vel
+      INTEGER, DIMENSION(const_dimofspace)          :: n_sbgr
   END TYPE dyn_grid_cell
 
   TYPE photon 
@@ -27,13 +28,13 @@ SAVE
      DOUBLE PRECISION                :: e_cmf, e_rf, freq_cmf, freq_rf, delta_s
      INTEGER                         :: typ, next_cross, last_line
      INTEGER                         :: n_interactions
-     DOUBLE PRECISION, DIMENSION(3)  :: pos, dir 
+     DOUBLE PRECISION, DIMENSION(const_dimofspace)  :: pos, dir 
      INTEGER                         :: l_ele, l_ion, l_lev, n_int = 0
      LOGICAL                         :: redShift, virtual
   END TYPE photon
 
   TYPE virtual_packet
-   DOUBLE PRECISION, DIMENSION(3)       :: pos, dir
+   DOUBLE PRECISION, DIMENSION(const_dimofspace)       :: pos, dir
    INTEGER                              :: active, cell_index
    DOUBLE PRECISION                     :: freq_rf
   END TYPE virtual_packet
@@ -51,13 +52,13 @@ SAVE
 
 
   TYPE modelgrid 
-     INTEGER                         :: assoc_cells
+     INTEGER                         :: assoc_cells = 0
      DOUBLE PRECISION                :: width
      DOUBLE PRECISION                :: volume = 0.D0
      DOUBLE PRECISION                :: diff_param
      DOUBLE PRECISION                :: T = 0.D0, J = 0.D0, rho = 0.D0, vel = 0.D0, rwind, e_dens = 0.D0
      DOUBLE PRECISION                :: zwind, velang, angle
-     DOUBLE PRECISION, DIMENSION(3)  :: vec_vel, vec_pos
+     DOUBLE PRECISION, DIMENSION(const_dimofspace)  :: vec_vel, vec_pos
      TYPE(grid_comp_t), ALLOCATABLE  :: grid_comp(:)
      ! is the diffusion approximation recommended?
      LOGICAL                         :: is_difapp = .false.
@@ -209,6 +210,7 @@ SAVE
   INTEGER                            :: n_tasks
   CHARACTER(filename_length)                      :: outputfolder=''
   CHARACTER(filename_length)                      :: outputfile
+  LOGICAL                            :: clean_modelGrid
 !! Atomic data
  ! Total number of chemical elements in the simulation
   INTEGER                            :: n_elements
@@ -231,7 +233,6 @@ SAVE
   INTEGER                               :: sobolev_approximation
   LOGICAL                               :: vel_propgrid = .false., vel_modgrid = .true.
 
-  INTEGER, PARAMETER                    :: const_dimofspace = 3
 
   DOUBLE PRECISION, PARAMETER           :: beta = 1.3D0
 

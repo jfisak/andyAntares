@@ -72,10 +72,11 @@ LOGICAL                                 :: confirmed, lower_resolution
   ! 1D: x ~ radius, y,z: no meaning
   ! 2D: x ~ radius, y ~ angle, z: no meaning
   ! 3D: x, y, z: standard meaning
-  n_assoc = 0
-  DO cur_mgi = 1, n_modelgrid - add_mg
-   IF(model_grid(cur_mgi)%assoc_cells > 0) n_assoc = n_assoc + 1
-  END DO
+  ! n_assoc = 0
+  n_assoc = n_modelgrid
+  ! DO cur_mgi = 1, n_modelgrid - add_mg
+  !  IF(model_grid(cur_mgi)%assoc_cells > 0) n_assoc = n_assoc + 1
+  ! END DO
   ! write(*,*) 'virt_gridAB_init: n_assoc = ', n_assoc
   N_vgrid_x = n_in_cell
   N_vgrid_y = n_in_cell
@@ -134,7 +135,7 @@ LOGICAL                                 :: confirmed, lower_resolution
   cur_index_mgi = 0
   DO cur_point = 1, n_modelgrid - add_mg
    ! write(*,*) 'virt_gridAB_init: assoc_cells = ', model_grid(cur_point)%assoc_cells
-   IF(model_grid(cur_point)%assoc_cells <= 0) CYCLE
+   ! IF(model_grid(cur_point)%assoc_cells <= 0) CYCLE
    cur_index_mgi = cur_index_mgi + 1
 
    IF(model_type == 1) THEN
@@ -180,6 +181,7 @@ LOGICAL                                 :: confirmed, lower_resolution
     END IF
    ELSE IF(model_type == 2) THEN
     n_A = cur_n_x_A + N_vgrid_x * (cur_n_y_A - 1)
+    ! write(*,*) 'virt_gridAB_init: n_A = ', n_A
    ELSE IF(model_type == 3) THEN
     n_A = cur_n_x_A + N_vgrid_x * (cur_n_y_A - 1) + N_vgrid_x * N_vgrid_y * (cur_n_z_A - 1)
    END IF
@@ -187,6 +189,7 @@ LOGICAL                                 :: confirmed, lower_resolution
    ! write(*,*) 'virt_gridAB_init: n_A = ', n_A
    ! n_points -- number of points for the given cell
    n_points_A(n_A) = n_points_A(n_A) + 1
+   ! write(*,*) 'virt_gridAB_init: n_points_A = ', n_points_A(n_A)
    ! vg_indexy -- list of indeces model grid --> VG index point
    ! write(*,*) 'virt_gridAB_init: n_A( ', cur_index_mgi, ') = ', n_A
    ! write(*,*) 'virt_gridAB_init: n_points_A(', cur_index_mgi, ') = ', n_points_A(n_A)
@@ -198,7 +201,6 @@ LOGICAL                                 :: confirmed, lower_resolution
     write(*,*) 'virt_gridAB_init: cur_n_z_A = ', cur_n_z_A
     STOP 'virt_gridAB_init n_A > N_vgrid_cells_A'
    END IF
-   ! write(*,*) 'virt_gridAB_init: n_A = ', n_A, ' cur_point = ', cur_point
    !!!!!!!!
    ! repete for the B grid
    IF(cur_x > vg_xmin + w_vgrid_x/2.0 .and. cur_x < vg_xmax - w_vgrid_x/2.0 .and.&
@@ -242,6 +244,7 @@ LOGICAL                                 :: confirmed, lower_resolution
   END IF
  END DO ! #00 end of main loop
  ! write(*,*) 'virt_gridAB_init: vg_indexy_B = ', vg_indexy_B
+ ! write(*,*) 'virt_gridAB_init: n_points_A = ', n_points_A
  
  !_______________________________________________________________
  !    #02            SORTING
@@ -326,5 +329,98 @@ LOGICAL                                 :: confirmed, lower_resolution
  is_initialized = .true.
 
 END SUBROUTINE virt_gridAB_init
+
+SUBROUTINE get_vg_index(cur_x, cur_y, cur_z, out_index_A, out_index_B)
+
+ IMPLICIT NONE
+
+ DOUBLE PRECISION                       :: cur_x, cur_y, cur_z
+ INTEGER, DIMENSION(const_dimofspace)              :: out_index_A, out_index_B
+ INTEGER                                :: cur_n_x_A, cur_n_y_A, cur_n_z_A
+ INTEGER                                :: cur_n_x_B, cur_n_y_B, cur_n_z_B
+ INTEGER                                :: n_A, n_B
+
+ ! write(*,*) 'get_vg_index: vg_xmin = ', vg_xmin, ' w_vgrid_x = ', w_vgrid_x
+ ! the grid A
+ IF(model_type == 1) THEN
+  cur_n_x_A = floor((cur_x - vg_xmin)/w_vgrid_x) + 1
+  cur_n_y_A = 1
+  cur_n_z_A = 1
+  ! write(*,*) 'virt_gridAB_init: cur_n_x_A = ', cur_n_x_A
+ ELSE IF(model_type == 2) THEN
+  cur_n_x_A = floor((cur_x - vg_xmin)/w_vgrid_x) + 1
+  cur_n_y_A = floor((cur_y - vg_ymin)/w_vgrid_y) + 1
+  cur_n_z_A = 1
+  ! write(*,*) 'virGrid: cur_x/R_star = ', cur_x/R_star
+ ELSE IF(model_type == 3) THEN
+  cur_n_x_A = floor((cur_x - vg_xmin)/w_vgrid_x) + 1
+  cur_n_y_A = floor((cur_y - vg_ymin)/w_vgrid_y) + 1
+  cur_n_z_A = floor((cur_z - vg_zmin)/w_vgrid_z) + 1
+ END IF
+ out_index_A = (/ cur_n_x_A, cur_n_y_A, cur_n_z_A /)
+ ! write(*,*) 'get_vg_centre_A: cur_n_x_A = ', cur_n_x_A, ' cur_n_y_A = ', cur_n_y_A, ' cur_n_z_A = ', cur_n_z_A
+
+
+
+
+ ! the grid B
+ IF(cur_x > vg_xmin + w_vgrid_x/2.0 .and. cur_x < vg_xmax - w_vgrid_x/2.0 .and.&
+  & cur_y > vg_ymin + w_vgrid_y/2.0 .and. cur_y < vg_ymax - w_vgrid_y/2.0 .and. &
+  & cur_z > vg_zmin + w_vgrid_z/2.0 .and. cur_z < vg_zmax - w_vgrid_z/2.0 ) THEN
+  IF(model_type == 1) THEN
+   cur_n_x_B = floor((cur_x - vg_xmin)/w_vgrid_x - 1.0/2.0) + 1
+   ! write(*,*) 'virt_gridAB_init: cur_n_x_B = ', cur_n_x_B
+   cur_n_y_B = 1
+   cur_n_z_B = 1
+  ELSE IF(model_type == 2) THEN
+   cur_n_x_B = floor((cur_x - vg_xmin)/w_vgrid_x - 1.0/2.0) + 1
+   cur_n_y_B = floor((cur_y - vg_ymin)/w_vgrid_y - 1.0/2.0) + 1
+   cur_n_z_B = 1
+  ELSE IF(model_type == 3) THEN
+   cur_n_x_B = floor((cur_x - vg_xmin)/w_vgrid_x - 1.0/2.0) + 1
+   cur_n_y_B = floor((cur_y - vg_ymin)/w_vgrid_y - 1.0/2.0) + 1
+   cur_n_z_B = floor((cur_z - vg_zmin)/w_vgrid_z - 1.0/2.0) + 1
+  END IF
+  out_index_B = (/ cur_n_x_B, cur_n_y_B, cur_n_z_B /)
+ ELSE
+  out_index_B = (/ 0, 0, 0 /)
+ END IF
+END SUBROUTINE
+
+SUBROUTINE get_vg_centre_A(cur_index, out_centre)
+
+ IMPLICIT NONE
+ 
+ INTEGER, DIMENSION(const_dimofspace)               :: cur_index
+ DOUBLE PRECISION, DIMENSION(const_dimofspace)      :: out_centre
+ INTEGER                                            :: cur_n_x_A, cur_n_y_A, cur_n_z_A
+ 
+ cur_n_x_A = cur_index(ind_x)
+ cur_n_y_A = cur_index(ind_y)
+ cur_n_z_A = cur_index(ind_z)
+ 
+ out_centre = (/ w_vgrid_x * (cur_n_x_A + 5.D-1) + vg_xmin, w_vgrid_y * (cur_n_y_A + 5.D-1) + vg_ymin, &
+                  & w_vgrid_z * (cur_n_z_A + 5.D-1) + vg_zmin /)
+
+END SUBROUTINE get_vg_centre_A
+
+
+SUBROUTINE get_vg_centre_B(cur_index, out_centre)
+
+ IMPLICIT NONE
+ 
+ INTEGER, DIMENSION(const_dimofspace)               :: cur_index
+ DOUBLE PRECISION, DIMENSION(const_dimofspace)      :: out_centre
+ INTEGER                                            :: cur_n_x_B, cur_n_y_B, cur_n_z_B
+ 
+ cur_n_x_B = cur_index(ind_x)
+ cur_n_y_B = cur_index(ind_y)
+ cur_n_z_B = cur_index(ind_z)
+ 
+ out_centre = (/ w_vgrid_x * (cur_n_x_B + 1.D0) + vg_xmin, w_vgrid_y * (cur_n_y_B + 1.D0) + vg_ymin, &
+                   & w_vgrid_z * (cur_n_z_B + 1.D0) + vg_zmin /)
+
+END SUBROUTINE get_vg_centre_B
+
 
 END MODULE virt_gridAB

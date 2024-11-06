@@ -76,11 +76,11 @@ SELECT CASE(model_type)
  CASE(3)
   IF(mod_index <= n_modelgrid) THEN
    vel_vec = model_grid(mod_index)%vec_vel
-  ELSE IF(mod_index == n_modelgrid + 1) THEN
+  ELSE IF(mod_index == photosphere_index) THEN
    vel_vec = (/ 0.0, 0.0, 0.0 /)
-  ELSE IF(mod_index == n_modelgrid + 2) THEN
+  ELSE IF(mod_index == outerspace_index) THEN
    vel_vec = R_inf * pos/norm2(pos)
-  ELSE IF(mod_index == n_modelgrid + 3) THEN ! special treatment for vacuum cells
+  ELSE IF(mod_index == vacuum_index) THEN ! special treatment for vacuum cells
    vel_vec = (/-2.0, -3.0, -5.0/)
   END IF
  CASE DEFAULT

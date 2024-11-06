@@ -20,21 +20,21 @@ INTEGER, PARAMETER                     :: maxrows = 60000000
 DOUBLE PRECISION                        :: radius, temp, dens, velrad, velang, angle
 INTEGER                                 :: atom_number, numbions
 INTEGER                                 :: ios
-INTEGER                                 :: I, J
+INTEGER                                 :: ind_I, ind_J
 
-CHARACTER(len=400)                      :: ch_line
+CHARACTER(len=file_length)                      :: ch_line
 
 DOUBLE PRECISION, PARAMETER             :: min_temp=5.E4
 
 
-add_mg = 2
+add_mg = 3
 write(99,*) 'we will read input input data from Petr Kurfurst model of stellar disc'
 ! firstly we calculate number of rows in the file
 n_modelgrid = 0
 OPEN(UNIT=15,status='old', FILE=inputmodelFile)
  READ(15, *) junk
  READ(15, *) junk
- DO I = 1, maxrows
+ DO ind_I = 1, maxrows
   READ(15,'(A)',IOSTAT = ios) ch_line
   if(ch_line == '') cycle
   if(ios /= 0) EXIT
@@ -48,11 +48,15 @@ OPEN(UNIT=15,status='old', FILE=inputmodelFile)
  ! n_modelgrid + 1 ... for dummy cells
  ! n_modelgrid + 2 ... for cells with r < R_inf but too far from some model grid point
  !                     (vacuum cell) 
+ outerspace_index = n_modelgrid + 1
+ vacuum_index = n_modelgrid + 2
+ photosphere_index = n_modelgrid + 3
+
  ALLOCATE ( model_grid(n_modelgrid + add_mg))
  REWIND(15)
  READ(15, *) T_eff
  READ(15, *) R_star
- I = 1
+ ind_I = 1
  DO 
   READ(15,'(A)',IOSTAT = ios) ch_line
   if(ios /= 0) EXIT
@@ -60,34 +64,34 @@ OPEN(UNIT=15,status='old', FILE=inputmodelFile)
   ! write(*,*) 'read_2d_model: ch_line = ', ch_line
   READ(ch_line,*) radius, angle, dens, velrad, velang, temp
   if(temp < min_temp) cycle
-  model_grid(I)%rwind = radius * 1.D2
-  model_grid(I)%angle = angle
-  model_grid(I)%vel = velrad * 1.D2
+  model_grid(ind_I)%rwind = radius * 1.D2
+  model_grid(ind_I)%angle = angle
+  model_grid(ind_I)%vel = velrad * 1.D2
+  model_grid(ind_I)%velang = velang * 1.D2
+  model_grid(ind_I)%rho = dens * 1.D-3
+  model_grid(ind_I)%T = temp
+  model_grid(ind_I)%J = 0.D0
+  model_grid(ind_I)%assoc_cells = 0
   if(isnan(velrad)) STOP 'read_2d_model: velrad = NaN'
-  model_grid(I)%velang = velang * 1.D2
-  model_grid(I)%rho = dens * 1.D-3
-  model_grid(I)%T = temp
-  model_grid(I)%J = 0.D0
-  model_grid(I)%assoc_cells = 0
-  ALLOCATE(model_grid(I)%grid_comp(n_elements))
+  ALLOCATE(model_grid(ind_I)%grid_comp(n_elements))
   ! now we add informations about every included element for every model cell
-  DO J = 1, n_elements
-   numbions = elements(J)%nions
-   ALLOCATE (model_grid(I)%grid_comp(J)%grid_ion(numbions))
-   atom_number = elements(J)%atom_number
-   model_grid(I)%grid_comp(J)%abund = elements(J)%abundance
+  DO ind_J = 1, n_elements
+   numbions = elements(ind_J)%nions
+   ALLOCATE (model_grid(ind_I)%grid_comp(ind_J)%grid_ion(numbions))
+   atom_number = elements(ind_J)%atom_number
+   model_grid(ind_I)%grid_comp(ind_J)%abund = elements(ind_J)%abundance
    !Calculate total number density for included species
    !tot_nd = model_grid(I)%grid_comp(J)%abund / elements(J)%atom_mass 
    !model_grid(I)%grid_comp(J)%numb_den = tot_nd
   END DO
-  I = I + 1
+  ind_I = ind_I + 1
  END DO
  R_inf = MAXVAL(model_grid(:)%rwind)
  ! write(*,*) 'read_2d_model: R_inf = ', R_inf, ' R_star = ', R_star
- model_grid(n_modelgrid + 1)%vel = 0.D0
- model_grid(n_modelgrid + 2)%vel = 0.D0
- model_grid(n_modelgrid + 1)%velang = 0.D0
- model_grid(n_modelgrid + 2)%velang = 0.D0
+ model_grid(outerspace_index)%vel = 0.D0
+ model_grid(vacuum_index)%vel = 0.D0
+ model_grid(outerspace_index)%velang = 0.D0
+ model_grid(vacuum_index)%velang = 0.D0
 CLOSE(15)
 
 

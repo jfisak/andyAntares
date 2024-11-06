@@ -123,6 +123,10 @@ OPEN(UNIT=11, FILE=modelfile)
 ! Dummy cell to associate to propagation grid cells which have no representation on the model grid.
 ! All cells out of model grid set to 0 and associate to n_modelgrid.
 ! Other cells will obtain particular values with memory
+photosphere_index = n_modelgrid + 1
+outerspace_index = n_modelgrid + 2
+vacuum_index = n_modelgrid + 3
+
 DO I = 1, add_mg
  model_grid(n_modelgrid + I)%vec_vel = (/ 0.e0, 0.e0, 0.e0 /)
  model_grid(n_modelgrid + I)%rwind = 0.D0

@@ -229,8 +229,8 @@ DO cur_prop_cell = 1, n_propgcells
   cur_n_y_B = floor((cur_pg_pos(2) - ymin)/w_vgrid_y - 1.0/2.0) + 1
   cur_n_z_B = floor((cur_pg_pos(3) - zmin)/w_vgrid_z - 1.0/2.0) + 1
   n_B = cur_n_x_B + (N_vgrid_x - 1) * (cur_n_y_B - 1) + (N_vgrid_x - 1) * (N_vgrid_y - 1) * (cur_n_z_B - 1)
-  cur_center_B = (/ w_vgrid_x * (cur_n_x_A + 1.D0) + xmin, w_vgrid_y * (cur_n_y_A + 1.D0) + ymin, &
-                   & w_vgrid_z * (cur_n_z_A + 1.D0) + zmin /)
+  cur_center_B = (/ w_vgrid_x * (cur_n_x_B + 1.D0) + xmin, w_vgrid_y * (cur_n_y_B + 1.D0) + ymin, &
+                   & w_vgrid_z * (cur_n_z_B + 1.D0) + zmin /)
  ELSE
   n_B = 0
  END IF
@@ -452,14 +452,21 @@ DO cur_prop_cell = 1, n_propgcells
    DO cur_nearest_point = 1, cur_n_points
     cur_nop = cur_points(cur_nearest_point)
     cur_mg_pos = model_grid(cur_nop)%vec_pos
-    write(41,*) cur_mg_pos
+    ! write(41,*) cur_mg_pos
    END DO
-   STOP 'vel_interpolation: testing'
    EXIT
   ELSE
-   write(42,*) model_grid(cur_iti_mgi)%vec_pos
+   ! write(42,*) model_grid(cur_iti_mgi)%vec_pos
   END IF
  END DO
+ ! ARTIFICIAL POINTS
+ ! if the interp_dist still contains zeros, we have to add some artificial points
+ DO cur_index_J = 1, n_closest
+  cur_iti_mgi = INT(interp_dist(cur_index_J, ind_index))
+  IF(cur_iti_mgi == 0) THEN
+  END IF
+ END DO
+
  ! write(*,*) 'vel_interpolation: interp_dist(:,2) = ', interp_dist(:,2)
  ! write(40,*) cur_pg_pos
  CALL vel_vector_interpolation(cur_pg_pos, interp_dist(:,2), n_closest, vel_vector)
@@ -470,7 +477,7 @@ DO cur_prop_cell = 1, n_propgcells
   DO cur_index_I = 1, cur_n_points
    cur_index = cur_points(cur_index_I)
    cur_mg_pos = model_grid(cur_index)%vec_pos
-   write(45,*) cur_mg_pos
+   ! write(45,*) cur_mg_pos
   END DO
   DO  cur_index_I = 1, n_closest
    cur_mgi = INT(interp_dist(cur_index_I, ind_index))

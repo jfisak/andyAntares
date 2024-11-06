@@ -33,11 +33,26 @@ INTEGER, ALLOCATABLE                    :: cur_points(:)
 INTEGER                                 :: cur_mgi, cur_VG_point
 DOUBLE PRECISION                        :: cur_VG_r, cur_VG_t, delta, dist, min_point
 
-! INTEGER                                 :: N_single, N_zbytek
-INTEGER                                 :: my_start, my_end
-INTEGER                                 :: N_single, N_zbytek
+DOUBLE PRECISION               :: diagonal
+! loop variables
+INTEGER                        :: cur_propcell, J, best_index
+! variables for calculating the shortest distance between
+! propagation and model cell
+DOUBLE PRECISION               :: delta2
+! radial and vertical distance
+DOUBLE PRECISION               :: r, z, r0, phi, phi0
 
-INTEGER, DIMENSION(n_propgcells)          :: cur_model_index
+DOUBLE PRECISION, PARAMETER     :: large_number=1.d90
+
+  
+
+! parallelization
+INTEGER                         :: my_start, my_end
+INTEGER                         :: N_single, N_zbytek, N_tot_zbytek
+
+INTEGER, DIMENSION(n_propgcells)                :: cur_model_index
+INTEGER, DIMENSION(n_modelgrid + add_mg)        :: cur_n_assocmodg
+
 
 
 ! #00 Set up of virtual grids
@@ -274,16 +289,18 @@ DO cur_prop_cell = my_start, my_end
    ! Heureka! We have got the point!
    cur_model_index(cur_prop_cell) = INT(min_point)
 
-   IF(cur_r < R_star .or. cur_r > R_inf) THEN
-    cur_model_index(cur_prop_cell) = n_modelgrid + 1
+   IF(cur_r < R_star) THEN
+    cur_model_index(cur_prop_cell) = photosphere_index
+   ELSE IF(cur_r > R_inf) THEN
+    cur_model_index(cur_prop_cell) = outerspace_index
    ELSE IF(cur_model_index(cur_prop_cell) == 0) THEN
-    cur_model_index(cur_prop_cell) = n_modelgrid + 2
+    cur_model_index(cur_prop_cell) = vacuum_index
    END IF
 
    DEALLOCATE(cur_points)
   ! it is outside the model grid
   ELSE
-   cur_model_index(cur_prop_cell) = n_modelgrid + 1
+   cur_model_index(cur_prop_cell) = outerspace_index
   END IF ! if inside the modGrid area
  ELSE ! up_cell != 0
    cur_model_index(cur_prop_cell) = 0
@@ -299,5 +316,50 @@ END DO ! loop over every propGrid cell to calculate associated modGrid cells
 !   & MPI_SUM, 0, MPI_COMM_WORLD, ierr)
 ! CALL MPI_BCAST(dyn_cell(:)%model_index, n_propgcells, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
 ! #endif
+
+! connect every single cell to its model cell
+DO cur_propcell = 1, n_propgcells
+ r = SQRT((dyn_cell(cur_propcell)%corner(1) + dyn_cell(cur_propcell)%width(1)/2.D0)**2 + &
+          (dyn_cell(cur_propcell)%corner(2) + dyn_cell(cur_propcell)%width(2)/2.D0)**2 + &
+          (dyn_cell(cur_propcell)%corner(3) + dyn_cell(cur_propcell)%width(3)/2.D0)**2)
+ z = dyn_cell(cur_propcell)%corner(3) + dyn_cell(cur_propcell)%width(3)/2.D0
+ phi = acos(z/r)
+ phi = abs(phi)
+ IF(r < R_star .OR. r > R_inf) THEN
+  dyn_cell(cur_propcell)%model_index = n_modelgrid
+  CONTINUE
+ END IF
+ ! write(*,*) 'connection_prop_model_grid: r = ', r, ' z = ', z
+ ! write(*,*) 'connection_prop_model_grid: phi = ', phi
+  delta = 1.D99
+  DO J = 1, n_modelgrid
+   r0 = model_grid(J)%rwind
+   phi0 = model_grid(J)%angle
+   delta2 = sqrt(r**2.0+r0**2.0 - 2.0 * r * r0 * &
+    (cos(phi)*cos(phi0) - sin(phi) * sin(phi0)))
+   IF( delta2 < delta ) THEN
+     delta = delta2
+     best_index = J
+    ! write(*,*) 'connection_prop_model_grid: cur_propcell = ', cur_propcell, ' / ', r/r0, phi/phi0
+   END IF
+   ! if the propagation cell is too far from the nearest model point
+   ! we will associate this cell to the dummy cells
+  END DO
+   diagonal = sqrt(dyn_cell(cur_propcell)%width(1)**2+dyn_cell(cur_propcell)%width(3)**2)/2.D0
+   IF((delta > diagonal) .AND. (dyn_cell(cur_propcell)%width(1) > basic_cell_width(1)/2.D0**6)) THEN
+    dyn_cell(cur_propcell)%model_index = vacuum_index
+    model_grid(vacuum_index)%assoc_cells = model_grid(vacuum_index)%assoc_cells + 1
+   ELSE
+    dyn_cell(cur_propcell)%model_index = best_index     
+    IF(dyn_cell(cur_propcell)%model_index == 0) THEN
+     write(*,*) 'connection_prop_model_grid: a cell ', cur_propcell, 'is not connected...'
+     STOP
+    END IF
+    model_grid(best_index)%assoc_cells = model_grid(best_index)%assoc_cells + 1
+   END IF
+END DO
+
+
+
 
 END SUBROUTINE connect_2D_peku
