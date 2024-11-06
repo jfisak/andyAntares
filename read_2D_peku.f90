@@ -22,7 +22,7 @@ INTEGER                                 :: atom_number, numbions
 INTEGER                                 :: ios
 INTEGER                                 :: ind_I, ind_J
 
-CHARACTER(len=file_length)                      :: ch_line
+CHARACTER(len=filename_length)                      :: ch_line
 
 DOUBLE PRECISION, PARAMETER             :: min_temp=5.E4
 

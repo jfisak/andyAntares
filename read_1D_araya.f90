@@ -22,7 +22,7 @@ DOUBLE PRECISION                        :: effective_temperature, stellar_radius
 DOUBLE PRECISION                        :: radius, density, djunk
 DOUBLE PRECISION                        :: velocity
 
-CHARACTER(LEN=file_length)                      :: junk
+CHARACTER(LEN=filename_length)                      :: junk
 
 add_mg = 1
 

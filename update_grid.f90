@@ -19,7 +19,7 @@ INTEGER                                 :: my_start, my_end
 INTEGER                                 :: status(MPI_STATUS_SIZE)
 
 LOGICAL                                 :: propmod_file_exists
-CHARACTER(file_length)                           :: propmod_file
+CHARACTER(filename_length)                           :: propmod_file
 
 INTEGER                                 :: cur_n_assoccells
 DOUBLE PRECISION                        :: test_temp

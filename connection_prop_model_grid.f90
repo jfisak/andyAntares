@@ -23,9 +23,6 @@ IMPLICIT NONE
 ! maximal distance between model and propagation grid
 ! MUST BE LATER CHANGED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-cur_model_index(:) = 0
-cur_n_assocmodg(:) = 0
-
 ! Establish a connection between the propagation grid and the
 ! model grid. This depends on the model grid type (1D, 2D, 3D)
 !__________________________________________________________________________________________________
