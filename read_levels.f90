@@ -22,7 +22,7 @@ USE constants
  ! input parameters
  INTEGER                        :: element, lowerion, upperion, levels_type, el_index
  INTEGER                        :: levelindex
- CHARACTER (LEN=file_length)             :: filename
+ CHARACTER (LEN=filename_length)             :: filename
  ! loop variables
  INTEGER                        :: ind_I, ind_J
  INTEGER                        :: act_lev
@@ -35,9 +35,9 @@ USE constants
  INTEGER, ALLOCATABLE           :: nlevels(:)
  INTEGER                        :: act_nlevels, nions
  INTEGER                        :: cur_ion, vsplit
- CHARACTER (LEN=file_length)            :: line
+ CHARACTER (LEN=filename_length)            :: line
  CHARACTER (LEN=16)              :: iconf
- CHARACTER (LEN=file_length)              :: junk
+ CHARACTER (LEN=filename_length)              :: junk
  INTEGER                        :: jint
  REAL                           :: jreal
  DOUBLE PRECISION               :: l_energy, ionoffset

@@ -7,7 +7,7 @@ SAVE
 ! #endif
 
 
- INTEGER, PARAMETER                 :: file_length = 500
+ INTEGER, PARAMETER                 :: filename_length = 500
  INTEGER, PARAMETER                    :: const_dimofspace = 3
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -83,7 +83,7 @@ SAVE
   TYPE ion_levels 
      INTEGER, ALLOCATABLE    :: linetransitions(:), lineuptransitions(:)
      DOUBLE PRECISION                :: exci_energy, stat_waight
-     CHARACTER(LEN=file_length)               :: elconf
+     CHARACTER(LEN=filename_length)               :: elconf
      LOGICAL                         :: phcrossform
      DOUBLE PRECISION, ALLOCATABLE   :: photcros(:,:), phcrosscoeff(:)
      DOUBLE PRECISION, ALLOCATABLE   :: population(:)
@@ -103,7 +103,7 @@ SAVE
      INTEGER                         :: indexe, atom_number, nions
      DOUBLE PRECISION                :: atom_mass
      DOUBLE PRECISION                :: abundance
-     CHARACTER(LEN=file_length)                   :: levelfile='', transitionfile=''
+     CHARACTER(LEN=filename_length)                   :: levelfile='', transitionfile=''
      TYPE(element_ions), ALLOCATABLE :: ions(:)
   END TYPE atom_elements
 
@@ -157,12 +157,12 @@ SAVE
   INTEGER                            :: idum
 ! is electron density values stored?
   INTEGER                            :: eldensfile
-  CHARACTER(file_length)                      :: inputpopfile
+  CHARACTER(filename_length)                      :: inputpopfile
 ! debug mode
   INTEGER                            :: debug
 ! flux from existing input file
   INTEGER                            :: inputflux, inputmodel
-  CHARACTER(file_length)                         :: inputmodelFile, inputcomposition
+  CHARACTER(filename_length)                         :: inputmodelFile, inputcomposition
 ! number of photoionization cross sections
   INTEGER                               :: n_photcrossect, n_tot_cont, n_ff = 0
 ! number of dummy packages
@@ -210,8 +210,8 @@ SAVE
   INTEGER                            :: ierr
   INTEGER                            :: n_tasks
   LOGICAL                            :: clean_modelGrid
-  CHARACTER(file_length)                      :: outputfolder=''
-  CHARACTER(file_length)                      :: outputfile
+  CHARACTER(filename_length)                      :: outputfolder=''
+  CHARACTER(filename_length)                      :: outputfile
 !! Atomic data
  ! Total number of chemical elements in the simulation
   INTEGER                            :: n_elements
@@ -225,8 +225,8 @@ SAVE
   INTEGER                               :: n_add_pack
   INTEGER                               :: n_pack_save
   ! temporary file name
-  CHARACTER(file_length)                     :: temp_filename = 'temp_packet'
-  CHARACTER(file_length)                        :: put_a_note
+  CHARACTER(filename_length)                     :: temp_filename = 'temp_packet'
+  CHARACTER(filename_length)                        :: put_a_note
   INTEGER                               :: tot_saved_packets
   ! for testing case
   LOGICAL                               :: simpleTrans, orbitals_nl

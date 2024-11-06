@@ -37,7 +37,7 @@ USE virt_gridAB
 INTEGER                              :: nphit
 
 LOGICAL                                 :: propmod_file_exists
-CHARACTER(file_length)                           :: propmod_file
+CHARACTER(filename_length)                           :: propmod_file
 
 LOGICAL                                 :: timing = .true.
 

@@ -18,12 +18,12 @@ INTEGER, PARAMETER                        :: maxrows = 6000000
 DOUBLE PRECISION                          :: r, velo, dens, temp
 ! DOUBLE PRECISION, DIMENSION(n_elements)   :: massfrac
 DOUBLE PRECISION                          :: cell_index
-CHARACTER(file_length)                             :: modelfile, jikrfile
+CHARACTER(filename_length)                             :: modelfile, jikrfile
 ! variables which are not needed in the code
 !DOUBLE PRECISION                          :: delta_r, delta, delta2, tot_nd, tot_md
 ! (2) PoWR model
-CHARACTER(file_length)                             :: powrfile
-CHARACTER(file_length)                             :: line
+CHARACTER(filename_length)                             :: powrfile
+CHARACTER(filename_length)                             :: line
 DOUBLE PRECISION, PARAMETER                :: meanAtMass = 1.33
 INTEGER                                         :: reading_grid
 DOUBLE PRECISION, ALLOCATABLE                   :: boundaries(:)
