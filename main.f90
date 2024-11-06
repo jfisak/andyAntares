@@ -1,8 +1,22 @@
+! the root subroutine of the whole Andy Antares code
+! the most important parts
+!
+! 1) MPI INITIALIZATION
+! 2) READ INPUT
+! 3) MONTE CARLO SEED INITIALIZATION
+! 4) SETTING OF PROPAGATION AND MODEL GRID
+! 5) THEM MAIN ITERATION
+! 6) SETTING THE PLASMA STATE IN THE MODEL GRID
+! 7) PACKET MACHINERY
+! 8) DISTRIBUTE VARIABLES AMONG DIFFERENT TASKS
+! 9) GET THE POSITION DEPENDENT SPECTRUM
+! 10) SAVE OUTPUT FILES
+!
+! INPUT: NONE
+! OUTPUT: NONE
+!
 SUBROUTINE main
 
-  ! Propagate a bunch of photon packets through a stellar wind
-
-! Use module types (modul.f90)
 USE MPI
 USE types
 USE constants
@@ -27,8 +41,6 @@ CHARACTER(file_length)                           :: propmod_file
 
 LOGICAL                                 :: timing = .true.
 
-! DOUBLE PRECISION                        :: test_freq
-
 INTEGER, PARAMETER                      :: ind_save_inputfile = 100, ind_save_composition = 101
 INTEGER, PARAMETER                      :: ind_save_modgrid = 102
 INTEGER, PARAMETER                      :: ind_save_velfield = 11
@@ -36,7 +48,6 @@ INTEGER, PARAMETER                      :: ind_save_velfield = 11
 ! Link data to identify program version
 CHARACTER LINK_DATE*30, LINK_USER*10, LINK_HOST*60
 COMMON / COM_LINKINFO / LINK_DATE, LINK_USER, LINK_HOST
-! COMMON / RAN_SEED / idum
 
 ! the Saha constant calculation
 saha_const = 5.D-1 * (const_h**2/(2.0*const_pi*const_me_g*const_kB))**1.5

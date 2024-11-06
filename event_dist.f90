@@ -55,7 +55,7 @@ END DO
 
  !Get the packet's current position on the model grid
  current_mgi = get_package_model_index(pack_index)
-!  write(*,*) 'event_dist: pack_index = ', pack_index, ' current_mgi = ', current_mgi
+ ! write(*,*) 'event_dist: pack_index = ', pack_index, ' current_mgi = ', current_mgi
 
  IF(current_mgi > n_modelgrid) THEN
   event = rpkt_eventtype_changecell

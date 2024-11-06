@@ -67,8 +67,8 @@ INTEGER, ALLOCATABLE            :: cur_points(:)
    my_end = n_propgcells
 #endif
 
-write(*,*) 'connect_2D_basic: my_rank = ', my_rank, ' n_modelgrid = ', n_modelgrid
-write(*,*) 'connect_2D_basic: my_start = ', my_start, ' my_end = ', my_end
+! write(*,*) 'connect_2D_basic: my_rank = ', my_rank, ' n_modelgrid = ', n_modelgrid
+! write(*,*) 'connect_2D_basic: my_start = ', my_start, ' my_end = ', my_end
 
 
 DO cur_propcell = my_start, my_end
@@ -138,9 +138,9 @@ DO cur_propcell = my_start, my_end
     cur_points = vg_indexy_B(cur_start_index:cur_end_index,2)
    END IF ! choose_A or choose_B
    
-   write(*,*) 'connect_2D_basic: cur_n_x_A = ', cur_n_x_A, ' cur_n_y_A = ', cur_n_y_A, ' cur_n_z_A = ', cur_n_z_A
+   ! write(*,*) 'connect_2D_basic: cur_n_x_A = ', cur_n_x_A, ' cur_n_y_A = ', cur_n_y_A, ' cur_n_z_A = ', cur_n_z_A
    ! write(*,*) 'connect_2D_basic: n_points_A = ', n_points_A
-   write(*,*) 'connect_2D_basic: cur_start_index = ', cur_start_index, ' cur_end_index = ', cur_end_index
+   ! write(*,*) 'connect_2D_basic: cur_start_index = ', cur_start_index, ' cur_end_index = ', cur_end_index
    delta = large_number
    DO ind_I = 1, cur_n_points
     cur_mgi = cur_points(ind_I)

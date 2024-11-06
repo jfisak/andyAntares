@@ -52,7 +52,7 @@ INTEGER                                 :: cell_index
 DOUBLE PRECISION                        :: num_tot_pop
 INTEGER                                 :: tot_n_ions, cur_ion, n_ions
 DOUBLE PRECISION, ALLOCATABLE           :: part_functions(:)
-DOUBLE PRECISION                        :: U, temperature
+DOUBLE PRECISION                        :: part_U, temperature
 INTEGER                                 :: n_adgrids
 
 ! chemical composition
@@ -60,8 +60,9 @@ INTEGER                                 :: cur_indexe, cur_element, cur_Z, cur_n
 DOUBLE PRECISION                        :: cur_atom_mass, cur_abundance
 CHARACTER(LEN=file_length)              :: cur_levelfile, cur_transfile
 
-DOUBLE PRECISION, DIMENSION(3)          :: cur_vel, cur_centre
-INTEGER                                 :: cur_index_I
+DOUBLE PRECISION, DIMENSION(const_dimofspace)  :: cur_vel, cur_centre
+INTEGER                                 :: cur_index_I, n_levels
+DOUBLE PRECISION                        :: ion_pot
 
 
 !________________________________________________________________________________
@@ -75,7 +76,7 @@ INTEGER                                         :: cur_mgi, cur_pgi, cur_index
 DOUBLE PRECISION                                :: cur_rho, cur_temp
 CHARACTER(LEN=file_length)                      :: temp_file_name_t, temp_file_name_rho, temp_file_name_v 
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: width
-CHARACTER(LEN=2)                                :: cur_name, get_element_name
+CHARACTER(LEN=2)                                :: cur_name, get_element_name, get_ion_number, cur_ion_num
 
 !________________________________________________________________________________
 ! #00 output folder
@@ -424,8 +425,8 @@ CASE(9)
    n_ions = SIZE(elements(ind_J)%ions)
    DO ind_K = 1, n_ions
     IF(temperature /= 0.D0) THEN
-     CALL part_fun(ind_J, ind_K, temperature, U)
-     part_functions(cur_ion) = U
+     CALL part_fun(ind_J, ind_K, temperature, part_U)
+     part_functions(cur_ion) = part_U
     ELSE
      part_functions(cur_ion) = 0.D0
     END IF
@@ -640,7 +641,7 @@ CASE(101)
  write(99,*) 'composition file'
  write(99,*) '___________________________________________________________'
  write(99,*) '1.) chemical compositiion'
- write(99,*) 'indexe    Z       n_ions  atom_mass       tot_abundance   level file      transition file'
+ write(99,*) 'indexe    Z       n_ions  atom_mass       tot_abundance'
 
  DO cur_element = 1, n_elements
   cur_indexe = elements(cur_element)%indexe
@@ -653,7 +654,20 @@ CASE(101)
   cur_transfile = elements(cur_element)%transitionfile
   write(99,*) cur_name, cur_Z, cur_nions, cur_atom_mass, cur_abundance
  END DO
- write(99,*) 
+ write(99,*) 'Information about ions'
+ DO cur_element = 1, n_elements
+  cur_Z = elements(cur_element)%atom_number
+  cur_name = get_element_name(cur_Z)
+  write(99,*) 'Element: ', cur_name
+  cur_nions = elements(cur_element)%nions
+  write(99,*) 'ion ion potential/eV n of levels'
+  DO cur_ion = 1, cur_nions
+   n_levels = SIZE(elements(cur_element)%ions(cur_ion)%levels)
+   ion_pot = elements(cur_element)%ions(cur_ion)%ion_potential / const_ev
+   cur_ion_num = get_ion_number(cur_ion - 1)
+   write(99,*) cur_ion_num, ion_pot, n_levels
+  END DO
+ END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! #102 model grid description
 ! 

@@ -36,6 +36,7 @@ OPEN(UNIT=11, FILE=modelfile)
 
  add_mg = 3
 
+ write(*,*) 'read_3D_pseudo3D: my_rank = ', my_rank
  write(*,*) 'read_3D_pseudo3D: R_star = ', R_star, ' R_inf = ', R_inf, ' R_inf/R_star = ', R_inf/R_star
 
  write(99,*) 'setting new propagation grid size to: nx_cell =', nx_cell, ' ny_cell = ', ny_cell, &

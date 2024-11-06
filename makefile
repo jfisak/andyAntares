@@ -23,7 +23,7 @@ RATES= r_kappa_cont.o r_kappa_line.o i_ion_recomb.o i_radtrans.o i_radion.o i_co
        cool_ff.o cool_ionization.o cool_fb.o 
 ATOMIC=read_levels.o read_transitions.o read_e_nd.o 
 CONNECTION=connection_prop_model_grid.o connect_2D_peku.o connect_2D_basic.o connect_3D_pseudo.o \
-           connect_3D_hydronico.o
+           connect_3D_hydronico.o connect_1D_basic.o
 VELOCITY=velo.o velo_vector.o vel_discrete_points.o vel_interpolation.o vel_vector_interpolation.o \
          lin_interpolation_3D.o lin_interpolation.o vel_pseudo3D_model.o
 PACKETS=do_rpackage.o do_ipackage.o do_rpackage_event.o do_kpackage.o do_dpackage.o \
@@ -53,7 +53,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o 	  \
 	  save_output.o gauntff.o counters.o saha_factor.o find_photion_elindex.o \
 	  mpi_distribute_estimators.o save_temp_packs.o find_unfinished_run.o \
 	  lte_pops.o photosphere_interaction.o roverw.o \
-          next_line_bluered.o resonance_distance2.o get_element_name.o\
+          next_line_bluered.o resonance_distance2.o get_element_name.o get_ion_number.o\
 	  oct_virtcube.o diffusion_approximation.o d_choosenextcell.o \
 	  $(MODELS) $(RATES) $(ATOMIC) $(MODULES) $(CONNECTION) $(VELOCITY) $(PACKETS) $(SPECTRA) \
 	  $(GRIDS)

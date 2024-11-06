@@ -13,6 +13,7 @@ INTEGER, DIMENSION(1)   :: indexl0!, indexl1
 
   
  IF(temp == 0 ) THEN
+  write(*,*) 'part_fun: my_rank = ', my_rank
   STOP 'part_fun: temperature = 0...'
  END IF
 

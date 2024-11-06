@@ -153,8 +153,10 @@ n_propgcells = max_n_dcell
   DO ind_I = 1, n_tasks - 1
    CALL MPI_SEND(n_propgcells, 1, MPI_INT, ind_I, 1, MPI_COMM_WORLD, ierr)
   END DO
+  write(*,*) 'setup_propgrid: my_rank = ', my_rank, ' n_propgcells = ', n_propgcells
  ELSE
   CALL MPI_RECV(n_propgcells, 1, MPI_INT, 0, 1, MPI_COMM_WORLD, status, ierr)
+  write(*,*) 'setup_propgrid: my_rank = ', my_rank, ' n_propgcells = ', n_propgcells
   ALLOCATE(dyn_cell(n_propgcells))
  END IF
 

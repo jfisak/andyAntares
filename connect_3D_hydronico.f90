@@ -178,14 +178,14 @@ ELSE IF(dyngrid == 0) THEN
   r_0 = sqrt(cur_center(ind_x)**2.0 + cur_center(ind_y)**2.0 + &
    cur_center(ind_z)**2.0)
   IF(r_0 < 1.0) THEN
-   dyn_cell(cur_pgcell)%model_index = n_modelgrid + 1
+   dyn_cell(cur_pgcell)%model_index = photosphere_index
    count_in = count_in + 1
   ELSE IF(r_0 > R_inf/R_star) THEN
-   dyn_cell(cur_pgcell)%model_index = n_modelgrid + 2
+   dyn_cell(cur_pgcell)%model_index = outerspace_index
    count_out = count_out + 1
   END IF
   IF(dyn_cell(cur_pgcell)%model_index == 0) THEN
-   dyn_cell(cur_pgcell)%model_index = n_modelgrid + 3
+   dyn_cell(cur_pgcell)%model_index = vacuum_index
    count_vacuum = count_vacuum + 1
    ! delta2 = large_number
    ! DO J = 1, n_modelgrid

@@ -27,7 +27,7 @@ CHARACTER(len=file_length)                      :: ch_line
 DOUBLE PRECISION, PARAMETER             :: min_temp=5.E4
 
 
-add_mg = 2
+add_mg = 3
 write(99,*) 'we will read input input data from Petr Kurfurst model of stellar disc'
 ! firstly we calculate number of rows in the file
 n_modelgrid = 0
@@ -50,6 +50,7 @@ OPEN(UNIT=15,status='old', FILE=inputmodelFile)
  !                     (vacuum cell) 
  outerspace_index = n_modelgrid + 1
  vacuum_index = n_modelgrid + 2
+ photosphere_index = n_modelgrid + 3
 
  ALLOCATE ( model_grid(n_modelgrid + add_mg))
  REWIND(15)
