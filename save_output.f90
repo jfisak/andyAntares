@@ -76,7 +76,8 @@ INTEGER                                         :: cur_mgi, cur_pgi, cur_index
 DOUBLE PRECISION                                :: cur_rho, cur_temp
 CHARACTER(LEN=filename_length)                      :: temp_file_name_t, temp_file_name_rho, temp_file_name_v 
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: width
-CHARACTER(LEN=2)                                :: cur_name, get_element_name, get_ion_number, cur_ion_num
+CHARACTER(LEN=2)                                :: cur_name, get_element_name, cur_ion_num
+CHARACTER(LEN=10)                               :: get_ion_number
 
 !________________________________________________________________________________
 ! #00 output folder

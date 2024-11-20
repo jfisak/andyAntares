@@ -14,6 +14,7 @@ DOUBLE PRECISION                        :: w_vgrid_x, w_vgrid_y, w_vgrid_z
 INTEGER, ALLOCATABLE                    :: vg_indexy_A(:,:), vg_indexy_B(:,:)
 INTEGER, ALLOCATABLE                    :: vg_pom_A(:,:), vg_pom_B(:,:)
 
+INTEGER, PARAMETER                      :: ind_mg = 2, ind_vg = 1
 
 DOUBLE PRECISION                        :: vg_xmin, vg_xmax, vg_ymin, vg_ymax, vg_zmin, vg_zmax
 
@@ -46,6 +47,8 @@ INTEGER, ALLOCATABLE                    :: counter_A(:), counter_B(:)
 INTEGER                                 :: n_assoc
 
 LOGICAL                                 :: confirmed, lower_resolution
+
+INTEGER, DIMENSION(const_dimofspace)    :: vec_n_A, vec_n_B
 
  confirmed = .FALSE.
  lower_resolution = .FALSE.
@@ -81,6 +84,7 @@ LOGICAL                                 :: confirmed, lower_resolution
   N_vgrid_x = n_in_cell
   N_vgrid_y = n_in_cell
   N_vgrid_z = n_in_cell
+  ! write(*,*) 'virt_gridAB_init: N_vgrid_x = ', N_vgrid_x, ' N_vgrid_y = ', N_vgrid_y
   N_vgrid_cells_A = N_vgrid_x * N_vgrid_y * N_vgrid_z
   N_vgrid_cells_B = (N_vgrid_x - 1) * (N_vgrid_y - 1) * (N_vgrid_z - 1)
   ALLOCATE(n_points_A(N_vgrid_cells_A), n_points_B(N_vgrid_cells_B + 1))
@@ -109,7 +113,7 @@ LOGICAL                                 :: confirmed, lower_resolution
     vg_xmax = R_inf
     w_vgrid_x = (R_inf - R_star)/N_vgrid_x
     vg_ymin = 0.D0
-    vg_ymax = 2.D0 * const_pi
+    vg_ymax = const_pi
     w_vgrid_y = const_pi/N_vgrid_y
     vg_zmin = zmin
     vg_zmax = zmax
@@ -133,7 +137,7 @@ LOGICAL                                 :: confirmed, lower_resolution
   !_______________________________________________________________
   ! calculation of the virGrid index
   cur_index_mgi = 0
-  DO cur_point = 1, n_modelgrid - add_mg
+  DO cur_point = 1, n_modelgrid
    ! write(*,*) 'virt_gridAB_init: assoc_cells = ', model_grid(cur_point)%assoc_cells
    ! IF(model_grid(cur_point)%assoc_cells <= 0) CYCLE
    cur_index_mgi = cur_index_mgi + 1
@@ -150,41 +154,19 @@ LOGICAL                                 :: confirmed, lower_resolution
      cur_z = 0.D0
      ! write(*,*) 'virt_gridAB_init: cur_point = ', cur_point, ' rwind = ', model_grid(cur_point)%rwind
     END IF
-   END IF
-   IF(model_type == 3) THEN
+   ELSE IF(model_type == 3) THEN
     cur_x = model_grid(cur_point)%vec_pos(ind_x)
     cur_y = model_grid(cur_point)%vec_pos(ind_y)
     cur_z = model_grid(cur_point)%vec_pos(ind_z)
    END IF
 
-   IF(model_type == 1) THEN
-    cur_n_x_A = floor((cur_x - vg_xmin)/w_vgrid_x) + 1
-    cur_n_y_A = 1
-    cur_n_z_A = 1
-    ! write(*,*) 'virt_gridAB_init: cur_n_x_A = ', cur_n_x_A
-   ELSE IF(model_type == 2) THEN
-    cur_n_x_A = floor((cur_x - vg_xmin)/w_vgrid_x) + 1
-    cur_n_y_A = floor((cur_y - vg_ymin)/w_vgrid_y) + 1
-    cur_n_z_A = 1
-    ! write(*,*) 'virGrid: cur_x/R_star = ', cur_x/R_star
-   ELSE IF(model_type == 3) THEN
-    cur_n_x_A = floor((cur_x - vg_xmin)/w_vgrid_x) + 1
-    cur_n_y_A = floor((cur_y - vg_ymin)/w_vgrid_y) + 1
-    cur_n_z_A = floor((cur_z - vg_zmin)/w_vgrid_z) + 1
-   END IF
+   CALL get_vg_index(cur_x, cur_y, cur_z, vec_n_A, vec_n_B)
+
+   cur_n_x_A = vec_n_A(ind_x)
+   cur_n_y_A = vec_n_A(ind_y)
+   cur_n_z_A = vec_n_A(ind_z)
   
-   ! n_A -- numerical index of VG cell
-   IF(model_type == 1) THEN
-    n_A = cur_n_x_A
-    IF(n_A == 0) THEN
-     STOP 'virt_gridAB_init: n_A = 0'
-    END IF
-   ELSE IF(model_type == 2) THEN
-    n_A = cur_n_x_A + N_vgrid_x * (cur_n_y_A - 1)
-    ! write(*,*) 'virt_gridAB_init: n_A = ', n_A
-   ELSE IF(model_type == 3) THEN
-    n_A = cur_n_x_A + N_vgrid_x * (cur_n_y_A - 1) + N_vgrid_x * N_vgrid_y * (cur_n_z_A - 1)
-   END IF
+   n_A = cur_n_x_A + N_vgrid_x * (cur_n_y_A - 1) + N_vgrid_x * N_vgrid_y * (cur_n_z_A - 1)
    ! write(*,*) 'virt_gridAB_init: n_x = ', cur_n_x_A, ' n_y = ', cur_n_y_A, ' n_z = ', cur_n_z_A
    ! write(*,*) 'virt_gridAB_init: n_A = ', n_A
    ! n_points -- number of points for the given cell
@@ -193,8 +175,14 @@ LOGICAL                                 :: confirmed, lower_resolution
    ! vg_indexy -- list of indeces model grid --> VG index point
    ! write(*,*) 'virt_gridAB_init: n_A( ', cur_index_mgi, ') = ', n_A
    ! write(*,*) 'virt_gridAB_init: n_points_A(', cur_index_mgi, ') = ', n_points_A(n_A)
-   vg_indexy_A(cur_index_mgi, 1) = n_A
-   vg_indexy_A(cur_index_mgi, 2) = cur_point
+   vg_indexy_A(cur_index_mgi, ind_vg) = n_A
+   ! write(*,*) 'virt_gridAB_init: cur_index_mgi = ', cur_index_mgi, ' n_A = ', n_A
+   IF(n_A == 0) THEN
+    write(*,*) 'virt_gridAB_init: cur_n_x_A = ', cur_n_x_A, ' cur_n_y_A = ', cur_n_y_A
+    write(*,*) 'virt_gridAB_init: cur_n_z_A = ', cur_n_z_A
+    STOP 'virt_gridAB_init: n_A == 0'
+   END IF
+   vg_indexy_A(cur_index_mgi, ind_mg) = cur_point
    IF(n_A > N_vgrid_cells_A) THEN
     write(*,*) 'virt_gridAB_init: cur_n_x_A = ', cur_n_x_A
     write(*,*) 'virt_gridAB_init: cur_n_y_A = ', cur_n_y_A
@@ -203,32 +191,13 @@ LOGICAL                                 :: confirmed, lower_resolution
    END IF
    !!!!!!!!
    ! repete for the B grid
-   IF(cur_x > vg_xmin + w_vgrid_x/2.0 .and. cur_x < vg_xmax - w_vgrid_x/2.0 .and.&
-    & cur_y > vg_ymin + w_vgrid_y/2.0 .and. cur_y < vg_ymax - w_vgrid_y/2.0 .and. &
-    & cur_z > vg_zmin + w_vgrid_z/2.0 .and. cur_z < vg_zmax - w_vgrid_z/2.0 ) THEN
-    IF(model_type == 1) THEN
-     cur_n_x_B = floor((cur_x - vg_xmin)/w_vgrid_x - 1.0/2.0) + 1
-     ! write(*,*) 'virt_gridAB_init: cur_n_x_B = ', cur_n_x_B
-     cur_n_y_B = 1
-     cur_n_z_B = 1
-    ELSE IF(model_type == 2) THEN
-     cur_n_x_B = floor((cur_x - vg_xmin)/w_vgrid_x - 1.0/2.0) + 1
-     cur_n_y_B = floor((cur_y - vg_ymin)/w_vgrid_y - 1.0/2.0) + 1
-     cur_n_z_B = 1
-    ELSE IF(model_type == 3) THEN
-     cur_n_x_B = floor((cur_x - vg_xmin)/w_vgrid_x - 1.0/2.0) + 1
-     cur_n_y_B = floor((cur_y - vg_ymin)/w_vgrid_y - 1.0/2.0) + 1
-     cur_n_z_B = floor((cur_z - vg_zmin)/w_vgrid_z - 1.0/2.0) + 1
-    END IF
-    n_B = cur_n_x_B + (N_vgrid_x - 1) * (cur_n_y_B - 1) + (N_vgrid_x - 1) * (N_vgrid_y - 1) * (cur_n_z_B - 1)
-    n_points_B(n_B) = n_points_B(n_B) + 1
-    vg_indexy_B(cur_index_mgi, 1) = n_B
-    vg_indexy_B(cur_index_mgi, 2) = cur_point
-   ELSE
-    vg_indexy_B(cur_index_mgi, 1) = 0
-    vg_indexy_B(cur_index_mgi, 2) = cur_point
-    n_zeros = n_zeros + 1
-   END IF
+   cur_n_x_B = vec_n_B(ind_x)
+   cur_n_y_B = vec_n_B(ind_y)
+   cur_n_z_B = vec_n_B(ind_z)
+   n_B = cur_n_x_B + (N_vgrid_x - 1) * (cur_n_y_B - 1) + (N_vgrid_x - 1) * (N_vgrid_y - 1) * (cur_n_z_B - 1)
+   n_points_B(n_B) = n_points_B(n_B) + 1
+   vg_indexy_B(cur_index_mgi, ind_vg) = n_B
+   vg_indexy_B(cur_index_mgi, ind_mg) = cur_point
   END DO
   
   ! test of the grid
@@ -243,8 +212,9 @@ LOGICAL                                 :: confirmed, lower_resolution
    confirmed = .TRUE.
   END IF
  END DO ! #00 end of main loop
- ! write(*,*) 'virt_gridAB_init: vg_indexy_B = ', vg_indexy_B
+ ! write(*,*) 'virt_gridAB_init: vg_indexy_A = ', vg_indexy_A(:,ind_vg)
  ! write(*,*) 'virt_gridAB_init: n_points_A = ', n_points_A
+ ! STOP 'virt_gridAB_init: testing'
  
  !_______________________________________________________________
  !    #02            SORTING
@@ -252,16 +222,19 @@ LOGICAL                                 :: confirmed, lower_resolution
  ! sort the vg_indexy according to the VG index
  ! write(*,*) 'virt_gridAB_init: started sorting A'
  ! calculating number of points in each vg grid cell (A)
- ! now we know where the indeces will be located, we set up an array
- ! containing the initial indeces for all vg indeces
+ ! now we know where the indeces will be located, we set up an
+ ! array containing the initial indeces for all vg indeces
  cur_ind_A = 0
  cur_ind_B = n_zeros
  !_______________________________________________________________
- ! create arrays with indeces pointing to an ordered list of modCell grids indeces
+ ! create arrays with indeces pointing to an ordered list of
+ ! modCell grids indeces
  DO cur_vpg_cell = 1, N_vgrid_cells_A
   indices_A(cur_vpg_cell) = cur_ind_A + 1
   cur_ind_A = cur_ind_A + n_points_A(cur_vpg_cell)
+  ! write(*,*) 'virt_gridAB_init: cur_ind_A = ', cur_ind_A
  END DO
+ ! write(*,*) 'virt_gridAB_init: indices_A = ', indices_A
  !_______________________________________________________________
  DO cur_vpg_cell = 1, N_vgrid_cells_B
   indices_B(cur_vpg_cell) = cur_ind_B + 1
@@ -277,15 +250,19 @@ LOGICAL                                 :: confirmed, lower_resolution
  ! write(*,*) 'virt_gridAB_init: counter_A = ', counter_A
 
  cur_point = 0
- DO cur_mgi = 1, n_modelgrid - add_mg
-  IF(model_grid(cur_mgi)%assoc_cells <= 0) CYCLE
+ DO cur_mgi = 1, n_modelgrid
+  ! write(*,*) 'virt_gridAB_init: assoc_cells = ', model_grid(cur_mgi)%assoc_cells
   cur_point = cur_point + 1
   ! A
-  cur_vgi = vg_indexy_A(cur_point, 1)
+  cur_vgi = vg_indexy_A(cur_point, ind_vg)
   ! write(*,*) 'virt_gridAB_init: vg_indexy_A = ', cur_vgi
+  ! write(*,*) 'virt_gridAB_init: cur_point = ', cur_point, ' n_modelgrid = ', n_modelgrid
+  ! write(*,*) 'virt_gridAB_init: counter_A = ', counter_A(cur_vgi)
   IF(counter_A(cur_vgi) > 0) THEN
    cur_ind_sorted = indices_A(cur_vgi) + counter_A(cur_vgi) - 1
+   ! write(*,*) 'virt_gridAB_init: cur_ind_sorted = ', cur_ind_sorted
    vg_pom_A(cur_ind_sorted,:) = vg_indexy_A(cur_point,:)
+   counter_A(cur_vgi) = counter_A(cur_vgi) - 1
   ELSE
    write(*,*) 'virt_gridAB_init: sorting is not OK'
    write(*,*) 'want to add a point of cur_vgi = ', cur_vgi
@@ -293,7 +270,6 @@ LOGICAL                                 :: confirmed, lower_resolution
    STOP 'virt_gridAB_init'
   END IF
 
-  counter_A(cur_vgi) = counter_A(cur_vgi) - 1
   ! B
   cur_vgi = vg_indexy_B(cur_point, 1)
   ! write(*,*) 'virt_gridAB_init: cur_vgi = ', cur_vgi
@@ -314,8 +290,11 @@ LOGICAL                                 :: confirmed, lower_resolution
   END IF
  END DO
 
- ! vg_indexy_A = vg_pom_A
- ! vg_indexy_B = vg_pom_B
+ vg_indexy_A = vg_pom_A
+ vg_indexy_B = vg_pom_B
+ ! write(*,*) 'virt_gridAB_init: vg_indexy_B = ', vg_indexy_A(1:1000,ind_vg)
+ ! write(*,*) 'virt_gridAB_init: n_points_A = ', n_points_A
+ ! STOP 'virt_gridAB_init: testing'
 
  ! write(*,*) 'virt_gridAB_init: vg_indexy_B = ', vg_indexy_B(:,1)
 
@@ -327,6 +306,8 @@ LOGICAL                                 :: confirmed, lower_resolution
 
  ! write(*,*) 'virt_gridAB_init: vg_indexy_A = ', vg_indexy_A
  is_initialized = .true.
+
+ ! STOP 'virt_gridAB_init: testing'
 
 END SUBROUTINE virt_gridAB_init
 
@@ -358,7 +339,6 @@ SUBROUTINE get_vg_index(cur_x, cur_y, cur_z, out_index_A, out_index_B)
   cur_n_z_A = floor((cur_z - vg_zmin)/w_vgrid_z) + 1
  END IF
  out_index_A = (/ cur_n_x_A, cur_n_y_A, cur_n_z_A /)
- ! write(*,*) 'get_vg_centre_A: cur_n_x_A = ', cur_n_x_A, ' cur_n_y_A = ', cur_n_y_A, ' cur_n_z_A = ', cur_n_z_A
 
 
 
@@ -383,9 +363,9 @@ SUBROUTINE get_vg_index(cur_x, cur_y, cur_z, out_index_A, out_index_B)
   END IF
   out_index_B = (/ cur_n_x_B, cur_n_y_B, cur_n_z_B /)
  ELSE
-  out_index_B = (/ 0, 0, 0 /)
+  out_index_B = (/ 1, 1, 1 /)
  END IF
-END SUBROUTINE
+END SUBROUTINE get_vg_index
 
 SUBROUTINE get_vg_centre_A(cur_index, out_centre)
 
@@ -421,6 +401,77 @@ SUBROUTINE get_vg_centre_B(cur_index, out_centre)
                    & w_vgrid_z * (cur_n_z_B + 1.D0) + vg_zmin /)
 
 END SUBROUTINE get_vg_centre_B
+
+SUBROUTINE get_scalar_index(cur_pos, is_grid_A, out_index)
+
+IMPLICIT NONE
+
+DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: cur_pos
+LOGICAL                                                 :: is_grid_A
+INTEGER                                                 :: out_index
+
+INTEGER                                                 :: cur_n_x, cur_n_y, cur_n_z
+DOUBLE PRECISION                                        :: cur_x, cur_y, cur_z
+
+! write(*,*) 'get_scalar_index: cur_pos = ', cur_pos(ind_x)/R_star, cur_pos(ind_y)
+! write(*,*) 'get_scalar_index: vg_xmin = ', vg_xmin/R_star
+
+cur_x = cur_pos(ind_x)
+cur_y = cur_pos(ind_y)
+cur_z = cur_pos(ind_z)
+
+! write(*,*) 'get_scalar_index: cur_x = ', cur_x, ' cur_y = ', cur_y, ' cur_z = ', cur_z
+
+IF(is_grid_A) THEN
+ IF(model_type == 1) THEN
+  cur_n_x = floor((cur_x - vg_xmin)/w_vgrid_x) + 1
+  cur_n_y = 1
+  cur_n_z = 1
+  ! write(*,*) 'virt_gridAB_init: cur_n_x_A = ', cur_n_x_A
+ ELSE IF(model_type == 2) THEN
+  cur_n_x = floor((cur_x - vg_xmin)/w_vgrid_x) + 1
+  cur_n_y = floor((cur_y - vg_ymin)/w_vgrid_y) + 1
+  cur_n_z = 1
+  ! write(*,*) 'virGrid: cur_x/R_star = ', cur_x/R_star
+ ELSE IF(model_type == 3) THEN
+  cur_n_x = floor((cur_x - vg_xmin)/w_vgrid_x) + 1
+  cur_n_y = floor((cur_y - vg_ymin)/w_vgrid_y) + 1
+  cur_n_z = floor((cur_z - vg_zmin)/w_vgrid_z) + 1
+ END IF
+ ! write(*,*) 'get_scalar_index: cur_x - vg_xmin = ', cur_x - vg_xmin, ' w_vgrid_x = ', w_vgrid_x
+ ! write(*,*) 'get_scalar_index A: cur_n_x = ', cur_n_x, ' cur_n_y = ', cur_n_y, ' cur_n_z = ', cur_n_z
+ out_index = cur_n_x + N_vgrid_x * (cur_n_y - 1) + N_vgrid_x * N_vgrid_y * (cur_n_z - 1)
+ELSE
+ IF(cur_x > vg_xmin + w_vgrid_x/2.0 .and. cur_x < vg_xmax - w_vgrid_x/2.0 .and.&
+  & cur_y > vg_ymin + w_vgrid_y/2.0 .and. cur_y < vg_ymax - w_vgrid_y/2.0 .and. &
+  & cur_z > vg_zmin + w_vgrid_z/2.0 .and. cur_z < vg_zmax - w_vgrid_z/2.0 ) THEN
+  IF(model_type == 1) THEN
+   cur_n_x = floor((cur_x - vg_xmin)/w_vgrid_x - 1.0/2.0) + 1
+   cur_n_y = 1
+   cur_n_z = 1
+  ELSE IF(model_type == 2) THEN
+   cur_n_x = floor((cur_x - vg_xmin)/w_vgrid_x - 1.0/2.0) + 1
+   cur_n_y = floor((cur_y - vg_ymin)/w_vgrid_y - 1.0/2.0) + 1
+   cur_n_z = 1
+   ! write(*,*) 'get_scalar_index I B: cur_n_x = ', cur_n_x, ' cur_n_y = ', cur_n_y, ' cur_n_z = ', cur_n_z
+  ELSE IF(model_type == 3) THEN
+   cur_n_x = floor((cur_x - vg_xmin)/w_vgrid_x - 1.0/2.0) + 1
+   cur_n_y = floor((cur_y - vg_ymin)/w_vgrid_y - 1.0/2.0) + 1
+   cur_n_z = floor((cur_z - vg_zmin)/w_vgrid_z - 1.0/2.0) + 1
+  END IF
+  out_index = cur_n_x + (N_vgrid_x - 1) * (cur_n_y - 1) + (N_vgrid_x - 1) * (N_vgrid_y - 1) * (cur_n_z - 1)
+ ELSE
+  out_index = 0
+  cur_n_x = 0
+  cur_n_y = 0
+  cur_n_z = 0
+ END IF
+ ! write(*,*) 'get_scalar_index B: cur_n_x = ', cur_n_x, ' cur_n_y = ', cur_n_y, ' cur_n_z = ', cur_n_z
+END IF
+
+
+
+END SUBROUTINE get_scalar_index
 
 
 END MODULE virt_gridAB

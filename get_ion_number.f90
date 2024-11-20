@@ -1,7 +1,7 @@
 FUNCTION get_ion_number(input_n)
 
 INTEGER                         :: input_n
-CHARACTER(LEN=2)                :: get_ion_number
+CHARACTER(LEN=10)                :: get_ion_number
 
 SELECT CASE(input_n)
 

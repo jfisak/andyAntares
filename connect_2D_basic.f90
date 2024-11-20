@@ -44,10 +44,20 @@ INTEGER                         :: cur_n_points, cur_start_index, cur_end_index
 
 INTEGER                                 :: cur_n_x_A, cur_n_y_A, cur_n_z_A
 INTEGER                                 :: cur_n_x_B, cur_n_y_B, cur_n_z_B
+INTEGER                         :: cur_mgi_assoc
 
 LOGICAL                         :: choose_A, choose_B
 INTEGER                         :: cur_mgi_index
 INTEGER, ALLOCATABLE            :: cur_points(:)
+
+DOUBLE PRECISION                :: max_dist
+
+
+DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: cur_pos
+LOGICAL                                                 :: is_vgrid_A
+INTEGER                                                 :: cur_scalar_vgi_index
+
+max_dist = 2 * sqrt(basic_cell_width(ind_x)**2+basic_cell_width(ind_y)**2+basic_cell_width(ind_z)**2)
 
 #if mpi == 1
    N_single = n_propgcells/n_tasks
@@ -79,6 +89,11 @@ DO cur_propcell = my_start, my_end
             (dyn_cell(cur_propcell)%corner(ind_y) + dyn_cell(cur_propcell)%width(ind_y)/2.D0)**2 + &
             (dyn_cell(cur_propcell)%corner(ind_z) + dyn_cell(cur_propcell)%width(ind_z)/2.D0)**2)
    pgi_theta = acos((dyn_cell(cur_propcell)%corner(ind_z) + dyn_cell(cur_propcell)%width(ind_z)/2.D0)/pgi_radius)
+   ! cur_pos = (/ pgi_radius, pgi_theta, 0.D0 /)
+   ! CALL get_scalar_index(cur_pos, .TRUE., cur_scalar_vgi_index)
+   ! write(*,*) 'connect_2D_basic: cur_vgi_index A = ', cur_scalar_vgi_index
+   ! CALL get_scalar_index(cur_pos, .FALSE., cur_scalar_vgi_index)
+   ! write(*,*) 'connect_2D_basic: cur_vgi_index B = ', cur_scalar_vgi_index
 
   IF(pgi_radius > R_star .AND. pgi_radius < R_inf) THEN
    CALL get_vg_index(pgi_radius, pgi_theta, 0.D0, cur_index_A, cur_index_B)
@@ -100,9 +115,9 @@ DO cur_propcell = my_start, my_end
     CALL get_vg_centre_B(cur_index_B, cur_centre_B)
 
     dist_A = sqrt(pgi_radius**2+cur_centre_A(ind_x)**2 - &
-     pgi_radius * cur_centre_A(ind_x) * cos(pgi_theta - cur_centre_A(ind_y)))
+     2.0 * pgi_radius * cur_centre_A(ind_x) * cos(pgi_theta - cur_centre_A(ind_y)))
     dist_B = sqrt(pgi_radius**2+cur_centre_B(ind_x)**2 - &
-     pgi_radius * cur_centre_B(ind_x) * cos(pgi_theta - cur_centre_B(ind_y)))
+     2.0 * pgi_radius * cur_centre_B(ind_x) * cos(pgi_theta - cur_centre_B(ind_y)))
     IF(dist_A < dist_B) THEN
      choose_A = .TRUE.
      choose_B = .FALSE.
@@ -139,29 +154,47 @@ DO cur_propcell = my_start, my_end
    END IF ! choose_A or choose_B
    
    ! write(*,*) 'connect_2D_basic: cur_n_x_A = ', cur_n_x_A, ' cur_n_y_A = ', cur_n_y_A, ' cur_n_z_A = ', cur_n_z_A
-   ! write(*,*) 'connect_2D_basic: n_points_A = ', n_points_A
    ! write(*,*) 'connect_2D_basic: cur_start_index = ', cur_start_index, ' cur_end_index = ', cur_end_index
    delta = large_number
+   ! write(*,*) 'connect_2D_basic: cur_points = ', cur_points
    DO ind_I = 1, cur_n_points
     cur_mgi = cur_points(ind_I)
     mgi_radius = model_grid(cur_mgi)%rwind
     mgi_theta = model_grid(cur_mgi)%angle
-    delta2 = sqrt(pgi_radius**2+mgi_radius**2 - &
-     pgi_radius * mgi_radius * cos(pgi_theta - mgi_theta))
+
+    cur_pos = (/mgi_radius, mgi_theta, 0.D0 /)
+    ! write(*,*) 'connect_2D_basic: cur_pos = ', cur_pos
+    IF(choose_A) THEN
+     is_vgrid_A = .true.
+    ELSE
+     is_vgrid_A = .false.
+    END IF
+    CALL get_scalar_index(cur_pos, is_vgrid_A, cur_scalar_vgi_index)
+    ! write(*,*) 'connect_2D_basic: cur_mgi = ', cur_mgi, ' vgi_index = ', cur_scalar_vgi_index
+    delta2 = sqrt(pgi_radius**2 + mgi_radius**2 - &
+     2.0 * pgi_radius * mgi_radius * cos(pgi_theta - mgi_theta))
     IF(delta2 < delta) THEN
      delta = delta2
      cur_mgi_index = cur_mgi
+     write(*,*) 'connect_2D_basic: ', ind_I, abs(mgi_radius-pgi_radius)/w_vgrid_x, &
+      abs(mgi_theta-pgi_theta)/w_vgrid_y, delta2/R_star
+
     END IF
    END DO
-   IF(cur_mgi_index /= 0) THEN
+   ! STOP 'connect_2D_basic: testing'
+   ! write(*,*) 'connect_2D_basic: another point'
+   ! IF(delta < max_dist) THEN
+    mgi_radius = model_grid(cur_mgi_index)%rwind
+    mgi_theta = model_grid(cur_mgi_index)%angle
     dyn_cell(cur_propcell)%model_index = cur_mgi_index
     model_grid(cur_mgi_index)%assoc_cells = model_grid(cur_mgi_index)%assoc_cells + 1
-   ELSE
-    dyn_cell(cur_propcell)%model_index = vacuum_index
-    model_grid(vacuum_index)%assoc_cells = model_grid(vacuum_index)%assoc_cells + 1
-   END IF
+   ! write(*,*) 'connect_2D_basic: cur_mgi_index = ', cur_mgi_index
+   ! ELSE
+   !  write(*,*) 'connect_2D_basic: cur_propcell = ', cur_propcell, ' was set to be vacuum'
+   !  dyn_cell(cur_propcell)%model_index = vacuum_index
+   !  model_grid(vacuum_index)%assoc_cells = model_grid(vacuum_index)%assoc_cells + 1
+   ! END IF
    DEALLOCATE(cur_points)
-   ! STOP 'connect_2D_basic'
 
   ELSE IF(pgi_radius < R_star) THEN
    ! Cells with radius smaller than the stellar radius or larger
@@ -178,6 +211,30 @@ DO cur_propcell = my_start, my_end
  ! write(*,*) 'connect_2D_basic: modGrid index = ', dyn_cell(cur_propcell)%model_index
 END DO ! loop over propGrid cells
 write(99,*) 'number of propagation cells in vacuum: ', model_grid(vacuum_index)%assoc_cells
+! write(*,*) 'number of propagation cells in vacuum: ', model_grid(vacuum_index)%assoc_cells, ' n_modelgrid = ', n_modelgrid, &
+! ' fraction = ', model_grid(vacuum_index)%assoc_cells/REAL(n_modelgrid)
+DO ind_I = 1, n_propgcells
+ IF(dyn_cell(ind_I)%up_cell == 0) THEN
+  cur_mgi_index = dyn_cell(ind_I)%model_index
+  mgi_radius = model_grid(cur_mgi_index)%rwind
+  mgi_theta = model_grid(cur_mgi_index)%angle
+  pgi_radius = SQRT((dyn_cell(ind_I)%corner(ind_x) + dyn_cell(ind_I)%width(ind_x)/2.D0)**2 + &
+           (dyn_cell(ind_I)%corner(ind_y) + dyn_cell(ind_I)%width(ind_y)/2.D0)**2 + &
+           (dyn_cell(ind_I)%corner(ind_z) + dyn_cell(ind_I)%width(ind_z)/2.D0)**2)
+  delta2 = sqrt(pgi_radius**2 + mgi_radius**2 - &
+   2.0 * pgi_radius * mgi_radius * cos(pgi_theta - mgi_theta))
+  pgi_theta = acos((dyn_cell(ind_I)%corner(ind_z) + dyn_cell(ind_I)%width(ind_z)/2.D0)/pgi_radius)
+  write(74,*) ind_I, abs(mgi_radius-pgi_radius)/w_vgrid_x, abs(mgi_theta-pgi_theta)/w_vgrid_y, delta2
+ END IF
+END DO
+
+cur_n_assoc = 0
+DO ind_I = 1, n_modelgrid
+ IF(model_grid(ind_I)%assoc_cells > 0) THEN
+  cur_n_assoc = cur_n_assoc + model_grid(ind_I)%assoc_cells
+ END IF
+END DO
+write(*,*) 'connect_2D_basic: cur_mgi_assoc = ', cur_mgi_assoc
 
 IF(n_tasks > 1) THEN
  CALL MPI_ALLREDUCE(dyn_cell(:)%model_index, dyn_cell(:)%model_index, n_propgcells, &
@@ -218,5 +275,7 @@ END DO
 !  model_grid = mg_pom
 !  n_modelgrid = n_assoc
 ! END IF
+
+STOP 'connect_2D_basic: testing'
 
 END SUBROUTINE connect_2D_basic

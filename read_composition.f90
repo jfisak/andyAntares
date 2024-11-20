@@ -19,8 +19,8 @@ USE constants
   INTEGER                            :: atom_number
   DOUBLE PRECISION                   :: abundance
   INTEGER                            :: current_ion, nions,ios
-  CHARACTER (30)                     :: filename, photfile
-  CHARACTER (LEN=200)                    :: line
+  CHARACTER (filename_length)                     :: filename, photfile
+  CHARACTER (LEN=filename_length)                    :: line
   DOUBLE PRECISION                   :: mass, tot_abundance
   ! photon cross section data type
   INTEGER                            :: phcs_type
