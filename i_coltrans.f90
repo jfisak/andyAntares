@@ -1,5 +1,17 @@
 ! this subroutine calculates collisional rates for the given energy
 ! level
+!
+! INPUT: approx(INT): approximation
+!        pack_index(INT): the packet index
+!        indexe(INT): the element index
+!        indexi(INT): the ion index
+!        level(INT): the level index
+!        population(DBLE): the population number
+! OUTPUT: Zdown(DBLE): the total rate for downward transitions
+!         Zup(DBLE): the total rate for upward transitions
+!         Zcoll(DBLE): the total rate for collisional transitions
+!         actirates(irates): the rates for the corresponding transitions
+!
 SUBROUTINE i_coltrans(approx, pack_index, indexe, indexi, level, population, Zdown, Zup, Zcoll, actirates)
 USE types
 USE constants
@@ -9,6 +21,7 @@ IMPLICIT NONE
 ! used approximation for the collisional term calculation
 INTEGER                                 :: approx
 ! line -- number of line in the linelist field
+TYPE(irates)                           :: actirates
 INTEGER                                 :: pack_index, level, nlns, nluns
 INTEGER                                 :: indexe, indexi
 INTEGER, ALLOCATABLE                    :: linetransitions(:)
@@ -41,7 +54,6 @@ DOUBLE PRECISION                        :: Zdown, Zup, Zcoll
 ! the rates for the given transitions
 DOUBLE PRECISION                        :: lcoll
 DOUBLE PRECISION, PARAMETER             :: times = 1.D0
-TYPE(irates)                           :: actirates
 
 !IF(times /= 1.D0) THEN
 ! CALL warning('collisional rates are multiplied by a non-one factor')

@@ -7,7 +7,7 @@ IMPLICIT NONE
 
 INTEGER                         :: pack_index
 ! indexes
-INTEGER                         :: I
+INTEGER                         :: ind_I, ind_J
 ! cooling rates
 DOUBLE PRECISION                :: Zexcit, Ztot, Zff, Zion, Zfb
 DOUBLE PRECISION                :: Z0, Z1, Z2, Z3
@@ -18,7 +18,7 @@ DOUBLE PRECISION                :: rand
 ! new frequency
 DOUBLE PRECISION                :: new_freq
 ! choosing the given process
-INTEGER                         :: act_proc, J
+INTEGER                         :: act_proc
 TYPE(krates)                    :: actikrates
 ! indexes for ion levels
 INTEGER                         :: indexe, indexi, indexl
@@ -76,18 +76,18 @@ rand = rand   * Ztot
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 IF(rand >= 0.D0 .AND. rand <= Z0) THEN
  summ = 0.D0
- DO I = 1, ntransitions
-  IF(rand >= summ .AND. rand < summ + actikrates%Lcool_excit(I)) THEN
-   package(pack_index)%last_line = I
+ DO ind_I = 1, ntransitions
+  IF(rand >= summ .AND. rand < summ + actikrates%Lcool_excit(ind_I)) THEN
+   package(pack_index)%last_line = ind_I
    package(pack_index)%typ = type_ipkt
-   package(pack_index)%l_ele = linelist(I)%indexe
-   package(pack_index)%l_ion = linelist(I)%indexi
-   package(pack_index)%l_lev = linelist(I)%upper
+   package(pack_index)%l_ele = linelist(ind_I)%indexe
+   package(pack_index)%l_ion = linelist(ind_I)%indexi
+   package(pack_index)%l_lev = linelist(ind_I)%upper
    count_cool_ex = count_cool_ex + 1
    IF(procout) write(*,*) 'do_kpackage: package = ', pack_index, ' collisional excitation process...'
    EXIT
   END IF
-  summ = summ + actikrates%Lcool_excit(I)
+  summ = summ + actikrates%Lcool_excit(ind_I)
  END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -123,7 +123,6 @@ ELSE IF(rand >= Z1 .AND. rand <= Z2) THEN
    n_levels = SIZE(elements(indexe)%ions(indexi)%levels)
    DO indexl = 1, n_levels
     IF(rand > summ .AND. rand <= summ + actikrates%Lcool_ion(actIndex + 1)) THEN
-     !$OMP ATOMIC
      count_cool_io = count_cool_io + 1
      package(pack_index)%l_ele = indexe
      package(pack_index)%l_ion = indexi + 1
@@ -145,16 +144,16 @@ ELSE IF(rand >= Z1 .AND. rand <= Z2) THEN
 ELSE IF(rand > Z2 .AND. rand <= Z3) THEN
  summ = Z2
  !write(*,*) 'do_kpackage: rand = ', rand, 'Z2 = ', Z2, ' Z3 = ', Z3
- DO J = 1, SIZE(actikrates%Lcool_fbE(4, :))
+ DO ind_J = 1, SIZE(actikrates%Lcool_fbE(ind_rate, :))
   ! write(*,*) 'do_kpackage: rand = ', rand, 'summ = ', summ, ' summ + Lcool_fbE = ', &
-  !  summ + actikrates%Lcool_fbE(4, J)
-  IF(rand > summ .AND. rand <= summ + actikrates%Lcool_fbE(4, J)) THEN
-   act_proc = J
+  !  summ + actikrates%Lcool_fbE(4, ind_J)
+  IF(rand > summ .AND. rand <= summ + actikrates%Lcool_fbE(ind_rate, ind_J)) THEN
+   act_proc = ind_J
    count_cool_fb = count_cool_fb + 1
    ! write(*,*) 'do_kpackage: act_proc = ', act_proc
    EXIT
   END IF
-  summ = summ + actikrates%Lcool_fbE(4, J)
+  summ = summ + actikrates%Lcool_fbE(ind_rate, ind_J)
  END DO
  ! package changes to r-packet
  package(pack_index)%typ = type_rpkt

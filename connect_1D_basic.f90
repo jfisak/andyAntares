@@ -10,19 +10,17 @@ USE MPI
 
 IMPLICIT NONE
 
-DOUBLE PRECISION               :: diagonal
 ! loop variables
 INTEGER                        :: cur_propcell, ind_J, best_index
 DOUBLE PRECISION               :: delta, delta2
 DOUBLE PRECISION               :: radius
-DOUBLE PRECISION               :: dist
 DOUBLE PRECISION, PARAMETER     :: large_number=1.d90
 
   
 
 ! parallelization
 INTEGER                         :: my_start, my_end
-INTEGER                         :: N_single, N_zbytek, N_tot_zbytek
+INTEGER                         :: N_single, N_zbytek
 
 INTEGER, DIMENSION(n_propgcells)                :: cur_model_index
 INTEGER, DIMENSION(n_modelgrid + add_mg)        :: cur_n_assocmodg

@@ -1,3 +1,9 @@
+! the collisional free-free frequency generation
+! the equation is simple enough that the frequency can be calculated analyticaly
+!
+! INPUT: pack_index(INT): the index of the packet
+! OUTPUT: ran_freq(DBLE): a generated frequency
+!
 SUBROUTINE k_freq_ff(pack_index, ran_freq)
 USE types
 USE constants

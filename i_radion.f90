@@ -1,3 +1,15 @@
+! calculates rates for the ionic transitions
+! 
+! INPUT: indexe(INT): element index
+!        indexi(INT): ion index
+!        leveli(INT): level index
+!        current_mgi(INT): modGrid index
+!        act_pop(DBLE): current population
+! OUTPUT: Zion(DBLE): total ion rate
+!         Zintrecom(DBLE): total internal recombination rate
+!         Zrecom(DBLE): total recombination rate
+!         actirates(DBLE): rates for corresponding transitions
+!
 SUBROUTINE i_radion(indexe, indexi, leveli, current_mgi, act_pop, Zion, Zintrecom, Zrecom, actirates)
 USE types
 USE constants

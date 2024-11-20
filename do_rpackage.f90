@@ -15,16 +15,16 @@ DOUBLE PRECISION                                :: cell_dist, e_dist
 
 DOUBLE PRECISION, PARAMETER                     :: mininum = 1.E2
 INTEGER                                         :: ind_I
-DOUBLE PRECISION, DIMENSION(3)                  :: pos, corner, width
-DOUBLE PRECISION, DIMENSION(3)                  :: cur_cor, cur_width
-DOUBLE PRECISION, DIMENSION(3)                  :: delta_r, cur_pos, cur_corner
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: pos, corner, width
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: cur_cor, cur_width
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: delta_r, cur_pos, cur_corner
 
 INTEGER                                         :: n_thomson
 INTEGER                                         :: cur_mgi
 ! INTEGER                                         :: n_tot_cont
 TYPE(rrates)                                    :: actirrates
 INTEGER                                         :: pomocna_bunka, cur_pgi
-INTEGER                                         :: dummypackage, next_cross
+INTEGER                                         :: next_cross
 DOUBLE PRECISION                                :: max_dist
 ! free free
 

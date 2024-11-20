@@ -1,3 +1,9 @@
+! generates random frequency for a free-bound transition
+!
+! INPUT: pack_index(INT): the index of the packet
+!        act_proc(INT): index of the current procedure
+!        actikrates(krates): the rates for the corresponding transitions
+! OUTPUT: ran_freq(DBLE): a random frequency
 SUBROUTINE k_freq_fb(pack_index, act_proc, ran_freq, actikrates)
 USE types
 USE constants
@@ -34,10 +40,10 @@ TYPE(krates)                                    :: actikrates
 
 ! informations about ion
 ! write(*,*) 'k_freq_fb: act_proc = ', act_proc, ' allocated? Lcfb = ', ALLOCATED(actikrates%Lcool_fbind)
-indexe = INT(actikrates%Lcool_fbE(1, act_proc))
-indexi = INT(actikrates%Lcool_fbE(2, act_proc))
-indexl = INT(actikrates%Lcool_fbE(3, act_proc))
-initPoint = INT(actikrates%Lcool_fbE(5, act_proc))
+indexe = INT(actikrates%Lcool_fbE(ind_element, act_proc))
+indexi = INT(actikrates%Lcool_fbE(ind_ion, act_proc))
+indexl = INT(actikrates%Lcool_fbE(ind_level, act_proc))
+initPoint = INT(actikrates%Lcool_fbE(ind_initpoint, act_proc))
 ! write(*,*) 'k_freq_fb: initPoint = ', initPoint
 ! getting the photoionization cross section
 ! nfreq cannot be equal to zero, because a process with a zero rate could

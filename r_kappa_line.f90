@@ -1,3 +1,14 @@
+! calculation of the opacity in the lines
+! which lines? the first line which Sobolev point is the closest to the path of the packet
+!
+! INPUT: pack_index(INT): index of the packet
+!        current_mgi(INT): index of the modGrid point
+!        nextLine(INT): index of the first line (in the array)
+!        nnextlines(INT): number of lines with the same frequency as the nextLine
+! OUTPUT: line_dist(DBLE): a distance to the Sobolev point
+!        actirrates(rrates): rates saved for specific transitions
+!        tau_line(DBLE): optical depth in the chosen lines
+!
 SUBROUTINE r_kappa_line(pack_index, current_mgi, nextLine, nnextlines, line_dist, actirrates, tau_line)
 
 USE types

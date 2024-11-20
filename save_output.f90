@@ -27,10 +27,10 @@ INTEGER                                 :: ind_K
 DOUBLE PRECISION                        :: wavle
 ! occupation numbers
 ! levels index variables
-INTEGER                                 :: act_elem, act_ion, act_lev
-DOUBLE PRECISION                        :: act_pop
-DOUBLE PRECISION                        :: eenergy
-CHARACTER(LEN=filename_length)                       :: fileTempStruct, fileOccNum
+! INTEGER                                 :: act_elem, act_ion, act_lev
+! DOUBLE PRECISION                        :: act_pop
+! DOUBLE PRECISION                        :: eenergy
+CHARACTER(LEN=filename_length)                       :: fileTempStruct! , fileOccNum
 CHARACTER(LEN=filename_length)                       :: fileHydrogenFrac, fileHeliumFrac
 CHARACTER(LEN=filename_length)                       :: fileGrid, filePart
 ! ionization fraction files
@@ -49,7 +49,7 @@ DOUBLE PRECISION                        :: abundance, density
 CHARACTER(LEN=filename_length)                       :: fileHI, fileHII, fileHeI, fileHeII, fileHeIII
 CHARACTER(LEN=filename_length)                       :: fileEldens, fileRho, temp_file_name
 INTEGER                                 :: cell_index
-DOUBLE PRECISION                        :: num_tot_pop
+! DOUBLE PRECISION                        :: num_tot_pop
 INTEGER                                 :: tot_n_ions, cur_ion, n_ions
 DOUBLE PRECISION, ALLOCATABLE           :: part_functions(:)
 DOUBLE PRECISION                        :: part_U, temperature
@@ -76,8 +76,8 @@ INTEGER                                         :: cur_mgi, cur_pgi, cur_index
 DOUBLE PRECISION                                :: cur_rho, cur_temp
 CHARACTER(LEN=filename_length)                      :: temp_file_name_t, temp_file_name_rho, temp_file_name_v 
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: width
-CHARACTER(LEN=2)                                :: cur_name, get_element_name, cur_ion_num
-CHARACTER(LEN=10)                               :: get_ion_number
+CHARACTER(LEN=2)                                :: cur_name, get_element_name
+CHARACTER(LEN=10)                               :: get_ion_number, cur_ion_num
 
 !________________________________________________________________________________
 ! #00 output folder

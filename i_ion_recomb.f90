@@ -1,7 +1,11 @@
-!______________________ i-packet ionization and recombination rates _____________________
 ! precalculation of integrals for ionization and recombination rates
+! this sbr precalculates the integrals and saves the values into the table
+! for a temperature grid with temperatures which is used during the
+! i-packet machinery
+!
+! INPUT: division_type(INT): the type of division (may not be used)
+! OUTPUT: NONE (everything is saved into the array in rates_i)
 ! 
-! for a temperature grid with temperatures 
 SUBROUTINE i_ion_recomb(division_type)
 
 USE types

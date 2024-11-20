@@ -1,9 +1,15 @@
-!_________________________ i-packet rates ____________________________________________________
 ! calculation of radiative transitions rates of an i-packets
 !
-! * Zintdown -- total rate of internal downward jumps
-! * Zrad -- total rate of radiative deactivations of a macro atom
-! * Zintup -- total rate of internal upward jumps
+! INPUT: current_mgi(INT): modGrid index
+!        indexe(INT): element index
+!        indexi(INT): ion index
+!        indexl(INT): level index
+!        pack_index(INT): index of the packet
+! OUTPUT: Zintdown(INT): total rate of internal downward jumps
+!         Zintup(INT): total rate of internal upward jumps
+!         Zrad(INT): total rate of radiative deactivations of a macro atom
+!         actirates(irates): rates for the corresponding transitions
+!
 SUBROUTINE i_radtrans(current_mgi, indexe, indexi, indexl, Zintdown, Zintup, Zrad, actirates, pack_index)
 USE types
 USE constants

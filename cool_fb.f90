@@ -67,9 +67,9 @@ DO indexe = 1, n_elements
    END IF
    ! setting indexe and indexi
    act_rate = act_rate + 1
-   actikrates%Lcool_fbE(1, act_rate) = indexe
-   actikrates%Lcool_fbE(2, act_rate) = indexi - 1
-   actikrates%Lcool_fbE(3, act_rate) = indexl
+   actikrates%Lcool_fbE(ind_element, act_rate) = indexe
+   actikrates%Lcool_fbE(ind_ion, act_rate) = indexi - 1
+   actikrates%Lcool_fbE(ind_level, act_rate) = indexl
    IF(nfreq /= 0) THEN
     ALLOCATE(crossfreq(nfreq), cross(nfreq))
     crossfreq(:) = elements(indexe)%ions(indexi - 1)%levels(indexl)%photcros(1,:)
@@ -89,13 +89,13 @@ DO indexe = 1, n_elements
       EXIT
      END IF
     END DO
-    actikrates%Lcool_fbE(5, act_rate) = actPoint
+    actikrates%Lcool_fbE(ind_initpoint, act_rate) = actPoint
     ! write(*,*) 'cool_ionization: el = ', indexe, ' ion = ', indexi - 1, ' lev = ', indexl,&
     !  ' n = ', nfreq, ' initp = ', actPoint
     ! if the initial point's frequency is too large we will not be able to
     ! calculate the integral, which is equal to zero in this case
     IF(actPoint == 0) THEN
-     actikrates%Lcool_fbE(4,act_rate) = 0.D0
+     actikrates%Lcool_fbE(ind_rate,act_rate) = 0.D0
      ! write(*,*) 'cool_ionization: el = ', indexe, ' ion = ', indexi - 1, ' lev = ', indexl,&
      !  ' n = ', nfreq, ' initp = ', actPoint, ' rate = ', actikrates%Lcool_fbE(4, act_rate)
      DEALLOCATE(crossfreq, cross)
@@ -133,9 +133,9 @@ DO indexe = 1, n_elements
     tot_pop = model_grid(cur_mgi)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
     uppper_en = MINVAL(elements(indexe)%ions(indexi)%levels(:)%exci_energy)
     lower_en = elements(indexe)%ions(indexi - 1)%levels(indexl)%exci_energy
-    actikrates%Lcool_fbE(4,act_rate) = tot_pop * el_dens * sfactor * &
+    actikrates%Lcool_fbE(ind_rate,act_rate) = tot_pop * el_dens * sfactor * &
      (alphEspont - alphaSpont) * (uppper_en - lower_en)
-    Zfb = Zfb + actikrates%Lcool_fbE(4,act_rate)
+    Zfb = Zfb + actikrates%Lcool_fbE(ind_rate,act_rate)
     ! write(*,*) 'cool_fb: eldens = ', el_dens, ' tot_pop = ', tot_pop
     ! write(*,*) 'cool_fb: uppper_en = ', uppper_en, ' lower_en = ', lower_en
     ! write(*,*) 'cool_fb: sfactor = ', sfactor, ' ales = ', alphEspont, ' als = ',  alphaSpont 
@@ -145,7 +145,7 @@ DO indexe = 1, n_elements
     DEALLOCATE(crossfreq, cross)
     DEALLOCATE(func, func2)
    ELSE
-    actikrates%Lcool_fbE(4,act_rate) = 0.D0
+    actikrates%Lcool_fbE(ind_rate,act_rate) = 0.D0
    END IF ! npoints == 0
    !write(*,*) 'cool_fb: actikrates%Lcool_fbE(', act_rate, ') = ', actikrates%Lcool_fbE(act_rate), &
    ! ' Zfb = ', Zfb
