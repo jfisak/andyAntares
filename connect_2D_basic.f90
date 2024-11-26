@@ -56,6 +56,9 @@ DOUBLE PRECISION                :: max_dist
 DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: cur_pos
 LOGICAL                                                 :: is_vgrid_A
 INTEGER                                                 :: cur_scalar_vgi_index
+INTEGER                                                 :: cur_scalar_pga_vgi_index, cur_scalar_pgb_vgi_index
+INTEGER                                                 :: cur_scalar_mg_vgi_index
+INTEGER, DIMENSION(const_dimofspace)                    :: cur_nA, cur_nB
 
 max_dist = 2 * sqrt(basic_cell_width(ind_x)**2+basic_cell_width(ind_y)**2+basic_cell_width(ind_z)**2)
 
@@ -89,17 +92,25 @@ DO cur_propcell = my_start, my_end
             (dyn_cell(cur_propcell)%corner(ind_y) + dyn_cell(cur_propcell)%width(ind_y)/2.D0)**2 + &
             (dyn_cell(cur_propcell)%corner(ind_z) + dyn_cell(cur_propcell)%width(ind_z)/2.D0)**2)
    pgi_theta = acos((dyn_cell(cur_propcell)%corner(ind_z) + dyn_cell(cur_propcell)%width(ind_z)/2.D0)/pgi_radius)
-   ! cur_pos = (/ pgi_radius, pgi_theta, 0.D0 /)
-   ! CALL get_scalar_index(cur_pos, .TRUE., cur_scalar_vgi_index)
-   ! write(*,*) 'connect_2D_basic: cur_vgi_index A = ', cur_scalar_vgi_index
-   ! CALL get_scalar_index(cur_pos, .FALSE., cur_scalar_vgi_index)
-   ! write(*,*) 'connect_2D_basic: cur_vgi_index B = ', cur_scalar_vgi_index
+   cur_pos = (/ pgi_radius, pgi_theta, 0.D0 /)
+   ! CALL get_scalar_index(cur_pos, .TRUE., cur_scalar_pga_vgi_index)
+   ! write(*,*) 'connect_2D_basic: cur_pg_index A = ', cur_scalar_vgi_index
+   ! CALL get_scalar_index(cur_pos, .FALSE., cur_scalar_pgb_vgi_index)
+   ! write(*,*) 'connect_2D_basic: cur_pg_index B = ', cur_scalar_vgi_index
+   CALL get_vg_index(pgi_radius, pgi_theta, 0.D0, cur_nA, cur_nB)
+   write(*,*) '******************************************************************'
+   write(*,*) '******************************************************************'
+   write(*,*) 'connect_2D_basic: pgi indeces A=', cur_nA, ' indeces B = ', cur_nB
+   write(*,*) 'connect_2D_basic: n_A = ', cur_nA(1) + N_vgrid_x * (cur_nA(2) - 1)
+   write(*,*) 'connect_2D_basic: n_B = ', cur_nB(1) + N_vgrid_x * (cur_nB(2) - 1)
+   write(*,*) '******************************************************************'
+   write(*,*) '******************************************************************'
 
   IF(pgi_radius > R_star .AND. pgi_radius < R_inf) THEN
    CALL get_vg_index(pgi_radius, pgi_theta, 0.D0, cur_index_A, cur_index_B)
    CALL get_vg_centre_A(cur_index_A, cur_centre_A)
    ! 1.) the point is not in the B vg at all
-   IF(cur_index_B(ind_x) == 0 .AND. cur_index_B(ind_y) == 0 .AND. cur_index_B(ind_z) == 0) THEN
+   IF(cur_index_B(ind_x) <= 0 .AND. cur_index_B(ind_y) <= 0 .AND. cur_index_B(ind_z) <= 0) THEN
     choose_A = .TRUE.
     choose_B = .FALSE.
     cur_vg_index = cur_index_A
@@ -154,30 +165,48 @@ DO cur_propcell = my_start, my_end
    END IF ! choose_A or choose_B
    
    ! write(*,*) 'connect_2D_basic: cur_n_x_A = ', cur_n_x_A, ' cur_n_y_A = ', cur_n_y_A, ' cur_n_z_A = ', cur_n_z_A
-   ! write(*,*) 'connect_2D_basic: cur_start_index = ', cur_start_index, ' cur_end_index = ', cur_end_index
+   ! write(*,*) 'connect_2D_basic: -bound, point, +bound = ', vg_xmin + (cur_n_x_A - 1) * w_vgrid_x, &
+   !  pgi_radius, vg_xmin + cur_n_x_A * w_vgrid_x
+   ! write(*,*) 'connect_2D_basic: -bound, point, +bound = ', vg_ymin + (cur_n_y_A - 1) * w_vgrid_y, &
+   !  pgi_theta, vg_ymin + cur_n_y_A * w_vgrid_y
    delta = large_number
    ! write(*,*) 'connect_2D_basic: cur_points = ', cur_points
    DO ind_I = 1, cur_n_points
     cur_mgi = cur_points(ind_I)
     mgi_radius = model_grid(cur_mgi)%rwind
     mgi_theta = model_grid(cur_mgi)%angle
+    CALL get_vg_index(mgi_radius, mgi_theta, 0.D0, cur_nA, cur_nB)
+    write(*,*) 'connect_2D_basic: mgi indeces A=', cur_nA, ' indeces B = ', cur_nB
+    write(*,*) 'connect_2D_basic: n_A = ', cur_nA(1) + N_vgrid_x * (cur_nA(2) - 1)
+    write(*,*) 'connect_2D_basic: n_B = ', cur_nB(1) + N_vgrid_x * (cur_nB(2) - 1)
 
     cur_pos = (/mgi_radius, mgi_theta, 0.D0 /)
     ! write(*,*) 'connect_2D_basic: cur_pos = ', cur_pos
     IF(choose_A) THEN
+     ! write(*,*) 'connect_2D_basic: it is the vg A'
      is_vgrid_A = .true.
     ELSE
+     ! write(*,*) 'connect_2D_basic: it is the vg B'
      is_vgrid_A = .false.
     END IF
-    CALL get_scalar_index(cur_pos, is_vgrid_A, cur_scalar_vgi_index)
-    ! write(*,*) 'connect_2D_basic: cur_mgi = ', cur_mgi, ' vgi_index = ', cur_scalar_vgi_index
+    ! CALL get_scalar_index(cur_pos, is_vgrid_A, cur_scalar_mg_vgi_index)
+    ! IF(is_vgrid_A) THEN
+    !  IF(cur_scalar_mg_vgi_index /= cur_scalar_pga_vgi_index) THEN
+    !   STOP 'cur_scalar_pga_vgi_index /= cur_scalar_mg_vgi_index'
+    !  END IF
+    ! ELSE
+    !  IF(cur_scalar_mg_vgi_index /= cur_scalar_pgb_vgi_index) THEN
+    !   STOP 'cur_scalar_pgb_vgi_index /= cur_scalar_mg_vgi_index'
+    !  END IF
+    ! END IF
+    ! write(*,*) 'connect_2D_basic: cur_mgi = ', cur_mgi, ' mgi_index = ', cur_scalar_vgi_index
     delta2 = sqrt(pgi_radius**2 + mgi_radius**2 - &
      2.0 * pgi_radius * mgi_radius * cos(pgi_theta - mgi_theta))
     IF(delta2 < delta) THEN
      delta = delta2
      cur_mgi_index = cur_mgi
-     write(*,*) 'connect_2D_basic: ', ind_I, abs(mgi_radius-pgi_radius)/w_vgrid_x, &
-      abs(mgi_theta-pgi_theta)/w_vgrid_y, delta2/R_star
+     ! write(*,*) 'connect_2D_basic: ', ind_I, abs(mgi_radius-pgi_radius)/w_vgrid_x, &
+     !  abs(mgi_theta-pgi_theta)/w_vgrid_y, delta2/R_star
 
     END IF
    END DO
@@ -221,9 +250,9 @@ DO ind_I = 1, n_propgcells
   pgi_radius = SQRT((dyn_cell(ind_I)%corner(ind_x) + dyn_cell(ind_I)%width(ind_x)/2.D0)**2 + &
            (dyn_cell(ind_I)%corner(ind_y) + dyn_cell(ind_I)%width(ind_y)/2.D0)**2 + &
            (dyn_cell(ind_I)%corner(ind_z) + dyn_cell(ind_I)%width(ind_z)/2.D0)**2)
+  pgi_theta = acos((dyn_cell(ind_I)%corner(ind_z) + dyn_cell(ind_I)%width(ind_z)/2.D0)/pgi_radius)
   delta2 = sqrt(pgi_radius**2 + mgi_radius**2 - &
    2.0 * pgi_radius * mgi_radius * cos(pgi_theta - mgi_theta))
-  pgi_theta = acos((dyn_cell(ind_I)%corner(ind_z) + dyn_cell(ind_I)%width(ind_z)/2.D0)/pgi_radius)
   write(74,*) ind_I, abs(mgi_radius-pgi_radius)/w_vgrid_x, abs(mgi_theta-pgi_theta)/w_vgrid_y, delta2
  END IF
 END DO
