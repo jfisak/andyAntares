@@ -114,6 +114,9 @@ ELSE IF(model_type == 3) THEN
 END IF
 ALLOCATE(list_points(np_wewant))
 
+CALL save_output(12)
+RETURN
+
 ALLOCATE(radii(np_wewant), thetas(np_wewant), positions(np_wewant + 1,3), vectors(np_wewant,3))
 ALLOCATE(half_pos(np_wewant, 3))
 DO cur_mgi = 1, n_modelgrid
@@ -176,7 +179,6 @@ END DO
 ! write(*,*) 'propmodgrid_diagnostics: tot_model_volume = ', tot_model_volume
 ! write(*,*) 'propmodgrid_diagnostics: tot_nonmodel_volume = ', tot_nonmodel_volume
 
-CALL save_output(12)
 
 ! write(*,*) 'propmodgrid_diagnostics: n_assoc = ', n_assoc, ' n_alone = ', n_alone
 ! STOP 'propmodgrid_diagnostics: testing'

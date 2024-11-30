@@ -26,7 +26,7 @@ INTEGER, PARAMETER                      :: n_closest = 8
 INTEGER                                 :: chosen_gridAB
 INTEGER, PARAMETER                      :: grid_A = 1, grid_B = 2
 INTEGER, PARAMETER                      :: ind_dist = 1, ind_index = 2
-DOUBLE PRECISION, DIMENSION(2)           :: cur_center_A, cur_center_B
+DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: cur_center_A, cur_center_B
 
 INTEGER                                 :: cur_vg_index, cur_vg_point
 
@@ -47,10 +47,8 @@ cur_z = 0.D0
 
 cur_pos = (/ cur_x, cur_y, cur_z/)
 ! calculation of the current grid indeces
-cur_n_x_A = floor((cur_pos(ind_x) - vg_xmin)/w_vgrid_x) + 1
-cur_n_y_A = floor((cur_pos(ind_y) - vg_ymin)/w_vgrid_y) + 1
-n_A = INT(cur_n_x_A + N_vgrid_x * (cur_n_y_A - 1))! + N_vgrid_x * N_vgrid_y * (cur_n_z_A - 1)
-cur_center_A = (/ w_vgrid_x * (cur_n_x_A + 5.D-1) + vg_xmin, w_vgrid_y * (cur_n_y_A + 5.D-1) + vg_ymin /)!, &
+CALL get_scalar_index(cur_pos, .true., n_A)
+CALL get_scalar_index(cur_pos, .false., n_B)
                  ! & w_vgrid_z * (cur_n_z_A + 5.D-1) + zmin /)
 
 ! write(*,*) 'vel_interpolation: cur_prop_cell = ', cur_prop_cell
@@ -58,27 +56,11 @@ cur_center_A = (/ w_vgrid_x * (cur_n_x_A + 5.D-1) + vg_xmin, w_vgrid_y * (cur_n_
 !  #              CHOISE OF GRID A OR B
 !_______________________________________________________________
 ! the index in the AB grid
-n_A = INT(cur_n_x_A + N_vgrid_x * (cur_n_y_A - 1))! + N_vgrid_x * N_vgrid_y * (cur_n_z_A - 1)
-cur_center_A = (/ w_vgrid_x * (cur_n_x_A + 5.D-1) + vg_xmin, w_vgrid_y * (cur_n_y_A + 5.D-1)/)
-! write(*,*) 'n_closest_points_2D: cur_pos = ', cur_pos
-! write(*,*) 'n_closest_points_2D: w_vgrid_x = ', w_vgrid_x, ' w_vgrid_y = ', w_vgrid_y
-! write(*,*) 'n_closest_points_2D: vg_xmin = ', vg_xmin, ' vg_ymin = ', vg_ymin
-! write(*,*) 'n_closest_points_2D: cur_n_x_A = ', cur_n_x_A, ' cur_n_y_A = ', cur_n_y_A
-! write(*,*) 'n_closest_points_2D: n_A = ', n_A
-
-IF(cur_pos(ind_x) > vg_xmin + w_vgrid_x / 2.0 .and. cur_pos(ind_x) < vg_xmax - w_vgrid_x /  2.0 .and.&
- & cur_pos(ind_y) > vg_ymin + w_vgrid_y / 2.0 .and. cur_pos(ind_y) < vg_ymax - w_vgrid_y /  2.0) THEN
- cur_n_x_B = floor((cur_pos(ind_x) - vg_xmin)/w_vgrid_x - 1.0/2.0) + 1
- cur_n_y_B = floor((cur_pos(ind_y) - vg_ymin)/w_vgrid_y - 1.0/2.0) + 1
- n_B = INT(cur_n_x_B + (N_vgrid_x - 1) * (cur_n_y_B - 1))! + (N_vgrid_x - 1) * (N_vgrid_y - 1) * (cur_n_z_B - 1)
- cur_center_B = (/ w_vgrid_x * (cur_n_x_A + 1.D0) + vg_xmin, w_vgrid_y * (cur_n_y_A + 1.D0) + vg_ymin /)!, &
-                  ! & w_vgrid_z * (cur_n_z_A + 1.D0) + vg_zmin /)
-ELSE
- n_B = 0
-END IF
+CALL get_vg_centre_A(cur_pos, cur_center_A)
+CALL get_vg_centre_B(cur_pos, cur_center_B)
 
 ! what is the best grid, A or B?
-dist_A = sqrt((cur_pos(ind_x) - cur_center_A(1))**2 + (cur_pos(ind_y) - cur_center_A(2))**2)
+dist_A = sqrt((cur_pos(ind_x) - cur_center_A(ind_x))**2 + (cur_pos(ind_y) - cur_center_A(ind_y))**2)
 ! write(*,*) 'vel_interpolation: dist_A = ', dist_A/R_star
 IF(n_b > 0) THEN
  dist_B = sqrt((cur_pos(ind_x) - cur_center_B(1))**2 + (cur_pos(ind_y) - cur_center_B(2))**2)
@@ -92,12 +74,13 @@ END IF
 ! choosing the correct modGrid points
 ! this is done for unification of the forthcoming code (after this if)
 IF(dist_A < dist_B) THEN
+ ! write(*,*) 'n_closest_points_2D: n_A = ', n_A
  cur_n_points = n_points_A(n_A)
  ALLOCATE(cur_points(cur_n_points))
  IF(cur_n_points > 0) THEN
   cur_start_index = indices_A(n_A)
   cur_end_index = cur_start_index + cur_n_points - 1
-  cur_points = vg_indexy_A(cur_start_index:cur_end_index,2)
+  cur_points = vg_indexy_A(cur_start_index:cur_end_index,ind_mg)
   chosen_gridAB = grid_A
  ELSE
   cur_start_index = -1
@@ -114,9 +97,9 @@ ELSE
  ! write(*,*) 'vel_interpolation: n_closest = ', n_closest
 
  ! write(*,*) 'n_closest_points_2D: vg_indexy_B = ', vg_indexy_B(:,:)
- cur_points = vg_indexy_B(cur_start_index:cur_end_index,2)
+ cur_points = vg_indexy_B(cur_start_index:cur_end_index,ind_mg)
  DO cur_vg_point = 1, cur_n_points
-  cur_vg_index = vg_indexy_B(cur_vg_point,1)
+  cur_vg_index = vg_indexy_B(cur_vg_point,ind_vg)
  END DO
  chosen_gridAB = grid_B
 END IF ! dist_A < dist_B
