@@ -24,7 +24,7 @@ INTEGER                         :: nextLine, nnextlines
 DOUBLE PRECISION                :: line_dist
 INTEGER                         :: current_mgi
 DOUBLE PRECISION                :: stat_weight_l, stat_weight_u
-INTEGER                         :: I
+INTEGER                         :: ind_I
 INTEGER                         :: indexe, indexi, indexline
 DOUBLE PRECISION                :: tau_line
 INTEGER                         :: lower_level, upper_level
@@ -55,8 +55,8 @@ constanta = (const_pi * const_e**2)/( const_me_g * const_c)
 ! write(*,*) 'r_kappa_line: nnextlines = ', nnextlines
 
 tau_line = 0.D0
-DO I = 1, nnextlines
- indexline = nextLine + I - 1
+DO ind_I = 1, nnextlines
+ indexline = nextLine + ind_I - 1
  indexe = linelist(indexline)%indexe
  indexi = linelist(indexline)%indexi
 
@@ -75,8 +75,8 @@ DO I = 1, nnextlines
  
  ! write(*,*) 'r_kappa_line: low_pop = ', low_pop, ' upp_pop = ', upp_pop
  IF(low_pop <= 1.E-20 .OR. upp_pop <= 1.E-20) THEN
-  actirrates%Lline(I) = 0.E0
-  actirrates%nline(I) = indexline
+  actirrates%Lline(ind_I) = 0.E0
+  actirrates%nline(ind_I) = indexline
   CYCLE
  END IF
 
@@ -90,9 +90,9 @@ DO I = 1, nnextlines
  f_lu = linelist(indexline)%f_lu
  IF(velApprox == 0 .or. velApprox == 1) THEN
   ROverV = roverw(pack_index, line_dist, fr_line)
-  actirrates%Lline(I) = const_c / fr_line * constanta * &
+  actirrates%Lline(ind_I) = const_c / fr_line * constanta * &
    f_lu * low_pop * corrFactor * ROverV
-  actirrates%nline(I) = indexline
+  actirrates%nline(ind_I) = indexline
  ELSE IF(velApprox == 3) THEN
 
 
@@ -150,8 +150,8 @@ DO I = 1, nnextlines
   tau_line = low_pop * constanta * f_lu * corrFactor * deriv
   ! write(*,*) 'r_kappa_line: tau_line = ', tau_line
   ! tau_line_2 = const_c / fr_line * constanta * f_lu * low_pop * corrFactor * deriv2
-  actirrates%Lline(I) = tau_line
-  actirrates%nline(I) = indexline
+  actirrates%Lline(ind_I) = tau_line
+  actirrates%nline(ind_I) = indexline
 
   ! only for the testing purpose
   ! costheta = dot_product(package(pack_index)%dir, V_pos_vec) / V_pos
@@ -159,7 +159,7 @@ DO I = 1, nnextlines
   ! ROverV = roverw(pack_index, line_dist, fr_line)
   tau_line_3 = const_c / fr_line * constanta * &
    f_lu * low_pop * corrFactor * R_inf/V_inf
-  ! actirrates%Lline(I) = tau_line
+  ! actirrates%Lline(ind_I) = tau_line
   IF(pack_index < max_n_of_velopackets) THEN
    write(72,*) norm2(cur_pos)/R_star, tau_line_3, tau_line_2, deriv
   END IF
@@ -168,7 +168,7 @@ DO I = 1, nnextlines
  
  END IF
 
- tau_line = tau_line + actirrates%Lline(I)
+ tau_line = tau_line + actirrates%Lline(ind_I)
 END DO
 
 
