@@ -56,8 +56,8 @@ CALL get_scalar_index(cur_pos, .false., n_B)
 !  #              CHOISE OF GRID A OR B
 !_______________________________________________________________
 ! the index in the AB grid
-CALL get_vg_centre_A(cur_pos, cur_center_A)
-CALL get_vg_centre_B(cur_pos, cur_center_B)
+CALL get_vg_centre_A(n_A, cur_center_A)
+CALL get_vg_centre_B(n_B, cur_center_B)
 
 ! what is the best grid, A or B?
 dist_A = sqrt((cur_pos(ind_x) - cur_center_A(ind_x))**2 + (cur_pos(ind_y) - cur_center_A(ind_y))**2)

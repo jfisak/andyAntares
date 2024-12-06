@@ -44,7 +44,7 @@ DOUBLE PRECISION                                :: deriv
 DOUBLE PRECISION                                :: s_min, s_pls
 DOUBLE PRECISION                                :: tau_line_2, tau_line_3
 
-INTEGER, PARAMETER                              :: max_n_of_velopackets = 200
+INTEGER, PARAMETER                              :: max_n_of_velopackets = 20000
 
 ! testing the optical depth in line calculation
 INTEGER                                         :: cur_dummypack, dummypack_index
@@ -147,9 +147,10 @@ DO I = 1, nnextlines
   deriv = abs((s_pls - s_min)/(cmf_pls - cmf_min))
   ! write(*,*) 'r_kappa_line: delta_s = ', s_pls - s_min, ' delta_nu = ', cmf_pls - cmf_min
  
-  tau_line_2 = low_pop * constanta * f_lu * corrFactor * deriv
+  tau_line = low_pop * constanta * f_lu * corrFactor * deriv
+  ! write(*,*) 'r_kappa_line: tau_line = ', tau_line
   ! tau_line_2 = const_c / fr_line * constanta * f_lu * low_pop * corrFactor * deriv2
-  actirrates%Lline(I) = tau_line_2
+  actirrates%Lline(I) = tau_line
   actirrates%nline(I) = indexline
 
   ! only for the testing purpose
@@ -158,7 +159,7 @@ DO I = 1, nnextlines
   ! ROverV = roverw(pack_index, line_dist, fr_line)
   tau_line_3 = const_c / fr_line * constanta * &
    f_lu * low_pop * corrFactor * R_inf/V_inf
-  actirrates%Lline(I) = tau_line_2
+  ! actirrates%Lline(I) = tau_line
   IF(pack_index < max_n_of_velopackets) THEN
    write(72,*) norm2(cur_pos)/R_star, tau_line_3, tau_line_2, deriv
   END IF

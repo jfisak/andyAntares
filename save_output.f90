@@ -464,7 +464,17 @@ CASE(11)
  OPEN(73, FILE=temp_file_name)
   DO cur_index_I = 1, n_propgcells
    cur_centre = dyn_cell(cur_index_I)%corner + dyn_cell(cur_index_I)%width/2.0
-   cur_vel = dyn_cell(cur_index_I)%vec_vel
+   IF(model_type == 1) THEN
+    cur_vel(ind_x) = model_grid(cur_index_I)%vel
+    cur_vel(ind_y) = 0.D0
+    cur_vel(ind_z) = 0.D0
+   ELSE IF(model_type == 2) THEN
+    cur_vel(ind_x) = model_grid(cur_index_I)%vel
+    cur_vel(ind_y) = model_grid(cur_index_I)%velang
+    cur_vel(ind_z) = 0.D0
+   ELSE IF(model_type == 3) THEN
+    cur_vel = dyn_cell(cur_index_I)%vec_vel
+   END IF
    write(73,*) cur_centre, cur_vel
   END DO
  CLOSE(73)
