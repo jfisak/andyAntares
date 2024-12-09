@@ -304,17 +304,6 @@ LOGICAL                                 :: is_vgrid_A
 
   vg_indexy_A(:,:) = vg_pom_A(:,:)
   vg_indexy_B(:,:) = vg_pom_B(:,:)
-  DO cur_ind_vgi = 500, 520
-   cur_vgi = vg_indexy_A(cur_ind_vgi, ind_vg)
-   cur_index_mgi = vg_indexy_A(cur_ind_vgi, ind_mg)
-   cur_x = model_grid(cur_mgi)%rwind
-   cur_y = model_grid(cur_mgi)%angle
-   cur_z = 0.D0
-   cur_pos = (/ cur_x, cur_y, cur_z /)
-   is_vgrid_A = .true.
-   CALL get_scalar_index(cur_pos, is_vgrid_A, cur_scalar_mg_vgi_index)
-   ! write(*,*) 'virt_gridAB_init: cur_scalar_mg_vgi_index = ', cur_scalar_mg_vgi_index
-  END DO
  ! write(*,*) 'virt_gridAB_init: vg_indexy_A = ', vg_indexy_A(1:1000,ind_vg)
  ! write(*,*) 'virt_gridAB_init: n_points_A = ', n_points_A
  DO cur_mgi = 1, n_modelgrid
@@ -623,7 +612,7 @@ ELSE ! virtgrid B
   STOP 'get_scalar_index: cur_n_x > N_vgrid_x'
  END IF
  IF(model_type <= 3) THEN
-  IF(cur_n_y > N_vgrid_y - 1) THEN
+  IF(cur_n_y > N_vgrid_y - 1 .and. N_vgrid_y > 1) THEN
    write(*,*) 'get_scalar_index: cur_n_y = ', cur_n_y, ' N_vgrid_y = ', N_vgrid_y
    STOP 'get_scalar_index: cur_n_y > N_vgrid_y'
   END IF
