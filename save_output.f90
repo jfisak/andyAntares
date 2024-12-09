@@ -380,8 +380,8 @@ CASE(7)
  fileEldens = trim(outputfolder)//'/elDens.dat'
  OPEN(40, FILE=fileEldens)
   DO ind_I = 1, n_modelgrid
-   IF(model_grid(ind_I)%assoc_cells == 0) CYCLE
-   write(40,'(I3,d12.4,d12.4)') ind_I, model_grid(ind_I)%rwind, model_grid(ind_I)%e_dens
+   IF(model_grid(ind_I)%assoc_cells <= 0) CYCLE
+   write(40,'(I6,d12.4,d12.4,I3)') ind_I, model_grid(ind_I)%rwind, model_grid(ind_I)%e_dens, model_grid(ind_I)%assoc_cells
   END DO
  CLOSE(40)
  fileRho = trim(outputfolder)//'/rho.dat'
