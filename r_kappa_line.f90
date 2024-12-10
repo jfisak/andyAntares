@@ -144,8 +144,15 @@ DO ind_I = 1, nnextlines
  
   ! write(*,*) 'r_kappa_line: cur_dummypack = ', cur_dummypack
  
-  deriv = abs((s_pls - s_min)/(cmf_pls - cmf_min))
+  IF(cmf_pls /= cmf_min) THEN
+   deriv = abs((s_pls - s_min)/(cmf_pls - cmf_min))
+  ELSE
+   deriv = 0.D0
+  END IF
+   
   ! write(*,*) 'r_kappa_line: delta_s = ', s_pls - s_min, ' delta_nu = ', cmf_pls - cmf_min
+  ! write(*,*) 'r_kappa_line: low_pop = ', low_pop, ' f_lu = ', f_lu, ' corrFactor = ', corrFactor, &
+  !  ' deriv = ', deriv
  
   tau_line = low_pop * constanta * f_lu * corrFactor * deriv
   ! write(*,*) 'r_kappa_line: tau_line = ', tau_line

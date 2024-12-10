@@ -55,10 +55,10 @@ SAVE
   TYPE modelgrid 
      INTEGER                         :: assoc_cells = 0
      DOUBLE PRECISION                :: width
-     DOUBLE PRECISION                :: volume = 0.D0
+     DOUBLE PRECISION                :: volume = -1.D0
      DOUBLE PRECISION                :: diff_param
-     DOUBLE PRECISION                :: T = 0.D0, J = 0.D0, rho = 0.D0, vel = 0.D0, rwind, e_dens = 0.D0
-     DOUBLE PRECISION                :: zwind, velang, angle
+     DOUBLE PRECISION                :: T = -1.D0, J = 0.D0, rho = -1.D0, rwind, e_dens = -1.D0
+     DOUBLE PRECISION                :: zwind, velang = -1.D0, angle = -1.D0, vel = -1.D0
      DOUBLE PRECISION, DIMENSION(const_dimofspace)  :: vec_vel, vec_pos
      TYPE(grid_comp_t), ALLOCATABLE  :: grid_comp(:)
      ! is the diffusion approximation recommended?
