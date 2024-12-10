@@ -67,6 +67,7 @@ DO cur_mgi = my_start, my_end
    ! Calculate electron number density for every model grid cell gridcell
    IF(eldensfile == 0) THEN
     CALL find_e_nd(cur_mgi, el_nd)
+    model_grid(cur_mgi)%e_dens = el_nd
    END IF
    ! reading the temperature structure
    cur_temp(cur_mgi) = model_grid(cur_mgi)%T
@@ -77,6 +78,7 @@ DO cur_mgi = my_start, my_end
    cur_temp(cur_mgi)  = temp
    ! Calculate electron number density for every model grid cell gridcell
    CALL find_e_nd(cur_mgi, el_nd)
+   model_grid(cur_mgi)%e_dens = el_nd
    model_grid(cur_mgi)%J = 0.D0   
   END IF ! test for the first iteration
   IF(eldensfile == 0) THEN

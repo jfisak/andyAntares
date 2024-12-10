@@ -24,7 +24,7 @@ nu_0 = package(pack_index)%freq_cmf
 
 CALL move_package(dummypack_index, b_dist, 0, .false.)
 
-nu_b = package(dummypack_index)%freq_cmf
+nu_b = dummypackage(cur_dummypack)%freq_cmf
 
 ! write(*,*) 'rob: nu_0 = ', nu_0, ' nu_b = ', nu_b
 

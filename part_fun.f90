@@ -47,6 +47,4 @@ DO indexl = 1, nlevels
 !  e_level/e_V, e_gl/e_V
 END DO
 
-!  print*, '   part.func. calculation done:', U
-
 END SUBROUTINE part_fun

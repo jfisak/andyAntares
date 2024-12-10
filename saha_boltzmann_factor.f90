@@ -23,9 +23,9 @@ LOGICAL                              :: too_large
 
 CALL part_fun(indexe, indexi, temp, part_U1)
 CALL part_fun(indexe, indexi+1, temp, part_U2)
-write(*,*) '  Part.func:', part_U1, part_U2, indexi
+! write(*,*) 'saha_boltzmann_factor:  Part.func:', part_U1, part_U2, indexi
 ! write(*,*) 'saha_boltzmann_factor: ion_pot = ', elements(indexe)%ions(indexi)%ion_potential
-sb_factor = part_U1 / part_U2 * saha_const * temp**(-3.D0/2.D0) * &
+sb_factor = part_U1 / part_U2 * saha_const * temp**(-1.5) * &
  EXP( elements(indexe)%ions(indexi)%ion_potential / (const_kB * temp) )
 IF(sb_factor > large_number) THEN
  too_large = .TRUE.

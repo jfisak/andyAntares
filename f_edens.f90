@@ -31,10 +31,11 @@ DO indexe = 1, n_elements
  END DO
  abundance = model_grid(model_grid_index)%grid_comp(indexe)%abund
  SUMME = SUMME + (abundance / elements(indexe)%atom_mass) * SUMMI
+ ! write(*,*) 'f_edens: abundance = ', abundance, ' atmass = ', elements(indexe)%atom_mass
 END DO
 
 ! we are searching for solution el_nd and because we subtract el_nd 
-write(*,*) 'f_edens: 1 = ', model_grid(model_grid_index)%rho * SUMME, ' el_nd = ', el_nd
+! write(*,*) 'f_edens: 1 = ', model_grid(model_grid_index)%rho * SUMME, ' el_nd = ', el_nd
 func = model_grid(model_grid_index)%rho * SUMME - el_nd  
 
 END SUBROUTINE f_edens

@@ -26,7 +26,7 @@ CASE(0)
  tot_N = 1.D0
  DO ind_I = indexi, numb_ions - 1
   CALL saha_boltzmann_factor(indexe, ind_I, temp, sb_factor, too_large)
-  write(*,*) 'ionization_fraction: ', ind_I, ' sb_factor = ', sb_factor, tot_N, too_large
+  ! write(*,*) 'ionization_fraction: ', ind_I, ' sb_factor = ', sb_factor, tot_N, too_large
   ! IF(too_large .EQV. .TRUE.) CYCLE
   tot_N = tot_N * el_nd * sb_factor
  ! write(*,*) 'ionization_fraction: e  = ', el_nd, ' sf = ', sb_factor, ' tot_N = ', tot_N
@@ -43,9 +43,10 @@ CASE(0)
    IF(isnan(factor_D)) THEN
    END IF
   ! write(*,*) 'ionization_fraction: hodnoty: el_nd = ', el_nd, ' ,sb_factor = ', sb_factor, ' , temp = ', temp
-  ! write(*,*) 'ionization_fraction: probehl', I, ' a ', J, ' -ty cyklus vypoctu D, factor_D=', factor_D
+  ! write(*,*) 'ionization_fraction: probehl', ind_I, ' a ', ind_J, ' -ty cyklus vypoctu D, factor_D=', factor_D
   END DO
   SUMM = SUMM + factor_D     
+  ! write(*,*) 'ionization_fraction: SUMM = ', SUMM
  END DO
  
   !if(SUMM == 0) print*, "ionization_fraction: SUMM = 0..."

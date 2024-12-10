@@ -31,15 +31,14 @@ DO gridcell = 1, n_modelgrid
   ! write(*,*) 'lte_pops: frac = ', frac, ' rho = ', model_grid(gridcell)%rho, &
   !  ' a = ', model_grid(gridcell)%grid_comp(indexe)%abund, ' m_a = ', elements(indexe)%atom_mass
   ! CALL ionization_fraction(indexe, indexi, temp, el_nd, frac)
-  ! print*, gridcell, indexe, indexi, N_jk/1d10, frac
   ! Calculate partition function (tot_part_fun) of element indexe in ionization stage 
   ! indexi at given temperature temp
   CALL part_fun(indexe, indexi, temp, tot_part_fun)
   ! Ground level population number (number density of the atom at ground level)
   indexl0(1) = MINLOC(elements(indexe)%ions(indexi)%levels(:)%exci_energy,1)
   gl_pop = ( elements(indexe)%ions(indexi)%levels(indexl0(1))%stat_waight * N_jk ) /  tot_part_fun 
-  ! IF(indexe == 1 .AND. indexi == 1) write(*,*) 'update_grid: H I = ', frac
-  ! IF(indexe == 1 .AND. indexi == 2) write(*,*) 'update_grid: H II = ', frac
+  ! IF(indexe == 1 .AND. indexi == 1) write(*,*) 'lte_pops: H I = ', frac
+  ! IF(indexe == 1 .AND. indexi == 2) write(*,*) 'lte_pops: H II = ', frac
   ! write(*,*) 'update_grid: gl_pop = ', gl_pop, ' N_jk = ', N_jk,&
   !  ' tot_part_fun = ', tot_part_fun, ' temp = ', temp
   model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%gl_pop = gl_pop
