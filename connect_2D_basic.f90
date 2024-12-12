@@ -126,7 +126,7 @@ DO cur_propcell = my_start, my_end
     dist_B = sqrt(pgi_radius**2+cur_centre_B(ind_x)**2 - &
      2.0 * pgi_radius * cur_centre_B(ind_x) * cos(pgi_theta - cur_centre_B(ind_y)))
 
-    IF(dist_A < dist_B) THEN
+    IF(dist_A <= dist_B) THEN
      choose_A = .TRUE.
      choose_B = .FALSE.
     ELSE IF(dist_B < dist_A) THEN ! dist_A < dist_B
@@ -268,6 +268,6 @@ END DO
 !  n_modelgrid = n_assoc
 ! END IF
 
-! STOP 'connect_2D_basic: testing'
+STOP 'connect_2D_basic: testing'
 
 END SUBROUTINE connect_2D_basic

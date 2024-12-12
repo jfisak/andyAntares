@@ -17,7 +17,7 @@ DOUBLE PRECISION                                :: len_x, len_y, len_z
 DOUBLE PRECISION                                :: width_x, width_y, width_z
 DOUBLE PRECISION, DIMENSION(3)                  :: pos, vel
 
-INTEGER                                         :: I, J
+INTEGER                                         :: ind_I, ind_J
 INTEGER                                         :: numbions, atom_number
 INTEGER                                         :: Nx, Ny, Nz
 
@@ -59,29 +59,33 @@ OPEN(UNIT=11, FILE=modelfile)
  READ(11,*) junk
 
  write(*,*) 'read_3D_pseudo3D: n_modelgrid = ', n_modelgrid
- DO I = 1, n_modelgrid
+ DO ind_I = 1, n_modelgrid
   READ(11, *) pos, vel, dens, temp
-  model_grid(I)%vec_pos = pos * R_star
-  model_grid(I)%rwind = norm2(pos) * R_star
-  model_grid(I)%vec_vel = vel
-  model_grid(I)%rho = dens
-  model_grid(I)%T = temp
-  model_grid(I)%J = 0.D0
-  model_grid(I)%assoc_cells = 0
+  model_grid(ind_I)%vec_pos = pos * R_star
+  model_grid(ind_I)%rwind = norm2(pos) * R_star
+  model_grid(ind_I)%vec_vel = vel
+  model_grid(ind_I)%vel = norm2(vel)
+  model_grid(ind_I)%rho = dens
+  model_grid(ind_I)%T = temp
+  model_grid(ind_I)%J = 0.D0
+  model_grid(ind_I)%assoc_cells = 0
   
-  ALLOCATE (model_grid(I)%grid_comp(n_elements))
-  DO J = 1, n_elements
-   numbions = elements(J)%nions
-   ALLOCATE (model_grid(I)%grid_comp(J)%grid_ion(numbions))
-   atom_number = elements(J)%atom_number
-   !model_grid(I)%grid_comp(J)%abund = massfrac(atom_number)
-   model_grid(I)%grid_comp(J)%abund = elements(J)%abundance
+  ALLOCATE (model_grid(ind_I)%grid_comp(n_elements))
+  DO ind_J = 1, n_elements
+   numbions = elements(ind_J)%nions
+   ALLOCATE (model_grid(ind_I)%grid_comp(ind_J)%grid_ion(numbions))
+   atom_number = elements(ind_J)%atom_number
+   !model_grid(ind_I)%grid_comp(ind_J)%abund = massfrac(atom_number)
+   model_grid(ind_I)%grid_comp(ind_J)%abund = elements(ind_J)%abundance
    !Calculate total number density for included species
-   !tot_nd = model_grid(I)%grid_comp(J)%abund / elements(J)%atom_mass
-   !model_grid(I)%grid_comp(J)%numb_den = tot_nd
+   !tot_nd = model_grid(ind_I)%grid_comp(ind_J)%abund / elements(ind_J)%atom_mass
+   !model_grid(ind_I)%grid_comp(ind_J)%numb_den = tot_nd
   END DO
 
  END DO
+
+ V_inf = MAXVAL(model_grid(:)%vel)
+ write(*,*) 'read_3D_pseudo3D: V_inf = ', V_inf
 
  ! Dummy cell to associate to propagation grid cells which have no representation on the model grid.
  ! All cells out of model grid set to 0 and associate to n_modelgrid.

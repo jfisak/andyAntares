@@ -87,7 +87,7 @@ tot_nonmodel_volume = 0.D0
 DO cur_pgi = 1, n_propgcells
  IF(dyn_cell(cur_pgi)%up_cell == 0) THEN
   gridcell = dyn_cell(cur_pgi)%model_index
-  loc_volume = dyn_cell(cur_pgi)%width(1) * dyn_cell(cur_pgi)%width(2) * dyn_cell(cur_pgi)%width(3)
+  loc_volume = dyn_cell(cur_pgi)%width(ind_x) * dyn_cell(cur_pgi)%width(ind_y) * dyn_cell(cur_pgi)%width(ind_z)
   ! write(*,*) 'propmodgrid_diagnostics: loc_volume = ', loc_volume
   IF(gridcell <= n_modelgrid) THEN
    tot_model_volume = tot_model_volume + loc_volume
