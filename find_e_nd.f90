@@ -19,6 +19,8 @@ USE constants
    RETURN
   END IF
 
+  ! write(*,*) 'find_e_nd: model_grid_index = ', model_grid_index
+  ! write(*,*) 'find_e_nd: rho = ', model_grid(model_grid_index)%rho, ' T = ', model_grid(model_grid_index)%T
   ! Smallest value for the el_nd (can be either 1. or 0.)
   el_nd_1 = 1.D0
 

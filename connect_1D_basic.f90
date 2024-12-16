@@ -23,9 +23,6 @@ INTEGER                         :: my_start, my_end
 INTEGER                         :: N_single, N_zbytek
 INTEGER                         :: N_tot_zbytek
 
-INTEGER, DIMENSION(n_propgcells)                :: cur_model_index
-INTEGER, DIMENSION(n_modelgrid + add_mg)        :: cur_n_assocmodg
-
 
 
 #if mpi == 1
@@ -78,30 +75,25 @@ DO cur_propcell = my_start, my_end
    END IF
   END DO
   IF(best_index > 0) THEN
-   cur_model_index(cur_propcell) = best_index
-   cur_n_assocmodg(best_index) = cur_n_assocmodg(best_index) + 1
+   dyn_cell(cur_propcell)%model_index = best_index
+   model_grid(best_index)%assoc_cells = model_grid(best_index)%assoc_cells + 1
   ELSE ! best_index <= 0
-    cur_model_index(cur_propcell) = outerspace_index
-   cur_n_assocmodg(outerspace_index) = cur_n_assocmodg(outerspace_index) + 1
+   dyn_cell(cur_propcell)%model_index = outerspace_index
+   model_grid(outerspace_index)%assoc_cells = model_grid(outerspace_index)%assoc_cells + 1
   END IF ! best_index > 0
  END IF ! up_cell == 0
- ! write(*,*) 'connect_1D_basic: cur_propcell = ', cur_propcell, ' cur_index = ', mod
 END DO ! a loop over propGrid cells
 
 #if mpi == 1
  ! write(*,*) 'connection_prop_model_grid: ', SIZE(cur_model_index), SIZE(dyn_cell(:)%model_index), n_propgcells
  ! STOP 'connection_prop_model_grid: testing'
  ! IF(n_tasks > 1) THEN
-  CALL MPI_REDUCE(cur_model_index(:), dyn_cell(:)%model_index, n_propgcells, MPI_INTEGER, &
-   & MPI_SUM, 0, MPI_COMM_WORLD, ierr)
-  CALL MPI_REDUCE(cur_n_assocmodg(:), model_grid(:)%assoc_cells, n_modelgrid, MPI_INTEGER, &
-   & MPI_SUM, 0, MPI_COMM_WORLD, ierr)
-  CALL MPI_BCAST(dyn_cell(:)%model_index, n_propgcells, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
-  CALL MPI_BCAST(model_grid(:)%assoc_cells, n_modelgrid + add_mg, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
- ! ELSE
- !  model_grid(:)%model_index = cur_model_index(:)
- !  model_grid(:)%assoc_cells = cur_n_assocmodg(:)
- ! END IF
+ IF(n_tasks > 1) THEN
+  CALL MPI_ALLREDUCE(dyn_cell(:)%model_index, dyn_cell(:)%model_index, n_propgcells, &
+   MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
+  CALL MPI_ALLREDUCE(model_grid(:)%assoc_cells, model_grid(:)%assoc_cells, n_modelgrid + add_mg, &
+   MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
+  END IF
 #endif 
 
 

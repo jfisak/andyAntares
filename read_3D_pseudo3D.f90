@@ -84,8 +84,6 @@ OPEN(UNIT=11, FILE=modelfile)
 
  END DO
 
- V_inf = MAXVAL(model_grid(:)%vel)
- write(*,*) 'read_3D_pseudo3D: V_inf = ', V_inf
 
  ! Dummy cell to associate to propagation grid cells which have no representation on the model grid.
  ! All cells out of model grid set to 0 and associate to n_modelgrid.
