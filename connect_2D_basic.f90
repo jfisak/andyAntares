@@ -33,7 +33,7 @@ INTEGER                                 :: cur_mgi
 DOUBLE PRECISION                :: tot_delta = 0.D0
 INTEGER                         :: n_adjonced = 0
 
-INTEGER                         :: cur_n_assoc, ind_I, n_assoc
+INTEGER                         :: cur_n_assoc, ind_I, n_assoc, ind_J
 INTEGER, DIMENSION(const_dimofspace) :: cur_index_A, cur_index_B
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: cur_centre_A, cur_centre_B, cur_vg_index
 TYPE(modelgrid), ALLOCATABLE    :: mg_pom(:)
@@ -47,7 +47,7 @@ INTEGER                                 :: cur_n_x_B, cur_n_y_B, cur_n_z_B
 INTEGER                         :: cur_mgi_assoc
 
 LOGICAL                         :: choose_A, choose_B
-INTEGER                         :: cur_mgi_index
+INTEGER                         :: cur_mgi_index, best_mgi_index
 INTEGER, ALLOCATABLE            :: cur_points(:)
 
 DOUBLE PRECISION                :: max_dist
@@ -144,11 +144,17 @@ DO cur_propcell = my_start, my_end
     cur_n_points = n_points_A(n_A)
     cur_start_index = indices_A(n_A)
     cur_end_index = cur_start_index + cur_n_points - 1
-    CALL get_scalar_index(cur_centre_A, .TRUE., cur_scalar_vgi_index)
-    IF(cur_scalar_vgi_index /= n_A) THEN
-     write(*,*) 'connect_2D_basic: cur_scalar_vgi_index = ', cur_scalar_vgi_index, ' n_A = ', n_A
-     STOP 'connect_2D_basic: cur_scalar_vgi_index /= n_A'
-    END IF
+    ! DO ind_J = cur_start_index, cur_end_index
+    !  cur_mgi = vg_indexy_A(ind_J, ind_mg)
+    !  mgi_radius = model_grid(cur_mgi)%rwind
+    !  mgi_theta = model_grid(cur_mgi)%angle
+    !  cur_pos = (/ mgi_radius, mgi_theta, 0.D0 /)
+    !  CALL get_scalar_index(cur_pos, .TRUE., cur_scalar_vgi_index)
+    !  IF(cur_scalar_vgi_index /= n_A) THEN
+    !   write(*,*) 'connect_2D_basic: cur_scalar_vgi_index = ', cur_scalar_vgi_index, ' n_A = ', n_A
+    !   STOP 'connect_2D_basic: cur_scalar_vgi_index /= n_A'
+    !  END IF
+    ! END DO
     ALLOCATE(cur_points(cur_n_points))
     cur_points = vg_indexy_A(cur_start_index:cur_end_index, ind_mg)
    ELSE IF(choose_B) THEN ! chosen B grid
@@ -158,12 +164,17 @@ DO cur_propcell = my_start, my_end
     ALLOCATE(cur_points(cur_n_points))
     cur_points = vg_indexy_B(cur_start_index:cur_end_index,ind_mg)
     ! testing part
-    cur_pos = (/mgi_radius, mgi_theta, 0.D0 /)
-    CALL get_scalar_index(cur_centre_B, .FALSE., cur_scalar_vgi_index)
-    IF(cur_scalar_vgi_index /= n_B) THEN
-     write(*,*) 'connect_2D_basic: cur_scalar_vgi_index = ', cur_scalar_vgi_index, ' n_B = ', n_B
-     STOP 'connect_2D_basic: cur_scalar_vgi_index /= n_B'
-    END IF
+    ! DO ind_J = cur_start_index, cur_end_index
+    !  cur_mgi = vg_indexy_A(ind_J, ind_mg)
+    !  mgi_radius = model_grid(cur_mgi)%rwind
+    !  mgi_theta = model_grid(cur_mgi)%angle
+    !  cur_pos = (/mgi_radius, mgi_theta, 0.D0 /)
+    !  CALL get_scalar_index(cur_centre_B, .FALSE., cur_scalar_vgi_index)
+    !  IF(cur_scalar_vgi_index /= n_B) THEN
+    !   write(*,*) 'connect_2D_basic: cur_scalar_vgi_index = ', cur_scalar_vgi_index, ' n_B = ', n_B
+    !   STOP 'connect_2D_basic: cur_scalar_vgi_index /= n_B'
+    !  END IF
+    ! END DO
    END IF ! choose_A or choose_B
     
    delta = large_number
@@ -176,15 +187,15 @@ DO cur_propcell = my_start, my_end
      2.0 * pgi_radius * mgi_radius * cos(pgi_theta - mgi_theta))
     IF(delta2 < delta) THEN
      delta = delta2
-     cur_mgi_index = cur_mgi
-     write(75,*) ind_I, abs(mgi_radius-pgi_radius)/w_vgrid_x, abs(mgi_theta-pgi_theta)/w_vgrid_y
+     best_mgi_index = cur_mgi
+     ! write(75,*) ind_I, abs(mgi_radius-pgi_radius)/w_vgrid_x, abs(mgi_theta-pgi_theta)/w_vgrid_y
      ! write(*,*) 'connect_2D_basic: ', ind_I, abs(mgi_radius-pgi_radius)/w_vgrid_x, &
      !  abs(mgi_theta-pgi_theta)/w_vgrid_y, delta2/R_star
     END IF
    END DO
-    dyn_cell(cur_propcell)%model_index = cur_mgi_index
-    model_grid(cur_mgi_index)%assoc_cells = model_grid(cur_mgi_index)%assoc_cells + 1
-   DEALLOCATE(cur_points)
+    dyn_cell(cur_propcell)%model_index = best_mgi_index
+    model_grid(best_mgi_index)%assoc_cells = model_grid(best_mgi_index)%assoc_cells + 1
+    DEALLOCATE(cur_points)
 
   ELSE IF(pgi_radius < R_star) THEN
    ! Cells with radius smaller than the stellar radius or larger
@@ -206,6 +217,7 @@ write(99,*) 'number of propagation cells in vacuum: ', model_grid(vacuum_index)%
 DO ind_I = 1, n_propgcells
  IF(dyn_cell(ind_I)%up_cell == 0) THEN
   cur_mgi_index = dyn_cell(ind_I)%model_index
+  IF(cur_mgi_index <= n_modelgrid) write(*,*) 'connect_2D_basic: cur_mgi_index = ', cur_mgi_index
   IF(cur_mgi_index <= n_modelgrid) THEN
    mgi_radius = model_grid(cur_mgi_index)%rwind
    mgi_theta = model_grid(cur_mgi_index)%angle
@@ -215,7 +227,9 @@ DO ind_I = 1, n_propgcells
    pgi_theta =  acos((dyn_cell(ind_I)%corner(ind_z) + dyn_cell(ind_I)%width(ind_z)/2.D0)/pgi_radius)
    delta2 = sqrt(pgi_radius**2 + mgi_radius**2 - &
     2.0 * pgi_radius * mgi_radius * cos(pgi_theta - mgi_theta))
-   write(74,*) ind_I, abs(mgi_radius - pgi_radius)/w_vgrid_x, abs(mgi_theta -pgi_theta)/w_vgrid_y, delta2
+    write(74,*) ind_I, abs(mgi_radius - pgi_radius)/R_star, abs(mgi_theta -pgi_theta)/w_vgrid_y, &
+     delta2/basic_cell_width(ind_x)
+   ! write(74,*) ind_I, mgi_radius - pgi_radius, mgi_theta -pgi_theta, delta2
   END IF
  END IF
 END DO
@@ -244,30 +258,6 @@ DO cur_propcell = 1, n_propgcells
  END IF
 END DO
 
-! IF(clean_modelGrid) THEN
-!  n_assoc = 0
-!  ! reduce number of modGrid cells
-!  DO cur_mgi = 1, n_modelgrid
-!   cur_n_assoc = model_grid(cur_mgi)%assoc_cells
-!   IF(cur_n_assoc > 0) THEN
-!    n_assoc = n_assoc + 1
-!   END IF
-!  END DO
-!  ALLOCATE(mg_pom(n_assoc + add_mg))
-!  ind_I = 1
-!  DO cur_mgi = 1, n_modelgrid + add_mg
-!   cur_n_assoc = model_grid(cur_mgi)%assoc_cells
-!   IF(cur_n_assoc > 0 .or. cur_mgi > n_modelgrid) THEN
-!    mg_pom(ind_I) = model_grid(cur_mgi)
-!    ind_I = ind_I + 1
-!   END IF
-!  END DO
-!  DEALLOCATE(model_grid)
-!  ALLOCATE(model_grid(n_assoc + add_mg))
-!  model_grid = mg_pom
-!  n_modelgrid = n_assoc
-! END IF
-
-STOP 'connect_2D_basic: testing'
+! STOP 'connect_2D_basic: testing'
 
 END SUBROUTINE connect_2D_basic

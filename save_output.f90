@@ -571,7 +571,7 @@ cur_pos(ind_x) = x_cov
 cur_index = 0
 DO ind_I = 1, Ny_cov
  cur_pos(ind_y) = ((ymax - ymin) * ind_I + (Ny_cov * ymin - ymax))/DBLE(Ny_cov - 1)
- DO ind_J = 1, Ny_cov
+ DO ind_J = 1, Nz_cov
   cur_index = cur_index + 1
   cur_pos(ind_z) = ((zmax - zmin) * ind_J + (Nz_cov * zmin - zmax))/DBLE(Nz_cov - 1)
   ! looking for a current propGrid cell index
