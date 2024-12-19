@@ -30,12 +30,12 @@ INTEGER                                 :: nfreq
 DOUBLE PRECISION                        :: init_freq
 DOUBLE PRECISION, ALLOCATABLE           :: crossfreq(:), cross(:), func(:), func2(:)
 ! index
-INTEGER                                 :: I
+INTEGER                                 :: ind_I
 ! loop variable
-INTEGER                                 :: J
+INTEGER                                 :: ind_J
 INTEGER                                 :: act_rate
 ! integral calculation
-DOUBLE PRECISION                        :: actInt, alphEspont, alphaSpont, summ, x
+DOUBLE PRECISION                        :: actInt, alphEspont, alphaSpont, summ, factor_x
 INTEGER                                 :: actPoint
 INTEGER                                 :: get_package_model_index
 DOUBLE PRECISION                        :: tot_pop, uppper_en, lower_en
@@ -82,10 +82,10 @@ DO indexe = 1, n_elements
     !  ' init_freq = ', init_freq, ' rate = ', actikrates%Lcool_fbE(act_rate)
     ! looking for initial point
     actPoint = 0
-    DO I = 1, nfreq
-     IF(init_freq < crossfreq(I)) THEN
+    DO ind_I = 1, nfreq
+     IF(init_freq < crossfreq(ind_I)) THEN
       ! write(*,*) 'cool_ionization: freq = ', init_freq, ' crossfreq(', I, ') = ', crossfreq(I)
-      actPoint = I
+      actPoint = ind_I
       EXIT
      END IF
     END DO
@@ -104,17 +104,19 @@ DO indexe = 1, n_elements
     ! calculation of the integral alpha E spont after Kromer(), Eq. (4.34)
     ! filling the arrays
     ALLOCATE(func(nfreq - actPoint + 1), func2(nfreq - actPoint + 1))
-    DO J = actPoint, nfreq
-     ! write(*,*) 'cool_ionization: J = ', J, ' al(crfr) = ', ALLOCATED(crossfreq)
-     x = ( const_h * crossfreq(J) ) / ( const_kB * temp)
-     func(J - actPoint + 1) = cross(J) / (const_h * init_freq) * const_h * crossfreq(J)**3.0 / const_c**2.0 * exp(-x)
-     ! write(*,*) 'cool_ionization: cross = ', cross(J), ' init_freq = ', init_freq
-     func2(J - actPoint + 1) = cross(J) / (const_h * crossfreq(J)) * const_h * crossfreq(J)**3.0 / const_c**2.0 * exp(-x)
+    DO ind_J = actPoint, nfreq
+     ! write(*,*) 'cool_ionization: ind_J = ', ind_J, ' al(crfr) = ', ALLOCATED(crossfreq)
+     factor_x = ( const_h * crossfreq(ind_J) ) / ( const_kB * temp)
+     func(ind_J - actPoint + 1) = cross(ind_J) / (const_h * init_freq) * const_h * crossfreq(ind_J)**3.0 / const_c**2.0 * &
+     exp(-factor_x)
+     ! write(*,*) 'cool_ionization: cross = ', cross(ind_J), ' init_freq = ', init_freq
+     func2(ind_J - actPoint + 1) = cross(ind_J) / (const_h * crossfreq(ind_J)) * const_h * crossfreq(ind_J)**3.0 / const_c**2.0 * &
+     exp(-factor_x)
     END DO ! calculation of the integral
     ! calculation of integral using the trapezoid rule
     summ = 0.D0
-    DO J = 1, SIZE(func) - 1
-     actInt = (func(J) + func(J + 1) ) * (crossfreq(J + 1) - crossfreq(J))
+    DO ind_J = 1, SIZE(func) - 1
+     actInt = (func(ind_J) + func(ind_J + 1) ) * (crossfreq(ind_J + 1) - crossfreq(ind_J))
      summ = summ + actInt
      ! write(*,*) 'cool_fb: summ = ', summ
     END DO
@@ -122,8 +124,8 @@ DO indexe = 1, n_elements
     ! write(*,*) 'cool_fb: summ = ', summ, ' alphEspont = ', alphEspont, ' init_freq = ', init_freq
     ! alpha spont after Kromer() eq. (4.35)
     summ = 0.D0
-    DO J = 1, SIZE(func) - 1
-     actInt = (func2(J)  + func2(J + 1) ) * (crossfreq(J + 1) - crossfreq(J))
+    DO ind_J = 1, SIZE(func) - 1
+     actInt = (func2(ind_J)  + func2(ind_J + 1) ) * (crossfreq(ind_J + 1) - crossfreq(ind_J))
      summ = summ + actInt
     END DO
     alphaSpont = 4.D0 * const_pi * summ ! / const_c**2 * summ

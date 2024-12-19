@@ -4,6 +4,7 @@
 !        act_proc(INT): index of the current procedure
 !        actikrates(krates): the rates for the corresponding transitions
 ! OUTPUT: ran_freq(DBLE): a random frequency
+!
 SUBROUTINE k_freq_fb(pack_index, act_proc, ran_freq, actikrates)
 USE types
 USE constants
@@ -33,13 +34,12 @@ DOUBLE PRECISION                                :: el_dens, temp, x, act_pop
 ! random numbers
 DOUBLE PRECISION                                :: ran_num
 ! loop variables
-INTEGER                                         :: I
+INTEGER                                         :: ind_I
 ! linear interpolation
 DOUBLE PRECISION                                :: ali, bli, int1, int2, func1, func2
 TYPE(krates)                                    :: actikrates
 
 ! informations about ion
-! write(*,*) 'k_freq_fb: act_proc = ', act_proc, ' allocated? Lcfb = ', ALLOCATED(actikrates%Lcool_fbind)
 indexe = INT(actikrates%Lcool_fbE(ind_element, act_proc))
 indexi = INT(actikrates%Lcool_fbE(ind_ion, act_proc))
 indexl = INT(actikrates%Lcool_fbE(ind_level, act_proc))
@@ -74,10 +74,10 @@ init_freq = (MINVAL(elements(indexe)%ions(indexi + 1)%levels(:)%exci_energy) - &
 ! STOP 'k_freq_fb: testing'
 ! getting the first point
 !initPoint = 0
-DO I = 1, nfreq
-  ! write(*,*) 'cool_ionization: freq = ', init_freq, ' freq(', I, ') = ', freq(I)
- IF(init_freq < freq(I)) THEN
-  initPoint = I
+DO ind_I = 1, nfreq
+  ! write(*,*) 'cool_ionization: freq = ', init_freq, ' freq(', ind_I, ') = ', freq(ind_I)
+ IF(init_freq < freq(ind_I)) THEN
+  initPoint = ind_I
   EXIT
  END IF
 END DO
@@ -90,30 +90,30 @@ IF(initPoint == 0) STOP 'k_freq_fb: initPoint = 0'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! calculation of the first integral
 ! firstly filling the arrays
-DO I = 1, nfreq
- x = ( const_h * freq(I)) / ( const_kB * temp )
- func(I) = cross(I) * freq(I)**3.0 * exp(-x)
+DO ind_I = 1, nfreq
+ x = ( const_h * freq(ind_I)) / ( const_kB * temp )
+ func(ind_I) = cross(ind_I) * freq(ind_I)**3.0 * exp(-x)
 END DO
-DO I = 1, nfreq - 1
- intval(I) = (func(I + 1) + func(I)) * (freq(I + 1) - freq(I))
- ! write(*,*) 'k_freq_fb: intval(', I, ') = ', intval(I)
+DO ind_I = 1, nfreq - 1
+ intval(ind_I) = (func(ind_I + 1) + func(ind_I)) * (freq(ind_I + 1) - freq(ind_I))
+ ! write(*,*) 'k_freq_fb: intval(', ind_I, ') = ', intval(ind_I)
 END DO
 intval(nfreq) = 0.D0
 ! the integral calculation using the trapezoid rule
 summ = 0.D0
-DO I = initPoint, nfreq - 1
- summ = summ + intval(I)
+DO ind_I = initPoint, nfreq - 1
+ summ = summ + intval(ind_I)
 END DO
 ! the left side of eq. 
 integral1 = ran_num * summ
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! calculation of the second integral
 summ = 0.D0
-DO I = 1, nfreq - 1
- summ = summ + intval(nfreq - I)
+DO ind_I = 1, nfreq - 1
+ summ = summ + intval(nfreq - ind_I)
  IF(summ > integral1) THEN
-  actIndex = nfreq - I
-  ! write(*,*) 'k_freq_fb: actIndex = ', actIndex, ' nfreq = ', nfreq, ' I = ', I
+  actIndex = nfreq - ind_I
+  ! write(*,*) 'k_freq_fb: actIndex = ', actIndex, ' nfreq = ', nfreq, ' ind_I = ', ind_I
   EXIT
  END IF
 END DO
@@ -134,7 +134,6 @@ IF(ran_freq < 0.D0) THEN
   ' int2 = ', int2, ' ali = ', ali, ' bli = ', bli
  STOP
 END IF
-! write(*,*) 'k_freq_fb: ran_freq = ', ran_freq
 
 
 END SUBROUTINE k_freq_fb

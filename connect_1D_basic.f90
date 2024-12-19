@@ -28,6 +28,7 @@ INTEGER                         :: N_tot_zbytek
 #if mpi == 1
  N_single = (n_propgcells)/n_tasks
  N_zbytek = n_propgcells - n_tasks * N_single
+ IF(N_zbytek /= 0) N_tot_zbytek = (N_zbytek + 1) * (N_single + 1) + N_zbytek
  IF(my_rank <= N_zbytek - 1) THEN
   my_start = my_rank * (N_single + 1) + my_rank
   my_end = (my_rank + 1) * (N_single + 1) + N_single

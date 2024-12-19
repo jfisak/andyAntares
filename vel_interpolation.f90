@@ -34,13 +34,13 @@ INTEGER                                 :: cur_ind_A, cur_ind_B, cur_vpg_cell
 
 INTEGER                                 :: n_zeros
 
-DOUBLE PRECISION, DIMENSION(3)          :: cur_pg_pos, cur_mg_pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: cur_pg_pos, cur_mg_pos
 INTEGER                                 :: cur_prop_cell
 
 DOUBLE PRECISION, PARAMETER             :: large_number = 1.D90
 
 INTEGER, ALLOCATABLE                    :: cur_points(:)
-DOUBLE PRECISION, DIMENSION(3)          :: cur_center_A, cur_center_B
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: cur_center_A, cur_center_B
 INTEGER                                 :: cur_start_index, cur_end_index, cur_n_points
 DOUBLE PRECISION                        :: dist_A, dist_B, dist_C
 
@@ -57,7 +57,7 @@ LOGICAL                                 :: seeking, novyBod, nahrada
 INTEGER                                                 :: cur_index, cip, cur_index_pos
 ! INTEGER                                 :: cur_index_i
 
-DOUBLE PRECISION, DIMENSION(3)          :: vel_vector
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: vel_vector
 
 INTEGER                                 :: cur_iti_mgi
 INTEGER, DIMENSION(3)                                   :: n_coor, count_xyz
@@ -65,8 +65,8 @@ INTEGER, PARAMETER                                      :: coor_x = 1, coor_y = 
 DOUBLE PRECISION                                        :: cur_dist
 
 INTEGER                                                 :: cur_index_I, cur_index_J, cur_itj_mgi, cur_index_K
-DOUBLE PRECISION, DIMENSION(3)                          :: cur_saved_mg_pos_A, cur_saved_mg_pos_B
-DOUBLE PRECISION, DIMENSION(3)                          :: vec_AB, vec_AC
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: cur_saved_mg_pos_A, cur_saved_mg_pos_B
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: vec_AB, vec_AC
 
 INTEGER, DIMENSION(3)                                   :: f_indexy, index_delete, mgi_indexy
 INTEGER                                                 :: cur_del_index, cur_mgi
@@ -100,9 +100,9 @@ w_vgrid_z = abs(zmax - zmin)/N_vgrid_z
 !_______________________________________________________________
 ! calculation of the virGrid index
 DO cur_point = 1, n_modelgrid
- cur_x = model_grid(cur_point)%vec_pos(1)
- cur_y = model_grid(cur_point)%vec_pos(2)
- cur_z = model_grid(cur_point)%vec_pos(3)
+ cur_x = model_grid(cur_point)%vec_pos(ind_x)
+ cur_y = model_grid(cur_point)%vec_pos(ind_y)
+ cur_z = model_grid(cur_point)%vec_pos(ind_z)
  cur_n_x_A = floor((cur_x - xmin)/w_vgrid_x) + 1
  cur_n_y_A = floor((cur_y - ymin)/w_vgrid_y) + 1
  cur_n_z_A = floor((cur_z - zmin)/w_vgrid_z) + 1
@@ -209,9 +209,9 @@ DO cur_prop_cell = 1, n_propgcells
  ! the index in the AB grid
  ! cur_prop_cell = 1500
  cur_pg_pos = dyn_cell(cur_prop_cell)%corner + dyn_cell(cur_prop_cell)%width/2.D0
- cur_n_x_A = floor((cur_pg_pos(1) - xmin)/w_vgrid_x) + 1
- cur_n_y_A = floor((cur_pg_pos(2) - ymin)/w_vgrid_y) + 1
- cur_n_z_A = floor((cur_pg_pos(3) - zmin)/w_vgrid_z) + 1
+ cur_n_x_A = floor((cur_pg_pos(ind_x) - xmin)/w_vgrid_x) + 1
+ cur_n_y_A = floor((cur_pg_pos(ind_y) - ymin)/w_vgrid_y) + 1
+ cur_n_z_A = floor((cur_pg_pos(ind_z) - zmin)/w_vgrid_z) + 1
  n_A = cur_n_x_A + N_vgrid_x * (cur_n_y_A - 1) + N_vgrid_x * N_vgrid_y * (cur_n_z_A - 1)
  cur_center_A = (/ w_vgrid_x * (cur_n_x_A + 5.D-1) + xmin, w_vgrid_y * (cur_n_y_A + 5.D-1) + ymin, &
                  & w_vgrid_z * (cur_n_z_A + 5.D-1) + zmin /)
@@ -225,9 +225,9 @@ DO cur_prop_cell = 1, n_propgcells
  IF(cur_x > xmin + w_vgrid_x / 2.0 .and. cur_x < xmax - w_vgrid_x /  2.0 .and.&
   & cur_y > ymin + w_vgrid_y / 2.0 .and. cur_y < ymax - w_vgrid_y /  2.0 .and. &
   & cur_z > zmin + w_vgrid_z / 2.0 .and. cur_z < zmax - w_vgrid_z /  2.0 ) THEN
-  cur_n_x_B = floor((cur_pg_pos(1) - xmin)/w_vgrid_x - 1.0/2.0) + 1
-  cur_n_y_B = floor((cur_pg_pos(2) - ymin)/w_vgrid_y - 1.0/2.0) + 1
-  cur_n_z_B = floor((cur_pg_pos(3) - zmin)/w_vgrid_z - 1.0/2.0) + 1
+  cur_n_x_B = floor((cur_pg_pos(ind_x) - xmin)/w_vgrid_x - 1.0/2.0) + 1
+  cur_n_y_B = floor((cur_pg_pos(ind_y) - ymin)/w_vgrid_y - 1.0/2.0) + 1
+  cur_n_z_B = floor((cur_pg_pos(ind_z) - zmin)/w_vgrid_z - 1.0/2.0) + 1
   n_B = cur_n_x_B + (N_vgrid_x - 1) * (cur_n_y_B - 1) + (N_vgrid_x - 1) * (N_vgrid_y - 1) * (cur_n_z_B - 1)
   cur_center_B = (/ w_vgrid_x * (cur_n_x_B + 1.D0) + xmin, w_vgrid_y * (cur_n_y_B + 1.D0) + ymin, &
                    & w_vgrid_z * (cur_n_z_B + 1.D0) + zmin /)
@@ -236,12 +236,12 @@ DO cur_prop_cell = 1, n_propgcells
  END IF
 
  ! what is the best grid, A or B?
- dist_A = sqrt((cur_pg_pos(1) - cur_center_A(1))**2 + (cur_pg_pos(2) - cur_center_A(2))**2 + &
-   & (cur_pg_pos(3) - cur_center_A(3))**2)
+ dist_A = sqrt((cur_pg_pos(ind_x) - cur_center_A(ind_x))**2 + (cur_pg_pos(ind_y) - cur_center_A(ind_y))**2 + &
+   & (cur_pg_pos(ind_z) - cur_center_A(ind_z))**2)
  ! write(*,*) 'vel_interpolation: dist_A = ', dist_A/R_star
  IF(n_b > 0) THEN
-  dist_B = sqrt((cur_pg_pos(1) - cur_center_B(1))**2 + (cur_pg_pos(2) - cur_center_B(2))**2 + &
-   &(cur_pg_pos(3) - cur_center_B(3))**2)
+  dist_B = sqrt((cur_pg_pos(ind_x) - cur_center_B(ind_x))**2 + (cur_pg_pos(ind_y) - cur_center_B(ind_y))**2 + &
+   &(cur_pg_pos(ind_y) - cur_center_B(ind_y))**2)
  ELSE IF (n_B == 0) THEN
   dist_B = large_number
  END IF
@@ -301,8 +301,8 @@ DO cur_prop_cell = 1, n_propgcells
   cur_mg_pos = model_grid(cur_nop)%vec_pos
   ! write(45,*) cur_mg_pos
   ! distance of a current modGrid point and the 
-  dist = sqrt((cur_pg_pos(1) - cur_mg_pos(1))**2 + (cur_pg_pos(2) - cur_mg_pos(2))**2 + &
-   & (cur_pg_pos(3) - cur_mg_pos(3))**2)
+  dist = sqrt((cur_pg_pos(ind_x) - cur_mg_pos(ind_x))**2 + (cur_pg_pos(ind_y) - cur_mg_pos(ind_y))**2 + &
+   & (cur_pg_pos(ind_z) - cur_mg_pos(ind_z))**2)
   write(*,*) 'vel_interpolation pg = ', cur_pg_pos/R_star, 'mg = ', cur_mg_pos/R_star
 
   ! the current distance in the array is larger than the current distance, we should move all values
@@ -347,8 +347,8 @@ DO cur_prop_cell = 1, n_propgcells
      IF(procout) write(*,*) 'vec_AB = ', vec_AB
      IF(procout) write(*,*) 'vec_AC = ', vec_AC
      ! testing if a new point is on the same line as the other points already saved into interp_dist
-     IF(((vec_AB(1) == vec_AC(1)) .and. (vec_AB(2) == vec_AC(2)) .and. (vec_AB(3) == vec_AC(3))) .or. &
-      & ((vec_AB(1) == -vec_AC(1)) .and. (vec_AB(2) == -vec_AC(2)) .and. (vec_AB(3) == -vec_AC(3)))) THEN 
+     IF(((vec_AB(ind_x) == vec_AC(ind_x)) .and. (vec_AB(ind_y) == vec_AC(ind_y)) .and. (vec_AB(ind_z) == vec_AC(ind_z))) .or. &
+      & ((vec_AB(ind_x) == -vec_AC(ind_x)) .and. (vec_AB(ind_y) == -vec_AC(ind_y)) .and. (vec_AB(ind_z) == -vec_AC(ind_z)))) THEN 
       ! zatím to risknu a vezmu ten druhý index, který by měl být index vzdálenějšího bodu
       f_indexy(cur_del_index) = cur_index_J
       mgi_indexy(cur_del_index) = cur_itj_mgi
@@ -380,9 +380,9 @@ DO cur_prop_cell = 1, n_propgcells
 
    ! all more distant points should be replaced with the current one
    IF(dist < dist_A .and. dist < dist_B .and. dist < dist_C) THEN
-    IF(f_indexy(1) > 0) index_delete(1) = f_indexy(1)
-    IF(f_indexy(2) > 0) index_delete(2) = f_indexy(2)
-    IF(f_indexy(3) > 0) index_delete(3) = f_indexy(3)
+    IF(f_indexy(1) > 0) index_delete(ind_x) = f_indexy(ind_x)
+    IF(f_indexy(2) > 0) index_delete(ind_y) = f_indexy(ind_y)
+    IF(f_indexy(3) > 0) index_delete(ind_z) = f_indexy(ind_z)
     IF(procout) write(*,*) 'vel_interpolation: index_delete = ', index_delete(:)
     nahrada = .true.
    ELSE
@@ -392,7 +392,7 @@ DO cur_prop_cell = 1, n_propgcells
 
    ! we now delete the old point and add a better point into the array
    ! deleting a point on a position index_delete
-   DO cur_index_K = 1,3
+   DO cur_index_K = 1, const_dimofspace
     IF(index_delete(cur_index_K) > 0) THEN
      if(procout) write(*,*) 'vel_interpolation: smazani bodu ', index_delete(cur_index_K), ' mod_grid = ',&
       & interp_dist(index_delete(cur_index_K), ind_index)
@@ -473,7 +473,7 @@ DO cur_prop_cell = 1, n_propgcells
  ! write(*,*) 'vel_interpolation:************************************************'
  ! write(*,*) 'vel_interpolation: interp_dist = ', interp_dist(:,ind_index)
 
- IF(isnan(vel_vector(1)) .or. isnan(vel_vector(2)) .or. isnan(vel_vector(3))) THEN 
+ IF(isnan(vel_vector(ind_x)) .or. isnan(vel_vector(ind_y)) .or. isnan(vel_vector(ind_z))) THEN 
   DO cur_index_I = 1, cur_n_points
    cur_index = cur_points(cur_index_I)
    cur_mg_pos = model_grid(cur_index)%vec_pos

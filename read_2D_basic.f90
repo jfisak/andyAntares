@@ -31,7 +31,6 @@ DOUBLE PRECISION                       :: radius, perpend, dens, velrad, velang,
 INTEGER                                :: atom_number, numbions
 ! calcultaion a stellar radius
 DOUBLE PRECISION                       :: act_radius, min_radius, max_radius
-DOUBLE PRECISION                       :: act_z, max_z
 INTEGER                                :: max_radius_index
 
 DOUBLE PRECISION                        :: unit_length, unit_velocity, unit_density

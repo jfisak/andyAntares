@@ -1,4 +1,9 @@
-! this subroutine will create a dynamical grid cell for the given basic cell
+! this subroutine will create a dynamical grid cell for the given basic cell by
+! calling subroutine divide_cell_8 or divide_cell_ijk
+!
+! INPUT: n_dyncell(INT): index of the upper propGrid cell
+!        max_n_dcell(INT): the total number of created propGrid cells
+!
   SUBROUTINE create_dynamical_grid_cells(n_dyncell,max_n_dcell)
 
    USE types
@@ -11,7 +16,7 @@ USE constants
    ! number of created dynamic cells and
    ! actual number of grid cell
    INTEGER                              :: max_n_dcell, act_n_dyncell
-   INTEGER                              :: I,J
+   INTEGER                              :: ind_I, ind_J
    INTEGER                              :: n_points
    ! number of new created cells in cell
    INTEGER                              :: no_dcells
@@ -19,27 +24,25 @@ USE constants
    INTEGER                              :: up_bound, newbound
    ! maximal number of point in one cell
    INTEGER, PARAMETER                   :: maxPart = 1
-   DOUBLE PRECISION, DIMENSION(3)       :: corner, cell_width_2
+   DOUBLE PRECISION, DIMENSION(const_dimofspace)       :: corner, cell_width_2
    TYPE(virt_point), ALLOCATABLE     :: local_point(:)
    TYPE(dyn_grid_cell), ALLOCATABLE     ::  pom2(:)
    ! dimension of the subcell grid
-   INTEGER, DIMENSION(3)                :: dimofsubcells
+   INTEGER, DIMENSION(const_dimofspace)                :: dimofsubcells
    ! move to the next cell, if the size is smaller than minimal possible cell size
    LOGICAL                              :: next_cell
    ! local variables
-   DOUBLE PRECISION, DIMENSION(3)       :: loc_corner, loc_cell_width
-   DOUBLE PRECISION, DIMENSION(3)       :: vp_pos
+   DOUBLE PRECISION, DIMENSION(const_dimofspace)       :: loc_corner, loc_cell_width
+   DOUBLE PRECISION, DIMENSION(const_dimofspace)       :: vp_pos
    INTEGER                              :: loc_np
    INTEGER                              :: loc_downcell, loc_upcell
    INTEGER                              :: cur_point
     ! for 8-dyncells
 
-corner(1) = dyn_cell(n_dyncell)%corner(1)
-corner(2) = dyn_cell(n_dyncell)%corner(2)
-corner(3) = dyn_cell(n_dyncell)%corner(3)
-cell_width_2(1) = dyn_cell(n_dyncell)%width(1)
-cell_width_2(2) = dyn_cell(n_dyncell)%width(2)
-cell_width_2(3) = dyn_cell(n_dyncell)%width(3)
+corner(:) = dyn_cell(n_dyncell)%corner(:)
+cell_width_2(:) = dyn_cell(n_dyncell)%width(:)
+
+
 ! at first we have to know, how many points are located
 ! in the given cell
 n_points = dyn_cell(n_dyncell)%n_virt
@@ -53,13 +56,13 @@ CASE(1)
 ALLOCATE(local_point(n_points))
 
 cur_point = 0
-DO I = 1, Nvirtpoint
- vp_pos = virtual_point(I)%pos
- IF(vp_pos(1) > corner(1) .and. vp_pos(1) < (corner(1) + cell_width_2(1)) .and. &
-  vp_pos(2) >= corner(2) .and. vp_pos(2) < (corner(2) + cell_width_2(2)) .and. &
-  vp_pos(3) >= corner(3) .and. vp_pos(3) < (corner(3) + cell_width_2(3))) THEN
+DO ind_I = 1, Nvirtpoint
+ vp_pos = virtual_point(ind_I)%pos
+ IF(vp_pos(ind_x) > corner(ind_x) .and. vp_pos(ind_x) < (corner(ind_x) + cell_width_2(ind_x)) .and. &
+  vp_pos(ind_y) >= corner(ind_y) .and. vp_pos(ind_y) < (corner(ind_y) + cell_width_2(ind_y)) .and. &
+  vp_pos(ind_z) >= corner(ind_z) .and. vp_pos(ind_z) < (corner(ind_z) + cell_width_2(ind_z))) THEN
   cur_point = cur_point + 1
-  local_point(cur_point) = virtual_point(I)
+  local_point(cur_point) = virtual_point(ind_I)
  END IF
 END DO
 
@@ -78,24 +81,20 @@ DO
 ! print*, 'create_dynamical_grid_cells: act_n_dyncell = ', act_n_dyncell
 ! local number of point is in the begining of cycle = 0
   loc_np = 0
-  loc_corner(1) = dyn_cell(act_n_dyncell)%corner(1)
-  loc_corner(2) = dyn_cell(act_n_dyncell)%corner(2)
-  loc_corner(3) = dyn_cell(act_n_dyncell)%corner(3)
-  loc_cell_width(1) = dyn_cell(act_n_dyncell)%width(1)
-  loc_cell_width(2) = dyn_cell(act_n_dyncell)%width(2)
-  loc_cell_width(3) = dyn_cell(act_n_dyncell)%width(3)
+  loc_corner(:) = dyn_cell(act_n_dyncell)%corner(:)
+  loc_cell_width(:) = dyn_cell(act_n_dyncell)%width(:)
   loc_upcell = dyn_cell(act_n_dyncell)%up_cell
   loc_downcell = dyn_cell(act_n_dyncell)%down_cell
  ! how many virtual point is there in this subcell
  IF(next_cell .EQV. .FALSE.) THEN
   ! start: calculating number of local point
-  DO J = 1, n_points
-   IF((local_point(J)%pos(1) >= loc_corner(1)) .AND. &
-     (local_point(J)%pos(1) < (loc_corner(1) + loc_cell_width(1))) .AND. &
-     (local_point(J)%pos(2) >= loc_corner(2)) .AND. &
-     (local_point(J)%pos(2) < (loc_corner(2) + loc_cell_width(2))) .AND. &
-     (local_point(J)%pos(3) >= loc_corner(3)) .AND. &
-     (local_point(J)%pos(3) < (loc_corner(3) + loc_cell_width(3)))) THEN
+  DO ind_J = 1, n_points
+   IF((local_point(ind_J)%pos(ind_x) >= loc_corner(ind_x)) .AND. &
+     (local_point(ind_J)%pos(ind_x) < (loc_corner(ind_x) + loc_cell_width(ind_x))) .AND. &
+     (local_point(ind_J)%pos(ind_y) >= loc_corner(ind_y)) .AND. &
+     (local_point(ind_J)%pos(ind_y) < (loc_corner(ind_y) + loc_cell_width(ind_y))) .AND. &
+     (local_point(ind_J)%pos(ind_z) >= loc_corner(ind_z)) .AND. &
+     (local_point(ind_J)%pos(ind_z) < (loc_corner(ind_z) + loc_cell_width(ind_z)))) THEN
    !print*, 'found a point number ', loc_n_points + 1
    loc_np = loc_np + 1
   END IF
@@ -145,9 +144,9 @@ DO
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ELSE
   ! we check if the width of new cells will be large enough
-  if (dyn_cell(act_n_dyncell)%width(1)/2.E0 < minwidth .OR. &
-   dyn_cell(act_n_dyncell)%width(2)/2.E0 < minwidth .OR. &
-       dyn_cell(act_n_dyncell)%width(3)/2.E0 < minwidth) then
+  if (dyn_cell(act_n_dyncell)%width(ind_x)/2.E0 < minwidth .OR. &
+   dyn_cell(act_n_dyncell)%width(ind_y)/2.E0 < minwidth .OR. &
+       dyn_cell(act_n_dyncell)%width(ind_z)/2.E0 < minwidth) then
        loc_np = 0
       ! print*, 'CELL WOULD BE TOO SMALL...MOVING TO THE NEXT CELL...'
        next_cell = .TRUE.
@@ -162,13 +161,13 @@ DO
      ! define a new upper bound
      newbound = 2 * up_bound
      ALLOCATE(pom2(up_bound))
-     do I = 1, up_bound
-      pom2(I) = dyn_cell(I)
+     do ind_I = 1, up_bound
+      pom2(ind_I) = dyn_cell(ind_I)
      end do
      DEALLOCATE(dyn_cell)
      ALLOCATE(dyn_cell(newbound))
-     do I = 1, up_bound
-      dyn_cell(I) = pom2(I)
+     do ind_I = 1, up_bound
+      dyn_cell(ind_I) = pom2(ind_I)
      end do
      DEALLOCATE(pom2)
      up_bound = newbound
@@ -200,23 +199,23 @@ END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CASE(2)
  IF(model_type == 1) THEN
-  dimofsubcells(1) = FLOOR(n_points**(1.0/2.0))
-  dimofsubcells(2) = FLOOR(n_points**(1.0/2.0))
-  dimofsubcells(3) = FLOOR(n_points**(1.0/2.0))
+  dimofsubcells(ind_x) = FLOOR(n_points**(0.5))
+  dimofsubcells(ind_y) = FLOOR(n_points**(0.5))
+  dimofsubcells(ind_z) = FLOOR(n_points**(0.5))
  ELSE IF(model_type == 3) THEN
-  dimofsubcells(1) = FLOOR(n_points**(1.0/2.0))
-  dimofsubcells(2) = FLOOR(n_points**(1.0/2.0))
-  dimofsubcells(3) = FLOOR(n_points**(1.0/2.0))
+  dimofsubcells(ind_x) = FLOOR(n_points**(0.5))
+  dimofsubcells(ind_y) = FLOOR(n_points**(0.5))
+  dimofsubcells(ind_z) = FLOOR(n_points**(0.5))
  ELSE
-  dimofsubcells(1) = FLOOR(n_points**(4.0/1.0))
-  dimofsubcells(2) = FLOOR(n_points**(4.0/1.0))
-  dimofsubcells(3) = FLOOR(n_points**(4.0/1.0))
+  dimofsubcells(ind_x) = FLOOR(n_points**(4.0))
+  dimofsubcells(ind_y) = FLOOR(n_points**(4.0))
+  dimofsubcells(ind_z) = FLOOR(n_points**(4.0))
  END IF
   dyn_cell(n_dyncell)%n_sbgr = dimofsubcells
-  no_dcells = dimofsubcells(1) * dimofsubcells(2) * dimofsubcells(3)
+  no_dcells = dimofsubcells(ind_x) * dimofsubcells(ind_y) * dimofsubcells(ind_z)
  ! write(*,*) 'create_dynamical_grid_cells: no_dcells = ', no_dcells
- IF(dimofsubcells(1) <= 1 .and. dimofsubcells(2) <= 1 &
-  .and. dimofsubcells(3) <=1) THEN
+ IF(dimofsubcells(ind_x) <= 1 .and. dimofsubcells(ind_y) <= 1 &
+  .and. dimofsubcells(ind_z) <=1) THEN
   no_dcells = 0
  END IF
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -229,13 +228,13 @@ CASE(2)
    ! define a new upper bound
    newbound =  max_n_dcell + 2*no_dcells
    ALLOCATE(pom2(up_bound))
-   do I = 1, up_bound
-    pom2(I) = dyn_cell(I)
+   do ind_I = 1, up_bound
+    pom2(ind_I) = dyn_cell(ind_I)
    end do
    DEALLOCATE(dyn_cell)
    ALLOCATE(dyn_cell(newbound))
-   do I = 1, up_bound
-    dyn_cell(I) = pom2(I)
+   do ind_I = 1, up_bound
+    dyn_cell(ind_I) = pom2(ind_I)
    end do
    DEALLOCATE(pom2)
    up_bound = newbound

@@ -5,13 +5,12 @@ USE types
 USE constants
 IMPLICIT NONE
 
-DOUBLE PRECISION, DIMENSION(3)                 :: vec1, vec2
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                 :: vec1, vec2
 DOUBLE PRECISION                               :: pos0, pos1, pos2
-DOUBLE PRECISION, DIMENSION(3)                 :: int_vector
-DOUBLE PRECISION, DIMENSION(3)                 :: lina, linb
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                 :: int_vector
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                 :: lina, linb
 ! DOUBLE PRECISION, DIMENSION(3)                 :: vecpos0
 ! INTEGER, DIMENSION(8)                          :: neighborscells
-INTEGER                                        :: pack_index
 
 if(pos1 == pos2) then
  write(*,*) 'lin_interpolation: pos1 = ', pos1, ' pos2 = ', pos2
@@ -19,8 +18,6 @@ if(pos1 == pos2) then
 end if
 
 IF(pos1 > pos2 .and. (pos0 < pos2 .or. pos0 > pos1)) then
- ! write(*,*) 'lin_interpolation: pack_index = ', pack_index
- write(*,*) 'lin_interpolation: pack_index = ', pack_index
  write(*,*) 'lin_interpolation: pos1 = ', pos1, ' pos0 = ', pos0, ' pos2 = ', pos2
  ! DO I = 1,8
  !  write(3,*) dyn_cell(neighborscells(I))%corner, dyn_cell(neighborscells(I))%width
@@ -28,7 +25,6 @@ IF(pos1 > pos2 .and. (pos0 < pos2 .or. pos0 > pos1)) then
  ! write(4,*) vecpos0
  STOP 'pos0 is not in the interval'
 ELSE IF(pos1 < pos2 .and. (pos0 > pos2 .or. pos0 < pos1)) THEN
- write(*,*) 'lin_interpolation: pack_index = ', pack_index
  write(*,*) 'lin_interpolation: pos1 = ', pos1, ' pos0 = ', pos0, ' pos2 = ', pos2
  ! DO I = 1,8
  !  write(3,*) dyn_cell(neighborscells(I))%corner, dyn_cell(neighborscells(I))%width

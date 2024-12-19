@@ -1,3 +1,10 @@
+! collisional ionization rates
+! 
+! INPUT: approximation(INT): obvious
+!        pack_index(INT): packet index
+! OUTPUT: Zion(DBLE): total cooling ionization index
+!         actikrates(krates): rates for transitions
+! 
 SUBROUTINE cool_ionization(approximation, pack_index, Zion, actikrates)
 USE types
 USE constants
@@ -11,11 +18,11 @@ INTEGER                         :: indexe, indexi, indexl
 INTEGER                         :: n_ions, n_levels
 ! grid informations
 INTEGER                         :: current_mgi
-DOUBLE PRECISION                :: el_dens, temp, x
+DOUBLE PRECISION                :: el_dens, temp, factor_x
 INTEGER                         :: nfreq
 DOUBLE PRECISION                :: gindex
 INTEGER                         :: get_package_model_index
-INTEGER                         :: I, act_rate
+INTEGER                         :: ind_I, act_rate
 DOUBLE PRECISION, PARAMETER     :: coll_const = 1.55D13
 DOUBLE PRECISION, ALLOCATABLE   :: crossfreq(:)
 DOUBLE PRECISION                :: eif, freq
@@ -64,9 +71,9 @@ CASE (1)
               elements(indexe)%ions(indexi)%levels(indexl)%exci_energy) / const_h
      !write(*,*) 'cool_ionization: indexe = ', indexe, ' indexi = ', indexi, ' indexl = ', indexl, ' freq = ', freq
      ! argument of E_1(x)
-     x = (const_h * freq) / (const_kB * temp)
+     factor_x = (const_h * freq) / (const_kB * temp)
      ! exponential integral function (calculation of eif)
-     CALL exp_int_func(1, x, eif)
+     CALL exp_int_func(1, factor_x, eif)
      ! write(*,*) 'cool_ionization: calling populations...'
      CALL populations(indexe, indexi, indexl, current_mgi, act_pop)
      ! photoionization cross section
@@ -74,10 +81,10 @@ CASE (1)
      ! photoionization cross section for the given frequency 
      crossfreq(:) = elements(indexe)%ions(indexi)%levels(indexl)%photcros(1,:)
      actPoint = 0
-     DO I = 1, nfreq
-      IF(freq < crossfreq(I)) THEN
+     DO ind_I = 1, nfreq
+      IF(freq < crossfreq(ind_I)) THEN
        !write(*,*) 'cool_ionization: freq = ', freq, ' crossfreq(', I, ') = ', crossfreq(I)
-       actPoint = I
+       actPoint = ind_I
        EXIT
       END IF
      END DO
@@ -106,7 +113,7 @@ CASE (1)
       END IF
       act_rate = act_rate + 1
       actikrates%Lcool_ion(act_rate) = act_pop * el_dens * coll_const / temp**(1.0/2.0) * gindex * &
-       cross_sect * exp(-x) / x * (const_h * freq) 
+       cross_sect * exp(-factor_x) / factor_x * (const_h * freq) 
       !write(*,*) 'cool_ionization: act_pop = ', act_pop, ' el_dens = ', el_dens, ' temp = ', temp,&
       ! ' cross_sect = ', cross_sect
       !write(*,*) 'cool_ionization: actikrates%Lcool_ion(', act_rate, ') = ', actikrates%Lcool_ion(act_rate)

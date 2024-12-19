@@ -31,8 +31,6 @@ DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: cur_center_A, cur_cen
 INTEGER                                 :: cur_vg_index, cur_vg_point
 
 DOUBLE PRECISION                        :: cur_x, cur_y, cur_z
-INTEGER                                 :: cur_n_x_A, cur_n_y_A!, cur_n_z_A
-DOUBLE PRECISION                        :: cur_n_x_B, cur_n_y_B! , cur_n_z_B
 INTEGER                                 :: n_A, n_B
 
 INTEGER, PARAMETER                                      :: coor_x = 1, coor_y = 2, coor_z = 3

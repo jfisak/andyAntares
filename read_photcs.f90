@@ -1,16 +1,26 @@
+! read datafiles containing photoionization cross sections
+! ``several'' possibilities
+! 2: Opacity project data
+!
+! INPUT: inputdata(INT): format of input data
+!        indexe(INT): element index
+!        max_levels(INT): maximal number of included levels
+!        phot_file(CHAR(20)): name of an input file
+! OUTPUT: NONE
+!
 SUBROUTINE read_photcs(inputdata, indexe, max_levels, phot_file)
 USE types
 USE constants
 IMPLICIT NONE
 
 ! input variables
-CHARACTER(LEN=20)                       :: phot_file
+CHARACTER(LEN=filename_length)                       :: phot_file
 INTEGER                                 :: indexe, max_levels
 INTEGER                                 :: inputdata
-CHARACTER(LEN=20)                       :: junk
+CHARACTER(LEN=filename_length)                       :: junk
 ! loop index
-CHARACTER(LEN=200)                      :: line
-INTEGER                                 :: I
+CHARACTER(LEN=filename_length)                      :: line
+INTEGER                                 :: ind_I
 ! informations about element
 INTEGER                                 :: indexi, indexZ, indexclev
 DOUBLE PRECISION                        :: energy
@@ -42,7 +52,7 @@ SELECT CASE(inputdata)
 ! level index, atomic number, ion index, *, *, energy (Ryd), number of points
 ! frequency/treshold frequency, cross section () ! podívat se, v jakých je to jednotkách
 CASE(2)
-  ! a user can set maximal number of cross sectionw which will be read
+  ! user can set maximal number of cross sections which will be read
   ! for the given ion, this is the reason why variables new_ion and old_ion
   ! are defined: we have to know, how many cross sections are read for the
   ! given ion
@@ -57,7 +67,7 @@ CASE(2)
    READ(line, *) l_index, indexZ, electron_number, junk, junk, energy, nofPoints
    IF(energy > 0.D0) THEN
     ! write(*,*) 'read_photcs: nofPoints = ', nofPoints
-    DO I = 1, nofPoints
+    DO ind_I = 1, nofPoints
     END DO
    END IF
    ! we have to know, if the ion is different from the previous one
@@ -76,7 +86,7 @@ CASE(2)
    IF(save_cs .EQV. .TRUE.) THEN
     CALL find_photion_elindex(indexe, indexI, l_index, indexclev)
     IF(indexclev < 0) THEN
-     DO I = 1, nofPoints
+     DO ind_I = 1, nofPoints
       READ(13, '(A)', IOSTAT=ios) line 
      END DO
      CYCLE
@@ -95,22 +105,22 @@ CASE(2)
    !elements(indexe)%ions(indexI)%levels(indexclev)%phfreq = freqt
    ! now we will read the given data for the photoionization cross section
    ! write(*,*) 'read_photcs: nofPoints = ', nofPoints
-   DO I = 1, nofPoints
+   DO ind_I = 1, nofPoints
     READ(13, '(A)', IOSTAT=ios) line
     if(ios /= 0) EXIT
     ! write(*,*) 'read_photcs: ', line
     READ(line,*) freq, cross
     !print*, I, freq, cross
-    !print*, freq(I), cross(I)
+    !print*, freq(ind_I), cross(ind_I)
     IF(save_cs .EQV. .TRUE.) THEN
      !freq = freq * freqt
-     ! elements(indexe)%ions(indexI)%levels(indexclev)%photcros(1,I) = freq * freqt
-     elements(indexe)%ions(indexI)%levels(indexclev)%photcros(1,I) = freq * Rydberg * const_ev / const_h
+     ! elements(indexe)%ions(indexI)%levels(indexclev)%photcros(1,ind_I) = freq * freqt
+     elements(indexe)%ions(indexI)%levels(indexclev)%photcros(1,ind_I) = freq * Rydberg * const_ev / const_h
      ! write(*,*) 'read_photcs: photfreq = ', freq * Rydberg * e_v / h
-     elements(indexe)%ions(indexI)%levels(indexclev)%photcros(2,I) = cross * 1.D-18
+     elements(indexe)%ions(indexI)%levels(indexclev)%photcros(2,ind_I) = cross * 1.D-18
      ! write(32,*) indexe, indexI, indexclev, freq * Rydberg * e_v / h, cross * 1.D-15
      ! write(32,*) indexe, indexI, indexclev, freq, cross
-     ! print*, index, indexI, freq(I), cross(I)
+     ! print*, index, indexI, freq(ind_I), cross(ind_I)
     END IF
    END DO
    ! it would be possible to save these data in the form of fit coefficients

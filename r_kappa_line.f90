@@ -42,7 +42,7 @@ DOUBLE PRECISION                                :: cur_freq_rf
 DOUBLE PRECISION                                :: delta
 DOUBLE PRECISION                                :: deriv
 DOUBLE PRECISION                                :: s_min, s_pls
-DOUBLE PRECISION                                :: tau_line_2, tau_line_3
+DOUBLE PRECISION                                :: tau_line_3
 
 INTEGER, PARAMETER                              :: max_n_of_velopackets = 20000
 

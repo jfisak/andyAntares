@@ -15,9 +15,9 @@ USE virt_gridAB
 
 IMPLICIT NONE
 
-DOUBLE PRECISION               :: diagonal
+! DOUBLE PRECISION               :: diagonal
 ! loop variables
-INTEGER                        :: cur_propcell, best_index
+INTEGER                        :: cur_propcell
 ! variables for calculating the shortest distance between
 ! propagation and model cell
 DOUBLE PRECISION               :: delta, delta2
@@ -30,20 +30,14 @@ DOUBLE PRECISION, PARAMETER     :: large_number=1.d90
 INTEGER                         :: my_start, my_end
 INTEGER                         :: N_single, N_zbytek
 INTEGER                                 :: cur_mgi
-DOUBLE PRECISION                :: tot_delta = 0.D0
-INTEGER                         :: n_adjonced = 0
 
-INTEGER                         :: cur_n_assoc, ind_I, n_assoc, ind_J
-INTEGER, DIMENSION(const_dimofspace) :: cur_index_A, cur_index_B
-DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: cur_centre_A, cur_centre_B, cur_vg_index
-TYPE(modelgrid), ALLOCATABLE    :: mg_pom(:)
+INTEGER                         :: cur_n_assoc, ind_I
+DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: cur_centre_A, cur_centre_B
 
 DOUBLE PRECISION                :: dist_A, dist_B
 INTEGER                         :: n_A, n_B
 INTEGER                         :: cur_n_points, cur_start_index, cur_end_index
 
-INTEGER                                 :: cur_n_x_A, cur_n_y_A, cur_n_z_A
-INTEGER                                 :: cur_n_x_B, cur_n_y_B, cur_n_z_B
 INTEGER                         :: cur_mgi_assoc
 
 LOGICAL                         :: choose_A, choose_B
@@ -53,12 +47,9 @@ INTEGER, ALLOCATABLE            :: cur_points(:)
 DOUBLE PRECISION                :: max_dist
 
 
-DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: cur_pos, cur_pg_pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: cur_pg_pos
 LOGICAL                                                 :: is_vgrid_A
-INTEGER                                                 :: cur_scalar_vgi_index
-INTEGER                                                 :: cur_scalar_pga_vgi_index, cur_scalar_pgb_vgi_index
-INTEGER                                                 :: cur_scalar_mg_vgi_index
-INTEGER, DIMENSION(const_dimofspace)                    :: cur_nA, cur_nB
+! INTEGER                                                 :: cur_scalar_vgi_index
 
 max_dist = 2 * sqrt(basic_cell_width(ind_x)**2+basic_cell_width(ind_y)**2+basic_cell_width(ind_z)**2)
 
@@ -217,7 +208,6 @@ write(99,*) 'number of propagation cells in vacuum: ', model_grid(vacuum_index)%
 DO ind_I = 1, n_propgcells
  IF(dyn_cell(ind_I)%up_cell == 0) THEN
   cur_mgi_index = dyn_cell(ind_I)%model_index
-  IF(cur_mgi_index <= n_modelgrid) write(*,*) 'connect_2D_basic: cur_mgi_index = ', cur_mgi_index
   IF(cur_mgi_index <= n_modelgrid) THEN
    mgi_radius = model_grid(cur_mgi_index)%rwind
    mgi_theta = model_grid(cur_mgi_index)%angle

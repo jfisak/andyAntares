@@ -12,30 +12,30 @@ USE dummypacket
 IMPLICIT NONE
 
 INTEGER                                 :: pack_index, dummypack_index
-DOUBLE PRECISION, DIMENSION(3)          :: vel_vec
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: vel_vec
 
-DOUBLE PRECISION, DIMENSION(3)          :: act_corner, act_width, act_pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: act_corner, act_width, act_pos
 INTEGER                                 :: act_cell
 INTEGER                                 :: act_mgi
-DOUBLE PRECISION, DIMENSION(3)          :: act_center, act_vel
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: act_center, act_vel
 DOUBLE PRECISION                        :: act_vel_norm
 
-DOUBLE PRECISION, DIMENSION(3)          :: rel_pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: rel_pos
 
 INTEGER, DIMENSION(8)                   :: velgridcells
 
-DOUBLE PRECISION, DIMENSION(3)          :: cur_pos1, cur_vel1, cur_pos2, cur_vel2
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: cur_pos1, cur_vel1, cur_pos2, cur_vel2
 INTEGER                                 :: cur_cell1, cur_cell2, cur_mgi1, cur_mgi2
 
 INTEGER                                 :: I, J
 ! DOUBLE PRECISION, DIMENSION(3,8)        :: c_point, c_pos
-DOUBLE PRECISION, DIMENSION(3,4)        :: e_point, e_pos 
-DOUBLE PRECISION, DIMENSION(3,2)        :: w_point, w_pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace,4)        :: e_point, e_pos 
+DOUBLE PRECISION, DIMENSION(const_dimofspace,2)        :: w_point, w_pos
 ! DOUBLE PRECISION, DIMENSION(3)          :: point_width
 
 LOGICAL                                 :: incellmode
 
-DOUBLE PRECISION, DIMENSION(8,3)        :: cube_pos
+DOUBLE PRECISION, DIMENSION(8,const_dimofspace)        :: cube_pos
 
 
 ! write(*,*) 'vel_discrete_points: pack_index = ', pack_index, ' dim(package) = ', SIZE(package)
