@@ -1,3 +1,8 @@
+! finds the next cell in the lower levels of the propGrid tree
+!
+! INPUT: pack_index(INT): packet index
+! OUTPUT: next_cell(INT): index of the next cell
+!
 SUBROUTINE next_cell_down(pack_index, next_cell)
 
 USE types
@@ -7,7 +12,7 @@ USE dummypacket
 IMPLICIT NONE
 
 ! input variables
-INTEGER                                 :: pack_index
+INTEGER                                 :: pack_index, dummypack_index
 ! outpu variables
 INTEGER                                 :: next_cell
 ! local variable next cell
@@ -17,20 +22,21 @@ INTEGER                                 :: cross
 ! actual cell
 INTEGER                                 :: act_cell
 
-DOUBLE PRECISION                        :: di
-INTEGER                                 :: nc
+DOUBLE PRECISION                        :: calc_dist
+INTEGER                                 :: cell_numb
 
-IF(pack_index > SIZE(package) + 10) THEN
- pack_index = pack_index - SIZE(package) - 10
- act_cell = dummypackage(pack_index)%cell_numb
- cross = dummypackage(pack_index)%next_cross
+IF(pack_index > SIZE(package)) THEN
+ dummypack_index = pack_index - SIZE(package)
+ act_cell = dummypackage(dummypack_index)%cell_numb
+ cross = dummypackage(dummypack_index)%next_cross
 ELSE
  act_cell = package(pack_index)%cell_numb
  cross = package(pack_index)%next_cross
 END IF
 
 IF(cross <= 0 ) THEN
- CALL bound_dist(pack_index, nc, di)
+ ! cell_numb and calc_dist are not important in this case
+ CALL bound_dist(pack_index, cell_numb, calc_dist)
  ! cross = package(pack_index)%next_cross
  IF(cross < 0) STOP 'next_cell_down: next cross is impossible to find'
 END IF

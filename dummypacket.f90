@@ -1,3 +1,5 @@
+! basic module for dummypacket dynamics
+! 
 MODULE dummypacket
 
 IMPLICIT NONE
@@ -10,7 +12,7 @@ TYPE dummyphoton
    DOUBLE PRECISION                :: e_cmf, e_rf, freq_cmf, freq_rf, delta_s
    INTEGER                         :: typ, next_cross, last_line
    INTEGER                         :: n_interactions
-   DOUBLE PRECISION, DIMENSION(3)  :: pos, dir 
+   DOUBLE PRECISION, DIMENSION(const_dimofspace)  :: pos, dir 
    INTEGER                         :: l_ele, l_ion, l_lev, n_int = 0
    LOGICAL                         :: redShift, virtual
    LOGICAL                         :: occupied=.false.

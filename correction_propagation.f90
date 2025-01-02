@@ -1,3 +1,10 @@
+! corrects the position of a packet if its position is slightly different from the current
+! propGrid cell index
+!
+! INPUT: cur_index(INT): x, y, z index
+!        pack_index(INT): curent packet index
+!        cur_pgi(INT): propGrid index
+!
 SUBROUTINE correction_propagation(cur_index, pack_index, cur_pgi)
 
 USE types
