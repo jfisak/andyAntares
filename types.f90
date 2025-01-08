@@ -143,6 +143,8 @@ SAVE
   INTEGER                            :: velApprox
   ! brtm activation
   LOGICAL                            :: calc_brtm
+  ! onle line mode
+  LOGICAL                            :: oneline
 
 ! fields for the given types
   TYPE(modelgrid), ALLOCATABLE       :: model_grid(:)

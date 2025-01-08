@@ -68,7 +68,7 @@ LOGICAL                                 :: is_vgrid_A
    END IF
   ! the initial estimate
   ELSE
-   n_in_cell = FLOOR((n_modelgrid/min_incell)**(1.0/3.0))
+   n_in_cell = FLOOR((n_modelgrid/min_incell)**0.5)
    ! n_in_cell = 5
   END IF
 

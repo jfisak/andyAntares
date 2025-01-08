@@ -46,6 +46,7 @@ INTEGER, ALLOCATABLE            :: cur_points(:)
 
 DOUBLE PRECISION                :: max_dist
 
+DOUBLE PRECISION                :: max_theta
 
 DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: cur_pg_pos
 LOGICAL                                                 :: is_vgrid_A
@@ -84,14 +85,18 @@ max_dist = 2 * sqrt(basic_cell_width(ind_x)**2+basic_cell_width(ind_y)**2+basic_
 !  END IF
 ! END DO
 
+max_theta = MAXVAL(model_grid(:)%angle)
+
 DO cur_propcell = my_start, my_end
- ! IF(mod(cur_propcell,10000) .EQ. 0) print*, 'associating propagation grid', cur_propcell, REAL(cur_propcell)/REAL(max_n_dcell) * 1.E2, ' % completed'
  IF(dyn_cell(cur_propcell)%up_cell == 0) THEN
    ! Absolute radius of the propagation grid cell (midle of the cell)
    pgi_radius = SQRT((dyn_cell(cur_propcell)%corner(ind_x) + dyn_cell(cur_propcell)%width(ind_x)/2.D0)**2 + &
                      (dyn_cell(cur_propcell)%corner(ind_y) + dyn_cell(cur_propcell)%width(ind_y)/2.D0)**2 + &
                      (dyn_cell(cur_propcell)%corner(ind_z) + dyn_cell(cur_propcell)%width(ind_z)/2.D0)**2)
    pgi_theta =  acos((dyn_cell(cur_propcell)%corner(ind_z) + dyn_cell(cur_propcell)%width(ind_z)/2.D0)/pgi_radius)
+   ! a correction of the angle to fit the input range
+   pgi_theta = pgi_theta - FLOOR(pgi_theta/max_theta) * max_theta
+
    cur_pg_pos = (/ pgi_radius, pgi_theta, 0.D0 /)
 
   IF(pgi_radius > R_star .AND. pgi_radius < R_inf) THEN
@@ -112,9 +117,9 @@ DO cur_propcell = my_start, my_end
     ! write(*,*) 'connect_2D_basic: cur_pg_pos = ', cur_pg_pos
     CALL get_vg_centre_B(n_B, cur_centre_B)
 
-    dist_A = sqrt(pgi_radius**2+cur_centre_A(ind_x)**2 - &
+    dist_A = sqrt(pgi_radius**2 + cur_centre_A(ind_x)**2 - &
      2.0 * pgi_radius * cur_centre_A(ind_x) * cos(pgi_theta - cur_centre_A(ind_y)))
-    dist_B = sqrt(pgi_radius**2+cur_centre_B(ind_x)**2 - &
+    dist_B = sqrt(pgi_radius**2 + cur_centre_B(ind_x)**2 - &
      2.0 * pgi_radius * cur_centre_B(ind_x) * cos(pgi_theta - cur_centre_B(ind_y)))
 
     IF(dist_A <= dist_B) THEN

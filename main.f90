@@ -104,7 +104,7 @@ saha_const = 5.D-1 * (const_h**2/(2.0*const_pi*const_me_g*const_kB))**1.5
  ! n_pack + 1 -- dummypackage
  ! n_pack + 3 -- virtual package
  n_add_pack = 3
- ALLOCATE (package(n_pack + n_add_pack))
+ ALLOCATE (package(n_pack))
  ! write(*,*) 'main: |package| = ', SIZE(package)
 
  CALL find_unfinished_run()
