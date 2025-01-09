@@ -37,6 +37,8 @@ LOGICAL                                 :: incellmode
 
 DOUBLE PRECISION, DIMENSION(8,const_dimofspace)        :: cube_pos
 
+! INTEGER                                 :: cur_propGrid_cell
+
 
 ! write(*,*) 'vel_discrete_points: pack_index = ', pack_index, ' dim(package) = ', SIZE(package)
 IF(pack_index <= SIZE(package)) THEN
@@ -46,6 +48,8 @@ ELSE IF(pack_index > SIZE(package)) THEN
  dummypack_index = pack_index - SIZE(package)
  act_cell = dummypackage(dummypack_index)%cell_numb
  act_pos = dummypackage(dummypack_index)%pos
+ ! CALL find_dyn_cell1(act_pos, cur_propGrid_cell)
+ ! write(*,*) 'vel_discrete_points: act_cell = ', act_cell, ' cur_propGrid_cell = ', cur_propGrid_cell
 END IF
 act_mgi = dyn_cell(act_cell)%model_index
 act_corner = dyn_cell(act_cell)%corner
@@ -94,18 +98,18 @@ ELSE ! incellmode
 
   CALL velo_vector(cur_pos2, cur_mgi2, cur_vel2)
 
-  if(cur_vel1(1) == -2.0 .and. cur_vel1(2) == -3.0 .and. cur_vel1(3) == -5.0) then
+  if(cur_vel1(ind_x) == -2.0 .and. cur_vel1(ind_y) == -3.0 .and. cur_vel1(ind_z) == -5.0) then
    cur_vel1 = act_vel
   end if
-  if(cur_vel2(1) == -2.0 .and. cur_vel2(2) == -3.0 .and. cur_vel2(3) == -5.0) then
+  if(cur_vel2(ind_x) == -2.0 .and. cur_vel2(ind_y) == -3.0 .and. cur_vel2(ind_z) == -5.0) then
    cur_vel2 = act_vel
   end if
 
-  IF(cur_pos1(3) > cur_pos2(3) .and. (act_pos(3) < cur_pos2(3) .or. act_pos(3) > cur_pos1(3)))THEN
+  IF(cur_pos1(ind_z) > cur_pos2(ind_z) .and. (act_pos(ind_z) < cur_pos2(ind_z) .or. act_pos(ind_z) > cur_pos1(ind_z))) THEN
    DO J = 1,8
     write(29,*) cube_pos(I,:)
    END DO
-  ELSE IF (cur_pos1(3) < cur_pos2(3) .and. (act_pos(3) > cur_pos2(3) .or. act_pos(3) < cur_pos1(3))) THEN
+  ELSE IF (cur_pos1(ind_z) < cur_pos2(ind_z) .and. (act_pos(ind_z) > cur_pos2(ind_z) .or. act_pos(ind_z) < cur_pos1(ind_z))) THEN
    DO J = 1,8
     write(29,*) cube_pos(I,:)
    END DO
@@ -118,8 +122,8 @@ ELSE ! incellmode
  !  END DO
  ! END IF
  
-  CALL lin_interpolation(act_pos(3), cur_vel1, cur_pos1(3), cur_vel2, cur_pos2(3), e_point(:,I))
-  e_pos(:,I) = (/ cur_pos1(1), cur_pos1(2), act_pos(3 )/)
+  CALL lin_interpolation(act_pos(ind_z), cur_vel1, cur_pos1(ind_z), cur_vel2, cur_pos2(ind_z), e_point(:,I))
+  e_pos(:,I) = (/ cur_pos1(ind_x), cur_pos1(ind_y), act_pos(ind_z)/)
  END DO
  
  
