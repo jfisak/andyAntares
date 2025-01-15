@@ -1,6 +1,13 @@
+! Move photon package from the curent position for some distance (update package(pack_index)%pos)
+!
+! INPUT: pack_index(INT): index of a packet
+!        dist(DBLE): distance to move
+!        next_cell(INT): index of the next propGrid cell
+!        change(LOG): should the index of the propGrid cell be changed?
+! OUTPUT: NONE
+!
 SUBROUTINE move_package(pack_index, dist, next_cell, change)
 
-! Move photon package from the curent position for some distance (update package(pack_index)%pos)
 
 USE types
 USE constants

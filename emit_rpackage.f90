@@ -1,3 +1,8 @@
+! emit a new r-packet in a random direction
+!
+! INPUT: pack_index(INT): index of a packet
+! OUTPUT: NONE
+!
 SUBROUTINE emit_rpackage(pack_index)
 
 USE types
@@ -6,10 +11,10 @@ USE constants
 IMPLICIT NONE    
 
 INTEGER                           :: pack_index
-DOUBLE PRECISION                  :: D
-DOUBLE PRECISION, DIMENSION(3)    :: cmf_direction, rf_direction, vel_vec
+DOUBLE PRECISION                  :: doppler_D
+DOUBLE PRECISION, DIMENSION(const_dimofspace)    :: cmf_direction, rf_direction, vel_vec
 
-DOUBLE PRECISION, DIMENSION(3)          :: cur_pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: cur_pos
 INTEGER                                 :: cur_mgi, get_package_model_index
   
 cur_pos = package(pack_index)%pos
@@ -32,9 +37,9 @@ package(pack_index)%dir = rf_direction
 
 ! Finally update the packets frequency and energy
 ! See e.g. Mihalas and Mihalas Eq. 89.5
-CALL doppler_factor(pack_index, D)
+CALL doppler_factor(pack_index, doppler_D)
 
-package(pack_index)%e_rf = package(pack_index)%e_cmf / D
-package(pack_index)%freq_rf =  package(pack_index)%freq_cmf / D
+package(pack_index)%e_rf = package(pack_index)%e_cmf / doppler_D
+package(pack_index)%freq_rf =  package(pack_index)%freq_cmf / doppler_D
 
 END SUBROUTINE emit_rpackage

@@ -27,7 +27,7 @@ INTEGER, DIMENSION(8)                   :: velgridcells
 DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: cur_pos1, cur_vel1, cur_pos2, cur_vel2
 INTEGER                                 :: cur_cell1, cur_cell2, cur_mgi1, cur_mgi2
 
-INTEGER                                 :: I, J
+INTEGER                                 :: ind_I, ind_J
 ! DOUBLE PRECISION, DIMENSION(3,8)        :: c_point, c_pos
 DOUBLE PRECISION, DIMENSION(const_dimofspace,4)        :: e_point, e_pos 
 DOUBLE PRECISION, DIMENSION(const_dimofspace,2)        :: w_point, w_pos
@@ -76,21 +76,21 @@ IF(incellmode) THEN ! incellmode
 ! z-direction -- four points
 ! IF(pack_index == 1) THEN
 ELSE ! incellmode
- DO I = 1,4
+ DO ind_I = 1,4
   IF(dyngrid == 0) THEN
-   cur_cell1 = velgridcells(2*I -1)
+   cur_cell1 = velgridcells(2*ind_I -1)
    cur_mgi1 = dyn_cell(cur_cell1)%model_index
    cur_pos1 = dyn_cell(cur_cell1)%corner + dyn_cell(cur_cell1)%width/2.0
    
-   cur_cell2 = velgridcells(2*I)
+   cur_cell2 = velgridcells(2*ind_I)
    cur_mgi2 = dyn_cell(cur_cell2)%model_index
    cur_pos2 = dyn_cell(cur_cell2)%corner + dyn_cell(cur_cell2)%width/2.0
   ELSE IF (dyngrid > 0) THEN
-   cur_pos1 = cube_pos(2*I - 1, :)
+   cur_pos1 = cube_pos(2*ind_I - 1, :)
    CALL find_dyn_cell1(cur_pos1, cur_cell1)
    cur_mgi1 = dyn_cell(cur_cell1)%model_index
 
-   cur_pos2 = cube_pos(2*I, :)
+   cur_pos2 = cube_pos(2*ind_I, :)
    CALL find_dyn_cell1(cur_pos2, cur_cell2)
    cur_mgi2 = dyn_cell(cur_cell2)%model_index
   END IF
@@ -106,37 +106,38 @@ ELSE ! incellmode
   end if
 
   IF(cur_pos1(ind_z) > cur_pos2(ind_z) .and. (act_pos(ind_z) < cur_pos2(ind_z) .or. act_pos(ind_z) > cur_pos1(ind_z))) THEN
-   DO J = 1,8
-    write(29,*) cube_pos(I,:)
+   DO ind_J = 1,8
+    write(29,*) cube_pos(ind_I,:)
    END DO
   ELSE IF (cur_pos1(ind_z) < cur_pos2(ind_z) .and. (act_pos(ind_z) > cur_pos2(ind_z) .or. act_pos(ind_z) < cur_pos1(ind_z))) THEN
-   DO J = 1,8
-    write(29,*) cube_pos(I,:)
+   DO ind_J = 1,8
+    write(29,*) cube_pos(ind_I,:)
    END DO
   END IF
    
 
  ! IF(cur_pos1(3) == cur_pos2(3)) THEN
- !  DO J = 1,8
+ !  DO ind_J = 1,8
  !   write(29,*) cube_pos(I,:)
  !  END DO
  ! END IF
  
-  CALL lin_interpolation(act_pos(ind_z), cur_vel1, cur_pos1(ind_z), cur_vel2, cur_pos2(ind_z), e_point(:,I))
-  e_pos(:,I) = (/ cur_pos1(ind_x), cur_pos1(ind_y), act_pos(ind_z)/)
+  CALL lin_interpolation(act_pos(ind_z), cur_vel1, cur_pos1(ind_z), cur_vel2, cur_pos2(ind_z), e_point(:,ind_I))
+  e_pos(:,ind_I) = (/ cur_pos1(ind_x), cur_pos1(ind_y), act_pos(ind_z)/)
  END DO
  
  
  ! y-direction -- two points
- DO I = 1,2
-  cur_vel1 = e_point(:, 2*I - 1)
-  cur_pos1 = e_pos(:, 2*I - 1)
+ DO ind_I = 1,2
+  cur_vel1 = e_point(:, 2*ind_I - 1)
+  cur_pos1 = e_pos(:, 2*ind_I - 1)
  
-  cur_vel2 = e_point(:,2*I)
-  cur_pos2 = e_pos(:,2*I)
+  cur_vel2 = e_point(:,2*ind_I)
+  cur_pos2 = e_pos(:,2*ind_I)
  
-  CALL lin_interpolation(act_pos(2), e_point(:,2*I-1), cur_pos1(2), e_point(:,2*I), cur_pos2(2), w_point(:,I))
-  w_pos(:,I) = (/ cur_pos1(1), act_pos(2), e_pos(3,I) /)
+  CALL lin_interpolation(act_pos(ind_y), e_point(:,2*ind_I-1), cur_pos1(ind_y), &
+   e_point(:,2*ind_I), cur_pos2(ind_y), w_point(:,ind_I))
+  w_pos(:,ind_I) = (/ cur_pos1(ind_x), act_pos(ind_y), e_pos(ind_z,ind_I) /)
  END DO
  
  ! x-direction -- one last point
@@ -146,7 +147,7 @@ ELSE ! incellmode
   cur_vel2 = w_point(:,2)
   cur_pos2 = w_pos(:,2)
   
-  CALL lin_interpolation(act_pos(1), w_point(:,1), cur_pos1(1), w_point(:,2), cur_pos2(1), vel_vec)
+  CALL lin_interpolation(act_pos(ind_x), w_point(:,1), cur_pos1(ind_x), w_point(:,2), cur_pos2(ind_x), vel_vec)
 END IF
 
 ! write(49,*) norm2(act_pos), norm2(vel_vec)

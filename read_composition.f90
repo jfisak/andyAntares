@@ -127,22 +127,27 @@ OPEN (UNIT=7, FILE=inputcomposition)
 ! now reading atomic transitions 
 ! ! now we can read informations if the files
  write(99,*) 'reading atomic transitions'
- DO 
-  READ(7,'(A)',iostat=ios) line
-  IF (ios /= 0) EXIT
-  IF ( INDEX(line, '*') /= 0) CYCLE
-  READ(line,*) atom_number, lowerion, upperion, transition_type, filename, &
-        phcs_type, photn, photfile
-  !write(99,*) 'calling subroutine read_transitions...'
-  CALL find_element_index(atom_number, element_index)
-  CALL read_transitions(element_index, lowerion, upperion, transition_type, filename)
-  IF(photn == 0) THEN
-   write(99,*) 'no valid data for potoionization cross sections'
-  ELSE
-   write(99,*) 'calling subroutine read_photcs... for element index = ', element_index
-   CALL read_photcs(phcs_type, element_index, photn, photfile)
-  END IF
- END DO
+ IF(.NOT. oneline) THEN
+  DO 
+   READ(7,'(A)',iostat=ios) line
+   IF (ios /= 0) EXIT
+   IF ( INDEX(line, '*') /= 0) CYCLE
+   READ(line,*) atom_number, lowerion, upperion, transition_type, filename, &
+         phcs_type, photn, photfile
+   !write(99,*) 'calling subroutine read_transitions...'
+   CALL find_element_index(atom_number, element_index)
+   CALL read_transitions(element_index, lowerion, upperion, transition_type, filename)
+   IF(photn == 0) THEN
+    write(99,*) 'no valid data for potoionization cross sections'
+   ELSE
+    write(99,*) 'calling subroutine read_photcs... for element index = ', element_index
+    CALL read_photcs(phcs_type, element_index, photn, photfile)
+   END IF
+  END DO
+ ELSE IF(oneline) THEN
+  CALL read_singleline()
+ END IF
+ 
 ! OPEN(20,status='new',FILE='linelist.dat')
 !  DO ind_I = 1, ntransitions
 !   write(20,*) elements(linelist(ind_I)%indexe)%atom_number, linelist(ind_I)%indexi, linelist(ind_I)%freq, linelist(ind_I)%f_ul

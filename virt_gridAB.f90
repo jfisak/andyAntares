@@ -35,23 +35,15 @@ INTEGER                                 :: n_in_cell
 INTEGER                                 :: n_zeros
 INTEGER, PARAMETER                      :: min_incell = 10
 
-INTEGER                                 :: cur_index_mgi
-INTEGER                                 :: ind_I
-
 DOUBLE PRECISION                        :: cur_x, cur_y, cur_z
-INTEGER                                 :: cur_n_x_A, cur_n_y_A, cur_n_z_A
-INTEGER                                 :: cur_n_x_B, cur_n_y_B, cur_n_z_B
 
 INTEGER                                 :: cur_vgi, cur_ind_sorted, cur_mgi
 
 INTEGER, ALLOCATABLE                    :: counter_A(:), counter_B(:)
 INTEGER                                 :: n_assoc
-INTEGER                                 :: cur_ind_vgi
 
 LOGICAL                                 :: confirmed, lower_resolution
 
-INTEGER, DIMENSION(const_dimofspace)    :: vec_n_A, vec_n_B
-INTEGER                                 :: cur_scalar_mg_vgi_index, previous_index, cur_index
 DOUBLE PRECISION, DIMENSION(const_dimofspace) :: cur_pos
 LOGICAL                                 :: is_vgrid_A
 
@@ -377,7 +369,6 @@ SUBROUTINE get_vg_index(cur_pos, out_index_A, out_index_B)
  INTEGER, DIMENSION(const_dimofspace)              :: out_index_A, out_index_B
  INTEGER                                :: cur_n_x_A, cur_n_y_A, cur_n_z_A
  INTEGER                                :: cur_n_x_B, cur_n_y_B, cur_n_z_B
- INTEGER                                :: n_A, n_B
 
  ! write(*,*) 'get_vg_index: 
  ! write(*,*) 'get_vg_index: cur_pos = ', (cur_pos(ind_x)-vg_xmin)/w_vgrid_x, &
@@ -465,7 +456,6 @@ SUBROUTINE get_vg_centre_A(cur_scal_index, out_centre)
  INTEGER               :: cur_scal_index
  DOUBLE PRECISION, DIMENSION(const_dimofspace)      :: out_centre
  INTEGER                                            :: cur_n_x_A, cur_n_y_A, cur_n_z_A
- INTEGER, DIMENSION(const_dimofspace)                   :: index_A, index_B
  INTEGER                                                :: cur_zb
  
 
@@ -489,7 +479,6 @@ SUBROUTINE get_vg_centre_B(cur_scal_index, out_centre)
  INTEGER              :: cur_scal_index
  DOUBLE PRECISION, DIMENSION(const_dimofspace)      :: out_centre
  INTEGER                                            :: cur_n_x_B, cur_n_y_B, cur_n_z_B
- INTEGER, DIMENSION(const_dimofspace)                   :: index_A, index_B
  INTEGER                                                :: cur_zb
 
  cur_n_z_B = (cur_scal_index - 1)/((N_vgrid_x - 1) * (N_vgrid_y - 1)) + 1

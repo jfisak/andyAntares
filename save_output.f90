@@ -33,6 +33,7 @@ DOUBLE PRECISION                        :: wavle
 CHARACTER(LEN=filename_length)                       :: fileTempStruct! , fileOccNum
 CHARACTER(LEN=filename_length)                       :: fileHydrogenFrac, fileHeliumFrac
 CHARACTER(LEN=filename_length)                       :: fileGrid, filePart
+CHARACTER(LEN=filename_length)                       :: initspec_file
 ! ionization fraction files
 DOUBLE PRECISION                        :: frac, N_jk, totElPop
 ! DOUBLE PRECISION                        :: frac1, N_jk1, totElPop1
@@ -610,6 +611,19 @@ CLOSE(175)
 # if mpi == 1
  END IF
 # endif
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! #12 initial frequency distribution
+!
+! 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CASE(13)
+ write(initspec_file,"(A, A13, I3.3, A4)") trim(outputfolder), '/photonFdistr', my_rank, '.dat'
+ OPEN(19,file=initspec_file)
+  do ind_I=1, SIZE(package)
+   write(19,*) -99, package(ind_I)%freq_rf, package(ind_I)%e_rf
+  end do
+ CLOSE(19)
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
