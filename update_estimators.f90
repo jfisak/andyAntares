@@ -10,7 +10,6 @@ DOUBLE PRECISION                  :: dist
 
 current_mgi = get_package_model_index(pack_index)
 
-!$OMP ATOMIC
- model_grid(current_mgi)%J = model_grid(current_mgi)%J + package(pack_index)%e_cmf * dist
+model_grid(current_mgi)%J = model_grid(current_mgi)%J + package(pack_index)%e_cmf * dist
 
 END SUBROUTINE update_estimators
