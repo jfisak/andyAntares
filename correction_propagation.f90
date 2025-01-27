@@ -12,7 +12,7 @@ IMPLICIT NONE
 
 INTEGER                                         :: cur_index
 INTEGER                                         :: pack_index, cur_pgi
-DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: pos, corner, width
+DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: pos, corner, width, cur_pos
 
 DOUBLE PRECISION                                :: diff1, diff2
 
@@ -21,21 +21,23 @@ corner = dyn_cell(cur_pgi)%corner
 width = dyn_cell(cur_pgi)%width
 
 
- diff1 = abs(pos(cur_index) - corner(cur_index))
- diff2 = abs(pos(cur_index) - corner(cur_index) - width(cur_index))
-write(*,*) 'correction_propagation: diff1 = ', diff1, ' diff2 = ', diff2
+! diff1 = abs(pos(cur_index) - corner(cur_index))
+! diff2 = abs(pos(cur_index) - corner(cur_index) - width(cur_index))
+! write(*,*) 'correction_propagation: diff1 = ', diff1, ' diff2 = ', diff2
+! 
+! write(*,*) 'correction_propagation: corrected index: ', cur_index
+! 
+! IF(diff1 < diff2) THEN
+!  package(pack_index)%pos(cur_index) = corner(cur_index)
+!  write(*,*) 'correction_propagation: new pos = corner(cur_index)'
+! ELSE IF(diff2 >= diff1) THEN
+!  package(pack_index)%pos(cur_index) = corner(cur_index) + width(cur_index)
+!  write(*,*) 'correction_propagation: new pos = corner(cur_index) + width(cur_index)'
+! END IF
 
-write(*,*) 'correction_propagation: corrected index: ', cur_index
 
-IF(diff1 < diff2) THEN
- package(pack_index)%pos(cur_index) = corner(cur_index)
- write(*,*) 'correction_propagation: new pos = corner(cur_index)'
-ELSE IF(diff2 >= diff1) THEN
- package(pack_index)%pos(cur_index) = corner(cur_index) + width(cur_index)
- write(*,*) 'correction_propagation: new pos = corner(cur_index) + width(cur_index)'
-END IF
-
-
+CALL find_dyn_cell1(cur_pos, cur_pgi)
+package(pack_index)%cell_numb = cur_pgi
 
 
 

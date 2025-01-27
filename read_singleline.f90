@@ -13,8 +13,9 @@ DOUBLE PRECISION                :: col_str, trans_A, l_freq
 LOGICAL                         :: found_low_conf, found_up_conf
 
 INTEGER                         :: el_index
-INTEGER                         :: ion_index
+INTEGER                         :: ion_index, g_lower
 INTEGER                         :: n_levels, tot_ntrans, reading_transitions
+
 
 992 format(I7, I3, I3, I5, I5, I4, I4, Tr1, A16, A16, e9.2, e10.2, e10.2, f5.1, f5.1)
 
