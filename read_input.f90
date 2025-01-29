@@ -8,6 +8,7 @@ USE constants
   INTEGER    :: n_pack, iseed, idx, npar
   CHARACTER(LEN=180)  :: LINE, ACTPAR
   CHARACTER(LEN=180)  :: cur_calcmode
+  CHARACTER(LEN=filename_length) :: linefile
 
   INTEGER                               :: calc_brtm_int
 
@@ -59,6 +60,7 @@ USE constants
 ! 026 Sobolev approximation
 ! 027 Note
 ! 028 Calculation mode
+! 029 
   DO
     READ (1, '(A)', END=99) LINE
 
@@ -256,12 +258,21 @@ USE constants
      ! end all ifs
     ! 026 mode of calculation
     ELSE IF (ACTPAR .EQ. 'calcmode') THEN
-    CALL SARGC (LINE, NPAR)
-    IF (NPAR .LT. 2) GOTO 90
-    CALL SARGV(LINE,2,ACTPAR)
-    READ (ACTPAR, '(A)', ERR=94) cur_calcmode
-    IF(cur_calcmode .EQ. 'oneline') oneline = .true.
-    IF(cur_calcmode .EQ. 'multiline') oneline = .false.
+     CALL SARGC (LINE, NPAR)
+     IF (NPAR .LT. 2) GOTO 90
+     CALL SARGV(LINE,2,ACTPAR)
+     READ (ACTPAR, '(A)', ERR=94) cur_calcmode
+     IF(cur_calcmode .EQ. 'oneline') oneline = .true.
+     IF(cur_calcmode .EQ. 'multiline') oneline = .false.
+    ! 027 a filename including data of the line
+    ELSE IF (ACTPAR .EQ. 'linefile') THEN
+     CALL SARGC (LINE, NPAR)
+     IF (NPAR .LT. 2) GOTO 90
+     CALL SARGV(LINE,2,ACTPAR)
+     READ (ACTPAR, '(A)', ERR=94) linefile
+     IF(oneline) THEN
+      singleline_file = linefile
+     END IF
     END IF
   END DO
 

@@ -12,17 +12,17 @@ IMPLICIT NONE
 
 INTEGER                                         :: cur_index
 INTEGER                                         :: pack_index, cur_pgi
-DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: pos, corner, width, cur_pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: corner, width, cur_pos
 
 DOUBLE PRECISION                                :: diff1, diff2
 
-pos = package(pack_index)%pos
+cur_pos = package(pack_index)%pos
 corner = dyn_cell(cur_pgi)%corner
 width = dyn_cell(cur_pgi)%width
 
 
-! diff1 = abs(pos(cur_index) - corner(cur_index))
-! diff2 = abs(pos(cur_index) - corner(cur_index) - width(cur_index))
+! diff1 = abs(cur_pos(cur_index) - corner(cur_index))
+! diff2 = abs(cur_pos(cur_index) - corner(cur_index) - width(cur_index))
 ! write(*,*) 'correction_propagation: diff1 = ', diff1, ' diff2 = ', diff2
 ! 
 ! write(*,*) 'correction_propagation: corrected index: ', cur_index
@@ -38,7 +38,7 @@ width = dyn_cell(cur_pgi)%width
 
 CALL find_dyn_cell1(cur_pos, cur_pgi)
 package(pack_index)%cell_numb = cur_pgi
-
+write(*,*) 'correction_propagation: pack = ', pack_index, ' cur_pgi = ', cur_pgi
 
 
 

@@ -229,6 +229,7 @@ SAVE
   ! temporary file name
   CHARACTER(filename_length)                     :: temp_filename = 'temp_packet'
   CHARACTER(filename_length)                        :: put_a_note
+  CHARACTER(filename_length)            :: singleline_file
   INTEGER                               :: tot_saved_packets
   ! for testing case
   LOGICAL                               :: simpleTrans, orbitals_nl

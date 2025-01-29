@@ -21,6 +21,9 @@ INTEGER                                :: max_n_dcell, N_dyn_grid
 INTEGER                                :: xp, xm, yp, ym, zp, zm
 TYPE(dyn_grid_cell), ALLOCATABLE       :: pom2(:)
 INTEGER                                 :: status(MPI_STATUS_SIZE)
+DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: cur_corner
+DOUBLE PRECISION, PARAMETER             :: minival = 1.D-2
+INTEGER                                 :: cur_pgi
 
 
 #if mpi==1
@@ -159,6 +162,20 @@ n_propgcells = max_n_dcell
   write(*,*) 'setup_propgrid: my_rank = ', my_rank, ' n_propgcells = ', n_propgcells
   ALLOCATE(dyn_cell(n_propgcells))
  END IF
+
+
+ ! correction of coordinates
+ ! if the corner coordinate is equal to zero, the coordinate could be set up to a really small
+ ! non-zero number, we will set those numbers to zero
+ DO cur_pgi = 1, n_propgcells
+  cur_corner = dyn_cell(cur_pgi)%corner
+  DO ind_I = 1, const_dimofspace
+   IF(abs(cur_corner(ind_I)) < minival) THEN
+    write(*,*) 'setup_propgrid: setting I = ', ind_I, ' corner = ', cur_corner(ind_I), ' to zero'
+    dyn_cell(cur_pgi)%corner(ind_I) = 0.D0
+   END IF
+  END DO
+ END DO
 
  ! sending the physical quantities to all other processes
  ! DO cur_pgi = 1, n_propgcells
