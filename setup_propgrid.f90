@@ -24,6 +24,8 @@ INTEGER                                 :: status(MPI_STATUS_SIZE)
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: cur_corner
 DOUBLE PRECISION, PARAMETER             :: minival = 1.D-2
 INTEGER                                 :: cur_pgi
+REAL(8)                                 :: calc_x, calc_y, calc_z
+INTEGER(8)                              :: ceil_x, ceil_y, ceil_z
 
 
 #if mpi==1
@@ -47,9 +49,20 @@ END IF
 
 ! Size of the basic grid cells in x,y, and z direction (now they are with
 ! the same size i.e. regular gred)
-basic_cell_width(ind_x) = 2.E0 * xmax / DBLE(nx_cell)
-basic_cell_width(ind_y) = 2.E0 * ymax / DBLE(ny_cell)
-basic_cell_width(ind_z) = 2.E0 * zmax / DBLE(nz_cell)
+calc_x = 2.E0 * xmax / DBLE(nx_cell)
+calc_y = 2.E0 * ymax / DBLE(ny_cell)
+calc_z = 2.E0 * zmax / DBLE(nz_cell)
+ceil_x = CEILING(calc_x, kind=8)
+ceil_y = CEILING(calc_y, kind=8)
+ceil_z = CEILING(calc_z, kind=8)
+basic_cell_width(ind_x) = DBLE(ceil_x)
+basic_cell_width(ind_y) = DBLE(ceil_y)
+basic_cell_width(ind_z) = DBLE(ceil_z)
+! write(*,*) 'setup_propgrid: xmax = ', xmax, ' ymax = ', ymax, ' zmax = ', zmax
+! write(*,*) 'setup_propgrid: calc_x = ', calc_x, ' calc_y = ', calc_y, ' calc_z = ', calc_z
+! write(*,*) 'setup_propgrid: nx_cell = ', nx_cell, ' ny_cell = ', ny_cell, ' nz_cell = ', nz_cell
+! write(*,'(A,F26.6,F26.6,F26.6)') 'setup_propgrid: basic_cell_width  = ', basic_cell_width
+! STOP 'setup_propgrid: testing'
 
 
 L = 1

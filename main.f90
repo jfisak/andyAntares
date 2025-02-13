@@ -160,7 +160,7 @@ debug = 0
 write(propmod_file,"(A, A12)") TRIM(outputfolder), '/propmod.dat'
 INQUIRE(FILE=propmod_file, EXIST=propmod_file_exists)
 
-IF(saved_grid == 1 .and. propmod_file_exists) THEN
+IF((saved_grid == 2 .or. saved_grid == 3) .and. propmod_file_exists) THEN
  CALL read_propmod_grid()
  CALL virt_gridAB_init()
 ELSE
@@ -212,7 +212,16 @@ END IF ! saved propmod grid
 CALL propmodgrid_diagnostics()
 
 ! save propmod_grid?
-IF(saved_grid == 1 .and. .not. propmod_file_exists .or. saved_grid == 2) THEN
+IF(saved_grid == 2 .and. .not. propmod_file_exists .or. saved_grid == 2) THEN
+#if mpi==1
+ IF(my_rank == 0) THEN
+#endif
+ CALL save_propmod_grid()
+#if mpi==1
+ END IF
+#endif
+! for this option we always save the propMod grid file without checking if the old one exists
+ELSE IF(saved_grid == 1) THEN
 #if mpi==1
  IF(my_rank == 0) THEN
 #endif

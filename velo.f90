@@ -9,12 +9,13 @@ IMPLICIT NONE
 INTEGER                           :: approx
 INTEGER                           :: pack_index
 DOUBLE PRECISION                  :: vel_radial, vec_length
-DOUBLE PRECISION, DIMENSION(3)    :: vel_vec, pack_position
+DOUBLE PRECISION, DIMENSION(3)    :: vel_vec, pack_position, init_pack_pos
 ! Petr Kurfurst's disk model variables
 ! INTEGER                           :: pack_mi, get_package_model_index
 ! DOUBLE PRECISION, DIMENSION(3)    :: vel_rad, vel_ang
 ! DOUBLE PRECISION                  :: vel_rad_norm, vel_ang_norm
 DOUBLE PRECISION                  :: r_pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: cur_n
 
 LOGICAL, PARAMETER                :: velocityTesting = .true.
 INTEGER, PARAMETER                :: max_n_of_velopackets = 200
@@ -30,6 +31,15 @@ ELSE IF(pack_index > SIZE(package)) THEN
  cur_dummy_index = pack_index - SIZE(package)
  pack_position = dummypackage(cur_dummy_index)%pos
 END IF
+init_pack_pos = pack_position
+
+IF(norm2(pack_position) < R_star) THEN
+ vel_vec = (/ 0.D0, 0.D0, 0.D0 /)
+ RETURN
+ELSE IF(norm2(pack_position) > R_inf) THEN
+ cur_n = pack_position/norm2(pack_position)
+ pack_position = R_inf * cur_n
+END IF
 
 SELECT CASE(velApprox)
 ! #00
@@ -43,7 +53,6 @@ CASE(1)
  r_pos = norm2(pack_position)
  vel_radial = V_inf * (1.D0 - R_star / norm2(pack_position))**beta
  ! write(*,*) 'velo: pack_position = ', pack_position
- if(r_pos <= R_star .or. r_pos > R_inf) vel_radial = 0.D0
  if(isnan(vel_radial)) STOP 'velo: vel_radial = NaN'
  vel_vec = pack_position/NORM2(pack_position) * vel_radial
 ! #02
@@ -64,14 +73,9 @@ CASE DEFAULT
  CALL abort()
 END SELECT
 
- IF(norm2(pack_position) < R_star) THEN
-  vel_vec = (/ 0.D0, 0.D0, 0.D0 /)
- ELSE IF(norm2(pack_position) > R_inf) THEN
-  vel_vec = V_inf * pack_position/norm2(pack_position)
- END IF
 IF(velocityTesting) THEN
  IF(pack_index <= max_n_of_velopackets) THEN
-  write(34,*) norm2(pack_position)/R_star, norm2(vel_vec)
+  write(34,*) norm2(init_pack_pos)/R_star, norm2(vel_vec)
  END IF
 END IF
  ! write(*,*) 'velo: norm2(vel_vec) = ', norm2(vel_vec)
