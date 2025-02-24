@@ -24,6 +24,9 @@ INTEGER                         :: act_cell, next_cross
 !   Number of the current cell
 act_cell = package(pack_index)%cell_numb
 ! now we are computing the nearest distance to the actuall dynamic cell
+IF(debug == 2) THEN
+ write(*,*) 'boundary3: calling bound_dist: act_cell = ', act_cell
+END IF
 CALL bound_dist(pack_index, act_cell, dist)
 next_cross = package(pack_index)%next_cross
 IF(next_cross <= 6) THEN

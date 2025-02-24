@@ -31,10 +31,11 @@ INTEGER                         :: forbidden
 DOUBLE PRECISION, PARAMETER     :: minie = 1e1
 
 INTEGER                         :: n_pos, n_neg, n_zer, n_par
-INTEGER                         :: next_cross
+INTEGER                         :: next_cross, old_cross
 
 DOUBLE PRECISION, PARAMETER     :: velkeCislo = 1.D99
 DOUBLE PRECISION                :: mindist
+INTEGER                         :: pom_pgi
 
 tnegx = 0.E0
 tnegy = 0.E0
@@ -52,7 +53,29 @@ corner = dyn_cell(cell_numb)%corner
 width = dyn_cell(cell_numb)%width
 dir = package(pack_index)%dir
 pos = package(pack_index)%pos
-forbidden = package(pack_index)%next_cross
+forbidden = -99
+old_cross = package(pack_index)%next_cross
+IF(old_cross == posx) THEN
+ forbidden = negx
+ELSE IF(old_cross == negx) THEN
+ forbidden = posx
+ELSE IF(old_cross == posy) THEN
+ forbidden = negy
+ELSE IF(old_cross == negy) THEN
+ forbidden = posy
+ELSE IF(old_cross == posz) THEN
+ forbidden = negz
+ELSE IF(old_cross == negz) THEN
+ forbidden = posz
+END IF
+IF(debug == 2) THEN
+ CALL find_dyn_cell1(pos, pom_pgi)
+ write(*,*) 'bound_dist: cur_pgi = ', pom_pgi
+ write(*,*) 'bound_dist: cell starting = ', corner
+ write(*,*) 'bound_dist: packet pos = ', pos
+ write(*,*) 'bound_dist: cell ending = ', (corner + width)
+END IF
+
 
 ! we will calculate parameters tnegx, ..., tposz
 IF(dir(ind_x) /= 0) THEN
@@ -103,27 +126,27 @@ dist = velkeCislo
 
 ! we are looking for the bound in front of the photon,
 ! so we have to choose solution with t > 0
-IF( (tnegx > 0.e0) .AND. (tnegx < dist) .AND. forbidden /= posx) THEN
+IF( (tnegx > 0.e0) .AND. (tnegx < dist) .AND. forbidden /= negx) THEN
  dist = tnegx
  package(pack_index)%next_cross = negx
 END IF
-IF( (tnegy > 0.e0)  .AND. (tnegy < dist) .AND. forbidden /= posy) THEN
+IF( (tnegy > 0.e0)  .AND. (tnegy < dist) .AND. forbidden /= negy) THEN
  dist = tnegy
  package(pack_index)%next_cross = negy
 END IF
-IF( (tnegz > 0.e0) .AND. (tnegz < dist) .AND. forbidden /=  posz) THEN
+IF( (tnegz > 0.e0) .AND. (tnegz < dist) .AND. forbidden /=  negz) THEN
  dist = tnegz
  package(pack_index)%next_cross = negz
 END IF
-IF( (tposx > 0.e0) .AND. (tposx < dist) .AND. forbidden /=  negx) THEN
+IF( (tposx > 0.e0) .AND. (tposx < dist) .AND. forbidden /=  posx) THEN
  dist = tposx
  package(pack_index)%next_cross = posx
 END IF
-IF( (tposy > 0.e0) .AND. (tposy < dist) .AND. forbidden /=  negy) THEN
+IF( (tposy > 0.e0) .AND. (tposy < dist) .AND. forbidden /=  posy) THEN
  dist = tposy
  package(pack_index)%next_cross = posy
 END IF
-IF( (tposz > 0.e0) .AND. (tposz < dist) .AND. forbidden /= negz) THEN
+IF( (tposz > 0.e0) .AND. (tposz < dist) .AND. forbidden /= posz) THEN
  dist = tposz
  package(pack_index)%next_cross = posz
 END IF
@@ -215,12 +238,14 @@ IF(debug == 2) THEN
  write(*,*) '*********************************************************************'
  write(*,*) 'bound_dist: n_pos = ', n_pos, ' n_neg = ', n_neg
  write(*,*) 'bound_dist: n_zer = ', n_zer, ' n_par = ', n_par
- write(*,*) 'bound_dist: tnegx = ', tnegx/R_star, ' tnegy = ', tnegy/R_star, ' tnegz = ', tnegz/R_star, &
-   ' tposx = ', tposx/R_star, ' tposy = ', tposy/R_star, 'tposz = ', tposz/R_star
+ write(*,*) 'bound_dist: width = ', width
+ write(*,*) 'bound_dist: tnegx = ', tnegx/width(ind_x), ' tnegy = ', tnegy/width(ind_y), &
+ ' tnegz = ', tnegz/width(ind_z), &
+   ' tposx = ', tposx/width(ind_x), ' tposy = ', tposy/width(ind_y), 'tposz = ', tposz/width(ind_z)
  write(*,*) '*********************************************************************'
  write(*,*) '*********************************************************************'
  write(*,*) 'bound_dist: next_cross = ', package(pack_index)%next_cross
- write(*,*) 'bound_dist: dist = ', dist/R_star, ' forbidden = ', forbidden
+ write(*,*) 'bound_dist: dist = ', dist, ' forbidden = ', forbidden
 END IF
 
 

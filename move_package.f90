@@ -30,7 +30,7 @@ INTEGER                                                 :: cur_pgi
 INTEGER                                                 :: next_cross
 
 IF(debug == 2) THEN
- write(*,*) 'move_package: going to move the packet'
+ write(*,*) 'move_package: going to move the packet, pack_index = ', pack_index
 END IF
 
 IF(pack_index > SIZE(package)) THEN

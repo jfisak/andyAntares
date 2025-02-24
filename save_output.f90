@@ -79,6 +79,7 @@ CHARACTER(LEN=filename_length)                      :: temp_file_name_t, temp_fi
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: width
 CHARACTER(LEN=2)                                :: cur_name, get_element_name
 CHARACTER(LEN=10)                               :: get_ion_number, cur_ion_num
+DOUBLE PRECISION                                :: cur_xpos
 
 !________________________________________________________________________________
 ! #00 output folder
@@ -547,11 +548,12 @@ OPEN(174, FILE=temp_file_name_rho)
 OPEN(175, FILE=temp_file_name_v)
 
 DO ind_I = 1, Ny_cov
- write(173,*) coverage_matrix_T(:,ind_I)
- write(174,*) coverage_matrix_rho(:,ind_I)
+ cur_xpos = ((xmax - xmin) * ind_I + (Nx_cov * xmin - xmax))/DBLE(Nx_cov - 1)
+ write(173,*) cur_xpos, coverage_matrix_T(:,ind_I)
+ write(174,*) cur_xpos, coverage_matrix_rho(:,ind_I)
 END DO
 DO ind_I = 1, Nx_cov * Ny_cov
- write(175,*) coverage_matrix_v(ind_I,:)
+ write(175,*) cur_xpos, coverage_matrix_v(ind_I,:)
 END DO
 
 CLOSE(173)

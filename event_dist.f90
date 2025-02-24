@@ -22,7 +22,7 @@ USE constants
  TYPE(rrates)                      :: actirrates
  DOUBLE PRECISION                       :: ran2
  ! looking for next line
- LOGICAL                                :: procout=.FALSE.
+ LOGICAL                                :: procout=.TRUE.
  LOGICAL                                :: inCell, tooRed = .FALSE.
  LOGICAL                                :: raninit
  INTEGER                           :: lastLine
