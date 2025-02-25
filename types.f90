@@ -57,7 +57,9 @@ SAVE
      DOUBLE PRECISION                :: width
      DOUBLE PRECISION                :: volume = -1.D0
      DOUBLE PRECISION                :: diff_param
-     DOUBLE PRECISION                :: T = -1.D0, J = 0.D0, rho = -1.D0, rwind, e_dens = -1.D0
+     DOUBLE PRECISION                :: J = 0.D0, Irad = 0.D0
+     DOUBLE PRECISION, DIMENSION(const_dimofspace)      :: Frad = (/ 0.D0, 0.D0, 0.D0 /)
+     DOUBLE PRECISION                :: T = -1.D0, rho = -1.D0, rwind, e_dens = -1.D0
      DOUBLE PRECISION                :: zwind, velang = -1.D0, angle = -1.D0, vel = -1.D0
      DOUBLE PRECISION, DIMENSION(const_dimofspace)  :: vec_vel, vec_pos
      TYPE(grid_comp_t), ALLOCATABLE  :: grid_comp(:)
@@ -229,6 +231,7 @@ SAVE
   ! temporary file name
   CHARACTER(filename_length)                     :: temp_filename = 'temp_packet'
   CHARACTER(filename_length)                        :: put_a_note
+  CHARACTER(filename_length)            :: singleline_file
   INTEGER                               :: tot_saved_packets
   ! for testing case
   LOGICAL                               :: simpleTrans, orbitals_nl
