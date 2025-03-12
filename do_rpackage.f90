@@ -178,8 +178,7 @@ ELSE IF(e_dist > cell_dist) THEN
    CALL move_package(pack_index, cell_dist, next_cell, change_of_cell)
    CALL update_estimators(pack_index, cell_dist)
   !_______________________________________________________________________________________________
-  ELSE IF(cell_dist > 0.D0 .and. cell_dist < epsilon0 .and. &
-   n_pos == 4 .and. n_neg == 2) THEN 
+  ELSE IF(cell_dist < epsilon0 .and. n_pos == 4 .and. n_neg == 2) THEN 
    IF(procout) write(*,*) 'do_rpackage: e_dist > cell_dist, cell_dist > 0, cell_dist < epsilon0 ', &
     ' n_pos == 4, n_neg == 2'
    change_of_cell = .FALSE.
@@ -238,7 +237,7 @@ ELSE IF(e_dist > cell_dist) THEN
    CALL change_cell(pack_index, next_cell)
   END IF
  ELSE IF(cell_dist < 0.D0) THEN
-  IF((cell_dist < 0.e0) .and. (next_cross <= 6) .and. (next_cross >=1)) THEN
+  IF(((next_cross <= 6) .and. (next_cross >=1)) THEN
    ! next_cell = dyn_cell(cur_pgi)%neighbor(package(pack_index)%next_cross)
    IF(procout) write(*,*) 'do_rpackage: cell_dist = ', cell_dist, ' next_cross = ', next_cross
    IF(procout) write(*,*) 'do_rpackage: only changing the cell'

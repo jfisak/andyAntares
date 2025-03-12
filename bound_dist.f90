@@ -239,26 +239,21 @@ IF(n_zer > 1) THEN
  dist = -1.D0
 END IF
 
-IF(n_pos == 4 .AND. n_neg == 2) THEN
- write(62, *) package(pack_index)%pos/R_star, dyn_cell(cell_numb)%corner/R_star, dyn_cell(cell_numb)%width/R_star, &
-  package(pack_index)%dir
-END IF
-
-write(*,*) '*********************************************************************'
-write(*,*) '*********************************************************************'
-write(*,*) 'bound_dist: n_pos = ', n_pos, ' n_neg = ', n_neg
-write(*,*) 'bound_dist: n_zer = ', n_zer, ' n_par = ', n_par
-write(*,*) 'bound_dist: width = ', width
-write(*,*) 'bound_dist: tnegx = ', tnegx, ' tnegy = ', tnegy, ' tnegz = ', tnegz, &
-  ' tposx = ', tposx, ' tposy = ', tposy, 'tposz = ', tposz
-write(*,*) 'bound_dist: tnegx = ', tnegx/width(ind_x), ' tnegy = ', tnegy/width(ind_y), &
-' tnegz = ', tnegz/width(ind_z), &
-  ' tposx = ', tposx/width(ind_x), ' tposy = ', tposy/width(ind_y), 'tposz = ', tposz/width(ind_z)
-write(*,*) 'bound_dist: dir = ', package(pack_index)%dir
-write(*,*) '*********************************************************************'
-write(*,*) '*********************************************************************'
-write(*,*) 'bound_dist: next_cross = ', package(pack_index)%next_cross
-write(*,*) 'bound_dist: dist = ', dist, ' forbidden = ', forbidden
+! write(*,*) '*********************************************************************'
+! write(*,*) '*********************************************************************'
+! write(*,*) 'bound_dist: n_pos = ', n_pos, ' n_neg = ', n_neg
+! write(*,*) 'bound_dist: n_zer = ', n_zer, ' n_par = ', n_par
+! write(*,*) 'bound_dist: width = ', width
+! write(*,*) 'bound_dist: tnegx = ', tnegx, ' tnegy = ', tnegy, ' tnegz = ', tnegz, &
+!   ' tposx = ', tposx, ' tposy = ', tposy, 'tposz = ', tposz
+! write(*,*) 'bound_dist: tnegx = ', tnegx/width(ind_x), ' tnegy = ', tnegy/width(ind_y), &
+! ' tnegz = ', tnegz/width(ind_z), &
+!   ' tposx = ', tposx/width(ind_x), ' tposy = ', tposy/width(ind_y), 'tposz = ', tposz/width(ind_z)
+! write(*,*) 'bound_dist: dir = ', package(pack_index)%dir
+! write(*,*) '*********************************************************************'
+! write(*,*) '*********************************************************************'
+! write(*,*) 'bound_dist: next_cross = ', package(pack_index)%next_cross
+! write(*,*) 'bound_dist: dist = ', dist, ' forbidden = ', forbidden
 IF(debug == 2) THEN
  write(*,*) '*********************************************************************'
  write(*,*) '*********************************************************************'
