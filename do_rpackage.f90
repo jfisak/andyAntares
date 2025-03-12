@@ -237,7 +237,7 @@ ELSE IF(e_dist > cell_dist) THEN
    CALL change_cell(pack_index, next_cell)
   END IF
  ELSE IF(cell_dist < 0.D0) THEN
-  IF(((next_cross <= 6) .and. (next_cross >=1)) THEN
+  IF(((next_cross <= 6) .and. (next_cross >=1))) THEN
    ! next_cell = dyn_cell(cur_pgi)%neighbor(package(pack_index)%next_cross)
    IF(procout) write(*,*) 'do_rpackage: cell_dist = ', cell_dist, ' next_cross = ', next_cross
    IF(procout) write(*,*) 'do_rpackage: only changing the cell'
