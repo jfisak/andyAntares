@@ -22,7 +22,7 @@ USE constants
  TYPE(rrates)                      :: actirrates
  DOUBLE PRECISION                       :: ran2
  ! looking for next line
- LOGICAL                                :: procout=.TRUE.
+ LOGICAL                                :: procout=.FALSE.
  LOGICAL                                :: inCell, tooRed = .FALSE.
  LOGICAL                                :: raninit
  INTEGER                           :: lastLine
@@ -31,6 +31,7 @@ USE constants
  INTEGER                                :: cur_approx
 
 IF(debug == 4 .or. debug == 5) procout = .TRUE.
+IF(debug == 2) procout = .TRUE.
 
       
  n_pack_d = SIZE(package)

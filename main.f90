@@ -21,6 +21,7 @@ USE MPI
 USE types
 USE constants
 USE virt_gridAB
+USE counters
 
 
   IMPLICIT NONE
@@ -148,7 +149,7 @@ saha_const = 5.D-1 * (const_h**2/(2.0*const_pi*const_me_g*const_kB))**1.5
 ! 3 -- progress of the calculation procedure
 ! 4 -- rikd packet dynamics
 ! 5 -- line interactions
-debug = 2
+debug = 0
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -193,6 +194,7 @@ ELSE
  write(99,*) 'model grid is set up'
  write(99,*) 'setup propagation grid'
  write(99,*) 'xmax = ', xmax/R_star, ' ymax = ', ymax/R_star, ' zmax = ', zmax/R_star
+ write(*,*) 'xmax = ', xmax, ' ymax = ', ymax, ' zmax = ', zmax
  ! STOP 'main: testing'
   
  
@@ -336,6 +338,7 @@ END DO ! iteration (now of temperature structure)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  write(99,*) 'do finalize'
  ! it will save some important output
+ CALL save_output(103)
  CALL save_output(1)
  CALL save_output(2)
  ! temp structure and occupation numbers

@@ -25,12 +25,13 @@ DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: new_pos
 
 LOGICAL                           :: change
 DOUBLE PRECISION, PARAMETER       :: smallNumber = 1.D-2, mininum = 1.D4
-DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: cur_corner, new_corner
-INTEGER                                                 :: cur_pgi
+! DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: cur_corner, new_corner
+! INTEGER                                                 :: cur_pgi
 INTEGER                                                 :: next_cross
 
 IF(debug == 2) THEN
  write(*,*) 'move_package: going to move the packet, pack_index = ', pack_index
+ write(*,*) 'move_package: dist = ', dist
 END IF
 
 IF(pack_index > SIZE(package)) THEN

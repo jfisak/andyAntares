@@ -9,7 +9,7 @@ IMPLICIT NONE
 INTEGER                           :: approx
 INTEGER                           :: pack_index
 DOUBLE PRECISION                  :: vel_radial, vec_length
-DOUBLE PRECISION, DIMENSION(3)    :: vel_vec, pack_position, init_pack_pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)    :: vel_vec, pack_position, init_pack_pos
 ! Petr Kurfurst's disk model variables
 ! INTEGER                           :: pack_mi, get_package_model_index
 ! DOUBLE PRECISION, DIMENSION(3)    :: vel_rad, vel_ang
@@ -17,7 +17,7 @@ DOUBLE PRECISION, DIMENSION(3)    :: vel_vec, pack_position, init_pack_pos
 DOUBLE PRECISION                  :: r_pos
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: cur_n
 
-LOGICAL, PARAMETER                :: velocityTesting = .true.
+LOGICAL, PARAMETER                :: velocityTesting = .false.
 INTEGER, PARAMETER                :: max_n_of_velopackets = 200
 
 INTEGER                            :: cur_dummy_index

@@ -24,6 +24,8 @@ INTEGER                                 :: act_cell
 
 DOUBLE PRECISION                        :: calc_dist
 INTEGER                                 :: cell_numb
+INTEGER                                 :: n_pos, n_neg, n_zer, n_par
+
 
 IF(pack_index > SIZE(package)) THEN
  dummypack_index = pack_index - SIZE(package)
@@ -36,7 +38,7 @@ END IF
 
 IF(cross <= 0 ) THEN
  ! cell_numb and calc_dist are not important in this case
- CALL bound_dist(pack_index, cell_numb, calc_dist)
+ CALL bound_dist(pack_index, cell_numb, calc_dist, n_pos, n_neg, n_zer, n_par)
  ! cross = package(pack_index)%next_cross
  IF(cross < 0) STOP 'next_cell_down: next cross is impossible to find'
 END IF

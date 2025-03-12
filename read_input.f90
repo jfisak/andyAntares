@@ -276,6 +276,8 @@ USE constants
     END IF
   END DO
 
+  n_packets = n_pack
+
 99 CONTINUE
   CLOSE (1)
   IF (iseed .LE. 0) THEN 

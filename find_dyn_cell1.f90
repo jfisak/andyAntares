@@ -30,7 +30,7 @@ DOUBLE PRECISION, PARAMETER                     :: epsilon0 = 1e-15
 ! DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: pobcw
 DOUBLE PRECISION, DIMENSION(const_dimofspace)                   :: corner, width
 INTEGER                                                         :: ind_I
-DOUBLE PRECISION, PARAMETER                     :: mininum = 1e-2
+DOUBLE PRECISION, PARAMETER                     :: mininum = 1e0
 
 n_cell = (/ nx_cell, ny_cell, nz_cell /)
 
@@ -68,20 +68,17 @@ bcell(ind_z) = FLOOR(pos(ind_z)/basic_cell_width(ind_z) + dble(nz_cell)/2.D0 + e
 !   (pos(ind_y)/basic_cell_width(ind_y) + dble(ny_cell)/2.D0 + epsilon0)
 !  write(*,*) 'find_dyn_cell1: (pobcw(ind_z) + dble(nz_cell)/2.D0 + epsilon0) = ', &
 !   (pos(ind_z)/basic_cell_width(ind_z) + dble(nz_cell)/2.D0 + epsilon0)
- write(*,*) 'find_dyn_cell1: bcell = ', bcell
+!  write(*,*) 'find_dyn_cell1: bcell = ', bcell
 ! END IF
 
 IF(pos(ind_x) <= xmax .and. bcell(ind_x) == nx_cell + 1) THEN
  bcell(ind_x) = bcell(ind_x) - 1
- write(*,*) 'find_dyn_cell1: korekce na bunku ve smeru x'
 END IF
 IF(pos(ind_y) <= xmax .and. bcell(ind_y) == nx_cell + 1) THEN
  bcell(ind_y) = bcell(ind_y) - 1
- write(*,*) 'find_dyn_cell1: korekce na bunku ve smeru y'
 END IF
 IF(pos(ind_z) <= xmax .and. bcell(ind_z) == nx_cell + 1) THEN
  bcell(ind_z) = bcell(ind_z) - 1
- write(*,*) 'find_dyn_cell1: korekce na bunku ve smeru z'
 END IF
 
 ! index of the given basic cell
@@ -89,6 +86,18 @@ bindex = (bcell(ind_x) - 1) * ny_cell * nz_cell + (bcell(ind_y) - 1) * nz_cell +
 ! initial setting of the local variable corresponding to the actual cell
 actCell = bindex
 ! if there is no dynamical cell in the given basic cell
+IF(actCell > nx_cell * ny_cell * nz_cell) THEN
+ write(*,*) 'find_dyn_cell1: xmax = ', xmax, ' ymax = ', ymax, ' zmax = ', zmax
+ write(*,*) 'find_dyn_cell1: w_x = ', basic_cell_width(ind_x), ' w_y  = ', basic_cell_width(ind_y), &
+  ' w_z = ', basic_cell_width(ind_z)
+ write(*,*) 'find_dyn_cell1: x/w_x', pos(ind_x)/basic_cell_width(ind_x)
+ write(*,*) 'find_dyn_cell1: y/w_y', pos(ind_y)/basic_cell_width(ind_y)
+ write(*,*) 'find_dyn_cell1: z/w_z', pos(ind_z)/basic_cell_width(ind_z)
+ write(*,*) 'find_dyn_cell1: pos_x/xmax = ', pos(ind_x)/xmax, ' pos_y/ymax = ', pos(ind_y)/ymax, &
+  ' pos_z/zmax = ', pos(ind_z)/zmax
+ write(*,*) 'find_dyn_cell1: bcell_x = ', bcell(ind_x), ' bcell_y = ', bcell(ind_y), &
+  ' bcell_z = ', bcell(ind_z)
+END IF
 
 IF(dyn_cell(actCell)%up_cell == 0) THEN
  obtained_cell = actCell

@@ -639,9 +639,10 @@ CASE(100)
  write(99,*) '___________________________________________________________'
  write(99,*) 'set up variables:'
  ! write(99,*) 'number of packets: ', n_pack, ' a temporary file saves ', n_pack_save, ' packets'
+ write(99,*) 'number of packets = ', n_packets
  write(99,*) ' a temporary file saves ', n_pack_save, ' packets'
  write(99,*) 'n_nubin = ', n_nubin
- write(99,*) 'propagation grid parameters:'
+ write(99,*) 'intput propagation grid parameters: (!!!THE REAL PROPGRID CAN BE DIFFERENT!!!)'
  write(99,*) 'using a previously saved grid = ', saved_grid
  write(99,*) 'nx_cell = ', nx_cell, ' ny_cell = ', ny_cell, ' nz_cell = ', nz_cell
  write(99,*) 'xmax = ', xmax, ' ymax = ', ymax, ' zmax = ', zmax
@@ -710,6 +711,21 @@ CASE(102)
 
  write(99,*) '__________________________________________________'
  
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! #103 propagation grid description
+! 
+! 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CASE(103)
+
+ write(99,*) '__________________________________________________'
+ write(99,*) '_________PROPAGATION GRID DESCRIPTION_____________'
+ write(99,*) '__________________________________________________'
+ write(99,*) 'xmin = ', xmin/R_star, ' ymin = ', ymin/R_star, ' zmin = ', zmin/R_star
+ write(99,*) 'xmax = ', xmax/R_star, ' ymax = ', ymax/R_star, ' zmax = ', zmax/R_star
+ write(99,*) 'nx_cell = ', nx_cell, ' ny_cell = ', ny_cell, ' nz_cell = ', nz_cell
+ write(99,*) 'basic cell width = ', basic_cell_width(:)/R_star
+
 CASE DEFAULT
  write(99,*) 'save_output: this case is not known'
 END SELECT

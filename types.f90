@@ -225,7 +225,7 @@ SAVE
   DOUBLE PRECISION, PARAMETER          :: minwidth = 1E8
   ! number of packets which will be saved into a file
   INTEGER                               :: n_add_pack
-  INTEGER                               :: n_pack_save
+  INTEGER                               :: n_pack_save, n_packets
   ! temporary file name
   CHARACTER(filename_length)                     :: temp_filename = 'temp_packet'
   CHARACTER(filename_length)                        :: put_a_note
