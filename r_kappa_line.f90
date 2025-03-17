@@ -195,7 +195,7 @@ DO ind_I = 1, nnextlines
   ELSE
    tau_line_3 = 0.D0
   END IF
-  write(*,*) 'r_kappa_line: tau_line_3 = ', tau_line_3
+  ! write(*,*) 'r_kappa_line: tau_line_3 = ', tau_line_3
   ! actirrates%Lline(ind_I) = tau_line
   IF(pack_index < max_n_of_velopackets) THEN
    write(72,*) norm2(cur_pos)/R_star, tau_line_3, tau_line, deriv

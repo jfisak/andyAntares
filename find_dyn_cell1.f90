@@ -52,24 +52,24 @@ END IF
 bcell(ind_x) = FLOOR(pos(ind_x)/basic_cell_width(ind_x) + dble(nx_cell)/2.D0 + epsilon0) + 1
 bcell(ind_y) = FLOOR(pos(ind_y)/basic_cell_width(ind_y) + dble(ny_cell)/2.D0 + epsilon0) + 1
 bcell(ind_z) = FLOOR(pos(ind_z)/basic_cell_width(ind_z) + dble(nz_cell)/2.D0 + epsilon0) + 1
-! IF(debug == 2) THEN
-!  write(*,*) 'find_dyn_cell1: pos = ', pos
-!  write(*,*) 'find_dyn_cell1: basic_cell_width = ', basic_cell_width
-!  write(*,*) 'find_dyn_cell1: nx_cell = ', nx_cell, ' ny_cell = ', ny_cell, ' nz_cell = ', nz_cell
-!  write(*,*) 'find_dyn_cell1: (pobcw(ind_x) + dble(nx_cell)/2.D0) = ', &
-!   (pos(ind_x)/basic_cell_width(ind_x) + dble(nx_cell)/2.D0)
-!  write(*,*) 'find_dyn_cell1: (pobcw(ind_y) + dble(ny_cell)/2.D0) = ', &
-!   (pos(ind_y)/basic_cell_width(ind_y) + dble(ny_cell)/2.D0)
-!  write(*,*) 'find_dyn_cell1: (pobcw(ind_z) + dble(nz_cell)/2.D0) = ', &
-!   (pos(ind_z)/basic_cell_width(ind_z) + dble(nz_cell)/2.D0)
-!  write(*,*) 'find_dyn_cell1: (pobcw(ind_x) + dble(nx_cell)/2.D0 + epsilon0) = ', &
-!   (pos(ind_x)/basic_cell_width(ind_x) + dble(nx_cell)/2.D0 + epsilon0)
-!  write(*,*) 'find_dyn_cell1: (pobcw(ind_y) + dble(ny_cell)/2.D0 + epsilon0) = ', &
-!   (pos(ind_y)/basic_cell_width(ind_y) + dble(ny_cell)/2.D0 + epsilon0)
-!  write(*,*) 'find_dyn_cell1: (pobcw(ind_z) + dble(nz_cell)/2.D0 + epsilon0) = ', &
-!   (pos(ind_z)/basic_cell_width(ind_z) + dble(nz_cell)/2.D0 + epsilon0)
-!  write(*,*) 'find_dyn_cell1: bcell = ', bcell
-! END IF
+IF(debug == 2) THEN
+ write(*,*) 'find_dyn_cell1: pos = ', pos
+ write(*,*) 'find_dyn_cell1: basic_cell_width = ', basic_cell_width
+ write(*,*) 'find_dyn_cell1: nx_cell = ', nx_cell, ' ny_cell = ', ny_cell, ' nz_cell = ', nz_cell
+ write(*,*) 'find_dyn_cell1: (pobcw(ind_x) + dble(nx_cell)/2.D0) = ', &
+  (pos(ind_x)/basic_cell_width(ind_x) + dble(nx_cell)/2.D0)
+ write(*,*) 'find_dyn_cell1: (pobcw(ind_y) + dble(ny_cell)/2.D0) = ', &
+  (pos(ind_y)/basic_cell_width(ind_y) + dble(ny_cell)/2.D0)
+ write(*,*) 'find_dyn_cell1: (pobcw(ind_z) + dble(nz_cell)/2.D0) = ', &
+  (pos(ind_z)/basic_cell_width(ind_z) + dble(nz_cell)/2.D0)
+ write(*,*) 'find_dyn_cell1: (pobcw(ind_x) + dble(nx_cell)/2.D0 + epsilon0) = ', &
+  (pos(ind_x)/basic_cell_width(ind_x) + dble(nx_cell)/2.D0 + epsilon0)
+ write(*,*) 'find_dyn_cell1: (pobcw(ind_y) + dble(ny_cell)/2.D0 + epsilon0) = ', &
+  (pos(ind_y)/basic_cell_width(ind_y) + dble(ny_cell)/2.D0 + epsilon0)
+ write(*,*) 'find_dyn_cell1: (pobcw(ind_z) + dble(nz_cell)/2.D0 + epsilon0) = ', &
+  (pos(ind_z)/basic_cell_width(ind_z) + dble(nz_cell)/2.D0 + epsilon0)
+ write(*,*) 'find_dyn_cell1: bcell = ', bcell
+END IF
 
 IF(pos(ind_x) <= xmax .and. bcell(ind_x) == nx_cell + 1) THEN
  bcell(ind_x) = bcell(ind_x) - 1

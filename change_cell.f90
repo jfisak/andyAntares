@@ -14,7 +14,7 @@ USE constants
 
 INTEGER                                 :: old_cell, next_mgi
 INTEGER                                 :: dummypackage
-DOUBLE PRECISION, PARAMETER             :: mininum = 1.D-1
+DOUBLE PRECISION, PARAMETER             :: mininum = 1.D1
 
 LOGICAL                                 :: is_difap
 DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: corner, width
@@ -43,20 +43,20 @@ ELSE
   corner = dyn_cell(next_cell)%corner
   width = dyn_cell(next_cell)%width
   write(*,*) 'change_cell: change of cell into: ', next_cell
-  write(*,*) 'change_cell: corner = ', dyn_cell(next_cell)%corner
-  write(*,*) 'change_cell: pos = ', pos
+  write(*,*) 'change_cell: corner = ', dyn_cell(next_cell)%corner/R_star
+  write(*,*) 'change_cell: pos = ', pos/R_star
   write(*,*) 'change_cell: (corner+width) = ', &
-   (dyn_cell(next_cell)%corner+dyn_cell(next_cell)%width)
+   (dyn_cell(next_cell)%corner+dyn_cell(next_cell)%width)/R_star
    DO ind_I = 1, const_dimofspace
     IF(((pos(ind_I) < corner(ind_I) - mininum) .OR. (pos(ind_I) > corner(ind_I) + width(ind_I) + mininum)) &
     .and. pack_index <= SIZE(package)) THEN
      write(*,*) 'change_cell: ind_I = ', ind_I
      CALL find_dyn_cell1(pos, pom_pgi)
      write(*,*) 'change_cell: pom_pgi = ', pom_pgi
-     write(*,*) 'change_cell: corner = ', dyn_cell(pom_pgi)%corner
-     write(*,*) 'change_cell: pos = ', pos
+     write(*,*) 'change_cell: corner = ', dyn_cell(pom_pgi)%corner/R_star
+     write(*,*) 'change_cell: pos = ', pos/R_star
      write(*,*) 'change_cell: (corner+width) = ', &
-      (dyn_cell(pom_pgi)%corner+dyn_cell(pom_pgi)%width)
+      (dyn_cell(pom_pgi)%corner+dyn_cell(pom_pgi)%width)/R_star
      STOP 'change_cell: packet is not located inside the propagation cell'
     END IF
    END DO

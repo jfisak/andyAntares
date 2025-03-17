@@ -31,7 +31,7 @@ INTEGER                                                 :: next_cross
 
 IF(debug == 2) THEN
  write(*,*) 'move_package: going to move the packet, pack_index = ', pack_index
- write(*,*) 'move_package: dist = ', dist
+ write(*,*) 'move_package: dist = ', dist, ' dist/R_star = ', dist/R_star, 'dist/w = ', dist/basic_cell_width(ind_x)
 END IF
 
 IF(pack_index > SIZE(package)) THEN

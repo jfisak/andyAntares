@@ -17,7 +17,7 @@ DOUBLE PRECISION, DIMENSION(const_dimofspace)    :: vel_vec, pack_position, init
 DOUBLE PRECISION                  :: r_pos
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: cur_n
 
-LOGICAL, PARAMETER                :: velocityTesting = .false.
+LOGICAL, PARAMETER                :: velocityTesting = .true.
 INTEGER, PARAMETER                :: max_n_of_velopackets = 200
 
 INTEGER                            :: cur_dummy_index
