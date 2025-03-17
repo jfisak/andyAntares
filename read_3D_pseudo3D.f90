@@ -20,6 +20,8 @@ DOUBLE PRECISION, DIMENSION(3)                  :: pos, vel
 INTEGER                                         :: ind_I, ind_J
 INTEGER                                         :: numbions, atom_number
 INTEGER                                         :: Nx, Ny, Nz
+INTEGER(KIND=8)                                 :: int_xmax, int_ymax, int_zmax
+INTEGER(KIND=8)                                 :: int_xmin, int_ymin, int_zmin
 
 
 modelfile=TRIM(inputmodelFile)
@@ -120,16 +122,24 @@ OPEN(UNIT=11, FILE=modelfile)
  width_y = len_y / (Ny - 1)
  width_z = len_z / (Nz - 1)
 
- xmin = mod_xmin - width_x / 2.0
- ymin = mod_ymin - width_y / 2.0
- zmin = mod_zmin - width_z / 2.0
+ int_xmin = CEILING(mod_xmin - width_x / 2.0, kind=8)
+ int_ymin = CEILING(mod_ymin - width_y / 2.0, kind=8)
+ int_zmin = CEILING(mod_zmin - width_z / 2.0, kind=8)
 
- xmax = mod_xmax + width_x / 2.0
- ymax = mod_ymax + width_y / 2.0
- zmax = mod_zmax + width_z / 2.0
+ int_xmax = CEILING(mod_xmax + width_x / 2.0, kind=8)
+ int_ymax = CEILING(mod_ymax + width_y / 2.0, kind=8)
+ int_zmax = CEILING(mod_zmax + width_z / 2.0, kind=8)
+
+ xmin = DBLE(int_xmin)
+ ymin = DBLE(int_ymin)
+ zmin = DBLE(int_zmin)
+ xmax = DBLE(int_xmax)
+ ymax = DBLE(int_ymax)
+ zmax = DBLE(int_zmax)
  
-  write(*,*) 'read_3D_pseudo3D: T_eff = ', T_eff, 'R_star = ', R_star, ' R_inf = ', R_inf, ' V_inf = ', V_inf
-  write(*,*) 'read_3D_pseudo3D: xmax = ', xmax/R_star, ' ymax = ', ymax/R_star, ' zmax = ', zmax/R_star
+  ! write(*,*) 'read_3D_pseudo3D: T_eff = ', T_eff, 'R_star = ', R_star, ' R_inf = ', R_inf, ' V_inf = ', V_inf
+  write(*,*) 'read_3D_pseudo3D: xmax = ', xmax, ' ymax = ', ymax, ' zmax = ', zmax
+  ! STOP 'read_3D_pseudo3D: testing'
 
 CLOSE(11)
 

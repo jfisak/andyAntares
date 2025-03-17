@@ -36,14 +36,16 @@ DOUBLE PRECISION, DIMENSION(const_dimofspace,2)        :: w_point, w_pos
 LOGICAL                                 :: incellmode
 
 DOUBLE PRECISION, DIMENSION(8,const_dimofspace)        :: cube_pos
+INTEGER                                                 :: pomocna_bunka
 
 ! INTEGER                                 :: cur_propGrid_cell
 
 
-! write(*,*) 'vel_discrete_points: pack_index = ', pack_index, ' dim(package) = ', SIZE(package)
 IF(pack_index <= SIZE(package)) THEN
  act_cell = package(pack_index)%cell_numb
  act_pos = package(pack_index)%pos
+ CALL find_dyn_cell1(act_pos, pomocna_bunka)
+ act_cell = package(pack_index)%cell_numb
 ELSE IF(pack_index > SIZE(package)) THEN
  dummypack_index = pack_index - SIZE(package)
  act_cell = dummypackage(dummypack_index)%cell_numb
@@ -55,6 +57,13 @@ act_mgi = dyn_cell(act_cell)%model_index
 act_corner = dyn_cell(act_cell)%corner
 act_width = dyn_cell(act_cell)%width
 act_center = act_corner + act_width/2.0
+
+! write(*,*) 'vel_discrete_points: act_cell = ', act_cell, ' skutecna bunka = ', pomocna_bunka
+! write(*,"(A, es44.33, es44.33, es44.33)") 'vel_discrete_points II: cell starting = ', dyn_cell(act_cell)%corner!/R_star
+! write(*,"(A, es44.33, es44.33, es44.33)") 'vel_discrete_points II: packet pos = ', act_pos!/R_star
+! write(*,"(A, es44.33, es44.33, es44.33)") 'vel_discrete_points II: cell ending = ', &
+!  (dyn_cell(act_cell)%corner + dyn_cell(act_cell)%width)!/R_star
+
 
 act_vel = model_grid(act_mgi)%vec_vel
 act_vel_norm = model_grid(act_mgi)%vel

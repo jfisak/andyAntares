@@ -138,14 +138,11 @@ DO WHILE(iteration)
   end if
  END IF
 
-
-
-
-
 END DO
 
 CALL deactivate_dummy_packet(cur_dummypack)
 ! write(*,*) 'resonance_distance2: after calc, inCell = ', inCell
+! write(*,*) 'resonance_distance2: ldist = ', ldist
 
 END SUBROUTINE resonance_distance2
 

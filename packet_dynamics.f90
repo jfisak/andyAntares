@@ -14,7 +14,7 @@ pack_type = package(pack_index)%typ
 DO  WHILE (package(pack_index)%active == 1)
  IF ((pack_type == type_rpkt) .OR. (pack_type == type_vrpkt)) THEN
   IF(package(pack_index)%n_interactions .EQ. 1000000) THEN
-   ! write(*,*) 'package ', pack_index, ' interacted for 2000000 times and will be destroyed...'
+   write(*,*) 'package ', pack_index, ' interacted for 2000000 times and will be destroyed...'
    package(pack_index)%active = 0
    count_des_inte = count_des_inte + 1
   END IF

@@ -11,7 +11,7 @@
 !        cell_numb, INT -- index of the current propGrid cell
 ! OUTPUT: dist, DBLE -- calculated distance
 !
-SUBROUTINE bound_dist(pack_index, cell_numb, dist)
+SUBROUTINE bound_dist(pack_index, cell_numb, dist, n_pos, n_neg, n_zer, n_par)
 
 USE types
 USE constants
@@ -25,16 +25,20 @@ INTEGER                         :: pack_index, cell_numb
 DOUBLE PRECISION                :: dist
 ! variables for dynamic cells
 DOUBLE PRECISION                :: tnegx, tnegy, tnegz, tposx, tposy, tposz
+! perpendicular distances
+DOUBLE PRECISION                :: tpnegx, tpnegy, tpnegz, tpposx, tpposy, tpposz
 DOUBLE PRECISION, DIMENSION(const_dimofspace)  :: corner, width
 DOUBLE PRECISION, DIMENSION(const_dimofspace)  :: dir, pos
 INTEGER                         :: forbidden
 DOUBLE PRECISION, PARAMETER     :: minie = 1e1
+DOUBLE PRECISION, PARAMETER     :: epsilon0 = 1e-3
 
 INTEGER                         :: n_pos, n_neg, n_zer, n_par
-INTEGER                         :: next_cross
+INTEGER                         :: next_cross, old_cross
 
 DOUBLE PRECISION, PARAMETER     :: velkeCislo = 1.D99
 DOUBLE PRECISION                :: mindist
+INTEGER                         :: pom_pgi
 
 tnegx = 0.E0
 tnegy = 0.E0
@@ -52,10 +56,32 @@ corner = dyn_cell(cell_numb)%corner
 width = dyn_cell(cell_numb)%width
 dir = package(pack_index)%dir
 pos = package(pack_index)%pos
-forbidden = package(pack_index)%next_cross
+forbidden = -99
+old_cross = package(pack_index)%next_cross
+IF(old_cross == posx) THEN
+ forbidden = negx
+ELSE IF(old_cross == negx) THEN
+ forbidden = posx
+ELSE IF(old_cross == posy) THEN
+ forbidden = negy
+ELSE IF(old_cross == negy) THEN
+ forbidden = posy
+ELSE IF(old_cross == posz) THEN
+ forbidden = negz
+ELSE IF(old_cross == negz) THEN
+ forbidden = posz
+END IF
+IF(debug == 2) THEN
+ CALL find_dyn_cell1(pos, pom_pgi)
+ write(*,*) 'bound_dist: cur_pgi = ', pom_pgi
+ write(*,*) 'bound_dist: cell starting = ', corner
+ write(*,*) 'bound_dist: packet pos = ', pos
+ write(*,*) 'bound_dist: cell ending = ', (corner + width)
+END IF
+
 
 ! we will calculate parameters tnegx, ..., tposz
-IF(dir(ind_x) /= 0) THEN
+IF(abs(dir(ind_x)) > epsilon0) THEN
  tnegx = (corner(ind_x) - pos(ind_x))/(dir(ind_x))
  tposx = (corner(ind_x) + width(ind_x) - pos(ind_x))/(dir(ind_x))
  IF(tnegx > 0) n_pos = n_pos + 1
@@ -65,11 +91,12 @@ IF(dir(ind_x) /= 0) THEN
  IF(tnegx == 0.0) n_zer = n_zer + 1
  IF(tposx == 0.0) n_zer = n_zer + 1
 ELSE
+ package(pack_index)%dir(ind_x) = 0.D0
  tnegx = velkeCislo
  tposx = -velkeCislo
  n_par = n_par + 2
 END IF
-IF(dir(ind_y) /= 0) THEN
+IF(abs(dir(ind_y)) > epsilon0) THEN
  tnegy = (corner(ind_y) - pos(ind_y))/(dir(ind_y))
  tposy = (corner(ind_y) + width(ind_y) - pos(ind_y))/(dir(ind_y))
  IF(tnegy > 0) n_pos = n_pos + 1
@@ -79,11 +106,12 @@ IF(dir(ind_y) /= 0) THEN
  IF(tnegy == 0.0) n_zer = n_zer + 1
  IF(tposy == 0.0) n_zer = n_zer + 1
 ELSE
+ package(pack_index)%dir(ind_y) = 0.D0
  tnegy = velkeCislo
  tposy = -velkeCislo
  n_par = n_par + 2
 END IF
-IF(dir(ind_z) /= 0) THEN
+IF(abs(dir(ind_z)) > epsilon0) THEN
  tnegz = (corner(ind_z) - pos(ind_z))/(dir(ind_z))
  tposz = (corner(ind_z) + width(ind_z) - pos(ind_z))/(dir(ind_z))
  IF(tnegz > 0) n_pos = n_pos + 1
@@ -93,40 +121,41 @@ IF(dir(ind_z) /= 0) THEN
  IF(tnegz == 0.0) n_zer = n_zer + 1
  IF(tposz == 0.0) n_zer = n_zer + 1
 ELSE
+ package(pack_index)%dir(ind_z) = 0.D0
  tnegz = velkeCislo
  tposz = -velkeCislo
  n_par = n_par + 2
 END IF
 
-
 dist = velkeCislo
 
 ! we are looking for the bound in front of the photon,
 ! so we have to choose solution with t > 0
-IF( (tnegx > 0.e0) .AND. (tnegx < dist) .AND. forbidden /= posx) THEN
+IF( (tnegx > 0.e0) .AND. (tnegx < dist) .AND. forbidden /= negx) THEN
  dist = tnegx
  package(pack_index)%next_cross = negx
 END IF
-IF( (tnegy > 0.e0)  .AND. (tnegy < dist) .AND. forbidden /= posy) THEN
+IF( (tnegy > 0.e0)  .AND. (tnegy < dist) .AND. forbidden /= negy) THEN
  dist = tnegy
  package(pack_index)%next_cross = negy
 END IF
-IF( (tnegz > 0.e0) .AND. (tnegz < dist) .AND. forbidden /=  posz) THEN
+IF( (tnegz > 0.e0) .AND. (tnegz < dist) .AND. forbidden /=  negz) THEN
  dist = tnegz
  package(pack_index)%next_cross = negz
 END IF
-IF( (tposx > 0.e0) .AND. (tposx < dist) .AND. forbidden /=  negx) THEN
+IF( (tposx > 0.e0) .AND. (tposx < dist) .AND. forbidden /=  posx) THEN
  dist = tposx
  package(pack_index)%next_cross = posx
 END IF
-IF( (tposy > 0.e0) .AND. (tposy < dist) .AND. forbidden /=  negy) THEN
+IF( (tposy > 0.e0) .AND. (tposy < dist) .AND. forbidden /=  posy) THEN
  dist = tposy
  package(pack_index)%next_cross = posy
 END IF
-IF( (tposz > 0.e0) .AND. (tposz < dist) .AND. forbidden /= negz) THEN
+IF( (tposz > 0.e0) .AND. (tposz < dist) .AND. forbidden /= posz) THEN
  dist = tposz
  package(pack_index)%next_cross = posz
 END IF
+
 
 IF(forbidden == -99 .and. n_pos > 3) THEN
  mindist = dist
@@ -164,33 +193,33 @@ END IF
 IF(n_neg > 3) THEN
  dist = velkeCislo
  ! calculation of perpendicular distance to propGrid cell surfaces
- tnegx = pos(ind_x) - corner(ind_x)
- if(abs(tnegx) < dist) then
+ tpnegx = pos(ind_x) - corner(ind_x)
+ if(abs(tpnegx) < dist) then
   dist = abs(tnegx)
   package(pack_index)%next_cross = negx
  end if
- tposx = pos(ind_x) - corner(ind_x) - width(ind_x)
- if(abs(tposx) < dist) then
+ tpposx = pos(ind_x) - corner(ind_x) - width(ind_x)
+ if(abs(tpposx) < dist) then
   dist = abs(tposx)
   package(pack_index)%next_cross = posx
  end if
- tnegy = pos(ind_y) - corner(ind_y)
- if(abs(tnegy) < dist) then
+ tpnegy = pos(ind_y) - corner(ind_y)
+ if(abs(tpnegy) < dist) then
   dist = abs(tnegy)
   package(pack_index)%next_cross = negy
  end if
- tposy = pos(ind_y) - corner(ind_y) - width(ind_y)
- if(abs(tposy) < dist) then
+ tpposy = pos(ind_y) - corner(ind_y) - width(ind_y)
+ if(abs(tpposy) < dist) then
   dist = abs(tposy)
   package(pack_index)%next_cross = posy
  end if
- tnegz = pos(ind_z) - corner(ind_z)
- if(abs(tnegz) < dist) then
+ tpnegz = pos(ind_z) - corner(ind_z)
+ if(abs(tpnegz) < dist) then
   dist = abs(tnegz)
   package(pack_index)%next_cross = negz
  end if
- tposz = pos(ind_z) - corner(ind_z) - width(ind_z)
- if(abs(tposz) < dist) then
+ tpposz = pos(ind_z) - corner(ind_z) - width(ind_z)
+ if(abs(tpposz) < dist) then
   dist = abs(tposz)
   package(pack_index)%next_cross = posz
  end if
@@ -210,17 +239,37 @@ IF(n_zer > 1) THEN
  dist = -1.D0
 END IF
 
+! write(*,*) '*********************************************************************'
+! write(*,*) '*********************************************************************'
+! write(*,*) 'bound_dist: n_pos = ', n_pos, ' n_neg = ', n_neg
+! write(*,*) 'bound_dist: n_zer = ', n_zer, ' n_par = ', n_par
+! write(*,*) 'bound_dist: width = ', width
+! write(*,*) 'bound_dist: tnegx = ', tnegx, ' tnegy = ', tnegy, ' tnegz = ', tnegz, &
+!   ' tposx = ', tposx, ' tposy = ', tposy, 'tposz = ', tposz
+! write(*,*) 'bound_dist: tnegx = ', tnegx/width(ind_x), ' tnegy = ', tnegy/width(ind_y), &
+! ' tnegz = ', tnegz/width(ind_z), &
+!   ' tposx = ', tposx/width(ind_x), ' tposy = ', tposy/width(ind_y), 'tposz = ', tposz/width(ind_z)
+! write(*,*) 'bound_dist: dir = ', package(pack_index)%dir
+! write(*,*) '*********************************************************************'
+! write(*,*) '*********************************************************************'
+! write(*,*) 'bound_dist: next_cross = ', package(pack_index)%next_cross
+! write(*,*) 'bound_dist: dist = ', dist, ' forbidden = ', forbidden
 IF(debug == 2) THEN
  write(*,*) '*********************************************************************'
  write(*,*) '*********************************************************************'
  write(*,*) 'bound_dist: n_pos = ', n_pos, ' n_neg = ', n_neg
  write(*,*) 'bound_dist: n_zer = ', n_zer, ' n_par = ', n_par
- write(*,*) 'bound_dist: tnegx = ', tnegx/R_star, ' tnegy = ', tnegy/R_star, ' tnegz = ', tnegz/R_star, &
-   ' tposx = ', tposx/R_star, ' tposy = ', tposy/R_star, 'tposz = ', tposz/R_star
+ write(*,*) 'bound_dist: width = ', width
+ write(*,*) 'bound_dist: tnegx = ', tnegx, ' tnegy = ', tnegy, ' tnegz = ', tnegz, &
+   ' tposx = ', tposx, ' tposy = ', tposy, 'tposz = ', tposz
+ write(*,*) 'bound_dist: tnegx = ', tnegx/width(ind_x), ' tnegy = ', tnegy/width(ind_y), &
+ ' tnegz = ', tnegz/width(ind_z), &
+   ' tposx = ', tposx/width(ind_x), ' tposy = ', tposy/width(ind_y), 'tposz = ', tposz/width(ind_z)
+ write(*,*) 'bound_dist: dir = ', package(pack_index)%dir
  write(*,*) '*********************************************************************'
  write(*,*) '*********************************************************************'
  write(*,*) 'bound_dist: next_cross = ', package(pack_index)%next_cross
- write(*,*) 'bound_dist: dist = ', dist/R_star, ' forbidden = ', forbidden
+ write(*,*) 'bound_dist: dist = ', dist, ' forbidden = ', forbidden
 END IF
 
 

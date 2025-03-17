@@ -14,8 +14,11 @@ USE constants
 
 INTEGER                                 :: old_cell, next_mgi
 INTEGER                                 :: dummypackage
+DOUBLE PRECISION, PARAMETER             :: mininum = 1.D1
 
 LOGICAL                                 :: is_difap
+DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: corner, width
+INTEGER                                                 :: ind_I, pom_pgi
 
 dummypackage = SIZE(package)
 
@@ -27,6 +30,7 @@ dummypackage = SIZE(package)
 pos = package(pack_index)%pos
 old_cell = package(pack_index)%cell_numb
 if(debug == 2) write(*,*) 'change_cell: next_cell = ', next_cell
+if(debug == 2) write(*,*) 'change_cell: neighbors = ', dyn_cell(old_cell)%neighbor
 IF (next_cell .LT. 0) THEN 
  package(pack_index)%typ = type_escaped
  package(pack_index)%active = 0
@@ -36,7 +40,26 @@ IF (next_cell .LT. 0) THEN
 ELSE
  package(pack_index)%cell_numb = next_cell
  IF(debug == 2) THEN
+  corner = dyn_cell(next_cell)%corner
+  width = dyn_cell(next_cell)%width
   write(*,*) 'change_cell: change of cell into: ', next_cell
+  write(*,*) 'change_cell: corner = ', dyn_cell(next_cell)%corner/R_star
+  write(*,*) 'change_cell: pos = ', pos/R_star
+  write(*,*) 'change_cell: (corner+width) = ', &
+   (dyn_cell(next_cell)%corner+dyn_cell(next_cell)%width)/R_star
+   DO ind_I = 1, const_dimofspace
+    IF(((pos(ind_I) < corner(ind_I) - mininum) .OR. (pos(ind_I) > corner(ind_I) + width(ind_I) + mininum)) &
+    .and. pack_index <= SIZE(package)) THEN
+     write(*,*) 'change_cell: ind_I = ', ind_I
+     CALL find_dyn_cell1(pos, pom_pgi)
+     write(*,*) 'change_cell: pom_pgi = ', pom_pgi
+     write(*,*) 'change_cell: corner = ', dyn_cell(pom_pgi)%corner/R_star
+     write(*,*) 'change_cell: pos = ', pos/R_star
+     write(*,*) 'change_cell: (corner+width) = ', &
+      (dyn_cell(pom_pgi)%corner+dyn_cell(pom_pgi)%width)/R_star
+     STOP 'change_cell: packet is not located inside the propagation cell'
+    END IF
+   END DO
  END IF
 
  ! test on the propGrid cell index number

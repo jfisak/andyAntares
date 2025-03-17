@@ -100,11 +100,9 @@ OPEN (UNIT=7, FILE=inputcomposition)
    ind_I = ind_I + 1
  END DO
  ! norma of abundances
- ! IF(.not. oneline) THEN
-  DO ind_I = 1, n_elements
-   elements(ind_I)%abundance = elements(ind_I)%abundance / tot_abundance
-  END DO
- ! END IF
+ DO ind_I = 1, n_elements
+  elements(ind_I)%abundance = elements(ind_I)%abundance / tot_abundance
+ END DO
  ! now reading atomic levels
  write(99,*) 'reading atomic levels'
  DO 
@@ -112,7 +110,6 @@ OPEN (UNIT=7, FILE=inputcomposition)
     ! write(99,*) line
   IF (ios /= 0) EXIT
   IF ( TRIM(line) == '**transitions**' ) THEN
-      !write(99,*) 'we have found **transitions**...'
       EXIT
   END IF
   IF ( INDEX(line, '*') /= 0) CYCLE

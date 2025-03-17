@@ -19,17 +19,9 @@ end if
 
 IF(pos1 > pos2 .and. (pos0 < pos2 .or. pos0 > pos1)) then
  write(*,*) 'lin_interpolation: pos1 = ', pos1, ' pos0 = ', pos0, ' pos2 = ', pos2
- ! DO I = 1,8
- !  write(3,*) dyn_cell(neighborscells(I))%corner, dyn_cell(neighborscells(I))%width
- ! END DO
- ! write(4,*) vecpos0
  STOP 'pos0 is not in the interval'
 ELSE IF(pos1 < pos2 .and. (pos0 > pos2 .or. pos0 < pos1)) THEN
  write(*,*) 'lin_interpolation: pos1 = ', pos1, ' pos0 = ', pos0, ' pos2 = ', pos2
- ! DO I = 1,8
- !  write(3,*) dyn_cell(neighborscells(I))%corner, dyn_cell(neighborscells(I))%width
- ! END DO
- ! write(4,*) vecpos0
  STOP 'pos0 is not in the interval'
 END IF
 

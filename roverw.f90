@@ -7,7 +7,7 @@ IMPLICIT NONE
 
 DOUBLE PRECISION                               :: R_pos, V_pos, fr_line
 DOUBLE PRECISION                                :: l_dist
-DOUBLE PRECISION, DIMENSION(3)                  :: V_pos_vec
+DOUBLE PRECISION, DIMENSION(3)                  :: R_pos_vec
 DOUBLE PRECISION                                :: costheta
 DOUBLE PRECISION                                :: dV_pos
 INTEGER                                         :: dummypack_index, dummypack_index0, next_cell, pack_index
@@ -60,14 +60,14 @@ ELSE IF(velapprox == 2) THEN
 
  ! according to (10) in Abbot & Lucy (1985)
  ! r
- R_pos = norm2(package(dummypack_index)%pos)
- ! ||v||
- V_pos = V_inf * (1.0 - R_star / R_pos ) ** beta
- ! v = (v_x, v_y, v_z)
- V_pos_vec = V_pos * package(dummypack_index)%pos / norm2(package(dummypack_index)%pos)
- costheta = dot_product(package(dummypack_index)%dir, V_pos_vec) / norm2(V_pos_vec)
- ROverW = (V_inf - V_0) / (R_inf - R_star) + 1 / R_pos * (1 - costheta**2.0) * &
-  (V_0 * R_inf - V_inf * R_star) / (R_inf - R_star)
+ ! R_pos = norm2(package(dummypack_index)%pos)
+ ! ! ||v||
+ ! V_pos = V_inf * (1.0 - R_star / R_pos ) ** beta
+ ! ! v = (v_x, v_y, v_z)
+ ! V_pos_vec = V_pos * package(dummypack_index)%pos / norm2(package(dummypack_index)%pos)
+ ! costheta = dot_product(package(dummypack_index)%dir, V_pos_vec) / norm2(V_pos_vec)
+ ! ROverW = (V_inf - V_0) / (R_inf - R_star) + 1 / R_pos * (1 - costheta**2.0) * &
+ !  (V_0 * R_inf - V_inf * R_star) / (R_inf - R_star)
 ELSE IF(velapprox == 1) THEN
  ! according to (10) in Abbot & Lucy (1985)
  ! r
@@ -76,61 +76,22 @@ ELSE IF(velapprox == 1) THEN
  V_pos = V_inf * (1.0 - R_star / R_pos ) ** beta
  ! write(*,*) 'roverw: V_pos = ', V_pos, ' R_star = ', R_star/R_star, ' R_pos = ', R_pos/R_star, ' V_inf = ', V_inf
  ! v = (v_x, v_y, v_z)
- V_pos_vec = V_pos * package(pack_index)%pos / norm2(package(pack_index)%pos)
+ R_pos_vec = package(pack_index)%pos / norm2(package(pack_index)%pos)
  ! \mu
- costheta = dot_product(package(pack_index)%dir, V_pos_vec) / V_pos
+ costheta = dot_product(package(pack_index)%dir, R_pos_vec) / V_pos
  ! write(*,*) 'ROverW: dir = ', package(pack_index)%dir, ' V_pos_vec = ', V_pos_vec, ' V_pos = ', V_pos
  ! dv/dr
- dV_pos = beta * R_star * V_inf / R_pos**2 * (1.0 - R_star / R_pos)**(beta - 1)
- IF(R_pos <= R_star) THEN
+ ! dV_pos = beta * R_star * V_inf / R_pos**2 * (1.0 - R_star / R_pos)**(beta - 1)
+ IF(R_pos <= R_star .or. R_pos > R_inf) THEN
   ROverW = 0.D0
  ELSE
-  ROverW = 1.0 / (costheta**2.0 * dV_pos + (1.0 - costheta**2.0)* V_pos / R_pos)
+  ROverW = R_pos/V_pos * 1.D0/(costheta**2*((R_star*beta)/(R_pos-R_star)-1.0)+1.0)
  END IF
 !_____________________________________________________________________________________________
 ! 3D velocity approximation
-ELSE IF(velapprox == 3) THEN
- ! we will have to find CMF frequencies at two points, the middle location is the Sobolev point
- IF(sobolev_approximation == 1) THEN
-  
-
-
- cur_pos = package(pack_index)%pos
- cur_dir = package(pack_index)%dir
- cur_freq_rf = package(pack_index)%freq_rf
-
- delta = l_dist/2.0
-
- s_min = l_dist - delta
- s_pls = l_dist + delta
-
- pos_min = cur_pos + cur_dir * s_min
- pos_pls = cur_pos + cur_dir * s_pls
-
- ! write(*,*) 'roverw: pos_min = ', norm2(pos_min), ' pos_pls = ', norm2(pos_pls)
- ! write(*,*) 'roverw: pos/s_min = ', norm2(cur_pos)/s_min
-
- CALL cmf_freq(pack_index, cur_freq_rf, cmf_min)
- CALL cmf_freq(pack_index, cur_freq_rf, cmf_pls)
-
- IF(cmf_min == cmf_pls) THEN
-  roverw = 0.D0
-  return
- END IF
- ! write(*,*) 'roverw: p+ - p- = ', pos_pls - pos_min
- ! write(*,*) 'roverw: pos_min = ', pos_min, ' pos_pls = ', pos_pls
- ! write(*,*) 'roverw: f+ - f- = ', cmf_pls - cmf_min
-
- deriv = (s_pls - s_min)/(cmf_pls - cmf_min)
-
-!  write(*,*) 'roverw deriv = ', deriv
-!  write(*,*) 'roverw: f-, f0, f+ = ', cmf_min, fr_line, cmf_pls
-!  write(*,*) 'roverw: s-, s0, s+ = ', s_min, s_pls
-
- roverw = deriv
- ! write(*,*) 'roverw: R_inf/V_inf = ', R_inf/V_inf
- ! roverw = R_inf / V_inf
- END IF ! sobolev_approximation
+ELSE IF(velApprox == 3) THEN
+ write(*,*) 'roverw: this calculation is implemented into the sbr r_kappa_line'
+ STOP 'roverw: exiting'
 ! calculating nabla v during the packet propagation
 ELSE IF(velApprox == 4) THEN
 

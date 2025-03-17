@@ -209,8 +209,8 @@ LOGICAL                                 :: is_vgrid_A
   IF(MINVAL(n_points_A, MASK=(n_points_A > 0)) < 2 * model_type .or. &
    MINVAL(n_points_B, MASK=(n_points_B > 0)) < 2 * model_type) THEN
    lower_resolution = .TRUE.
-   write(*,*) 'virt_gridAB_init: lower_resolution = ', lower_resolution
-   write(*,*) 'virt_gridAB_init: deallocating arrays'
+   ! write(*,*) 'virt_gridAB_init: lower_resolution = ', lower_resolution
+   ! write(*,*) 'virt_gridAB_init: deallocating arrays'
    DEALLOCATE(n_points_A, n_points_B, indices_A, indices_B)
    DEALLOCATE(counter_A, counter_B, vg_indexy_A, vg_indexy_B)
    DEALLOCATE(vg_pom_A, vg_pom_B)

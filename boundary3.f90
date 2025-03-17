@@ -7,7 +7,7 @@
 ! OUTPUT: dist, DBLE -- distance to the closest boundary of the propGrid cell
 !         next_cell, INT -- index of the next propGrid cell
 !
-SUBROUTINE boundary3(pack_index, dist, next_cell) 
+SUBROUTINE boundary3(pack_index, dist, next_cell, n_pos, n_neg, n_zer, n_par) 
 
 USE types
 USE constants
@@ -18,13 +18,17 @@ INTEGER                         :: pack_index, next_cell, n_cell
 DOUBLE PRECISION                :: dist
 ! dynamic cell variables
 INTEGER                         :: act_cell, next_cross
+INTEGER                         :: n_pos, n_neg, n_zer, n_par
 
 ! calculation of a distance from the basic cell
 ! firstly we have to know which basic cell photon occupies
 !   Number of the current cell
 act_cell = package(pack_index)%cell_numb
 ! now we are computing the nearest distance to the actuall dynamic cell
-CALL bound_dist(pack_index, act_cell, dist)
+IF(debug == 2) THEN
+ write(*,*) 'boundary3: calling bound_dist: act_cell = ', act_cell
+END IF
+CALL bound_dist(pack_index, act_cell, dist, n_pos, n_neg, n_zer, n_par)
 next_cross = package(pack_index)%next_cross
 IF(next_cross <= 6) THEN
  ! now we look for the next cell given by indexes
