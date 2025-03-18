@@ -33,7 +33,7 @@ DOUBLE PRECISION                        :: wavle
 CHARACTER(LEN=filename_length)                       :: fileTempStruct! , fileOccNum
 CHARACTER(LEN=filename_length)                       :: fileHydrogenFrac, fileHeliumFrac
 CHARACTER(LEN=filename_length)                       :: fileGrid, filePart
-CHARACTER(LEN=filename_length)                       :: initspec_file
+CHARACTER(LEN=filename_length)                       :: initspec_file, mcradestimators_file
 ! ionization fraction files
 DOUBLE PRECISION                        :: frac, N_jk, totElPop
 ! DOUBLE PRECISION                        :: frac1, N_jk1, totElPop1
@@ -80,6 +80,8 @@ DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: width
 CHARACTER(LEN=2)                                :: cur_name, get_element_name
 CHARACTER(LEN=10)                               :: get_ion_number, cur_ion_num
 DOUBLE PRECISION                                :: cur_xpos
+DOUBLE PRECISION                                :: cur_r, cur_a, est_I
+DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: est_F
 
 !________________________________________________________________________________
 ! #00 output folder
@@ -626,6 +628,32 @@ CASE(13)
    write(19,*) -99, package(ind_I)%freq_rf, package(ind_I)%e_rf
   end do
  CLOSE(19)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! #13 radiative MC estimators
+!
+! 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CASE(14)
+ write(*,*) 'save_output: saving mpi estimators'
+ write(mcradestimators_file,"(A, A16, I3.3, A4)") trim(outputfolder), '/mcradestimators', my_rank, '.dat'
+ write(*,*) 'save_output: mcradestimators_file = ', mcradestimators_file
+ OPEN(20, file=mcradestimators_file)
+  DO cur_mgi = 1, n_modelgrid
+   write(*,*) 'save_output: cur_mgi = ', cur_mgi
+   IF(model_type == 2 .and. inputmodel == 1) THEN
+    cur_r = model_grid(cur_mgi)%rwind
+    cur_a = model_grid(cur_mgi)%angle
+    est_F = model_grid(cur_mgi)%Frad
+    est_I = model_grid(cur_mgi)%Irad
+    write(20,*) cur_r, cur_a, est_F, est_I
+   ELSE IF(model_type == 3) THEN
+    cur_pos = model_grid(cur_mgi)%vec_pos
+    est_F = model_grid(cur_mgi)%Frad
+    est_I = model_grid(cur_mgi)%Irad
+    write(20,*) cur_pos, est_F, est_I
+   END IF
+  END DO
+ CLOSE(20)
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

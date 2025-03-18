@@ -307,6 +307,7 @@ DO iteration = 1,1
  END IF
  CALL update_packages(n_pack)
  IF(timing) THEN
+  IF(debug == 3) write(*,*) 'calling cpu_time'
   CALL cpu_time(time1_pp)
   write(99,*) 'time0_pp = ', time0_pp, ' time1_pp = ', time1_pp
  END IF
@@ -318,6 +319,7 @@ DO iteration = 1,1
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #if mpi==1
+ IF(debug == 3) write(*,*) 'distributing estimators'
  CALL mpi_distribute_estimators()
  CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
 #endif
@@ -337,6 +339,7 @@ END DO ! iteration (now of temperature structure)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  write(99,*) 'do finalize'
+ IF(debug == 3) write(*,*) 'do finalize'
  ! it will save some important output
  CALL save_output(103)
  CALL save_output(1)
@@ -345,6 +348,8 @@ END DO ! iteration (now of temperature structure)
  IF(my_rank == 0) THEN
   CALL save_output(3)
   CALL save_output(7)
+  ! MC estimators
+  CALL save_output(14)
   ! partition function
   CALL save_output(9)
  END IF
@@ -357,6 +362,11 @@ CLOSE(2)
 CLOSE(99)
 
 IF(debug == 3) write(*,*) 'main: calling backward ray-tracing method'
-IF(calc_brtm) CALL brtm()
+! IF(calc_brtm) CALL brtm()
+
+#if mpi==1
+ IF(debug == 3) write(*,*) 'calling mpi_finalize'
+ CALL mpi_finalize(ierr)
+#endif
 
 END SUBROUTINE main
