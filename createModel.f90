@@ -3,7 +3,7 @@
 ! by a user
 ! output file: 'synthetic_model.dat'
 !_______________________________________________________________________________________________
-PROGRAM skipDensity
+PROGRAM createModel
 
 IMPLICIT NONE
 
@@ -18,7 +18,7 @@ DOUBLE PRECISION                                :: rdist
 DOUBLE PRECISION                                :: actrho, actvel
 DOUBLE PRECISION                                :: rho, rhoclump
 LOGICAL                                         :: clump=.false.
-LOGICAL                                         :: turnclumpoff=.false.
+LOGICAL                                         :: turnclumpoff=.true.
 
 DOUBLE PRECISION                                :: velocity
 INTEGER                                         :: vel_approx
@@ -36,7 +36,18 @@ DOUBLE PRECISION                                :: temperature
 DOUBLE PRECISION                                :: Tstar, Tinf
 DOUBLE PRECISION                                :: cur_temp
 
+CHARACTER (LEN=200)                             :: output_filename
 
+REAL                                            :: beta
+
+CALL get_command_argument(1, output_filename)
+
+IF(LEN_TRIM(output_filename) == 0) THEN
+ output_filename = 'synthetic_model.dat'
+END IF
+write(*,*) 'createModel: output_filename = ', output_filename
+
+beta = 1.3
 ! model_type
 ! 1 -- spherically symmetric model
 ! 3 -- full 3D model
@@ -44,17 +55,18 @@ model_type = 3
 ! vel_approx
 ! -1 -- zero velocity
 ! 0 -- homologous approximation
-! 1 -- modified homologous approximation
-! 2 -- sin velocity field
-vel_approx = 2
+! 1 -- beta law
+! 2 -- sin velocity
+! 10 -- inverse homologous approximation
+vel_approx = 1
 clump_type = 1
 ! 3D grid informations
-Nx = 5
-Ny = 5
-Nz = 5
-! star info
+Nx = 15
+Ny = 15
+Nz = 15
+! lower boundary condition
 Teff = 1.473441441281968036e+04
-Rstar = 5.616000000000000000e+14
+Rstar = 5.616000000000000000e+12
 ! every distance is written as a multiply of R_star
 R1 = 6.D0
 R2 = 6.5D0
@@ -68,14 +80,14 @@ rhocl = 1.D-12
 delta = 0.02
 deltacl = 0.01
 
-Rinf = 10.0 * Rstar
+Rinf = 20.0 * Rstar
 rdist = 1.0
-Vinf = 30000.D+5
+Vinf = 3000.D+5
 
 
-xmax = 1.1 
-ymax = 1.1 
-zmax = 1.1 
+xmax = Rinf/Rstar + 1.0/float(10*Nx)
+ymax = Rinf/Rstar + 1.0/float(10*Ny) 
+zmax = Rinf/Rstar + 1.0/float(10*Nz) 
 
 Tstar = 90000
 Tinf = 30000
@@ -83,7 +95,7 @@ Tinf = 30000
 
 I = 0
 
-OPEN(1, FILE='synthetic_model.dat')
+OPEN(1, FILE=output_filename)
 
 write(1, *) Teff
 write(1, *) Rstar
@@ -91,7 +103,7 @@ write(1, *) Rinf
 write(1, *) Vinf
 
 IF(model_type == 3) THEN
- write(1,*) xmax, ymax, zmax
+ ! write(1,*) xmax, ymax, zmax
  write(1,*) Nx, Ny, Nz
 END IF
 
@@ -117,7 +129,7 @@ CASE(1)
   END IF
   actrho = rho(rdist, R1, R2, sigma, stred1, stred2, rho0, rhocl, clump, &
    turnclumpoff, clump_type)
-  actvel = velocity(vel_approx, rdist, Rstar, Rinf, Vinf)
+  actvel = velocity(vel_approx, rdist, Rstar, Rinf, Vinf, beta)
   I = I + 1
   write(1, *) I, rdist , actvel , actrho, 15500
  END DO
@@ -136,7 +148,8 @@ CASE(3)
     zsour = -zmax + DBLE((K - 1)) * w_z
     radial = sqrt(xsour**2 + ysour**2 + zsour**2)
 
-    cur_vel = velocity(vel_approx, radial, Rstar, Rinf, Vinf)
+    cur_vel = velocity(vel_approx, radial, Rstar, Rinf, Vinf, beta)
+    write(*,*) 'createModel: velocity = ', cur_vel
     IF(radial /= 0) THEN
      cur_vel_vec = cur_vel * (/xsour, ysour, zsour/)/radial
     ELSE
@@ -147,7 +160,7 @@ CASE(3)
 
     actrho = rho(radial, R1, R2, sigma, stred1, stred2, rho0, rhocl, clump, &
      turnclumpoff, clump_type)
-    write(1,*) xsour, ysour, zsour, cur_vel_vec, actrho, cur_temp
+    write(1,*) xsour, ysour, zsour, cur_vel_vec, actrho, 15500
    END DO
   END DO
  END DO
@@ -155,8 +168,9 @@ CASE(3)
 
 CASE DEFAULT
 END SELECT
+CLOSE(1)
 
-END PROGRAM skipDensity
+END PROGRAM createModel
 
 FUNCTION rho(r, R1, R2, sigma, stred1, stred2, rho0, rhocl, inClump, &
  turnclumpoff, clump_type)
@@ -189,7 +203,7 @@ IF(r == 0) rho = 0e0
 END FUNCTION rho
 
 
-FUNCTION velocity(approx, r, Rstar, Rinf, Vinf)
+FUNCTION velocity(approx, r, Rstar, Rinf, Vinf, beta)
 
 INTEGER                         :: approx
 DOUBLE PRECISION                :: velocity, r, v0
@@ -203,17 +217,26 @@ SELECT CASE(approx)
 CASE(-1)
  velocity = 0.0
 CASE(0)
- velocity = r*Rstar/Rinf * Vinf
+ IF(r*Rstar>Rinf) THEN
+  velocity = Vinf
+ ELSE IF(r*Rstar<Rstar) THEN
+  velocity = 0.D0
+ ELSE
+  velocity = r * Vinf * Rstar/Rinf
+ END IF
  RETURN
-! inv homologous approximation
 CASE(1)
+ velocity = Vinf * (1.0 - 1.0/r)**beta
+ write(*,*) 'Vinf = ', Vinf, ' Rstar = ', Rstar, ' r = ', r
+CASE(2)
+ velocity = 0.4 * Vinf * sin(4.0 * r*Rstar/(Rinf - Rstar)) + Vinf*0.5
+! inv homologous approximation
+CASE(10)
  v0 = Rstar/Rinf * Vinf
  aindex = - (Vinf - v0)/(Rinf - Rstar)
  bindex = (Vinf * Rinf - v0 * Rstar)/(Rinf - Rstar)
  velocity = aindex * r * Rstar + bindex
  RETURN
-CASE(2)
- velocity = 0.4 * Vinf * sin(4.0 * r*Rstar/(Rinf - Rstar)) + Vinf*0.5
 END SELECT
 
 
@@ -228,11 +251,19 @@ FUNCTION temperature(approx, r, Tstar, Tinf, Rstar, Rinf)
  DOUBLE PRECISION                       :: Teff, Tstar, Rstar, Rinf, Tinf
  DOUBLE PRECISION                       :: a_ind, b_ind
 
+ SELECT CASE(approx)
+ CASE(0)
+  temperature = 50000
+ CASE(1)
+  write(*,*) 'Rstar = ', Rstar, ' Rinf = ', Rinf
 
- a_ind = (Tinf - Tstar)/(Rinf - Rstar)
- b_ind = (Tstar * Rinf - Tinf * Rstar)/(Rinf - Rstar)
+  a_ind = (Tinf - Tstar)/(Rinf/Rstar - 1)
+  b_ind = (Tstar * Rinf/Rstar - Tinf)/(Rinf/Rstar - 1)
+  write(*,*) 'a_ind = ', a_ind, ' b_ind = ', b_ind
 
- temperature = a_ind * r * Rstar + b_ind
- if(temperature < 0.0) temperature = 100
+  temperature = a_ind * r + b_ind
+  write(*,*) 'temperature = ', temperature, ' r = ', r
+  if(temperature < 0.0) temperature = Tinf
+ END SELECT
 
-END FUNCTION
+END FUNCTION 
