@@ -24,7 +24,7 @@ INTEGER                                 :: cur_vmg_A, cur_vmg_B
 INTEGER                                 :: n_zeros, n_propgrid
 
 DOUBLE PRECISION, DIMENSION(2)          :: centre_A, centre_B
-DOUBLE PRECISION, DIMENSION(3)          :: cur_pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: cur_pos
 DOUBLE PRECISION                        :: dist_A, dist_B
 
 INTEGER                                 :: cur_n_points, cur_start_index, cur_end_index
@@ -48,10 +48,9 @@ DOUBLE PRECISION, PARAMETER     :: large_number=1.d90
 
 ! parallelization
 INTEGER                         :: my_start, my_end
-INTEGER                         :: N_single, N_zbytek, N_tot_zbytek
+INTEGER                         :: N_single, N_zbytek! , N_tot_zbytek
 
 INTEGER, DIMENSION(n_propgcells)                :: cur_model_index
-INTEGER, DIMENSION(n_modelgrid + add_mg)        :: cur_n_assocmodg
 
 
 

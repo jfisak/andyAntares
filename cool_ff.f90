@@ -1,4 +1,8 @@
 ! calculating free-free cooling rates
+! 
+! INPUT: cur_mgi(INT): current modGrid index
+! OUTPUT: Zcool(DBLE): total free-free collision index
+!
 SUBROUTINE cool_ff(cur_mgi, Zcool)
 USE types
 USE constants

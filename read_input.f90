@@ -7,8 +7,10 @@ USE constants
 
   INTEGER    :: n_pack, iseed, idx, npar
   CHARACTER(LEN=180)  :: LINE, ACTPAR
+  CHARACTER(LEN=180)  :: cur_calcmode
+  CHARACTER(LEN=filename_length) :: linefile
 
-  INTEGER                               :: calc_brtm_int, clean_mg
+  INTEGER                               :: calc_brtm_int
 
   OPEN (UNIT=1, FILE='input.dat', STATUS='OLD')
 
@@ -57,7 +59,8 @@ USE constants
 ! 025 BRTM
 ! 026 Sobolev approximation
 ! 027 Note
-! 028 Clean modelGrid
+! 028 Calculation mode
+! 029 
   DO
     READ (1, '(A)', END=99) LINE
 
@@ -253,15 +256,27 @@ USE constants
      ! DO
      ! write(*,*) 'read_input: note = ', put_a_note
      ! end all ifs
-    ! 026 clean modelGrid
-    ELSE IF (ACTPAR .EQ. 'clean_mgi') THEN
-    CALL SARGC (LINE, NPAR)
-    IF (NPAR .LT. 2) GOTO 90
-    CALL SARGV(LINE,2,ACTPAR)
-    READ (ACTPAR, '(I2)', ERR=94) clean_mg
-    IF(clean_mg == 1) clean_modelGrid = .true.
+    ! 026 mode of calculation
+    ELSE IF (ACTPAR .EQ. 'calcmode') THEN
+     CALL SARGC (LINE, NPAR)
+     IF (NPAR .LT. 2) GOTO 90
+     CALL SARGV(LINE,2,ACTPAR)
+     READ (ACTPAR, '(A)', ERR=94) cur_calcmode
+     IF(cur_calcmode .EQ. 'oneline') oneline = .true.
+     IF(cur_calcmode .EQ. 'multiline') oneline = .false.
+    ! 027 a filename including data of the line
+    ELSE IF (ACTPAR .EQ. 'linefile') THEN
+     CALL SARGC (LINE, NPAR)
+     IF (NPAR .LT. 2) GOTO 90
+     CALL SARGV(LINE,2,ACTPAR)
+     READ (ACTPAR, '(A)', ERR=94) linefile
+     IF(oneline) THEN
+      singleline_file = linefile
+     END IF
     END IF
   END DO
+
+  n_packets = n_pack
 
 99 CONTINUE
   CLOSE (1)

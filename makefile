@@ -21,7 +21,7 @@ MODELS= read_1D_model.o read_2D_model.o read_3D_model.o read_1D_araya.o read_3D_
 RATES= r_kappa_cont.o r_kappa_line.o i_ion_recomb.o i_radtrans.o i_radion.o i_colion.o \
        i_coltrans.o i_freq_recomb.o  k_freq_ff.o k_freq_fb.o read_photcs.o cool_excit.o \
        cool_ff.o cool_ionization.o cool_fb.o 
-ATOMIC=read_levels.o read_transitions.o read_e_nd.o 
+ATOMIC=read_levels.o read_transitions.o read_e_nd.o read_singleline.o
 CONNECTION=connection_prop_model_grid.o connect_2D_peku.o connect_2D_basic.o connect_3D_pseudo.o \
            connect_3D_hydronico.o connect_1D_basic.o
 VELOCITY=velo.o velo_vector.o vel_discrete_points.o vel_interpolation.o vel_vector_interpolation.o \
@@ -30,12 +30,13 @@ PACKETS=do_rpackage.o do_ipackage.o do_rpackage_event.o do_kpackage.o do_dpackag
  do_vpackage.o packet_dynamics.o
 SPECTRA=do_brtm_spectrum.o do_spectrum.o
 GRIDS=propmodgrid_diagnostics.o setup_model_grid.o update_grid.o setup_propgrid.o create_dynamical_grid_cells.o \
-      propgrid_dist.o save_propmod_grid.o read_propmod_grid.o
+      propgrid_dist.o save_propmod_grid.o read_propmod_grid.o find_dyn_cell1.o divide_cell_8.o divide_cell_ijk.o \
+      correction_propagation.o next_cell_down.o next_cell_up.o oct_neighbors.o
 OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o 	  \
           random_unitvector.o ran2.o boundary3.o bound_dist.o \
           change_cell.o move_package.o emit_rpackage.o	\
           init_photsphere.o random_unitvector2.o ran2_class.o save_rates.o\
-          random_unitvector1.o doppler_factor.o oct_neighbors.o \
+          random_unitvector1.o doppler_factor.o \
           vec_length.o angle_aberration.o freq_from_planck.o \
            event_dist.o get_package_model_index.o cross_product.o \
           update_packages.o r_choose_line.o brtm.o \
@@ -44,9 +45,8 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o 	  \
           saha_boltzmann_factor.o ionization_fraction.o f_edens.o round_number.o\
           find_e_nd.o part_fun.o update_estimators.o freq_from_file.o rob.o \
           acc_rej_montecarlo.o virtual_points.o \
-          find_dyn_cell1.o seek_nclosest_points.o\
-          divide_cell_8.o divide_cell_ijk.o correction_propagation.o \
-	  next_cell_down.o next_cell_up.o populations.o  \
+          seek_nclosest_points.o\
+	  populations.o  \
 	  gamma_function.o exp_int_func.o find_populations.o\
 	  flux_function.o find_element_index.o analyse_input.o \
 	  warning.o calc_tau.o check_pop.o \

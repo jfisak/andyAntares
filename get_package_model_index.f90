@@ -17,6 +17,12 @@ USE dummypacket
     dummy_pack_index = pack_index - SIZE(package)
     cur_cell_numb = dummypackage(dummy_pack_index)%cell_numb
    END IF
+   IF(cur_cell_numb < 0) THEN
+    ! write(*,*) 'get_package_model_index: pack_index = ', pack_index, 'cur_cell_numb = ', cur_cell_numb
+    get_package_model_index = -99
+    RETURN
+    ! STOP 'get_package_model_index: cur_cell_numb < 0'
+   END IF
    get_package_model_index = dyn_cell(cur_cell_numb)%model_index
    ! write(*,*) 'get_package_model_index: cur_cell_numb = ', cur_cell_numb
    ! write(*,*) 'get_package_model_index: get_package_model_index = ', get_package_model_index

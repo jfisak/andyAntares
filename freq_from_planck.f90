@@ -12,10 +12,18 @@ DOUBLE PRECISION                :: temperature
   DOUBLE PRECISION              :: planck_numax, planck_numin
 DOUBLE PRECISION                      :: wale_start, wale_end 
 DOUBLE PRECISION                      :: nu_max, nu_min
+DOUBLE PRECISION                      :: lfreq
+DOUBLE PRECISION, PARAMETER           :: delta_f = 20 ! Angstrom
 
 
-wale_start = 200   ! in Angstroms
-wale_end = 20000   ! in Angstroms
+IF(oneline) THEN
+ lfreq = linelist(1)%freq
+ wale_start = lfreq - delta_f
+ wale_end = lfreq + delta_f
+ELSE
+ wale_start = 200   ! in Angstroms
+ wale_end = 20000   ! in Angstroms
+END IF
 
 nu_max = const_c / (wale_start * 1.D-8)
 nu_min = const_c / (wale_end * 1.D-8)

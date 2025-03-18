@@ -16,7 +16,7 @@ DOUBLE PRECISION                        :: exci_energy_u, exci_energy_l
 DOUBLE PRECISION                        :: low_pop, upp_pop
 DOUBLE PRECISION                        :: roverw
 
-CHARACTER(LEN=120)                      :: file_linetrans
+CHARACTER(LEN=filename_length)          :: file_linetrans
 
 DOUBLE PRECISION                        :: taulu, betalu, Aul, Jlu
 DOUBLE PRECISION                        :: actVal
@@ -91,17 +91,5 @@ DO cur_mgi = 1, n_modelgrid
  END DO
 END DO
 CLOSE(101)
-
-
-
-
-
-
-
-
-
-
-
-
 
 END SUBROUTINE save_rates

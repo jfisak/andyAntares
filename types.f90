@@ -6,6 +6,7 @@ SAVE
 !  include 'mpif.h'
 ! #endif
 
+
  INTEGER, PARAMETER                 :: filename_length = 500
  INTEGER, PARAMETER                    :: const_dimofspace = 3
 
@@ -54,10 +55,12 @@ SAVE
   TYPE modelgrid 
      INTEGER                         :: assoc_cells = 0
      DOUBLE PRECISION                :: width
-     DOUBLE PRECISION                :: volume = 0.D0
+     DOUBLE PRECISION                :: volume = -1.D0
      DOUBLE PRECISION                :: diff_param
-     DOUBLE PRECISION                :: T = 0.D0, J = 0.D0, rho = 0.D0, vel = 0.D0, rwind, e_dens = 0.D0
-     DOUBLE PRECISION                :: zwind, velang, angle
+     DOUBLE PRECISION                :: J = 0.D0, Irad = 0.D0
+     DOUBLE PRECISION, DIMENSION(const_dimofspace)      :: Frad = (/ 0.D0, 0.D0, 0.D0 /)
+     DOUBLE PRECISION                :: T = -1.D0, rho = -1.D0, rwind, e_dens = -1.D0
+     DOUBLE PRECISION                :: zwind, velang = -1.D0, angle = -1.D0, vel = -1.D0
      DOUBLE PRECISION, DIMENSION(const_dimofspace)  :: vec_vel, vec_pos
      TYPE(grid_comp_t), ALLOCATABLE  :: grid_comp(:)
      ! is the diffusion approximation recommended?
@@ -102,7 +105,7 @@ SAVE
      INTEGER                         :: atom_number, nions
      DOUBLE PRECISION                :: atom_mass
      DOUBLE PRECISION                :: abundance
-     CHARACTER(LEN=filename_length)      :: levelfile='', transitionfile=''
+     CHARACTER(LEN=filename_length)                   :: levelfile='', transitionfile=''
      TYPE(element_ions), ALLOCATABLE :: ions(:)
   END TYPE atom_elements
 
@@ -142,6 +145,8 @@ SAVE
   INTEGER                            :: velApprox
   ! brtm activation
   LOGICAL                            :: calc_brtm
+  ! onle line mode
+  LOGICAL                            :: oneline
 
 ! fields for the given types
   TYPE(modelgrid), ALLOCATABLE       :: model_grid(:)
@@ -210,7 +215,7 @@ SAVE
   INTEGER                            :: n_tasks
   CHARACTER(filename_length)                      :: outputfolder=''
   CHARACTER(filename_length)                      :: outputfile
-  LOGICAL                            :: clean_modelGrid
+  LOGICAL                                         :: clean_modelGrid
 !! Atomic data
  ! Total number of chemical elements in the simulation
   INTEGER                            :: n_elements
@@ -222,10 +227,11 @@ SAVE
   DOUBLE PRECISION, PARAMETER          :: minwidth = 1E8
   ! number of packets which will be saved into a file
   INTEGER                               :: n_add_pack
-  INTEGER                               :: n_pack_save
+  INTEGER                               :: n_pack_save, n_packets
   ! temporary file name
   CHARACTER(filename_length)                     :: temp_filename = 'temp_packet'
   CHARACTER(filename_length)                        :: put_a_note
+  CHARACTER(filename_length)            :: singleline_file
   INTEGER                               :: tot_saved_packets
   ! for testing case
   LOGICAL                               :: simpleTrans, orbitals_nl

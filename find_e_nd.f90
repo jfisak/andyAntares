@@ -15,15 +15,19 @@ USE constants
 
   IF(model_grid(model_grid_index)%rho == 0.00) THEN
    el_nd = 0.00
+   write(*,*) 'find_e_nd: el_nd set to zero'
    RETURN
   END IF
 
+  ! write(*,*) 'find_e_nd: model_grid_index = ', model_grid_index
+  ! write(*,*) 'find_e_nd: rho = ', model_grid(model_grid_index)%rho, ' T = ', model_grid(model_grid_index)%T
   ! Smallest value for the el_nd (can be either 1. or 0.)
-  el_nd_1 = 0.D0
+  el_nd_1 = 1.D0
 
 
    ! All H is ionized because and it is larger value for the el_nd 
    el_nd_2 = model_grid(model_grid_index)%rho / const_mp_g
+   ! write(*,*) 'find_e_nd: el_nd_2 = ', el_nd_2
 
   
 
@@ -35,6 +39,7 @@ USE constants
         STOP
     END IF
     ! Calculate the function func1 which is the root of the electron number density
+    ! write(*,*) 'find_e_nd: calling f_edens for el_nd_1 = ', el_nd_1, ' el_nd_2 = ', el_nd_2
     CALL f_edens(model_grid_index, el_nd_1, func1)
     CALL f_edens(model_grid_index, el_nd_2, func2)
     ! write(*,*) , 'electron densities: func1 = ', func1, ', func2 = ', func2
@@ -47,8 +52,8 @@ USE constants
     el_nd_2 = el_nd_2 - diff
 
     ! Debug
-    ! write(*,*)  'electron density: ', loop_index, el_nd_1, el_nd_2, '\n', diff
-    ! write(*,*)  'electron density: ', diff
+    ! write(*,*)  'electron density: ', loop_index, el_nd_1, el_nd_2
+    ! write(*,*)  'electron density: diff = ', diff
     ! write(*,*)  loop_index, func1, func2, diff
 
     loop_index = loop_index + 1  

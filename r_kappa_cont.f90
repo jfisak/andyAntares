@@ -1,4 +1,11 @@
 ! calculation of absorption coefficient in continuum
+! three opacity sources are included: electron scattering, bound-free and
+! free-free transitions
+!
+! INPUT: pack_index(INT): index of a packet
+! OUTPUT: kappa(DBLE): the calculated kappa
+!          actirrates(rrates): rates for the coresponding transitions
+!
 SUBROUTINE r_kappa_cont(pack_index, kappa, actirrates)
 USE types
 USE constants
@@ -8,9 +15,14 @@ IMPLICIT NONE
 
 ! input variables
 INTEGER                                         :: pack_index
+TYPE(rrates)                                    :: actirrates
+
 ! 
 INTEGER                                         :: current_mgi
+! output variables
+DOUBLE PRECISION                                :: kappa
 DOUBLE PRECISION                                :: freq
+
 ! physical parameters
 DOUBLE PRECISION                                :: electron_density
 ! element information
@@ -21,8 +33,6 @@ INTEGER                                         :: I
 DOUBLE PRECISION                                :: act_freq
 ! kappa coefficients
 DOUBLE PRECISION                                :: thomson
-! output variables
-DOUBLE PRECISION                                :: kappa
 ! linear interpolation
 DOUBLE PRECISION                                :: ali, bli, freq1, freq2, func1, func2
 INTEGER                                         :: actPoint
@@ -35,7 +45,6 @@ INTEGER                                         :: get_package_model_index
 INTEGER                                         :: act_continuum
 DOUBLE PRECISION                                :: act_pop
 INTEGER, PARAMETER                              :: n_thompson = 1
-TYPE(rrates)                                    :: actirrates
 DOUBLE PRECISION                                :: temp
 ! free-free variables
 DOUBLE PRECISION, PARAMETER                     :: ffconst = 3.69255D8

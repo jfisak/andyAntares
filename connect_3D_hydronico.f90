@@ -18,7 +18,7 @@ INTEGER                        :: cur_mcell
 INTEGER                         :: cur_n_mgi
 INTEGER                         :: cur_pgcell, cur_pgi
 INTEGER                         :: n_virtpoints
-DOUBLE PRECISION               :: delta, delta2
+DOUBLE PRECISION               :: delta!, delta2
 DOUBLE PRECISION               :: dist
 INTEGER                         :: ind_J
 DOUBLE PRECISION                :: r_0

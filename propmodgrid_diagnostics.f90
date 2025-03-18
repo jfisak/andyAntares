@@ -87,7 +87,7 @@ tot_nonmodel_volume = 0.D0
 DO cur_pgi = 1, n_propgcells
  IF(dyn_cell(cur_pgi)%up_cell == 0) THEN
   gridcell = dyn_cell(cur_pgi)%model_index
-  loc_volume = dyn_cell(cur_pgi)%width(1) * dyn_cell(cur_pgi)%width(2) * dyn_cell(cur_pgi)%width(3)
+  loc_volume = dyn_cell(cur_pgi)%width(ind_x) * dyn_cell(cur_pgi)%width(ind_y) * dyn_cell(cur_pgi)%width(ind_z)
   ! write(*,*) 'propmodgrid_diagnostics: loc_volume = ', loc_volume
   IF(gridcell <= n_modelgrid) THEN
    tot_model_volume = tot_model_volume + loc_volume
@@ -113,6 +113,9 @@ ELSE IF(model_type == 3) THEN
  np_wewant = 6
 END IF
 ALLOCATE(list_points(np_wewant))
+
+CALL save_output(12)
+RETURN
 
 ALLOCATE(radii(np_wewant), thetas(np_wewant), positions(np_wewant + 1,3), vectors(np_wewant,3))
 ALLOCATE(half_pos(np_wewant, 3))
@@ -176,7 +179,6 @@ END DO
 ! write(*,*) 'propmodgrid_diagnostics: tot_model_volume = ', tot_model_volume
 ! write(*,*) 'propmodgrid_diagnostics: tot_nonmodel_volume = ', tot_nonmodel_volume
 
-CALL save_output(12)
 
 ! write(*,*) 'propmodgrid_diagnostics: n_assoc = ', n_assoc, ' n_alone = ', n_alone
 ! STOP 'propmodgrid_diagnostics: testing'

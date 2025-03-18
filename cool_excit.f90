@@ -1,3 +1,10 @@
+! calculate collisional exciation rates
+!
+! INPUT: approx(INT): approximation
+!        pack_index(INT): index of packet
+!        actikrates(krates): contains all rates for all transitions
+! OUTPUT: Zexc(INT): total collisional excitational rate
+! 
 SUBROUTINE cool_excit(approx, pack_index, Zexc, actikrates)
 USE types
 USE constants
@@ -15,7 +22,7 @@ INTEGER                                         :: line, element_index, ion_inde
 DOUBLE PRECISION                                :: osc_str, freq 
 DOUBLE PRECISION                                :: exc_upper, exc_lower
 ! radiative rates
-DOUBLE PRECISION                                :: actVal, x, gf
+DOUBLE PRECISION                                :: actVal, factor_x, gf
 ! constans
 DOUBLE PRECISION, PARAMETER                     :: c0 = 5.465D-11
 DOUBLE PRECISION, PARAMETER                     :: IH = 13.6 * const_ev
@@ -48,19 +55,19 @@ CASE(1)
   osc_str = linelist(line)%f_lu
   ! frequency of transition
   freq = linelist(line)%freq
-  x = (const_h * freq) / (const_kB * temperature)
+  factor_x = (const_h * freq) / (const_kB * temperature)
   exc_upper = elements(element_index)%ions(ion_index)%levels(linelist(line)%upper)%exci_energy
   exc_lower = elements(element_index)%ions(ion_index)%levels(linelist(line)%lower)%exci_energy
   ! gamma function
-  CALL gamma_function(x, line, gf)
+  CALL gamma_function(factor_x, line, gf)
   
   actVal = electron_density * c0 * (temperature)**(1.0/2.0) * &
         coll_const * (IH / (const_h * freq)) * osc_str * &
         ((const_h * freq) / (const_kB * el_temperature)) * &
-        exp(-x) * gf * (exc_upper - exc_lower)
+        exp(-factor_x) * gf * (exc_upper - exc_lower)
   ! print*, 'cool_excit: pop = ', pop, ' electron_density = ', electron_density, &
   !        ' temperature = ', temperature, ' gf = ', gf, ' osc_str = ', osc_str, &
-  !        ' x = ', x
+  !        ' factor_x = ', x
   actikrates%Lcool_excit(line) = pop * actVal
   !write(*,*) 'cool_excit: actikrates%Lcool_excit(', line, ') = ', actikrates%Lcool_excit(line)
   Zexc = Zexc + actVal

@@ -4,6 +4,13 @@
 ! (number of photoionization data) does exist, because if it does not
 ! exist, the total rate is equal to zero thus no recombination deactivation
 ! is possible to happen
+!
+! INPUT: indexe(INT): the element index
+!        indexi(INT): the ion index
+!        indexl(INT): the level index
+!        pack_index(INT): the index of the packet
+! OUTPUT: ran_frequency(DBLE): a generated frequency
+! 
 SUBROUTINE i_freq_recomb(indexe, indexi, indexl, pack_index, ran_frequency)
 USE types
 USE constants

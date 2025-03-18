@@ -30,12 +30,12 @@ INTEGER                                 :: nfreq
 DOUBLE PRECISION                        :: init_freq
 DOUBLE PRECISION, ALLOCATABLE           :: crossfreq(:), cross(:), func(:), func2(:)
 ! index
-INTEGER                                 :: I
+INTEGER                                 :: ind_I
 ! loop variable
-INTEGER                                 :: J
+INTEGER                                 :: ind_J
 INTEGER                                 :: act_rate
 ! integral calculation
-DOUBLE PRECISION                        :: actInt, alphEspont, alphaSpont, summ, x
+DOUBLE PRECISION                        :: actInt, alphEspont, alphaSpont, summ, factor_x
 INTEGER                                 :: actPoint
 INTEGER                                 :: get_package_model_index
 DOUBLE PRECISION                        :: tot_pop, uppper_en, lower_en
@@ -67,9 +67,9 @@ DO indexe = 1, n_elements
    END IF
    ! setting indexe and indexi
    act_rate = act_rate + 1
-   actikrates%Lcool_fbE(1, act_rate) = indexe
-   actikrates%Lcool_fbE(2, act_rate) = indexi - 1
-   actikrates%Lcool_fbE(3, act_rate) = indexl
+   actikrates%Lcool_fbE(ind_element, act_rate) = indexe
+   actikrates%Lcool_fbE(ind_ion, act_rate) = indexi - 1
+   actikrates%Lcool_fbE(ind_level, act_rate) = indexl
    IF(nfreq /= 0) THEN
     ALLOCATE(crossfreq(nfreq), cross(nfreq))
     crossfreq(:) = elements(indexe)%ions(indexi - 1)%levels(indexl)%photcros(1,:)
@@ -82,20 +82,20 @@ DO indexe = 1, n_elements
     !  ' init_freq = ', init_freq, ' rate = ', actikrates%Lcool_fbE(act_rate)
     ! looking for initial point
     actPoint = 0
-    DO I = 1, nfreq
-     IF(init_freq < crossfreq(I)) THEN
+    DO ind_I = 1, nfreq
+     IF(init_freq < crossfreq(ind_I)) THEN
       ! write(*,*) 'cool_ionization: freq = ', init_freq, ' crossfreq(', I, ') = ', crossfreq(I)
-      actPoint = I
+      actPoint = ind_I
       EXIT
      END IF
     END DO
-    actikrates%Lcool_fbE(5, act_rate) = actPoint
+    actikrates%Lcool_fbE(ind_initpoint, act_rate) = actPoint
     ! write(*,*) 'cool_ionization: el = ', indexe, ' ion = ', indexi - 1, ' lev = ', indexl,&
     !  ' n = ', nfreq, ' initp = ', actPoint
     ! if the initial point's frequency is too large we will not be able to
     ! calculate the integral, which is equal to zero in this case
     IF(actPoint == 0) THEN
-     actikrates%Lcool_fbE(4,act_rate) = 0.D0
+     actikrates%Lcool_fbE(ind_rate,act_rate) = 0.D0
      ! write(*,*) 'cool_ionization: el = ', indexe, ' ion = ', indexi - 1, ' lev = ', indexl,&
      !  ' n = ', nfreq, ' initp = ', actPoint, ' rate = ', actikrates%Lcool_fbE(4, act_rate)
      DEALLOCATE(crossfreq, cross)
@@ -104,17 +104,19 @@ DO indexe = 1, n_elements
     ! calculation of the integral alpha E spont after Kromer(), Eq. (4.34)
     ! filling the arrays
     ALLOCATE(func(nfreq - actPoint + 1), func2(nfreq - actPoint + 1))
-    DO J = actPoint, nfreq
-     ! write(*,*) 'cool_ionization: J = ', J, ' al(crfr) = ', ALLOCATED(crossfreq)
-     x = ( const_h * crossfreq(J) ) / ( const_kB * temp)
-     func(J - actPoint + 1) = cross(J) / (const_h * init_freq) * const_h * crossfreq(J)**3.0 / const_c**2.0 * exp(-x)
-     ! write(*,*) 'cool_ionization: cross = ', cross(J), ' init_freq = ', init_freq
-     func2(J - actPoint + 1) = cross(J) / (const_h * crossfreq(J)) * const_h * crossfreq(J)**3.0 / const_c**2.0 * exp(-x)
+    DO ind_J = actPoint, nfreq
+     ! write(*,*) 'cool_ionization: ind_J = ', ind_J, ' al(crfr) = ', ALLOCATED(crossfreq)
+     factor_x = ( const_h * crossfreq(ind_J) ) / ( const_kB * temp)
+     func(ind_J - actPoint + 1) = cross(ind_J) / (const_h * init_freq) * const_h * crossfreq(ind_J)**3.0 / const_c**2.0 * &
+     exp(-factor_x)
+     ! write(*,*) 'cool_ionization: cross = ', cross(ind_J), ' init_freq = ', init_freq
+     func2(ind_J - actPoint + 1) = cross(ind_J) / (const_h * crossfreq(ind_J)) * const_h * crossfreq(ind_J)**3.0 / const_c**2.0 * &
+     exp(-factor_x)
     END DO ! calculation of the integral
     ! calculation of integral using the trapezoid rule
     summ = 0.D0
-    DO J = 1, SIZE(func) - 1
-     actInt = (func(J) + func(J + 1) ) * (crossfreq(J + 1) - crossfreq(J))
+    DO ind_J = 1, SIZE(func) - 1
+     actInt = (func(ind_J) + func(ind_J + 1) ) * (crossfreq(ind_J + 1) - crossfreq(ind_J))
      summ = summ + actInt
      ! write(*,*) 'cool_fb: summ = ', summ
     END DO
@@ -122,8 +124,8 @@ DO indexe = 1, n_elements
     ! write(*,*) 'cool_fb: summ = ', summ, ' alphEspont = ', alphEspont, ' init_freq = ', init_freq
     ! alpha spont after Kromer() eq. (4.35)
     summ = 0.D0
-    DO J = 1, SIZE(func) - 1
-     actInt = (func2(J)  + func2(J + 1) ) * (crossfreq(J + 1) - crossfreq(J))
+    DO ind_J = 1, SIZE(func) - 1
+     actInt = (func2(ind_J)  + func2(ind_J + 1) ) * (crossfreq(ind_J + 1) - crossfreq(ind_J))
      summ = summ + actInt
     END DO
     alphaSpont = 4.D0 * const_pi * summ ! / const_c**2 * summ
@@ -133,9 +135,9 @@ DO indexe = 1, n_elements
     tot_pop = model_grid(cur_mgi)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
     uppper_en = MINVAL(elements(indexe)%ions(indexi)%levels(:)%exci_energy)
     lower_en = elements(indexe)%ions(indexi - 1)%levels(indexl)%exci_energy
-    actikrates%Lcool_fbE(4,act_rate) = tot_pop * el_dens * sfactor * &
+    actikrates%Lcool_fbE(ind_rate,act_rate) = tot_pop * el_dens * sfactor * &
      (alphEspont - alphaSpont) * (uppper_en - lower_en)
-    Zfb = Zfb + actikrates%Lcool_fbE(4,act_rate)
+    Zfb = Zfb + actikrates%Lcool_fbE(ind_rate,act_rate)
     ! write(*,*) 'cool_fb: eldens = ', el_dens, ' tot_pop = ', tot_pop
     ! write(*,*) 'cool_fb: uppper_en = ', uppper_en, ' lower_en = ', lower_en
     ! write(*,*) 'cool_fb: sfactor = ', sfactor, ' ales = ', alphEspont, ' als = ',  alphaSpont 
@@ -145,7 +147,7 @@ DO indexe = 1, n_elements
     DEALLOCATE(crossfreq, cross)
     DEALLOCATE(func, func2)
    ELSE
-    actikrates%Lcool_fbE(4,act_rate) = 0.D0
+    actikrates%Lcool_fbE(ind_rate,act_rate) = 0.D0
    END IF ! npoints == 0
    !write(*,*) 'cool_fb: actikrates%Lcool_fbE(', act_rate, ') = ', actikrates%Lcool_fbE(act_rate), &
    ! ' Zfb = ', Zfb

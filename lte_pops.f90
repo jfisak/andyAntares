@@ -1,3 +1,9 @@
+! calculates lte populations for each (associated) modGrid cell for a selected element ion
+! 
+! INPUT: indexe(INT): element index
+!        indexi(INT): ion index
+! OUTPUT: NONE
+!
 SUBROUTINE lte_pops(indexe, indexi)
 
 USE types
@@ -9,7 +15,7 @@ INTEGER                                 :: indexe, indexi, gridcell
 INTEGER, DIMENSION(1)                   :: indexl0
 DOUBLE PRECISION                        :: el_nd, temp
 DOUBLE PRECISION                        :: frac
-DOUBLE PRECISION                        :: gl_pop, N_jk, U
+DOUBLE PRECISION                        :: gl_pop, N_jk, tot_part_fun
 
 ! write(*,*) 'lte_pops: indexe = ', indexe, ' indexi = ', indexi
 DO gridcell = 1, n_modelgrid
@@ -25,17 +31,16 @@ DO gridcell = 1, n_modelgrid
   ! write(*,*) 'lte_pops: frac = ', frac, ' rho = ', model_grid(gridcell)%rho, &
   !  ' a = ', model_grid(gridcell)%grid_comp(indexe)%abund, ' m_a = ', elements(indexe)%atom_mass
   ! CALL ionization_fraction(indexe, indexi, temp, el_nd, frac)
-  ! print*, gridcell, indexe, indexi, N_jk/1d10, frac
-  ! Calculate partition function (U) of element indexe in ionization stage 
+  ! Calculate partition function (tot_part_fun) of element indexe in ionization stage 
   ! indexi at given temperature temp
-  CALL part_fun(indexe, indexi, temp, U)
+  CALL part_fun(indexe, indexi, temp, tot_part_fun)
   ! Ground level population number (number density of the atom at ground level)
   indexl0(1) = MINLOC(elements(indexe)%ions(indexi)%levels(:)%exci_energy,1)
-  gl_pop = ( elements(indexe)%ions(indexi)%levels(indexl0(1))%stat_waight * N_jk ) /  U 
-  ! IF(indexe == 1 .AND. indexi == 1) write(*,*) 'update_grid: H I = ', frac
-  ! IF(indexe == 1 .AND. indexi == 2) write(*,*) 'update_grid: H II = ', frac
+  gl_pop = ( elements(indexe)%ions(indexi)%levels(indexl0(1))%stat_waight * N_jk ) /  tot_part_fun 
+  ! IF(indexe == 1 .AND. indexi == 1) write(*,*) 'lte_pops: H I = ', frac
+  ! IF(indexe == 1 .AND. indexi == 2) write(*,*) 'lte_pops: H II = ', frac
   ! write(*,*) 'update_grid: gl_pop = ', gl_pop, ' N_jk = ', N_jk,&
-  !  ' U = ', U, ' temp = ', temp
+  !  ' tot_part_fun = ', tot_part_fun, ' temp = ', temp
   model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%gl_pop = gl_pop
   IF(N_jk > 1.D-40) THEN
    model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop = N_jk
@@ -51,6 +56,7 @@ DO gridcell = 1, n_modelgrid
   END IF
  END IF
 END DO
+! STOP 'lte_pops: testing'
 
 END SUBROUTINE lte_pops
 

@@ -1,6 +1,13 @@
 MODULE rates_k
  USE types
  IMPLICIT NONE
+
+ INTEGER, PARAMETER                     :: ind_element = 1
+ INTEGER, PARAMETER                     :: ind_ion = 2
+ INTEGER, PARAMETER                     :: ind_level = 3
+ INTEGER, PARAMETER                     :: ind_rate = 4
+ INTEGER, PARAMETER                     :: ind_initpoint = 5
+
  ! k-packages
  TYPE, PUBLIC :: krates
   DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE  :: Lcont

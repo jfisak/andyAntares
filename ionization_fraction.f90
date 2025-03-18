@@ -7,11 +7,9 @@ USE constants
 
 IMPLICIT NONE
 
-INTEGER                                 :: I, J, numb_ions, indexe, indexi
+INTEGER                                 :: ind_I, ind_J, numb_ions, indexe, indexi
 DOUBLE PRECISION                        :: temp, el_nd, frac
-! REAL(kind=16)                        :: N, D, SUMM
-DOUBLE PRECISION                        :: N, D, SUMM
-!DOUBLE PRECISION                        :: N, D, SUMM
+DOUBLE PRECISION                        :: tot_N, factor_D, SUMM
 DOUBLE PRECISION                        :: sb_factor
 LOGICAL                                 :: too_large
 
@@ -25,37 +23,40 @@ SELECT CASE(nlte)
 ! LTE approximation
 CASE(0)
 
- N = 1.D0
- DO I = indexi, numb_ions - 1
-  CALL saha_boltzmann_factor(indexe, I, temp, sb_factor, too_large)
-  ! write(*,*) 'saha Boltzman factor: ', I, sb_factor, N, too_large
-  IF(too_large .EQV. .TRUE.) CYCLE
-  N = N * el_nd * sb_factor
- ! write(*,*) 'ionization_fraction: e  = ', el_nd, ' sf = ', sb_factor, ' N = ', N
+ tot_N = 1.D0
+ DO ind_I = indexi, numb_ions - 1
+  CALL saha_boltzmann_factor(indexe, ind_I, temp, sb_factor, too_large)
+  ! write(*,*) 'ionization_fraction: ', ind_I, ' sb_factor = ', sb_factor, tot_N, too_large
+  ! IF(too_large .EQV. .TRUE.) CYCLE
+  tot_N = tot_N * el_nd * sb_factor
+ ! write(*,*) 'ionization_fraction: e  = ', el_nd, ' sf = ', sb_factor, ' tot_N = ', tot_N
  END DO
  
  SUMM = 0.D0
- DO I = 1, numb_ions
-  D = 1.D0
-  DO J = I, numb_ions - 1
-   CALL saha_boltzmann_factor(indexe, J, temp, sb_factor, too_large)
+ DO ind_I = 1, numb_ions
+  factor_D = 1.D0
+  DO ind_J = ind_I, numb_ions - 1
+   CALL saha_boltzmann_factor(indexe, ind_J, temp, sb_factor, too_large)
    IF(too_large .EQV. .TRUE.) CYCLE
    ! IF(sb_factor == -1.0) EXIT
-   D = D * el_nd * sb_factor
-   IF(isnan(D)) THEN
+   factor_D = factor_D * el_nd * sb_factor
+   IF(isnan(factor_D)) THEN
    END IF
-  ! write(*,*) 'vypocet ionization fraction, hodnoty: el_nd = ', el_nd, ' ,sb_factor = ', sb_factor, ' , temp = ', temp
-  ! write(*,*) 'probehl', I, ' a ', J, ' -ty cyklus vypoctu D, D=', D
+  ! write(*,*) 'ionization_fraction: hodnoty: el_nd = ', el_nd, ' ,sb_factor = ', sb_factor, ' , temp = ', temp
+  ! write(*,*) 'ionization_fraction: probehl', ind_I, ' a ', ind_J, ' -ty cyklus vypoctu D, factor_D=', factor_D
   END DO
-  SUMM = SUMM + D     
+  SUMM = SUMM + factor_D     
+  ! write(*,*) 'ionization_fraction: SUMM = ', SUMM
  END DO
  
   !if(SUMM == 0) print*, "ionization_fraction: SUMM = 0..."
-   frac = DBLE(N / SUMM)
-   IF(frac < 1.D-40) frac = 0
+   frac = DBLE(tot_N / SUMM)
+   ! write(*,*) 'ionization_fraction: fraction = ', frac
+   ! IF(frac < 1.D-40) frac = 0
    IF(isnan(frac)) STOP 'ionization_fraction: frac = NaN'
-CASE(2)
-
+CASE DEFAULT
+ write(*,*) 'ionization_fraction: nlte = ', nlte
+ STOP 'ionization_fraction: this choice is not possible'
 END SELECT
 
 END SUBROUTINE ionization_fraction

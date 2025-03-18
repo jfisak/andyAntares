@@ -7,7 +7,7 @@ USE constants
       IMPLICIT NONE 
 
       DOUBLE PRECISION                 :: sint, cost, sinp, cosp, phi, ran2
-      DOUBLE PRECISION, DIMENSION(3)   :: direction
+      DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: direction
 !      INTEGER                          :: idum
 !      COMMON / RAN_SEED / idum
 
@@ -16,9 +16,9 @@ USE constants
       phi=2.D0*const_pi*ran2(idum)
       cosp=COS(phi)
       sinp=SIN(phi)
-      direction(1)=sint*cosp
-      direction(2)=sint*sinp                       
-      direction(3)=cost  
+      direction(ind_x)=sint*cosp
+      direction(ind_y)=sint*sinp                       
+      direction(ind_z)=cost  
 
 !      length=SQRT(direction(1)**2 + direction(2)**2 + direction(3)**2)  
 !      print*,length

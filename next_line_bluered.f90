@@ -1,3 +1,13 @@
+! finds a next line in the blue or the red direction from the last line
+! if there is more than one line with the same frequency, the n_lines > 1
+!
+! INPUT: approximation(INT) -- assumed approximation
+!        pack_index(INT) -- index of a packet
+!        b_dist(DBLE) -- a distance from a boundary
+!        init_line(INT) -- initial line
+! OUTPUT: next_line(INT) -- index of a next line
+!         n_lines(INT) -- number of the lines with the same frequency as next_line
+!
 SUBROUTINE next_line_bluered(approximation, pack_index, b_dist, init_line, next_line, n_lines)
 
 USE types
@@ -10,7 +20,7 @@ INTEGER                                 :: init_line
 INTEGER                                 :: next_line, n_lines
 DOUBLE PRECISION                        :: b_dist, f_cmf
 
-INTEGER                                 :: I
+INTEGER                                 :: ind_I
 INTEGER                                 :: cur_index
 DOUBLE PRECISION                        :: cur_fline
 
@@ -19,6 +29,7 @@ LOGICAL                                 :: redshift, rob
 LOGICAL                                 :: pack_redshift
 
 DOUBLE PRECISION                        :: f_line, f_nextline
+INTEGER, PARAMETER                      :: ind_init_line = 1
 
 n_lines = 1
 redshift = rob(pack_index, b_dist)
@@ -37,11 +48,11 @@ SELECT CASE(approximation)
  if(init_line == no_line) THEN
   IF(redshift) THEN
    IF(f_cmf > linelist(ntransitions)%freq) THEN
-    DO I = 1, ntransitions
-     cur_fline = linelist(I)%freq
+    DO ind_I = 1, ntransitions
+     cur_fline = linelist(ind_I)%freq
      ! write(*,*) 'next_line_bluered: f_lu = ', cur_fline/f_cmf
      IF(f_cmf >  cur_fline) THEN
-      next_line = I
+      next_line = ind_I
       package(pack_index)%redshift = .true.
       EXIT
      END IF ! f_cmf > cur_fline
@@ -51,9 +62,9 @@ SELECT CASE(approximation)
    END IF ! cmf > f_lastline
   !!!!!!!!!!!!!!!!!
   ELSE ! blueshift
-   IF(f_cmf < linelist(1)%freq) THEN
-    DO I = 1, ntransitions
-     cur_index = ntransitions - I + 1
+   IF(f_cmf < linelist(ind_init_line)%freq) THEN
+    DO ind_I = 1, ntransitions
+     cur_index = ntransitions - ind_I + 1
      cur_fline = linelist(cur_index)%freq
      IF(f_cmf < cur_fline) THEN
       next_line = cur_index
@@ -90,8 +101,8 @@ SELECT CASE(approximation)
  if (next_line < ntransitions + 1) THEN
   f_nextline = linelist(next_line)%freq
   if(redshift) then
-   do I = next_line + 1, ntransitions
-    f_line = linelist(I)%freq
+   do ind_I = next_line + 1, ntransitions
+    f_line = linelist(ind_I)%freq
     if(f_nextline == f_line) then
      n_lines = n_lines + 1
     else ! line frequency differs
@@ -99,8 +110,8 @@ SELECT CASE(approximation)
     end if
    end do
   else ! blueshift
-   do I = next_line + 1, ntransitions
-    cur_index = ntransitions - I + 1
+   do ind_I = next_line + 1, ntransitions
+    cur_index = ntransitions - ind_I + 1
     f_line = linelist(cur_index)%freq
     if(f_nextline == f_line) then
      n_lines = n_lines + 1

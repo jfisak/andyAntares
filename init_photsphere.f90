@@ -1,112 +1,103 @@
+! sets the packets up
+! 
+! INPUT: n_pack(INT): number of packets
+! OUTPUT: NONE
+!
 SUBROUTINE init_photsphere(n_pack)
 
-  USE types
+USE types
 USE constants
 
-  IMPLICIT NONE
+IMPLICIT NONE
 
-  INTEGER                           :: I, J, n_pack, ind_cell_numb
-  DOUBLE PRECISION                  :: L_star, sint, cost, sinp, cosp, freq, D
-  !   DOUBLE PRECISION, PARAMETER       :: delta_t=1.D0
-  DOUBLE PRECISION, DIMENSION(3)    :: direction, directionn
-  DOUBLE PRECISION, DIMENSION(n_pack) :: frequencies
+INTEGER                           :: ind_I, ind_J, n_pack, ind_cell_numb
+DOUBLE PRECISION                  :: L_star, sint, cost, sinp, cosp, freq, doppler_D
+DOUBLE PRECISION, DIMENSION(const_dimofspace)    :: direction, directionn
+DOUBLE PRECISION, DIMENSION(n_pack) :: frequencies
 
-  INTEGER                               :: cur_mgi
-  DOUBLE PRECISION                      :: cur_Teff
-  LOGICAL, PARAMETER                    :: homogeneous=.true.
+INTEGER                               :: cur_mgi
+DOUBLE PRECISION                      :: cur_Teff
+LOGICAL, PARAMETER                    :: homogeneous=.true.
 
-  DOUBLE PRECISION                      :: R_bound, ran2
+DOUBLE PRECISION                      :: R_bound, ran2
+INTEGER, PARAMETER                    :: ind_savephdistr = 12
 
-  destroyed_pack = 0
-  L_star = 4.D0*const_pi*(R_star)**2*const_stefbolz*T_eff**4
-  write(99,*) 'init photsphere...'
-  write(99,*) 'init_photsphere: R_star = ', R_star, ' T_eff = ', T_eff, ' L_star = ', L_star
-  !print*, L_star, const_pi, R_star/const_Rsun,const_stefbolz, T_eff
+destroyed_pack = 0
+L_star = 4.D0*const_pi*(R_star)**2*const_stefbolz*T_eff**4
+write(99,*) 'init photsphere...'
+write(99,*) 'init_photsphere: R_star = ', R_star, ' T_eff = ', T_eff, ' L_star = ', L_star
 
-  ! delete
-  R_bound = R_star
+! delete
+R_bound = R_star
 
-  !    ind_x = nx_cell/2 + 1
-  !    ind_y = ny_cell/2 + 1
-  !    ind_z = nz_cell/2 + 1
-  !    ind_cell_numb = (ind_x-1)*ny_cell*nz_cell + (ind_y-1)*nz_cell + ind_z
-  !    write(99,*) ind_cell_numb
-  !    write(99,*) R_star
-! OPEN(16,FILE='photon_positions.dat')
-  DO I = 1, n_pack
-   ! Place photon on the photosphere's surface
-   CALL random_unitvector1(direction, sint, cost, sinp, cosp)
-   package(I)%pos = R_bound * direction
-  
-   IF(I > tot_saved_packets) THEN
-    ! write(*,*) 'init_photsphere: R_star = ', R_star
+DO ind_I = 1, n_pack
+ ! Place photon on the photosphere's surface
+ CALL random_unitvector1(direction, sint, cost, sinp, cosp)
+ package(ind_I)%pos = R_bound * direction
 
-    ! Then give it a random direction outward from the photosphere
-    CALL random_unitvector2(directionn) !random_unitvector(direction) 
-    direction(1)=directionn(3)*sint*cosp+directionn(1)*cost*cosp-directionn(2)*sinp
-    direction(2)=directionn(3)*sint*sinp+directionn(1)*cost*sinp+directionn(2)*cosp
-    direction(3)=directionn(3)*cost-directionn(1)*sint
-    package(I)%dir = direction
+ IF(ind_I > tot_saved_packets) THEN
+  ! write(*,*) 'init_photsphere: R_star = ', R_star
 
-    ! Now put the photon to the corresponding grid cell
-    ! Determine the cell index where is the photon 
-    ! This works only for regular grids!!!!
-    ! write(*,*) 'init_photsphere: calling find_dyn_cell1, pack_index = ', I
-    CALL find_dyn_cell1(package(I)%pos,ind_cell_numb)
-    IF ((inputflux .EQ. 0) ) THEN
-     IF(homogeneous) THEN
-      CALL freq_from_planck(freq, T_eff)   ! here the frequency is sampled from a Planck law
-     ELSE
-      cur_mgi = dyn_cell(ind_cell_numb)%model_index
-      cur_Teff = model_grid(cur_mgi)%T
-      if(cur_mgi > n_modelgrid) then
-       cur_Teff = 30000.00 + (270000 * ran2(idum))
-      end if
-      write(40,*) cur_Teff
-      CALL freq_from_planck(freq, cur_Teff)
-      IF(my_rank == 0) write(39,*) freq
-     END IF
-     IF(I > tot_saved_packets) package(I)%freq_rf = freq
-    ELSE IF ((inputflux .EQ. 1 .OR. inputflux == 2) .AND. (I==1)) THEN
-    CALL freq_from_file(n_pack,frequencies) ! frequency is sampled using an existing emergent flux
-    DO J = tot_saved_packets + 1, n_pack
-     package(J)%freq_rf = frequencies(J)
-    END DO
+  ! Then give it a random direction outward from the photosphere
+  CALL random_unitvector2(directionn) !random_unitvector(direction) 
+  direction(ind_x)=directionn(ind_z)*sint*cosp+directionn(ind_x)*cost*cosp-directionn(ind_y)*sinp
+  direction(ind_y)=directionn(ind_z)*sint*sinp+directionn(ind_x)*cost*sinp+directionn(ind_y)*cosp
+  direction(ind_z)=directionn(ind_z)*cost-directionn(ind_x)*sint
+  package(ind_I)%dir = direction
+
+  ! Now put the photon to the corresponding grid cell
+  ! Determine the cell index where is the photon 
+  ! This works only for regular grids!!!!
+  ! write(*,*) 'init_photsphere: calling find_dyn_cell1, pack_index = ', I
+  CALL find_dyn_cell1(package(ind_I)%pos,ind_cell_numb)
+  IF ((inputflux .EQ. 0) ) THEN
+   IF(homogeneous) THEN
+    CALL freq_from_planck(freq, T_eff)   ! here the frequency is sampled from a Planck law
+   ELSE
+    cur_mgi = dyn_cell(ind_cell_numb)%model_index
+    cur_Teff = model_grid(cur_mgi)%T
+    if(cur_mgi > n_modelgrid) then
+     cur_Teff = 30000.00 + (270000 * ran2(idum))
+    end if
+    CALL freq_from_planck(freq, cur_Teff)
    END IF
-    ! write(*,*) 'init_photsphere: init cell numb = ', ind_cell_numb
-    IF(ind_cell_numb > SIZE(dyn_cell)) THEN
-     write(*,*) 'init_photsphere: wrong cell number'
-     CALL abort()
-    END IF
-    package(I)%cell_numb = ind_cell_numb
-
-    ! Flag the packet as an active r-pkt and allow all kind of cell crossings
-    package(I)%active     = 1
-    package(I)%typ        = type_rpkt
-    package(I)%n_interactions = 0
-    package(I)%next_cross = NONE
-    package(I)%virtual = .FALSE.
-
-    ! Assign rf energy and frequency to the packet
-    package(I)%e_rf = L_star/n_pack  
-
-    ! Now convert the energy and frequency to their cmf values
-    ! CALL doppler_factor(I, R_star * direction, direction, D)
-    CALL doppler_factor(I, D)
-    package(I)%freq_cmf = package(I)%freq_rf * D 
-    package(I)%e_cmf    = package(I)%e_rf * D  
-
-    ! Assine 1 to the last_line whith which package is in resonance
-    package(I)%last_line = no_line
-    package(I)%delta_s = 0.D0
-   END IF
+   IF(ind_I > tot_saved_packets) package(ind_I)%freq_rf = freq
+  ELSE IF ((inputflux .EQ. 1 .OR. inputflux == 2) .AND. (ind_I==1)) THEN
+  CALL freq_from_file(n_pack,frequencies) ! frequency is sampled using an existing emergent flux
+  DO ind_J = tot_saved_packets + 1, n_pack
+   package(ind_J)%freq_rf = frequencies(ind_J)
   END DO
+ END IF
+  ! write(*,*) 'init_photsphere: init cell numb = ', ind_cell_numb
+  IF(ind_cell_numb > SIZE(dyn_cell)) THEN
+   write(*,*) 'init_photsphere: wrong cell number'
+   CALL abort()
+  END IF
+  package(ind_I)%cell_numb = ind_cell_numb
 
-OPEN(19,file="photonFdistr.dat")
- do I=1,n_pack
-  write(19,*) -99, package(I)%freq_rf, package(I)%e_rf
- end do
-CLOSE(19)
+  ! Flag the packet as an active r-pkt and allow all kind of cell crossings
+  package(ind_I)%active     = 1
+  package(ind_I)%typ        = type_rpkt
+  package(ind_I)%n_interactions = 0
+  package(ind_I)%next_cross = NONE
+  package(ind_I)%virtual = .FALSE.
+
+  ! Assign rf energy and frequency to the packet
+  package(ind_I)%e_rf = L_star/n_pack  
+
+  ! Now convert the energy and frequency to their cmf values
+  ! CALL doppler_factor(I, R_star * direction, direction, D)
+  CALL doppler_factor(ind_I, doppler_D)
+  package(ind_I)%freq_cmf = package(ind_I)%freq_rf * doppler_D 
+  package(ind_I)%e_cmf    = package(ind_I)%e_rf * doppler_D  
+
+  ! Assine 1 to the last_line whith which package is in resonance
+  package(ind_I)%last_line = no_line
+  package(ind_I)%delta_s = 0.D0
+ END IF
+END DO
+
+CALL save_output(ind_savephdistr)
         
 
 END SUBROUTINE init_photsphere

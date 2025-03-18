@@ -27,12 +27,13 @@ INTEGER                                 :: ind_K
 DOUBLE PRECISION                        :: wavle
 ! occupation numbers
 ! levels index variables
-INTEGER                                 :: act_elem, act_ion, act_lev
-DOUBLE PRECISION                        :: act_pop
-DOUBLE PRECISION                        :: eenergy
-CHARACTER(LEN=filename_length)                       :: fileTempStruct, fileOccNum
+! INTEGER                                 :: act_elem, act_ion, act_lev
+! DOUBLE PRECISION                        :: act_pop
+! DOUBLE PRECISION                        :: eenergy
+CHARACTER(LEN=filename_length)                       :: fileTempStruct! , fileOccNum
 CHARACTER(LEN=filename_length)                       :: fileHydrogenFrac, fileHeliumFrac
 CHARACTER(LEN=filename_length)                       :: fileGrid, filePart
+CHARACTER(LEN=filename_length)                       :: initspec_file
 ! ionization fraction files
 DOUBLE PRECISION                        :: frac, N_jk, totElPop
 ! DOUBLE PRECISION                        :: frac1, N_jk1, totElPop1
@@ -49,7 +50,7 @@ DOUBLE PRECISION                        :: abundance, density
 CHARACTER(LEN=filename_length)                       :: fileHI, fileHII, fileHeI, fileHeII, fileHeIII
 CHARACTER(LEN=filename_length)                       :: fileEldens, fileRho, temp_file_name
 INTEGER                                 :: cell_index
-DOUBLE PRECISION                        :: num_tot_pop
+! DOUBLE PRECISION                        :: num_tot_pop
 INTEGER                                 :: tot_n_ions, cur_ion, n_ions
 DOUBLE PRECISION, ALLOCATABLE           :: part_functions(:)
 DOUBLE PRECISION                        :: part_U, temperature
@@ -78,7 +79,9 @@ INTEGER                                         :: cur_mgi, cur_pgi, cur_index
 DOUBLE PRECISION                                :: cur_rho, cur_temp
 CHARACTER(LEN=filename_length)                      :: temp_file_name_t, temp_file_name_rho, temp_file_name_v 
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: width
-CHARACTER(LEN=2)                                :: cur_name, get_element_name, get_ion_number, cur_ion_num
+CHARACTER(LEN=2)                                :: cur_name, get_element_name
+CHARACTER(LEN=10)                               :: get_ion_number, cur_ion_num
+DOUBLE PRECISION                                :: cur_xpos
 
 !________________________________________________________________________________
 ! #00 output folder
@@ -381,8 +384,8 @@ CASE(7)
  fileEldens = trim(outputfolder)//'/elDens.dat'
  OPEN(40, FILE=fileEldens)
   DO ind_I = 1, n_modelgrid
-   IF(model_grid(ind_I)%assoc_cells == 0) CYCLE
-   write(40,'(I3,d12.4,d12.4)') ind_I, model_grid(ind_I)%rwind, model_grid(ind_I)%e_dens
+   IF(model_grid(ind_I)%assoc_cells <= 0) CYCLE
+   write(40,'(I6,d12.4,d12.4,I3)') ind_I, model_grid(ind_I)%rwind, model_grid(ind_I)%e_dens, model_grid(ind_I)%assoc_cells
   END DO
  CLOSE(40)
  fileRho = trim(outputfolder)//'/rho.dat'
@@ -465,7 +468,17 @@ CASE(11)
  OPEN(73, FILE=temp_file_name)
   DO cur_index_I = 1, n_propgcells
    cur_centre = dyn_cell(cur_index_I)%corner + dyn_cell(cur_index_I)%width/2.0
-   cur_vel = dyn_cell(cur_index_I)%vec_vel
+   IF(model_type == 1) THEN
+    cur_vel(ind_x) = model_grid(cur_index_I)%vel
+    cur_vel(ind_y) = 0.D0
+    cur_vel(ind_z) = 0.D0
+   ELSE IF(model_type == 2) THEN
+    cur_vel(ind_x) = model_grid(cur_index_I)%vel
+    cur_vel(ind_y) = model_grid(cur_index_I)%velang
+    cur_vel(ind_z) = 0.D0
+   ELSE IF(model_type == 3) THEN
+    cur_vel = dyn_cell(cur_index_I)%vec_vel
+   END IF
    write(73,*) cur_centre, cur_vel
   END DO
  CLOSE(73)
@@ -537,11 +550,12 @@ OPEN(174, FILE=temp_file_name_rho)
 OPEN(175, FILE=temp_file_name_v)
 
 DO ind_I = 1, Ny_cov
- write(173,*) coverage_matrix_T(:,ind_I)
- write(174,*) coverage_matrix_rho(:,ind_I)
+ cur_xpos = ((xmax - xmin) * ind_I + (Nx_cov * xmin - xmax))/DBLE(Nx_cov - 1)
+ write(173,*) cur_xpos, coverage_matrix_T(:,ind_I)
+ write(174,*) cur_xpos, coverage_matrix_rho(:,ind_I)
 END DO
 DO ind_I = 1, Nx_cov * Ny_cov
- write(175,*) coverage_matrix_v(ind_I,:)
+ write(175,*) cur_xpos, coverage_matrix_v(ind_I,:)
 END DO
 
 CLOSE(173)
@@ -562,7 +576,7 @@ cur_pos(ind_x) = x_cov
 cur_index = 0
 DO ind_I = 1, Ny_cov
  cur_pos(ind_y) = ((ymax - ymin) * ind_I + (Ny_cov * ymin - ymax))/DBLE(Ny_cov - 1)
- DO ind_J = 1, Ny_cov
+ DO ind_J = 1, Nz_cov
   cur_index = cur_index + 1
   cur_pos(ind_z) = ((zmax - zmin) * ind_J + (Nz_cov * zmin - zmax))/DBLE(Nz_cov - 1)
   ! looking for a current propGrid cell index
@@ -602,6 +616,19 @@ CLOSE(175)
  END IF
 # endif
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! #12 initial frequency distribution
+!
+! 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CASE(13)
+ write(initspec_file,"(A, A13, I3.3, A4)") trim(outputfolder), '/photonFdistr', my_rank, '.dat'
+ OPEN(19,file=initspec_file)
+  do ind_I=1, SIZE(package)
+   write(19,*) -99, package(ind_I)%freq_rf, package(ind_I)%e_rf
+  end do
+ CLOSE(19)
+
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! #100 input file
@@ -614,9 +641,10 @@ CASE(100)
  write(99,*) '___________________________________________________________'
  write(99,*) 'set up variables:'
  ! write(99,*) 'number of packets: ', n_pack, ' a temporary file saves ', n_pack_save, ' packets'
+ write(99,*) 'number of packets = ', n_packets
  write(99,*) ' a temporary file saves ', n_pack_save, ' packets'
  write(99,*) 'n_nubin = ', n_nubin
- write(99,*) 'propagation grid parameters:'
+ write(99,*) 'intput propagation grid parameters: (!!!THE REAL PROPGRID CAN BE DIFFERENT!!!)'
  write(99,*) 'using a previously saved grid = ', saved_grid
  write(99,*) 'nx_cell = ', nx_cell, ' ny_cell = ', ny_cell, ' nz_cell = ', nz_cell
  write(99,*) 'xmax = ', xmax, ' ymax = ', ymax, ' zmax = ', zmax
@@ -684,6 +712,21 @@ CASE(102)
 
  write(99,*) '__________________________________________________'
  
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! #103 propagation grid description
+! 
+! 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CASE(103)
+
+ write(99,*) '__________________________________________________'
+ write(99,*) '_________PROPAGATION GRID DESCRIPTION_____________'
+ write(99,*) '__________________________________________________'
+ write(99,*) 'xmin = ', xmin/R_star, ' ymin = ', ymin/R_star, ' zmin = ', zmin/R_star
+ write(99,*) 'xmax = ', xmax/R_star, ' ymax = ', ymax/R_star, ' zmax = ', zmax/R_star
+ write(99,*) 'nx_cell = ', nx_cell, ' ny_cell = ', ny_cell, ' nz_cell = ', nz_cell
+ write(99,*) 'basic cell width = ', basic_cell_width(:)/R_star
+
 CASE DEFAULT
  write(99,*) 'save_output: this case is not known'
 END SELECT

@@ -1,3 +1,11 @@
+! find seven neighboring propGrid cells
+!
+! INPUT: pack_index(INT): index of a packet
+!        rel_pos(DBLE(const_dimofspace)): relative position in the cell
+!        velgridcells(INT(n_oct)): indeces of neighboring cells
+!        incell(LOG): inCell mode
+! OUTPUT: NONE
+!
 SUBROUTINE oct_neighbors(pack_index, rel_pos, velgridcells, incell)
 
 
@@ -9,20 +17,20 @@ IMPLICIT NONE
 INTEGER, PARAMETER                      :: n_oct=8
 
 INTEGER                                 :: pack_index, dummypack_index
-DOUBLE PRECISION, DIMENSION(3)          :: rel_pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: rel_pos
 
 INTEGER                                 :: act_cell
-DOUBLE PRECISION, DIMENSION(3)          :: act_corner, act_width
-DOUBLE PRECISION, DIMENSION(3)          :: act_center
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: act_corner, act_width
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: act_center
 
 INTEGER                                 :: cur_cell
 
 INTEGER, DIMENSION(n_oct)                   :: velgridcells
 
-INTEGER                                 :: I, J, dummy, a
+INTEGER                                 :: ind_I, ind_J, dummy, num_a
 
 LOGICAL                                 :: incell
-LOGICAL, DIMENSION(3)                   :: posxyz
+LOGICAL, DIMENSION(const_dimofspace)                   :: posxyz
 
 INTEGER, PARAMETER                      :: n_zero = 1, n_x = 2, n_y = 3, n_z = 4,&
                                            n_xz = 5, n_xy = 6, n_xyz = 7, n_yz = 8
@@ -30,7 +38,7 @@ INTEGER, PARAMETER                      :: dir_x = 1, dir_y = 2, dir_z = 3
 INTEGER                                 :: neigx, neigy
 INTEGER                                 :: neigxy, neigxz, neigxyz, neigyz
 
-DOUBLE PRECISION, DIMENSION(3)          :: act_pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: act_pos
 
 
 IF(pack_index <= SIZE(package)) THEN
@@ -80,8 +88,8 @@ ELSE
  posxyz(dir_z) = .FALSE.
 END IF
 ! test if the cell is on the edge of the propGrid
-DO I = 2,4
- IF(velgridcells(I) < 0) THEN
+DO ind_I = 2,4
+ IF(velgridcells(ind_I) < 0) THEN
   incell = .true.
   RETURN
  END IF
@@ -123,8 +131,8 @@ velgridcells(n_yz) = neigyz
 
 
 ! test for the boundary propagation cell
-DO I = 1,n_oct
- cur_cell = velgridcells(I)
+DO ind_I = 1,n_oct
+ cur_cell = velgridcells(ind_I)
  incell = .FALSE.
  IF(cur_cell < 0) THEN
   incell = .TRUE.
@@ -132,22 +140,22 @@ DO I = 1,n_oct
  END IF
 END DO
 ! sort the velgridcells according to the index number
-do J=2,n_oct
- I = J - 1
+do ind_J=2,n_oct
+ ind_I = ind_J - 1
 
- a = velgridcells(J)
+ num_a = velgridcells(ind_J)
 
- do while(I >= 1)
-  if(velgridcells(I) > a) THEN
-   dummy = velgridcells(I+1)
-   velgridcells(I+1) = velgridcells(I)
-   velgridcells(I) = dummy
+ do while(ind_I >= 1)
+  if(velgridcells(ind_I) > num_a) THEN
+   dummy = velgridcells(ind_I+1)
+   velgridcells(ind_I+1) = velgridcells(ind_I)
+   velgridcells(ind_I) = dummy
   end if
-   I = I - 1
+   ind_I = ind_I - 1
  end do
 end do
 
-! DO I = 1,8
+! DO ind_I = 1,8
 !  IF(velgridcells(I) < 0) STOP 'oct_neighbors: index < 0'
 ! END DO
 

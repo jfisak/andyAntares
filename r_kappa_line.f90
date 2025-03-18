@@ -1,3 +1,14 @@
+! calculation of the opacity in the lines
+! which lines? the first line which Sobolev point is the closest to the path of the packet
+!
+! INPUT: pack_index(INT): index of the packet
+!        current_mgi(INT): index of the modGrid point
+!        nextLine(INT): index of the first line (in the array)
+!        nnextlines(INT): number of lines with the same frequency as the nextLine
+! OUTPUT: line_dist(DBLE): a distance to the Sobolev point
+!        actirrates(rrates): rates saved for specific transitions
+!        tau_line(DBLE): optical depth in the chosen lines
+!
 SUBROUTINE r_kappa_line(pack_index, current_mgi, nextLine, nnextlines, line_dist, actirrates, tau_line)
 
 USE types
@@ -13,7 +24,7 @@ INTEGER                         :: nextLine, nnextlines
 DOUBLE PRECISION                :: line_dist
 INTEGER                         :: current_mgi
 DOUBLE PRECISION                :: stat_weight_l, stat_weight_u
-INTEGER                         :: I
+INTEGER                         :: ind_I
 INTEGER                         :: indexe, indexi, indexline
 DOUBLE PRECISION                :: tau_line
 INTEGER                         :: lower_level, upper_level
@@ -31,12 +42,16 @@ DOUBLE PRECISION                                :: cur_freq_rf
 DOUBLE PRECISION                                :: delta
 DOUBLE PRECISION                                :: deriv
 DOUBLE PRECISION                                :: s_min, s_pls
-DOUBLE PRECISION                                :: tau_line_2, tau_line_3
+DOUBLE PRECISION                                :: tau_line_3
 
-INTEGER, PARAMETER                              :: max_n_of_velopackets = 200
+INTEGER, PARAMETER                              :: max_n_of_velopackets = 20000
 
 ! testing the optical depth in line calculation
 INTEGER                                         :: cur_dummypack, dummypack_index
+
+! testing the beta law
+DOUBLE PRECISION                                :: R_pos, V_pos, costheta
+DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: R_pos_vec
 
 ! the basic variables
 constanta = (const_pi * const_e**2)/( const_me_g * const_c)
@@ -44,8 +59,8 @@ constanta = (const_pi * const_e**2)/( const_me_g * const_c)
 ! write(*,*) 'r_kappa_line: nnextlines = ', nnextlines
 
 tau_line = 0.D0
-DO I = 1, nnextlines
- indexline = nextLine + I - 1
+DO ind_I = 1, nnextlines
+ indexline = nextLine + ind_I - 1
  indexe = linelist(indexline)%indexe
  indexi = linelist(indexline)%indexi
 
@@ -64,8 +79,8 @@ DO I = 1, nnextlines
  
  ! write(*,*) 'r_kappa_line: low_pop = ', low_pop, ' upp_pop = ', upp_pop
  IF(low_pop <= 1.E-20 .OR. upp_pop <= 1.E-20) THEN
-  actirrates%Lline(I) = 0.E0
-  actirrates%nline(I) = indexline
+  actirrates%Lline(ind_I) = 0.E0
+  actirrates%nline(ind_I) = indexline
   CYCLE
  END IF
 
@@ -77,11 +92,20 @@ DO I = 1, nnextlines
   write(*,*) 'WARNING: correction factor 1 - (gl nu) / (gu nl) < 0'
  END IF
  f_lu = linelist(indexline)%f_lu
+ ! analitycal velocity fields
+ ! homologous approximation
+ ! beta-law
  IF(velApprox == 0 .or. velApprox == 1) THEN
-  ROverV = roverw(pack_index, line_dist, fr_line)
-  actirrates%Lline(I) = const_c / fr_line * constanta * &
-   f_lu * low_pop * corrFactor * ROverV
-  actirrates%nline(I) = indexline
+  cur_pos = package(pack_index)%pos
+  IF(norm2(cur_pos) > R_star .and. norm2(cur_pos) < R_inf) THEN
+   ROverV = roverw(pack_index, line_dist, fr_line)
+   actirrates%Lline(ind_I) = const_c / fr_line * constanta * &
+    f_lu * low_pop * corrFactor * ROverV
+   actirrates%nline(ind_I) = indexline
+  ELSE
+   actirrates%nline(ind_I) = indexline
+   actirrates%Lline(ind_I) = 0.D0
+  END IF
  ELSE IF(velApprox == 3) THEN
 
 
@@ -89,14 +113,14 @@ DO I = 1, nnextlines
   cur_dir = package(pack_index)%dir
   cur_freq_rf = package(pack_index)%freq_rf
  
-  delta = basic_cell_width(1)/100.0
+  delta = basic_cell_width(ind_x)/100.0
  
   s_min = line_dist - delta
   s_pls = line_dist + delta
  
   pos_min = cur_pos + cur_dir * s_min
   pos_pls = cur_pos + cur_dir * s_pls
- 
+
   cur_dummypack = find_free_index()
   dummypack_index = cur_dummypack + SIZE(package)
   CALL copy_package(pack_index, cur_dummypack)
@@ -119,7 +143,6 @@ DO I = 1, nnextlines
   ! ELSE
   !  deriv2 = delta_r/delta_v
   ! END IF
-  ! write(*,*) 'r_kappa_line: vel_vec_1 = ', vel_vec_1, ' vel_vec_2 = ', vel_vec_2
   ! write(*,*) 'r_kappa_line: delta_v = ', delta_v, ' delta_r = ', delta_r
   ! write(*,*) 'r_kappa_line: deriv2 = ', deriv2
   ! write(73,*) norm2(cur_pos)/R_star, deriv2
@@ -132,31 +155,57 @@ DO I = 1, nnextlines
   CALL cmf_freq(dummypack_index, cur_freq_rf, cmf_pls)
  
   ! write(*,*) 'r_kappa_line: cur_dummypack = ', cur_dummypack
+  ! write(*,*) 'r_kappa_line: vel_vec_1 = ', vel_vec_1, ' vel_vec_2 = ', vel_vec_2
  
-  deriv = abs((s_pls - s_min)/(cmf_pls - cmf_min))
+  IF(cmf_pls /= cmf_min) THEN
+   deriv = abs((s_pls - s_min)/(cmf_pls - cmf_min))
+  ELSE
+   deriv = 0.D0
+  END IF
+   
   ! write(*,*) 'r_kappa_line: delta_s = ', s_pls - s_min, ' delta_nu = ', cmf_pls - cmf_min
+  ! write(*,*) 'r_kappa_line: low_pop = ', low_pop, ' f_lu = ', f_lu, ' corrFactor = ', corrFactor, &
+  !  ' deriv = ', deriv
  
-  tau_line_2 = low_pop * constanta * f_lu * corrFactor * deriv
+  tau_line = low_pop * constanta * f_lu * corrFactor * deriv
+  ! write(*,*) 'r_kappa_line: tau_line = ', tau_line
   ! tau_line_2 = const_c / fr_line * constanta * f_lu * low_pop * corrFactor * deriv2
-  actirrates%Lline(I) = tau_line_2
-  actirrates%nline(I) = indexline
+  actirrates%Lline(ind_I) = tau_line
+  actirrates%nline(ind_I) = indexline
 
   ! only for the testing purpose
   ! costheta = dot_product(package(pack_index)%dir, V_pos_vec) / V_pos
   ! ROverV = 1.0 / (costheta**2.0 * dV_pos + (1.0 - costheta**2.0)* V_pos / R_pos)
   ! ROverV = roverw(pack_index, line_dist, fr_line)
-  tau_line_3 = const_c / fr_line * constanta * &
-   f_lu * low_pop * corrFactor * R_inf/V_inf
-  actirrates%Lline(I) = tau_line_2
+  !  tau_line_3 = const_c / fr_line * constanta * &
+  !   f_lu * low_pop * corrFactor * R_inf/V_inf
+  cur_pos = package(pack_index)%pos
+  R_pos = norm2(cur_pos)
+  V_pos = V_inf * (1.0 - R_star / R_pos ) ** beta
+  R_pos_vec = package(pack_index)%pos / norm2(package(pack_index)%pos)
+  costheta = dot_product(package(pack_index)%dir, R_pos_vec) / V_pos
+  IF(norm2(cur_pos) > R_star .and. norm2(cur_pos) < R_inf) THEN
+   IF(R_pos <= R_star .or. R_pos > R_inf) THEN
+    ROverV = 0.D0
+   ELSE
+    ROverV = R_pos/V_pos * 1.D0/(costheta**2*((R_star*beta)/(R_pos-R_star)-1.0)+1.0)
+   END IF
+   tau_line_3 = const_c / fr_line * constanta * &
+    f_lu * low_pop * corrFactor * ROverV
+  ELSE
+   tau_line_3 = 0.D0
+  END IF
+  ! write(*,*) 'r_kappa_line: tau_line_3 = ', tau_line_3
+  ! actirrates%Lline(ind_I) = tau_line
   IF(pack_index < max_n_of_velopackets) THEN
-   write(72,*) norm2(cur_pos)/R_star, tau_line_3, tau_line_2, deriv
+   write(72,*) norm2(cur_pos)/R_star, tau_line_3, tau_line, deriv
   END IF
  
   CALL deactivate_dummy_packet(cur_dummypack)
  
  END IF
 
- tau_line = tau_line + actirrates%Lline(I)
+ tau_line = tau_line + actirrates%Lline(ind_I)
 END DO
 
 

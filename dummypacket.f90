@@ -1,3 +1,10 @@
+! basic module for dummypacket dynamics
+! sets up an array
+! finds the next free dummypacket index
+! deactivates dummypacket
+! copy a dummypacket
+! teleports a dummypacket
+!
 MODULE dummypacket
 
 IMPLICIT NONE

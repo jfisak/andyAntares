@@ -1,3 +1,16 @@
+! ionization collisional rates for i-packets 
+! 
+! INPUT: approximation(INT): obvious
+!        indexe(INT): element index
+!        indexi(INT): ion index
+!        act_level(INT): an index of the current level
+!        pack_index(INT): index of the packet
+!        act_pop(DBLE): a population in the current level
+! OUPTUT: Zion(DBLE): the total ionization rate
+!         Zintrecomb(DBLE): the total rate of internal recombination
+!         Zrecomb(DBLE): the total rate of recombination
+!         actirates(irates): the rates for corresponding transitions
+!
 SUBROUTINE i_colion(approximation, indexe, indexi, act_level, pack_index, act_pop, Zion, &
         Zintrecomb, Zrecomb, actirates)
 USE types

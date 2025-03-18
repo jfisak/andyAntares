@@ -11,11 +11,11 @@ SUBROUTINE vel_vector_interpolation(positon, mgi_indexes, n_clo_mgi, velocity)
 USE types
 IMPLICIT NONE
 
-DOUBLE PRECISION, DIMENSION(3)                          :: positon, velocity
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: positon, velocity
 INTEGER                                                 :: n_clo_mgi, n_clo_mgi_half
 DOUBLE PRECISION, DIMENSION(n_clo_mgi)                  :: mgi_indexes
 
-DOUBLE PRECISION, DIMENSION(3)                          :: summ_r, cur_pos, centre
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: summ_r, cur_pos, centre
 INTEGER                                                 :: cur_I
 
 ! sorting
@@ -24,7 +24,7 @@ DOUBLE PRECISION                                        :: dummy_var, dummy
 
 INTEGER, PARAMETER                                      :: coor_x = 1, coor_y = 2, coor_z = 3
 INTEGER                                                 :: cur_coordinate, cur_mgi1, cur_mgi2, cur_pair
-DOUBLE PRECISION, DIMENSION(3)                          :: cur_pos1, cur_pos2, cur_vel1, cur_vel2, point_pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: cur_pos1, cur_pos2, cur_vel1, cur_vel2, point_pos
 DOUBLE PRECISION, ALLOCATABLE                           :: vel_8(:,:), pos_8(:,:), vel_4(:,:), pos_4(:,:)
 
 INTEGER                                                 :: cur_mgiind
@@ -37,9 +37,11 @@ summ_r(:) = 0.D0
 DO cur_I = 1, n_clo_mgi
  cur_mgiind = INT(mgi_indexes(cur_I))
  cur_pos = model_grid(cur_mgiind)%vec_pos
- summ_r(1) = summ_r(1) + cur_pos(1)
- summ_r(2) = summ_r(2) + cur_pos(2)
- summ_r(3) = summ_r(3) + cur_pos(3)
+ summ_r(:) = summ_r(:) + cur_pos(:)
+
+ ! summ_r(1) = summ_r(1) + cur_pos(1)
+ ! summ_r(2) = summ_r(2) + cur_pos(2)
+ ! summ_r(3) = summ_r(3) + cur_pos(3)
 END DO
 
 centre = summ_r / n_clo_mgi
@@ -54,10 +56,10 @@ DO cur_index = 2, n_clo_mgi
  cur_mgi = INT(mgi_indexes(cur_index))
  cur_mgi_iter = INT(mgi_indexes(cur_iter))
 
- dummy_var = model_grid(cur_mgi)%vec_pos(3)
+ dummy_var = model_grid(cur_mgi)%vec_pos(ind_z)
 
  DO WHILE(cur_iter >= 1)
-  IF(model_grid(cur_mgi_iter)%vec_pos(3) > dummy_var) THEN
+  IF(model_grid(cur_mgi_iter)%vec_pos(ind_z) > dummy_var) THEN
    dummy = INT(mgi_indexes(cur_iter + 1))
    mgi_indexes(cur_iter + 1) = mgi_indexes(cur_iter)
    mgi_indexes(cur_iter) = dummy
@@ -96,10 +98,10 @@ DO cur_index = n_clo_mgi_half + 2, n_clo_mgi
  cur_mgi = INT(mgi_indexes(cur_index))
  cur_mgi_iter = INT(mgi_indexes(cur_iter))
 
- dummy_var = model_grid(cur_mgi)%vec_pos(2)
+ dummy_var = model_grid(cur_mgi)%vec_pos(ind_y)
 
  DO WHILE(cur_iter >= n_clo_mgi_half + 1)
-  IF(model_grid(cur_mgi_iter)%vec_pos(2) > dummy_var) THEN
+  IF(model_grid(cur_mgi_iter)%vec_pos(ind_y) > dummy_var) THEN
    dummy = mgi_indexes(cur_iter + 1)
    mgi_indexes(cur_iter + 1) = mgi_indexes(cur_iter)
    mgi_indexes(cur_iter) = dummy
