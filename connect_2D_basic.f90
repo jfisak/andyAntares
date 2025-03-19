@@ -210,6 +210,14 @@ END DO ! loop over propGrid cells
 write(99,*) 'number of propagation cells in vacuum: ', model_grid(vacuum_index)%assoc_cells
 ! write(*,*) 'number of propagation cells in vacuum: ', model_grid(vacuum_index)%assoc_cells, ' n_modelgrid = ', n_modelgrid, &
 ! ' fraction = ', model_grid(vacuum_index)%assoc_cells/REAL(n_modelgrid)
+
+IF(n_tasks > 1) THEN
+ CALL MPI_ALLREDUCE(dyn_cell(:)%model_index, dyn_cell(:)%model_index, n_propgcells, &
+   MPI_INT, MPI_SUM, mpi_comm_world, ierr)
+ CALL MPI_ALLREDUCE(model_grid(:)%assoc_cells, model_grid(:)%assoc_cells, n_modelgrid + add_mg, &
+   MPI_INT, MPI_SUM, mpi_comm_world, ierr)
+END IF
+
 DO ind_I = 1, n_propgcells
  IF(dyn_cell(ind_I)%up_cell == 0) THEN
   cur_mgi_index = dyn_cell(ind_I)%model_index
@@ -236,13 +244,6 @@ DO ind_I = 1, n_modelgrid
  END IF
 END DO
 write(*,*) 'connect_2D_basic: cur_mgi_assoc = ', cur_mgi_assoc
-
-IF(n_tasks > 1) THEN
- CALL MPI_ALLREDUCE(dyn_cell(:)%model_index, dyn_cell(:)%model_index, n_propgcells, &
-   MPI_INT, MPI_SUM, mpi_comm_world, ierr)
- CALL MPI_ALLREDUCE(model_grid(:)%assoc_cells, model_grid(:)%assoc_cells, n_modelgrid + add_mg, &
-   MPI_INT, MPI_SUM, mpi_comm_world, ierr)
-END IF
 
 DO cur_propcell = 1, n_propgcells
  IF(dyn_cell(cur_propcell)%up_cell == 0) THEN
