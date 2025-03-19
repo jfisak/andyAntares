@@ -177,10 +177,10 @@ n_propgcells = max_n_dcell
   DO ind_I = 1, n_tasks - 1
    CALL MPI_SEND(n_propgcells, 1, MPI_INT, ind_I, 1, MPI_COMM_WORLD, ierr)
   END DO
-  write(*,*) 'setup_propgrid: my_rank = ', my_rank, ' n_propgcells = ', n_propgcells
+  ! write(*,*) 'setup_propgrid: my_rank = ', my_rank, ' n_propgcells = ', n_propgcells
  ELSE
   CALL MPI_RECV(n_propgcells, 1, MPI_INT, 0, 1, MPI_COMM_WORLD, status, ierr)
-  write(*,*) 'setup_propgrid: my_rank = ', my_rank, ' n_propgcells = ', n_propgcells
+  ! write(*,*) 'setup_propgrid: my_rank = ', my_rank, ' n_propgcells = ', n_propgcells
   ALLOCATE(dyn_cell(n_propgcells))
  END IF
 
@@ -192,7 +192,7 @@ n_propgcells = max_n_dcell
   cur_corner = dyn_cell(cur_pgi)%corner
   DO ind_I = 1, const_dimofspace
    IF(abs(cur_corner(ind_I)) < minival) THEN
-    write(*,*) 'setup_propgrid: setting I = ', ind_I, ' corner = ', cur_corner(ind_I), ' to zero'
+    ! write(*,*) 'setup_propgrid: setting I = ', ind_I, ' corner = ', cur_corner(ind_I), ' to zero'
     dyn_cell(cur_pgi)%corner(ind_I) = 0.D0
    END IF
   END DO
@@ -200,8 +200,8 @@ n_propgcells = max_n_dcell
 
  ! sending the physical quantities to all other processes
  ! DO cur_pgi = 1, n_propgcells
- write(*,*) 'setup_propgrid: sending the propGrid informations'
- write(*,*) 'setup_propgrid: n_propgcells = ', n_propgcells
+ ! write(*,*) 'setup_propgrid: sending the propGrid informations'
+ ! write(*,*) 'setup_propgrid: n_propgcells = ', n_propgcells
  ! vector variables
  DO cur_xyz = 1,3
   IF(my_rank == 0) THEN

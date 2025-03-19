@@ -183,7 +183,7 @@ DO ind_I = 1, nnextlines
   R_pos = norm2(cur_pos)
   V_pos = V_inf * (1.0 - R_star / R_pos ) ** beta
   R_pos_vec = package(pack_index)%pos / norm2(package(pack_index)%pos)
-  costheta = dot_product(package(pack_index)%dir, R_pos_vec) / V_pos
+  costheta = dot_product(package(pack_index)%dir, R_pos_vec)
   IF(norm2(cur_pos) > R_star .and. norm2(cur_pos) < R_inf) THEN
    IF(R_pos <= R_star .or. R_pos > R_inf) THEN
     ROverV = 0.D0

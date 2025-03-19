@@ -634,12 +634,9 @@ CASE(13)
 ! 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CASE(14)
- write(*,*) 'save_output: saving mpi estimators'
  write(mcradestimators_file,"(A, A16, I3.3, A4)") trim(outputfolder), '/mcradestimators', my_rank, '.dat'
- write(*,*) 'save_output: mcradestimators_file = ', mcradestimators_file
  OPEN(20, file=mcradestimators_file)
   DO cur_mgi = 1, n_modelgrid
-   write(*,*) 'save_output: cur_mgi = ', cur_mgi
    IF(model_type == 2 .and. inputmodel == 1) THEN
     cur_r = model_grid(cur_mgi)%rwind
     cur_a = model_grid(cur_mgi)%angle

@@ -78,7 +78,7 @@ ELSE IF(velapprox == 1) THEN
  ! v = (v_x, v_y, v_z)
  R_pos_vec = package(pack_index)%pos / norm2(package(pack_index)%pos)
  ! \mu
- costheta = dot_product(package(pack_index)%dir, R_pos_vec) / V_pos
+ costheta = dot_product(package(pack_index)%dir, R_pos_vec)
  ! write(*,*) 'ROverW: dir = ', package(pack_index)%dir, ' V_pos_vec = ', V_pos_vec, ' V_pos = ', V_pos
  ! dv/dr
  ! dV_pos = beta * R_star * V_inf / R_pos**2 * (1.0 - R_star / R_pos)**(beta - 1)

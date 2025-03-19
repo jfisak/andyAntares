@@ -78,7 +78,6 @@ act_n_dyncell = n_dyncell
 no_dcells = 8
 ! start: large loop
 DO
-! print*, 'create_dynamical_grid_cells: act_n_dyncell = ', act_n_dyncell
 ! local number of point is in the begining of cycle = 0
   loc_np = 0
   loc_corner(:) = dyn_cell(act_n_dyncell)%corner(:)
