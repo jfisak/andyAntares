@@ -44,14 +44,10 @@ INTEGER                                                 :: pomocna_bunka
 IF(pack_index <= SIZE(package)) THEN
  act_cell = package(pack_index)%cell_numb
  act_pos = package(pack_index)%pos
- CALL find_dyn_cell1(act_pos, pomocna_bunka)
- act_cell = package(pack_index)%cell_numb
 ELSE IF(pack_index > SIZE(package)) THEN
  dummypack_index = pack_index - SIZE(package)
  act_cell = dummypackage(dummypack_index)%cell_numb
  act_pos = dummypackage(dummypack_index)%pos
- ! CALL find_dyn_cell1(act_pos, cur_propGrid_cell)
- ! write(*,*) 'vel_discrete_points: act_cell = ', act_cell, ' cur_propGrid_cell = ', cur_propGrid_cell
 END IF
 act_mgi = dyn_cell(act_cell)%model_index
 act_corner = dyn_cell(act_cell)%corner

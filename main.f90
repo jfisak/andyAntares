@@ -163,11 +163,15 @@ INQUIRE(FILE=propmod_file, EXIST=propmod_file_exists)
 
 IF((saved_grid == 2 .or. saved_grid == 3) .and. propmod_file_exists) THEN
  CALL read_propmod_grid()
- CALL virt_gridAB_init()
+ IF(model_type == 2 .or. (model_type == 3 .and. inputmodel /= 0)) THEN
+  CALL virt_gridAB_init()
+ END IF
 ELSE
  IF(debug == 3) write(*,*) 'setting up model grid'
  CALL setup_model_grid()
- CALL virt_gridAB_init()
+ IF(model_type == 2 .or. (model_type == 3 .and. inputmodel /= 0)) THEN
+  CALL virt_gridAB_init()
+ END IF
 
  CALL save_output(ind_save_modgrid)
  ! save basic parameters of the model grid

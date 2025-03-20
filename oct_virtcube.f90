@@ -33,8 +33,6 @@ ELSE IF(pack_index > SIZE(package)) THEN
  act_cell = dummypackage(dummypack_index)%cell_numb
  act_pos = dummypackage(dummypack_index)%pos
 END IF
-act_cell = package(pack_index)%cell_numb
-act_pos = package(pack_index)%pos
 act_corner = dyn_cell(act_cell)%corner
 act_width = dyn_cell(act_cell)%width
 act_center = act_corner + act_width/2.0

@@ -107,39 +107,39 @@ OPEN(UNIT=11, FILE=modelfile)
  model_grid(vacuum_index)%vel   = 0.D0
  model_grid(vacuum_index)%rho   = 0.D0
 
- mod_xmin = MINVAL(model_grid(:)%vec_pos(ind_x))
- mod_ymin = MINVAL(model_grid(:)%vec_pos(ind_y))
- mod_zmin = MINVAL(model_grid(:)%vec_pos(ind_z))
- mod_xmax = MAXVAL(model_grid(:)%vec_pos(ind_x))
- mod_ymax = MAXVAL(model_grid(:)%vec_pos(ind_y))
- mod_zmax = MAXVAL(model_grid(:)%vec_pos(ind_z))
+ xmin = MINVAL(model_grid(:)%vec_pos(ind_x))
+ ymin = MINVAL(model_grid(:)%vec_pos(ind_y))
+ zmin = MINVAL(model_grid(:)%vec_pos(ind_z))
+ xmax = MAXVAL(model_grid(:)%vec_pos(ind_x))
+ ymax = MAXVAL(model_grid(:)%vec_pos(ind_y))
+ zmax = MAXVAL(model_grid(:)%vec_pos(ind_z))
 
- len_x = mod_xmax - mod_xmin
- len_y = mod_ymax - mod_ymin
- len_z = mod_zmax - mod_zmin
-
- width_x = len_x / (Nx - 1)
- width_y = len_y / (Ny - 1)
- width_z = len_z / (Nz - 1)
-
- int_xmin = CEILING(mod_xmin - width_x / 2.0, kind=8)
- int_ymin = CEILING(mod_ymin - width_y / 2.0, kind=8)
- int_zmin = CEILING(mod_zmin - width_z / 2.0, kind=8)
-
- int_xmax = CEILING(mod_xmax + width_x / 2.0, kind=8)
- int_ymax = CEILING(mod_ymax + width_y / 2.0, kind=8)
- int_zmax = CEILING(mod_zmax + width_z / 2.0, kind=8)
-
- xmin = DBLE(int_xmin)
- ymin = DBLE(int_ymin)
- zmin = DBLE(int_zmin)
- xmax = DBLE(int_xmax)
- ymax = DBLE(int_ymax)
- zmax = DBLE(int_zmax)
+! len_x = mod_xmax - mod_xmin
+! len_y = mod_ymax - mod_ymin
+! len_z = mod_zmax - mod_zmin
+!
+! width_x = len_x / (Nx - 1)
+! width_y = len_y / (Ny - 1)
+! width_z = len_z / (Nz - 1)
+!
+! int_xmin = CEILING(mod_xmin - width_x / 2.0, kind=8)
+! int_ymin = CEILING(mod_ymin - width_y / 2.0, kind=8)
+! int_zmin = CEILING(mod_zmin - width_z / 2.0, kind=8)
+!
+! int_xmax = CEILING(mod_xmax + width_x / 2.0, kind=8)
+! int_ymax = CEILING(mod_ymax + width_y / 2.0, kind=8)
+! int_zmax = CEILING(mod_zmax + width_z / 2.0, kind=8)
+!
+! xmin = DBLE(int_xmin)
+! ymin = DBLE(int_ymin)
+! zmin = DBLE(int_zmin)
+! xmax = DBLE(int_xmax)
+! ymax = DBLE(int_ymax)
+! zmax = DBLE(int_zmax)
  
-  ! write(*,*) 'read_3D_pseudo3D: T_eff = ', T_eff, 'R_star = ', R_star, ' R_inf = ', R_inf, ' V_inf = ', V_inf
-  write(*,*) 'read_3D_pseudo3D: xmax = ', xmax, ' ymax = ', ymax, ' zmax = ', zmax
-  ! STOP 'read_3D_pseudo3D: testing'
+! write(*,*) 'read_3D_pseudo3D: T_eff = ', T_eff, 'R_star = ', R_star, ' R_inf = ', R_inf, ' V_inf = ', V_inf
+! write(*,*) 'read_3D_pseudo3D: xmax = ', xmax, ' ymax = ', ymax, ' zmax = ', zmax
+! STOP 'read_3D_pseudo3D: testing'
 
 CLOSE(11)
 
