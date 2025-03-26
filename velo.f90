@@ -22,7 +22,7 @@ INTEGER, PARAMETER                :: max_n_of_velopackets = 200
 
 INTEGER                            :: cur_dummy_index
 
-! approx = approx
+IF(debug == 100) write(*,*) 'velo: approx = ', approx
 
 ! dosti nelogické využívání dvakrát té stejné proměnné...
 IF(pack_index <= SIZE(package)) THEN
@@ -63,6 +63,10 @@ CASE(2)
 CASE(3)
  ! IF(dyn_cell == 0) THEN
  CALL vel_discrete_points(pack_index, vel_vec)
+ IF(isnan(vel_vec(ind_x)) .or. isnan(vel_vec(ind_y)) .or. isnan(vel_vec(ind_z))) THEN
+  write(*,*) 'velo: vel_vec = ', vel_vec
+  STOP 'velo: at least one component of velocity vector is Nan'
+ END IF
  ! write(*,*) 'velo: vel_vec = ', vel_vec
  ! ELSE IF(dyn_cell /= 0) THEN
   ! calc velocity based on precalculated interpolated velocity profiles

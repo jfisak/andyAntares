@@ -1,4 +1,8 @@
 ! this subroutine creates virtual points for a dynamical grid calculation
+! 
+! INPUT: dimIM(INT) -- dimension of the model grid
+! OUTPUT: NONE
+!
 SUBROUTINE virtual_points(dimIM)
 
  USE types
@@ -9,10 +13,10 @@ USE constants
  ! input variables
  INTEGER                        :: dimIM
  ! 
- INTEGER                        :: ind_I,ind_J,NP
+ INTEGER                        :: ind_I,ind_J,num_points
  ! 1D model: intervals for point distribution
  DOUBLE PRECISION               :: radius, phi, theta, angle
- DOUBLE PRECISION, DIMENSION(3) :: direction
+ DOUBLE PRECISION, DIMENSION(const_dimofspace) :: direction
  INTEGER                        :: np_shell
  ! division of an interval [0, 1] into parts corresponding to a density
  DOUBLE PRECISION               :: rhomax
@@ -23,13 +27,13 @@ USE constants
  ! a random point
  DOUBLE PRECISION               :: ran2
  INTEGER                        :: sumpart = 0, zbytek
- DOUBLE PRECISION, DIMENSION(3) :: pos, width
+ DOUBLE PRECISION, DIMENSION(const_dimofspace) :: pos, width
 
  INTEGER                        :: ind_cell_numb, Npoint
  INTEGER                        :: index_x, index_y, index_z
 
  TYPE(virt_point)               :: dummy
- DOUBLE PRECISION               :: A
+ DOUBLE PRECISION               :: vari_A
 
  DOUBLE PRECISION               :: suma
  INTEGER                        :: n_virt_point
@@ -81,17 +85,17 @@ CASE(1)
 !  END DO
 ! CLOSE(8)
  ! we have zero point located
- NP = 0
+ num_points = 0
  ! distribution of point on the shell of the radius R
  DO ind_I = 1, n_modelgrid
   radius = model_grid(ind_I)%rwind
   np_shell = nOfPoints(ind_I)
   !IF (np_shell == 0) STOP 'number of virtual point is small'
   DO ind_J = 1, np_shell
-   NP = NP + 1
+   num_points = num_points + 1
    CALL random_unitvector(direction)
-   virtual_point(NP)%pos = radius * direction
-   ! write(20,*) virtual_point(NP)%pos(1), virtual_point(NP)%pos(2), virtual_point(NP)%pos(3)
+   virtual_point(num_points)%pos = radius * direction
+   ! write(20,*) virtual_point(num_points)%pos(1), virtual_point(num_points)%pos(2), virtual_point(num_points)%pos(3)
   END DO
  END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -103,7 +107,7 @@ CASE(2)
  write(99,*) 'number of point: ', Nvirtpoint
  write(99,*) 'computing positions of virtual point...'
  rhomax = MAXVAL(model_grid(:)%rho)
- NP = 0
+ num_points = 0
  ! computing number of points on a shell from a density
  ! firstly we compute a total number of density
  sumr = 0.D0
@@ -114,8 +118,8 @@ CASE(2)
   sumr = sumr + 2.0 * const_pi * radius * sin(angle)
  END DO
 
- n_virt_point = sumr / (1.D1 * basic_cell_width(ind_x))
- write(*,*) 'virtual_points: n_virt_point = ', n_virt_point
+ n_virt_point = INT(sumr / (1.D1 * basic_cell_width(ind_x)))
+ ! write(*,*) 'virtual_points: n_virt_point = ', n_virt_point
 
  ALLOCATE (virtual_point(n_virt_point))
 
@@ -128,20 +132,20 @@ CASE(2)
  END DO
  ! now we will compute given numbers of points for the given spheres
  ! we have zero point located
- NP = 0
+ num_points = 0
  ! distribution of point on the shell of the radius R
  DO ind_I = 1, n_modelgrid
   radius = model_grid(ind_I)%rwind
   np_shell = nOfPoints(ind_I)
   !IF (np_shell == 0) STOP 'number of virtual point is small'
   DO ind_J = 1, np_shell
-   NP = NP + 1
+   num_points = num_points + 1
    phi = 2.D0*const_pi*ran2(idum)
    theta = model_grid(ind_I)%angle
-   virtual_point(NP)%pos(ind_x) = radius * sin(theta) * cos(phi)
-   virtual_point(NP)%pos(ind_y) = radius * sin(theta) * sin(phi)
-   virtual_point(NP)%pos(ind_z) = radius * cos(theta)
-!  write(20,*) virtual_point(NP)%pos(1), virtual_point(NP)%pos(2), virtual_point(NP)%pos(3)
+   virtual_point(num_points)%pos(ind_x) = radius * sin(theta) * cos(phi)
+   virtual_point(num_points)%pos(ind_y) = radius * sin(theta) * sin(phi)
+   virtual_point(num_points)%pos(ind_z) = radius * cos(theta)
+!  write(20,*) virtual_point(num_points)%pos(1), virtual_point(num_points)%pos(2), virtual_point(num_points)%pos(3)
   END DO
  END DO
 CASE(3)
@@ -160,10 +164,10 @@ END SELECT
 Npoint = SIZE(virtual_point)
 DO ind_I = 1, Npoint
  pos = virtual_point(ind_I)%pos
- width = dyn_cell(1)%width
- index_x = FLOOR(pos(1)/width(1) + DBLE(nx_cell)/2) + 1
- index_y = FLOOR(pos(2)/width(2) + DBLE(ny_cell)/2) + 1
- index_z = FLOOR(pos(3)/width(3) + DBLE(nz_cell)/2) + 1
+ width = dyn_cell(ind_x)%width
+ index_x = FLOOR(pos(ind_x)/width(ind_x) + DBLE(nx_cell)/2) + 1
+ index_y = FLOOR(pos(ind_y)/width(ind_y) + DBLE(ny_cell)/2) + 1
+ index_z = FLOOR(pos(ind_z)/width(ind_z) + DBLE(nz_cell)/2) + 1
  ind_cell_numb = (index_x - 1) * ny_cell * nz_cell + (index_y - 1) * nz_cell + index_z
  virtual_point(ind_I)%ind_pcell = ind_cell_numb
  dyn_cell(ind_cell_numb)%n_virt = dyn_cell(ind_cell_numb)%n_virt + 1
@@ -172,9 +176,9 @@ END DO
 ! sort virtual points by its number
 DO ind_J = 2, Npoint
  ind_I = ind_J - 1
- A = virtual_point(ind_J)%ind_pcell
+ vari_A = virtual_point(ind_J)%ind_pcell
  DO WHILE (ind_I .GE. 1)
-  IF(virtual_point(ind_I)%ind_pcell > A) THEN
+  IF(virtual_point(ind_I)%ind_pcell > vari_A) THEN
    dummy = virtual_point(ind_I + 1)
    virtual_point(ind_I + 1) = virtual_point(ind_I) 
    virtual_point(ind_I) = dummy

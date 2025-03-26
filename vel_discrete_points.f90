@@ -36,7 +36,6 @@ DOUBLE PRECISION, DIMENSION(const_dimofspace,2)        :: w_point, w_pos
 LOGICAL                                 :: incellmode
 
 DOUBLE PRECISION, DIMENSION(8,const_dimofspace)        :: cube_pos
-INTEGER                                                 :: pomocna_bunka
 
 ! INTEGER                                 :: cur_propGrid_cell
 

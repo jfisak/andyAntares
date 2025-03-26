@@ -1,3 +1,12 @@
+! calculates linear interpolation between two scalar coordinates pos1 and pos2
+!
+! INPUT: pos0(DBLE): interpolated coordinate
+!        vec1(DBLE(const_dimofspace)): vector in pos1
+!        pos1(DBLE): scalar boundary position 1
+!        vec2(DBLE(const_dimofspace)): vector in pos2
+!        pos2(DBLE): scalar boundary position 2
+! OUTPUT: int_vector(DBLE(const_dimofspace)): interpolated vector
+!
 SUBROUTINE lin_interpolation(pos0, vec1, pos1, vec2, pos2, int_vector)
 ! SUBROUTINE lin_interpolation(pos0, vec1, pos1, vec2, pos2, int_vector, vecpos0, neighborscells)
 

@@ -1,3 +1,8 @@
+! reads testing pseudo 3D model
+!
+! INPUT: NONE
+! OUTPUT: NONE
+!
 SUBROUTINE read_3D_pseudo3D()
 
 
@@ -5,23 +10,23 @@ USE types
 USE constants
 IMPLICIT NONE
 
-CHARACTER(80)                                   :: modelfile
-CHARACTER(80)                                   :: junk
+CHARACTER(filename_length)                                   :: modelfile
+CHARACTER(filename_length)                                   :: junk
 
 INTEGER                                         :: reading_grid
 
 DOUBLE PRECISION                                :: dens, temp
-DOUBLE PRECISION                                :: mod_xmax, mod_ymax, mod_zmax
-DOUBLE PRECISION                                :: mod_xmin, mod_ymin, mod_zmin
-DOUBLE PRECISION                                :: len_x, len_y, len_z
-DOUBLE PRECISION                                :: width_x, width_y, width_z
-DOUBLE PRECISION, DIMENSION(3)                  :: pos, vel
+! DOUBLE PRECISION                                :: mod_xmax, mod_ymax, mod_zmax
+! DOUBLE PRECISION                                :: mod_xmin, mod_ymin, mod_zmin
+! DOUBLE PRECISION                                :: len_x, len_y, len_z
+! DOUBLE PRECISION                                :: width_x, width_y, width_z
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: pos, vel
 
 INTEGER                                         :: ind_I, ind_J
 INTEGER                                         :: numbions, atom_number
 INTEGER                                         :: Nx, Ny, Nz
-INTEGER(KIND=8)                                 :: int_xmax, int_ymax, int_zmax
-INTEGER(KIND=8)                                 :: int_xmin, int_ymin, int_zmin
+! INTEGER(KIND=8)                                 :: int_xmax, int_ymax, int_zmax
+! INTEGER(KIND=8)                                 :: int_xmin, int_ymin, int_zmin
 
 
 modelfile=TRIM(inputmodelFile)

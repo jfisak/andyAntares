@@ -14,7 +14,7 @@ USE constants
 IMPLICIT NONE    
 
 ! loop variables
-INTEGER                                :: ind_I, ind_J, K, L, cur_xyz
+INTEGER                                :: ind_I, ind_J, ind_K, ind_L, cur_xyz
 INTEGER, PARAMETER                     :: Nmax = 1000000000               
 ! variables describing dynamic cells
 INTEGER                                :: max_n_dcell, N_dyn_grid
@@ -72,72 +72,72 @@ END IF
 ! STOP 'setup_propgrid: testing'
 
 
-L = 1
+ind_L = 1
 DO ind_I=1, nx_cell
  DO ind_J=1, ny_cell
-  DO K=1, nz_cell
+  DO ind_K=1, nz_cell
    ! Index(number) of each cell in x,y, and z direction
    !dyn_cell(L)%indexc(1) = I
    !dyn_cell(L)%indexc(2) = ind_J
    !dyn_cell(L)%indexc(3) = K
    ! Coordinates of the lower left corner of each cell
-   dyn_cell(L)%corner(ind_x)  = - xmax + DBLE((ind_I - 1)) * basic_cell_width(ind_x)
-   dyn_cell(L)%corner(ind_y)  = - ymax + DBLE((ind_J - 1)) * basic_cell_width(ind_y)     
-   dyn_cell(L)%corner(ind_z)  = - zmax + DBLE((K - 1)) * basic_cell_width(ind_z) 
-   ! write(*,*) 'setup_propgrid: corner(', L, ') = ', dyn_cell(L)%corner
+   dyn_cell(ind_L)%corner(ind_x)  = - xmax + DBLE((ind_I - 1)) * basic_cell_width(ind_x)
+   dyn_cell(ind_L)%corner(ind_y)  = - ymax + DBLE((ind_J - 1)) * basic_cell_width(ind_y)     
+   dyn_cell(ind_L)%corner(ind_z)  = - zmax + DBLE((ind_K - 1)) * basic_cell_width(ind_z) 
+   ! write(*,*) 'setup_propgrid: corner(', ind_L, ') = ', dyn_cell(L)%corner
    ! cell width
-   dyn_cell(L)%width(ind_x) = basic_cell_width(ind_x)
-   dyn_cell(L)%width(ind_y) = basic_cell_width(ind_y)
-   dyn_cell(L)%width(ind_z) = basic_cell_width(ind_z)
+   dyn_cell(ind_L)%width(ind_x) = basic_cell_width(ind_x)
+   dyn_cell(ind_L)%width(ind_y) = basic_cell_width(ind_y)
+   dyn_cell(ind_L)%width(ind_z) = basic_cell_width(ind_z)
    ! number of down cell is equal to zero
-   dyn_cell(L)%down_cell = 0
-   dyn_cell(L)%up_cell = 0
-   dyn_cell(L)%n_sbgr = (/ 0, 0, 0 /)
+   dyn_cell(ind_L)%down_cell = 0
+   dyn_cell(ind_L)%up_cell = 0
+   dyn_cell(ind_L)%n_sbgr = (/ 0, 0, 0 /)
    ! calculation of neighbors
    ! x+
    IF(ind_I == nx_cell) THEN
     xp = -99
    ELSE
-    xp = L + ny_cell * nz_cell
+    xp = ind_L + ny_cell * nz_cell
    END IF
    ! x-
    IF(ind_I == 1) THEN
     xm = -99
    ELSE
-    xm = L - ny_cell * nz_cell
+    xm = ind_L - ny_cell * nz_cell
    END IF
    ! y+
    IF(ind_J == ny_cell) THEN
     yp = -99
    ELSE
-    yp = L + nz_cell
+    yp = ind_L + nz_cell
    END IF
    ! y-
    IF(ind_J == 1) THEN
     ym = -99
    ELSE
-    ym = L - nz_cell
+    ym = ind_L - nz_cell
    END IF
    ! z+
-   IF(K == nz_cell) THEN
+   IF(ind_K == nz_cell) THEN
     zp = -99
    ELSE
-    zp = L + 1
+    zp = ind_L + 1
    END IF
    ! z-
-   IF(K == 1) THEN
+   IF(ind_K == 1) THEN
     zm = -99
    ELSE
-    zm = L - 1
+    zm = ind_L - 1
    END IF
    ! 
-   dyn_cell(L)%neighbor(posx) = xp
-   dyn_cell(L)%neighbor(negx) = xm
-   dyn_cell(L)%neighbor(posy) = yp
-   dyn_cell(L)%neighbor(negy) = ym
-   dyn_cell(L)%neighbor(posz) = zp
-   dyn_cell(L)%neighbor(negz) = zm
-   L = L + 1
+   dyn_cell(ind_L)%neighbor(posx) = xp
+   dyn_cell(ind_L)%neighbor(negx) = xm
+   dyn_cell(ind_L)%neighbor(posy) = yp
+   dyn_cell(ind_L)%neighbor(negy) = ym
+   dyn_cell(ind_L)%neighbor(posz) = zp
+   dyn_cell(ind_L)%neighbor(negz) = zm
+   ind_L = ind_L + 1
   END DO
  END DO
 END DO
@@ -147,7 +147,7 @@ IF (dyngrid /= 0) then
  CALL virtual_points(model_type)
 END IF
 
-! the maximal number of cells is now equal to L
+! the maximal number of cells is now equal to ind_L
 max_n_dcell = Ngrid
 
 IF(dyngrid /= 0) THEN
@@ -192,7 +192,6 @@ n_propgcells = max_n_dcell
   cur_corner = dyn_cell(cur_pgi)%corner
   DO ind_I = 1, const_dimofspace
    IF(abs(cur_corner(ind_I)) < minival) THEN
-    ! write(*,*) 'setup_propgrid: setting I = ', ind_I, ' corner = ', cur_corner(ind_I), ' to zero'
     dyn_cell(cur_pgi)%corner(ind_I) = 0.D0
    END IF
   END DO
