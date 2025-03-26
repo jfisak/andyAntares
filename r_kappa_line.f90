@@ -46,12 +46,14 @@ DOUBLE PRECISION                                :: tau_line_3
 
 INTEGER, PARAMETER                              :: max_n_of_velopackets = 20000
 
-! testing the optical depth in line calculation
 INTEGER                                         :: cur_dummypack, dummypack_index
 
 ! testing the beta law
 DOUBLE PRECISION                                :: R_pos, V_pos, costheta
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: R_pos_vec
+! testing the optical depth in line calculation
+! DOUBLE PRECISION                                :: delta_r, delta_v, deriv2, tau_line_2
+! DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: rad_unit1, rad_unit2, vel_vec_1, vel_vec_2
 
 ! the basic variables
 constanta = (const_pi * const_e**2)/( const_me_g * const_c)
@@ -97,7 +99,7 @@ DO ind_I = 1, nnextlines
  ! beta-law
  IF(velApprox == 0 .or. velApprox == 1) THEN
   cur_pos = package(pack_index)%pos
-  IF(norm2(cur_pos) > R_star .and. norm2(cur_pos) < R_inf) THEN
+  IF(norm2(cur_pos) >= R_star .and. norm2(cur_pos) <= R_inf) THEN
    ROverV = roverw(pack_index, line_dist, fr_line)
    actirrates%Lline(ind_I) = const_c / fr_line * constanta * &
     f_lu * low_pop * corrFactor * ROverV
@@ -124,8 +126,8 @@ DO ind_I = 1, nnextlines
   cur_dummypack = find_free_index()
   dummypack_index = cur_dummypack + SIZE(package)
   CALL copy_package(pack_index, cur_dummypack)
-  ! for testing purposes with analytical homologous approximation (only the position of a packet is needed)
-  ! move packet to the pos_min
+  ! ! for testing purposes with analytical homologous approximation (only the position of a packet is needed)
+  ! ! move packet to the pos_min
   ! CALL teleport_dummypacket(cur_dummypack, pos_min)
   ! CALL velo(dummypack_index, vel_vec_1, 0)
   ! ! move packet to the pos_pls
@@ -134,7 +136,7 @@ DO ind_I = 1, nnextlines
  
   ! rad_unit1 = pos_pls/norm2(pos_pls)
   ! rad_unit2 = pos_min/norm2(pos_min)
-  ! 
+  ! ! 
   ! delta_v = dot_product(vel_vec_1, rad_unit1) - dot_product(vel_vec_2, rad_unit2)
   ! delta_r = norm2(pos_min) - norm2(pos_pls)
  
@@ -167,10 +169,8 @@ DO ind_I = 1, nnextlines
   ! write(*,*) 'r_kappa_line: low_pop = ', low_pop, ' f_lu = ', f_lu, ' corrFactor = ', corrFactor, &
   !  ' deriv = ', deriv
  
-  tau_line = low_pop * constanta * f_lu * corrFactor * deriv
-  ! write(*,*) 'r_kappa_line: tau_line = ', tau_line
+  actirrates%Lline(ind_I) = low_pop * constanta * f_lu * corrFactor * deriv
   ! tau_line_2 = const_c / fr_line * constanta * f_lu * low_pop * corrFactor * deriv2
-  actirrates%Lline(ind_I) = tau_line
   actirrates%nline(ind_I) = indexline
 
   ! only for the testing purpose
@@ -188,7 +188,8 @@ DO ind_I = 1, nnextlines
    IF(R_pos <= R_star .or. R_pos > R_inf) THEN
     ROverV = 0.D0
    ELSE
-    ROverV = R_pos/V_pos * 1.D0/(costheta**2*((R_star*beta)/(R_pos-R_star)-1.0)+1.0)
+    ! ROverV = R_pos/V_pos * 1.D0/(costheta**2 * ((R_star * beta)/(R_pos-R_star)-1.0)+1.0)
+    ROverV = R_inf / V_inf
    END IF
    tau_line_3 = const_c / fr_line * constanta * &
     f_lu * low_pop * corrFactor * ROverV
@@ -197,8 +198,9 @@ DO ind_I = 1, nnextlines
   END IF
   ! write(*,*) 'r_kappa_line: tau_line_3 = ', tau_line_3
   ! actirrates%Lline(ind_I) = tau_line
+  ! IF(nextLine == 45) THEN
   IF(pack_index < max_n_of_velopackets) THEN
-   write(72,*) norm2(cur_pos)/R_star, tau_line_3, tau_line, deriv
+   write(72,*) norm2(cur_pos)/R_star, tau_line_3, actirrates%Lline(ind_I), deriv
   END IF
  
   CALL deactivate_dummy_packet(cur_dummypack)

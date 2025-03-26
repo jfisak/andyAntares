@@ -99,6 +99,7 @@ DO WHILE (do_loop)
  IF(nextLine < ntransitions + 1) THEN
   freq_line = linelist(nextLine)%freq
   CALL resonance_distance2(pack_index, nextLine, cell_dist, inCell, l_dist)
+  tau_line = 0.D0
   IF(inCell) THEN
    CALL r_kappa_line(pack_index, current_mgi, nextLine, n_next_lines, l_dist, actirrates, tau_line)
   ELSE
@@ -170,6 +171,7 @@ DO WHILE (do_loop)
     ! choosing the line
     ! write(*,*) 'event_dist: Lline = ', actirrates%Lline(:), ' n_next_lines = ', n_next_lines
     ! write(*,*) 'event_dist: next_line = ', package(pack_index)%last_line
+    ! IF(nextLine == 45) write(46,*) norm2(package(pack_index)%pos), tau_line
     CALL r_choose_line(pack_index, actirrates, n_next_lines, nextLine)
     package(pack_index)%last_line = nextLine
    ! if #02

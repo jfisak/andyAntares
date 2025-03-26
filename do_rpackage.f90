@@ -169,8 +169,8 @@ ELSE IF(e_dist > cell_dist) THEN
   IF((cell_dist > 0.D0 .or. (cell_dist > 0.D0 .and. n_pos == 3 .and. n_neg == 3))) THEN 
    ! Move package from the curent position for the cell_dist
    change_of_cell = .TRUE.
-   IF(procout) write(*,*) 'do_rpackage: cell_dist > epsilon0 or (cell_dist > 0 and n_pos == 3 and &
-    n_neg == 3)'
+   IF(procout) write(*,*) 'do_rpackage: cell_dist > epsilon0 or (cell_dist > 0 and n_pos == 3 and',&
+   ' n_neg == 3)'
    IF(procout) write(*,*) 'do_rpackage: move_package, change_of_cell = ', change_of_cell
    CALL move_package(pack_index, cell_dist, next_cell, change_of_cell)
    CALL update_estimators(pack_index, cell_dist)

@@ -252,4 +252,7 @@ ELSE
  STOP
 END IF
 
+CALL deactivate_dummy_packet(cur_dummypack)
+
+
 END FUNCTION
