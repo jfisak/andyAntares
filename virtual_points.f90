@@ -123,7 +123,7 @@ CASE(2)
   sumr = sumr + 2.0 * const_pi * radius * sin(angle)
  END DO
 
- n_virt_point = INT(sumr / (1.D1 * basic_cell_width(ind_x)))
+ n_virt_point = INT(sumr / (1.D2 * basic_cell_width(ind_x)))
  ! write(*,*) 'virtual_points: n_virt_point = ', n_virt_point
 
  suma = 0
@@ -189,6 +189,7 @@ counter(:) = dyn_cell(1:N_basic_cell)%n_virt
 cur_ind_I = 0
 DO ind_I = 1, N_basic_cell
  indices(ind_I) = cur_ind_I + 1
+ dyn_cell(ind_I)%ind_virt = indices(ind_I)
  cur_ind_I = cur_ind_I + dyn_cell(ind_I)%n_virt
 END DO
 

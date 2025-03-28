@@ -1,17 +1,17 @@
 ! this subroutine will create a dynamical grid cell for the given basic cell by
 ! calling subroutine divide_cell_8 or divide_cell_ijk
 !
-! INPUT: n_dyncell(INT): index of the upper propGrid cell
+! INPUT: cur_pgi(INT): index of current propGrid cell
 !        max_n_dcell(INT): the total number of created propGrid cells
 !
-  SUBROUTINE create_dynamical_grid_cells(n_dyncell,max_n_dcell)
+  SUBROUTINE create_dynamical_grid_cells(cur_pgi,max_n_dcell)
 
    USE types
 USE constants
 
    IMPLICIT NONE
    
-   INTEGER                              :: n_dyncell
+   INTEGER                              :: cur_pgi
    ! TYPE(virt_point), DIMENSION(Npart):: v_part
    ! number of created dynamic cells and
    ! actual number of grid cell
@@ -37,15 +37,17 @@ USE constants
    INTEGER                              :: loc_np
    INTEGER                              :: loc_downcell, loc_upcell
    INTEGER                              :: cur_point
-    ! for 8-dyncells
+   INTEGER                              :: start_index, end_index
 
-corner(:) = dyn_cell(n_dyncell)%corner(:)
-cell_width_2(:) = dyn_cell(n_dyncell)%width(:)
+corner(:) = dyn_cell(cur_pgi)%corner(:)
+cell_width_2(:) = dyn_cell(cur_pgi)%width(:)
 
 
 ! at first we have to know, how many points are located
 ! in the given cell
-n_points = dyn_cell(n_dyncell)%n_virt
+n_points = dyn_cell(cur_pgi)%n_virt
+start_index = dyn_cell(cur_pgi)%ind_virt
+end_index = start_index + n_points - 1
 SELECT CASE(dyngrid)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!§§
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!§§
@@ -53,18 +55,16 @@ SELECT CASE(dyngrid)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!§§
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!§§
 CASE(1)
-ALLOCATE(local_point(n_points))
+IF(n_points > 0) THEN
+ ALLOCATE(local_point(n_points))
+ELSE
+ ! if there is no virtual point in this propGrid cell, the program can return
+ ! RETURN POINT
+ RETURN
+END IF
 
+local_point(1:n_points) = virtual_point(start_index:end_index)
 cur_point = 0
-DO ind_I = 1, Nvirtpoint
- vp_pos = virtual_point(ind_I)%pos
- IF(vp_pos(ind_x) > corner(ind_x) .and. vp_pos(ind_x) < (corner(ind_x) + cell_width_2(ind_x)) .and. &
-  vp_pos(ind_y) >= corner(ind_y) .and. vp_pos(ind_y) < (corner(ind_y) + cell_width_2(ind_y)) .and. &
-  vp_pos(ind_z) >= corner(ind_z) .and. vp_pos(ind_z) < (corner(ind_z) + cell_width_2(ind_z))) THEN
-  cur_point = cur_point + 1
-  local_point(cur_point) = virtual_point(ind_I)
- END IF
-END DO
 
 ! we have found point included in this basic cell
 ! now we have to generate brand new dynamical cell
@@ -74,7 +74,7 @@ END DO
 ! firstly for the basic cell division
 !n_dg = 0
 up_bound = SIZE(dyn_cell(:))
-act_n_dyncell = n_dyncell
+act_n_dyncell = cur_pgi
 no_dcells = 8
 ! start: large loop
 DO
@@ -185,8 +185,7 @@ DO
   END IF
  ! can we stop the large loop?
  ! only if we come back to the basic cell we are creating subcells in
- IF(act_n_dyncell == n_dyncell) THEN
-!  print*, 'all dynamic cells for this basic cell were created...'
+ IF(act_n_dyncell == cur_pgi) THEN
   EXIT
  END IF
 ! stop: large loop
@@ -210,7 +209,7 @@ CASE(2)
   dimofsubcells(ind_y) = FLOOR(n_points**(4.0))
   dimofsubcells(ind_z) = FLOOR(n_points**(4.0))
  END IF
-  dyn_cell(n_dyncell)%n_sbgr = dimofsubcells
+  dyn_cell(cur_pgi)%n_sbgr = dimofsubcells
   no_dcells = dimofsubcells(ind_x) * dimofsubcells(ind_y) * dimofsubcells(ind_z)
  ! write(*,*) 'create_dynamical_grid_cells: no_dcells = ', no_dcells
  IF(dimofsubcells(ind_x) <= 1 .and. dimofsubcells(ind_y) <= 1 &
@@ -239,7 +238,7 @@ CASE(2)
    up_bound = newbound
   end if
   IF(n_points >= 8 .OR. no_dcells > 1) THEN
-   CALL divide_cell_ijk(n_dyncell, max_n_dcell, dimofsubcells)
+   CALL divide_cell_ijk(cur_pgi, max_n_dcell, dimofsubcells)
    max_n_dcell = max_n_dcell + no_dcells
   END IF
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
