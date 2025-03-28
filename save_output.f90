@@ -7,8 +7,8 @@
 ! #04 TEMPERATURE STRUCTURE AND IONIZATION BALANCE
 ! #06 PACKETS INFORMATION
 ! #07 IONIZATION FRACTIONS
-! #10 VELOCITY FIELD IN THE PROPGRID CELLS
-! #11 PROPMOD SLICES
+! #11 VELOCITY FIELD IN THE PROPGRID CELLS
+! #12 PROPMOD SLICES
 SUBROUTINE save_output(otype)
 
 USE MPI
@@ -458,7 +458,7 @@ CASE(10)
   END DO
  CLOSE(72)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! #10 velocity field in the propGrid cells
+! #11 velocity field in the propGrid cells
 !
 ! 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -483,7 +483,7 @@ CASE(11)
   END DO
  CLOSE(73)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! #11 density and temperature slices
+! #12 density and temperature slices
 !
 ! 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

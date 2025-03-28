@@ -97,7 +97,7 @@ DO ind_I = 1, n_pack
  END IF
 END DO
 
-CALL save_output(ind_savephdistr)
+! CALL save_output(ind_savephdistr)
         
 
 END SUBROUTINE init_photsphere

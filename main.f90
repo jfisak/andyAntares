@@ -231,7 +231,7 @@ ELSE IF(saved_grid == 1) THEN
 #if mpi==1
  IF(my_rank == 0) THEN
 #endif
- CALL save_propmod_grid()
+  CALL save_propmod_grid()
 #if mpi==1
  END IF
 #endif

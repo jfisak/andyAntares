@@ -13,7 +13,7 @@ USE constants
  ! input variables
  INTEGER                        :: dimIM
  ! 
- INTEGER                        :: ind_I,ind_J,num_points
+ INTEGER                        :: ind_I,ind_J,num_points, cur_pgi
  ! 1D model: intervals for point distribution
  DOUBLE PRECISION               :: radius, phi, theta, angle
  DOUBLE PRECISION, DIMENSION(const_dimofspace) :: direction
@@ -37,7 +37,12 @@ USE constants
 
  DOUBLE PRECISION               :: suma
  INTEGER                        :: n_virt_point
+ INTEGER, ALLOCATABLE           :: counter(:), indices(:), vp_pom(:)
+ INTEGER                        :: cur_ind_I, cur_ind_sorted, cur_vpi
+ INTEGER                        :: N_basic_cell
 
+ 
+ TYPE(virt_point), ALLOCATABLE :: pom_virtpoint(:)
 
 
 ! OPEN(20,FILE="virtual_point.dat")
@@ -121,8 +126,6 @@ CASE(2)
  n_virt_point = INT(sumr / (1.D1 * basic_cell_width(ind_x)))
  ! write(*,*) 'virtual_points: n_virt_point = ', n_virt_point
 
- ALLOCATE (virtual_point(n_virt_point))
-
  suma = 0
  DO ind_I = 1, n_modelgrid
   radius = model_grid(ind_I)%rwind
@@ -130,6 +133,8 @@ CASE(2)
   nOfPoints(ind_I) = CEILING(FLOAT(Nvirtpoint) * (2.0 * const_pi * radius * sin(angle)) ** delta / sumr)
   suma = suma + nOfPoints(ind_I)
  END DO
+ n_virt_point = suma
+ ALLOCATE(virtual_point(n_virt_point))
  ! now we will compute given numbers of points for the given spheres
  ! we have zero point located
  num_points = 0
@@ -164,7 +169,7 @@ END SELECT
 Npoint = SIZE(virtual_point)
 DO ind_I = 1, Npoint
  pos = virtual_point(ind_I)%pos
- width = dyn_cell(ind_x)%width
+ width = basic_cell_width(:)
  index_x = FLOOR(pos(ind_x)/width(ind_x) + DBLE(nx_cell)/2) + 1
  index_y = FLOOR(pos(ind_y)/width(ind_y) + DBLE(ny_cell)/2) + 1
  index_z = FLOOR(pos(ind_z)/width(ind_z) + DBLE(nz_cell)/2) + 1
@@ -173,23 +178,44 @@ DO ind_I = 1, Npoint
  dyn_cell(ind_cell_numb)%n_virt = dyn_cell(ind_cell_numb)%n_virt + 1
 END DO
 
-! sort virtual points by its number
-DO ind_J = 2, Npoint
- ind_I = ind_J - 1
- vari_A = virtual_point(ind_J)%ind_pcell
- DO WHILE (ind_I .GE. 1)
-  IF(virtual_point(ind_I)%ind_pcell > vari_A) THEN
-   dummy = virtual_point(ind_I + 1)
-   virtual_point(ind_I + 1) = virtual_point(ind_I) 
-   virtual_point(ind_I) = dummy
-  END IF
-   ind_I = ind_I - 1
- END DO
-END DO
-! DO I = 1, Npoint
-!  write(*,*) 'virtual_point: sorted vp: cell: ', virtual_point(I)%ind_pcell
-! END DO
+N_basic_cell = nx_cell * ny_cell * nz_cell
 
+ALLOCATE(counter(N_basic_cell), indices(N_basic_cell))
+ALLOCATE(vp_pom(Npoint))
+
+counter(:) = dyn_cell(1:N_basic_cell)%n_virt
+
+! indices of list of virtual points for each basic propGrid
+cur_ind_I = 0
+DO ind_I = 1, N_basic_cell
+ indices(ind_I) = cur_ind_I + 1
+ cur_ind_I = cur_ind_I + dyn_cell(ind_I)%n_virt
+END DO
+
+
+DO cur_vpi = 1, Npoint
+ cur_pgi = virtual_point(cur_vpi)%ind_pcell
+ IF(counter(cur_pgi) > 0) THEN
+  cur_ind_sorted = indices(cur_pgi) + counter(cur_pgi) - 1
+  vp_pom(cur_ind_sorted) = cur_vpi
+  counter(cur_pgi) = counter(cur_pgi) - 1
+ ELSE
+  write(*,*) 'virt_gridAB_init: sorting is not OK'
+  write(*,*) 'want to add a point of cur_vpi = ', cur_vpi
+  write(*,*) 'with no point left'
+  STOP 'virt_gridAB_init'
+ END IF
+END DO
+
+ALLOCATE(pom_virtpoint(Npoint))
+pom_virtpoint(:) = virtual_point(:)
+
+DO ind_I = 1, Npoint
+ cur_ind_sorted = vp_pom(ind_I)
+ pom_virtpoint(ind_I) = virtual_point(cur_ind_sorted)
+END DO
+
+virtual_point(:) = pom_virtpoint(:)
 
 
 
