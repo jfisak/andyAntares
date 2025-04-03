@@ -66,6 +66,7 @@ INTEGER                                 :: cur_index_I, n_levels
 DOUBLE PRECISION                        :: ion_pot
 
 
+
 !________________________________________________________________________________
 ! #11
 INTEGER                                         :: Nx_cov, Ny_cov, Nz_cov, ind_I, ind_J
@@ -509,6 +510,7 @@ END IF
 x_cov = 0.D0
 z_cov = 0.D0
 
+write(*,*) 'save_output: Nx_cov = ', Nx_cov, ' Ny_cov = ', Ny_cov
 ALLOCATE(coverage_matrix_rho(Nx_cov, Ny_cov), coverage_matrix_t(Nx_cov, Ny_cov), &
   coverage_matrix_v(Nx_cov * Ny_cov, 2 * const_dimofspace))
 coverage_matrix_rho(:,:) = -1.0
@@ -519,6 +521,7 @@ write(temp_file_name_t,"(A, A17)") TRIM(outputfolder), '/propmod_t_xy.dat'
 write(temp_file_name_rho,"(A, A19)") TRIM(outputfolder), '/propmod_rho_xy.dat'
 write(temp_file_name_v,"(A, A19)") TRIM(outputfolder), '/propmod_vel_xy.dat'
 write(*,*) 'save_output: temp_file_name_t = ', temp_file_name_t
+write(*,*) 'save_output: dim(cov matrix) = ', SIZE(coverage_matrix_rho)
 ! probably a temporary solution
 cur_pos(ind_z) = z_cov
 ! xy plane
@@ -526,6 +529,7 @@ cur_index = 0
 DO ind_I = 1, Nx_cov
  cur_pos(ind_x) = ((xmax - xmin) * ind_I + (Nx_cov * xmin - xmax))/DBLE(Nx_cov - 1)
  DO ind_J = 1, Ny_cov
+  write(*,*) 'save_output: ind_I = ', ind_I, ' ind_J = ', ind_J
   cur_index = cur_index + 1
   cur_pos(ind_y) = ((ymax - ymin) * ind_J + (Ny_cov * ymin - ymax))/DBLE(Ny_cov - 1)
   ! looking for a current propGrid cell index
@@ -551,11 +555,11 @@ OPEN(175, FILE=temp_file_name_v)
 
 DO ind_I = 1, Ny_cov
  cur_xpos = ((xmax - xmin) * ind_I + (Nx_cov * xmin - xmax))/DBLE(Nx_cov - 1)
- write(173,*) cur_xpos, coverage_matrix_T(:,ind_I)
- write(174,*) cur_xpos, coverage_matrix_rho(:,ind_I)
+ write(173,*) cur_xpos/R_star, coverage_matrix_T(ind_I,:)
+ write(174,*) cur_xpos/R_star, coverage_matrix_rho(ind_I,:)
 END DO
 DO ind_I = 1, Nx_cov * Ny_cov
- write(175,*) cur_xpos, coverage_matrix_v(ind_I,:)
+ write(175,*) coverage_matrix_v(ind_I,:)
 END DO
 
 CLOSE(173)
@@ -601,8 +605,9 @@ OPEN(174, FILE=temp_file_name_rho)
 OPEN(175, FILE=temp_file_name_v)
 
 DO ind_I = 1, Ny_cov
- write(173,*) coverage_matrix_T(:,ind_I)
- write(174,*) coverage_matrix_rho(:,ind_I)
+ cur_xpos = ((xmax - xmin) * ind_I + (Nx_cov * xmin - xmax))/DBLE(Nx_cov - 1)
+ write(173,*) cur_xpos/R_star, coverage_matrix_T(ind_I,:)
+ write(174,*) cur_xpos/R_star, coverage_matrix_rho(ind_I,:)
 END DO
 DO ind_I = 1, Ny_cov * Nz_cov
  write(175,*) coverage_matrix_v(ind_I,:)
