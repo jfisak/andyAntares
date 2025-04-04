@@ -31,8 +31,9 @@ summ = 0.D0
 ! write(*,*) 'r_choose_line: n_next_lines = ', n_next_lines
 DO ind_I = 1, n_next_lines
  act_line = actirrates%nline(ind_I)
- ! write(*,*) 'r_choose_line: ind_I = ', I, ' ran_numb = ', ran_numb, ' summ = ', summ
- ! write(*,*) 'r_choose_line: ind_I = ', I, ' Lline = ', actirrates%Lline(ind_I)
+ ! write(*,*) 'r_choose_line: act_line = ', act_line
+ ! write(*,*) 'r_choose_line: ind_I = ', ind_I, ' ran_numb = ', ran_numb, ' summ = ', summ
+ ! write(*,*) 'r_choose_line: ind_I = ', ind_I, ' Lline = ', actirrates%Lline(ind_I)
  IF(ran_numb > summ .AND. ran_numb < summ + actirrates%Lline(ind_I)) THEN
   ! write(*,*) 'event_dist: last_line = ', act_line
   package(pack_index)%l_ele = linelist(act_line)%indexe

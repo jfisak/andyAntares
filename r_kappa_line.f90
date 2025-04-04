@@ -108,6 +108,18 @@ DO ind_I = 1, nnextlines
    actirrates%nline(ind_I) = indexline
    actirrates%Lline(ind_I) = 0.D0
   END IF
+ ELSE IF(velApprox == 5) THEN
+  cur_pos = package(pack_index)%pos
+  IF(norm2(cur_pos) >= R_star .and. norm2(cur_pos) <= R_inf) THEN
+   ROverV = roverw(pack_index, line_dist, fr_line)
+   actirrates%Lline(ind_I) = const_c / fr_line * constanta * &
+    f_lu * low_pop * corrFactor * ROverV
+   actirrates%nline(ind_I) = indexline
+  ELSE
+   actirrates%nline(ind_I) = indexline
+   actirrates%Lline(ind_I) = 0.D0
+  END IF
+  
  ELSE IF(velApprox == 3) THEN
 
 

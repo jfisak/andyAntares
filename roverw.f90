@@ -53,6 +53,8 @@ DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: cur_vel, cur_d
 DOUBLE PRECISION                                :: cur_sum, nvn
 
 DOUBLE PRECISION, PARAMETER                     :: large_number = 1.D90
+DOUBLE PRECISION                                :: part_1, part_2, part_3
+DOUBLE PRECISION, PARAMETER                     :: param_k = 0.4
 
 IF(debug == 100) THEN
  write(*,*) 'roverw: l_dist = ', l_dist
@@ -101,6 +103,18 @@ ELSE IF(velapprox == 1) THEN
  ELSE
   ROverW = R_pos/V_pos * 1.D0/(costheta**2*((R_star*beta)/(R_pos-R_star)-1.0)+1.0)
  END IF
+ELSE IF(velApprox == 5) THEN
+ R_pos = norm2(package(pack_index)%pos)
+ R_pos_vec = package(pack_index)%pos / norm2(package(pack_index)%pos)
+ costheta = dot_product(package(pack_index)%dir, R_pos_vec)
+ part_1 = costheta**2*4.0*R_star/(R_inf - R_star) * cos(4*R_pos/(R_inf - R_star))
+ part_2 = (1-costheta**2)/R_pos * sin(4*R_pos * R_star/(R_inf - R_star))
+ part_3 = 1/(2*R_star * param_k)
+ IF(R_pos <= R_star .or. R_pos > R_inf) THEN
+  ROverW = 0.D0
+ ELSE
+  ROverW = param_k * V_inf * (part_1 + part_2 + part_3)
+ END IF 
 !_____________________________________________________________________________________________
 ! 3D velocity approximation
 ELSE IF(velApprox == 3) THEN
