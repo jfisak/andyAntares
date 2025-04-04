@@ -55,6 +55,11 @@ CASE(1)
  ! write(*,*) 'velo: pack_position = ', pack_position
  if(isnan(vel_radial)) STOP 'velo: vel_radial = NaN'
  vel_vec = pack_position/NORM2(pack_position) * vel_radial
+! #05
+CASE(5)
+ r_pos = norm2(pack_position)
+ vel_radial = 0.4 * V_inf * sin(4.0 * r_pos * R_star/(R_inf - R_star)) + V_inf * 0.5
+ vel_vec = pack_position/NORM2(pack_position) * vel_radial
 ! #02
 CASE(2)
  CALL vel_discrete_points(pack_index, vel_vec)

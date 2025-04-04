@@ -529,7 +529,6 @@ cur_index = 0
 DO ind_I = 1, Nx_cov
  cur_pos(ind_x) = ((xmax - xmin) * ind_I + (Nx_cov * xmin - xmax))/DBLE(Nx_cov - 1)
  DO ind_J = 1, Ny_cov
-  write(*,*) 'save_output: ind_I = ', ind_I, ' ind_J = ', ind_J
   cur_index = cur_index + 1
   cur_pos(ind_y) = ((ymax - ymin) * ind_J + (Ny_cov * ymin - ymax))/DBLE(Ny_cov - 1)
   ! looking for a current propGrid cell index

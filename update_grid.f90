@@ -24,11 +24,10 @@ CHARACTER(filename_length)                           :: propmod_file
 INTEGER                                 :: cur_n_assoccells
 ! DOUBLE PRECISION                        :: test_temp
 
-DOUBLE PRECISION, DIMENSION(n_modelgrid + add_mg)    :: cur_j, cur_temp, cur_elnd
+DOUBLE PRECISION, DIMENSION(n_modelgrid + add_mg)    :: cur_j, cur_temp
 
 cur_j(:) = 0.D0
 cur_temp(:) = 0.D0
-cur_elnd(:) = 0.D0
   
 write(99,*) 'updating grid'
 #if mpi == 1
@@ -81,9 +80,6 @@ DO cur_mgi = my_start, my_end
    model_grid(cur_mgi)%e_dens = el_nd
    model_grid(cur_mgi)%J = 0.D0   
   END IF ! test for the first iteration
-  IF(eldensfile == 0) THEN
-   cur_elnd(cur_mgi) = el_nd 
-  END IF
   write(propmod_file,"(A, A12)") TRIM(outputfolder), '/propmod.dat'
   INQUIRE(FILE=propmod_file, EXIST=propmod_file_exists)
 
