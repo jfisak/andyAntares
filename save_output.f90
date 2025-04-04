@@ -73,10 +73,11 @@ INTEGER                                         :: Nx_cov, Ny_cov, Nz_cov, ind_I
 DOUBLE PRECISION                                :: x_cov, z_cov
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: cur_pos
 REAL, ALLOCATABLE                               :: coverage_matrix_T(:,:), coverage_matrix_rho(:,:), &
-                                                   coverage_matrix_v(:,:)
+                                                   coverage_matrix_v(:,:), coverage_matrix_velv(:,:)
 INTEGER                                         :: cur_mgi, cur_pgi, cur_index
 DOUBLE PRECISION                                :: cur_rho, cur_temp
-CHARACTER(LEN=filename_length)                      :: temp_file_name_t, temp_file_name_rho, temp_file_name_v 
+CHARACTER(LEN=filename_length)                      :: temp_file_name_t, temp_file_name_rho, temp_file_name_v, &
+                                                        temp_file_name_velv
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: width
 CHARACTER(LEN=2)                                :: cur_name, get_element_name
 CHARACTER(LEN=10)                               :: get_ion_number, cur_ion_num
@@ -512,14 +513,16 @@ z_cov = 0.D0
 
 write(*,*) 'save_output: Nx_cov = ', Nx_cov, ' Ny_cov = ', Ny_cov
 ALLOCATE(coverage_matrix_rho(Nx_cov, Ny_cov), coverage_matrix_t(Nx_cov, Ny_cov), &
-  coverage_matrix_v(Nx_cov * Ny_cov, 2 * const_dimofspace))
+  coverage_matrix_v(Nx_cov * Ny_cov, 2 * const_dimofspace), coverage_matrix_velv(Nx_cov, Ny_cov))
 coverage_matrix_rho(:,:) = -1.0
 coverage_matrix_t(:,:) = -1.0
 coverage_matrix_v(:,:) = -1.0
+coverage_matrix_velv(:,:) = -1.0
 
 write(temp_file_name_t,"(A, A17)") TRIM(outputfolder), '/propmod_t_xy.dat'
 write(temp_file_name_rho,"(A, A19)") TRIM(outputfolder), '/propmod_rho_xy.dat'
 write(temp_file_name_v,"(A, A19)") TRIM(outputfolder), '/propmod_vel_xy.dat'
+write(temp_file_name_velv,"(A, A20)") TRIM(outputfolder), '/propmod_velv_xy.dat'
 write(*,*) 'save_output: temp_file_name_t = ', temp_file_name_t
 write(*,*) 'save_output: dim(cov matrix) = ', SIZE(coverage_matrix_rho)
 ! probably a temporary solution
@@ -543,6 +546,7 @@ DO ind_I = 1, Nx_cov
     coverage_matrix_v(cur_index, 1:3) = REAL(cur_pos)
     CALL velo_vector(cur_pos, cur_mgi, cur_vel)
     coverage_matrix_v(cur_index, 4:6) = REAL(cur_vel)
+    coverage_matrix_velv(ind_I, ind_J) = NORM2(cur_vel)
    END IF
   END IF ! cur_pgi > 0
  END DO
@@ -551,11 +555,13 @@ END DO
 OPEN(173, FILE=temp_file_name_t)
 OPEN(174, FILE=temp_file_name_rho)
 OPEN(175, FILE=temp_file_name_v)
+OPEN(176, FILE=temp_file_name_velv)
 
 DO ind_I = 1, Ny_cov
  cur_xpos = ((xmax - xmin) * ind_I + (Nx_cov * xmin - xmax))/DBLE(Nx_cov - 1)
  write(173,*) cur_xpos/R_star, coverage_matrix_T(ind_I,:)
  write(174,*) cur_xpos/R_star, coverage_matrix_rho(ind_I,:)
+ write(176,*) cur_xpos/R_star, coverage_matrix_velv(ind_I,:)
 END DO
 DO ind_I = 1, Nx_cov * Ny_cov
  write(175,*) coverage_matrix_v(ind_I,:)
@@ -564,14 +570,17 @@ END DO
 CLOSE(173)
 CLOSE(174)
 CLOSE(175)
+CLOSE(176)
 
 coverage_matrix_rho(:,:) = -1.0
 coverage_matrix_t(:,:) = -1.0
 coverage_matrix_v(:,:) = -1.0
+coverage_matrix_velv(:,:) = -1.0
 
 write(temp_file_name_t,"(A, A17)") TRIM(outputfolder), '/propmod_t_yz.dat'
 write(temp_file_name_rho,"(A, A19)") TRIM(outputfolder), '/propmod_rho_yz.dat'
 write(temp_file_name_v,"(A, A19)") TRIM(outputfolder), '/propmod_vel_yz.dat'
+write(temp_file_name_velv,"(A, A20)") TRIM(outputfolder), '/propmod_velv_yz.dat'
 
 ! probably a temporary solution
 cur_pos(ind_x) = x_cov
@@ -594,6 +603,7 @@ DO ind_I = 1, Ny_cov
     coverage_matrix_v(cur_index, 1:3) = REAL(cur_pos)
     CALL velo_vector(cur_pos, cur_mgi, cur_vel)
     coverage_matrix_v(cur_index, 4:6) = REAL(cur_vel)
+    coverage_matrix_velv(ind_I, ind_J) = NORM2(cur_vel)
    END IF
   END IF ! cur_pgi > 0
  END DO
@@ -602,11 +612,13 @@ END DO
 OPEN(173, FILE=temp_file_name_t)
 OPEN(174, FILE=temp_file_name_rho)
 OPEN(175, FILE=temp_file_name_v)
+OPEN(176, FILE=temp_file_name_velv)
 
 DO ind_I = 1, Ny_cov
  cur_xpos = ((xmax - xmin) * ind_I + (Nx_cov * xmin - xmax))/DBLE(Nx_cov - 1)
  write(173,*) cur_xpos/R_star, coverage_matrix_T(ind_I,:)
  write(174,*) cur_xpos/R_star, coverage_matrix_rho(ind_I,:)
+ write(176,*) cur_xpos/R_star, coverage_matrix_velv(ind_I,:)
 END DO
 DO ind_I = 1, Ny_cov * Nz_cov
  write(175,*) coverage_matrix_v(ind_I,:)
@@ -615,6 +627,7 @@ END DO
 CLOSE(173)
 CLOSE(174)
 CLOSE(175)
+CLOSE(176)
 
 # if mpi == 1
  END IF
