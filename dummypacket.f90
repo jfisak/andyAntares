@@ -80,16 +80,30 @@ CONTAINS
 
   INTEGER                               :: input_packet, ind_dummy_packet
 
-  dummypackage(ind_dummy_packet)%pos = package(input_packet)%pos
-  dummypackage(ind_dummy_packet)%dir = package(input_packet)%dir
-  dummypackage(ind_dummy_packet)%cell_numb = package(input_packet)%cell_numb
-  dummypackage(ind_dummy_packet)%freq_cmf = package(input_packet)%freq_cmf
-  dummypackage(ind_dummy_packet)%freq_rf = package(input_packet)%freq_rf
-  dummypackage(ind_dummy_packet)%e_cmf = package(input_packet)%e_cmf
-  dummypackage(ind_dummy_packet)%e_rf = package(input_packet)%e_rf
-  dummypackage(ind_dummy_packet)%typ = package(input_packet)%typ
-  dummypackage(ind_dummy_packet)%next_cross = package(input_packet)%next_cross
-  dummypackage(ind_dummy_packet)%last_line = package(input_packet)%last_line
+  IF(input_packet <= SIZE(package)) THEN
+   dummypackage(ind_dummy_packet)%pos = package(input_packet)%pos
+   dummypackage(ind_dummy_packet)%dir = package(input_packet)%dir
+   dummypackage(ind_dummy_packet)%cell_numb = package(input_packet)%cell_numb
+   dummypackage(ind_dummy_packet)%freq_cmf = package(input_packet)%freq_cmf
+   dummypackage(ind_dummy_packet)%freq_rf = package(input_packet)%freq_rf
+   dummypackage(ind_dummy_packet)%e_cmf = package(input_packet)%e_cmf
+   dummypackage(ind_dummy_packet)%e_rf = package(input_packet)%e_rf
+   dummypackage(ind_dummy_packet)%typ = package(input_packet)%typ
+   dummypackage(ind_dummy_packet)%next_cross = package(input_packet)%next_cross
+   dummypackage(ind_dummy_packet)%last_line = package(input_packet)%last_line
+  ELSE IF(input_packet > SIZE(package)) THEN
+   input_packet = input_packet - SIZE(package)
+   dummypackage(ind_dummy_packet)%pos = dummypackage(input_packet)%pos
+   dummypackage(ind_dummy_packet)%dir = dummypackage(input_packet)%dir
+   dummypackage(ind_dummy_packet)%cell_numb = dummypackage(input_packet)%cell_numb
+   dummypackage(ind_dummy_packet)%freq_cmf = dummypackage(input_packet)%freq_cmf
+   dummypackage(ind_dummy_packet)%freq_rf = dummypackage(input_packet)%freq_rf
+   dummypackage(ind_dummy_packet)%e_cmf = dummypackage(input_packet)%e_cmf
+   dummypackage(ind_dummy_packet)%e_rf = dummypackage(input_packet)%e_rf
+   dummypackage(ind_dummy_packet)%typ = dummypackage(input_packet)%typ
+   dummypackage(ind_dummy_packet)%next_cross = dummypackage(input_packet)%next_cross
+   dummypackage(ind_dummy_packet)%last_line = dummypackage(input_packet)%last_line
+  END IF
 
  END SUBROUTINE
 
@@ -99,11 +113,14 @@ CONTAINS
   IMPLICIT NONE
 
   INTEGER                                               :: pack_index
+  INTEGER                                               :: ind_pgi
   DOUBLE PRECISION, DIMENSION(const_dimofspace)         :: new_pos
 
 
   ! setting a new position
   dummypackage(pack_index)%pos = new_pos
+  CALL find_dyn_cell1(new_pos, ind_pgi)
+  dummypackage(pack_index)%cell_numb = ind_pgi
 
  END SUBROUTINE
 

@@ -1,3 +1,4 @@
+! 1x -- RETURN
 SUBROUTINE velo(pack_index, vel_vec, approx)
 
 USE types
@@ -18,9 +19,11 @@ DOUBLE PRECISION                  :: r_pos
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: cur_n
 
 LOGICAL, PARAMETER                :: velocityTesting = .true.
-INTEGER, PARAMETER                :: max_n_of_velopackets = 200
+INTEGER, PARAMETER                :: max_n_of_velopackets = 2000
 
 INTEGER                            :: cur_dummy_index
+INTEGER                                 :: cur_dummypack, dummypack_index
+DOUBLE PRECISION                        :: sin_arg
 
 IF(debug == 100) write(*,*) 'velo: approx = ', approx
 
@@ -54,12 +57,13 @@ CASE(1)
  vel_radial = V_inf * (1.D0 - R_star / norm2(pack_position))**beta
  ! write(*,*) 'velo: pack_position = ', pack_position
  if(isnan(vel_radial)) STOP 'velo: vel_radial = NaN'
- vel_vec = pack_position/NORM2(pack_position) * vel_radial
+ vel_vec = pack_position/r_pos * vel_radial
 ! #05
 CASE(5)
+ ! write(*,*) '||pack_position|| = ', norm2(pack_position)/R_star, ' ||init_pack_pos|| = ', norm2(init_pack_pos)/R_star
  r_pos = norm2(pack_position)
- vel_radial = 0.4 * V_inf * sin(4.0 * r_pos * R_star/(R_inf - R_star)) + V_inf * 0.5
- vel_vec = pack_position/NORM2(pack_position) * vel_radial
+ vel_radial = 0.4 * V_inf * sin(8.0 * r_pos/(R_inf - R_star)) + V_inf*0.5
+ vel_vec = pack_position/r_pos * vel_radial
 ! #02
 CASE(2)
  CALL vel_discrete_points(pack_index, vel_vec)
@@ -67,7 +71,17 @@ CASE(2)
 ! velocity field given by model in discrete points
 CASE(3)
  ! IF(dyn_cell == 0) THEN
- CALL vel_discrete_points(pack_index, vel_vec)
+ r_pos = norm2(init_pack_pos)
+ IF(r_pos >= R_star .and. r_pos <= R_inf) THEN
+  CALL vel_discrete_points(pack_index, vel_vec)
+ ELSE IF(r_pos > R_inf) THEN
+  cur_dummypack = find_free_index() 
+  dummypack_index = cur_dummypack + SIZE(package)
+  CALL copy_package(pack_index, cur_dummypack)
+  CALL teleport_dummypacket(cur_dummypack, pack_position)
+  CALL vel_discrete_points(dummypack_index, vel_vec)
+  CALL deactivate_dummy_packet(cur_dummypack)
+ END IF
  IF(isnan(vel_vec(ind_x)) .or. isnan(vel_vec(ind_y)) .or. isnan(vel_vec(ind_z))) THEN
   write(*,*) 'velo: vel_vec = ', vel_vec
   STOP 'velo: at least one component of velocity vector is Nan'
@@ -82,6 +96,7 @@ CASE DEFAULT
  CALL abort()
 END SELECT
 
+! write(*,*) 'velo: vel_vec = ', vel_vec
 IF(velocityTesting) THEN
  IF(pack_index <= max_n_of_velopackets) THEN
   write(34,*) norm2(init_pack_pos)/R_star, norm2(vel_vec)
@@ -89,7 +104,7 @@ IF(velocityTesting) THEN
 END IF
  ! write(*,*) 'velo: norm2(vel_vec) = ', norm2(vel_vec)
  IF(norm2(vel_vec) > const_c) THEN
-  write(*,*) 'velo: vel_vec/c = ', norm2(vel_vec)/const_c, ' Rinf/c = ', V_inf/const_c
+  write(*,*) 'velo: vel_vec/c = ', norm2(vel_vec)/const_c, ' V_inf/c = ', V_inf/const_c
   write(*,*) 'velo: V_inf = ', V_inf, ' R_star = ', R_star, ' beta = ', beta,&
    ' ||pack_position|| = ', norm2(pack_position)
   write(*,*) 'velo: pack_index = ', pack_index, ' position = ', vec_length(pack_position)/R_inf,&
