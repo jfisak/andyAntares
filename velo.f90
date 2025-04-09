@@ -1,4 +1,11 @@
+! calculates a velocity vector for the current position of packet
+!
+! INPUT: pack_index(INT): index of packet
+! OUTPUT: vel_vec(DBLE): velocity vector
+!         approx(INT): approximation
+!
 ! 1x -- RETURN
+!
 SUBROUTINE velo(pack_index, vel_vec, approx)
 
 USE types
@@ -23,7 +30,6 @@ INTEGER, PARAMETER                :: max_n_of_velopackets = 2000
 
 INTEGER                            :: cur_dummy_index
 INTEGER                                 :: cur_dummypack, dummypack_index
-DOUBLE PRECISION                        :: sin_arg
 
 IF(debug == 100) write(*,*) 'velo: approx = ', approx
 
@@ -38,6 +44,7 @@ init_pack_pos = pack_position
 
 IF(norm2(pack_position) < R_star) THEN
  vel_vec = (/ 0.D0, 0.D0, 0.D0 /)
+ ! RETURN POINT
  RETURN
 ELSE IF(norm2(pack_position) > R_inf) THEN
  cur_n = pack_position/norm2(pack_position)

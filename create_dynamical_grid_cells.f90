@@ -33,7 +33,6 @@ USE constants
    LOGICAL                              :: next_cell
    ! local variables
    DOUBLE PRECISION, DIMENSION(const_dimofspace)       :: loc_corner, loc_cell_width
-   DOUBLE PRECISION, DIMENSION(const_dimofspace)       :: vp_pos
    INTEGER                              :: loc_np
    INTEGER                              :: loc_downcell, loc_upcell
    INTEGER                              :: cur_point

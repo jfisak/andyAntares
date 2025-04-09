@@ -150,7 +150,7 @@ SAVE
 
 ! fields for the given types
   TYPE(modelgrid), ALLOCATABLE       :: model_grid(:)
-  TYPE(dyn_grid_cell), ALLOCATABLE, SAVE   :: dyn_cell(:)   
+  TYPE(dyn_grid_cell), ALLOCATABLE   :: dyn_cell(:)   
   TYPE(photon), ALLOCATABLE          :: package(:)
   TYPE(virtual_packet), ALLOCATABLE  :: vpackage(:)
 

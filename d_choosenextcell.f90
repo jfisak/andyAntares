@@ -1,3 +1,12 @@
+! choose the next cell for the d-package
+!
+! INPUT: cur_pgi(INT): curret propGrid index
+!        next_leak(INT): next direction randomly chosen
+! OUTPUT: next_cell(INT): next propGrid cell
+!         cross_pos(DBLE(const_dimofspace)): position of the poit in the boundary
+!
+! 2x RETURN POINT
+!
 SUBROUTINE d_choosenextcell(cur_pgi, next_leak, next_cell, cross_pos)
 
 USE types
@@ -8,16 +17,16 @@ INTEGER                                         :: cur_pgi, next_cell, next_leak
 
 INTEGER                                         :: n_cell
 
-INTEGER                                         :: I
+INTEGER                                         :: ind_I
 
 DOUBLE PRECISION                                :: rand, ran2
-DOUBLE PRECISION, DIMENSION(3)                  :: corner, width, cross_pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: corner, width, cross_pos
 
 INTEGER                                         :: subind_x, subind_y, subind_z
 INTEGER                                         :: sub_nx, sub_ny, sub_nz
 INTEGER                                         :: act_cell, upper_cell
 
-DOUBLE PRECISION, DIMENSION(3)                  :: subcells_width
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: subcells_width
 
 
 
@@ -25,24 +34,24 @@ corner = dyn_cell(cur_pgi)%corner
 width = dyn_cell(cur_pgi)%width
 rand = ran2(idum)
 
-DO I = 1,3
- cross_pos(I) = corner(I) + rand * width(I)
+DO ind_I = 1,3
+ cross_pos(ind_I) = corner(ind_I) + rand * width(ind_I)
 END DO
 
 ! write(*,*) 'd_choosenextcell: next_leak = ', next_leak
 
 IF(next_leak == posx) THEN
- cross_pos(1) = corner(1) + width(1)
+ cross_pos(ind_x) = corner(ind_x) + width(ind_x)
 ELSE IF(next_leak == negx) THEN
- cross_pos(1) = corner(1)
+ cross_pos(ind_x) = corner(ind_x)
 ELSE IF(next_leak == posy) THEN
- cross_pos(2) = corner(2) + width(2)
+ cross_pos(ind_y) = corner(ind_y) + width(ind_y)
 ELSE IF(next_leak == negy) THEN
- cross_pos(2) = corner(2)
+ cross_pos(ind_y) = corner(ind_y)
 ELSE IF(next_leak == posz) THEN
- cross_pos(3) = corner(3) + width(3)
+ cross_pos(ind_z) = corner(ind_z) + width(ind_z)
 ELSE IF(next_leak == negz) THEN
- cross_pos(3) = corner(3)
+ cross_pos(ind_z) = corner(ind_z)
 END IF
 
 
@@ -63,6 +72,7 @@ DO
 END DO
 
 ! if we are at the propGrid edge, we do not have to find upper cells
+! RETURN POINT
 IF(next_cell < 0) RETURN
 
 ! next cell up
@@ -91,26 +101,26 @@ IF(dyn_cell(next_cell)%up_cell > 0) THEN
     IF(next_leak == posx .OR. next_leak == negx) THEN
   !   print*, 'next_cell_up: next_leak = ', next_leak
      ! lower front cell
-     IF(cross_pos(2) >= corner(2) .AND. cross_pos(2) <= corner(2) + width(2) / 2.D0 .AND. &
-        cross_pos(3) >= corner(3) .AND. cross_pos(3) <= corner(3) + width(3) / 2.D0) THEN
+     IF(cross_pos(ind_y) >= corner(ind_y) .AND. cross_pos(ind_y) <= corner(ind_y) + width(ind_y) / 2.D0 .AND. &
+        cross_pos(ind_z) >= corner(ind_z) .AND. cross_pos(ind_z) <= corner(ind_z) + width(ind_z) / 2.D0) THEN
   !   print*, 'next_cell_up: cross 1'
       if(next_leak == posx) act_cell = upper_cell
       if(next_leak == negx) act_cell = upper_cell + 1
      ! lower rear cell
-     ELSE IF(cross_pos(2) >= corner(2) + width(2) / 2.D0 .AND. cross_pos(2) <= corner(2) + width(2) .AND. &
-        cross_pos(3) >= corner(3) .AND. cross_pos(3) <= corner(3) + width(3) / 2.D0) THEN
+     ELSE IF(cross_pos(ind_y) >= corner(ind_y) + width(ind_y) / 2.D0 .AND. cross_pos(ind_y) <= corner(ind_y) + width(ind_y) .AND. &
+        cross_pos(ind_z) >= corner(ind_z) .AND. cross_pos(ind_z) <= corner(ind_z) + width(ind_z) / 2.D0) THEN
   !   print*, 'next_cell_up: cross 2'
       if(next_leak == posx) act_cell = upper_cell + 2
       if(next_leak == negx) act_cell = upper_cell + 3
      ! upper front cell
-     ELSE IF(cross_pos(2) >= corner(2) .AND. cross_pos(2) <= corner(2) + width(2) / 2.D0 .AND. &
-        cross_pos(3) >= corner(3) + width(3) / 2.D0 .AND. cross_pos(3) <= corner(3) + width(3)) THEN
+     ELSE IF(cross_pos(ind_y) >= corner(ind_y) .AND. cross_pos(ind_y) <= corner(ind_y) + width(ind_y) / 2.D0 .AND. &
+        cross_pos(ind_z) >= corner(ind_z) + width(ind_z) / 2.D0 .AND. cross_pos(ind_z) <= corner(ind_z) + width(ind_z)) THEN
   !   print*, 'next_cell_up: cross 3'
       if(next_leak == posx) act_cell = upper_cell + 4
       if(next_leak == negx) act_cell = upper_cell + 5
      ! upper rear cell
-     ELSE IF(cross_pos(2) >= corner(2) + width(2) / 2.D0 .AND. cross_pos(2) <= corner(2) + width(2) .AND. &
-        cross_pos(3) >= corner(3) + width(3) / 2.D0 .AND. cross_pos(3) <= corner(3) + width(3)) THEN
+     ELSE IF(cross_pos(ind_y) >= corner(ind_y) + width(ind_y) / 2.D0 .AND. cross_pos(ind_y) <= corner(ind_y) + width(ind_y) .AND. &
+        cross_pos(ind_z) >= corner(ind_z) + width(ind_z) / 2.D0 .AND. cross_pos(ind_z) <= corner(ind_z) + width(ind_z)) THEN
   !   print*, 'next_cell_up: cross 4'
       if(next_leak == posx) act_cell = upper_cell + 6
       if(next_leak == negx) act_cell = upper_cell + 7
@@ -123,26 +133,26 @@ IF(dyn_cell(next_cell)%up_cell > 0) THEN
    ELSE IF(next_leak == posy .OR. next_leak == negy) THEN
  !   print*, 'next_cell_up: cross = ', cross
     ! lower left cell
-    IF(cross_pos(1) >= corner(1) .AND. cross_pos(1) <= corner(1) + width(1) / 2.D0 .AND. &
-       cross_pos(3) >= corner(3) .AND. cross_pos(3) <= corner(3) + width(3) / 2.D0) THEN
+    IF(cross_pos(ind_x) >= corner(ind_x) .AND. cross_pos(ind_x) <= corner(ind_x) + width(ind_x) / 2.D0 .AND. &
+       cross_pos(ind_z) >= corner(ind_z) .AND. cross_pos(ind_z) <= corner(ind_z) + width(ind_z) / 2.D0) THEN
  !   print*, 'next_cell_up: cross 1'
      if(next_leak == posy) act_cell = upper_cell
      if(next_leak == negy) act_cell = upper_cell + 2
     ! lower right cell
-    ELSE IF(cross_pos(1) >= corner(1) + width(1) / 2.D0 .AND. cross_pos(1) <= corner(1) + width(1) .AND. &
-       cross_pos(3) >= corner(3) .AND. cross_pos(3) <= corner(3) + width(3) / 2.D0) THEN
+    ELSE IF(cross_pos(ind_x) >= corner(ind_x) + width(ind_x) / 2.D0 .AND. cross_pos(ind_x) <= corner(ind_x) + width(ind_x) .AND. &
+       cross_pos(ind_z) >= corner(ind_z) .AND. cross_pos(ind_z) <= corner(ind_z) + width(ind_z) / 2.D0) THEN
  !   print*, 'next_cell_up: cross 2'
      if(next_leak == posy) act_cell = upper_cell + 1
      if(next_leak == negy) act_cell = upper_cell + 3
     ! upper left cell
-    ELSE IF(cross_pos(1) >= corner(1) .AND. cross_pos(1) <= corner(1) + width(1) / 2.D0 .AND. &
-       cross_pos(3) >= corner(3) + width(3) / 2.D0 .AND. cross_pos(3) <= corner(3) + width(3)) THEN
+    ELSE IF(cross_pos(ind_x) >= corner(ind_x) .AND. cross_pos(ind_x) <= corner(ind_x) + width(ind_x) / 2.D0 .AND. &
+       cross_pos(ind_z) >= corner(ind_z) + width(ind_z) / 2.D0 .AND. cross_pos(ind_z) <= corner(ind_z) + width(ind_z)) THEN
  !   print*, 'next_cell_up: cross 3'
      if(next_leak == posy) act_cell = upper_cell + 4
      if(next_leak == negy) act_cell = upper_cell + 6
     ! upper right cell
-    ELSE IF(cross_pos(1) >= corner(1) + width(1) / 2.D0 .AND. cross_pos(1) <= corner(1) + width(1) .AND. &
-       cross_pos(3) >= corner(3) + width(3) / 2.D0 .AND. cross_pos(3) <= corner(3) + width(3)) THEN
+    ELSE IF(cross_pos(ind_x) >= corner(ind_x) + width(ind_x) / 2.D0 .AND. cross_pos(ind_x) <= corner(ind_x) + width(ind_x) .AND. &
+       cross_pos(ind_z) >= corner(ind_z) + width(ind_z) / 2.D0 .AND. cross_pos(ind_z) <= corner(ind_z) + width(ind_z)) THEN
  !   print*, 'next_cell_up: cross 4'
      if(next_leak == posy) act_cell = upper_cell + 5
      if(next_leak == negy) act_cell = upper_cell + 7
@@ -156,34 +166,34 @@ IF(dyn_cell(next_cell)%up_cell > 0) THEN
    ELSE IF(next_leak == posz .OR. next_leak == negz) THEN
  !   print*, 'next_cell_up: cross = ', cross
     ! front left cell
-    IF(cross_pos(1) >= corner(1) .AND. cross_pos(1) <= corner(1) + width(1) / 2.D0 .AND. &
-       cross_pos(2) >= corner(2) .AND. cross_pos(2) <= corner(2) + width(2) / 2.D0) THEN
+    IF(cross_pos(ind_x) >= corner(ind_x) .AND. cross_pos(ind_x) <= corner(ind_x) + width(ind_x) / 2.D0 .AND. &
+       cross_pos(ind_y) >= corner(ind_y) .AND. cross_pos(ind_y) <= corner(ind_y) + width(ind_y) / 2.D0) THEN
  !   print*, 'next_cell_up: cross 1'
      if(next_leak == posz) act_cell = upper_cell
      if(next_leak == negz) act_cell = upper_cell + 4
     ! lower right cell
-    ELSE IF(cross_pos(1) >= corner(1) + width(1) / 2.D0 .AND. cross_pos(1) <= corner(1) + width(1) .AND. &
-       cross_pos(2) >= corner(2) .AND. cross_pos(2) <= corner(2) + width(2) / 2.D0) THEN
+    ELSE IF(cross_pos(ind_x) >= corner(ind_x) + width(ind_x) / 2.D0 .AND. cross_pos(ind_x) <= corner(ind_x) + width(ind_x) .AND. &
+       cross_pos(ind_y) >= corner(ind_y) .AND. cross_pos(ind_y) <= corner(ind_y) + width(ind_y) / 2.D0) THEN
  !   print*, 'next_cell_up: cross 2'
      if(next_leak == posz) act_cell = upper_cell + 1
      if(next_leak == negz) act_cell = upper_cell + 5
     ! upper left cell
-    ELSE IF(cross_pos(1) >= corner(1) .AND. cross_pos(1) <= corner(1) + width(1) / 2.D0 .AND. &
-       cross_pos(2) >= corner(2) + width(2) / 2.D0 .AND. cross_pos(2) <= corner(2) + width(2)) THEN
+    ELSE IF(cross_pos(ind_x) >= corner(ind_x) .AND. cross_pos(ind_x) <= corner(ind_x) + width(ind_x) / 2.D0 .AND. &
+       cross_pos(ind_y) >= corner(ind_y) + width(ind_y) / 2.D0 .AND. cross_pos(ind_y) <= corner(ind_y) + width(ind_y)) THEN
  !   print*, 'next_cell_up: cross 3'
      if(next_leak == posz) act_cell = upper_cell + 2
      if(next_leak == negz) act_cell = upper_cell + 6
     ! upper right cell
-    ELSE IF(cross_pos(1) >= corner(1) + width(1) / 2.D0 .AND. cross_pos(1) <= corner(1) + width(1) .AND. &
-       cross_pos(2) >= corner(2) + width(2) / 2.D0 .AND. cross_pos(2) <= corner(2) + width(2)) THEN
+    ELSE IF(cross_pos(ind_x) >= corner(ind_x) + width(ind_x) / 2.D0 .AND. cross_pos(ind_x) <= corner(ind_x) + width(ind_x) .AND. &
+       cross_pos(ind_y) >= corner(ind_y) + width(ind_y) / 2.D0 .AND. cross_pos(ind_y) <= corner(ind_y) + width(ind_y)) THEN
  !   print*, 'next_cell_up: cross 4'
      if(next_leak == posz) act_cell = upper_cell + 3
      if(next_leak == negz) act_cell = upper_cell + 7
     ELSE
      write(*,*) 'next_cell_up: no cell was found'
      write(*,*) 'pos = ', norm2(cross_pos)
-     write(*,*) 'cor_z = ', corner(3)/R_star, ' pos_z = ', norm2(cross_pos), ' cor_z+w = ', (corner(3) + &
-     width(3))/R_star
+     write(*,*) 'cor_z = ', corner(ind_z)/R_star, ' pos_z = ', norm2(cross_pos), ' cor_z+w = ', (corner(ind_z) + &
+     width(ind_z))/R_star
      CALL abort()
     END IF
    END IF
@@ -199,17 +209,18 @@ IF(dyn_cell(next_cell)%up_cell > 0) THEN
   upper_cell = dyn_cell(act_cell)%up_cell
   IF(upper_cell == 0) THEN
    next_cell = act_cell
+   ! RETURN POINT
    RETURN
   END IF
   subcells_width = dyn_cell(upper_cell)%width
   subcells_width = dyn_cell(upper_cell)%width
-  sub_nx = dyn_cell(act_cell)%n_sbgr(1)
-  sub_ny = dyn_cell(act_cell)%n_sbgr(2)
-  sub_nz = dyn_cell(act_cell)%n_sbgr(3)
+  sub_nx = dyn_cell(act_cell)%n_sbgr(ind_x)
+  sub_ny = dyn_cell(act_cell)%n_sbgr(ind_y)
+  sub_nz = dyn_cell(act_cell)%n_sbgr(ind_z)
  
-  subind_x = FLOOR((cross_pos(1) - dyn_cell(act_cell)%corner(1))/subcells_width(1)) + 1
-  subind_y = FLOOR((cross_pos(2) - dyn_cell(act_cell)%corner(2))/subcells_width(2)) + 1
-  subind_z = FLOOR((cross_pos(3) - dyn_cell(act_cell)%corner(3))/subcells_width(3)) + 1
+  subind_x = FLOOR((cross_pos(ind_x) - dyn_cell(act_cell)%corner(ind_x))/subcells_width(ind_x)) + 1
+  subind_y = FLOOR((cross_pos(ind_y) - dyn_cell(act_cell)%corner(ind_y))/subcells_width(ind_y)) + 1
+  subind_z = FLOOR((cross_pos(ind_z) - dyn_cell(act_cell)%corner(ind_z))/subcells_width(ind_z)) + 1
  
   IF(next_leak == posx) THEN
    subind_x = 1

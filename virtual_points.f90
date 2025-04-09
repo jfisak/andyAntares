@@ -32,9 +32,6 @@ USE constants
  INTEGER                        :: ind_cell_numb, Npoint
  INTEGER                        :: index_x, index_y, index_z
 
- TYPE(virt_point)               :: dummy
- DOUBLE PRECISION               :: vari_A
-
  DOUBLE PRECISION               :: suma
  INTEGER                        :: n_virt_point
  INTEGER, ALLOCATABLE           :: counter(:), indices(:), vp_pom(:)
@@ -133,7 +130,7 @@ CASE(2)
   nOfPoints(ind_I) = CEILING(FLOAT(Nvirtpoint) * (2.0 * const_pi * radius * sin(angle)) ** delta / sumr)
   suma = suma + nOfPoints(ind_I)
  END DO
- n_virt_point = suma
+ n_virt_point = INT(suma)
  ALLOCATE(virtual_point(n_virt_point))
  ! now we will compute given numbers of points for the given spheres
  ! we have zero point located

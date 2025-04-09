@@ -305,7 +305,7 @@ CASE(5)
 #if mpi==1
  CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
 #endif
-CALL do_spectrum(SIZE(package))
+! CALL do_spectrum(SIZE(package))
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! #07 ionization fractions
 !
@@ -546,7 +546,7 @@ DO ind_I = 1, Nx_cov
     coverage_matrix_v(cur_index, 1:3) = REAL(cur_pos)
     CALL velo_vector(cur_pos, cur_mgi, cur_vel)
     coverage_matrix_v(cur_index, 4:6) = REAL(cur_vel)
-    coverage_matrix_velv(ind_I, ind_J) = NORM2(cur_vel)
+    coverage_matrix_velv(ind_I, ind_J) = REAL(NORM2(cur_vel))
    END IF
   END IF ! cur_pgi > 0
  END DO
@@ -603,7 +603,7 @@ DO ind_I = 1, Ny_cov
     coverage_matrix_v(cur_index, 1:3) = REAL(cur_pos)
     CALL velo_vector(cur_pos, cur_mgi, cur_vel)
     coverage_matrix_v(cur_index, 4:6) = REAL(cur_vel)
-    coverage_matrix_velv(ind_I, ind_J) = NORM2(cur_vel)
+    coverage_matrix_velv(ind_I, ind_J) = REAL(NORM2(cur_vel))
    END IF
   END IF ! cur_pgi > 0
  END DO

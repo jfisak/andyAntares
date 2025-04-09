@@ -1,6 +1,12 @@
+! Propagation of the r-package in the propGrid
+!
+! INPUT: pack_index(INT): index of a packet
+! OUTPUT: NONE
+!
+! 1x RETURN POINT
+! 
 SUBROUTINE do_rpackage(pack_index)
  
-! Propagation of the photon in 3D grid
 
 USE types
 USE constants
@@ -74,6 +80,7 @@ IF((cell_dist > R_inf) .and. (package(pack_index)%virtual .EQV. .FALSE.)) THEN
  write(*,*) 'do_rpackage: cell_dist = ', cell_dist, ' > R_inf'
  write(*,*) 'exiting now'
  package(pack_index)%active = 0
+ ! RETURN POINT
  RETURN
  STOP
 ELSE IF((cell_dist > R_inf) .and. (package(pack_index)%virtual .EQV. .TRUE.)) THEN
@@ -277,15 +284,15 @@ ELSE IF(e_dist > cell_dist) THEN
    if(delta_r(ind_z) == 0.D0) delta_r(ind_z) = 1.D1
    IF(next_cross == edyz) THEN
     ! move packet to with the vector (0,1,1)
-    package(pack_index)%pos = package(pack_index)%pos + (/0.D0,delta_r(2),delta_r(3)/)
+    package(pack_index)%pos = package(pack_index)%pos + (/0.D0,delta_r(ind_y),delta_r(ind_z)/)
     IF(procout) write(*,*) 'do_rpackage: move packet with the vector (0,1,1)'
    ELSE IF(next_cross == edxz) THEN
     ! move packet to with the vector (1,0,1)
-    package(pack_index)%pos = package(pack_index)%pos + (/delta_r(1),0.D0,delta_r(3)/)
+    package(pack_index)%pos = package(pack_index)%pos + (/delta_r(ind_x),0.D0,delta_r(ind_z)/)
     IF(procout) write(*,*) 'do_rpackage: move packet with the vector (1,0,1)'
    ELSE IF(next_cross == edxy) THEN
     ! move packet to with the vector (0,1,1)
-    package(pack_index)%pos = package(pack_index)%pos + (/delta_r(1),delta_r(2),0.D0/)
+    package(pack_index)%pos = package(pack_index)%pos + (/delta_r(ind_x),delta_r(ind_y),0.D0/)
     IF(procout) write(*,*) 'do_rpackage: move packet with the vector (0,1,1)'
    END IF
   END IF
