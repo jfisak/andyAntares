@@ -107,7 +107,7 @@ ELSE IF(velApprox == 5) THEN
  R_pos = norm2(package(pack_index)%pos)
  R_pos_vec = package(pack_index)%pos / norm2(package(pack_index)%pos)
  costheta = dot_product(package(pack_index)%dir, R_pos_vec)
- part_1 = costheta**2*8.0 R_pos/(R_inf - R_star) * cos(8*R_pos/(R_inf - R_star))
+ part_1 = costheta**2*8.0* R_pos/(R_inf - R_star) * cos(8*R_pos/(R_inf - R_star))
  part_2 = (1-costheta**2) * sin(8*R_pos/(R_inf - R_star))
  part_3 = 1/(2 * param_k)
  IF(R_pos <= R_star .or. R_pos > R_inf) THEN
