@@ -107,13 +107,13 @@ ELSE IF(velApprox == 5) THEN
  R_pos = norm2(package(pack_index)%pos)
  R_pos_vec = package(pack_index)%pos / norm2(package(pack_index)%pos)
  costheta = dot_product(package(pack_index)%dir, R_pos_vec)
- part_1 = costheta**2*8.0/(R_inf - R_star) * cos(8*R_pos/(R_inf - R_star))
- part_2 = (1-costheta**2)/R_pos * sin(8*R_pos/(R_inf - R_star))
- part_3 = 1/(2*R_pos * param_k)
+ part_1 = costheta**2*8.0 R_pos/(R_inf - R_star) * cos(8*R_pos/(R_inf - R_star))
+ part_2 = (1-costheta**2) * sin(8*R_pos/(R_inf - R_star))
+ part_3 = 1/(2 * param_k)
  IF(R_pos <= R_star .or. R_pos > R_inf) THEN
   ROverW = 0.D0
  ELSE
-  ROverW = param_k * V_inf * (part_1 + part_2 + part_3)
+  ROverW = abs(R_pos/(param_k * V_inf) * 1/(part_1 + part_2 + part_3))
  END IF 
 !_____________________________________________________________________________________________
 ! 3D velocity approximation
