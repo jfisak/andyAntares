@@ -203,8 +203,8 @@ DO ind_I = 1, nnextlines
     ROverV = 0.D0
    ELSE
     part_1 = costheta**2*8.0 * R_pos/(R_inf - R_star) * cos(8*R_pos/(R_inf - R_star))
-    part_2 = (1-costheta**2) * sin(8*R_pos/(R_inf - R_star))
-    part_3 = (1-costheta**2)/(2 * param_k)
+    part_2 = (1.0 - costheta**2) * sin(8*R_pos/(R_inf - R_star))
+    part_3 = (1.0 - costheta**2)/(2 * param_k)
     ! ROverV = R_pos/V_pos * 1.D0/(costheta**2 * ((R_star * beta)/(R_pos-R_star)-1.0)+1.0)
     ROverV = abs(R_pos/(param_k * V_inf) * 1/(part_1 + part_2 + part_3))
     ! ROverV = R_inf / V_inf
@@ -217,7 +217,7 @@ DO ind_I = 1, nnextlines
   ! write(*,*) 'r_kappa_line: tau_line_3 = ', tau_line_3
   ! actirrates%Lline(ind_I) = tau_line
   ! IF(nextLine == 45) THEN
-  IF(pack_index < max_n_of_velopackets) THEN
+  IF(pack_index < max_n_of_velopackets .and. my_rank == 0) THEN
    write(72,*) norm2(cur_pos)/R_star, tau_line_3, actirrates%Lline(ind_I), deriv
   END IF
  

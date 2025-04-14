@@ -105,7 +105,7 @@ END SELECT
 
 ! write(*,*) 'velo: vel_vec = ', vel_vec
 IF(velocityTesting) THEN
- IF(pack_index <= max_n_of_velopackets) THEN
+ IF(my_rank == 0 .and. pack_index <= max_n_of_velopackets) THEN
   write(34,*) norm2(init_pack_pos)/R_star, norm2(vel_vec)
  END IF
 END IF
