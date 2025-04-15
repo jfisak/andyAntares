@@ -110,7 +110,7 @@ DO ind_I = 1, nnextlines
    actirrates%nline(ind_I) = indexline
    actirrates%Lline(ind_I) = 0.D0
   END IF
- ELSE IF(velApprox == 5) THEN
+ ELSE IF(velApprox == 5 .or. velApprox == 10) THEN
   cur_pos = package(pack_index)%pos
   IF(norm2(cur_pos) >= R_star .and. norm2(cur_pos) <= R_inf) THEN
    ROverV = roverw(pack_index, line_dist, fr_line)
