@@ -174,6 +174,7 @@ DO cur_propcell = my_start, my_end
    END IF ! choose_A or choose_B
     
    delta = large_number
+   best_mgi_index = -99
    DO ind_I = 1, cur_n_points
     cur_mgi = cur_points(ind_I)
     mgi_radius = model_grid(cur_mgi)%rwind
@@ -189,8 +190,13 @@ DO cur_propcell = my_start, my_end
      !  abs(mgi_theta-pgi_theta)/w_vgrid_y, delta2/R_star
     END IF
    END DO
-    dyn_cell(cur_propcell)%model_index = best_mgi_index
-    model_grid(best_mgi_index)%assoc_cells = model_grid(best_mgi_index)%assoc_cells + 1
+    IF(best_mgi_index > 0) THEN
+     dyn_cell(cur_propcell)%model_index = best_mgi_index
+     model_grid(best_mgi_index)%assoc_cells = model_grid(best_mgi_index)%assoc_cells + 1
+    ELSE IF(best_mgi_index == -99) THEN
+     dyn_cell(cur_propcell)%model_index = vacuum_index
+     model_grid(vacuum_index)%assoc_cells = model_grid(vacuum_index)%assoc_cells + 1
+    END IF
     DEALLOCATE(cur_points)
 
   ELSE IF(pgi_radius < R_star) THEN
