@@ -32,6 +32,8 @@ DOUBLE PRECISION, DIMENSION(const_dimofspace)                   :: corner, width
 INTEGER                                                         :: ind_I
 DOUBLE PRECISION, PARAMETER                     :: mininum = 1e0
 
+INTEGER                                         :: cur_cell, down_cell
+
 n_cell = (/ nx_cell, ny_cell, nz_cell /)
 
 ! bounds test
@@ -126,32 +128,36 @@ SELECT CASE(dyngrid)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CASE(1)
 ! we are looking for the given cell in dyncell tree
-actCell = dyn_cell(actCell)%up_cell
+cur_cell = dyn_cell(actCell)%up_cell
 DO
  ! did we found the given cell containing the given point?
- IF((pos(ind_x) .GE. dyn_cell(actCell)%corner(ind_x) - mininum) .AND. &
-  (pos(ind_x) .LE. dyn_cell(actCell)%corner(ind_x) + dyn_cell(actCell)%width(ind_x) + mininum) .AND. &
-    (pos(ind_y) .GE. dyn_cell(actCell)%corner(ind_y) - mininum) .AND. &
-    (pos(ind_y) .LE. dyn_cell(actCell)%corner(ind_y) + dyn_cell(actCell)%width(ind_y) + mininum) .AND. &
-    (pos(ind_z) .GE. dyn_cell(actCell)%corner(ind_z) - mininum) .AND. &
-    (pos(ind_z) .LE. dyn_cell(actCell)%corner(ind_z) + dyn_cell(actCell)%width(ind_z) + mininum)) THEN
+ IF((pos(ind_x) .GE. dyn_cell(cur_cell)%corner(ind_x) - mininum) .AND. &
+  (pos(ind_x) .LE. dyn_cell(cur_cell)%corner(ind_x) + dyn_cell(cur_cell)%width(ind_x) + mininum) .AND. &
+    (pos(ind_y) .GE. dyn_cell(cur_cell)%corner(ind_y) - mininum) .AND. &
+    (pos(ind_y) .LE. dyn_cell(cur_cell)%corner(ind_y) + dyn_cell(cur_cell)%width(ind_y) + mininum) .AND. &
+    (pos(ind_z) .GE. dyn_cell(cur_cell)%corner(ind_z) - mininum) .AND. &
+    (pos(ind_z) .LE. dyn_cell(cur_cell)%corner(ind_z) + dyn_cell(cur_cell)%width(ind_z) + mininum)) THEN
   ! we have found a cell containing the given point
   ! is this cell on the top of the dyncell tree?
-  IF(dyn_cell(actCell)%up_cell == 0) THEN
-   obtained_cell = actCell
+  IF(dyn_cell(cur_cell)%up_cell == 0) THEN
+   obtained_cell = cur_cell
    EXIT
   ! we have to move to the higher level of the dyncell tree
   ELSE
-   actCell = dyn_cell(actCell)%up_cell
+   actCell = dyn_cell(cur_cell)%up_cell
   END IF
  ! we are not in the right cell, we have to move to the next cell
  ! in the dynamical cells tree
  ELSE
-  IF(actCell + 1 .LE. dyn_cell(dyn_cell(actCell)%down_cell)%up_cell + 7) THEN
-   actCell = actCell + 1
+  IF(cur_cell + 1 .LE. dyn_cell(dyn_cell(cur_cell)%down_cell)%up_cell + 7) THEN
+   cur_cell = cur_cell + 1
   ELSE
-   write(*,*) 'find_dyn_cell1: actCell = ', actCell
-   write(*,*) 'find_dyn_cell1: up_cell = ', dyn_cell(dyn_cell(actCell)%down_cell)%up_cell
+   write(*,*) 'find_dyn_cell1: cur_cell = ', cur_cell
+   write(*,*) 'find_dyn_cell1: up_cell = ', dyn_cell(dyn_cell(cur_cell)%down_cell)%up_cell
+   down_cell = dyn_cell(cur_cell)%down_cell
+   write(*,*) 'find_dyn_cell1: corner = ', dyn_cell(down_cell)%corner/R_star
+   write(*,*) 'find_dyn_cell1: pos = ', pos/R_star
+   write(*,*) 'find_dyn_cell1: corner + width = ', (dyn_cell(down_cell)%corner+dyn_cell(down_cell)%width)/R_star
    STOP 'error in the next dynamical cell calculating'
   END IF
  END IF
