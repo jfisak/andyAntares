@@ -129,12 +129,12 @@ CASE(1)
 actCell = dyn_cell(actCell)%up_cell
 DO
  ! did we found the given cell containing the given point?
- IF((pos(ind_x) .GE. dyn_cell(actCell)%corner(ind_x)) .AND. &
-  (pos(ind_x) .LE. dyn_cell(actCell)%corner(ind_x) + dyn_cell(actCell)%width(ind_x)) .AND. &
-    (pos(ind_y) .GE. dyn_cell(actCell)%corner(ind_y)) .AND. &
-    (pos(ind_y) .LE. dyn_cell(actCell)%corner(ind_y) + dyn_cell(actCell)%width(ind_y)) .AND. &
-    (pos(ind_z) .GE. dyn_cell(actCell)%corner(ind_z)) .AND. &
-    (pos(ind_z) .LE. dyn_cell(actCell)%corner(ind_z) + dyn_cell(actCell)%width(ind_z))) THEN
+ IF((pos(ind_x) .GE. dyn_cell(actCell)%corner(ind_x) - mininum) .AND. &
+  (pos(ind_x) .LE. dyn_cell(actCell)%corner(ind_x) + dyn_cell(actCell)%width(ind_x) + mininum) .AND. &
+    (pos(ind_y) .GE. dyn_cell(actCell)%corner(ind_y) - mininum) .AND. &
+    (pos(ind_y) .LE. dyn_cell(actCell)%corner(ind_y) + dyn_cell(actCell)%width(ind_y) + mininum) .AND. &
+    (pos(ind_z) .GE. dyn_cell(actCell)%corner(ind_z) - mininum) .AND. &
+    (pos(ind_z) .LE. dyn_cell(actCell)%corner(ind_z) + dyn_cell(actCell)%width(ind_z) + mininum)) THEN
   ! we have found a cell containing the given point
   ! is this cell on the top of the dyncell tree?
   IF(dyn_cell(actCell)%up_cell == 0) THEN
@@ -150,6 +150,8 @@ DO
   IF(actCell + 1 .LE. dyn_cell(dyn_cell(actCell)%down_cell)%up_cell + 7) THEN
    actCell = actCell + 1
   ELSE
+   write(*,*) 'find_dyn_cell1: actCell = ', actCell
+   write(*,*) 'find_dyn_cell1: up_cell = ', dyn_cell(dyn_cell(actCell)%down_cell)%up_cell
    STOP 'error in the next dynamical cell calculating'
   END IF
  END IF
