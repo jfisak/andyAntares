@@ -56,6 +56,7 @@ DOUBLE PRECISION, PARAMETER                     :: param_k = 0.4
 ! testing the optical depth in line calculation
 ! DOUBLE PRECISION                                :: delta_r, delta_v, deriv2, tau_line_2
 ! DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: rad_unit1, rad_unit2, vel_vec_1, vel_vec_2
+DOUBLE PRECISION                                :: a_index, b_index, V_star
 
 ! the basic variables
 constanta = (const_pi * const_e**2)/( const_me_g * const_c)
@@ -202,12 +203,16 @@ DO ind_I = 1, nnextlines
    IF(R_pos <= R_star .or. R_pos > R_inf) THEN
     ROverV = 0.D0
    ELSE
-    part_1 = costheta**2*8.0 * R_pos/(R_inf - R_star) * cos(8*R_pos/(R_inf - R_star))
-    part_2 = (1.0 - costheta**2) * sin(8*R_pos/(R_inf - R_star))
-    part_3 = (1.0 - costheta**2)/(2 * param_k)
+    ! part_1 = costheta**2*8.0 * R_pos/(R_inf - R_star) * cos(8*R_pos/(R_inf - R_star))
+    ! part_2 = (1.0 - costheta**2) * sin(8*R_pos/(R_inf - R_star))
+    ! part_3 = (1.0 - costheta**2)/(2 * param_k)
     ! ROverV = R_pos/V_pos * 1.D0/(costheta**2 * ((R_star * beta)/(R_pos-R_star)-1.0)+1.0)
-    ROverV = abs(R_pos/(param_k * V_inf) * 1/(part_1 + part_2 + part_3))
+    ! ROverV = abs(R_pos/(param_k * V_inf) * 1/(part_1 + part_2 + part_3))
     ! ROverV = R_inf / V_inf
+    V_star = R_star/R_inf * V_inf
+    a_index = - (V_inf - V_star)/(R_inf - R_star)
+    b_index = (V_inf * R_inf - V_star * R_star)/(R_inf - R_star)
+    ROverV = abs(a_index + (1-costheta**2)*b_index/R_pos)
    END IF
    tau_line_3 = const_c / fr_line * constanta * &
     f_lu * low_pop * corrFactor * ROverV
