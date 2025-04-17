@@ -131,7 +131,7 @@ ELSE IF(velApprox == 10) THEN
   V_star = R_star/R_inf * V_inf
   a_index = - (V_inf - V_star)/(R_inf - R_star)
   b_index = (V_inf * R_inf - V_star * R_star)/(R_inf - R_star)
-  ROverW = abs(a_index + (1-costheta**2)*b_index/R_pos)
+  ROverW = (abs(a_index + (1-costheta**2)*b_index/R_pos))**(-1)
  END IF 
  
 

@@ -212,7 +212,7 @@ DO ind_I = 1, nnextlines
     V_star = R_star/R_inf * V_inf
     a_index = - (V_inf - V_star)/(R_inf - R_star)
     b_index = (V_inf * R_inf - V_star * R_star)/(R_inf - R_star)
-    ROverV = abs(a_index + (1 - costheta**2) * b_index/R_pos)
+    ROverV = (abs(a_index + (1 - costheta**2) * b_index/R_pos))**(-1)
    END IF
    tau_line_3 = const_c / fr_line * constanta * &
     f_lu * low_pop * corrFactor * ROverV
