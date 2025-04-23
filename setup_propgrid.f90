@@ -95,7 +95,7 @@ DO ind_I=1, nx_cell
    IF(ind_J == ny_cell .and. ny_cell > 1) THEN
     dyn_cell(ind_L)%width(ind_y) = ymax - dyn_cell(ind_L)%corner(ind_y)
    END IF
-   IF(ind_K == nx_cell .and. nz_cell > 1) THEN
+   IF(ind_K == nz_cell .and. nz_cell > 1) THEN
     dyn_cell(ind_L)%width(ind_z) = zmax - dyn_cell(ind_L)%corner(ind_z)
    END IF
    ! number of down cell is equal to zero

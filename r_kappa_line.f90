@@ -51,7 +51,7 @@ INTEGER                                         :: cur_dummypack, dummypack_inde
 ! testing the beta law
 DOUBLE PRECISION                                :: R_pos, V_pos, costheta
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: R_pos_vec
-DOUBLE PRECISION                                :: part_1, part_2, part_3
+! DOUBLE PRECISION                                :: part_1, part_2, part_3
 DOUBLE PRECISION, PARAMETER                     :: param_k = 0.4
 ! testing the optical depth in line calculation
 ! DOUBLE PRECISION                                :: delta_r, delta_v, deriv2, tau_line_2

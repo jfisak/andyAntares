@@ -1,3 +1,11 @@
+! calculates brtm spectrum
+!
+! INPUT: n_vpacks(INT): number of virtual packets
+!        nu_min(DBLE): minimal frequency
+!        nu_max(DBLE): maximal frequency
+!        freqs(DBLE(n_nubin)): frequencies of packets
+! OUTPUT: specflux(DBLE(n_nubin)): spectrum flux
+!
 SUBROUTINE do_brtm_spectrum(n_vpacks, nu_min, nu_max, freqs, specflux)
 
 USE types
@@ -9,16 +17,14 @@ DOUBLE PRECISION                                        :: nu_min, nu_max
 DOUBLE PRECISION, DIMENSION(n_nubin)                    :: specflux, freqs
 DOUBLE PRECISION                                        :: delta_nu, freq, delta_e
 
-INTEGER                                                 :: I, nubin
+INTEGER                                                 :: ind_I, nubin
 
 
 delta_nu = (nu_max - nu_min) / n_nubin
 
-DO I= 1, n_nubin 
- specflux(I) = 0.D0
- freqs(I) = nu_min + (I - 1) * delta_nu
- ! escs = 0
- !write(99,*) i, spectrum(i)%freq, spectrum(i)%flux
+DO ind_I= 1, n_nubin 
+ specflux(ind_I) = 0.D0
+ freqs(ind_I) = nu_min + (ind_I - 1) * delta_nu
 END DO
 
 

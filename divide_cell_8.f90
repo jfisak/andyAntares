@@ -1,5 +1,9 @@
 ! this subroutine will divide the given cell into eight smaller cells with
 ! half width
+!
+! INPUT: act_n_dyncell(INT): current index of a propGrid cell
+! INTPUT/OUTPUT: max_n_dcell(INT): number of already created propGrid cells
+!
 SUBROUTINE divide_cell_8(act_n_dyncell, max_n_dcell)
 
 USE types

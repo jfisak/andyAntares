@@ -1,3 +1,17 @@
+! gets a distance to the next event
+! possible events:
+! * rpkt_eventtype_changecell -- only change of cell
+! * rpkt_eventtype_lineinteraction -- interaction in a line
+! * rpkt_eventtype_continuum -- continuum interaction
+!
+! INPUT: pack_index(INT): index of a package
+!        cell_dist(DBLE): distance to the propGrid cell boundary
+! OUTPUT: e_dist(DBLE): distance ot the next event
+!         event(INT): the next event
+!         actirrates(rrates): rates of the transition
+!
+! 2x RETURN POINT
+!
 SUBROUTINE event_dist(pack_index, cell_dist, e_dist, event, actirrates)
 
  USE types
@@ -10,7 +24,7 @@ USE constants
  INTEGER                           :: nextLine, current_mgi
  LOGICAL                           :: do_loop
 !pointer to a field of continuum rates
- DOUBLE PRECISION                  :: e_dist, ran_numb, tau_rand, cell_dist, D
+ DOUBLE PRECISION                  :: e_dist, ran_numb, tau_rand, cell_dist, doppler_D
  DOUBLE PRECISION                  :: tau, l_dist, tau_line, tau_cont
  DOUBLE PRECISION                  :: electron_density, kappa_cont, dist
  DOUBLE PRECISION, PARAMETER       :: largeNumber = 1.D20
@@ -61,6 +75,7 @@ END DO
  IF(current_mgi > n_modelgrid) THEN
   event = rpkt_eventtype_changecell
   e_dist = cell_dist + largeNumber
+  ! RETURN POINT
   RETURN
  END IF
 
@@ -72,8 +87,8 @@ END DO
 
  ! This is the opacity in co-moving frame. Must be transformed to the lab frame
  ! According to Mihalas and Mihalas Eq. 90.8 this is achieved by 
- CALL doppler_factor(pack_index, D)
- kappa_cont = D * kappa_cont
+ CALL doppler_factor(pack_index, doppler_D)
+ kappa_cont = doppler_D * kappa_cont
  ! write(*,*) 'event_dist: kappa_cont = ', kappa_cont
 
  ! initialization of n_next_lines to be equal to one

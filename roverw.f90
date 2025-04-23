@@ -122,6 +122,7 @@ ELSE IF(velApprox == 3) THEN
  write(*,*) 'roverw: this calculation is implemented into the sbr r_kappa_line'
  STOP 'roverw: exiting'
 ELSE IF(velApprox == 10) THEN
+ R_pos = norm2(package(pack_index)%pos)
  IF(R_pos <= R_star .or. R_pos > R_inf) THEN
   ROverW = 0.D0
  ELSE
