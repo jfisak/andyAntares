@@ -1,13 +1,14 @@
 ! a basic sbr for the initialization of the backward ray tracing method
 SUBROUTINE brtm()
 
+USE MPI
 USE types
 USE constants
 IMPLICIT NONE
 
 DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: obs_point, ccd_point, ccd_centre
 INTEGER                                                 :: cur_vpack
-INTEGER, PARAMETER                                      :: Nvpackets = 500
+INTEGER, PARAMETER                                      :: Nvpackets = 10000
 ! number of packet flown into the photosphere
 INTEGER                                                 :: n_inside, n_outside
 DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: cur_pos, cur_direction
@@ -26,13 +27,22 @@ DOUBLE PRECISION                                        :: det_lu, det_lv
 DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: det_vec_u, det_vec_v
 DOUBLE PRECISION                                        :: det_cell_wu, det_cell_wv
 DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: uvmin
-DOUBLE PRECISION, ALLOCATABLE                           :: det_matrix(:,:), det_spectra(:,:)
+DOUBLE PRECISION, ALLOCATABLE                           :: det_matrix(:,:), det_spectra(:,:), det_sending(:,:)
 
 INTEGER                                                 :: my_ccd_start, my_ccd_end
 INTEGER                                                 :: N_single, N_zbytek
 
 DOUBLE PRECISION                                        :: ccdc_phi, ccdc_rad, ccdc_theta
 DOUBLE PRECISION                                        :: obs_ccd_dist
+
+DOUBLE PRECISION, DIMENSION(n_nubin)                    :: specflux, sendflux
+DOUBLE PRECISION                                        :: delta_nu, delta_e, freq
+INTEGER                                                 :: ind_I, nubin, pack_index
+DOUBLE PRECISION                                        :: rand_u, rand_v
+INTEGER                                                 :: N_tot_zbytek
+
+
+
 
 write(99,*) '___________________________________________________________________'
 write(99,*) '___________________________________________________________________'
@@ -51,16 +61,23 @@ nu_min = const_c / (wale_end * 1.D-8)
 
 ! a temporary definition of a detector
 ! number of points in each CCD chip
-det_nu = 10
-det_nv = 10
+det_nu = 100
+det_nv = 100
 det_tot_nuv = det_nu * det_nv
 
 ! a size of a detector
 det_lu = 5.0
 det_lv = 5.0
 
+delta_nu = (nu_max - nu_min) / n_nubin
 
-ALLOCATE(det_matrix(det_nu, det_nv), det_spectra(det_tot_nuv, n_nubin))
+sendflux(:) = 0.D0
+DO ind_I= 1, n_nubin 
+ freqs(ind_I) = nu_min + (ind_I - 1) * delta_nu
+END DO
+
+ALLOCATE(det_sending(det_nu, det_nv), det_matrix(det_nu, det_nv))!, det_spectra(det_tot_nuv, n_nubin))
+det_sending(:,:) = 0.D0
 ! observing point
 ! obs_point = (/ -R_inf  ,  0.D0,  0.D0 /)
 obs_ccd_dist = 0.2*sqrt(det_lu**2+det_lv**2)
@@ -113,15 +130,19 @@ uvmin = ccd_centre - 0.5D00 * (det_vec_u * det_lu + det_vec_v * det_lv)
 #if mpi == 1
  N_single = det_tot_nuv/n_tasks
  N_zbytek = det_tot_nuv - n_tasks * N_single
+ IF(N_zbytek /= 0) N_tot_zbytek = (N_zbytek + 1) * (N_single + 1) + N_zbytek
  IF(my_rank <= N_zbytek - 1) THEN
-  my_ccd_start = my_rank * (N_single + 1) + 1
-  my_ccd_end = my_rank * (N_single + 1) + N_single
+  my_ccd_start = my_rank * (N_single + 1) + my_rank
+  my_ccd_end = (my_rank + 1) * (N_single + 1) + N_single
  ELSE IF(N_zbytek == 0) THEN
-  my_ccd_start = my_rank * (N_single + 1) + 1
-  my_ccd_end = my_rank * (N_single + 1) + N_single
- ELSE
-  my_ccd_start = N_zbytek * (N_single + 1) + (my_rank - N_zbytek - 1) * N_single + 1
-  my_ccd_end = N_zbytek * (N_single + 1) + (my_rank - N_zbytek - 1) * N_single + N_single +1
+  my_ccd_start = my_rank * N_single + 1
+  my_ccd_end = (my_rank + 1) * N_single
+ ELSE IF(my_rank > N_zbytek - 1) THEN
+  my_ccd_start = N_tot_zbytek + 1 + (my_rank - N_zbytek) * N_single + (my_rank - N_zbytek)
+  my_ccd_end = N_tot_zbytek + 1 + (my_rank - N_zbytek + 1) * N_single + (my_rank - N_zbytek)
+ END IF
+ IF(my_rank == n_tasks - 1) THEN
+  my_ccd_end = det_tot_nuv
  END IF
 #else
  my_ccd_start = 1
@@ -135,8 +156,10 @@ DO cur_ccd = my_ccd_start, my_ccd_end
  det_cur_nv = INT((cur_ccd - 1)/det_nu) + 1
  det_cur_nu = INT(cur_ccd - (det_cur_nv -1) * det_nu)
  
- ccd_point = uvmin + det_cell_wu * det_vec_u * (det_cur_nu - 0.5D0) + &
-   & det_cell_wv * det_vec_v * (det_cur_nv - 0.5D0)
+ rand_u = ran2(idum) * det_cell_wu
+ rand_v = ran2(idum) * det_cell_wv
+ ccd_point = uvmin + det_cell_wu * det_vec_u * (det_cur_nu - 1 + rand_u) + &
+   & det_cell_wv * det_vec_v * (det_cur_nv - 1 + rand_v)
  
  write(*,*) 'brtm: ccd_point = ', ccd_point(ind_y) - ccd_centre(ind_y), ccd_point(ind_z) - ccd_centre(ind_z)
 
@@ -144,13 +167,6 @@ DO cur_ccd = my_ccd_start, my_ccd_end
  write(46,*) obs_point, ccd_point - obs_point
  write(47,*) ccd_point
 
-
-! END DO  
-!  ! ccd_point = 
-! 
-! STOP 'brtm: testing'
-!  
-! DO 
  n_inside = 0
  n_outside = 0
  
@@ -196,7 +212,23 @@ DO cur_ccd = my_ccd_start, my_ccd_end
  END DO ! a loop over virtual packets
  write(*,*) 'brtm: det_cur_nv = ', det_cur_nv, ' det_cur_nu = ', det_cur_nu, ' n_inside = ', n_inside, ' n_outside = ', n_outside
  
- CALL do_brtm_spectrum(Nvpackets, nu_min, nu_max, freqs, cur_spectrum)
+ det_sending(det_cur_nu, det_cur_nv) = DBLE(n_inside)/DBLE(det_tot_nuv)
+ ! CALL do_brtm_spectrum(Nvpackets, nu_min, nu_max, freqs, cur_spectrum, ccd_centre, det_nu, det_nv)
+ DO pack_index = 1, Nvpackets
+  ! And take all which actually escaped
+  ! write(*,*) 'do_spectrum: pack_index = ', pack_index, ' typ = ', package(pack_index)%typ
+  IF(package(pack_index)%typ == type_photosphere) THEN
+   freq = package(pack_index)%freq_rf
+   ! Only bin those packets which are in the allowed frequency range
+   IF ((freq > nu_min) .AND. (freq < nu_max)) THEN
+    nubin = floor( (freq - nu_min) / delta_nu ) + 1
+    ! put the star to 100 parsecs
+    delta_e = package(pack_index)%e_rf * 4.0/const_pi * (norm2(obs_point)**2 * det_nu * det_nv)
+    ! write(*,*) 'do_spectrum: e_rf = ', package(pack_index)%e_rf
+    sendflux(nubin) = sendflux(nubin) + delta_e
+   ENDIF
+  END IF
+ END DO
  
  ! saving output
  ! saving a temporary spectrum into a variable
@@ -205,17 +237,34 @@ DO cur_ccd = my_ccd_start, my_ccd_end
  ! END DO
 
  ! calculation the absorbed/sent ratio
- det_matrix(det_cur_nu, det_cur_nv) = DBLE(n_inside)/DBLE(det_tot_nuv)
 
  ! cleaning procedures
  DEALLOCATE(package)
 
 END DO ! loop over detector cells
 
+IF(n_tasks > 1) THEN
+ ! DO ind_I = 1, det_nu
+  CALL MPI_ALLREDUCE(det_sending(1:det_nu,1:det_nv), det_matrix(1:det_nu,1:det_nv), det_nu * det_nv, MPI_DOUBLE, MPI_SUM, &
+  mpi_comm_world, ierr)
+ ! END DO
+ CALL MPI_ALLREDUCE(sendflux(:), specflux(:), n_nubin, MPI_DOUBLE, MPI_SUM, &
+  mpi_comm_world, ierr)
+END IF
 OPEN(449,FILE='ccd_matrix.dat')
 DO cur_nu = 1, det_nu
  write(449,*) det_matrix(cur_nu,:)
 END DO
 CLOSE(449)
+
+OPEN(450, FILE='ccd_spectrum.dat')
+ DO ind_I = 1, n_nubin
+  write(450, *) 1.D8 * const_c/freqs(ind_I), specflux(ind_I)
+ END DO
+CLOSE(450)
+
+
+
+
 
 END SUBROUTINE brtm

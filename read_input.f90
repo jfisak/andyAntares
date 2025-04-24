@@ -264,6 +264,7 @@ USE constants
      READ (ACTPAR, '(A)', ERR=94) cur_calcmode
      IF(cur_calcmode .EQ. 'oneline') oneline = .true.
      IF(cur_calcmode .EQ. 'multiline') oneline = .false.
+     IF(cur_calcmode .EQ. 'brtm') only_brtm = .true.
     ! 027 a filename including data of the line
     ELSE IF (ACTPAR .EQ. 'linefile') THEN
      CALL SARGC (LINE, NPAR)

@@ -151,6 +151,8 @@ saha_const = 5.D-1 * (const_h**2/(2.0*const_pi*const_me_g*const_kB))**1.5
 ! 5 -- line interactions
 debug = 0
 
+
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -366,7 +368,7 @@ CLOSE(2)
 CLOSE(99)
 
 IF(debug == 3) write(*,*) 'main: calling backward ray-tracing method'
-! IF(calc_brtm) CALL brtm()
+IF(calc_brtm) CALL brtm()
 
 #if mpi==1
  IF(debug == 3) write(*,*) 'calling mpi_finalize'

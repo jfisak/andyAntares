@@ -146,7 +146,7 @@ SAVE
   ! brtm activation
   LOGICAL                            :: calc_brtm
   ! onle line mode
-  LOGICAL                            :: oneline
+  LOGICAL                            :: oneline, only_brtm
 
 ! fields for the given types
   TYPE(modelgrid), ALLOCATABLE       :: model_grid(:)
