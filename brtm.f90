@@ -8,7 +8,7 @@ IMPLICIT NONE
 
 DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: obs_point, ccd_point, ccd_centre
 INTEGER                                                 :: cur_vpack
-INTEGER, PARAMETER                                      :: Nvpackets = 10000
+INTEGER, PARAMETER                                      :: Nvpackets = 500000
 ! number of packet flown into the photosphere
 INTEGER                                                 :: n_inside, n_outside
 DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: cur_pos, cur_direction
