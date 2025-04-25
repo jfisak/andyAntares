@@ -276,9 +276,9 @@ ELSE IF(e_dist > cell_dist) THEN
    cur_corner = dyn_cell(cur_pgi)%corner
    cur_pos = package(pack_index)%pos
    delta_r = (cur_corner - cur_pos)/NORM2(cur_corner - cur_pos)
-   write(*,*) sign(1.D0, package(pack_index)%dir(ind_x))
-   write(*,*) sign(1.D0, package(pack_index)%dir(ind_y))
-   write(*,*) sign(1.D0, package(pack_index)%dir(ind_z))
+   ! write(*,*) sign(1.D0, package(pack_index)%dir(ind_x))
+   ! write(*,*) sign(1.D0, package(pack_index)%dir(ind_y))
+   ! write(*,*) sign(1.D0, package(pack_index)%dir(ind_z))
    if(delta_r(ind_x) == 0.D0) delta_r(ind_x) = 1.D1
    if(delta_r(ind_y) == 0.D0) delta_r(ind_y) = 1.D1
    if(delta_r(ind_z) == 0.D0) delta_r(ind_z) = 1.D1
