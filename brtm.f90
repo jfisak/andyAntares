@@ -8,7 +8,7 @@ IMPLICIT NONE
 
 DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: obs_point, ccd_point, ccd_centre
 INTEGER                                                 :: cur_vpack
-INTEGER, PARAMETER                                      :: Nvpackets = 500000
+INTEGER, PARAMETER                                      :: Nvpackets = 50000
 ! number of packet flown into the photosphere
 INTEGER                                                 :: n_inside, n_outside
 DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: cur_pos, cur_direction
@@ -40,6 +40,9 @@ DOUBLE PRECISION                                        :: delta_nu, delta_e, fr
 INTEGER                                                 :: ind_I, nubin, pack_index
 DOUBLE PRECISION                                        :: rand_u, rand_v
 INTEGER                                                 :: N_tot_zbytek
+LOGICAL                                                 :: ccd_mode
+INTEGER                                                 :: n_crossed
+INTEGER, PARAMETER                                      :: max_n_crossed = 1000000
 
 
 
@@ -53,8 +56,10 @@ write(99,*) '___________________________________________________________________
 ! to start calculations we have to deallocate the package array firstly
 DEALLOCATE(package)
 
-wale_start = 200   ! in Angstroms
-wale_end = 400   ! in Angstroms
+ccd_mode = .true.
+
+wale_start = 6000   ! in Angstroms
+wale_end = 7000   ! in Angstroms
 
 nu_max = const_c / (wale_start * 1.D-8)
 nu_min = const_c / (wale_end * 1.D-8)
@@ -83,13 +88,13 @@ det_sending(:,:) = 0.D0
 obs_ccd_dist = 0.2*sqrt(det_lu**2+det_lv**2)
 ! ccd_centre = (/ -R_inf/2.0,  R_inf/2.D0,  R_inf/4.D0 /)
 ccd_centre = (/ -0.25*R_inf,  -.25*R_inf,  -.25*R_inf /)
-write(48,*) ccd_centre
+! write(48,*) ccd_centre
 obs_point = ccd_centre + obs_ccd_dist * ccd_centre/norm2(ccd_centre)
 ! write(48,*) obs_point
 
 ccdc_rad = sqrt(ccd_centre(ind_x)**2+ccd_centre(ind_y)**2+ccd_centre(ind_z))
 ccdc_theta = acos(ccd_centre(ind_z)/ccdc_rad)
-write(*,*) 'brtm: ccdc_rad = ', ccdc_rad, ' ccdc_theta = ', ccdc_theta
+! write(*,*) 'brtm: ccdc_rad = ', ccdc_rad, ' ccdc_theta = ', ccdc_theta
 ! phi is more complicated to calculate
 IF(ccd_centre(ind_x) > 0.0) THEN
  ccdc_phi = atan(ccd_centre(ind_y)/ccd_centre(ind_x))
@@ -107,7 +112,7 @@ ELSE IF(ccd_centre(ind_x) < 0.0) THEN
  END IF
 END IF
 
-write(*,*) 'brtm: ccdc_rad = ', ccdc_rad/R_star, ' ccdc_phi = ', ccdc_phi, ' ccdc_theta = ', ccdc_theta
+! write(*,*) 'brtm: ccdc_rad = ', ccdc_rad/R_star, ' ccdc_phi = ', ccdc_phi, ' ccdc_theta = ', ccdc_theta
 
 
 
@@ -119,8 +124,8 @@ det_vec_v = (/ -sin(ccdc_phi), cos(ccdc_phi), 0.D0 /)
 ! write(31,*) ccd_centre, det_vec_v
 ! write(31,*) ccd_centre, ccd_centre
 ! a size of a single cell
-det_cell_wu = det_lv / DBLE(det_nu)
-det_cell_wv = det_lu / DBLE(det_nv)
+det_cell_wu = det_lu / DBLE(det_nu)
+det_cell_wv = det_lv / DBLE(det_nv)
 
 ! lower coordinates of a ccd chip
 uvmin = ccd_centre - 0.5D00 * (det_vec_u * det_lu + det_vec_v * det_lv)
@@ -148,24 +153,44 @@ uvmin = ccd_centre - 0.5D00 * (det_vec_u * det_lu + det_vec_v * det_lv)
  my_ccd_start = 1
  my_ccd_end = det_tot_nuv
 #endif
-write(*,*) 'brtm: N_single = ', N_single, ' N_zbytek = ', N_zbytek
-write(*,*) 'brtm: my_ccd_start = ', my_ccd_start, ' my_ccd_end = ', my_ccd_end
+! write(*,*) 'brtm: N_single = ', N_single, ' N_zbytek = ', N_zbytek
+! write(*,*) 'brtm: my_ccd_start = ', my_ccd_start, ' my_ccd_end = ', my_ccd_end
 ! then one by one we will be sending packets through the CCD chip
-DO cur_ccd = my_ccd_start, my_ccd_end
+cur_ccd = 0
+DO 
+ ! 
+ IF(ccd_mode) THEN
+  IF(cur_ccd == 0) THEN
+   cur_ccd = my_ccd_start
+  ELSE IF(cur_ccd >= my_ccd_start .and. cur_ccd < my_ccd_end) THEN
+   cur_ccd = cur_ccd + 1
+  ELSE IF(cur_ccd == my_ccd_end) THEN
+   exit
+  END IF
+  rand_u = ran2(idum) * det_cell_wu
+  rand_v = ran2(idum) * det_cell_wv
+  ccd_point = uvmin + det_cell_wu * det_vec_u * (det_cur_nu - 1 + rand_u) + &
+    & det_cell_wv * det_vec_v * (det_cur_nv - 1 + rand_v)
+ ELSE
+  IF(n_crossed < max_n_crossed) THEN
+   rand_u = ran2(idum) * det_lu
+   rand_v = ran2(idum) * det_lv
+   ccd_point = uvmin + det_vec_u * rand_u + &
+     &  det_vec_v * rand_v
+  ELSE IF(n_crossed == max_n_crossed) THEN
+   EXIT
+  END IF
+ END IF
  ! write(*,*) 'brtm: cur_ccd = ', cur_ccd
  det_cur_nv = INT((cur_ccd - 1)/det_nu) + 1
  det_cur_nu = INT(cur_ccd - (det_cur_nv -1) * det_nu)
  
- rand_u = ran2(idum) * det_cell_wu
- rand_v = ran2(idum) * det_cell_wv
- ccd_point = uvmin + det_cell_wu * det_vec_u * (det_cur_nu - 1 + rand_u) + &
-   & det_cell_wv * det_vec_v * (det_cur_nv - 1 + rand_v)
  
- write(*,*) 'brtm: ccd_point = ', ccd_point(ind_y) - ccd_centre(ind_y), ccd_point(ind_z) - ccd_centre(ind_z)
+ ! write(*,*) 'brtm: ccd_point = ', ccd_point(ind_y) - ccd_centre(ind_y), ccd_point(ind_z) - ccd_centre(ind_z)
 
  cur_direction = (ccd_point - obs_point)/norm2(ccd_point - obs_point)
- write(46,*) obs_point, ccd_point - obs_point
- write(47,*) ccd_point
+ ! write(46,*) obs_point, ccd_point - obs_point
+ ! write(47,*) ccd_point
 
  n_inside = 0
  n_outside = 0
@@ -210,7 +235,7 @@ DO cur_ccd = my_ccd_start, my_ccd_end
   
  
  END DO ! a loop over virtual packets
- write(*,*) 'brtm: det_cur_nv = ', det_cur_nv, ' det_cur_nu = ', det_cur_nu, ' n_inside = ', n_inside, ' n_outside = ', n_outside
+ ! write(*,*) 'brtm: det_cur_nv = ', det_cur_nv, ' det_cur_nu = ', det_cur_nu, ' n_inside = ', n_inside, ' n_outside = ', n_outside
  
  det_sending(det_cur_nu, det_cur_nv) = DBLE(n_inside)/DBLE(det_tot_nuv)
  ! CALL do_brtm_spectrum(Nvpackets, nu_min, nu_max, freqs, cur_spectrum, ccd_centre, det_nu, det_nv)
@@ -251,18 +276,19 @@ IF(n_tasks > 1) THEN
  CALL MPI_ALLREDUCE(sendflux(:), specflux(:), n_nubin, MPI_DOUBLE, MPI_SUM, &
   mpi_comm_world, ierr)
 END IF
-OPEN(449,FILE='ccd_matrix.dat')
-DO cur_nu = 1, det_nu
- write(449,*) det_matrix(cur_nu,:)
-END DO
-CLOSE(449)
-
-OPEN(450, FILE='ccd_spectrum.dat')
- DO ind_I = 1, n_nubin
-  write(450, *) 1.D8 * const_c/freqs(ind_I), specflux(ind_I)
+IF(my_rank == 0) THEN
+ OPEN(449,FILE='ccd_matrix.dat')
+ DO cur_nu = 1, det_nu
+  write(449,*) det_matrix(cur_nu,:)
  END DO
-CLOSE(450)
-
+ CLOSE(449)
+ 
+ OPEN(450, FILE='ccd_spectrum.dat')
+  DO ind_I = 1, n_nubin
+   write(450, *) 1.D8 * const_c/freqs(ind_I), specflux(ind_I)
+  END DO
+ CLOSE(450)
+END IF
 
 
 
