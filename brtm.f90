@@ -1,4 +1,8 @@
 ! a basic sbr for the initialization of the backward ray tracing method
+!
+! INPUT: NONE
+! OUTPUT: NONE
+! 
 SUBROUTINE brtm()
 
 USE MPI
@@ -41,8 +45,8 @@ INTEGER                                                 :: ind_I, nubin, pack_in
 DOUBLE PRECISION                                        :: rand_u, rand_v
 INTEGER                                                 :: N_tot_zbytek
 LOGICAL                                                 :: ccd_mode
-INTEGER                                                 :: n_crossed
-INTEGER, PARAMETER                                      :: max_n_crossed = 1000000
+INTEGER                                                 :: n_crossed, n_vpacks
+INTEGER, PARAMETER                                      :: max_n_crossed = 2000000
 
 
 
@@ -56,7 +60,7 @@ write(99,*) '___________________________________________________________________
 ! to start calculations we have to deallocate the package array firstly
 DEALLOCATE(package)
 
-ccd_mode = .true.
+ccd_mode = .false.
 
 wale_start = 6000   ! in Angstroms
 wale_end = 7000   ! in Angstroms
@@ -157,9 +161,11 @@ uvmin = ccd_centre - 0.5D00 * (det_vec_u * det_lu + det_vec_v * det_lv)
 ! write(*,*) 'brtm: my_ccd_start = ', my_ccd_start, ' my_ccd_end = ', my_ccd_end
 ! then one by one we will be sending packets through the CCD chip
 cur_ccd = 0
+n_crossed = 0
+n_vpacks = 0
 DO 
- ! 
- IF(ccd_mode) THEN
+ ! conditions to stop the loop according to the current computing mode
+ IF(ccd_mode) THEN ! going along the ccd detector one point by one
   IF(cur_ccd == 0) THEN
    cur_ccd = my_ccd_start
   ELSE IF(cur_ccd >= my_ccd_start .and. cur_ccd < my_ccd_end) THEN
@@ -171,19 +177,15 @@ DO
   rand_v = ran2(idum) * det_cell_wv
   ccd_point = uvmin + det_cell_wu * det_vec_u * (det_cur_nu - 1 + rand_u) + &
     & det_cell_wv * det_vec_v * (det_cur_nv - 1 + rand_v)
- ELSE
-  IF(n_crossed < max_n_crossed) THEN
-   rand_u = ran2(idum) * det_lu
-   rand_v = ran2(idum) * det_lv
-   ccd_point = uvmin + det_vec_u * rand_u + &
-     &  det_vec_v * rand_v
-  ELSE IF(n_crossed == max_n_crossed) THEN
+  det_cur_nv = INT((cur_ccd - 1)/det_nu) + 1
+  det_cur_nu = INT(cur_ccd - (det_cur_nv -1) * det_nu)
+ ELSE ! random positions in the detector, the calculation is stopped until a critical
+      ! number of packets crossing the photosphere is reached
+  IF(n_crossed >= max_n_crossed) THEN
    EXIT
   END IF
  END IF
  ! write(*,*) 'brtm: cur_ccd = ', cur_ccd
- det_cur_nv = INT((cur_ccd - 1)/det_nu) + 1
- det_cur_nu = INT(cur_ccd - (det_cur_nv -1) * det_nu)
  
  
  ! write(*,*) 'brtm: ccd_point = ', ccd_point(ind_y) - ccd_centre(ind_y), ccd_point(ind_z) - ccd_centre(ind_z)
@@ -197,8 +199,21 @@ DO
  
  ALLOCATE(package(Nvpackets + 1))
  
+ write(*,*) 'brtm: n_crossed = ', n_crossed
  
  DO cur_vpack = 1, Nvpackets
+  n_vpacks = n_vpacks + 1
+  IF(.not. ccd_mode) THEN
+   rand_u = ran2(idum) * det_lu
+   rand_v = ran2(idum) * det_lv
+   ! write(*,*) 'brtm: rand_u = ', rand_u, ' rand_v = ', rand_v
+   ccd_point = uvmin + det_vec_u * rand_u + &
+     &  det_vec_v * rand_v
+   det_cur_nv = FLOOR(rand_u/det_lu * det_nu) + 1
+   det_cur_nu = FLOOR(rand_v/det_lv * det_nv) + 1
+   ! write(*,*) 'brtm: ccd_point = ', (ccd_point - uvmin)/det_cell_wu
+   ! write(*,*) 'brtm: det_cur_nv = ', det_cur_nv, ' det_cur_nu = ', det_cur_nu
+  END IF
  
   if(procout) write(*,*) 'brtm: processing the v-packet: cur_vpack = ', cur_vpack
   ! a basic initialisation of a packet
@@ -228,16 +243,22 @@ DO
   IF(norm2(cur_pos) < R_star) THEN
    n_inside = n_inside + 1
    package(cur_vpack)%typ = type_photosphere
+   n_crossed = n_crossed + 1
   ELSE
    n_outside = n_outside + 1
    package(cur_vpack)%typ = type_escaped
   END IF
   
+  IF(.not. ccd_mode) THEN
+   det_sending(det_cur_nu, det_cur_nv) = DBLE(n_crossed)/DBLE(n_vpacks)
+  END IF
  
  END DO ! a loop over virtual packets
  ! write(*,*) 'brtm: det_cur_nv = ', det_cur_nv, ' det_cur_nu = ', det_cur_nu, ' n_inside = ', n_inside, ' n_outside = ', n_outside
  
- det_sending(det_cur_nu, det_cur_nv) = DBLE(n_inside)/DBLE(det_tot_nuv)
+ IF(ccd_mode) THEN
+  det_sending(det_cur_nu, det_cur_nv) = DBLE(n_inside)/DBLE(n_vpacks)
+ END IF
  ! CALL do_brtm_spectrum(Nvpackets, nu_min, nu_max, freqs, cur_spectrum, ccd_centre, det_nu, det_nv)
  DO pack_index = 1, Nvpackets
   ! And take all which actually escaped
@@ -275,6 +296,7 @@ IF(n_tasks > 1) THEN
  ! END DO
  CALL MPI_ALLREDUCE(sendflux(:), specflux(:), n_nubin, MPI_DOUBLE, MPI_SUM, &
   mpi_comm_world, ierr)
+ det_matrix(1:det_nu,1:det_nv) = det_matrix(1:det_nu,1:det_nv)/n_tasks
 END IF
 IF(my_rank == 0) THEN
  OPEN(449,FILE='ccd_matrix.dat')
