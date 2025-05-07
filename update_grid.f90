@@ -36,7 +36,7 @@ write(99,*) 'updating grid'
  IF(N_zbytek /= 0) N_tot_zbytek = (N_zbytek + 1) * (N_single + 1) + N_zbytek
  write(*,*) 'update_grid: N_single = ', N_single, ' N_zbytek = ', N_zbytek
  IF(my_rank <= N_zbytek - 1) THEN
-  my_start = my_rank * (N_single + 1) + my_rank
+  my_start = my_rank * (N_single + 1) + my_rank + 1
   my_end = (my_rank + 1) * (N_single + 1) + N_single
  ELSE IF(N_zbytek == 0) THEN
   my_start = my_rank * N_single + 1
@@ -53,8 +53,8 @@ write(99,*) 'updating grid'
  my_end = n_modelgrid
 #endif
 
-! write(*,*) 'update_grid: my_rank = ', my_rank, ' n_modelgrid = ', n_modelgrid
-! write(*,*) 'update_grid: my_start = ', my_start, ' my_end = ', my_end
+write(*,*) 'update_grid: my_rank = ', my_rank, ' n_modelgrid = ', n_modelgrid
+write(*,*) 'update_grid: my_start = ', my_start, ' my_end = ', my_end
 CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
 
 DO cur_mgi = my_start, my_end
