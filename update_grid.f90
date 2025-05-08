@@ -24,10 +24,11 @@ CHARACTER(filename_length)                           :: propmod_file
 INTEGER                                 :: cur_n_assoccells
 ! DOUBLE PRECISION                        :: test_temp
 
-DOUBLE PRECISION, DIMENSION(n_modelgrid + add_mg)    :: cur_j, cur_temp
+DOUBLE PRECISION, DIMENSION(n_modelgrid + add_mg)    :: cur_j, cur_temp, cur_e_dens
 
 cur_j(:) = 0.D0
 cur_temp(:) = 0.D0
+cur_e_dens(:) = 0.D0
   
 write(99,*) 'updating grid'
 #if mpi == 1
@@ -66,7 +67,7 @@ DO cur_mgi = my_start, my_end
    ! Calculate electron number density for every model grid cell gridcell
    IF(eldensfile == 0) THEN
     CALL find_e_nd(cur_mgi, el_nd)
-    model_grid(cur_mgi)%e_dens = el_nd
+    cur_e_dens(cur_mgi) = el_nd
    END IF
    ! reading the temperature structure
    cur_temp(cur_mgi) = model_grid(cur_mgi)%T
@@ -77,8 +78,8 @@ DO cur_mgi = my_start, my_end
    cur_temp(cur_mgi)  = temp
    ! Calculate electron number density for every model grid cell gridcell
    CALL find_e_nd(cur_mgi, el_nd)
-   model_grid(cur_mgi)%e_dens = el_nd
-   model_grid(cur_mgi)%J = 0.D0   
+   cur_e_dens(cur_mgi) = el_nd
+   cur_J(cur_mgi) = 0.D0   
   END IF ! test for the first iteration
   write(propmod_file,"(A, A12)") TRIM(outputfolder), '/propmod.dat'
   INQUIRE(FILE=propmod_file, EXIST=propmod_file_exists)
@@ -115,13 +116,17 @@ END DO
 ! END DO
 
  IF(n_tasks > 1) THEN
-  CALL MPI_ALLREDUCE(model_grid(:)%j, model_grid(:)%j, n_modelgrid + add_mg, &
+  CALL MPI_ALLREDUCE(cur_j(:), model_grid(:)%j, n_modelgrid + add_mg, &
    MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
-  CALL MPI_ALLREDUCE(model_grid(:)%T, model_grid(:)%T, n_modelgrid + add_mg, &
+  CALL MPI_ALLREDUCE(cur_temp(:), model_grid(:)%T, n_modelgrid + add_mg, &
    MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
-  CALL MPI_ALLREDUCE(model_grid(:)%e_dens, model_grid(:)%e_dens, n_modelgrid + add_mg, &
+  CALL MPI_ALLREDUCE(cur_e_dens(:), model_grid(:)%e_dens, n_modelgrid + add_mg, &
    MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
   CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
+ ELSE IF(n_tasks == 1) THEN
+  model_grid(:)%j = cur_j(:)
+  model_grid(:)%T = cur_temp(:)
+  model_grid(:)%e_dens = cur_e_dens(:)
  END IF
 #endif
 
