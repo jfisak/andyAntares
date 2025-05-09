@@ -25,10 +25,14 @@ INTEGER                                 :: cur_n_assoccells
 ! DOUBLE PRECISION                        :: test_temp
 
 DOUBLE PRECISION, DIMENSION(n_modelgrid + add_mg)    :: cur_j, cur_temp, cur_e_dens
+DOUBLE PRECISION, DIMENSION(n_modelgrid + add_mg)    :: recv_j, recv_temp, recv_e_dens
 
 cur_j(:) = 0.D0
+recv_j(:) = 0.D0
 cur_temp(:) = 0.D0
+recv_temp(:) = 0.D0
 cur_e_dens(:) = 0.D0
+recv_e_dens(:) = 0.D0
   
 write(99,*) 'updating grid'
 #if mpi == 1
@@ -116,13 +120,16 @@ END DO
 ! END DO
 
  IF(n_tasks > 1) THEN
-  CALL MPI_ALLREDUCE(cur_j(:), model_grid(:)%j, n_modelgrid + add_mg, &
+  CALL MPI_ALLREDUCE(cur_j(:), recv_j(:), n_modelgrid + add_mg, &
    MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
-  CALL MPI_ALLREDUCE(cur_temp(:), model_grid(:)%T, n_modelgrid + add_mg, &
+  CALL MPI_ALLREDUCE(cur_temp(:), recv_temp(:), n_modelgrid + add_mg, &
    MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
-  CALL MPI_ALLREDUCE(cur_e_dens(:), model_grid(:)%e_dens, n_modelgrid + add_mg, &
+  CALL MPI_ALLREDUCE(cur_e_dens(:), recv_e_dens(:), n_modelgrid + add_mg, &
    MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
   CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
+  model_grid(:)%j = recv_j(:)
+  model_grid(:)%T = recv_temp(:)
+  model_grid(:)%e_dens = recv_e_dens(:)
  ELSE IF(n_tasks == 1) THEN
   model_grid(:)%j = cur_j(:)
   model_grid(:)%T = cur_temp(:)
