@@ -99,6 +99,39 @@ SELECT CASE(model_type)
   ELSE IF(mod_index == vacuum_index) THEN ! special treatment for vacuum cells
    vel_vec = (/-2.0, -3.0, -5.0/)
   END IF
+ !________________________________________________________
+ ! 1D model with radial velocity and tangential velocity
+ CASE(6)
+  vr = model_grid(mod_index)%vel
+  vtheta = model_grid(mod_index)%velang
+
+  coor_x = pos(ind_x)
+  coor_y = pos(ind_y)
+  coor_z = pos(ind_z)
+
+  ! cosphi = coor_y / norm2(pos)
+  ! sinphi = coor_x / norm2(pos)
+  
+  radius = norm2(pos)
+  theta = acos(coor_z/radius)
+  phi = atan2(coor_y,coor_x)
+
+  sintheta = sin(theta)
+  costheta = cos(theta)
+  sinphi = sin(phi)
+  cosphi = cos(phi)
+
+
+  ! vel_vec(ind_x) = vr * costheta * cosphi - vtheta * cosphi
+  vel_vec(ind_x) = vr * sintheta * cosphi + vtheta * costheta * cosphi 
+  vel_vec(ind_y) = vr * sintheta * sinphi + vtheta * costheta * sinphi
+  vel_vec(ind_z) = vr * costheta - vtheta * sintheta
+
+
+  ! vel_vec(ind_y) = vr * costheta * sinphi - vtheta * sinphi
+  ! vel_vec(ind_z) = vr * sintheta
+ 
+ !________________________________________________________
  CASE DEFAULT
  write(*,*) 'velo_vector: the choice of model_type = ', model_type, ' is not known...'
  STOP

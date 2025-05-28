@@ -270,6 +270,8 @@ SELECT CASE (inputModel)
  CASE(3)
   write(*,*) 'read_1D_araya: reading 1D araya'
   CALL read_1D_araya()
+ CASE(4)
+  CALL read_1D_dwap()
  CASE DEFAULT
   write(99,*) 'the choice of the variable inputModel = ', inputModel, 'is not known...'
   STOP 'ENDING PROGRAM NOW...'

@@ -99,6 +99,23 @@ CASE(3)
  ! ELSE IF(dyn_cell /= 0) THEN
   ! calc velocity based on precalculated interpolated velocity profiles
  ! END IF
+CASE(6)
+ ! IF(dyn_cell == 0) THEN
+ r_pos = norm2(init_pack_pos)
+ IF(r_pos >= R_star .and. r_pos <= R_inf) THEN
+  CALL vel_discrete_points(pack_index, vel_vec)
+ ELSE IF(r_pos > R_inf) THEN
+  cur_dummypack = find_free_index() 
+  dummypack_index = cur_dummypack + SIZE(package)
+  CALL copy_package(pack_index, cur_dummypack)
+  CALL teleport_dummypacket(cur_dummypack, pack_position)
+  CALL vel_discrete_points(dummypack_index, vel_vec)
+  CALL deactivate_dummy_packet(cur_dummypack)
+ END IF
+ IF(isnan(vel_vec(ind_x)) .or. isnan(vel_vec(ind_y)) .or. isnan(vel_vec(ind_z))) THEN
+  write(*,*) 'velo: vel_vec = ', vel_vec
+  STOP 'velo: at least one component of velocity vector is Nan'
+ END IF
 CASE(10)
  r_pos = norm2(pack_position)
  V_star = R_star/R_inf * V_inf
