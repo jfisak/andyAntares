@@ -22,6 +22,7 @@ DOUBLE PRECISION, PARAMETER     :: large_number=1.d90
 INTEGER                         :: my_start, my_end
 INTEGER                         :: N_single, N_zbytek
 INTEGER                         :: N_tot_zbytek
+DOUBLE PRECISION, DIMENSION(n_modelgrid)        :: cur_assoc_cells, cur_model_index
 
 
 
@@ -76,11 +77,11 @@ DO cur_propcell = my_start, my_end
    END IF
   END DO
   IF(best_index > 0) THEN
-   dyn_cell(cur_propcell)%model_index = best_index
-   model_grid(best_index)%assoc_cells = model_grid(best_index)%assoc_cells + 1
+   cur_model_index = best_index
+   cur_assoc_cells(cur_model_index) = cur_assoc_cells(cur_model_index) + 1
   ELSE ! best_index <= 0
-   dyn_cell(cur_propcell)%model_index = outerspace_index
-   model_grid(outerspace_index)%assoc_cells = model_grid(outerspace_index)%assoc_cells + 1
+   cur_model_index = outerspace_index
+   cur_assoc_cells(cur_model_index) = cur_assoc_cells(cur_model_index) + 1
   END IF ! best_index > 0
  END IF ! up_cell == 0
 END DO ! a loop over propGrid cells
@@ -90,11 +91,14 @@ END DO ! a loop over propGrid cells
  ! STOP 'connection_prop_model_grid: testing'
  ! IF(n_tasks > 1) THEN
  IF(n_tasks > 1) THEN
-  CALL MPI_ALLREDUCE(dyn_cell(:)%model_index, dyn_cell(:)%model_index, n_propgcells, &
+  CALL MPI_ALLREDUCE(cur_model_index(:), dyn_cell(:)%model_index, n_propgcells, &
    MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
-  CALL MPI_ALLREDUCE(model_grid(:)%assoc_cells, model_grid(:)%assoc_cells, n_modelgrid + add_mg, &
+  CALL MPI_ALLREDUCE(cur_assoc_cells(:), model_grid(:)%assoc_cells, n_modelgrid + add_mg, &
    MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
-  END IF
+ ELSE IF(n_tasks == 1) THEN
+  dyn_cell(:)%model_index = cur_model_index(:)
+  model_grid(:)%assoc_cells = cur_assoc_cells(:)
+ END IF
 #endif 
 
 
