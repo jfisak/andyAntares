@@ -17,7 +17,7 @@ linkhost=$(shell hostname)
 #Objects
 MODULES=types.o rates_i.o rates_k.o rates_r.o constants.o dummypacket.o virt_gridAB.o
 MODELS= read_1D_model.o read_2D_model.o read_3D_model.o read_1D_araya.o read_3D_nico.o\
-        read_3D_pseudo3D.o read_2D_peku.o read_2D_basic.o read_1D_dwap.o
+        read_3D_pseudo3D.o read_2D_peku.o read_2D_basic.o read_1D_dwap.o read_1D_PoWR.o
 RATES= r_kappa_cont.o r_kappa_line.o i_ion_recomb.o i_radtrans.o i_radion.o i_colion.o \
        i_coltrans.o i_freq_recomb.o  k_freq_ff.o k_freq_fb.o read_photcs.o cool_excit.o \
        cool_ff.o cool_ionization.o cool_fb.o 
