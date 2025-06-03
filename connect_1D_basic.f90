@@ -92,13 +92,13 @@ END DO ! a loop over propGrid cells
  ! STOP 'connection_prop_model_grid: testing'
  ! IF(n_tasks > 1) THEN
  IF(n_tasks > 1) THEN
-  CALL MPI_ALLREDUCE(cur_model_index(:), dyn_cell(:)%model_index, n_propgcells, &
+  CALL MPI_ALLREDUCE(cur_model_index(1:n_modelgrid), dyn_cell(1:n_modelgrid)%model_index, n_propgcells, &
    MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
-  CALL MPI_ALLREDUCE(cur_assoc_cells(:), model_grid(:)%assoc_cells, n_modelgrid + add_mg, &
+  CALL MPI_ALLREDUCE(cur_assoc_cells(1:n_modelgrid), model_grid(1:n_modelgrid)%assoc_cells, n_modelgrid + add_mg, &
    MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
  ELSE IF(n_tasks == 1) THEN
-  dyn_cell(:)%model_index = cur_model_index(:)
-  model_grid(:)%assoc_cells = cur_assoc_cells(:)
+  dyn_cell(1:n_modelgrid)%model_index = cur_model_index(1:n_modelgrid)
+  model_grid(1:n_modelgrid)%assoc_cells = cur_assoc_cells(1:n_modelgrid)
  END IF
 #endif 
 
