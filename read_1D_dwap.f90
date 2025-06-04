@@ -17,7 +17,7 @@ INTEGER                                 :: n_mg_points
 INTEGER                                 :: cur_line, reading_grid, ind_J
 INTEGER                                 :: numbions, atom_number, cur_I
 
-DOUBLE PRECISION                        :: effective_temperature, stellar_radius
+DOUBLE PRECISION                        :: effective_temperature
 DOUBLE PRECISION                        :: radius, density, t_gas, t_rad
 DOUBLE PRECISION                        :: vel_rad, vel_tan
 

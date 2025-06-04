@@ -22,8 +22,6 @@ CHARACTER(filename_length)                             :: modelfile, jikrfile
 ! variables which are not needed in the code
 !DOUBLE PRECISION                          :: delta_r, delta, delta2, tot_nd, tot_md
 ! (2) PoWR model
-CHARACTER(filename_length)                             :: powrfile
-CHARACTER(filename_length)                             :: line
 DOUBLE PRECISION, PARAMETER                :: meanAtMass = 1.33
 INTEGER                                         :: reading_grid
 DOUBLE PRECISION, ALLOCATABLE                   :: boundaries(:)

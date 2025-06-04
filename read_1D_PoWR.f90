@@ -17,24 +17,17 @@ USE constants
 IMPLICIT NONE    
 
 
-INTEGER                                   :: ind_I, ind_J, numbions, indexg, atom_number
+INTEGER                                   :: ind_I, ind_J, numbions, atom_number
 ! for reading from files
-DOUBLE PRECISION                          :: junk
 INTEGER                                   :: ios
 INTEGER, PARAMETER                        :: maxrows = 6000000
 DOUBLE PRECISION                          :: r, velo, dens, temp
 ! DOUBLE PRECISION, DIMENSION(n_elements)   :: massfrac
-DOUBLE PRECISION                          :: cell_index
-CHARACTER(filename_length)                             :: modelfile, jikrfile
 ! variables which are not needed in the code
 !DOUBLE PRECISION                          :: delta_r, delta, delta2, tot_nd, tot_md
 ! (2) PoWR model
-CHARACTER(filename_length)                             :: powrfile
 CHARACTER(filename_length)                             :: line
 DOUBLE PRECISION, PARAMETER                :: meanAtMass = 1.33
-INTEGER                                         :: reading_grid
-DOUBLE PRECISION, ALLOCATABLE                   :: boundaries(:)
-DOUBLE PRECISION                                :: rPrev, rAct, width
 
 write(99,*) 'we will read the TESTCASE from the PoWR code...'
 R_star = 20.066 * const_Rsun
