@@ -30,7 +30,7 @@ DOUBLE PRECISION, PARAMETER                     :: epsilon0 = 1e-15
 ! DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: pobcw
 DOUBLE PRECISION, DIMENSION(const_dimofspace)                   :: corner, width
 INTEGER                                                         :: ind_I
-DOUBLE PRECISION, PARAMETER                     :: mininum = 1e0
+DOUBLE PRECISION, PARAMETER                     :: mininum = 1e2
 
 INTEGER                                         :: cur_cell, down_cell
 
@@ -56,6 +56,7 @@ bcell(ind_y) = FLOOR(pos(ind_y)/basic_cell_width(ind_y) + dble(ny_cell)/2.D0 + e
 bcell(ind_z) = FLOOR(pos(ind_z)/basic_cell_width(ind_z) + dble(nz_cell)/2.D0 + epsilon0) + 1
 IF(debug == 2) THEN
  write(*,*) 'find_dyn_cell1: pos = ', pos
+ write(*,*) 'find_dyn_cell1: pos/R_inf = ', pos/R_inf
  write(*,*) 'find_dyn_cell1: basic_cell_width = ', basic_cell_width
  write(*,*) 'find_dyn_cell1: nx_cell = ', nx_cell, ' ny_cell = ', ny_cell, ' nz_cell = ', nz_cell
  write(*,*) 'find_dyn_cell1: (pobcw(ind_x) + dble(nx_cell)/2.D0) = ', &
