@@ -32,7 +32,7 @@ DOUBLE PRECISION, DIMENSION(const_dimofspace)                   :: corner, width
 INTEGER                                                         :: ind_I
 DOUBLE PRECISION, PARAMETER                     :: mininum = 1e2
 
-INTEGER                                         :: cur_cell, down_cell
+INTEGER                                         :: cur_cell, down_cell, up_cell
 
 n_cell = (/ nx_cell, ny_cell, nz_cell /)
 
@@ -153,10 +153,14 @@ DO
   IF(cur_cell + 1 .LE. dyn_cell(dyn_cell(cur_cell)%down_cell)%up_cell + 7) THEN
    cur_cell = cur_cell + 1
   ELSE
-   write(*,*) 'find_dyn_cell1: cur_cell = ', cur_cell
    write(*,*) 'find_dyn_cell1: up_cell = ', dyn_cell(dyn_cell(cur_cell)%down_cell)%up_cell
    down_cell = dyn_cell(cur_cell)%down_cell
    write(*,*) 'find_dyn_cell1: corner = ', dyn_cell(down_cell)%corner/R_star
+   up_cell = dyn_cell(down_cell)%up_cell
+   DO ind_I = 1,8
+    write(*,*) 'find_dyn_cell1: corner for pgi_index = ', up_cell, &
+     ' corner = ', (dyn_cell(up_cell)%corner)/R_star
+   END DO
    write(*,*) 'find_dyn_cell1: pos = ', pos/R_star
    write(*,*) 'find_dyn_cell1: corner + width = ', (dyn_cell(down_cell)%corner+dyn_cell(down_cell)%width)/R_star
    STOP 'error in the next dynamical cell calculating'
