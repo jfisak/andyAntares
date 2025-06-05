@@ -160,6 +160,7 @@ DO
    DO ind_I = 1,8
     write(*,*) 'find_dyn_cell1: corner for pgi_index = ', up_cell, &
      ' corner = ', (dyn_cell(up_cell)%corner)/R_star
+    up_cell = up_cell + 1
    END DO
    write(*,*) 'find_dyn_cell1: pos = ', pos/R_star
    write(*,*) 'find_dyn_cell1: corner + width = ', (dyn_cell(down_cell)%corner+dyn_cell(down_cell)%width)/R_star
