@@ -1,26 +1,29 @@
 ! a basic sbr for the initialization of the backward ray tracing method
 !
-! INPUT: NONE
+! INPUT: wale_start(DBLE): lower limit of wavelengths
+!        wale_end(DBLE): upper limit of wavelengths
+!        ccd_pos(DBLE(const_dimofspace)): position of a detector in R_inf
 ! OUTPUT: NONE
 ! 
-SUBROUTINE brtm()
+SUBROUTINE brtm(wale_start, wale_end, ccd_pos)
 
 USE MPI
 USE types
 USE constants
 IMPLICIT NONE
 
-DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: obs_point, ccd_point, ccd_centre
+DOUBLE PRECISION                                        :: wale_start, wale_end
+DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: obs_point, ccd_point, ccd_centre
+DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: ccd_pos
 INTEGER                                                 :: cur_vpack
 INTEGER, PARAMETER                                      :: Nvpackets = 50000
 ! number of packet flown into the photosphere
 INTEGER                                                 :: n_inside, n_outside
-DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: cur_pos, cur_direction
-DOUBLE PRECISION                                        :: wale_start, wale_end
+DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: cur_pos
 DOUBLE PRECISION                                        :: nu_min, nu_max, ran_freq
 DOUBLE PRECISION                                        :: ran2
 
-DOUBLE PRECISION, DIMENSION(n_nubin)                    :: cur_spectrum, freqs
+DOUBLE PRECISION, DIMENSION(n_nubin)                    :: freqs
 
 LOGICAL                                                 :: procout=.false.
 
@@ -31,7 +34,7 @@ DOUBLE PRECISION                                        :: det_lu, det_lv
 DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: det_vec_u, det_vec_v
 DOUBLE PRECISION                                        :: det_cell_wu, det_cell_wv
 DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: uvmin
-DOUBLE PRECISION, ALLOCATABLE                           :: det_matrix(:,:), det_spectra(:,:), det_sending(:,:)
+DOUBLE PRECISION, ALLOCATABLE                           :: det_matrix(:,:), det_sending(:,:)
 
 INTEGER                                                 :: my_ccd_start, my_ccd_end
 INTEGER                                                 :: N_single, N_zbytek
@@ -41,12 +44,13 @@ DOUBLE PRECISION                                        :: obs_ccd_dist
 
 DOUBLE PRECISION, DIMENSION(n_nubin)                    :: specflux, sendflux
 DOUBLE PRECISION                                        :: delta_nu, delta_e, freq
-INTEGER                                                 :: ind_I, nubin, pack_index
+INTEGER                                                 :: ind_I, ind_J, nubin, pack_index
 DOUBLE PRECISION                                        :: rand_u, rand_v
 INTEGER                                                 :: N_tot_zbytek
 LOGICAL                                                 :: ccd_mode
 INTEGER                                                 :: n_crossed, n_vpacks
 INTEGER, PARAMETER                                      :: max_n_crossed = 2000000
+INTEGER, ALLOCATABLE                                    :: det_in(:,:), det_tot(:,:)
 
 
 
@@ -60,7 +64,7 @@ write(99,*) '___________________________________________________________________
 ! to start calculations we have to deallocate the package array firstly
 DEALLOCATE(package)
 
-ccd_mode = .false.
+ccd_mode = .true.
 
 wale_start = 6000   ! in Angstroms
 wale_end = 7000   ! in Angstroms
@@ -70,8 +74,8 @@ nu_min = const_c / (wale_end * 1.D-8)
 
 ! a temporary definition of a detector
 ! number of points in each CCD chip
-det_nu = 100
-det_nv = 100
+det_nu = 20
+det_nv = 20
 det_tot_nuv = det_nu * det_nv
 
 ! a size of a detector
@@ -86,12 +90,14 @@ DO ind_I= 1, n_nubin
 END DO
 
 ALLOCATE(det_sending(det_nu, det_nv), det_matrix(det_nu, det_nv))!, det_spectra(det_tot_nuv, n_nubin))
+ALLOCATE(det_in(det_nu, det_nv), det_tot(det_nu, det_nv))
 det_sending(:,:) = 0.D0
 ! observing point
 ! obs_point = (/ -R_inf  ,  0.D0,  0.D0 /)
 obs_ccd_dist = 0.2*sqrt(det_lu**2+det_lv**2)
 ! ccd_centre = (/ -R_inf/2.0,  R_inf/2.D0,  R_inf/4.D0 /)
-ccd_centre = (/ -0.25*R_inf,  -.25*R_inf,  -.25*R_inf /)
+! ccd_centre = (/ -0.25*R_inf,  -.25*R_inf,  -.25*R_inf /)
+ccd_centre = ccd_pos * R_inf
 ! write(48,*) ccd_centre
 obs_point = ccd_centre + obs_ccd_dist * ccd_centre/norm2(ccd_centre)
 ! write(48,*) obs_point
@@ -163,6 +169,9 @@ uvmin = ccd_centre - 0.5D00 * (det_vec_u * det_lu + det_vec_v * det_lv)
 cur_ccd = 0
 n_crossed = 0
 n_vpacks = 0
+det_tot(:,:) = 0
+det_in(:,:) = 0
+ 
 DO 
  ! conditions to stop the loop according to the current computing mode
  IF(ccd_mode) THEN ! going along the ccd detector one point by one
@@ -175,10 +184,10 @@ DO
   END IF
   rand_u = ran2(idum) * det_cell_wu
   rand_v = ran2(idum) * det_cell_wv
-  ccd_point = uvmin + det_cell_wu * det_vec_u * (det_cur_nu - 1 + rand_u) + &
-    & det_cell_wv * det_vec_v * (det_cur_nv - 1 + rand_v)
   det_cur_nv = INT((cur_ccd - 1)/det_nu) + 1
   det_cur_nu = INT(cur_ccd - (det_cur_nv -1) * det_nu)
+  ccd_point = uvmin + det_cell_wu * det_vec_u * (det_cur_nu - 1 + rand_u) + &
+    & det_cell_wv * det_vec_v * (det_cur_nv - 1 + rand_v)
  ELSE ! random positions in the detector, the calculation is stopped until a critical
       ! number of packets crossing the photosphere is reached
   IF(n_crossed >= max_n_crossed) THEN
@@ -190,16 +199,15 @@ DO
  
  ! write(*,*) 'brtm: ccd_point = ', ccd_point(ind_y) - ccd_centre(ind_y), ccd_point(ind_z) - ccd_centre(ind_z)
 
- cur_direction = (ccd_point - obs_point)/norm2(ccd_point - obs_point)
  ! write(46,*) obs_point, ccd_point - obs_point
  ! write(47,*) ccd_point
 
- n_inside = 0
- n_outside = 0
+ IF(ccd_mode) THEN
+  n_inside = 0
+  n_outside = 0
+ END IF
  
  ALLOCATE(package(Nvpackets + 1))
- 
- write(*,*) 'brtm: n_crossed = ', n_crossed
  
  DO cur_vpack = 1, Nvpackets
   n_vpacks = n_vpacks + 1
@@ -244,17 +252,20 @@ DO
    n_inside = n_inside + 1
    package(cur_vpack)%typ = type_photosphere
    n_crossed = n_crossed + 1
+   IF(.not. ccd_mode) THEN
+    det_in(det_cur_nu, det_cur_nv) = det_in(det_cur_nu, det_cur_nv) + 1
+   END IF
   ELSE
    n_outside = n_outside + 1
    package(cur_vpack)%typ = type_escaped
   END IF
   
   IF(.not. ccd_mode) THEN
-   det_sending(det_cur_nu, det_cur_nv) = DBLE(n_crossed)/DBLE(n_vpacks)
+   det_tot(det_cur_nu, det_cur_nv) = det_tot(det_cur_nu, det_cur_nv) + 1
   END IF
  
  END DO ! a loop over virtual packets
- ! write(*,*) 'brtm: det_cur_nv = ', det_cur_nv, ' det_cur_nu = ', det_cur_nu, ' n_inside = ', n_inside, ' n_outside = ', n_outside
+ write(*,*) 'brtm: det_cur_nv = ', det_cur_nv, ' det_cur_nu = ', det_cur_nu, ' n_inside = ', n_inside, ' n_outside = ', n_outside
  
  IF(ccd_mode) THEN
   det_sending(det_cur_nu, det_cur_nv) = DBLE(n_inside)/DBLE(n_vpacks)
@@ -289,6 +300,15 @@ DO
 
 END DO ! loop over detector cells
 
+IF(.not. ccd_mode) THEN
+ write(*,*) 'brtm: det_tot = ', det_in(:,:)
+ DO ind_I = 1, det_nu
+  DO ind_J = 1, det_nv
+   det_sending(ind_I,ind_J) = DBLE(det_in(ind_I,ind_J))/DBLE(det_tot(ind_I,ind_J))
+  END DO
+ END DO
+END IF
+
 IF(n_tasks > 1) THEN
  ! DO ind_I = 1, det_nu
   CALL MPI_ALLREDUCE(det_sending(1:det_nu,1:det_nv), det_matrix(1:det_nu,1:det_nv), det_nu * det_nv, MPI_DOUBLE, MPI_SUM, &
@@ -297,6 +317,9 @@ IF(n_tasks > 1) THEN
  CALL MPI_ALLREDUCE(sendflux(:), specflux(:), n_nubin, MPI_DOUBLE, MPI_SUM, &
   mpi_comm_world, ierr)
  det_matrix(1:det_nu,1:det_nv) = det_matrix(1:det_nu,1:det_nv)/n_tasks
+ELSE IF(n_tasks == 1) THEN
+ det_matrix(:,:) = det_sending(:,:)
+ specflux(:) =  sendflux(:)
 END IF
 IF(my_rank == 0) THEN
  OPEN(449,FILE='ccd_matrix.dat')

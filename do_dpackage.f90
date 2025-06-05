@@ -34,7 +34,7 @@ INTEGER                                 :: pomocna_bunka
 
 LOGICAL                                 :: next_diff
 
-LOGICAL                                 :: procout = .FALSE.
+LOGICAL                                 :: procout = .TRUE.
 
 INTEGER                                 :: cur_mgi, get_package_model_index
 DOUBLE PRECISION                        :: cur_temp
