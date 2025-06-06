@@ -23,6 +23,7 @@ TYPE(dyn_grid_cell), ALLOCATABLE       :: pom2(:)
 INTEGER                                 :: status(MPI_STATUS_SIZE)
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: cur_corner
 DOUBLE PRECISION, PARAMETER             :: minival = 1.D-2
+DOUBLE PRECISION, PARAMETER             :: mininum = 1.D0
 INTEGER                                 :: cur_pgi
 REAL(8)                                 :: calc_x, calc_y, calc_z
 INTEGER(8)                              :: ceil_x, ceil_y, ceil_z
@@ -84,13 +85,13 @@ DO ind_I=1, nx_cell
    dyn_cell(ind_L)%corner(ind_x)  = - xmax + DBLE((ind_I - 1)) * basic_cell_width(ind_x)
    dyn_cell(ind_L)%corner(ind_y)  = - ymax + DBLE((ind_J - 1)) * basic_cell_width(ind_y)     
    dyn_cell(ind_L)%corner(ind_z)  = - zmax + DBLE((ind_K - 1)) * basic_cell_width(ind_z) 
-   IF(abs(dyn_cell(ind_L)%corner(ind_x)) < minival) THEN
+   IF(abs(dyn_cell(ind_L)%corner(ind_x)) < mininum) THEN
     dyn_cell(ind_L)%corner(ind_x) = 0.D0
    END IF
-   IF(abs(dyn_cell(ind_L)%corner(ind_y)) < minival) THEN
+   IF(abs(dyn_cell(ind_L)%corner(ind_y)) < mininum) THEN
     dyn_cell(ind_L)%corner(ind_y) = 0.D0
    END IF
-   IF(abs(dyn_cell(ind_L)%corner(ind_z)) < minival) THEN
+   IF(abs(dyn_cell(ind_L)%corner(ind_z)) < mininum) THEN
     dyn_cell(ind_L)%corner(ind_z) = 0.D0
    END IF
    ! write(*,*) 'setup_propgrid: corner(', ind_L, ') = ', dyn_cell(L)%corner
