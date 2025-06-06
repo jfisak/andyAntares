@@ -155,15 +155,15 @@ DO
   ELSE
    write(*,*) 'find_dyn_cell1: up_cell = ', dyn_cell(dyn_cell(cur_cell)%down_cell)%up_cell
    down_cell = dyn_cell(cur_cell)%down_cell
-   write(*,*) 'find_dyn_cell1: corner = ', dyn_cell(down_cell)%corner/R_star
+   write(*,*) 'find_dyn_cell1: low cell corner = ', dyn_cell(down_cell)%corner
    up_cell = dyn_cell(down_cell)%up_cell
    DO ind_I = 1,8
     write(*,*) 'find_dyn_cell1: corner for pgi_index = ', up_cell, &
-     ' corner = ', (dyn_cell(up_cell)%corner)/R_star
+     ' corner = ', (dyn_cell(up_cell)%corner)
     up_cell = up_cell + 1
    END DO
-   write(*,*) 'find_dyn_cell1: pos = ', pos/R_star
-   write(*,*) 'find_dyn_cell1: corner + width = ', (dyn_cell(down_cell)%corner+dyn_cell(down_cell)%width)/R_star
+   write(*,*) 'find_dyn_cell1: pos = ', pos
+   write(*,*) 'find_dyn_cell1: corner + width = ', (dyn_cell(down_cell)%corner+dyn_cell(down_cell)%width)
    STOP 'error in the next dynamical cell calculating'
   END IF
  END IF
