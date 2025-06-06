@@ -84,6 +84,15 @@ DO ind_I=1, nx_cell
    dyn_cell(ind_L)%corner(ind_x)  = - xmax + DBLE((ind_I - 1)) * basic_cell_width(ind_x)
    dyn_cell(ind_L)%corner(ind_y)  = - ymax + DBLE((ind_J - 1)) * basic_cell_width(ind_y)     
    dyn_cell(ind_L)%corner(ind_z)  = - zmax + DBLE((ind_K - 1)) * basic_cell_width(ind_z) 
+   IF(abs(dyn_cell(ind_L)%corner(ind_x)) < minival) THEN
+    dyn_cell(ind_L)%corner(ind_x) = 0.D0
+   END IF
+   IF(abs(dyn_cell(ind_L)%corner(ind_y)) < minival) THEN
+    dyn_cell(ind_L)%corner(ind_y) = 0.D0
+   END IF
+   IF(abs(dyn_cell(ind_L)%corner(ind_z)) < minival) THEN
+    dyn_cell(ind_L)%corner(ind_z) = 0.D0
+   END IF
    ! write(*,*) 'setup_propgrid: corner(', ind_L, ') = ', dyn_cell(L)%corner
    ! cell width
    dyn_cell(ind_L)%width(ind_x) = basic_cell_width(ind_x)
