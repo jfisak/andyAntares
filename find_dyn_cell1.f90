@@ -155,11 +155,11 @@ cur_cell = actCell
 
 DO
  ind_J = ind_J + 1
- write(*,*) 'find_dyn_cell1: loop ind_J = ', ind_J
- IF(cur_cell == dyn_cell(cur_cell)%up_cell) THEN
-  write(*,*) 'find_dyn_cell1: ERROR upper cell == actCell'
-  STOP 'find_dyn_cell1'
- END IF
+ write(*,*) 'find_dyn_cell1: loop ind_J = ', ind_J, ' cur_cell = ', cur_cell
+ ! IF(cur_cell == dyn_cell(cur_cell)%up_cell) THEN
+ !  write(*,*) 'find_dyn_cell1: ERROR upper cell == actCell'
+ !  STOP 'find_dyn_cell1'
+ ! END IF
  ! did we found the given cell containing the given point?
  ! 1
  IF(.not. sign_x .and. .not. sign_y .and. .not. sign_z ) THEN
@@ -185,6 +185,9 @@ DO
  ! 8
  ELSE IF(sign_x .and. sign_y .and. sign_z ) THEN
   cur_cell = dyn_cell(cur_cell)%up_cell + 7
+ ELSE
+  write(*,*) 'find_dyn_cell1: xyz = ', pos_x, pos_y, pos_z
+  STOP 'find_dyn_cell1: error in signs, this combination is not implemented'
  END IF
  ! we have found a cell containing the given point
  ! is this cell on the top of the dyncell tree?
