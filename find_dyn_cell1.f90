@@ -151,6 +151,8 @@ ELSE
  sign_z = .false.
 END IF
 
+cur_cell = actCell
+
 DO
  ind_J = ind_J + 1
  write(*,*) 'find_dyn_cell1: loop ind_J = ', ind_J
