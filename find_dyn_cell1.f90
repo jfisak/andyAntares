@@ -163,25 +163,25 @@ DO
  IF(.not. sign_x .and. .not. sign_y .and. .not. sign_z ) THEN
   cur_cell = dyn_cell(actCell)%up_cell
  ! 2
- ELSE IF(.not. sign_x .and. .not. sign_y .and. .not. sign_z ) THEN
+ ELSE IF(sign_x .and. .not. sign_y .and. .not. sign_z ) THEN
   cur_cell = dyn_cell(actCell)%up_cell + 1
  ! 3
- ELSE IF(.not. sign_x .and. .not. sign_y .and. .not. sign_z ) THEN
+ ELSE IF(.not. sign_x .and. sign_y .and. .not. sign_z ) THEN
   cur_cell = dyn_cell(actCell)%up_cell + 2
  ! 4
- ELSE IF(.not. sign_x .and. .not. sign_y .and. .not. sign_z ) THEN
+ ELSE IF(sign_x .and. sign_y .and. .not. sign_z ) THEN
   cur_cell = dyn_cell(actCell)%up_cell + 3
  ! 5
- ELSE IF(.not. sign_x .and. .not. sign_y .and. .not. sign_z ) THEN
+ ELSE IF(.not. sign_x .and. .not. sign_y .and. sign_z ) THEN
   cur_cell = dyn_cell(actCell)%up_cell + 4
  ! 6
- ELSE IF(.not. sign_x .and. .not. sign_y .and. .not. sign_z ) THEN
+ ELSE IF(sign_x .and. .not. sign_y .and. sign_z ) THEN
   cur_cell = dyn_cell(actCell)%up_cell + 5
  ! 7
- ELSE IF(.not. sign_x .and. .not. sign_y .and. .not. sign_z ) THEN
+ ELSE IF(.not. sign_x .and. sign_y .and. sign_z ) THEN
   cur_cell = dyn_cell(actCell)%up_cell + 6
  ! 8
- ELSE IF(.not. sign_x .and. .not. sign_y .and. .not. sign_z ) THEN
+ ELSE IF(sign_x .and. sign_y .and. sign_z ) THEN
   cur_cell = dyn_cell(actCell)%up_cell + 7
  END IF
  ! we have found a cell containing the given point
