@@ -188,6 +188,20 @@ DO
  ! is this cell on the top of the dyncell tree?
  IF(dyn_cell(cur_cell)%up_cell == 0) THEN
   obtained_cell = cur_cell
+  IF(debug == 2) THEN
+   corner = dyn_cell(obtained_cell)%corner
+   width = dyn_cell(obtained_cell)%width
+   DO ind_I = 1, const_dimofspace
+    IF(((pos(ind_I) < corner(ind_I) - mininum) .OR. (pos(ind_I) > corner(ind_I) + width(ind_I) + mininum))) THEN
+     write(*,*) 'find_dyn_cell1: cell starting = ', corner
+     write(*,*) 'find_dyn_cell1: packet pos = ', pos
+     write(*,*) 'find_dyn_cell1: cell ending = ', (corner + width)
+     write(*,*) 'find_dyn_cell1: ind_I = ', ind_I
+     write(*,*)  'find_dyn_cell1: packet is not located inside the propagation cell'
+     STOP
+    END IF
+   END DO
+  END IF
   EXIT
  ! we have to move to the higher level of the dyncell tree
  ELSE
