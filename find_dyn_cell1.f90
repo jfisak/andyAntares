@@ -161,28 +161,28 @@ DO
  ! did we found the given cell containing the given point?
  ! 1
  IF(.not. sign_x .and. .not. sign_y .and. .not. sign_z ) THEN
-  cur_cell = dyn_cell(actCell)%up_cell
+  cur_cell = dyn_cell(cur_cell)%up_cell
  ! 2
  ELSE IF(sign_x .and. .not. sign_y .and. .not. sign_z ) THEN
-  cur_cell = dyn_cell(actCell)%up_cell + 1
+  cur_cell = dyn_cell(cur_cell)%up_cell + 1
  ! 3
  ELSE IF(.not. sign_x .and. sign_y .and. .not. sign_z ) THEN
-  cur_cell = dyn_cell(actCell)%up_cell + 2
+  cur_cell = dyn_cell(cur_cell)%up_cell + 2
  ! 4
  ELSE IF(sign_x .and. sign_y .and. .not. sign_z ) THEN
-  cur_cell = dyn_cell(actCell)%up_cell + 3
+  cur_cell = dyn_cell(cur_cell)%up_cell + 3
  ! 5
  ELSE IF(.not. sign_x .and. .not. sign_y .and. sign_z ) THEN
-  cur_cell = dyn_cell(actCell)%up_cell + 4
+  cur_cell = dyn_cell(cur_cell)%up_cell + 4
  ! 6
  ELSE IF(sign_x .and. .not. sign_y .and. sign_z ) THEN
-  cur_cell = dyn_cell(actCell)%up_cell + 5
+  cur_cell = dyn_cell(cur_cell)%up_cell + 5
  ! 7
  ELSE IF(.not. sign_x .and. sign_y .and. sign_z ) THEN
-  cur_cell = dyn_cell(actCell)%up_cell + 6
+  cur_cell = dyn_cell(cur_cell)%up_cell + 6
  ! 8
  ELSE IF(sign_x .and. sign_y .and. sign_z ) THEN
-  cur_cell = dyn_cell(actCell)%up_cell + 7
+  cur_cell = dyn_cell(cur_cell)%up_cell + 7
  END IF
  ! we have found a cell containing the given point
  ! is this cell on the top of the dyncell tree?
