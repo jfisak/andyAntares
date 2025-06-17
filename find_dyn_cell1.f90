@@ -156,7 +156,7 @@ cur_cell = actCell
 DO
  ind_J = ind_J + 1
  write(*,*) 'find_dyn_cell1: loop ind_J = ', ind_J
- IF(cur_cell == actCell) THEN
+ IF(cur_cell == dyn_cell(cur_cell)%up_cell) THEN
   write(*,*) 'find_dyn_cell1: ERROR upper cell == actCell'
   STOP 'find_dyn_cell1'
  END IF
