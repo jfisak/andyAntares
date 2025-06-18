@@ -105,6 +105,21 @@ IF(actCell > nx_cell * ny_cell * nz_cell) THEN
   ' bcell_z = ', bcell(ind_z)
 END IF
 
+IF(debug == 2) THEN
+ corner = dyn_cell(actCell)%corner
+ width = dyn_cell(actCell)%width
+ DO ind_I = 1, const_dimofspace
+  IF(((pos(ind_I) < corner(ind_I) - mininum) .OR. (pos(ind_I) > corner(ind_I) + width(ind_I) + mininum))) THEN
+   write(*,*) 'find_dyn_cell1: cell starting = ', corner
+   write(*,*) 'find_dyn_cell1: packet pos = ', pos
+   write(*,*) 'find_dyn_cell1: cell ending = ', (corner + width)
+   write(*,*) 'find_dyn_cell1: ind_I = ', ind_I
+   write(*,*)  'find_dyn_cell1: packet is not located inside the propagation cell'
+   STOP
+  END IF
+ END DO
+END IF
+
 IF(dyn_cell(actCell)%up_cell == 0) THEN
  obtained_cell = actCell
  IF(debug == 2) THEN
