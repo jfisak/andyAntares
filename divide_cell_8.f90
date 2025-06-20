@@ -20,15 +20,18 @@ INTEGER, PARAMETER              :: no_dcells = 8
 INTEGER                         :: ind_I
 ! properties of the original dynamic cell
 DOUBLE PRECISION, DIMENSION(const_dimofspace)  :: loc_corner, loc_cell_width
+DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: half_point, end_point
 
 dyn_cell(act_n_dyncell)%up_cell = max_n_dcell + 1
 loc_corner = dyn_cell(act_n_dyncell)%corner
 loc_cell_width = dyn_cell(act_n_dyncell)%width
+half_point = dyn_cell(act_n_dyncell)%corner + dyn_cell(act_n_dyncell)%width / 2.D0
+end_point = dyn_cell(act_n_dyncell)%corner + dyn_cell(act_n_dyncell)%width
 
 DO ind_I = 1, no_dcells
- dyn_cell(max_n_dcell + ind_I)%width(ind_x) = loc_cell_width(ind_x) / 2.D0
- dyn_cell(max_n_dcell + ind_I)%width(ind_y) = loc_cell_width(ind_y) / 2.D0
- dyn_cell(max_n_dcell + ind_I)%width(ind_z) = loc_cell_width(ind_z) / 2.D0
+ dyn_cell(max_n_dcell + ind_I)%width(ind_x) = (half_point(ind_x) - loc_corner(ind_x))
+ dyn_cell(max_n_dcell + ind_I)%width(ind_y) = (half_point(ind_y) - loc_corner(ind_y))
+ dyn_cell(max_n_dcell + ind_I)%width(ind_z) = (half_point(ind_z) - loc_corner(ind_z))
  dyn_cell(max_n_dcell + ind_I)%down_cell = act_n_dyncell
  dyn_cell(max_n_dcell + ind_I)%up_cell = 0
 END DO
@@ -44,10 +47,10 @@ dyn_cell(max_n_dcell + 1)%neighbor(negy) = 0
 dyn_cell(max_n_dcell + 1)%neighbor(posz) = max_n_dcell + 5
 dyn_cell(max_n_dcell + 1)%neighbor(negz) = 0
 ! the second cell
-dyn_cell(max_n_dcell + 2)%corner(ind_x) = loc_corner(ind_x) + loc_cell_width(ind_x) / 2.E0
-dyn_cell(max_n_dcell + 2)%corner(ind_y) = loc_corner(ind_y)
-dyn_cell(max_n_dcell + 2)%corner(ind_z) = loc_corner(ind_z)
-dyn_cell(max_n_dcell + 2)%down_cell = act_n_dyncell
+dyn_cell(max_n_dcell + 2)%corner(ind_x)  = loc_corner(ind_x) + loc_cell_width(ind_x) / 2.E0
+dyn_cell(max_n_dcell + 2)%corner(ind_y)  = loc_corner(ind_y)
+dyn_cell(max_n_dcell + 2)%corner(ind_z)  = loc_corner(ind_z)
+dyn_cell(max_n_dcell + 2)%down_cell      = act_n_dyncell
 dyn_cell(max_n_dcell + 2)%neighbor(posx) = 0
 dyn_cell(max_n_dcell + 2)%neighbor(negx) = max_n_dcell + 1
 dyn_cell(max_n_dcell + 2)%neighbor(posy) = max_n_dcell + 4
