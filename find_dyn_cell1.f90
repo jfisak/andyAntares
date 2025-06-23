@@ -58,6 +58,7 @@ bcell(ind_x) = FLOOR(pos(ind_x)/basic_cell_width(ind_x) + dble(nx_cell)/2.D0 + e
 bcell(ind_y) = FLOOR(pos(ind_y)/basic_cell_width(ind_y) + dble(ny_cell)/2.D0 + epsilon0) + 1
 bcell(ind_z) = FLOOR(pos(ind_z)/basic_cell_width(ind_z) + dble(nz_cell)/2.D0 + epsilon0) + 1
 IF(debug == 2) THEN
+ write(*,*) 'find_dyn_cell1: bcell calculation'
  write(*,*) 'find_dyn_cell1: pos = ', pos
  write(*,*) 'find_dyn_cell1: pos/R_inf = ', pos/R_inf
  write(*,*) 'find_dyn_cell1: basic_cell_width = ', basic_cell_width
@@ -75,6 +76,7 @@ IF(debug == 2) THEN
  write(*,*) 'find_dyn_cell1: (pobcw(ind_z) + dble(nz_cell)/2.D0 + epsilon0) = ', &
   (pos(ind_z)/basic_cell_width(ind_z) + dble(nz_cell)/2.D0 + epsilon0)
  write(*,*) 'find_dyn_cell1: bcell = ', bcell
+ write(*,*) 'find_dyn_cell1: ___________________________________________'
 END IF
 
 IF(pos(ind_x) <= xmax .and. bcell(ind_x) == nx_cell + 1) THEN
@@ -107,9 +109,10 @@ END IF
 
 IF(debug == 2) THEN
  corner = dyn_cell(actCell)%corner
+ upcorner = dyn_cell(actCell)%upcorner
  width = dyn_cell(actCell)%width
  DO ind_I = 1, const_dimofspace
-  IF(((pos(ind_I) < corner(ind_I) - mininum) .OR. (pos(ind_I) > corner(ind_I) + width(ind_I) + mininum))) THEN
+  IF(((pos(ind_I) < corner(ind_I) - mininum) .OR. (pos(ind_I) > upcorner(ind_I)+ mininum))) THEN
    write(*,*) 'find_dyn_cell1: cell starting = ', corner
    write(*,*) 'find_dyn_cell1: packet pos = ', pos
    write(*,*) 'find_dyn_cell1: cell ending = ', (corner + width)
@@ -146,7 +149,7 @@ SELECT CASE(dyngrid)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CASE(1)
-! we are looking for the given cell in dyncell tree
+! we are looking for the given cell in the dyncell tree
 ind_J = 0
 cur_centre = (dyn_cell(actCell)%corner + dyn_cell(actCell)%upcorner) / 2.D0
 cur_delta = pos - cur_centre
