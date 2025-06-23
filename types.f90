@@ -19,7 +19,7 @@ SAVE
       INTEGER                        :: model_index=0, n_virt=0, ind_virt = 0
       INTEGER                        :: up_cell, down_cell
       INTEGER, DIMENSION(6)          :: neighbor
-      DOUBLE PRECISION, DIMENSION(const_dimofspace) :: corner, width
+      DOUBLE PRECISION, DIMENSION(const_dimofspace) :: corner, upcorner, width
       DOUBLE PRECISION, DIMENSION(const_dimofspace) :: vec_vel
       INTEGER, DIMENSION(const_dimofspace)          :: n_sbgr
   END TYPE dyn_grid_cell
