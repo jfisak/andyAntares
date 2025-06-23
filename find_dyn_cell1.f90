@@ -28,7 +28,7 @@ INTEGER, DIMENSION(const_dimofspace)                           :: n_cell
 
 DOUBLE PRECISION, PARAMETER                     :: epsilon0 = 1e-15
 ! DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: pobcw
-DOUBLE PRECISION, DIMENSION(const_dimofspace)                   :: corner, width
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                   :: corner, width, upcorner
 INTEGER                                                         :: ind_I, ind_J
 DOUBLE PRECISION, PARAMETER                     :: mininum = 1e2
 
@@ -124,12 +124,12 @@ IF(dyn_cell(actCell)%up_cell == 0) THEN
  obtained_cell = actCell
  IF(debug == 2) THEN
   corner = dyn_cell(obtained_cell)%corner
-  width = dyn_cell(obtained_cell)%width
+  upcorner = dyn_cell(obtained_cell)%upcorner
   DO ind_I = 1, const_dimofspace
-   IF(((pos(ind_I) < corner(ind_I) - mininum) .OR. (pos(ind_I) > corner(ind_I) + width(ind_I) + mininum))) THEN
+   IF(((pos(ind_I) < corner(ind_I) - mininum) .OR. (pos(ind_I) > upcorner(ind_I) + mininum))) THEN
     write(*,*) 'find_dyn_cell1: cell starting = ', corner
     write(*,*) 'find_dyn_cell1: packet pos = ', pos
-    write(*,*) 'find_dyn_cell1: cell ending = ', (corner + width)
+    write(*,*) 'find_dyn_cell1: cell ending = ', upcorner
     write(*,*) 'find_dyn_cell1: ind_I = ', ind_I
     write(*,*)  'find_dyn_cell1: packet is not located inside the propagation cell'
     STOP
@@ -148,7 +148,7 @@ SELECT CASE(dyngrid)
 CASE(1)
 ! we are looking for the given cell in dyncell tree
 ind_J = 0
-cur_centre = dyn_cell(actCell)%corner + dyn_cell(actCell)%width
+cur_centre = (dyn_cell(actCell)%corner + dyn_cell(actCell)%upcorner) / 2.D0
 cur_delta = pos - cur_centre
 IF(cur_delta(ind_x) > 0.D0) THEN
  sign_x = .true.
@@ -173,12 +173,13 @@ DO
   obtained_cell = cur_cell
   IF(debug == 2) THEN
    corner = dyn_cell(obtained_cell)%corner
+   upcorner = dyn_cell(obtained_cell)%upcorner
    width = dyn_cell(obtained_cell)%width
    DO ind_I = 1, const_dimofspace
-    IF(((pos(ind_I) < corner(ind_I) - mininum) .OR. (pos(ind_I) > corner(ind_I) + width(ind_I) + mininum))) THEN
+    IF((pos(ind_I) < corner(ind_I) - mininum) .OR. (pos(ind_I) > upcorner(ind_I) + mininum)) THEN
      write(*,*) 'find_dyn_cell1: cell starting = ', corner
      write(*,*) 'find_dyn_cell1: packet pos = ', pos
-     write(*,*) 'find_dyn_cell1: cell ending = ', (corner + width)
+     write(*,*) 'find_dyn_cell1: cell ending = ', upcorner
      write(*,*) 'find_dyn_cell1: ind_I = ', ind_I
      write(*,*)  'find_dyn_cell1: packet is not located inside the propagation cell'
      STOP
@@ -223,14 +224,16 @@ DO
   write(*,*) 'find_dyn_cell1: xyz = ', sign_x, sign_y, sign_z
   STOP 'find_dyn_cell1: error in signs, this combination is not implemented'
  END IF
+
  IF(debug == 2) THEN
   corner = dyn_cell(cur_cell)%corner
+  upcorner = dyn_cell(cur_cell)%corner
   width = dyn_cell(cur_cell)%width
   DO ind_I = 1, const_dimofspace
-   IF(((pos(ind_I) < corner(ind_I) - mininum) .OR. (pos(ind_I) > corner(ind_I) + width(ind_I) + mininum))) THEN
+   IF(((pos(ind_I) < corner(ind_I) - mininum) .OR. (pos(ind_I) > upcorner(ind_I) + mininum))) THEN
     write(*,*) 'find_dyn_cell1: cell starting = ', corner
     write(*,*) 'find_dyn_cell1: packet pos = ', pos
-    write(*,*) 'find_dyn_cell1: cell ending = ', (corner + width)
+    write(*,*) 'find_dyn_cell1: cell ending = ', upcorner
     write(*,*) 'find_dyn_cell1: ind_I = ', ind_I
     write(*,*)  'find_dyn_cell1: packet is not located inside the propagation cell'
     STOP
