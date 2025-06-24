@@ -64,7 +64,7 @@ dyn_cell(max_n_dcell + 2)%neighbor(posz) = max_n_dcell + 6
 dyn_cell(max_n_dcell + 2)%neighbor(negz) = 0
 ! the third cell
 dyn_cell(max_n_dcell + 3)%corner(ind_x) = loc_corner(ind_x)
-dyn_cell(max_n_dcell + 3)%corner(ind_y) = loc_corner(ind_y) + loc_cell_width(ind_y) / 2.E0
+dyn_cell(max_n_dcell + 3)%corner(ind_y) = half_point(ind_y)
 dyn_cell(max_n_dcell + 3)%corner(ind_z) = loc_corner(ind_z)
 dyn_cell(max_n_dcell + 3)%upcorner(ind_x) = half_point(ind_x)
 dyn_cell(max_n_dcell + 3)%upcorner(ind_y) = end_point(ind_y)
@@ -77,8 +77,8 @@ dyn_cell(max_n_dcell + 3)%neighbor(negy) = max_n_dcell + 1
 dyn_cell(max_n_dcell + 3)%neighbor(posz) = max_n_dcell + 7
 dyn_cell(max_n_dcell + 3)%neighbor(negz) = 0
 ! the forth cell
-dyn_cell(max_n_dcell + 4)%corner(ind_x) = loc_corner(ind_x) + loc_cell_width(ind_x) / 2.E0
-dyn_cell(max_n_dcell + 4)%corner(ind_y) = loc_corner(ind_y) + loc_cell_width(ind_y) / 2.E0
+dyn_cell(max_n_dcell + 4)%corner(ind_x) = half_point(ind_x)
+dyn_cell(max_n_dcell + 4)%corner(ind_y) = half_point(ind_y)
 dyn_cell(max_n_dcell + 4)%corner(ind_z) = loc_corner(ind_z)
 dyn_cell(max_n_dcell + 4)%upcorner(ind_x) = end_point(ind_x)
 dyn_cell(max_n_dcell + 4)%upcorner(ind_y) = end_point(ind_y)
@@ -93,7 +93,7 @@ dyn_cell(max_n_dcell + 4)%neighbor(negz) = 0
 ! the fifth cell
 dyn_cell(max_n_dcell + 5)%corner(ind_x) = loc_corner(ind_x)
 dyn_cell(max_n_dcell + 5)%corner(ind_y) = loc_corner(ind_y)
-dyn_cell(max_n_dcell + 5)%corner(ind_z) = loc_corner(ind_z) + loc_cell_width(ind_z) / 2.E0
+dyn_cell(max_n_dcell + 5)%corner(ind_z) = half_point(ind_z)
 dyn_cell(max_n_dcell + 5)%upcorner(ind_x) = half_point(ind_x)
 dyn_cell(max_n_dcell + 5)%upcorner(ind_y) = half_point(ind_y)
 dyn_cell(max_n_dcell + 5)%upcorner(ind_z) = end_point(ind_z)
@@ -105,9 +105,9 @@ dyn_cell(max_n_dcell + 5)%neighbor(negy) = 0
 dyn_cell(max_n_dcell + 5)%neighbor(posz) = 0
 dyn_cell(max_n_dcell + 5)%neighbor(negz) = max_n_dcell + 1
 ! the sixth cell
-dyn_cell(max_n_dcell + 6)%corner(ind_x) = loc_corner(ind_x) + loc_cell_width(ind_x) / 2.E0
+dyn_cell(max_n_dcell + 6)%corner(ind_x) = half_point(ind_x)
 dyn_cell(max_n_dcell + 6)%corner(ind_y) = loc_corner(ind_y)
-dyn_cell(max_n_dcell + 6)%corner(ind_z) = loc_corner(ind_z) + loc_cell_width(ind_z) / 2.E0
+dyn_cell(max_n_dcell + 6)%corner(ind_z) = half_point(ind_z)
 dyn_cell(max_n_dcell + 6)%upcorner(ind_x) = end_point(ind_x)
 dyn_cell(max_n_dcell + 6)%upcorner(ind_y) = half_point(ind_y)
 dyn_cell(max_n_dcell + 6)%upcorner(ind_z) = end_point(ind_z)
@@ -120,8 +120,8 @@ dyn_cell(max_n_dcell + 6)%neighbor(posz) = 0
 dyn_cell(max_n_dcell + 6)%neighbor(negz) = max_n_dcell + 2
 ! the seventh cell
 dyn_cell(max_n_dcell + 7)%corner(ind_x) = loc_corner(ind_x)
-dyn_cell(max_n_dcell + 7)%corner(ind_y) = loc_corner(ind_y) + loc_cell_width(ind_y) / 2.E0
-dyn_cell(max_n_dcell + 7)%corner(ind_z) = loc_corner(ind_z) + loc_cell_width(ind_z) / 2.E0
+dyn_cell(max_n_dcell + 7)%corner(ind_y) = half_point(ind_y)
+dyn_cell(max_n_dcell + 7)%corner(ind_z) = half_point(ind_z)
 dyn_cell(max_n_dcell + 7)%upcorner(ind_x) = half_point(ind_x)
 dyn_cell(max_n_dcell + 7)%upcorner(ind_y) = end_point(ind_y)
 dyn_cell(max_n_dcell + 7)%upcorner(ind_z) = end_point(ind_z)
@@ -133,9 +133,9 @@ dyn_cell(max_n_dcell + 7)%neighbor(negy) = max_n_dcell + 5
 dyn_cell(max_n_dcell + 7)%neighbor(posz) = 0
 dyn_cell(max_n_dcell + 7)%neighbor(negz) = max_n_dcell + 3
 ! the eighth cell
-dyn_cell(max_n_dcell + no_dcells)%corner(ind_x) = loc_corner(ind_x) + loc_cell_width(ind_x) / 2.E0
-dyn_cell(max_n_dcell + no_dcells)%corner(ind_y) = loc_corner(ind_y) + loc_cell_width(ind_y) / 2.E0
-dyn_cell(max_n_dcell + no_dcells)%corner(ind_z) = loc_corner(ind_z) + loc_cell_width(ind_z) / 2.E0
+dyn_cell(max_n_dcell + no_dcells)%corner(ind_x) = half_point(ind_x)
+dyn_cell(max_n_dcell + no_dcells)%corner(ind_y) = half_point(ind_y) 
+dyn_cell(max_n_dcell + no_dcells)%corner(ind_z) = half_point(ind_z) 
 dyn_cell(max_n_dcell + no_dcells)%upcorner(ind_x) = end_point(ind_x)
 dyn_cell(max_n_dcell + no_dcells)%upcorner(ind_y) = end_point(ind_y)
 dyn_cell(max_n_dcell + no_dcells)%upcorner(ind_z) = end_point(ind_z)
