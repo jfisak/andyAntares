@@ -25,8 +25,8 @@ DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: half_point, end_point
 dyn_cell(act_n_dyncell)%up_cell = max_n_dcell + 1
 loc_corner = dyn_cell(act_n_dyncell)%corner
 loc_cell_width = dyn_cell(act_n_dyncell)%width
-half_point = dyn_cell(act_n_dyncell)%corner + dyn_cell(act_n_dyncell)%width / 2.D0
 end_point = dyn_cell(act_n_dyncell)%upcorner
+half_point = (dyn_cell(act_n_dyncell)%corner + dyn_cell(act_n_dyncell)%upcorner) / 2.D0
 
 DO ind_I = 1, no_dcells
  dyn_cell(max_n_dcell + ind_I)%width(ind_x) = (half_point(ind_x) - loc_corner(ind_x))
