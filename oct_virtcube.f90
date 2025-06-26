@@ -41,7 +41,7 @@ ELSE IF(pack_index > SIZE(package)) THEN
  act_pos = dummypackage(dummypack_index)%pos
 END IF
 act_corner = dyn_cell(act_cell)%corner
-act_width = dyn_cell(act_cell)%width
+act_width = dyn_cell(act_cell)%upcorner(:) - dyn_cell(act_cell)%corner(:)
 act_center = act_corner + act_width/2.0
 
 ! x
