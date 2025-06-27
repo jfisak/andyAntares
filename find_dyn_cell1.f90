@@ -113,11 +113,12 @@ IF(debug == 2) THEN
  width = dyn_cell(actCell)%width
  DO ind_I = 1, const_dimofspace
   IF(((pos(ind_I) < corner(ind_I) - mininum) .OR. (pos(ind_I) > upcorner(ind_I)+ mininum))) THEN
+   write(*,*) 'find_dyn_cell1: test #1'
    write(*,*) 'find_dyn_cell1: cell starting = ', corner
    write(*,*) 'find_dyn_cell1: packet pos = ', pos
-   write(*,*) 'find_dyn_cell1: cell ending = ', (corner + width)
+   write(*,*) 'find_dyn_cell1: cell ending = ', upcorner
    write(*,*) 'find_dyn_cell1: ind_I = ', ind_I
-   write(*,*)  'find_dyn_cell1: packet is not located inside the propagation cell'
+   write(*,*) 'find_dyn_cell1: packet is not located inside the propagation cell'
    STOP
   END IF
  END DO
@@ -130,6 +131,7 @@ IF(dyn_cell(actCell)%up_cell == 0) THEN
   upcorner = dyn_cell(obtained_cell)%upcorner
   DO ind_I = 1, const_dimofspace
    IF(((pos(ind_I) < corner(ind_I) - mininum) .OR. (pos(ind_I) > upcorner(ind_I) + mininum))) THEN
+    write(*,*) 'find_dyn_cell1: test #2'
     write(*,*) 'find_dyn_cell1: cell starting = ', corner
     write(*,*) 'find_dyn_cell1: packet pos = ', pos
     write(*,*) 'find_dyn_cell1: cell ending = ', upcorner
@@ -180,6 +182,7 @@ DO
    width = dyn_cell(obtained_cell)%width
    DO ind_I = 1, const_dimofspace
     IF((pos(ind_I) < corner(ind_I) - mininum) .OR. (pos(ind_I) > upcorner(ind_I) + mininum)) THEN
+     write(*,*) 'find_dyn_cell1: test #3'
      write(*,*) 'find_dyn_cell1: cell starting = ', corner
      write(*,*) 'find_dyn_cell1: packet pos = ', pos
      write(*,*) 'find_dyn_cell1: cell ending = ', upcorner
@@ -230,10 +233,11 @@ DO
 
  IF(debug == 2) THEN
   corner = dyn_cell(cur_cell)%corner
-  upcorner = dyn_cell(cur_cell)%corner
+  upcorner = dyn_cell(cur_cell)%upcorner
   width = dyn_cell(cur_cell)%width
   DO ind_I = 1, const_dimofspace
    IF(((pos(ind_I) < corner(ind_I) - mininum) .OR. (pos(ind_I) > upcorner(ind_I) + mininum))) THEN
+    write(*,*) 'find_dyn_cell1: test #4'
     write(*,*) 'find_dyn_cell1: cell starting = ', corner
     write(*,*) 'find_dyn_cell1: packet pos = ', pos
     write(*,*) 'find_dyn_cell1: cell ending = ', upcorner
