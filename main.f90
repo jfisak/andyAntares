@@ -26,16 +26,16 @@ USE counters
 
   IMPLICIT NONE
 
-  INTEGER                           :: n_pack, iteration!, nx_cell, ny_cell, nz_cell
-  INTEGER                           :: iseed, idx
-  INTEGER, DIMENSION (9)            :: TT
-  DOUBLE PRECISION, ALLOCATABLE     :: current_temp(:)
+  INTEGER                               :: n_pack, iteration!, nx_cell, ny_cell, nz_cell
+  INTEGER                               :: iseed, idx
+  INTEGER, DIMENSION(9)                 :: TT
+  DOUBLE PRECISION, ALLOCATABLE         :: current_temp(:)
   INTEGER                               :: cur_parameter
-  ! REAL                                  :: time0_agconnwpg, time1_agconnwpg
+  ! REAL                                :: time0_agconnwpg, time1_agconnwpg
   REAL                                  :: time0_pp, time1_pp
 ! parallelized part
 ! definition of MPI variables
-INTEGER                              :: nphit
+INTEGER                                 :: nphit
 
 LOGICAL                                 :: propmod_file_exists
 CHARACTER(filename_length)                           :: propmod_file
@@ -45,6 +45,9 @@ LOGICAL                                 :: timing = .true.
 INTEGER, PARAMETER                      :: ind_save_inputfile = 100, ind_save_composition = 101
 INTEGER, PARAMETER                      :: ind_save_modgrid = 102
 INTEGER, PARAMETER                      :: ind_save_velfield = 11
+
+DOUBLE PRECISION                        :: wale_min, wale_max
+DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: ccd_pos
 
 ! Link data to identify program version
 CHARACTER LINK_DATE*30, LINK_USER*10, LINK_HOST*60
@@ -149,9 +152,29 @@ saha_const = 5.D-1 * (const_h**2/(2.0*const_pi*const_me_g*const_kB))**1.5
 ! 3 -- progress of the calculation procedure
 ! 4 -- rikd packet dynamics
 ! 5 -- line interactions
-debug = 0
+debug = 3
 
-
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! ONLY BRTM CALCULATION THROUGHT PRE-CALCULATED PROPMOD GRID!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+IF(only_brtm) THEN
+ write(*,*) 'main: read_propmod_grid'
+ CALL read_propmod_grid()
+ write(*,*) 'main: brtm'
+ wale_min = 6000
+ wale_max = 7000
+ ccd_pos = (/ -0.25, -0.25, -0.25 /)
+ CALL brtm(wale_min, wale_max, ccd_pos)
+#if mpi==1
+ IF(debug == 3) write(*,*) 'calling mpi_finalize'
+ CALL mpi_finalize(ierr)
+#endif
+ RETURN
+END IF
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -368,7 +391,12 @@ CLOSE(2)
 CLOSE(99)
 
 IF(debug == 3) write(*,*) 'main: calling backward ray-tracing method'
-IF(calc_brtm) CALL brtm()
+IF(calc_brtm) THEN
+ wale_min = 6000
+ wale_max = 7000
+ ccd_pos = (/ 0.00, 0.5, 0.5 /)
+ CALL brtm(wale_min, wale_max, ccd_pos)
+END IF
 
 #if mpi==1
  IF(debug == 3) write(*,*) 'calling mpi_finalize'
