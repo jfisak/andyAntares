@@ -49,13 +49,14 @@ DOUBLE PRECISION                                :: temp
 ! free-free variables
 DOUBLE PRECISION, PARAMETER                     :: ffconst = 3.69255D8
 DOUBLE PRECISION                                :: alphaff, gff
-DOUBLE PRECISION                                :: kappaff
+DOUBLE PRECISION                                :: kappaff, mass_density
 
 !write(*,*) 'r_kappa_cont: dim(lcont) = ', SIZE(actirrates%Lcont)
 !calculation of basic variables
 current_mgi = get_package_model_index(pack_index)
 ! write(*,*) 'r_kappa_cont: current_mgi = ', current_mgi
 electron_density = model_grid(current_mgi)%e_dens
+mass_density = model_grid(current_mgi)%rho
 temp = model_grid(current_mgi)%t
 freq = package(pack_index)%freq_cmf
 ! write(*,*) 'r_kappa_cont: electron_density = ', electron_density

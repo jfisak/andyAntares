@@ -70,9 +70,16 @@ rel_pos = act_pos - act_center
 ! cell neighbour numbers
 IF(dyngrid == 0) THEN
  CALL oct_neighbors(pack_index, rel_pos, velgridcells, incellmode)
+ IF(debug == 2) THEN
+  write(*,*) 'vel_discrete_points: velgridcells = ', velgridcells
+ END IF
 ELSE IF(dyngrid > 0) THEN
  CALL oct_virtcube(pack_index, rel_pos, cube_pos, incellmode)
+ IF(debug == 2) THEN
+  write(*,*) 'vel_discrete_points: cube_pos = ', cube_pos
+ END IF
 END IF
+
 ! a special case when some neighbor cells do not exist, because we are close bound to the compuational domain
 IF(incellmode) THEN ! incellmode
  CALL velo_vector(act_pos, act_mgi, vel_vec)
@@ -82,7 +89,7 @@ IF(incellmode) THEN ! incellmode
 ELSE ! incellmode
  DO ind_I = 1,4
   IF(dyngrid == 0) THEN
-   cur_cell1 = velgridcells(2*ind_I -1)
+   cur_cell1 = velgridcells(2 * ind_I -1)
    cur_mgi1 = dyn_cell(cur_cell1)%model_index
    cur_pos1 = dyn_cell(cur_cell1)%corner + dyn_cell(cur_cell1)%width/2.0
    

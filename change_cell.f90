@@ -14,7 +14,7 @@ USE constants
 
 INTEGER                                 :: old_cell, next_mgi
 INTEGER                                 :: dummypackage
-DOUBLE PRECISION, PARAMETER             :: mininum = 1.D1
+DOUBLE PRECISION, PARAMETER             :: mininum = 1.D4
 
 LOGICAL                                 :: is_difap
 DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: corner, width
@@ -64,7 +64,9 @@ ELSE
 
  ! test on the propGrid cell index number
  IF(next_cell > SIZE(dyn_cell)) THEN
-  write(*,*) 'change_cell: next_cell > numbre of propGrid cells, exiting now'
+  write(*,*) 'change_cell: r/R_inf = ', norm2(package(pack_index)%pos)/R_inf
+  write(*,*) 'change_cell: next_cell = ', next_cell
+  write(*,*) 'change_cell: next_cell > number of propGrid cells, exiting now'
   CALL abort()
  END IF
 

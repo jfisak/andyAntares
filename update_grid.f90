@@ -76,7 +76,7 @@ DO cur_mgi = my_start, my_end
    ! reading the temperature structure
    cur_temp(cur_mgi) = model_grid(cur_mgi)%T
   ELSE ! iteration > 1
-   ! Energy density contribeted to the model grid cell 
+   ! Energy density contributed to the model grid cell 
    cur_j(cur_mgi) = model_grid(cur_mgi)%J / model_grid(cur_mgi)%volume / (4 * const_pi)
    temp = (model_grid(cur_mgi)%J * const_pi / const_stefbolz )**(1./4.) 
    cur_temp(cur_mgi)  = temp
@@ -95,7 +95,7 @@ DO cur_mgi = my_start, my_end
   ! if we calculate the condition only from electron density
    ! write(*,*) 'update_grid: enable_diffusion = ', enable_diffusion
    IF(enable_diffusion == 1) THEN
-    CALL diffusion_approximation(cur_mgi)
+    CALL diffusion_approximation(cur_mgi, cur_e_dens(cur_mgi))
    END IF
   END IF
   ! write(*,*) 'update_grid: temp = ', model_grid(cur_mgi)%T
