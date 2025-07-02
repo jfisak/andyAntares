@@ -3,6 +3,8 @@
 !
 ! INPUT         pos             position
 ! OUTPUT        obtained_cell     returns an index of the current cell
+!
+! RETURN POINT: 4x
 SUBROUTINE find_dyn_cell1(pos, obtained_cell)
 
 USE types
@@ -32,7 +34,7 @@ DOUBLE PRECISION, DIMENSION(const_dimofspace)                   :: corner, width
 INTEGER                                                         :: ind_I, ind_J
 DOUBLE PRECISION, PARAMETER                     :: mininum = 1e2
 
-INTEGER                                         :: cur_cell, down_cell, up_cell
+INTEGER                                         :: cur_cell
 
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: cur_delta, cur_centre
 LOGICAL                                         :: sign_x, sign_y, sign_z

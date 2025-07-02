@@ -19,7 +19,7 @@ INTEGER, DIMENSION(n_closest)           :: closest_points
 INTEGER, PARAMETER                      :: grid_A = 1, grid_B = 2
 INTEGER                                 :: n_closest
 INTEGER, PARAMETER                      :: ind_dist = 1, ind_index = 2
-DOUBLE PRECISION, DIMENSION(3)          :: cur_mg_pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: cur_mg_pos
 INTEGER                                 :: cur_n_points
 
 INTEGER                                 :: cur_nearest_point, cur_nop
@@ -129,8 +129,9 @@ DO cur_nearest_point = 1, cur_n_points ! #L00
     IF(procout) write(*,*) 'vec_AB = ', vec_AB
     IF(procout) write(*,*) 'vec_AC = ', vec_AC
     ! testing if a new point is on the same line as the other points already saved into interp_dist
-    IF(((vec_AB(1) == vec_AC(1)) .and. (vec_AB(2) == vec_AC(2)) .and. (vec_AB(3) == vec_AC(3))) .or. &
-     & ((vec_AB(1) == -vec_AC(1)) .and. (vec_AB(2) == -vec_AC(2)) .and. (vec_AB(3) == -vec_AC(3)))) THEN 
+    IF(((vec_AB(ind_x) == vec_AC(ind_x)) .and. (vec_AB(ind_y) == vec_AC(ind_y)) .and. &
+     (vec_AB(ind_z) == vec_AC(ind_z))) .or. ((vec_AB(ind_x) == -vec_AC(ind_x)) .and. &
+     (vec_AB(ind_y) == -vec_AC(ind_y)) .and. (vec_AB(ind_z) == -vec_AC(ind_z)))) THEN 
      ! zatím to risknu a vezmu ten druhý index, který by měl být index vzdálenějšího bodu
      f_indexy(cur_del_index) = cur_index_J
      mgi_indexy(cur_del_index) = cur_itj_mgi
@@ -144,27 +145,27 @@ DO cur_nearest_point = 1, cur_n_points ! #L00
  
  IF(.not. novyBod) THEN
   ! looking for the less distant point
-  IF(f_indexy(1) > 0) THEN
-   dist_A = interp_dist(f_indexy(1), ind_dist)
+  IF(f_indexy(ind_x) > 0) THEN
+   dist_A = interp_dist(f_indexy(ind_x), ind_dist)
   ELSE
    dist_A = large_number
   END IF
-  IF(f_indexy(2) > 0) THEN
-   dist_B = interp_dist(f_indexy(2), ind_dist)
+  IF(f_indexy(ind_y) > 0) THEN
+   dist_B = interp_dist(f_indexy(ind_y), ind_dist)
   ELSE
    dist_B = large_number
   END IF
-  IF(f_indexy(3) > 0) THEN
-   dist_C = interp_dist(f_indexy(3), ind_dist)
+  IF(f_indexy(ind_z) > 0) THEN
+   dist_C = interp_dist(f_indexy(ind_z), ind_dist)
   ELSE
    dist_C = large_number
   END IF
 
   ! all more distant points should be replaced with the current one
   IF(dist < dist_A .and. dist < dist_B .and. dist < dist_C) THEN
-   IF(f_indexy(1) > 0) index_delete(1) = f_indexy(1)
-   IF(f_indexy(2) > 0) index_delete(2) = f_indexy(2)
-   IF(f_indexy(3) > 0) index_delete(3) = f_indexy(3)
+   IF(f_indexy(ind_x) > 0) index_delete(ind_x) = f_indexy(ind_x)
+   IF(f_indexy(ind_y) > 0) index_delete(ind_y) = f_indexy(ind_y)
+   IF(f_indexy(ind_z) > 0) index_delete(ind_z) = f_indexy(ind_z)
    IF(procout) write(*,*) 'seek_nclosest_points: index_delete = ', index_delete(:)
    nahrada = .true.
   ELSE

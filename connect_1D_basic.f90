@@ -22,8 +22,8 @@ DOUBLE PRECISION, PARAMETER     :: large_number=1.d90
 INTEGER                         :: my_start, my_end
 INTEGER                         :: N_single, N_zbytek
 INTEGER                         :: N_tot_zbytek
-DOUBLE PRECISION, DIMENSION(n_modelgrid)        :: cur_assoc_cells
-DOUBLE PRECISION, DIMENSION(n_propgcells)       :: cur_model_index
+INTEGER, DIMENSION(n_modelgrid)                 :: cur_assoc_cells
+INTEGER, DIMENSION(n_propgcells)                :: cur_model_index
 
 
 

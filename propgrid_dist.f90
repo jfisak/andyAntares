@@ -1,3 +1,8 @@
+! calculates distance to the boundary of the propGrid from any outer point and direction
+!
+! INPUT: cur_paket(INT) -- index of packet
+! OUTPUT: bound_dist(DBLE) -- distance to the boundary
+!
 SUBROUTINE propgrid_dist(cur_paket, bound_dist)
 
 USE types
@@ -5,7 +10,7 @@ IMPLICIT NONE
 
 TYPE(photon)                                    :: cur_paket
 DOUBLE PRECISION                                :: bound_dist
-DOUBLE PRECISION, DIMENSION(3)                  :: cross_pos, cur_pos, direction
+DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: cross_pos, cur_pos, direction
 DOUBLE PRECISION, PARAMETER                     :: largeNumber = 1.D99
 DOUBLE PRECISION                                :: txm, txp, typ, tym, tzm, tzp
 INTEGER                                         :: next_cross
@@ -20,12 +25,12 @@ tym = 0.D0
 tzp = 0.D0
 tzm = 0.D0
 
-txm = (cur_pos(1) - xmin)/direction(1)
-txp = (cur_pos(1) - xmax)/direction(1)
-tym = (cur_pos(2) - ymin)/direction(2)
-typ = (cur_pos(2) - ymax)/direction(2)
-tzm = (cur_pos(3) - zmin)/direction(3)
-tzp = (cur_pos(3) - zmax)/direction(3)
+txm = (cur_pos(ind_x) - xmin)/direction(ind_x)
+txp = (cur_pos(ind_x) - xmax)/direction(ind_x)
+tym = (cur_pos(ind_y) - ymin)/direction(ind_y)
+typ = (cur_pos(ind_y) - ymax)/direction(ind_y)
+tzm = (cur_pos(ind_z) - zmin)/direction(ind_z)
+tzp = (cur_pos(ind_z) - zmax)/direction(ind_z)
 
 if(txm < bound_dist .and. txm > 0.D0) then
  next_cross = negx
@@ -55,29 +60,29 @@ end if
 cross_pos = cur_pos + direction * bound_dist
 if(next_cross == txm .or. next_cross == txp) then
  ! 
- if(cross_pos(2) > ymin .and. cross_pos(2) < ymax .and. &
-  cross_pos(3) > zmin .and. cross_pos(3) < zmax) then
+ if(cross_pos(ind_y) > ymin .and. cross_pos(ind_y) < ymax .and. &
+  cross_pos(ind_z) > zmin .and. cross_pos(ind_z) < zmax) then
    snapped = .true.
  end if
 end if
 
 if(next_cross == tym .or. next_cross == typ) then
- if(cross_pos(1) > xmin .and. cross_pos(1) < xmax .and. &
-  cross_pos(3) > zmin .and. cross_pos(3) < zmax) then
+ if(cross_pos(ind_x) > xmin .and. cross_pos(ind_x) < xmax .and. &
+  cross_pos(ind_z) > zmin .and. cross_pos(ind_z) < zmax) then
    snapped = .true.
  end if
  
 end if
 if(next_cross == tzm .or. next_cross == tzp) then
- if( cross_pos(2) > ymin .and. cross_pos(2) < ymax .and. &
-  cross_pos(1) > xmin .and. cross_pos(1) < xmax) then
+ if( cross_pos(ind_y) > ymin .and. cross_pos(ind_y) < ymax .and. &
+  cross_pos(ind_x) > xmin .and. cross_pos(ind_x) < xmax) then
    snapped = .true.
  end if
  
 end if
 
 if(snapped) then
- package(1)%pos = package(1)%pos + bound_dist * package(1)%dir 
+ package(ind_x)%pos = package(ind_x)%pos + bound_dist * package(ind_x)%dir 
 else
 end if
 
