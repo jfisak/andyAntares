@@ -80,24 +80,24 @@ DO ind_I = 1,8
 END DO
 
 ! z
-cube_pos(2,3) = act_center(ind_z) + sgn_z * act_width(ind_z)
+cube_pos(2, ind_z) = act_pos(ind_z) + sgn_z * act_width(ind_z)
 ! y
-cube_pos(3,2) = act_center(ind_y) + sgn_y * act_width(ind_y)
+cube_pos(3, ind_y) = act_pos(ind_y) + sgn_y * act_width(ind_y)
 ! zy
-cube_pos(4,2) = act_center(ind_y) + sgn_y * act_width(ind_y)
-cube_pos(4,3) = act_center(ind_z) + sgn_z * act_width(ind_z)
+cube_pos(4, ind_y) = act_pos(ind_y) + sgn_y * act_width(ind_y)
+cube_pos(4, ind_z) = act_pos(ind_z) + sgn_z * act_width(ind_z)
 ! x
-cube_pos(5,1) = act_center(ind_x) + sgn_x * act_width(ind_x)
+cube_pos(5, ind_x) = act_pos(ind_x) + sgn_x * act_width(ind_x)
 ! zx
-cube_pos(6,1) = act_center(ind_x) + sgn_x * act_width(ind_x)
-cube_pos(6,3) = act_center(ind_z) + sgn_z * act_width(ind_z)
+cube_pos(6, ind_x) = act_pos(ind_x) + sgn_x * act_width(ind_x)
+cube_pos(6, ind_z) = act_pos(ind_z) + sgn_z * act_width(ind_z)
 ! xy
-cube_pos(7,1) = act_center(ind_x) + sgn_x * act_width(ind_x)
-cube_pos(7,2) = act_center(ind_y) + sgn_y * act_width(ind_y)
+cube_pos(7, ind_x) = act_pos(ind_x) + sgn_x * act_width(ind_x)
+cube_pos(7, ind_y) = act_pos(ind_y) + sgn_y * act_width(ind_y)
 ! zxy
-cube_pos(8,1) = act_center(ind_x) + sgn_x * act_width(ind_x)
-cube_pos(8,2) = act_center(ind_y) + sgn_y * act_width(ind_y)
-cube_pos(8,3) = act_center(ind_z) + sgn_z * act_width(ind_z)
+cube_pos(8, ind_x) = act_pos(ind_x) + sgn_x * act_width(ind_x)
+cube_pos(8, ind_y) = act_pos(ind_y) + sgn_y * act_width(ind_y)
+cube_pos(8, ind_z) = act_pos(ind_z) + sgn_z * act_width(ind_z)
 
 velgridcells(ind_x) = act_cell
 ! the current propagation grid cells

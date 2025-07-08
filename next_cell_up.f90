@@ -16,7 +16,7 @@ DOUBLE PRECISION, DIMENSION(3)          :: cross_pos
 INTEGER                                 :: cross
 ! actual cell
 INTEGER                                 :: act_cell
-DOUBLE PRECISION, DIMENSION(3)          :: corner, width
+DOUBLE PRECISION, DIMENSION(3)          :: corner, upcorner, centre
 INTEGER                                 :: upper_cell
 ! parameters of subcells of dyngrid ijk
 DOUBLE PRECISION, DIMENSION(3)          :: subcells_width
@@ -55,7 +55,8 @@ CASE(1)
 !print*, 'next_cell_up: act_cell = ', act_cell, ' cross_pos = ', cross_pos, 'cross = ', cross
 DO
  corner = dyn_cell(act_cell)%corner
- width = dyn_cell(act_cell)%width
+ centre = (upcorner - corner) / 2.D0
+ upcorner = dyn_cell(act_cell)%upcorner
  upper_cell = dyn_cell(act_cell)%up_cell
 ! print*, 'next_cell_up: act_cell = ', act_cell, ' upper_cell = ', upper_cell, 'cell_down = ', cell_down
  IF(upper_cell == 0) THEN
@@ -68,26 +69,26 @@ DO
    IF(cross == posx .OR. cross == negx) THEN
  !   print*, 'next_cell_up: cross = ', cross
     ! lower front cell
-    IF(cross_pos(2) >= corner(2) .AND. cross_pos(2) <= corner(2) + width(2) / 2.D0 .AND. &
-       cross_pos(3) >= corner(3) .AND. cross_pos(3) <= corner(3) + width(3) / 2.D0) THEN
+    IF(cross_pos(2) >= upcorner(2) .AND. cross_pos(2) <= centre(2)  .AND. &
+       cross_pos(3) >= upcorner(3) .AND. cross_pos(3) <= centre(3) ) THEN
  !   print*, 'next_cell_up: cross 1'
      if(cross == posx) act_cell = upper_cell
      if(cross == negx) act_cell = upper_cell + 1
     ! lower rear cell
-    ELSE IF(cross_pos(2) >= corner(2) + width(2) / 2.D0 .AND. cross_pos(2) <= corner(2) + width(2) .AND. &
-       cross_pos(3) >= corner(3) .AND. cross_pos(3) <= corner(3) + width(3) / 2.D0) THEN
+    ELSE IF(cross_pos(2) >= centre(2) .AND. cross_pos(2) <= upcorner(2) .AND. &
+            cross_pos(3) >= corner(3) .AND. cross_pos(3) <= centre(3)) THEN
  !   print*, 'next_cell_up: cross 2'
      if(cross == posx) act_cell = upper_cell + 2
      if(cross == negx) act_cell = upper_cell + 3
     ! upper front cell
-    ELSE IF(cross_pos(2) >= corner(2) .AND. cross_pos(2) <= corner(2) + width(2) / 2.D0 .AND. &
-       cross_pos(3) >= corner(3) + width(3) / 2.D0 .AND. cross_pos(3) <= corner(3) + width(3)) THEN
+    ELSE IF(cross_pos(2) >= corner(2) .AND. cross_pos(2) <= centre(2) .AND. &
+       cross_pos(3) >= centre(3) .AND. cross_pos(3) <= upcorner(3)) THEN
  !   print*, 'next_cell_up: cross 3'
      if(cross == posx) act_cell = upper_cell + 4
      if(cross == negx) act_cell = upper_cell + 5
     ! upper rear cell
-    ELSE IF(cross_pos(2) >= corner(2) + width(2) / 2.D0 .AND. cross_pos(2) <= corner(2) + width(2) .AND. &
-       cross_pos(3) >= corner(3) + width(3) / 2.D0 .AND. cross_pos(3) <= corner(3) + width(3)) THEN
+    ELSE IF(cross_pos(2) >= centre(2) .AND. cross_pos(2) <= upcorner(2) .AND. &
+       cross_pos(3) >= centre(3) .AND. cross_pos(3) <= upcorner(3)) THEN
  !   print*, 'next_cell_up: cross 4'
      if(cross == posx) act_cell = upper_cell + 6
      if(cross == negx) act_cell = upper_cell + 7
@@ -100,26 +101,26 @@ DO
   ELSE IF(cross == posy .OR. cross == negy) THEN
 !   print*, 'next_cell_up: cross = ', cross
    ! lower left cell
-   IF(cross_pos(1) >= corner(1) .AND. cross_pos(1) <= corner(1) + width(1) / 2.D0 .AND. &
-      cross_pos(3) >= corner(3) .AND. cross_pos(3) <= corner(3) + width(3) / 2.D0) THEN
+   IF(cross_pos(1) >= corner(1) .AND. cross_pos(1) <= centre(1)  .AND. &
+      cross_pos(3) >= corner(3) .AND. cross_pos(3) <= centre(3) ) THEN
 !   print*, 'next_cell_up: cross 1'
     if(cross == posy) act_cell = upper_cell
     if(cross == negy) act_cell = upper_cell + 2
    ! lower right cell
-   ELSE IF(cross_pos(1) >= corner(1) + width(1) / 2.D0 .AND. cross_pos(1) <= corner(1) + width(1) .AND. &
-      cross_pos(3) >= corner(3) .AND. cross_pos(3) <= corner(3) + width(3) / 2.D0) THEN
+   ELSE IF(cross_pos(1) >= centre(1) .AND. cross_pos(1) <= upcorner(1) .AND. &
+      cross_pos(3) >= corner(3) .AND. cross_pos(3) <= centre(3)) THEN
 !   print*, 'next_cell_up: cross 2'
     if(cross == posy) act_cell = upper_cell + 1
     if(cross == negy) act_cell = upper_cell + 3
    ! upper left cell
-   ELSE IF(cross_pos(1) >= corner(1) .AND. cross_pos(1) <= corner(1) + width(1) / 2.D0 .AND. &
-      cross_pos(3) >= corner(3) + width(3) / 2.D0 .AND. cross_pos(3) <= corner(3) + width(3)) THEN
+   ELSE IF(cross_pos(1) >= corner(1) .AND. cross_pos(1) <= centre(1) .AND. &
+      cross_pos(3) >= centre(3) .AND. cross_pos(3) <= upcorner(3)) THEN
 !   print*, 'next_cell_up: cross 3'
     if(cross == posy) act_cell = upper_cell + 4
     if(cross == negy) act_cell = upper_cell + 6
    ! upper right cell
-   ELSE IF(cross_pos(1) >= corner(1) + width(1) / 2.D0 .AND. cross_pos(1) <= corner(1) + width(1) .AND. &
-      cross_pos(3) >= corner(3) + width(3) / 2.D0 .AND. cross_pos(3) <= corner(3) + width(3)) THEN
+   ELSE IF(cross_pos(1) >= upcorner(1) / 2.D0 .AND. cross_pos(1) <= upcorner(1) .AND. &
+      cross_pos(3) >= centre(3) .AND. cross_pos(3) <= upcorner(3)) THEN
 !   print*, 'next_cell_up: cross 4'
     if(cross == posy) act_cell = upper_cell + 5
     if(cross == negy) act_cell = upper_cell + 7
@@ -133,34 +134,34 @@ DO
   ELSE IF(cross == posz .OR. cross == negz) THEN
 !   print*, 'next_cell_up: cross = ', cross
    ! front left cell
-   IF(cross_pos(1) >= corner(1) .AND. cross_pos(1) <= corner(1) + width(1) / 2.D0 .AND. &
-      cross_pos(2) >= corner(2) .AND. cross_pos(2) <= corner(2) + width(2) / 2.D0) THEN
+   IF(cross_pos(1) >= corner(1) .AND. cross_pos(1) <= centre(1) .AND. &
+      cross_pos(2) >= corner(2) .AND. cross_pos(2) <= centre(2)) THEN
 !   print*, 'next_cell_up: cross 1'
     if(cross == posz) act_cell = upper_cell
     if(cross == negz) act_cell = upper_cell + 4
    ! lower right cell
-   ELSE IF(cross_pos(1) >= corner(1) + width(1) / 2.D0 .AND. cross_pos(1) <= corner(1) + width(1) .AND. &
-      cross_pos(2) >= corner(2) .AND. cross_pos(2) <= corner(2) + width(2) / 2.D0) THEN
+   ELSE IF(cross_pos(1) >= centre(1) .AND. cross_pos(1) <= upcorner(1) .AND. &
+      cross_pos(2) >= corner(2) .AND. cross_pos(2) <= centre(2)) THEN
 !   print*, 'next_cell_up: cross 2'
     if(cross == posz) act_cell = upper_cell + 1
     if(cross == negz) act_cell = upper_cell + 5
    ! upper left cell
-   ELSE IF(cross_pos(1) >= corner(1) .AND. cross_pos(1) <= corner(1) + width(1) / 2.D0 .AND. &
-      cross_pos(2) >= corner(2) + width(2) / 2.D0 .AND. cross_pos(2) <= corner(2) + width(2)) THEN
+   ELSE IF(cross_pos(1) >= corner(1) .AND. cross_pos(1) <= centre(1) .AND. &
+      cross_pos(2) >= centre(2) .AND. cross_pos(2) <= centre(2)) THEN
 !   print*, 'next_cell_up: cross 3'
     if(cross == posz) act_cell = upper_cell + 2
     if(cross == negz) act_cell = upper_cell + 6
    ! upper right cell
-   ELSE IF(cross_pos(1) >= corner(1) + width(1) / 2.D0 .AND. cross_pos(1) <= corner(1) + width(1) .AND. &
-      cross_pos(2) >= corner(2) + width(2) / 2.D0 .AND. cross_pos(2) <= corner(2) + width(2)) THEN
+   ELSE IF(cross_pos(1) >= centre(1) .AND. cross_pos(1) <= centre(1) .AND. &
+      cross_pos(2) >= centre(2) .AND. cross_pos(2) <= centre(2)) THEN
 !   print*, 'next_cell_up: cross 4'
     if(cross == posz) act_cell = upper_cell + 3
     if(cross == negz) act_cell = upper_cell + 7
    ELSE
     write(*,*) 'next_cell_up: no cell was found'
     write(*,*) 'pos = ', norm2(package(pack_index)%pos) / R_star
-    write(*,*) 'cor_z = ', corner(3)/R_star, ' pos_z = ', package(pack_index)%pos(3)/R_star, ' cor_z+w = ', (corner(3) + &
-    width(3))/R_star
+    ! write(*,*) 'cor_z = ', corner(3)/R_star, ' pos_z = ', package(pack_index)%pos(3)/R_star, ' cor_z+w = ', (corner(3) + &
+    ! width(3))/R_star
     CALL abort()
    END IF
   END IF
