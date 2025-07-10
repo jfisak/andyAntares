@@ -97,12 +97,14 @@ ELSE ! incellmode
    cur_mgi2 = dyn_cell(cur_cell2)%model_index
    cur_pos2 = dyn_cell(cur_cell2)%corner + dyn_cell(cur_cell2)%width/2.0
   ELSE IF (dyngrid > 0) THEN
+   cur_cell1 = velgridcells(2 * ind_I -1)
    cur_pos1 = cube_pos(2*ind_I - 1, :)
-   CALL find_dyn_cell1(cur_pos1, cur_cell1)
+   ! CALL find_dyn_cell1(cur_pos1, cur_cell1)
    cur_mgi1 = dyn_cell(cur_cell1)%model_index
 
+   cur_cell2 = velgridcells(2*ind_I)
    cur_pos2 = cube_pos(2*ind_I, :)
-   CALL find_dyn_cell1(cur_pos2, cur_cell2)
+   ! CALL find_dyn_cell1(cur_pos2, cur_cell2)
    cur_mgi2 = dyn_cell(cur_cell2)%model_index
   END IF
   CALL velo_vector(cur_pos1, cur_mgi1, cur_vel1)
