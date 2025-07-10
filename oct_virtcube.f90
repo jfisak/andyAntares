@@ -5,7 +5,7 @@
 ! OUTPUT: cube_pos(DBLE(8, const_dimofspace)) -- position of interpolation points
 !         incell(LOG) -- is the current propGrid cell index < 0
 !
-SUBROUTINE oct_virtcube(pack_index, rel_pos, cube_pos, incell)
+SUBROUTINE oct_virtcube(pack_index, rel_pos, cube_pos, velgridcells, incell)
 
 USE types
 USE constants

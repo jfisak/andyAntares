@@ -74,7 +74,7 @@ IF(dyngrid == 0) THEN
   write(*,*) 'vel_discrete_points: velgridcells = ', velgridcells
  END IF
 ELSE IF(dyngrid > 0) THEN
- CALL oct_virtcube(pack_index, rel_pos, cube_pos, incellmode)
+ CALL oct_virtcube(pack_index, rel_pos, cube_pos, velgridcells, incellmode)
  IF(debug == 2) THEN
   write(*,*) 'vel_discrete_points: cube_pos = ', cube_pos
  END IF
