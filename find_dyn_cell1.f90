@@ -32,9 +32,10 @@ DOUBLE PRECISION, PARAMETER                     :: epsilon0 = 1e-15
 ! DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: pobcw
 DOUBLE PRECISION, DIMENSION(const_dimofspace)                   :: corner, width, upcorner
 INTEGER                                                         :: ind_I, ind_J
-DOUBLE PRECISION, PARAMETER                     :: mininum = 1e2
+DOUBLE PRECISION, PARAMETER                     :: mininum = 1e5
 
-INTEGER                                         :: cur_cell
+INTEGER                                         :: cur_cell, test_index
+INTEGER                                         :: down_cell, up_cell, init_down_cell
 
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: cur_delta, cur_centre
 LOGICAL                                         :: sign_x, sign_y, sign_z
@@ -155,47 +156,12 @@ SELECT CASE(dyngrid)
 CASE(1)
 ! we are looking for the given cell in the dyncell tree
 ind_J = 0
-cur_centre = (dyn_cell(actCell)%corner + dyn_cell(actCell)%upcorner) / 2.D0
-cur_delta = pos - cur_centre
-IF(cur_delta(ind_x) > 0.D0) THEN
- sign_x = .true.
-ELSE
- sign_x = .false.
-END IF
-IF(cur_delta(ind_y) > 0.D0) THEN
- sign_y = .true.
-ELSE
- sign_y = .false.
-END IF
-IF(cur_delta(ind_z) > 0.D0) THEN
- sign_z = .true.
-ELSE
- sign_z = .false.
-END IF
+cur_centre = (dyn_cell(actCell)%upcorner + dyn_cell(actCell)%corner) / 2.D0
 
 cur_cell = actCell
+init_down_cell = actCell
 
 DO
- IF(dyn_cell(cur_cell)%up_cell == 0) THEN
-  obtained_cell = cur_cell
-  IF(debug == 2) THEN
-   corner = dyn_cell(obtained_cell)%corner
-   upcorner = dyn_cell(obtained_cell)%upcorner
-   width = dyn_cell(obtained_cell)%width
-   DO ind_I = 1, const_dimofspace
-    IF((pos(ind_I) < corner(ind_I) - mininum) .OR. (pos(ind_I) > upcorner(ind_I) + mininum)) THEN
-     write(*,*) 'find_dyn_cell1: test #3'
-     write(*,*) 'find_dyn_cell1: cell starting = ', corner
-     write(*,*) 'find_dyn_cell1: packet pos = ', pos
-     write(*,*) 'find_dyn_cell1: cell ending = ', upcorner
-     write(*,*) 'find_dyn_cell1: ind_I = ', ind_I
-     write(*,*)  'find_dyn_cell1: packet is not located inside the propagation cell'
-     STOP
-    END IF
-   END DO
-  END IF
-  EXIT
- END IF
  ! we have to move to the higher level of the dyncell tree
  ind_J = ind_J + 1
  write(*,*) 'find_dyn_cell1: loop ind_J = ', ind_J, ' cur_cell = ', cur_cell
@@ -204,55 +170,66 @@ DO
  !  STOP 'find_dyn_cell1'
  ! END IF
  ! did we found the given cell containing the given point?
- ! 1
- IF(.not. sign_x .and. .not. sign_y .and. .not. sign_z ) THEN
-  cur_cell = dyn_cell(cur_cell)%up_cell
- ! 2
- ELSE IF(sign_x .and. .not. sign_y .and. .not. sign_z ) THEN
-  cur_cell = dyn_cell(cur_cell)%up_cell + 1
- ! 3
- ELSE IF(.not. sign_x .and. sign_y .and. .not. sign_z ) THEN
-  cur_cell = dyn_cell(cur_cell)%up_cell + 2
- ! 4
- ELSE IF(sign_x .and. sign_y .and. .not. sign_z ) THEN
-  cur_cell = dyn_cell(cur_cell)%up_cell + 3
- ! 5
- ELSE IF(.not. sign_x .and. .not. sign_y .and. sign_z ) THEN
-  cur_cell = dyn_cell(cur_cell)%up_cell + 4
- ! 6
- ELSE IF(sign_x .and. .not. sign_y .and. sign_z ) THEN
-  cur_cell = dyn_cell(cur_cell)%up_cell + 5
- ! 7
- ELSE IF(.not. sign_x .and. sign_y .and. sign_z ) THEN
-  cur_cell = dyn_cell(cur_cell)%up_cell + 6
- ! 8
- ELSE IF(sign_x .and. sign_y .and. sign_z ) THEN
-  cur_cell = dyn_cell(cur_cell)%up_cell + 7
+ ! DO ind_I = 0,7
+ !  test_index = dyn_cell(cur_cell)%up_cell + ind_I
+ !  corner = dyn_cell(test_index)%corner
+ !  upcorner = dyn_cell(test_index)%upcorner
+ !  write(*,*) 'find_dyn_cell1: ind_I + 1 = ', ind_I + 1
+ !  write(*,*) 'find_dyn_cell1: corner = ', corner
+ !  write(*,*) 'find_dyn_cell1: pos = ', pos
+ !  write(*,*) 'find_dyn_cell1: upcorner = ', upcorner
+ ! END DO
+
+ IF((pos(ind_x) .GE. dyn_cell(cur_cell)%corner(ind_x) - mininum) .AND. &
+    (pos(ind_x) .LE. dyn_cell(cur_cell)%upcorner(ind_x) + mininum) .AND. &
+    (pos(ind_y) .GE. dyn_cell(cur_cell)%corner(ind_y) - mininum) .AND. &
+    (pos(ind_y) .LE. dyn_cell(cur_cell)%upcorner(ind_y) + mininum) .AND. &
+    (pos(ind_z) .GE. dyn_cell(cur_cell)%corner(ind_z) - mininum) .AND. &
+    (pos(ind_z) .LE. dyn_cell(cur_cell)%upcorner(ind_z) + mininum)) THEN
+  ! we have found a cell containing the given point
+  ! is this cell on the top of the dyncell tree?
+  IF(dyn_cell(cur_cell)%up_cell == 0) THEN
+   obtained_cell = cur_cell
+   write(*,*) 'find_dyn_cell1: obtained_cell = ', obtained_cell
+   EXIT
+  ! we have to move to the higher level of the dyncell tree
+  ELSE
+   init_down_cell = dyn_cell(cur_cell)%up_cell
+   cur_cell = dyn_cell(cur_cell)%up_cell
+  END IF
+ ! we are not in the right cell, we have to move to the next cell
+ ! in the dynamical cells tree
  ELSE
-  write(*,*) 'find_dyn_cell1: xyz = ', sign_x, sign_y, sign_z
-  STOP 'find_dyn_cell1: error in signs, this combination is not implemented'
+  IF(cur_cell + 1 .LE. init_down_cell + 7) THEN
+   cur_cell = cur_cell + 1
+  ELSE
+   ! write(*,*) 'find_dyn_cell1: up_cell = ', dyn_cell(init_down_cell)%up_cell
+   ! down_cell = dyn_cell(cur_cell)%down_cell
+   ! write(*,*) 'find_dyn_cell1: low cell corner = ', dyn_cell(down_cell)%corner
+   ! up_cell = dyn_cell(down_cell)%up_cell
+   ! DO ind_I = 1,8
+   !  write(*,*) 'find_dyn_cell1: corner for pgi_index = ', up_cell, &
+   !   ' corner = ', (dyn_cell(up_cell)%corner)
+   ! up_cell = up_cell + 1
+   ! END DO
+   DO ind_I = 0,7
+    test_index = dyn_cell(init_down_cell)%up_cell + ind_I
+    corner = dyn_cell(test_index)%corner
+    upcorner = dyn_cell(test_index)%upcorner
+    write(*,*) 'find_dyn_cell1: ind_I + 1 = ', ind_I + 1
+    write(*,*) 'find_dyn_cell1: corner = ', corner
+    write(*,*) 'find_dyn_cell1: pos = ', pos
+    write(*,*) 'find_dyn_cell1: upcorner = ', upcorner
+   END DO
+   STOP 'error in the next dynamical cell calculating'
+  END IF
  END IF
 
- IF(debug == 2) THEN
-  corner = dyn_cell(cur_cell)%corner
-  upcorner = dyn_cell(cur_cell)%upcorner
-  width = dyn_cell(cur_cell)%width
-  DO ind_I = 1, const_dimofspace
-   IF(((pos(ind_I) < corner(ind_I) - mininum) .OR. (pos(ind_I) > upcorner(ind_I) + mininum))) THEN
-    write(*,*) 'find_dyn_cell1: test #4'
-    write(*,*) 'find_dyn_cell1: cell starting = ', corner
-    write(*,*) 'find_dyn_cell1: packet pos = ', pos
-    write(*,*) 'find_dyn_cell1: cell ending = ', upcorner
-    write(*,*) 'find_dyn_cell1: ind_I = ', ind_I
-    write(*,*)  'find_dyn_cell1: packet is not located inside the propagation cell'
-    STOP
-   END IF
-  END DO
- END IF
  ! we have found a cell containing the given point
  ! is this cell on the top of the dyncell tree?
  ! we are not in the right cell, we have to move to the next cell
  ! in the dynamical cells tree
+ write(*,*) 'find_dyn_cell1: cur_cell = ', cur_cell
 END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -308,5 +285,6 @@ CASE(2)
 CASE DEFAULT
  STOP 'find_dyn_cell1: choice of the dyngrid type is not known'
 END SELECT
+
 
 END SUBROUTINE find_dyn_cell1
