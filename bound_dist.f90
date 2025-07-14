@@ -27,7 +27,7 @@ DOUBLE PRECISION                :: dist
 DOUBLE PRECISION                :: tnegx, tnegy, tnegz, tposx, tposy, tposz
 ! perpendicular distances
 DOUBLE PRECISION                :: tpnegx, tpnegy, tpnegz, tpposx, tpposy, tpposz
-DOUBLE PRECISION, DIMENSION(const_dimofspace)  :: corner, width
+DOUBLE PRECISION, DIMENSION(const_dimofspace)  :: corner, upcorner
 DOUBLE PRECISION, DIMENSION(const_dimofspace)  :: dir, pos
 INTEGER                         :: forbidden
 DOUBLE PRECISION, PARAMETER     :: minie = 1e1
@@ -53,7 +53,7 @@ n_zer = 0
 n_par = 0
 
 corner = dyn_cell(cell_numb)%corner
-width = dyn_cell(cell_numb)%width
+upcorner = dyn_cell(cell_numb)%upcorner
 dir = package(pack_index)%dir
 pos = package(pack_index)%pos
 forbidden = -99
@@ -76,14 +76,14 @@ IF(debug == 2) THEN
  write(*,*) 'bound_dist: cur_pgi = ', pom_pgi
  write(*,*) 'bound_dist: cell starting = ', corner
  write(*,*) 'bound_dist: packet pos = ', pos
- write(*,*) 'bound_dist: cell ending = ', (corner + width)
+ write(*,*) 'bound_dist: cell ending = ', upcorner
 END IF
 
 
 ! we will calculate parameters tnegx, ..., tposz
 IF(abs(dir(ind_x)) > epsilon0) THEN
  tnegx = (corner(ind_x) - pos(ind_x))/(dir(ind_x))
- tposx = (corner(ind_x) + width(ind_x) - pos(ind_x))/(dir(ind_x))
+ tposx = (upcorner(ind_x) - pos(ind_x))/(dir(ind_x))
  IF(tnegx > 0) n_pos = n_pos + 1
  IF(tposx > 0) n_pos = n_pos + 1
  IF(tnegx < 0) n_neg = n_neg + 1
@@ -98,7 +98,7 @@ ELSE
 END IF
 IF(abs(dir(ind_y)) > epsilon0) THEN
  tnegy = (corner(ind_y) - pos(ind_y))/(dir(ind_y))
- tposy = (corner(ind_y) + width(ind_y) - pos(ind_y))/(dir(ind_y))
+ tposy = (upcorner(ind_y) - pos(ind_y))/(dir(ind_y))
  IF(tnegy > 0) n_pos = n_pos + 1
  IF(tposy > 0) n_pos = n_pos + 1
  IF(tnegy < 0) n_neg = n_neg + 1
@@ -113,7 +113,7 @@ ELSE
 END IF
 IF(abs(dir(ind_z)) > epsilon0) THEN
  tnegz = (corner(ind_z) - pos(ind_z))/(dir(ind_z))
- tposz = (corner(ind_z) + width(ind_z) - pos(ind_z))/(dir(ind_z))
+ tposz = (upcorner(ind_z) - pos(ind_z))/(dir(ind_z))
  IF(tnegz > 0) n_pos = n_pos + 1
  IF(tposz > 0) n_pos = n_pos + 1
  IF(tnegz < 0) n_neg = n_neg + 1
@@ -198,7 +198,7 @@ IF(n_neg > 3) THEN
   dist = abs(tnegx)
   package(pack_index)%next_cross = negx
  end if
- tpposx = pos(ind_x) - corner(ind_x) - width(ind_x)
+ tpposx = pos(ind_x) - upcorner(ind_x)
  if(abs(tpposx) < dist) then
   dist = abs(tposx)
   package(pack_index)%next_cross = posx
@@ -208,7 +208,7 @@ IF(n_neg > 3) THEN
   dist = abs(tnegy)
   package(pack_index)%next_cross = negy
  end if
- tpposy = pos(ind_y) - corner(ind_y) - width(ind_y)
+ tpposy = pos(ind_y) - upcorner(ind_y)
  if(abs(tpposy) < dist) then
   dist = abs(tposy)
   package(pack_index)%next_cross = posy
@@ -218,7 +218,7 @@ IF(n_neg > 3) THEN
   dist = abs(tnegz)
   package(pack_index)%next_cross = negz
  end if
- tpposz = pos(ind_z) - corner(ind_z) - width(ind_z)
+ tpposz = pos(ind_z) - upcorner(ind_z)
  if(abs(tpposz) < dist) then
   dist = abs(tposz)
   package(pack_index)%next_cross = posz
@@ -259,12 +259,8 @@ IF(debug == 2) THEN
  write(*,*) '*********************************************************************'
  write(*,*) 'bound_dist: n_pos = ', n_pos, ' n_neg = ', n_neg
  write(*,*) 'bound_dist: n_zer = ', n_zer, ' n_par = ', n_par
- write(*,*) 'bound_dist: width = ', width
  write(*,*) 'bound_dist: tnegx = ', tnegx, ' tnegy = ', tnegy, ' tnegz = ', tnegz, &
    ' tposx = ', tposx, ' tposy = ', tposy, 'tposz = ', tposz
- write(*,*) 'bound_dist: tnegx = ', tnegx/width(ind_x), ' tnegy = ', tnegy/width(ind_y), &
- ' tnegz = ', tnegz/width(ind_z), &
-   ' tposx = ', tposx/width(ind_x), ' tposy = ', tposy/width(ind_y), 'tposz = ', tposz/width(ind_z)
  write(*,*) 'bound_dist: dir = ', package(pack_index)%dir
  write(*,*) '*********************************************************************'
  write(*,*) '*********************************************************************'
