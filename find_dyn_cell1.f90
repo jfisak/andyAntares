@@ -92,6 +92,29 @@ IF(pos(ind_z) <= xmax .and. bcell(ind_z) == nx_cell + 1) THEN
  bcell(ind_z) = bcell(ind_z) - 1
 END IF
 
+! correction of the calculated cell
+corner = dyn_cell(actCell)%corner
+upcorner = dyn_cell(actCell)%upcorner
+width = dyn_cell(actCell)%width
+
+IF((pos(ind_x) < corner(ind_x)) .and. (pos(ind_x) < xmax)) THEN
+ bcell(ind_x) = bcell(ind_x) - ny_cell * nz_cell
+ELSE IF((pos(ind_x) > upcorner(ind_x)) .and. (pos(ind_x) > xmin)) THEN
+ bcell(ind_x) = bcell(ind_x) + ny_cell * nz_cell
+END IF
+IF((pos(ind_y) < corner(ind_y)) .and. (pos(ind_y) < ymax)) THEN
+ bcell(ind_y) = bcell(ind_y) - nz_cell
+ELSE IF((pos(ind_y) > upcorner(ind_y)) .and. (pos(ind_y) > ymin)) THEN
+ bcell(ind_y) = bcell(ind_y) + nz_cell
+END IF
+IF((pos(ind_z) < corner(ind_z)) .and. (pos(ind_z) < zmax)) THEN
+ bcell(ind_z) = bcell(ind_z) - nz_cell
+ELSE IF((pos(ind_z) > upcorner(ind_z)) .and. (pos(ind_z) > zmin)) THEN
+ bcell(ind_z) = bcell(ind_z) + nz_cell
+END IF
+
+
+
 ! index of the given basic cell
 bindex = (bcell(ind_x) - 1) * ny_cell * nz_cell + (bcell(ind_y) - 1) * nz_cell + bcell(ind_z)
 ! initial setting of the local variable corresponding to the actual cell
@@ -220,6 +243,8 @@ DO
     write(*,*) 'find_dyn_cell1: corner = ', corner
     write(*,*) 'find_dyn_cell1: pos = ', pos
     write(*,*) 'find_dyn_cell1: upcorner = ', upcorner
+    write(*,*) 'find_dyn_cell1: corner - pos = ', corner - pos
+    write(*,*) 'find_dyn_cell1: upcorner - pos = ', upcorner - pos
    END DO
    STOP 'error in the next dynamical cell calculating'
   END IF
