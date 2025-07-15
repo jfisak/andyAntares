@@ -27,6 +27,7 @@ DOUBLE PRECISION, PARAMETER             :: mininum = 1.D0
 INTEGER                                 :: cur_pgi
 REAL(8)                                 :: calc_x, calc_y, calc_z
 INTEGER(8)                              :: ceil_x, ceil_y, ceil_z
+LOGICAL                                 :: nx_even = .false., ny_even = .false., nz_even = .false.
 
 
 #if mpi==1
@@ -72,6 +73,16 @@ END IF
 ! write(*,*) 'setup_propgrid: basic_cell_width  = ', basic_cell_width
 ! STOP 'setup_propgrid: testing'
 
+IF(MOD(nx_cell, 2) == 0) THEN
+ nx_even = .true.
+END IF
+IF(MOD(ny_cell, 2) == 0) THEN
+ ny_even = .true.
+END IF
+IF(MOD(nz_cell, 2) == 0) THEN
+ nz_even = .true.
+END IF
+
 
 ind_L = 1
 DO ind_I=1, nx_cell
@@ -85,29 +96,41 @@ DO ind_I=1, nx_cell
    dyn_cell(ind_L)%corner(ind_x) = - xmax + DBLE((ind_I - 1)) * basic_cell_width(ind_x)
    dyn_cell(ind_L)%corner(ind_y) = - ymax + DBLE((ind_J - 1)) * basic_cell_width(ind_y)     
    dyn_cell(ind_L)%corner(ind_z) = - zmax + DBLE((ind_K - 1)) * basic_cell_width(ind_z) 
+   IF(nx_even) THEN
+    IF(ind_I == nx_cell/2 - 1) THEN
+     dyn_cell(ind_L)%upcorner(ind_x) = 0.D0
+    END IF
+    IF(ind_I == nx_cell/2) THEN
+     dyn_cell(ind_L)%corner(ind_x) = 0.D0
+    END IF
+   END IF
+   IF(ny_even) THEN
+    IF(ind_J == ny_cell/2 - 1) THEN
+     dyn_cell(ind_L)%upcorner(ind_y) = 0.D0
+    END IF
+    IF(ind_J == ny_cell/2) THEN
+     dyn_cell(ind_L)%corner(ind_y) = 0.D0
+    END IF
+   END IF
+   IF(nz_even) THEN
+    IF(ind_K == nz_cell/2 - 1) THEN
+     dyn_cell(ind_L)%upcorner(ind_z) = 0.D0
+    END IF
+    IF(ind_K == nz_cell/2) THEN
+     dyn_cell(ind_L)%corner(ind_z) = 0.D0
+    END IF
+   END IF
    ! up corner
    dyn_cell(ind_L)%upcorner(ind_x) = -xmax + DBLE(ind_I) * basic_cell_width(ind_x)
    dyn_cell(ind_L)%upcorner(ind_y) = -ymax + DBLE(ind_J) * basic_cell_width(ind_y)     
    dyn_cell(ind_L)%upcorner(ind_z) = -zmax + DBLE(ind_K) * basic_cell_width(ind_z) 
-   IF(dyn_cell(ind_L)%corner(ind_x) == dyn_cell(ind_L)%corner(ind_x) .or. &
-    dyn_cell(ind_L)%corner(ind_y) == dyn_cell(ind_L)%corner(ind_y) .or. &
-    dyn_cell(ind_L)%corner(ind_y) == dyn_cell(ind_L)%corner(ind_y)) THEN
+   IF(dyn_cell(ind_L)%corner(ind_x) == dyn_cell(ind_L)%upcorner(ind_x) .or. &
+    dyn_cell(ind_L)%corner(ind_y) == dyn_cell(ind_L)%upcorner(ind_y) .or. &
+    dyn_cell(ind_L)%corner(ind_y) == dyn_cell(ind_L)%upcorner(ind_y)) THEN
     write(*,*) 'setup_propgrid: corner == upcorner'
     STOP 'setup_propgrid'
    END IF
 
-   write(*,*) 'setup_propgrid: corner = ', dyn_cell(ind_L)%corner
-   write(*,*) 'setup_propgrid: upcorner = ', dyn_cell(ind_L)%upcorner
-
-   IF(abs(dyn_cell(ind_L)%corner(ind_x)) < mininum) THEN
-    dyn_cell(ind_L)%corner(ind_x) = 0.D0
-   END IF
-   IF(abs(dyn_cell(ind_L)%corner(ind_y)) < mininum) THEN
-    dyn_cell(ind_L)%corner(ind_y) = 0.D0
-   END IF
-   IF(abs(dyn_cell(ind_L)%corner(ind_z)) < mininum) THEN
-    dyn_cell(ind_L)%corner(ind_z) = 0.D0
-   END IF
    ! write(*,*) 'setup_propgrid: corner(', ind_L, ') = ', dyn_cell(L)%corner
    ! cell width
    dyn_cell(ind_L)%width(ind_x) = basic_cell_width(ind_x)
