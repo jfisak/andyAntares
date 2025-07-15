@@ -96,6 +96,10 @@ DO ind_I=1, nx_cell
    dyn_cell(ind_L)%corner(ind_x) = - xmax + DBLE((ind_I - 1)) * basic_cell_width(ind_x)
    dyn_cell(ind_L)%corner(ind_y) = - ymax + DBLE((ind_J - 1)) * basic_cell_width(ind_y)     
    dyn_cell(ind_L)%corner(ind_z) = - zmax + DBLE((ind_K - 1)) * basic_cell_width(ind_z) 
+
+   dyn_cell(ind_L)%upcorner(ind_x) = -xmax + DBLE(ind_I) * basic_cell_width(ind_x)
+   dyn_cell(ind_L)%upcorner(ind_y) = -ymax + DBLE(ind_J) * basic_cell_width(ind_y)     
+   dyn_cell(ind_L)%upcorner(ind_z) = -zmax + DBLE(ind_K) * basic_cell_width(ind_z) 
    IF(nx_even) THEN
     IF(ind_I == nx_cell/2) THEN
      dyn_cell(ind_L)%upcorner(ind_x) = 0.D0
@@ -121,9 +125,6 @@ DO ind_I=1, nx_cell
     END IF
    END IF
    ! up corner
-   dyn_cell(ind_L)%upcorner(ind_x) = -xmax + DBLE(ind_I) * basic_cell_width(ind_x)
-   dyn_cell(ind_L)%upcorner(ind_y) = -ymax + DBLE(ind_J) * basic_cell_width(ind_y)     
-   dyn_cell(ind_L)%upcorner(ind_z) = -zmax + DBLE(ind_K) * basic_cell_width(ind_z) 
    IF(dyn_cell(ind_L)%corner(ind_x) == dyn_cell(ind_L)%upcorner(ind_x) .or. &
     dyn_cell(ind_L)%corner(ind_y) == dyn_cell(ind_L)%upcorner(ind_y) .or. &
     dyn_cell(ind_L)%corner(ind_y) == dyn_cell(ind_L)%upcorner(ind_y)) THEN
