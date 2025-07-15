@@ -304,18 +304,18 @@ END IF ! e_dist > b_dist
 ! pos = package(pack_index)%pos
 ! corner = dyn_cell(cur_pgi)%corner
 ! width = dyn_cell(cur_pgi)%width
-! DO ind_I = 1, const_dimofspace
-!  IF(((pos(ind_I) < corner(ind_I)) .OR. (pos(ind_I) > corner(ind_I) + width(ind_I))) &
-!   .and. pack_index <= SIZE(package) ) THEN
-!   if(pack_index == 21) write(98,*) pos/const_Rsun, dyn_cell(cur_pgi)%corner/const_Rsun, dyn_cell(cur_pgi)%width/const_Rsun
-CALL correction_propagation(ind_I, pack_index, cur_pgi)
-!   if(pack_index == 21) write(98,*) pos/const_Rsun, dyn_cell(cur_pgi)%corner/const_Rsun, dyn_cell(cur_pgi)%width/const_Rsun
-!   cur_pgi = package(pack_index)%cell_numb
-!   pos = package(pack_index)%pos
-!   corner = dyn_cell(cur_pgi)%corner
-!   width = dyn_cell(cur_pgi)%width
-!  END IF
-! END DO
+DO ind_I = 1, const_dimofspace
+ IF(((pos(ind_I) < corner(ind_I)) .OR. (pos(ind_I) > corner(ind_I) + width(ind_I))) &
+  .and. pack_index <= SIZE(package) ) THEN
+  if(pack_index == 21) write(98,*) pos/const_Rsun, dyn_cell(cur_pgi)%corner/const_Rsun, dyn_cell(cur_pgi)%width/const_Rsun
+  CALL correction_propagation(ind_I, pack_index, cur_pgi)
+  if(pack_index == 21) write(98,*) pos/const_Rsun, dyn_cell(cur_pgi)%corner/const_Rsun, dyn_cell(cur_pgi)%width/const_Rsun
+  cur_pgi = package(pack_index)%cell_numb
+  pos = package(pack_index)%pos
+  corner = dyn_cell(cur_pgi)%corner
+  width = dyn_cell(cur_pgi)%width
+ END IF
+END DO
 ! check if we are in a correct cell
 IF(debug == 2) THEN
  cur_pgi = package(pack_index)%cell_numb
