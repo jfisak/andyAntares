@@ -84,51 +84,53 @@ END IF
 IF(change) THEN
 ! we expect the packet to be exactly on the boundary, hence if the packet is only close to it
 ! we will slightly move it to be exactly there
- cur_pos = package(pack_index)%pos
- corner = dyn_cell(next_cell)%corner
- upcorner = dyn_cell(next_cell)%upcorner
- diff1 = abs(cur_pos - corner)
- diff2 = abs(cur_pos - upcorner)
+ IF(next_cell > 0) THEN
+  cur_pos = package(pack_index)%pos
+  corner = dyn_cell(next_cell)%corner
+  upcorner = dyn_cell(next_cell)%upcorner
+  diff1 = abs(cur_pos - corner)
+  diff2 = abs(cur_pos - upcorner)
 
- maxdist = 1.D99
- IF(diff1(ind_x) < maxdist) THEN
-  maxdist = diff1(ind_x)
-  cur_close = corner_x
- END IF
- IF(diff1(ind_y) < maxdist) THEN
-  maxdist = diff1(ind_y)
-  cur_close = corner_y
- END IF
- IF(diff1(ind_z) < maxdist) THEN
-  maxdist = diff1(ind_z)
-  cur_close = corner_z
- END IF
- IF(diff2(ind_x) < maxdist) THEN
-  maxdist = diff2(ind_x)
-  cur_close = upcorner_x
- END IF
- IF(diff2(ind_y) < maxdist) THEN
-  maxdist = diff2(ind_y)
-  cur_close = upcorner_y
- END IF
- IF(diff2(ind_z) < maxdist) THEN
-  maxdist = diff2(ind_z)
-  cur_close = upcorner_z
- END IF
+  maxdist = 1.D99
+  IF(diff1(ind_x) < maxdist) THEN
+   maxdist = diff1(ind_x)
+   cur_close = corner_x
+  END IF
+  IF(diff1(ind_y) < maxdist) THEN
+   maxdist = diff1(ind_y)
+   cur_close = corner_y
+  END IF
+  IF(diff1(ind_z) < maxdist) THEN
+   maxdist = diff1(ind_z)
+   cur_close = corner_z
+  END IF
+  IF(diff2(ind_x) < maxdist) THEN
+   maxdist = diff2(ind_x)
+   cur_close = upcorner_x
+  END IF
+  IF(diff2(ind_y) < maxdist) THEN
+   maxdist = diff2(ind_y)
+   cur_close = upcorner_y
+  END IF
+  IF(diff2(ind_z) < maxdist) THEN
+   maxdist = diff2(ind_z)
+   cur_close = upcorner_z
+  END IF
 
- ! setting up a new coordinates
- IF(cur_close == corner_x) THEN
-  package(pack_index)%pos(ind_x) = corner(ind_x)
- ELSE IF(cur_close == corner_y) THEN
-  package(pack_index)%pos(ind_y) = corner(ind_y)
- ELSE IF(cur_close == corner_z) THEN
-  package(pack_index)%pos(ind_z) = corner(ind_z)
- ELSE IF(cur_close == upcorner_x) THEN
-  package(pack_index)%pos(ind_x) = upcorner(ind_x)
- ELSE IF(cur_close == upcorner_y) THEN
-  package(pack_index)%pos(ind_y) = upcorner(ind_y)
- ELSE IF(cur_close == upcorner_z) THEN
-  package(pack_index)%pos(ind_z) = upcorner(ind_z)
+  ! setting up a new coordinates
+  IF(cur_close == corner_x) THEN
+   package(pack_index)%pos(ind_x) = corner(ind_x)
+  ELSE IF(cur_close == corner_y) THEN
+   package(pack_index)%pos(ind_y) = corner(ind_y)
+  ELSE IF(cur_close == corner_z) THEN
+   package(pack_index)%pos(ind_z) = corner(ind_z)
+  ELSE IF(cur_close == upcorner_x) THEN
+   package(pack_index)%pos(ind_x) = upcorner(ind_x)
+  ELSE IF(cur_close == upcorner_y) THEN
+   package(pack_index)%pos(ind_y) = upcorner(ind_y)
+  ELSE IF(cur_close == upcorner_z) THEN
+   package(pack_index)%pos(ind_z) = upcorner(ind_z)
+  END IF
  END IF
 
  
