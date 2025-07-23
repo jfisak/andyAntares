@@ -19,12 +19,11 @@ INTEGER                         :: act_n_dyncell
 INTEGER, PARAMETER              :: no_dcells = 8
 INTEGER                         :: ind_I
 ! properties of the original dynamic cell
-DOUBLE PRECISION, DIMENSION(const_dimofspace)  :: loc_corner, loc_cell_width
+DOUBLE PRECISION, DIMENSION(const_dimofspace)  :: loc_corner
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: half_point, end_point
 
 dyn_cell(act_n_dyncell)%up_cell = max_n_dcell + 1
 loc_corner = dyn_cell(act_n_dyncell)%corner
-loc_cell_width = dyn_cell(act_n_dyncell)%width
 end_point = dyn_cell(act_n_dyncell)%upcorner
 half_point = (dyn_cell(act_n_dyncell)%corner + dyn_cell(act_n_dyncell)%upcorner) / 2.D0
 

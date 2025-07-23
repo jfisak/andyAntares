@@ -12,20 +12,20 @@ INTEGER                                 :: cell_down, pack_index
 INTEGER                                 :: next_cell
 ! local variable next cell
 ! cross the surface
-DOUBLE PRECISION, DIMENSION(3)          :: cross_pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: cross_pos
 INTEGER                                 :: cross
 ! actual cell
 INTEGER                                 :: act_cell
-DOUBLE PRECISION, DIMENSION(3)          :: corner, upcorner, centre
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: corner, upcorner, centre
 INTEGER                                 :: upper_cell
 ! parameters of subcells of dyngrid ijk
-DOUBLE PRECISION, DIMENSION(3)          :: subcells_width
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: subcells_width
 INTEGER                                 :: subind_x, subind_y, subind_z
 INTEGER                                         :: sub_nx, sub_ny, sub_nz
 
-INTEGER, DIMENSION(3)                   :: bcell
+INTEGER, DIMENSION(const_dimofspace)                   :: bcell
 INTEGER                                 :: bindex
-DOUBLE PRECISION, DIMENSION(3)          :: pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: pos
 
 DOUBLE PRECISION, PARAMETER                     :: epsilon0 = 1e-6
 ! IF(package(pack_index)%pos > R_inf .OR. package(pack_index)%pos < R_star) THEN
@@ -119,7 +119,7 @@ DO
     if(cross == posy) act_cell = upper_cell + 4
     if(cross == negy) act_cell = upper_cell + 6
    ! upper right cell
-   ELSE IF(cross_pos(1) >= upcorner(1) / 2.D0 .AND. cross_pos(1) <= upcorner(1) .AND. &
+   ELSE IF(cross_pos(1) >= centre(1) .AND. cross_pos(1) <= upcorner(1) .AND. &
       cross_pos(3) >= centre(3) .AND. cross_pos(3) <= upcorner(3)) THEN
 !   print*, 'next_cell_up: cross 4'
     if(cross == posy) act_cell = upper_cell + 5
@@ -147,13 +147,13 @@ DO
     if(cross == negz) act_cell = upper_cell + 5
    ! upper left cell
    ELSE IF(cross_pos(1) >= corner(1) .AND. cross_pos(1) <= centre(1) .AND. &
-      cross_pos(2) >= centre(2) .AND. cross_pos(2) <= centre(2)) THEN
+      cross_pos(2) >= centre(2) .AND. cross_pos(2) <= upcorner(2)) THEN
 !   print*, 'next_cell_up: cross 3'
     if(cross == posz) act_cell = upper_cell + 2
     if(cross == negz) act_cell = upper_cell + 6
    ! upper right cell
-   ELSE IF(cross_pos(1) >= centre(1) .AND. cross_pos(1) <= centre(1) .AND. &
-      cross_pos(2) >= centre(2) .AND. cross_pos(2) <= centre(2)) THEN
+   ELSE IF(cross_pos(1) >= centre(1) .AND. cross_pos(1) <= upcorner(1) .AND. &
+      cross_pos(2) >= centre(2) .AND. cross_pos(2) <= upcorner(2)) THEN
 !   print*, 'next_cell_up: cross 4'
     if(cross == posz) act_cell = upper_cell + 3
     if(cross == negz) act_cell = upper_cell + 7

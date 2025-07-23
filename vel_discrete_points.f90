@@ -120,11 +120,11 @@ ELSE ! incellmode
 
   IF(cur_pos1(ind_z) > cur_pos2(ind_z) .and. (act_pos(ind_z) < cur_pos2(ind_z) .or. act_pos(ind_z) > cur_pos1(ind_z))) THEN
    DO ind_J = 1,8
-    write(29,*) cube_pos(ind_I,:)
+    write(29,*) cube_pos(ind_J,:)
    END DO
   ELSE IF (cur_pos1(ind_z) < cur_pos2(ind_z) .and. (act_pos(ind_z) > cur_pos2(ind_z) .or. act_pos(ind_z) < cur_pos1(ind_z))) THEN
    DO ind_J = 1,8
-    write(29,*) cube_pos(ind_I,:)
+    write(29,*) cube_pos(ind_J,:)
    END DO
   END IF
    
