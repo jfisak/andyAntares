@@ -35,10 +35,9 @@ INTEGER                                                         :: ind_I, ind_J
 DOUBLE PRECISION, PARAMETER                     :: mininum = 1e5
 
 INTEGER                                         :: cur_cell, test_index
-INTEGER                                         :: down_cell, up_cell, init_down_cell
+INTEGER                                         :: down_cell, init_down_cell
 
-DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: cur_delta, cur_centre
-LOGICAL                                         :: sign_x, sign_y, sign_z
+DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: cur_centre
 
 n_cell = (/ nx_cell, ny_cell, nz_cell /)
 
@@ -92,10 +91,11 @@ IF(pos(ind_z) <= xmax .and. bcell(ind_z) == nx_cell + 1) THEN
  bcell(ind_z) = bcell(ind_z) - 1
 END IF
 
+bindex = (bcell(ind_x) - 1) * ny_cell * nz_cell + (bcell(ind_y) - 1) * nz_cell + bcell(ind_z)
 ! correction of the calculated cell
-corner = dyn_cell(actCell)%corner
-upcorner = dyn_cell(actCell)%upcorner
-width = dyn_cell(actCell)%width
+corner = dyn_cell(bindex)%corner
+upcorner = dyn_cell(bindex)%upcorner
+width = dyn_cell(bindex)%width
 
 IF((pos(ind_x) < corner(ind_x)) .and. (pos(ind_x) < xmax)) THEN
  bcell(ind_x) = bcell(ind_x) - ny_cell * nz_cell
@@ -311,5 +311,6 @@ CASE DEFAULT
  STOP 'find_dyn_cell1: choice of the dyngrid type is not known'
 END SELECT
 
+IF(debug == 2) write(*,*) 'find_dyn_cell1: obtained_cell = ', obtained_cell
 
 END SUBROUTINE find_dyn_cell1
