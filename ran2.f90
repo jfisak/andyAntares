@@ -1,3 +1,10 @@
+! generates random number based on the seed
+! 
+! INPUT: idum(INT): seed
+! OUTPUT: NONE
+!
+! RETURN point 1X
+!
 DOUBLE PRECISION FUNCTION  ran2(idum)
 
  USE ran2_class
@@ -5,7 +12,7 @@ DOUBLE PRECISION FUNCTION  ran2(idum)
 
  ! input variables
  INTEGER                     :: idum
- INTEGER                     :: j,k
+ INTEGER                     :: ind_j,ind_k
  INTEGER                     :: iy, idum2
  INTEGER, DIMENSION(NTAB)    :: iv
 
@@ -22,23 +29,23 @@ DOUBLE PRECISION FUNCTION  ran2(idum)
  if (idum.le.0) then
   idum=max(-idum,1)
   idum2=idum
-  do j=NTAB+8,1,-1
-   k=idum/IQ1
-   idum=IA1*(idum-k*IQ1)-k*IR1
+  do ind_j=NTAB+8,1,-1
+   ind_k=idum/IQ1
+   idum=IA1*(idum-ind_k*IQ1)-ind_k*IR1
    if (idum.lt.0) idum=idum+IM1
-   if (j.le.NTAB) iv(j)=idum
+   if (ind_j.le.NTAB) iv(ind_j)=idum
   end do
   iy=iv(1)
  endif
- k=idum/IQ1
- idum=IA1*(idum-k*IQ1)-k*IR1
+ ind_k=idum/IQ1
+ idum=IA1*(idum-ind_k*IQ1)-ind_k*IR1
  if (idum.lt.0) idum=idum+IM1
- k=idum2/IQ2
- idum2=IA2*(idum2-k*IQ2)-k*IR2
+ ind_k=idum2/IQ2
+ idum2=IA2*(idum2-ind_k*IQ2)-ind_k*IR2
  if (idum2.lt.0) idum2=idum2+IM2
- j=1+iy/NDIV
- iy=iv(j)-idum2
- iv(j)=idum
+ ind_j=1+iy/NDIV
+ iy=iv(ind_j)-idum2
+ iv(ind_j)=idum
  if(iy.lt.1)iy=iy+IMM1
  ran2 = min(AM*iy,RNMX)
 

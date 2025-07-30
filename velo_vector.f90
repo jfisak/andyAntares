@@ -4,18 +4,19 @@
 !        mod_index -- INT modGrid cell index
 ! output: vel_vec -- DBLE(3) vector of a velocity
 !
+! RETURN point 2X
 SUBROUTINE velo_vector(pos, mod_index, vel_vec)
 
 USE types
 USE constants
 IMPLICIT NONE
 
-DOUBLE PRECISION, DIMENSION(3)                          :: pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: pos
 INTEGER                                                 :: mod_index
 
 INTEGER                                                 :: cur_pgi
 
-DOUBLE PRECISION, DIMENSION(3)                          :: vel_vec
+DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: vel_vec
 
 DOUBLE PRECISION                                        :: rad_vel
 
@@ -25,7 +26,7 @@ DOUBLE PRECISION                                        :: cosphi, sinphi, costh
 DOUBLE PRECISION                                        :: radius, phi, theta
 
 ! calculation of the model index if it is not defined in the input
-IF(mod_index == -99) THEN
+IF(mod_index == no_modcell) THEN
  CALL find_dyn_cell1(pos, cur_pgi)
  mod_index = dyn_cell(cur_pgi)%model_index
 END IF

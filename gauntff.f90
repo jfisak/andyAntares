@@ -1,12 +1,17 @@
+! we calculate a FF Gaunt factor after Mihalas(1967) using the approximate
+! formula (A2) which is valid for packets with wavelenghts from 100 A to
+! 10000 A
+!
+! INPUT: freq(DBL): packet frequency
+!        temp(DBL): temperature
+! OUTPUT: gff(DBL): Gaunt free-free factor
+!
 SUBROUTINE gauntff(freq, temp, gff)
 
 USE types
 USE constants
 IMPLICIT NONE
 
-! we calculate a FF Gaunt factor after Mihalas(1967) using the approximate
-! formula (A2) which is valid for packets with wavelenghts from 100 A to
-! 10000 A
 
 ! constants in the formula
 DOUBLE PRECISION, PARAMETER                     :: const1 = 1.070192

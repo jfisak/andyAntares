@@ -209,6 +209,7 @@ SAVE
 
   INTEGER, PARAMETER                 :: NONE = -99
   INTEGER, PARAMETER                 :: no_line = -99
+  INTEGER, PARAMETER                 :: no_modcell=-99 
 
   INTEGER                            :: my_rank
   INTEGER                            :: ierr

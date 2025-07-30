@@ -1,5 +1,12 @@
 ! this subroutine calculate population for the
 ! given level of the given ion
+!
+! INPUT: indexe(INT): element index
+!        indexi(INT): ion index
+!        level(INT): level index
+!        model_cell(INT): number of modGrid cell
+! OUTPUT: pop_number(DBLE): population number
+!
 SUBROUTINE populations(indexe, indexi, level, model_cell, pop_number)
 USE types
 USE constants
@@ -48,9 +55,6 @@ CASE(0)
  
  pop_number = ground_level_pop * g_stat / g_gstat * &
         exp(-e_exc / const_kB / temp )! * &
- ! if(indexe == 1 .and. indexi == 1 .and. level == 5) pop_number = 2.00 * pop_number
- ! write(*,*) 'populations: rho = ', rho, ' abund = ', abund, ' temp = ', temp
- ! write(*,*) 'populations: ground_level_pop = ', ground_level_pop
  IF(pop_number < minpop) pop_number = 1.D-50
 CASE(1)
  STOP 'NLTE is not supported yet'
