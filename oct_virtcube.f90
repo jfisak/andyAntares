@@ -5,7 +5,7 @@
 ! OUTPUT: cube_pos(DBLE(8, const_dimofspace)) -- position of interpolation points
 !         incell(LOG) -- is the current propGrid cell index < 0
 !
-SUBROUTINE oct_virtcube(pack_index, rel_pos, cube_pos, velgridcells, incell)
+SUBROUTINE oct_virtcube(pack_index, cube_pos, velgridcells, incell)
 
 USE types
 USE constants
@@ -22,7 +22,7 @@ INTEGER                                                 :: sgn_x, sgn_y, sgn_z
 DOUBLE PRECISION, DIMENSION(8,const_dimofspace)                        :: cube_pos
 
 INTEGER                                                 :: act_cell, cur_cell
-DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: act_pos, act_corner, act_width, act_center
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: act_pos, act_corner, act_width, act_center, act_upcorner
 DOUBLE PRECISION, DIMENSION(const_dimofspace)                          :: cur_pos
 INTEGER, DIMENSION(n_oct)                   :: velgridcells
 INTEGER, PARAMETER                      :: n_zero = 1, n_x = 2, n_y = 3, n_z = 4,&
@@ -41,8 +41,11 @@ ELSE IF(pack_index > SIZE(package)) THEN
  act_pos = dummypackage(dummypack_index)%pos
 END IF
 act_corner = dyn_cell(act_cell)%corner
-act_width = dyn_cell(act_cell)%upcorner(:) - dyn_cell(act_cell)%corner(:)
-act_center = act_corner + act_width/2.0
+act_upcorner = dyn_cell(act_cell)%upcorner
+act_width = act_upcorner - act_corner
+act_center = (act_corner + act_upcorner)/2.0
+
+rel_pos = act_pos - act_center
 
 ! x
 IF(rel_pos(dir_x) > 0) THEN

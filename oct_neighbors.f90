@@ -6,7 +6,7 @@
 !        incell(LOG): inCell mode
 ! OUTPUT: NONE
 !
-SUBROUTINE oct_neighbors(pack_index, rel_pos, velgridcells, incell)
+SUBROUTINE oct_neighbors(pack_index, velgridcells, incell)
 
 
 USE types
@@ -20,7 +20,7 @@ INTEGER                                 :: pack_index, dummypack_index
 DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: rel_pos
 
 INTEGER                                 :: act_cell
-DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: act_corner, act_width
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: act_corner, act_upcorner
 DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: act_center
 
 INTEGER                                 :: cur_cell
@@ -50,12 +50,13 @@ ELSE IF(pack_index > SIZE(package)) THEN
  act_pos = dummypackage(dummypack_index)%pos
 END IF
 act_corner = dyn_cell(act_cell)%corner
-act_width = dyn_cell(act_cell)%width
-act_center = act_corner + act_width/2.0
+act_upcorner = dyn_cell(act_cell)%upcorner
+act_center = (act_corner + act_upcorner)/2.0
+
+rel_pos = act_pos - act_center
 
 ! write(*,*) 'oct_neighbors: rel_pos = ', rel_pos
 ! 
-! write(24,*) act_corner, act_width
 
 ! this part code only for the regular grid
 ! posxyz(1-3) indicates a move in the three directions from the zero point

@@ -63,18 +63,15 @@ act_center = act_corner + act_width/2.0
 act_vel = model_grid(act_mgi)%vec_vel
 act_vel_norm = model_grid(act_mgi)%vel
 
-! a relative position in respect to the propCell center
-rel_pos = act_pos - act_center
-
 
 ! cell neighbour numbers
 IF(dyngrid == 0) THEN
- CALL oct_neighbors(pack_index, rel_pos, velgridcells, incellmode)
+ CALL oct_neighbors(pack_index, velgridcells, incellmode)
  IF(debug == 2) THEN
   write(*,*) 'vel_discrete_points: velgridcells = ', velgridcells
  END IF
 ELSE IF(dyngrid > 0) THEN
- CALL oct_virtcube(pack_index, rel_pos, cube_pos, velgridcells, incellmode)
+ CALL oct_virtcube(pack_index, cube_pos, velgridcells, incellmode)
  IF(debug == 2) THEN
   write(*,*) 'vel_discrete_points: cube_pos = ', cube_pos
  END IF

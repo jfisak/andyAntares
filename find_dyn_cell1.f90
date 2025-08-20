@@ -35,7 +35,7 @@ INTEGER                                                         :: ind_I, ind_J
 DOUBLE PRECISION, PARAMETER                     :: mininum = 1e5
 
 INTEGER                                         :: cur_cell, test_index
-INTEGER                                         :: down_cell, init_down_cell
+INTEGER                                         :: init_down_cell!, down_cell
 
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: cur_centre
 
@@ -98,19 +98,19 @@ upcorner = dyn_cell(bindex)%upcorner
 width = dyn_cell(bindex)%width
 
 IF((pos(ind_x) < corner(ind_x)) .and. (pos(ind_x) < xmax)) THEN
- bcell(ind_x) = bcell(ind_x) - ny_cell * nz_cell
+ bcell(ind_x) = bcell(ind_x) - 1
 ELSE IF((pos(ind_x) > upcorner(ind_x)) .and. (pos(ind_x) > xmin)) THEN
- bcell(ind_x) = bcell(ind_x) + ny_cell * nz_cell
+ bcell(ind_x) = bcell(ind_x) + 1
 END IF
 IF((pos(ind_y) < corner(ind_y)) .and. (pos(ind_y) < ymax)) THEN
- bcell(ind_y) = bcell(ind_y) - nz_cell
+ bcell(ind_y) = bcell(ind_y) - 1
 ELSE IF((pos(ind_y) > upcorner(ind_y)) .and. (pos(ind_y) > ymin)) THEN
- bcell(ind_y) = bcell(ind_y) + nz_cell
+ bcell(ind_y) = bcell(ind_y) + 1
 END IF
 IF((pos(ind_z) < corner(ind_z)) .and. (pos(ind_z) < zmax)) THEN
- bcell(ind_z) = bcell(ind_z) - nz_cell
+ bcell(ind_z) = bcell(ind_z) - 1
 ELSE IF((pos(ind_z) > upcorner(ind_z)) .and. (pos(ind_z) > zmin)) THEN
- bcell(ind_z) = bcell(ind_z) + nz_cell
+ bcell(ind_z) = bcell(ind_z) + 1
 END IF
 
 
