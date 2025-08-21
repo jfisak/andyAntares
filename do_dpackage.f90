@@ -66,7 +66,7 @@ CASE(0)
 
  ! write(22,*) corner, width
  
-IF(debug == 3) THEN
+IF(debug == 2) THEN
  CALL find_dyn_cell1(package(pack_index)%pos, pomocna_bunka)
  write(*,*) 'do_rpackage I: pack_index = ', pack_index, ' cur_pgi = ', cur_pgi, ' neigbors = ', dyn_cell(cur_pgi)%neighbor
  write(*,*) 'do_rpackage I: pack_index = ', pack_index, ' bunka = ', pomocna_bunka
@@ -157,7 +157,9 @@ END IF
   END IF
 
   ! packet can be changed into an r-packet or just move to another diffusive cell
-  IF(next_mgi .ne. photosphere_index) THEN
+  
+  IF(next_mgi .ne. photosphere_index .and. next_mgi .ne. vacuum_index .and. &
+    next_mgi .ne. outerspace_index) THEN
    next_diff = model_grid(next_mgi)%is_difapp
    ! moving to another diffusive cell
    IF(next_diff) THEN
@@ -184,6 +186,7 @@ END IF
     ELSE IF(next_leak == negz) THEN
      new_dir = (/ ran_dir(2), ran_dir(1), -ran_dir(3)/)
     END IF
+    cur_temp = model_grid(cur_mgi)%T
     package(pack_index)%dir = new_dir
 
     CALL freq_from_planck(freq, cur_temp)
@@ -231,5 +234,6 @@ CASE DEFAULT
  write(*,*) 'do_dpackage: the choice dapprox = ', dapprox, ' is not known...'
  STOP
 END SELECT
+
 
 END SUBROUTINE do_dpackage

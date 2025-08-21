@@ -31,7 +31,7 @@ TYPE(rrates)                                    :: actirrates
 INTEGER                                         :: pomocna_bunka, cur_pgi
 INTEGER                                         :: next_cross
 ! DOUBLE PRECISION                                :: max_dist
-LOGICAL                                         :: procout = .FALSE.
+LOGICAL                                         :: procout = .TRUE.
 DOUBLE PRECISION, PARAMETER                     :: epsilon0 = 1.D0
 ! free free
 DOUBLE PRECISION                                :: cur_dist
@@ -71,7 +71,7 @@ cur_width = dyn_cell(cur_pgi)%upcorner - dyn_cell(cur_pgi)%corner
 ! looking for the next boundary which the packet crosses as the first and an index of this boundary
 CALL boundary3(pack_index, cell_dist, next_cell, n_pos, n_neg, n_zer, n_par)
 next_cross = package(pack_index)%next_cross
-IF(procout) write(*,*) 'event_dist: after calling boundary3, cell_dist = ', cell_dist, ' next_cell = ', next_cell
+IF(procout) write(*,*) 'do_rpackage: after calling boundary3, cell_dist = ', cell_dist, ' next_cell = ', next_cell
 
 
 !______________________________________________________________________________
@@ -94,6 +94,8 @@ END IF
 ! interaction is allowed
 IF(cur_mgi <= n_modelgrid) THEN
  IF(procout) write(*,*) 'do_rpackage: calling event_dist'
+ IF(procout) write(*,*) 'do_rpackage: is diff = ', model_grid(cur_mgi)%is_difapp
+ IF(procout) write(*,*) 'do_rpackage: pack type = ', package(pack_index)%typ
  CALL event_dist(pack_index, cell_dist, e_dist, event, actirrates)
  IF(procout) write(*,*) 'do_rpackage: e_dist = ', e_dist
  IF(procout) write(*,*) 'do_rpackage: e_dist/bdist = ', e_dist/cell_dist, ' event = ', event
@@ -132,6 +134,19 @@ IF (e_dist < cell_dist) THEN
   CALL change_cell(pack_index, cur_pgi)
  ! ELSE IF(n_par > 1) THEN
  !  
+ ELSE IF(n_pos == 3 .and. n_neg == 3) THEN
+  change_of_cell = .FALSE.
+  IF(procout) write(*,*) 'do_rpackage: n_pos == 3, n_neg == 3'
+  CALL move_package(pack_index, e_dist, next_cell, change_of_cell)
+ ELSE IF(n_pos == 4 .and. n_neg == 2) THEN
+  IF(procout) write(*,*) 'do_rpackage: n_pos == 4 and n_neg == 2'
+  cur_pos = package(pack_index)%pos
+  cur_pgi = package(pack_index)%cell_numb
+  CALL find_dyn_cell1(cur_pos, next_cell)
+  CALL change_cell(pack_index, next_cell)
+  ! write(25,*) cur_pos, dyn_cell(next_cell)%corner, dyn_cell(next_cell)%upcorner
+  ! write(26,*) cur_pos, package(pack_index)%dir
+  ! STOP 'do_rpackage: testing'
  ELSE
   change_of_cell = .FALSE.
   IF(procout) write(*,*) 'do_rpackage: move_package, change_of_cell = ', change_of_cell
@@ -173,7 +188,7 @@ ELSE IF(e_dist > cell_dist) THEN
  IF(procout) write(*,*) 'do_rpackage: e_dist > cell_dist'
  IF(cell_dist > 0.D0) THEN
   IF(procout) write(*,*) 'do_rpackage: cell_dist > 0'
-  IF((cell_dist > 0.D0 .or. (cell_dist > 0.D0 .and. n_pos == 3 .and. n_neg == 3))) THEN 
+  IF((n_pos == 3 .and. n_neg == 3) .or. (n_pos == 3 .and. n_neg == 2 .and. n_zer == 1)) THEN 
    ! Move package from the curent position for the cell_dist
    change_of_cell = .TRUE.
    IF(procout) write(*,*) 'do_rpackage: cell_dist > epsilon0 or (cell_dist > 0 and n_pos == 3 and',&
@@ -182,38 +197,39 @@ ELSE IF(e_dist > cell_dist) THEN
    CALL move_package(pack_index, cell_dist, next_cell, change_of_cell)
    CALL update_estimators(pack_index, cell_dist)
   !_______________________________________________________________________________________________
+  ! ELSE IF(n_pos == 2 .and. n_neg == 3 .and. n_zer == 1) THEN 
+  !_______________________________________________________________________________________________
   ELSE IF(cell_dist < epsilon0 .and. n_pos == 4 .and. n_neg == 2) THEN 
    IF(procout) write(*,*) 'do_rpackage: e_dist > cell_dist, cell_dist > 0, cell_dist < epsilon0 ', &
     ' n_pos == 4, n_neg == 2'
    change_of_cell = .FALSE.
    CALL move_package(pack_index, cell_dist, next_cell, change_of_cell)
-  ELSE IF(n_pos == 2 .and. n_neg == 3) THEN 
+  ELSE IF(n_pos == 2 .and. n_neg == 3 .and. n_zer == 1) THEN 
    IF(procout) write(*,*) 'do_rpackage: n_pos == 2 and n_neg == 3'
    cur_pos = package(pack_index)%pos
-   cur_pgi = package(pack_index)%cell_numb
+   write(*,*) 'do_rpackage: cur_pgi = ', cur_pgi
+   CALL find_dyn_cell1(cur_pos, next_cell)
    cur_corner = dyn_cell(cur_pgi)%corner
-   cur_upcorner = dyn_cell(cur_pgi)%upcorner
-   cur_width = dyn_cell(cur_pgi)%upcorner - dyn_cell(cur_pgi)%corner
+   ! CALL change_cell(pack_index, next_cell)
    IF(cur_pos(ind_x) == cur_corner(ind_x)) THEN
     next_cell = dyn_cell(cur_pgi)%neighbor(negx)
    ELSE IF(cur_pos(ind_y) == cur_corner(ind_y)) THEN
     next_cell = dyn_cell(cur_pgi)%neighbor(negy)
    ELSE IF(cur_pos(ind_z) == cur_corner(ind_z)) THEN
     next_cell = dyn_cell(cur_pgi)%neighbor(negz)
-   ELSE IF(cur_pos(ind_x) == cur_upcorner(ind_x)) THEN
-    next_cell = dyn_cell(cur_pgi)%neighbor(posx)
-   ELSE IF(cur_pos(ind_y) == cur_upcorner(ind_y)) THEN
-    next_cell = dyn_cell(cur_pgi)%neighbor(posy)
-   ELSE IF(cur_pos(ind_z) == cur_upcorner(ind_z)) THEN
-    next_cell = dyn_cell(cur_pgi)%neighbor(posz)
    END IF
    CALL change_cell(pack_index, next_cell)
+
+   write(*,*) 'do_rpackage: next_cell = ', next_cell
+   ! STOP 'do_rpackage: testing'
   ELSE IF(n_pos == 2 .and. n_neg == 2 .and. n_par == 2) THEN
    IF(procout) write(*,*) 'do_rpackage: n_pos = 2 and n_neg = 2 and n_par = 2'
    ! write(50,*) package(pack_index)%pos/R_star, cur_corner/R_star, cur_width/R_star, package(pack_index)%dir
    ! STOP 'do_rpackage: testing'
    change_of_cell = .TRUE.
    CALL move_package(pack_index, cell_dist, next_cell, change_of_cell)
+  ELSE
+   STOP 'do_rpackage: n_pos == 3, n_neg == 3'
   END IF
  ELSE IF(cell_dist == 0.D0) THEN
   IF(procout) write(*,*) 'do_rpackage: cell_dist == 0'

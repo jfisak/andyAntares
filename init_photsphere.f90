@@ -21,6 +21,7 @@ LOGICAL, PARAMETER                    :: homogeneous=.true.
 
 DOUBLE PRECISION                      :: R_bound, ran2
 INTEGER, PARAMETER                    :: ind_savephdistr = 12
+LOGICAL                               :: is_diff
 
 destroyed_pack = 0
 L_star = 4.D0*const_pi*(R_star)**2*const_stefbolz*T_eff**4
@@ -81,6 +82,14 @@ DO ind_I = 1, n_pack
   package(ind_I)%n_interactions = 0
   package(ind_I)%next_cross = NONE
   package(ind_I)%virtual = .FALSE.
+
+  IF(enable_diffusion == 1) THEN
+   cur_mgi = dyn_cell(ind_cell_numb)%model_index
+   is_diff = model_grid(cur_mgi)%is_difapp
+   IF(is_diff) THEN
+    package(ind_I)%typ = type_dpkt
+   END IF
+  END IF
 
   ! Assign rf energy and frequency to the packet
   package(ind_I)%e_rf = L_star/n_pack  
