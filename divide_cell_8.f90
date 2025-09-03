@@ -35,10 +35,7 @@ DO ind_I = 1, no_dcells
  dyn_cell(max_n_dcell + ind_I)%up_cell = 0
 END DO
 ! the first cell
-dyn_cell(max_n_dcell + 1)%corner(ind_x) = loc_corner(ind_x)
-dyn_cell(max_n_dcell + 1)%corner(ind_y) = loc_corner(ind_y)
-dyn_cell(max_n_dcell + 1)%corner(ind_z) = loc_corner(ind_z)
-
+dyn_cell(max_n_dcell + 1)%corner(:) = loc_corner(:)
 dyn_cell(max_n_dcell + 1)%upcorner(:) = half_point(:)
 dyn_cell(max_n_dcell + 1)%down_cell = act_n_dyncell
 dyn_cell(max_n_dcell + 1)%neighbor(posx) = max_n_dcell + 2

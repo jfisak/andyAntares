@@ -28,7 +28,7 @@ DOUBLE PRECISION                                :: electron_density
 ! element information
 INTEGER                                         :: indexe, indexi, indexl
 ! loop variables
-INTEGER                                         :: I
+INTEGER                                         :: ind_I
 ! actual frequency
 DOUBLE PRECISION                                :: act_freq
 ! kappa coefficients
@@ -96,10 +96,10 @@ DO indexe = 1, n_elements
    IF(n_sigma == 0) CYCLE
    actPoint = 0
    ! finding the propper index in saved photcross data
-   DO I = 1, n_sigma
-    act_freq = elements(indexe)%ions(indexi)%levels(indexl)%photcros(1,I)
+   DO ind_I = 1, n_sigma
+    act_freq = elements(indexe)%ions(indexi)%levels(indexl)%photcros(1,ind_I)
     IF(freq < act_freq) THEN
-     actPoint = I
+     actPoint = ind_I
      EXIT
     END IF
    END DO

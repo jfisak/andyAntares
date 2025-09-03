@@ -31,10 +31,9 @@ TYPE(rrates)                                    :: actirrates
 INTEGER                                         :: pomocna_bunka, cur_pgi
 INTEGER                                         :: next_cross
 ! DOUBLE PRECISION                                :: max_dist
-LOGICAL                                         :: procout = .TRUE.
+LOGICAL                                         :: procout = .FALSE.
 DOUBLE PRECISION, PARAMETER                     :: epsilon0 = 1.D0
 ! free free
-DOUBLE PRECISION                                :: cur_dist
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: pack_pos
 
 LOGICAL                                         :: change_of_cell
@@ -207,7 +206,6 @@ ELSE IF(e_dist > cell_dist) THEN
   ELSE IF(n_pos == 2 .and. n_neg == 3 .and. n_zer == 1) THEN 
    IF(procout) write(*,*) 'do_rpackage: n_pos == 2 and n_neg == 3'
    cur_pos = package(pack_index)%pos
-   write(*,*) 'do_rpackage: cur_pgi = ', cur_pgi
    CALL find_dyn_cell1(cur_pos, next_cell)
    cur_corner = dyn_cell(cur_pgi)%corner
    ! CALL change_cell(pack_index, next_cell)
@@ -220,7 +218,6 @@ ELSE IF(e_dist > cell_dist) THEN
    END IF
    CALL change_cell(pack_index, next_cell)
 
-   write(*,*) 'do_rpackage: next_cell = ', next_cell
    ! STOP 'do_rpackage: testing'
   ELSE IF(n_pos == 2 .and. n_neg == 2 .and. n_par == 2) THEN
    IF(procout) write(*,*) 'do_rpackage: n_pos = 2 and n_neg = 2 and n_par = 2'
@@ -229,7 +226,13 @@ ELSE IF(e_dist > cell_dist) THEN
    change_of_cell = .TRUE.
    CALL move_package(pack_index, cell_dist, next_cell, change_of_cell)
   ELSE
-   STOP 'do_rpackage: n_pos == 3, n_neg == 3'
+   change_of_cell = .TRUE.
+   IF(procout) write(*,*) 'do_rpackage: cell_dist > bound_dist and n_par == 2'
+   IF(procout) write(*,*) 'do_rpackage: move_package, change_of_cell = ', change_of_cell
+   CALL move_package(pack_index, cell_dist, next_cell, change_of_cell)
+   CALL update_estimators(pack_index, cell_dist)
+   ! write(*,*) 'do_rpackage: n_pos = ', n_pos, ' n_neg = ', n_neg, ' n_zer = ', n_zer, ' n_par = ', n_par
+   ! STOP 'do_rpackage: testing'
   END IF
  ELSE IF(cell_dist == 0.D0) THEN
   IF(procout) write(*,*) 'do_rpackage: cell_dist == 0'

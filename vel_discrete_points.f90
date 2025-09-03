@@ -20,8 +20,6 @@ INTEGER                                 :: act_mgi
 DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: act_center, act_vel
 DOUBLE PRECISION                        :: act_vel_norm
 
-DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: rel_pos
-
 INTEGER, DIMENSION(8)                   :: velgridcells
 
 DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: cur_pos1, cur_vel1, cur_pos2, cur_vel2

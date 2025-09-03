@@ -1,3 +1,9 @@
+! connects propGrid and modGrid for the case of 2D petr kurfurst model
+! it develops virtual grids which significantly speeds up the calculation
+!
+! INPUT: NONE
+! OUTPUT: NONE
+!
 SUBROUTINE connect_2D_peku()
 
 USE types
@@ -14,11 +20,12 @@ DOUBLE PRECISION                        :: cur_r, cur_t
 DOUBLE PRECISION                        :: rmax, rmin, tmax, tmin
 
 INTEGER, DIMENSION (n_modelgrid,2)        :: vg_indexy_A, vg_indexy_B
+INTEGER, PARAMETER                      :: ind_vg = 1, ind_pg = 2
 INTEGER, DIMENSION(2)                   :: dummy_var_A, dummy_A, dummy_var_B, dummy_B
 INTEGER, ALLOCATABLE                    :: n_points_A(:), n_points_B(:)
 INTEGER, ALLOCATABLE                    :: indices_A(:), indices_B(:)
 
-INTEGER                                 :: I
+INTEGER                                 :: ind_I, ind_J
 INTEGER                                 :: cur_prop_cell
 INTEGER                                 :: cur_vmg_A, cur_vmg_B
 INTEGER                                 :: n_zeros, n_propgrid
@@ -35,12 +42,12 @@ DOUBLE PRECISION                        :: cur_VG_r, cur_VG_t, delta, dist, min_
 
 DOUBLE PRECISION               :: diagonal
 ! loop variables
-INTEGER                        :: cur_propcell, J, best_index
+INTEGER                        :: cur_propcell, best_index
 ! variables for calculating the shortest distance between
 ! propagation and model cell
 DOUBLE PRECISION               :: delta2
 ! radial and vertical distance
-DOUBLE PRECISION               :: r, z, r0, phi, phi0
+DOUBLE PRECISION               :: coor_r, coor_z, coor_r0, phi, phi0
 
 DOUBLE PRECISION, PARAMETER     :: large_number=1.d90
 
@@ -99,8 +106,8 @@ DO cur_point = 1, n_modelgrid
  ! n_points -- number of points for the given cell
  n_points_A(n_rt_A) = n_points_A(n_rt_A) + 1
  ! vg_indexy -- list of indeces model grid --> VG index point
- vg_indexy_A(cur_point, 1) = n_rt_A
- vg_indexy_A(cur_point, 2) = cur_point
+ vg_indexy_A(cur_point, ind_vg) = n_rt_A
+ vg_indexy_A(cur_point, ind_pg) = cur_point
  !!!!!!!!
  ! repete for the B grid
  IF(cur_r > rmin + w_vgrid_r/2.0 .and. cur_r < rmax - w_vgrid_r/2.0 .and.&
@@ -109,11 +116,11 @@ DO cur_point = 1, n_modelgrid
   cur_n_t_B = floor((cur_t - tmin)/w_vgrid_t - 1.0/2.0) + 1
   n_rt_B = cur_n_r_B + (N_vgrid_r - 1) * (cur_n_t_B - 1)
   n_points_B(n_rt_B) = n_points_B(n_rt_B) + 1
-  vg_indexy_B(cur_point, 1) = n_rt_B
-  vg_indexy_B(cur_point, 2) = cur_point
+  vg_indexy_B(cur_point, ind_vg) = n_rt_B
+  vg_indexy_B(cur_point, ind_pg) = cur_point
  ELSE
-  vg_indexy_B(cur_point, 1) = 0
-  vg_indexy_B(cur_point, 2) = cur_point
+  vg_indexy_B(cur_point, ind_vg) = 0
+  vg_indexy_B(cur_point, ind_pg) = cur_point
   n_zeros = n_zeros + 1
  END IF
 END DO ! going over all modGrid cels
@@ -123,34 +130,34 @@ END DO ! going over all modGrid cels
 !_______________________________________________________________
 ! sort the vg_indexy according to the VG index
 DO cur_point = 2, n_modelgrid
- I = cur_point - 1
+ ind_I = cur_point - 1
 
  dummy_var_A = vg_indexy_A(cur_point,:)
 
- DO WHILE(I >= 1)
-  IF(vg_indexy_A(I,1) > dummy_var_A(1)) THEN
+ DO WHILE(ind_I >= 1)
+  IF(vg_indexy_A(ind_I,ind_vg) > dummy_var_A(ind_x)) THEN
    ! A grid
-   dummy_A = vg_indexy_A(I + 1,:)
-   vg_indexy_A(I + 1,:) = vg_indexy_A(I,:)
-   vg_indexy_A(I,:) = dummy_A
+   dummy_A = vg_indexy_A(ind_I + 1,:)
+   vg_indexy_A(ind_I + 1,:) = vg_indexy_A(ind_I,:)
+   vg_indexy_A(ind_I,:) = dummy_A
   END IF
-  I = I - 1
+  ind_I = ind_I - 1
  END DO
 END DO
 
 ! sort the vg_indexy according to the VG index
 DO cur_point = 2, n_modelgrid
- I = cur_point - 1
+ ind_I = cur_point - 1
  dummy_var_B = vg_indexy_B(cur_point,:)
  
- DO WHILE(I >= 1)
-  IF(vg_indexy_B(I,1) > dummy_var_B(1)) THEN
+ DO WHILE(ind_I >= 1)
+  IF(vg_indexy_B(ind_I,ind_vg) > dummy_var_B(ind_vg)) THEN
    ! B grid
-   dummy_B = vg_indexy_B(I + 1,:)
-   vg_indexy_B(I + 1,:) = vg_indexy_B(I,:)
-   vg_indexy_B(I,:) = dummy_B
+   dummy_B = vg_indexy_B(ind_I + 1,:)
+   vg_indexy_B(ind_I + 1,:) = vg_indexy_B(ind_I,:)
+   vg_indexy_B(ind_I,:) = dummy_B
   END IF
-  I = I - 1
+  ind_I = ind_I - 1
  END DO
 END DO
 !_______________________________________________________________
@@ -206,7 +213,7 @@ DO cur_prop_cell = my_start, my_end
  IF(dyn_cell(cur_prop_cell)%up_cell == 0) THEN
   cur_pos = dyn_cell(cur_prop_cell)%corner
   cur_r = norm2(cur_pos)
-  cur_t = abs(tan(cur_pos(3)/sqrt(cur_pos(1)**2 + cur_pos(2)**2)))
+  cur_t = abs(tan(cur_pos(ind_z)/sqrt(cur_pos(ind_x)**2 + cur_pos(ind_y)**2)))
   IF(cur_r >= rmin .and. cur_r <= rmax .and. &
    cur_t >= tmin .and. cur_t <= tmax) THEN
 
@@ -228,16 +235,16 @@ DO cur_prop_cell = my_start, my_end
    
    ! write(*,*) 'connect_2D_peku: cur_vmg_A = ', cur_vmg_A, ' cur_vmg_B = ', cur_vmg_B
    ! distances from the centres of the VG A and B
-   centre_A(1) = w_vgrid_r * (cur_n_r_B - 1) + w_vgrid_r/2.0
-   centre_A(2) = w_vgrid_t * (cur_n_t_B - 1) + w_vgrid_t/2.0
+   centre_A(ind_x) = w_vgrid_r * (cur_n_r_B - 1) + w_vgrid_r/2.0
+   centre_A(ind_y) = w_vgrid_t * (cur_n_t_B - 1) + w_vgrid_t/2.0
 
-   centre_B(1) = w_vgrid_r * (cur_n_r_A - 1) + w_vgrid_r
-   centre_B(2) = w_vgrid_t * (cur_n_t_A - 1) + w_vgrid_t
+   centre_B(ind_x) = w_vgrid_r * (cur_n_r_A - 1) + w_vgrid_r
+   centre_B(ind_y) = w_vgrid_t * (cur_n_t_A - 1) + w_vgrid_t
 
    ! looking for the closest point
-   dist_A = sqrt((cur_r-centre_A(1))**2+(cur_t-centre_A(2))**2)
+   dist_A = sqrt((cur_r-centre_A(ind_x))**2+(cur_t-centre_A(ind_y))**2)
    IF(cur_n_t_B > 0) THEN
-    dist_B = sqrt((cur_r-centre_B(1))**2+(cur_t-centre_B(2))**2)
+    dist_B = sqrt((cur_r-centre_B(ind_x))**2+(cur_t-centre_B(ind_y))**2)
    ELSE IF(cur_n_t_B == 0) THEN
     dist_B = 1.D99
    END IF
@@ -252,7 +259,7 @@ DO cur_prop_cell = my_start, my_end
 
     ALLOCATE(cur_points(cur_n_points))
 
-    cur_points = vg_indexy_A(cur_start_index:cur_end_index,2)
+    cur_points = vg_indexy_A(cur_start_index:cur_end_index,ind_pg)
     
    ELSE IF(dist_A >= dist_B) THEN
     ! B is the winner
@@ -263,7 +270,7 @@ DO cur_prop_cell = my_start, my_end
 
     ALLOCATE(cur_points(cur_n_points))
 
-    cur_points = vg_indexy_B(cur_start_index:cur_end_index,2)
+    cur_points = vg_indexy_B(cur_start_index:cur_end_index,ind_pg)
    END IF
 
    ! finally, looking for the point with the shortest distance
@@ -318,34 +325,34 @@ END DO ! loop over every propGrid cell to calculate associated modGrid cells
 
 ! connect every single cell to its model cell
 DO cur_propcell = 1, n_propgcells
- r = SQRT((dyn_cell(cur_propcell)%corner(1) + dyn_cell(cur_propcell)%width(1)/2.D0)**2 + &
-          (dyn_cell(cur_propcell)%corner(2) + dyn_cell(cur_propcell)%width(2)/2.D0)**2 + &
-          (dyn_cell(cur_propcell)%corner(3) + dyn_cell(cur_propcell)%width(3)/2.D0)**2)
- z = dyn_cell(cur_propcell)%corner(3) + dyn_cell(cur_propcell)%width(3)/2.D0
- phi = acos(z/r)
+coor_r = SQRT((dyn_cell(cur_propcell)%corner(ind_x) + dyn_cell(cur_propcell)%width(ind_x)/2.D0)**2 + &
+          (dyn_cell(cur_propcell)%corner(ind_y) + dyn_cell(cur_propcell)%width(ind_y)/2.D0)**2 + &
+          (dyn_cell(cur_propcell)%corner(ind_z) + dyn_cell(cur_propcell)%width(ind_z)/2.D0)**2)
+ coor_z = dyn_cell(cur_propcell)%corner(ind_z) + dyn_cell(cur_propcell)%width(ind_z)/2.D0
+ phi = acos(coor_z/coor_r)
  phi = abs(phi)
- IF(r < R_star .OR. r > R_inf) THEN
+ IF(coor_r < R_star .OR. coor_r > R_inf) THEN
   dyn_cell(cur_propcell)%model_index = n_modelgrid
   CONTINUE
  END IF
- ! write(*,*) 'connection_prop_model_grid: r = ', r, ' z = ', z
+ ! write(*,*) 'connection_prop_model_grid: coor_r = ', coor_r, ' coor_z = ', coor_z
  ! write(*,*) 'connection_prop_model_grid: phi = ', phi
   delta = 1.D99
-  DO J = 1, n_modelgrid
-   r0 = model_grid(J)%rwind
-   phi0 = model_grid(J)%angle
-   delta2 = sqrt(r**2.0+r0**2.0 - 2.0 * r * r0 * &
+  DO ind_J = 1, n_modelgrid
+   coor_r0 = model_grid(ind_J)%rwind
+   phi0 = model_grid(ind_J)%angle
+   delta2 = sqrt(coor_r**2.0 + coor_r0**2.0 - 2.0 * coor_r * coor_r0 * &
     (cos(phi)*cos(phi0) - sin(phi) * sin(phi0)))
    IF( delta2 < delta ) THEN
      delta = delta2
-     best_index = J
-    ! write(*,*) 'connection_prop_model_grid: cur_propcell = ', cur_propcell, ' / ', r/r0, phi/phi0
+     best_index = ind_J
+    ! write(*,*) 'connection_prop_model_grid: cur_propcell = ', cur_propcell, ' / ', coor_r/r0, phi/phi0
    END IF
    ! if the propagation cell is too far from the nearest model point
    ! we will associate this cell to the dummy cells
   END DO
-   diagonal = sqrt(dyn_cell(cur_propcell)%width(1)**2+dyn_cell(cur_propcell)%width(3)**2)/2.D0
-   IF((delta > diagonal) .AND. (dyn_cell(cur_propcell)%width(1) > basic_cell_width(1)/2.D0**6)) THEN
+   diagonal = sqrt(dyn_cell(cur_propcell)%width(ind_x)**2+dyn_cell(cur_propcell)%width(ind_z)**2)/2.D0
+   IF((delta > diagonal) .AND. (dyn_cell(cur_propcell)%width(ind_x) > basic_cell_width(ind_x)/2.D0**6)) THEN
     dyn_cell(cur_propcell)%model_index = vacuum_index
     model_grid(vacuum_index)%assoc_cells = model_grid(vacuum_index)%assoc_cells + 1
    ELSE
