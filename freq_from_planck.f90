@@ -66,7 +66,7 @@ DO WHILE (end_loop .EQ. 0)
 
  IF ( ran_planck .LT. planck ) THEN
     freq = ran_freq
-     WRITE(*, *) freq, planck
+     ! write(*, *) freq, planck
     end_loop = 1
  END IF
 
