@@ -55,7 +55,7 @@ DOUBLE PRECISION                                :: cur_sum, nvn
 DOUBLE PRECISION, PARAMETER                     :: large_number = 1.D90
 DOUBLE PRECISION                                :: part_1, part_2, part_3
 DOUBLE PRECISION, PARAMETER                     :: param_k = 0.4
-DOUBLE PRECISION                                :: a_index, b_index, V_star
+DOUBLE PRECISION                                :: a_index, b_index, vel_star
 
 IF(debug == 100) THEN
  write(*,*) 'roverw: l_dist = ', l_dist
@@ -129,9 +129,9 @@ ELSE IF(velApprox == 10) THEN
   R_pos = norm2(package(pack_index)%pos)
   R_pos_vec = package(pack_index)%pos / norm2(package(pack_index)%pos)
   costheta = dot_product(package(pack_index)%dir, R_pos_vec)
-  V_star = R_star/R_inf * V_inf
-  a_index = - (V_inf - V_star)/(R_inf - R_star)
-  b_index = (V_inf * R_inf - V_star * R_star)/(R_inf - R_star)
+  vel_star = R_star/R_inf * V_inf
+  a_index = - (V_inf - vel_star)/(R_inf - R_star)
+  b_index = (V_inf * R_inf - vel_star * R_star)/(R_inf - R_star)
   ROverW = (abs(a_index + (1-costheta**2)*b_index/R_pos))**(-1)
  END IF 
  

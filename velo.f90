@@ -31,7 +31,7 @@ INTEGER, PARAMETER                :: max_n_of_velopackets = 2000
 INTEGER                            :: cur_dummy_index
 INTEGER                                 :: cur_dummypack, dummypack_index
 
-DOUBLE PRECISION                        :: a_index, b_index, V_star
+DOUBLE PRECISION                        :: a_index, b_index, vel_star
 
 IF(debug == 100) write(*,*) 'velo: approx = ', approx
 
@@ -44,10 +44,15 @@ ELSE IF(pack_index > SIZE(package)) THEN
 END IF
 init_pack_pos = pack_position
 
-IF(norm2(pack_position) < R_star) THEN
- vel_vec = (/ 0.D0, 0.D0, 0.D0 /)
- ! RETURN POINT
- RETURN
+IF(norm2(pack_position) <= R_star) THEN
+ IF(velApprox == 1) THEN
+  vel_vec = (/ 0.D0, 0.D0, 0.D0 /)
+  ! RETURN POINT
+  RETURN
+ ELSE
+ cur_n = pack_position/norm2(pack_position)
+ pack_position = R_star * cur_n
+ END IF
 ELSE IF(norm2(pack_position) > R_inf) THEN
  cur_n = pack_position/norm2(pack_position)
  pack_position = R_inf * cur_n
@@ -118,9 +123,9 @@ CASE(6)
  END IF
 CASE(10)
  r_pos = norm2(pack_position)
- V_star = R_star/R_inf * V_inf
- a_index = - (V_inf - V_star)/(R_inf - R_star)
- b_index = (V_inf * R_inf - V_star * R_star)/(R_inf - R_star)
+ vel_star = R_star/R_inf * V_inf
+ a_index = - (V_inf - vel_star)/(R_inf - R_star)
+ b_index = (V_inf * R_inf - vel_star * R_star)/(R_inf - R_star)
  vel_radial = a_index * r_pos + b_index
  vel_vec = pack_position/r_pos * vel_radial
 CASE DEFAULT

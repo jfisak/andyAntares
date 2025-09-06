@@ -33,6 +33,8 @@ modelfile=TRIM(inputmodelFile)
 ! (1)
 ! (2) PoWR testing model
 ! (3) model by Araya
+! (4)
+! (5) averaged 2D model by Nico
 
 SELECT CASE (inputModel)
  CASE(0)
@@ -209,6 +211,10 @@ SELECT CASE (inputModel)
   CALL read_1D_araya()
  CASE(4)
   CALL read_1D_dwap()
+ ! spherical symmetric model with two component velocity field
+ ! average from 2D Nico model
+ CASE(5)
+  CALL read_1D_average2D()
  CASE DEFAULT
   write(99,*) 'the choice of the variable inputModel = ', inputModel, 'is not known...'
   STOP 'ENDING PROGRAM NOW...'

@@ -35,9 +35,10 @@ SELECT CASE(model_type)
  ! spherically symmetric models
  CASE(1)
   IF(norm2(pos) < R_star) THEN
-   ! rad_vel = R_star / R_inf * V_inf
-   ! vel_vec = V_inf * pos / norm2(pos)
    vel_vec = (/ 0.D0, 0.D0, 0.D0 /)
+   IF(inputmodel == 5) THEN
+    vel_vec = V_star * pos / norm2(pos)
+   END IF
    RETURN
   ELSE IF(norm2(pos) > R_inf) THEN
    vel_vec = V_inf * pos / norm2(pos)
@@ -47,9 +48,30 @@ SELECT CASE(model_type)
    END IF
    RETURN
   END IF
-  rad_vel = model_grid(mod_index)%vel
-  vel_vec = rad_vel * pos / norm2(pos)
-  ! write(37,*) norm2(pos)/R_star, rad_vel, mod_index
+  IF(inputmodel /= 5) THEN
+   rad_vel = model_grid(mod_index)%vel
+   vel_vec = rad_vel * pos / norm2(pos)
+  ELSE IF(inputmodel == 5) THEN
+   vr = model_grid(mod_index)%vel
+   vtheta = model_grid(mod_index)%velang
+
+   coor_x = pos(ind_x)
+   coor_y = pos(ind_y)
+   coor_z = pos(ind_z)
+
+   radius = norm2(pos)
+   theta = acos(coor_z/radius)
+   phi = atan2(coor_y,coor_x)
+
+   sintheta = sin(theta)
+   costheta = cos(theta)
+   sinphi = sin(phi)
+   cosphi = cos(phi)
+
+   vel_vec(ind_x) = vr * sintheta * cosphi + vtheta * costheta * cosphi 
+   vel_vec(ind_y) = vr * sintheta * sinphi + vtheta * costheta * sinphi
+   vel_vec(ind_z) = vr * costheta - vtheta * sintheta
+  END IF
  !________________________________________________________
  ! 2D model with radial velocity and tangential velocity
  CASE(2)
