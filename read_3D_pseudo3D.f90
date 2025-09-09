@@ -25,6 +25,7 @@ DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: pos, vel
 INTEGER                                         :: ind_I, ind_J
 INTEGER                                         :: numbions, atom_number
 INTEGER                                         :: Nx, Ny, Nz
+INTEGER, DIMENSION(1)                           :: ind_min
 ! INTEGER(KIND=8)                                 :: int_xmax, int_ymax, int_zmax
 ! INTEGER(KIND=8)                                 :: int_xmin, int_ymin, int_zmin
 
@@ -119,6 +120,8 @@ OPEN(UNIT=11, FILE=modelfile)
  ymax = MAXVAL(model_grid(:)%vec_pos(ind_y))
  zmax = MAXVAL(model_grid(:)%vec_pos(ind_z))
 
+ ind_min(1) = MINLOC(model_grid(:)%rwind,1)
+ V_star = model_grid(ind_min(1))%vel
 ! len_x = mod_xmax - mod_xmin
 ! len_y = mod_ymax - mod_ymin
 ! len_z = mod_zmax - mod_zmin
