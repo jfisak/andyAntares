@@ -35,7 +35,7 @@ END IF
 SELECT CASE(model_type)
  ! spherically symmetric models
  CASE(1)
-  IF(norm2(pos) < R_star) THEN
+  IF(norm2(pos) <= R_star) THEN
    vel_vec = (/ 0.D0, 0.D0, 0.D0 /)
    IF(velApprox == 3) THEN
     cur_n = pos/norm2(pos)
