@@ -91,8 +91,8 @@ modelfile=TRIM(inputmodelFile)
 
   R_star = MINVAL(model_grid(1:n_modelgrid)%rwind)
   R_inf = MAXVAL(model_grid(1:n_modelgrid)%rwind)
-  ind_max(1) = MAXLOC(model_grid(:)%rwind,1)
-  ind_min(1) = MINLOC(model_grid(:)%rwind,1)
+  ind_max(1) = MAXLOC(model_grid(:)%rwind,1, MASK=(model_grid(:)%rwind <= R_inf))
+  ind_min(1) = MINLOC(model_grid(:)%rwind,1, MASK=(model_grid(:)%rwind >= R_star))
   V_inf = model_grid(ind_max(1))%vel
   V_star = model_grid(ind_min(1))%vel
 
