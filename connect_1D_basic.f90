@@ -97,7 +97,7 @@ END DO ! a loop over propGrid cells
   CALL MPI_ALLREDUCE(cur_assoc_cells(1:n_modelgrid + add_mg), model_grid(1:n_modelgrid + add_mg)%assoc_cells, &
    n_modelgrid + add_mg, MPI_INTEGER, MPI_SUM, mpi_comm_world, ierr)
  ELSE IF(n_tasks == 1) THEN
-  dyn_cell(1:n_modelgrid)%model_index = cur_model_index(1:n_modelgrid)
+  dyn_cell(1:n_propgcells)%model_index = cur_model_index(1:n_propgcells)
   model_grid(1:n_modelgrid)%assoc_cells = cur_assoc_cells(1:n_modelgrid)
  END IF
 #endif 
