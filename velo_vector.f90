@@ -24,6 +24,7 @@ DOUBLE PRECISION                                        :: vr, vtheta
 DOUBLE PRECISION                                        :: coor_x, coor_y, coor_z
 DOUBLE PRECISION                                        :: cosphi, sinphi, costheta, sintheta
 DOUBLE PRECISION                                        :: radius, phi, theta
+DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: cur_n
 
 ! calculation of the model index if it is not defined in the input
 IF(mod_index == no_modcell) THEN
@@ -36,6 +37,11 @@ SELECT CASE(model_type)
  CASE(1)
   IF(norm2(pos) < R_star) THEN
    vel_vec = (/ 0.D0, 0.D0, 0.D0 /)
+   IF(velApprox == 3) THEN
+    cur_n = pos/norm2(pos)
+    vel_vec = V_star * cur_n
+    RETURN
+   END IF
    IF(inputmodel == 5) THEN
     vel_vec = V_star * pos / norm2(pos)
    END IF
