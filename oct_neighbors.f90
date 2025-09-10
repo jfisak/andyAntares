@@ -42,13 +42,14 @@ DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: act_pos
 
 
 IF(pack_index <= SIZE(package)) THEN
- act_cell = package(pack_index)%cell_numb
+ ! act_cell = package(pack_index)%cell_numb
  act_pos = package(pack_index)%pos
 ELSE IF(pack_index > SIZE(package)) THEN
  dummypack_index = pack_index - SIZE(package)
- act_cell = dummypackage(dummypack_index)%cell_numb
+ ! act_cell = dummypackage(dummypack_index)%cell_numb
  act_pos = dummypackage(dummypack_index)%pos
 END IF
+CALL find_dyn_cell1(act_pos, act_cell)
 act_corner = dyn_cell(act_cell)%corner
 act_upcorner = dyn_cell(act_cell)%upcorner
 act_center = (act_corner + act_upcorner)/2.0

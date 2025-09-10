@@ -56,6 +56,7 @@ IF(norm2(pack_position) <= R_star) THEN
  IF(velApprox == 3) THEN
   cur_n = pack_position/norm2(pack_position)
   vel_vec = V_star * cur_n
+  RETURN
  END IF
 ELSE IF(norm2(pack_position) > R_inf) THEN
  cur_n = pack_position/norm2(pack_position)
