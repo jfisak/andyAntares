@@ -39,6 +39,7 @@ OPEN(UNIT=11, FILE=modelfile)
  READ(11,*) T_eff
  READ(11,*) R_star
  READ(11,*) R_inf
+ READ(11,*) V_star
  READ(11,*) V_inf
  READ(11,*) Nx, Ny, Nz
 
@@ -60,6 +61,7 @@ OPEN(UNIT=11, FILE=modelfile)
  END DO
  ALLOCATE (model_grid(n_modelgrid + add_mg))
  REWIND(11)
+ READ(11,*) junk
  READ(11,*) junk
  READ(11,*) junk
  READ(11,*) junk
@@ -119,9 +121,6 @@ OPEN(UNIT=11, FILE=modelfile)
  xmax = MAXVAL(model_grid(:)%vec_pos(ind_x))
  ymax = MAXVAL(model_grid(:)%vec_pos(ind_y))
  zmax = MAXVAL(model_grid(:)%vec_pos(ind_z))
-
- ind_min(1) = MINLOC(model_grid(:)%rwind,1, MASK=(model_grid(:)%rwind >= R_star))
- V_star = model_grid(ind_min(1))%vel
 ! len_x = mod_xmax - mod_xmin
 ! len_y = mod_ymax - mod_ymin
 ! len_z = mod_zmax - mod_zmin
