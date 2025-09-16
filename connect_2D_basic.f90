@@ -231,8 +231,8 @@ DO ind_I = 1, n_propgcells
    mgi_radius = model_grid(cur_mgi_index)%rwind
    mgi_theta = model_grid(cur_mgi_index)%angle
    pgi_radius = SQRT((dyn_cell(ind_I)%corner(ind_x) + dyn_cell(ind_I)%width(ind_x)/2.D0)**2 + &
-                     (dyn_cell(ind_I)%corner(ind_y) + dyn_cell(ind_I)%width(ind_y)/2.D0)**2 + &
-                     (dyn_cell(ind_I)%corner(ind_z) + dyn_cell(ind_I)%width(ind_z)/2.D0)**2)
+    (dyn_cell(ind_I)%corner(ind_y) + dyn_cell(ind_I)%width(ind_y)/2.D0)**2 + &
+    (dyn_cell(ind_I)%corner(ind_z) + dyn_cell(ind_I)%width(ind_z)/2.D0)**2)
    pgi_theta =  acos((dyn_cell(ind_I)%corner(ind_z) + dyn_cell(ind_I)%width(ind_z)/2.D0)/pgi_radius)
    delta2 = sqrt(pgi_radius**2 + mgi_radius**2 - &
     2.0 * pgi_radius * mgi_radius * cos(pgi_theta - mgi_theta))

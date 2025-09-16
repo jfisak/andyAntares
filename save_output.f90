@@ -538,7 +538,7 @@ DO ind_I = 1, Nx_cov
   CALL find_dyn_cell1(cur_pos, cur_pgi)
   IF(cur_pgi > 0) THEN
    cur_mgi = dyn_cell(cur_pgi)%model_index
-   IF(cur_mgi > 0) THEN
+   IF(cur_mgi <= n_modelgrid) THEN
     cur_temp = model_grid(cur_mgi)%T
     cur_rho = model_grid(cur_mgi)%rho
     coverage_matrix_T(ind_I, ind_J) = REAL(cur_temp)

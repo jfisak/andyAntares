@@ -40,11 +40,13 @@ SELECT CASE(model_type)
    IF(velApprox == 3) THEN
     cur_n = pos/norm2(pos)
     vel_vec = V_star * cur_n
+    ! RETURN point
     RETURN
    END IF
    IF(inputmodel == 5) THEN
     vel_vec = V_star * pos / norm2(pos)
    END IF
+   ! RETURN point
    RETURN
   ELSE IF(norm2(pos) > R_inf) THEN
    vel_vec = V_inf * pos / norm2(pos)

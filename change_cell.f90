@@ -45,18 +45,18 @@ ELSE
   write(*,*) 'change_cell: corner = ', dyn_cell(next_cell)%corner
   write(*,*) 'change_cell: pos = ', pos
   write(*,*) 'change_cell: upcorner = ', dyn_cell(next_cell)%upcorner
-   DO ind_I = 1, const_dimofspace
-    IF(((pos(ind_I) < corner(ind_I) - mininum) .OR. (pos(ind_I) > upcorner(ind_I) + mininum)) &
-    .and. pack_index <= SIZE(package)) THEN
-     write(*,*) 'change_cell: ind_I = ', ind_I
-     CALL find_dyn_cell1(pos, pom_pgi)
-     write(*,*) 'change_cell: pom_pgi = ', pom_pgi
-     write(*,*) 'change_cell: corner = ', dyn_cell(pom_pgi)%corner
-     write(*,*) 'change_cell: pos = ', pos
-     write(*,*) 'change_cell:  = ', dyn_cell(pom_pgi)%upcorner
-     STOP 'change_cell: packet is not located inside the propagation cell'
-    END IF
-   END DO
+  DO ind_I = 1, const_dimofspace
+   IF(((pos(ind_I) < corner(ind_I) - mininum) .OR. (pos(ind_I) > upcorner(ind_I) + mininum)) &
+   .and. pack_index <= SIZE(package)) THEN
+    write(*,*) 'change_cell: ind_I = ', ind_I
+    CALL find_dyn_cell1(pos, pom_pgi)
+    write(*,*) 'change_cell: pom_pgi = ', pom_pgi
+    write(*,*) 'change_cell: corner = ', dyn_cell(pom_pgi)%corner
+    write(*,*) 'change_cell: pos = ', pos
+    write(*,*) 'change_cell:  = ', dyn_cell(pom_pgi)%upcorner
+    STOP 'change_cell: packet is not located inside the propagation cell'
+   END IF
+  END DO
  END IF
 
  ! test on the propGrid cell index number

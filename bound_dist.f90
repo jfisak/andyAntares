@@ -243,12 +243,8 @@ END IF
 ! write(*,*) '*********************************************************************'
 ! write(*,*) 'bound_dist: n_pos = ', n_pos, ' n_neg = ', n_neg
 ! write(*,*) 'bound_dist: n_zer = ', n_zer, ' n_par = ', n_par
-! write(*,*) 'bound_dist: width = ', width
 ! write(*,*) 'bound_dist: tnegx = ', tnegx, ' tnegy = ', tnegy, ' tnegz = ', tnegz, &
 !   ' tposx = ', tposx, ' tposy = ', tposy, 'tposz = ', tposz
-! write(*,*) 'bound_dist: tnegx = ', tnegx/width(ind_x), ' tnegy = ', tnegy/width(ind_y), &
-! ' tnegz = ', tnegz/width(ind_z), &
-!   ' tposx = ', tposx/width(ind_x), ' tposy = ', tposy/width(ind_y), 'tposz = ', tposz/width(ind_z)
 ! write(*,*) 'bound_dist: dir = ', package(pack_index)%dir
 ! write(*,*) '*********************************************************************'
 ! write(*,*) '*********************************************************************'
