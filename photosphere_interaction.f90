@@ -8,11 +8,11 @@ USE constants
 IMPLICIT NONE
 
 INTEGER                                         :: pack_index, n_pack
-DOUBLE PRECISION, DIMENSION(3)                  :: directionn, direction
-DOUBLE PRECISION                                :: D, L_star
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: directionn, direction
+DOUBLE PRECISION                                :: doppler_D, L_star
 DOUBLE PRECISION                                :: sint, cost, sinp, cosp
 INTEGER                                         :: ind_cell_numb
-DOUBLE PRECISION, DIMENSION(3)                  :: corner, width, pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: corner, width, pos, upcorner
 DOUBLE PRECISION                                :: freq
 n_pack = SIZE(package) - 1
 L_star = 4.D0*const_pi*(R_star)**2*const_stefbolz*T_eff**4
@@ -25,9 +25,9 @@ CASE(1)
 
  ! Then give it a random direction outward from the photosphere
  CALL random_unitvector2(directionn) !random_unitvector(direction)
- direction(1)=directionn(3)*sint*cosp+directionn(1)*cost*cosp-directionn(2)*sinp
- direction(2)=directionn(3)*sint*sinp+directionn(1)*cost*sinp+directionn(2)*cosp
- direction(3)=directionn(3)*cost-directionn(1)*sint
+ direction(ind_x)=directionn(ind_z)*sint*cosp+directionn(ind_x)*cost*cosp-directionn(ind_y)*sinp
+ direction(ind_y)=directionn(ind_z)*sint*sinp+directionn(ind_x)*cost*sinp+directionn(ind_y)*cosp
+ direction(ind_z)=directionn(ind_z)*cost-directionn(ind_x)*sint
  package(pack_index)%dir = direction
  CALL find_dyn_cell1(package(pack_index)%pos,ind_cell_numb)
  IF(ind_cell_numb > SIZE(dyn_cell)) THEN
@@ -37,15 +37,16 @@ CASE(1)
  ! write(*,*) 'photosphere_interaction: ind_cell_numb = ', ind_cell_numb
  package(pack_index)%cell_numb = ind_cell_numb
  corner = dyn_cell(ind_cell_numb)%corner
+ upcorner = dyn_cell(ind_cell_numb)%upcorner
  width = dyn_cell(ind_cell_numb)%width
  pos = package(pack_index)%pos
  
  CALL freq_from_planck(freq, T_eff)   ! here the frequency is sampled from the Planck law
  package(pack_index)%freq_rf = freq
  package(pack_index)%e_rf = L_star/n_pack  
- CALL doppler_factor(pack_index, D)
- package(pack_index)%freq_cmf = package(pack_index)%freq_rf * D 
- package(pack_index)%e_cmf    = package(pack_index)%e_rf * D  
+ CALL doppler_factor(pack_index, doppler_D)
+ package(pack_index)%freq_cmf = package(pack_index)%freq_rf * doppler_D 
+ package(pack_index)%e_cmf    = package(pack_index)%e_rf * doppler_D  
  package(pack_index)%last_line = no_line
  package(pack_index)%delta_s = 0.D0
 
@@ -53,13 +54,12 @@ CASE(1)
  package(pack_index)%next_cross = NONE
 
 
-IF(pos(1) < corner(1) .OR. pos(1) > corner(1) + width(1) .OR. &
- pos(2) < corner(2) .OR. pos(2) > corner(2) + width(2) .OR. &
- pos(3) < corner(3) .OR. pos(3) > corner(3) + width(3) ) THEN
+IF(pos(ind_x) < corner(ind_x) .OR. pos(ind_x) > upcorner(ind_x) .OR. &
+ pos(ind_y) < corner(ind_y) .OR. pos(ind_y) > upcorner(ind_y) .OR. &
+ pos(ind_z) < corner(ind_z) .OR. pos(ind_z) > upcorner(ind_z)) THEN
   write(*,*) 'find_dist: pack_index = ', pack_index
   write(*,*) 'find_dist: pos/corner = ', pos(:)/corner(:)!, ' corner = ', corner / R_inf
-  write(*,*) 'find_dist: pos/R_inf = ', pos/R_inf, ' corner/R_inf = ', corner/R_inf,&
-   ' width/R_inf = ', width/R_inf
+  write(*,*) 'find_dist: pos/R_inf = ', pos/R_inf, ' corner/R_inf = ', corner/R_inf
   write(*,*) 'find_dist: cell_numb = ', ind_cell_numb, ' neighbors = ', dyn_cell(ind_cell_numb)%neighbor
   STOP 
 END IF

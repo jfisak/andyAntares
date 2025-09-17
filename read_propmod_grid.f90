@@ -57,12 +57,12 @@ DO ind_I = 1, n_modelgrid
  write(*,*) 'read_propmod_grid: pos = ', pos
 
  IF(model_type == 1) THEN
-  model_grid(ind_I)%rwind = pos(1)
-  model_grid(ind_I)%vel = vel(1)
+  model_grid(ind_I)%rwind = pos(ind_x)
+  model_grid(ind_I)%vel = vel(ind_x)
  ELSE IF(model_type == 3) THEN
   model_grid(ind_I)%vec_pos = pos
-  model_grid(ind_I)%rwind = pos(1)
-  model_grid(ind_I)%angle = pos(2)
+  model_grid(ind_I)%rwind = pos(ind_x)
+  model_grid(ind_I)%angle = pos(ind_y)
   model_grid(ind_I)%vec_vel = vel
  END IF
  model_grid(ind_I)%rho = rho

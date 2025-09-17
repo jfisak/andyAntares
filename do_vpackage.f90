@@ -49,26 +49,30 @@ IF(pos(ind_x) < xmin .or. pos(ind_x) > xmax .or. pos(ind_y) < ymin .or. pos(ind_
  IF(procout) write(*,*) 'do_vpackage: the packet is outside the propGrid'
  !________________________________________________________________________
  ! we have to find out, whether the packet crosses the compuational domain
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ ! there could be a problem with indeces !!!
+ ! must be tested!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  IF(dir(ind_x) /= 0) THEN
-  tecka(1) = (xmin - pos(ind_x))/dir(ind_x)
-  tecka(2) = (xmax - pos(ind_x))/dir(ind_x)
+  tecka(posx) = (xmax - pos(ind_x))/dir(ind_x)
+  tecka(negx) = (xmin - pos(ind_x))/dir(ind_x)
  ELSE
-  tecka(1) = largeNumber
-  tecka(2) = largeNumber
+  tecka(posx) = largeNumber
+  tecka(negx) = largeNumber
  END IF
  IF(dir(ind_y) /= 0) THEN
-  tecka(3) = (ymin - pos(ind_y))/dir(ind_y)
-  tecka(4) = (ymax - pos(ind_y))/dir(ind_y)
+  tecka(posy) = (ymax - pos(ind_y))/dir(ind_y)
+  tecka(negy) = (ymin - pos(ind_y))/dir(ind_y)
  ELSE
-  tecka(3) = largeNumber
-  tecka(4) = largeNumber
+  tecka(posy) = largeNumber
+  tecka(negy) = largeNumber
  END IF
- IF(dir(3) /= 0) THEN
-  tecka(5) = (zmin - pos(ind_z))/dir(ind_z)
-  tecka(6) = (zmax - pos(ind_z))/dir(ind_z)
+ IF(dir(ind_z) /= 0) THEN
+  tecka(posz) = (zmax - pos(ind_z))/dir(ind_z)
+  tecka(negz) = (zmin - pos(ind_z))/dir(ind_z)
  ELSE
-  tecka(5) = largeNumber
-  tecka(6) = largeNumber
+  tecka(posz) = largeNumber
+  tecka(negz) = largeNumber
  END IF
  
  dist(:) = 1.D99

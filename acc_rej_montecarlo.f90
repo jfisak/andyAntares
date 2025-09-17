@@ -11,8 +11,8 @@ USE constants
 
 IMPLICIT NONE 
 
-INTEGER                       :: NR, n_packs
-INTEGER                       :: J, K, lw_index, lg_index
+INTEGER                       :: n_rows, n_packs
+INTEGER                       :: ind_J, ind_K, lw_index, lg_index
 LOGICAL                       :: found
 INTEGER, PARAMETER            :: maxrows = 6000000
 DOUBLE PRECISION, DIMENSION(n_packs) :: freq
@@ -29,19 +29,19 @@ INTEGER                         :: Nints
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! now we generate a new photonic frequency
 ! we will consider that frequencies are in the right order
-NR = SIZE(incomingflux(:,1))
+n_rows = SIZE(incomingflux(:,1))
 freq_min = incomingflux(1,1)
-freq_max = incomingflux(NR, 1)
+freq_max = incomingflux(n_rows, 1)
 flux_max = MAXVAL(incomingflux(:,2))
 ! speed up a procedure: divide the whole file into several frequency intervals
 ! dividing the whole input file onto N intervals
-IF(NR > 1000) THEN
+IF(n_rows > 1000) THEN
  Nints = 100
-ELSE IF(NR <=1000) THEN
+ELSE IF(n_rows <=1000) THEN
  Nints = 50
 END IF
 
-DO K = 1, n_packs
+DO ind_K = 1, n_packs
  FOUND = .FALSE.
  DO WHILE ( FOUND .EQV. .FALSE.)
   CALL random_number(sinseed)
@@ -59,12 +59,12 @@ DO K = 1, n_packs
   ! 1.)
   ! print*, 'and we will calculate the linear interpolation...'
   ! i find two frequency points between we will interpolate
-  DO J=1, NR
-   IF (ran_freq < incomingflux(J,1)) THEN
+  DO ind_J = 1, n_rows
+   IF (ran_freq < incomingflux(ind_J,1)) THEN
     CYCLE
    ELSE
-    lw_index = J - 1 
-    lg_index = J
+    lw_index = ind_J - 1 
+    lg_index = ind_J
     !print*, 'exiting cycle in loop ', J
     EXIT
    END IF
@@ -80,16 +80,13 @@ DO K = 1, n_packs
    bound_flux = a_linint * ran_freq + b_linint
   ! iii did we find the right frequency?
   IF (ran_flux < bound_flux) THEN
-   freq(K) = ran_freq
+   freq(ind_K) = ran_freq
    write(39,*) ran_freq
    FOUND = .TRUE.
   END IF
   IF (FOUND .EQV. .TRUE.) THEN
-  ! print*, 'we found the photon :-)'
   ELSE
-  ! print*, 'we did not find it ... trying again...'
   END IF
-  ! if ((MODULO(K,10000) .EQ. 0) .AND. (FOUND .EQV. .TRUE.)) print*, 'Generating the frequency packet ', K, ' ...'
  END DO
 END DO
 ! OPEN(37, FILE='freq_dist_test.dat')

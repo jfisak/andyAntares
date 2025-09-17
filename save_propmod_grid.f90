@@ -42,19 +42,19 @@ write(49,*) add_mg
 
 DO ind_I = 1, n_modelgrid
  IF(model_type == 1) THEN
-  pos(1) = model_grid(ind_I)%rwind
-  pos(2) = 0.e0
-  pos(3) = 0.e0
-  vel(1) = model_grid(ind_I)%vel
-  vel(2) = 0.e0
-  vel(3) = 0.e0
+  pos(ind_x) = model_grid(ind_I)%rwind
+  pos(ind_y) = 0.e0
+  pos(ind_z) = 0.e0
+  vel(ind_x) = model_grid(ind_I)%vel
+  vel(ind_y) = 0.e0
+  vel(ind_z) = 0.e0
  ELSE IF(model_type == 2) THEN
-  pos(1) = model_grid(ind_I)%rwind
-  pos(2) = model_grid(ind_I)%angle
-  pos(3) = 0.e0
-  vel(1) = model_grid(ind_I)%vel
-  vel(2) = model_grid(ind_I)%velang
-  vel(3) = 0.e0
+  pos(ind_x) = model_grid(ind_I)%rwind
+  pos(ind_y) = model_grid(ind_I)%angle
+  pos(ind_z) = 0.e0
+  vel(ind_x) = model_grid(ind_I)%vel
+  vel(ind_y) = model_grid(ind_I)%velang
+  vel(ind_z) = 0.e0
  ELSE IF(model_type == 3) THEN
   pos = model_grid(ind_I)%vec_pos
   vel = model_grid(ind_I)%vec_vel

@@ -89,9 +89,6 @@ DO ind_I=1, nx_cell
  DO ind_J=1, ny_cell
   DO ind_K=1, nz_cell
    ! Index(number) of each cell in x,y, and z direction
-   !dyn_cell(L)%indexc(1) = I
-   !dyn_cell(L)%indexc(2) = ind_J
-   !dyn_cell(L)%indexc(3) = K
    ! Coordinates of the lower left corner of each cell
    dyn_cell(ind_L)%corner(ind_x) = - xmax + DBLE((ind_I - 1)) * basic_cell_width(ind_x)
    dyn_cell(ind_L)%corner(ind_y) = - ymax + DBLE((ind_J - 1)) * basic_cell_width(ind_y)     

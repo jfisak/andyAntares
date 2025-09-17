@@ -69,7 +69,6 @@ dummypack_index = cur_dummypack + SIZE(package)
 ! write(*,*) 'roverw: calling roverw'
 
 IF(velapprox == 0) THEN
-! ONLY FOR TESTING !!!
  IF(sobolev_approximation == 1) THEN
   ROverW = R_inf / V_inf
  END IF ! sobolev_approximation
