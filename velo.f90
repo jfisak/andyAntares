@@ -49,14 +49,13 @@ IF(norm2(pack_position) <= R_star) THEN
   vel_vec = (/ 0.D0, 0.D0, 0.D0 /)
   ! RETURN POINT
   RETURN
- ELSE
- cur_n = pack_position/norm2(pack_position)
- pack_position = R_star * cur_n
- END IF
- IF(velApprox == 3) THEN
+ ELSE IF(velApprox == 3) THEN
   cur_n = pack_position/norm2(pack_position)
   vel_vec = V_star * cur_n
   RETURN
+ ELSE
+  cur_n = pack_position/norm2(pack_position)
+  pack_position = R_star * cur_n
  END IF
 ELSE IF(norm2(pack_position) > R_inf) THEN
  cur_n = pack_position/norm2(pack_position)
