@@ -110,7 +110,6 @@ DO
  upper_cell = dyn_cell(act_cell)%up_cell
  IF(upper_cell > 0) centre = dyn_cell(upper_cell)%upcorner
  ! write(*,*) 'next_cell_up: corner = ', corner
- IF(upper_cell > 0) write(*,*) 'next_cell_up: centre = ', centre
  ! write(*,*) 'next_cell_up: cross_pos = ', cross_pos
  ! write(*,*) 'next_cell_up: upcorner = ', upcorner
  ! write(*,*) 'next_cell_up: upper_cell = ', upper_cell
@@ -142,7 +141,6 @@ DO
   END IF
   EXIT
  ELSE IF(upper_cell > 0) THEN
-  write(*,*) 'next_cell_up: cross = ', cross
   ! we have to find which cell in the higher level corresponds to the cross point
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! cross in x direction
