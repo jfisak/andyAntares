@@ -11,22 +11,18 @@ USE constants
 
 IMPLICIT NONE    
 
-INTEGER                                   :: ind_I, ind_J, numbions, indexg, atom_number
+INTEGER                                   :: ind_I, ind_J, numbions, atom_number
 ! for reading from files
 DOUBLE PRECISION                          :: junk
-INTEGER                                   :: ios
 INTEGER, PARAMETER                        :: maxrows = 6000000
 DOUBLE PRECISION                          :: r, velo_r, velo_theta, dens, temp
 ! DOUBLE PRECISION, DIMENSION(n_elements)   :: massfrac
-DOUBLE PRECISION                          :: cell_index
-CHARACTER(filename_length)                             :: modelfile, jikrfile
+CHARACTER(filename_length)                             :: modelfile
 ! variables which are not needed in the code
 !DOUBLE PRECISION                          :: delta_r, delta, delta2, tot_nd, tot_md
 ! (2) PoWR model
 DOUBLE PRECISION, PARAMETER                :: meanAtMass = 1.33
 INTEGER                                         :: reading_grid
-DOUBLE PRECISION, ALLOCATABLE                   :: boundaries(:)
-DOUBLE PRECISION                                :: rPrev, rAct, width
 INTEGER, DIMENSION(1)                           :: ind_min, ind_max
 
 modelfile=TRIM(inputmodelFile)

@@ -25,7 +25,6 @@ DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: pos, vel
 INTEGER                                         :: ind_I, ind_J
 INTEGER                                         :: numbions, atom_number
 INTEGER                                         :: Nx, Ny, Nz
-INTEGER, DIMENSION(1)                           :: ind_min
 ! INTEGER(KIND=8)                                 :: int_xmax, int_ymax, int_zmax
 ! INTEGER(KIND=8)                                 :: int_xmin, int_ymin, int_zmin
 

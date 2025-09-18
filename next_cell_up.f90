@@ -61,32 +61,32 @@ corner = dyn_cell(act_cell)%corner
 upcorner = dyn_cell(act_cell)%upcorner
 IF(cross == posx) THEN
  IF(cross_pos(ind_x) /= corner(ind_x)) THEN
-  write(*,*) 'next_cell_up: correcting position for cross = ', cross, ' ind ', ind_x
+  IF(debug == 2) write(*,*) 'next_cell_up: correcting position for cross = ', cross, ' ind ', ind_x
   cross_pos(ind_x) = corner(ind_x)
  END IF
 ELSE IF(cross == negx) THEN
  IF(cross_pos(ind_x) /= upcorner(ind_x)) THEN
-  write(*,*) 'next_cell_up: correcting position for cross = ', cross, ' ind ', ind_x
+  IF(debug == 2) write(*,*) 'next_cell_up: correcting position for cross = ', cross, ' ind ', ind_x
   cross_pos(ind_x) = upcorner(ind_x)
  END IF
 ELSE IF(cross == posy) THEN
  IF(cross_pos(ind_y) /= corner(ind_y)) THEN
-  write(*,*) 'next_cell_up: correcting position for cross = ', cross, ' ind ', ind_y
+  IF(debug == 2) write(*,*) 'next_cell_up: correcting position for cross = ', cross, ' ind ', ind_y
   cross_pos(ind_y) = corner(ind_y)
  END IF
 ELSE IF(cross == negy) THEN
  IF(cross_pos(ind_y) /= upcorner(ind_y)) THEN
-  write(*,*) 'next_cell_up: correcting position for cross = ', cross, ' ind ', ind_y
+  IF(debug == 2) write(*,*) 'next_cell_up: correcting position for cross = ', cross, ' ind ', ind_y
   cross_pos(ind_y) = upcorner(ind_y)
  END IF
 ELSE IF(cross == posz) THEN
  IF(cross_pos(ind_z) /= corner(ind_z)) THEN
-  write(*,*) 'next_cell_up: correcting position for cross = ', cross, ' ind ', ind_z
+  IF(debug == 2) write(*,*) 'next_cell_up: correcting position for cross = ', cross, ' ind ', ind_z
   cross_pos(ind_z) = corner(ind_z)
  END IF
 ELSE IF(cross == negz) THEN
  IF(cross_pos(ind_z) /= upcorner(ind_z)) THEN
-  write(*,*) 'next_cell_up: correcting position for cross = ', cross, ' ind ', ind_z
+  IF(debug == 2) write(*,*) 'next_cell_up: correcting position for cross = ', cross, ' ind ', ind_z
   cross_pos(ind_z) = upcorner(ind_z)
  END IF
 END IF
@@ -109,22 +109,22 @@ DO
  upcorner = dyn_cell(act_cell)%upcorner
  upper_cell = dyn_cell(act_cell)%up_cell
  IF(upper_cell > 0) centre = dyn_cell(upper_cell)%upcorner
- write(*,*) 'next_cell_up: corner = ', corner
+ ! write(*,*) 'next_cell_up: corner = ', corner
  IF(upper_cell > 0) write(*,*) 'next_cell_up: centre = ', centre
- write(*,*) 'next_cell_up: cross_pos = ', cross_pos
- write(*,*) 'next_cell_up: upcorner = ', upcorner
- write(*,*) 'next_cell_up: upper_cell = ', upper_cell
+ ! write(*,*) 'next_cell_up: cross_pos = ', cross_pos
+ ! write(*,*) 'next_cell_up: upcorner = ', upcorner
+ ! write(*,*) 'next_cell_up: upper_cell = ', upper_cell
  IF(upper_cell == 0) THEN
   next_cell = act_cell
   IF(debug == 2) THEN
    corner = dyn_cell(next_cell)%corner
    upcorner = dyn_cell(next_cell)%upcorner
-   write(*,*) '_____calculated cell__________________'
-   write(*,*) 'next_cell_up: next_cell = ', next_cell
-   write(*,*) 'next_cell_up: corner = ', corner
-   write(*,*) 'next_cell_up: cross_pos = ', cross_pos
-   write(*,*) 'next_cell_up: upcorner = ', upcorner
-   write(*,*) '______________________________________'
+   ! write(*,*) '_____calculated cell__________________'
+   ! write(*,*) 'next_cell_up: next_cell = ', next_cell
+   ! write(*,*) 'next_cell_up: corner = ', corner
+   ! write(*,*) 'next_cell_up: cross_pos = ', cross_pos
+   ! write(*,*) 'next_cell_up: upcorner = ', upcorner
+   ! write(*,*) '______________________________________'
    DO ind_I = 1, const_dimofspace
     IF(((cross_pos(ind_I) < corner(ind_I) ) .OR. (cross_pos(ind_I) > upcorner(ind_I) ))) THEN
      upper_cell = dyn_cell(act_cell)%up_cell
