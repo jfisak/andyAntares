@@ -58,12 +58,12 @@ model_type = 3
 ! 1 -- beta law
 ! 2 -- sin velocity
 ! 10 -- inverse homologous approximation
-vel_approx = 1
+vel_approx = 0
 clump_type = 1
 ! 3D grid informations
-Nx = 15
-Ny = 15
-Nz = 15
+Nx = 20
+Ny = 20
+Nz = 20
 ! lower boundary condition
 Teff = 1.473441441281968036e+04
 Rstar = 5.616000000000000000e+12
@@ -80,7 +80,7 @@ rhocl = 1.D-12
 delta = 0.02
 deltacl = 0.01
 
-Rinf = 20.0 * Rstar
+Rinf = 5.0 * Rstar
 rdist = 1.0
 Vinf = 3000.D+5
 
@@ -226,7 +226,17 @@ CASE(0)
  END IF
  RETURN
 CASE(1)
- velocity = Vinf * (1.0 - 1.0/r)**beta
+ IF(r < 1) THEN
+  velocity = 0.D0
+ ELSE IF(r > Rinf/Rstar) THEN
+  velocity = Vinf * (1.0 - Rstar/Rinf)**beta
+ ELSE
+  velocity = Vinf * (1.0 - 1.0/r)**beta
+ END IF
+ IF(isnan(velocity)) THEN
+  write(*,*) 'r = ', r, ' Vinf = ', Vinf, '(1-1/r) = ', 1.0 - 1.0/r
+  STOP 'velocity == NaN'
+ END IF
  write(*,*) 'Vinf = ', Vinf, ' Rstar = ', Rstar, ' r = ', r
 CASE(2)
  velocity = 0.4 * Vinf * sin(4.0 * r*Rstar/(Rinf - Rstar)) + Vinf*0.5

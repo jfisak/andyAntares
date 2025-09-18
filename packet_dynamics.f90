@@ -8,13 +8,14 @@ IMPLICIT NONE
 
 INTEGER                                 :: pack_index
 INTEGER                                 :: pack_type
+INTEGER, PARAMETER                      :: min_n_interact = 2000000
 
 pack_type = package(pack_index)%typ
 
 DO  WHILE (package(pack_index)%active == 1)
  IF ((pack_type == type_rpkt) .OR. (pack_type == type_vrpkt)) THEN
-  IF(package(pack_index)%n_interactions .EQ. 1000000) THEN
-   write(*,*) 'package ', pack_index, ' interacted for 2000000 times and will be destroyed...'
+  IF(package(pack_index)%n_interactions .EQ. min_n_interact) THEN
+   write(*,*) 'package ', pack_index, ' interacted for ', min_n_interact, ' times and will be destroyed...'
    package(pack_index)%active = 0
    count_des_inte = count_des_inte + 1
   END IF
@@ -30,6 +31,7 @@ DO  WHILE (package(pack_index)%active == 1)
    CALL do_ipackage(pack_index)
  ELSE IF ((pack_type == type_dpkt) .OR. (pack_type == type_vdpkt)) THEN
   ! this state corresponds to diffusive approximation
+  write(*,*) 'packet_dynamics: calling do_dpackage for pack_index = ', pack_index
   CALL do_dpackage(pack_index)
  ELSE
     STOP 'ERROR unknown package typ'

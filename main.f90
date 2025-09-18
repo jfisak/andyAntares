@@ -26,16 +26,16 @@ USE counters
 
   IMPLICIT NONE
 
-  INTEGER                           :: n_pack, iteration!, nx_cell, ny_cell, nz_cell
-  INTEGER                           :: iseed, idx
-  INTEGER, DIMENSION (9)            :: TT
-  DOUBLE PRECISION, ALLOCATABLE     :: current_temp(:)
+  INTEGER                               :: n_pack, iteration!, nx_cell, ny_cell, nz_cell
+  INTEGER                               :: iseed, idx
+  INTEGER, DIMENSION(9)                 :: TT
+  DOUBLE PRECISION, ALLOCATABLE         :: current_temp(:)
   INTEGER                               :: cur_parameter
-  ! REAL                                  :: time0_agconnwpg, time1_agconnwpg
+  ! REAL                                :: time0_agconnwpg, time1_agconnwpg
   REAL                                  :: time0_pp, time1_pp
 ! parallelized part
 ! definition of MPI variables
-INTEGER                              :: nphit
+INTEGER                                 :: nphit
 
 LOGICAL                                 :: propmod_file_exists
 CHARACTER(filename_length)                           :: propmod_file
@@ -45,6 +45,9 @@ LOGICAL                                 :: timing = .true.
 INTEGER, PARAMETER                      :: ind_save_inputfile = 100, ind_save_composition = 101
 INTEGER, PARAMETER                      :: ind_save_modgrid = 102
 INTEGER, PARAMETER                      :: ind_save_velfield = 11
+
+DOUBLE PRECISION                        :: wale_min, wale_max
+DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: ccd_pos
 
 ! Link data to identify program version
 CHARACTER LINK_DATE*30, LINK_USER*10, LINK_HOST*60
@@ -149,7 +152,29 @@ saha_const = 5.D-1 * (const_h**2/(2.0*const_pi*const_me_g*const_kB))**1.5
 ! 3 -- progress of the calculation procedure
 ! 4 -- rikd packet dynamics
 ! 5 -- line interactions
-debug = 0
+debug = 3
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! ONLY BRTM CALCULATION THROUGHT PRE-CALCULATED PROPMOD GRID!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+IF(only_brtm) THEN
+ write(*,*) 'main: read_propmod_grid'
+ CALL read_propmod_grid()
+ write(*,*) 'main: brtm'
+ wale_min = 6000
+ wale_max = 7000
+ ccd_pos = (/ -0.25, -0.25, -0.25 /)
+ CALL brtm(wale_min, wale_max, ccd_pos)
+#if mpi==1
+ IF(debug == 3) write(*,*) 'calling mpi_finalize'
+ CALL mpi_finalize(ierr)
+#endif
+ RETURN
+END IF
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -163,11 +188,15 @@ INQUIRE(FILE=propmod_file, EXIST=propmod_file_exists)
 
 IF((saved_grid == 2 .or. saved_grid == 3) .and. propmod_file_exists) THEN
  CALL read_propmod_grid()
- CALL virt_gridAB_init()
+ IF(model_type == 2 .or. (model_type == 3 .and. inputmodel /= 0)) THEN
+  CALL virt_gridAB_init()
+ END IF
 ELSE
  IF(debug == 3) write(*,*) 'setting up model grid'
  CALL setup_model_grid()
- CALL virt_gridAB_init()
+ IF(model_type == 2 .or. (model_type == 3 .and. inputmodel /= 0)) THEN
+  CALL virt_gridAB_init()
+ END IF
 
  CALL save_output(ind_save_modgrid)
  ! save basic parameters of the model grid
@@ -227,7 +256,7 @@ ELSE IF(saved_grid == 1) THEN
 #if mpi==1
  IF(my_rank == 0) THEN
 #endif
- CALL save_propmod_grid()
+  CALL save_propmod_grid()
 #if mpi==1
  END IF
 #endif
@@ -307,6 +336,7 @@ DO iteration = 1,1
  END IF
  CALL update_packages(n_pack)
  IF(timing) THEN
+  IF(debug == 3) write(*,*) 'calling cpu_time'
   CALL cpu_time(time1_pp)
   write(99,*) 'time0_pp = ', time0_pp, ' time1_pp = ', time1_pp
  END IF
@@ -318,6 +348,7 @@ DO iteration = 1,1
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #if mpi==1
+ IF(debug == 3) write(*,*) 'distributing estimators'
  CALL mpi_distribute_estimators()
  CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
 #endif
@@ -337,6 +368,7 @@ END DO ! iteration (now of temperature structure)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  write(99,*) 'do finalize'
+ IF(debug == 3) write(*,*) 'do finalize'
  ! it will save some important output
  CALL save_output(103)
  CALL save_output(1)
@@ -345,6 +377,8 @@ END DO ! iteration (now of temperature structure)
  IF(my_rank == 0) THEN
   CALL save_output(3)
   CALL save_output(7)
+  ! MC estimators
+  CALL save_output(14)
   ! partition function
   CALL save_output(9)
  END IF
@@ -357,6 +391,16 @@ CLOSE(2)
 CLOSE(99)
 
 IF(debug == 3) write(*,*) 'main: calling backward ray-tracing method'
-IF(calc_brtm) CALL brtm()
+IF(calc_brtm) THEN
+ wale_min = 6000
+ wale_max = 7000
+ ccd_pos = (/ 0.00, 0.5, 0.5 /)
+ CALL brtm(wale_min, wale_max, ccd_pos)
+END IF
+
+#if mpi==1
+ IF(debug == 3) write(*,*) 'calling mpi_finalize'
+ CALL mpi_finalize(ierr)
+#endif
 
 END SUBROUTINE main

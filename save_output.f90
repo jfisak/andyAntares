@@ -7,8 +7,8 @@
 ! #04 TEMPERATURE STRUCTURE AND IONIZATION BALANCE
 ! #06 PACKETS INFORMATION
 ! #07 IONIZATION FRACTIONS
-! #10 VELOCITY FIELD IN THE PROPGRID CELLS
-! #11 PROPMOD SLICES
+! #11 VELOCITY FIELD IN THE PROPGRID CELLS
+! #12 PROPMOD SLICES
 SUBROUTINE save_output(otype)
 
 USE MPI
@@ -33,7 +33,7 @@ DOUBLE PRECISION                        :: wavle
 CHARACTER(LEN=filename_length)                       :: fileTempStruct! , fileOccNum
 CHARACTER(LEN=filename_length)                       :: fileHydrogenFrac, fileHeliumFrac
 CHARACTER(LEN=filename_length)                       :: fileGrid, filePart
-CHARACTER(LEN=filename_length)                       :: initspec_file
+CHARACTER(LEN=filename_length)                       :: initspec_file, mcradestimators_file
 ! ionization fraction files
 DOUBLE PRECISION                        :: frac, N_jk, totElPop
 ! DOUBLE PRECISION                        :: frac1, N_jk1, totElPop1
@@ -74,14 +74,17 @@ INTEGER                                         :: Nx_cov, Ny_cov, Nz_cov, ind_I
 DOUBLE PRECISION                                :: x_cov, z_cov
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: cur_pos
 REAL, ALLOCATABLE                               :: coverage_matrix_T(:,:), coverage_matrix_rho(:,:), &
-                                                   coverage_matrix_v(:,:)
+                                                   coverage_matrix_v(:,:), coverage_matrix_velv(:,:)
 INTEGER                                         :: cur_mgi, cur_pgi, cur_index
 DOUBLE PRECISION                                :: cur_rho, cur_temp
-CHARACTER(LEN=filename_length)                      :: temp_file_name_t, temp_file_name_rho, temp_file_name_v 
+CHARACTER(LEN=filename_length)                      :: temp_file_name_t, temp_file_name_rho, temp_file_name_v, &
+                                                        temp_file_name_velv
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: width
 CHARACTER(LEN=2)                                :: cur_name, get_element_name
 CHARACTER(LEN=10)                               :: get_ion_number, cur_ion_num
 DOUBLE PRECISION                                :: cur_xpos
+DOUBLE PRECISION                                :: cur_r, cur_a, est_I
+DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: est_F
 
 !________________________________________________________________________________
 ! #00 output folder
@@ -303,7 +306,7 @@ CASE(5)
 #if mpi==1
  CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
 #endif
-CALL do_spectrum(SIZE(package))
+! CALL do_spectrum(SIZE(package))
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! #07 ionization fractions
 !
@@ -458,7 +461,7 @@ CASE(10)
   END DO
  CLOSE(72)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! #10 velocity field in the propGrid cells
+! #11 velocity field in the propGrid cells
 !
 ! 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -483,7 +486,7 @@ CASE(11)
   END DO
  CLOSE(73)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! #11 density and temperature slices
+! #12 density and temperature slices
 !
 ! 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -509,16 +512,20 @@ END IF
 x_cov = 0.D0
 z_cov = 0.D0
 
+write(*,*) 'save_output: Nx_cov = ', Nx_cov, ' Ny_cov = ', Ny_cov
 ALLOCATE(coverage_matrix_rho(Nx_cov, Ny_cov), coverage_matrix_t(Nx_cov, Ny_cov), &
-  coverage_matrix_v(Nx_cov * Ny_cov, 2 * const_dimofspace))
+  coverage_matrix_v(Nx_cov * Ny_cov, 2 * const_dimofspace), coverage_matrix_velv(Nx_cov, Ny_cov))
 coverage_matrix_rho(:,:) = -1.0
 coverage_matrix_t(:,:) = -1.0
 coverage_matrix_v(:,:) = -1.0
+coverage_matrix_velv(:,:) = -1.0
 
 write(temp_file_name_t,"(A, A17)") TRIM(outputfolder), '/propmod_t_xy.dat'
 write(temp_file_name_rho,"(A, A19)") TRIM(outputfolder), '/propmod_rho_xy.dat'
 write(temp_file_name_v,"(A, A19)") TRIM(outputfolder), '/propmod_vel_xy.dat'
+write(temp_file_name_velv,"(A, A20)") TRIM(outputfolder), '/propmod_velv_xy.dat'
 write(*,*) 'save_output: temp_file_name_t = ', temp_file_name_t
+write(*,*) 'save_output: dim(cov matrix) = ', SIZE(coverage_matrix_rho)
 ! probably a temporary solution
 cur_pos(ind_z) = z_cov
 ! xy plane
@@ -532,7 +539,7 @@ DO ind_I = 1, Nx_cov
   CALL find_dyn_cell1(cur_pos, cur_pgi)
   IF(cur_pgi > 0) THEN
    cur_mgi = dyn_cell(cur_pgi)%model_index
-   IF(cur_mgi > 0) THEN
+   IF(cur_mgi <= n_modelgrid) THEN
     cur_temp = model_grid(cur_mgi)%T
     cur_rho = model_grid(cur_mgi)%rho
     coverage_matrix_T(ind_I, ind_J) = REAL(cur_temp)
@@ -540,6 +547,7 @@ DO ind_I = 1, Nx_cov
     coverage_matrix_v(cur_index, 1:3) = REAL(cur_pos)
     CALL velo_vector(cur_pos, cur_mgi, cur_vel)
     coverage_matrix_v(cur_index, 4:6) = REAL(cur_vel)
+    coverage_matrix_velv(ind_I, ind_J) = REAL(NORM2(cur_vel))
    END IF
   END IF ! cur_pgi > 0
  END DO
@@ -548,27 +556,32 @@ END DO
 OPEN(173, FILE=temp_file_name_t)
 OPEN(174, FILE=temp_file_name_rho)
 OPEN(175, FILE=temp_file_name_v)
+OPEN(176, FILE=temp_file_name_velv)
 
 DO ind_I = 1, Ny_cov
  cur_xpos = ((xmax - xmin) * ind_I + (Nx_cov * xmin - xmax))/DBLE(Nx_cov - 1)
- write(173,*) cur_xpos, coverage_matrix_T(:,ind_I)
- write(174,*) cur_xpos, coverage_matrix_rho(:,ind_I)
+ write(173,*) cur_xpos/R_star, coverage_matrix_T(ind_I,:)
+ write(174,*) cur_xpos/R_star, coverage_matrix_rho(ind_I,:)
+ write(176,*) cur_xpos/R_star, coverage_matrix_velv(ind_I,:)
 END DO
 DO ind_I = 1, Nx_cov * Ny_cov
- write(175,*) cur_xpos, coverage_matrix_v(ind_I,:)
+ write(175,*) coverage_matrix_v(ind_I,:)
 END DO
 
 CLOSE(173)
 CLOSE(174)
 CLOSE(175)
+CLOSE(176)
 
 coverage_matrix_rho(:,:) = -1.0
 coverage_matrix_t(:,:) = -1.0
 coverage_matrix_v(:,:) = -1.0
+coverage_matrix_velv(:,:) = -1.0
 
 write(temp_file_name_t,"(A, A17)") TRIM(outputfolder), '/propmod_t_yz.dat'
 write(temp_file_name_rho,"(A, A19)") TRIM(outputfolder), '/propmod_rho_yz.dat'
 write(temp_file_name_v,"(A, A19)") TRIM(outputfolder), '/propmod_vel_yz.dat'
+write(temp_file_name_velv,"(A, A20)") TRIM(outputfolder), '/propmod_velv_yz.dat'
 
 ! probably a temporary solution
 cur_pos(ind_x) = x_cov
@@ -591,6 +604,7 @@ DO ind_I = 1, Ny_cov
     coverage_matrix_v(cur_index, 1:3) = REAL(cur_pos)
     CALL velo_vector(cur_pos, cur_mgi, cur_vel)
     coverage_matrix_v(cur_index, 4:6) = REAL(cur_vel)
+    coverage_matrix_velv(ind_I, ind_J) = REAL(NORM2(cur_vel))
    END IF
   END IF ! cur_pgi > 0
  END DO
@@ -599,10 +613,13 @@ END DO
 OPEN(173, FILE=temp_file_name_t)
 OPEN(174, FILE=temp_file_name_rho)
 OPEN(175, FILE=temp_file_name_v)
+OPEN(176, FILE=temp_file_name_velv)
 
 DO ind_I = 1, Ny_cov
- write(173,*) coverage_matrix_T(:,ind_I)
- write(174,*) coverage_matrix_rho(:,ind_I)
+ cur_xpos = ((xmax - xmin) * ind_I + (Nx_cov * xmin - xmax))/DBLE(Nx_cov - 1)
+ write(173,*) cur_xpos/R_star, coverage_matrix_T(ind_I,:)
+ write(174,*) cur_xpos/R_star, coverage_matrix_rho(ind_I,:)
+ write(176,*) cur_xpos/R_star, coverage_matrix_velv(ind_I,:)
 END DO
 DO ind_I = 1, Ny_cov * Nz_cov
  write(175,*) coverage_matrix_v(ind_I,:)
@@ -611,6 +628,7 @@ END DO
 CLOSE(173)
 CLOSE(174)
 CLOSE(175)
+CLOSE(176)
 
 # if mpi == 1
  END IF
@@ -628,6 +646,29 @@ CASE(13)
    write(19,*) -99, package(ind_I)%freq_rf, package(ind_I)%e_rf
   end do
  CLOSE(19)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! #13 radiative MC estimators
+!
+! 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CASE(14)
+ write(mcradestimators_file,"(A, A16, I3.3, A4)") trim(outputfolder), '/mcradestimators', my_rank, '.dat'
+ OPEN(20, file=mcradestimators_file)
+  DO cur_mgi = 1, n_modelgrid
+   IF(model_type == 2 .and. inputmodel == 1) THEN
+    cur_r = model_grid(cur_mgi)%rwind
+    cur_a = model_grid(cur_mgi)%angle
+    est_F = model_grid(cur_mgi)%Frad
+    est_I = model_grid(cur_mgi)%Irad
+    write(20,*) cur_r, cur_a, est_F, est_I
+   ELSE IF(model_type == 3) THEN
+    cur_pos = model_grid(cur_mgi)%vec_pos
+    est_F = model_grid(cur_mgi)%Frad
+    est_I = model_grid(cur_mgi)%Irad
+    write(20,*) cur_pos, est_F, est_I
+   END IF
+  END DO
+ CLOSE(20)
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

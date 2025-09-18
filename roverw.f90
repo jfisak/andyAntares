@@ -1,3 +1,17 @@
+! calculates a factor in equation
+! [\mu^2 dv/dr + (1-\mu^2)v/r]
+! for several types of velocity fields, concretely
+!
+! 0 -- homologous approximation
+! 1 -- beta law
+! 3 -- it is included in the r_kappa_line
+! 4 -- calculation via \nabla v
+!
+! INPUT: pack_index(INT) -- index of packet
+!        l_dist(DBLE) -- resonance distance of the next line
+!        fr_line(DBLE) -- frequency of the next line
+! OUTPUT: roverw(DBLE) -- calculated value of the factor
+!
 DOUBLE PRECISION FUNCTION roverw(pack_index, l_dist, fr_line)
 
 USE types
@@ -7,27 +21,27 @@ IMPLICIT NONE
 
 DOUBLE PRECISION                               :: R_pos, V_pos, fr_line
 DOUBLE PRECISION                                :: l_dist
-DOUBLE PRECISION, DIMENSION(3)                  :: R_pos_vec
+DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: R_pos_vec
 DOUBLE PRECISION                                :: costheta
-DOUBLE PRECISION                                :: dV_pos
-INTEGER                                         :: dummypack_index, dummypack_index0, next_cell, pack_index
+! DOUBLE PRECISION                                :: dV_pos
+INTEGER                                         :: dummypack_index, next_cell, pack_index, cur_dummypack
 
-DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: cur_pos, cur_dir
-DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: pos_min, pos_pls!, pos_lin
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: cur_dir
+INTEGER, PARAMETER                              :: n_vectors = 3
+! DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: pos_min, pos_pls!, pos_lin
 ! DOUBLE PRECISION                                :: freq_min, freq_pls
-DOUBLE PRECISION                                :: cmf_min, cmf_pls
-DOUBLE PRECISION                                :: cur_freq_rf
-! DOUBLE PRECISION, PARAMETER                     :: delta=1.E0
-DOUBLE PRECISION                                :: delta
-DOUBLE PRECISION                                :: deriv
+! DOUBLE PRECISION                                :: cmf_min, cmf_pls
+! DOUBLE PRECISION                                :: cur_freq_rf
+! DOUBLE PRECISION                                :: delta
+! DOUBLE PRECISION                                :: deriv
 ! DOUBLE PRECISION                                :: deriv_min, deriv_pls
 ! DOUBLE PRECISION, DIMENSION(3)                  :: pos_line
-DOUBLE PRECISION                                :: s_min, s_pls
-DOUBLE PRECISION, DIMENSION(3,const_dimofspace)                :: vel_vectors
+! DOUBLE PRECISION                                :: s_min, s_pls
+DOUBLE PRECISION, DIMENSION(n_vectors,const_dimofspace)                :: vel_vectors
 LOGICAL                                         :: isposx, isposy, isposz
-INTEGER, DIMENSION(3,const_dimofspace)                         :: directions
+INTEGER, DIMENSION(n_vectors,const_dimofspace)                         :: directions
 INTEGER, DIMENSION(const_dimofspace)                           :: crossy, neighb_cells, mgi_index
-DOUBLE PRECISION, DIMENSION(3)                :: distances
+DOUBLE PRECISION, DIMENSION(n_vectors)                :: distances
 TYPE(dummyphoton)                               :: testPacket
 
 DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: cur_corner, cur_width, act_pos, cur_centre
@@ -39,20 +53,22 @@ DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: cur_vel, cur_d
 DOUBLE PRECISION                                :: cur_sum, nvn
 
 DOUBLE PRECISION, PARAMETER                     :: large_number = 1.D90
+DOUBLE PRECISION                                :: part_1, part_2, part_3
+DOUBLE PRECISION, PARAMETER                     :: param_k = 0.4
+DOUBLE PRECISION                                :: a_index, b_index, vel_star
 
-! write(*,*) 'roverw: fr_line = ', fr_line
+IF(debug == 100) THEN
+ write(*,*) 'roverw: l_dist = ', l_dist
+ write(*,*) 'roverw: fr_line = ', fr_line
+END IF
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! toto budu muset ještě změnit
-! DOČASNÉ ŘEŠENÍ
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-dummypack_index = 1
-dummypack_index0 = SIZE(package) - 3 + 1
+cur_dummypack = find_free_index()
+dummypack_index = cur_dummypack + SIZE(package)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ! write(*,*) 'roverw: calling roverw'
 
 IF(velapprox == 0) THEN
-! ONLY FOR TESTING !!!
  IF(sobolev_approximation == 1) THEN
   ROverW = R_inf / V_inf
  END IF ! sobolev_approximation
@@ -78,7 +94,7 @@ ELSE IF(velapprox == 1) THEN
  ! v = (v_x, v_y, v_z)
  R_pos_vec = package(pack_index)%pos / norm2(package(pack_index)%pos)
  ! \mu
- costheta = dot_product(package(pack_index)%dir, R_pos_vec) / V_pos
+ costheta = dot_product(package(pack_index)%dir, R_pos_vec)
  ! write(*,*) 'ROverW: dir = ', package(pack_index)%dir, ' V_pos_vec = ', V_pos_vec, ' V_pos = ', V_pos
  ! dv/dr
  ! dV_pos = beta * R_star * V_inf / R_pos**2 * (1.0 - R_star / R_pos)**(beta - 1)
@@ -87,11 +103,38 @@ ELSE IF(velapprox == 1) THEN
  ELSE
   ROverW = R_pos/V_pos * 1.D0/(costheta**2*((R_star*beta)/(R_pos-R_star)-1.0)+1.0)
  END IF
+ELSE IF(velApprox == 5) THEN
+ R_pos = norm2(package(pack_index)%pos)
+ R_pos_vec = package(pack_index)%pos / norm2(package(pack_index)%pos)
+ costheta = dot_product(package(pack_index)%dir, R_pos_vec)
+ part_1 = costheta**2*8.0* R_pos/(R_inf - R_star) * cos(8*R_pos/(R_inf - R_star))
+ part_2 = (1-costheta**2) * sin(8*R_pos/(R_inf - R_star))
+ part_3 = 1/(2 * param_k)
+ IF(R_pos <= R_star .or. R_pos > R_inf) THEN
+  ROverW = 0.D0
+ ELSE
+  ROverW = abs(R_pos/(param_k * V_inf) * 1/(part_1 + part_2 + part_3))
+ END IF 
 !_____________________________________________________________________________________________
 ! 3D velocity approximation
 ELSE IF(velApprox == 3) THEN
  write(*,*) 'roverw: this calculation is implemented into the sbr r_kappa_line'
  STOP 'roverw: exiting'
+ELSE IF(velApprox == 10) THEN
+ R_pos = norm2(package(pack_index)%pos)
+ IF(R_pos <= R_star .or. R_pos > R_inf) THEN
+  ROverW = 0.D0
+ ELSE
+  R_pos = norm2(package(pack_index)%pos)
+  R_pos_vec = package(pack_index)%pos / norm2(package(pack_index)%pos)
+  costheta = dot_product(package(pack_index)%dir, R_pos_vec)
+  vel_star = R_star/R_inf * V_inf
+  a_index = - (V_inf - vel_star)/(R_inf - R_star)
+  b_index = (V_inf * R_inf - vel_star * R_star)/(R_inf - R_star)
+  ROverW = (abs(a_index + (1-costheta**2)*b_index/R_pos))**(-1)
+ END IF 
+ 
+
 ! calculating nabla v during the packet propagation
 ELSE IF(velApprox == 4) THEN
 
@@ -112,21 +155,21 @@ ELSE IF(velApprox == 4) THEN
  ! velocities in three different directions
  ! according to this quantities we will choose the neighbouring cells
  ! x
- IF(package(pack_index)%dir(1) > 0) THEN
+ IF(package(pack_index)%dir(ind_x) > 0) THEN
   isposx = .true.
  ELSE
   isposx = .false.
  END IF
 
  ! y
- IF(package(pack_index)%dir(2) > 0) THEN
+ IF(package(pack_index)%dir(ind_y) > 0) THEN
   isposy = .true.
  ELSE
   isposy = .false.
  END IF
 
  ! z
- IF(package(pack_index)%dir(3) > 0) THEN
+ IF(package(pack_index)%dir(ind_z) > 0) THEN
   isposz = .true.
  ELSE
   isposz = .false.
@@ -138,47 +181,47 @@ ELSE IF(velApprox == 4) THEN
  
  ! six possible  directions, distances to the boundaries and crosses
  IF(isposx) THEN
-  directions(1,:) = (/ 1, 0, 0 /)
-  distances(1) = cur_corner(1) + cur_width(1) - act_pos(1)
-  crossy(1) = posx
+  directions(ind_x,:) = (/ 1, 0, 0 /)
+  distances(ind_x) = cur_corner(ind_x) + cur_width(ind_x) - act_pos(ind_x)
+  crossy(ind_x) = posx
  ELSE
-  directions(1,:) = (/-1, 0, 0 /)
-  distances(1) = act_pos(1) - cur_corner(1)
-  crossy(1) = negx
+  directions(ind_x,:) = (/-1, 0, 0 /)
+  distances(ind_x) = act_pos(ind_x) - cur_corner(ind_x)
+  crossy(ind_x) = negx
  END IF
 
  IF(isposy) THEN
-  directions(2,:) = (/ 0, 1, 0 /)
-  distances(2) = cur_corner(2) + cur_width(2) - act_pos(2)
-  crossy(2) = posy
+  directions(ind_y,:) = (/ 0, 1, 0 /)
+  distances(ind_y) = cur_corner(ind_y) + cur_width(ind_y) - act_pos(ind_y)
+  crossy(ind_y) = posy
  ELSE
-  directions(2,:) = (/ 0,-1, 0 /)
-  distances(2) = act_pos(2) - cur_corner(2)
-  crossy(2) = negy
+  directions(ind_y,:) = (/ 0,-1, 0 /)
+  distances(ind_y) = act_pos(ind_y) - cur_corner(ind_y)
+  crossy(ind_y) = negy
  END IF
 
  IF(isposz) THEN
-  directions(3,:) = (/ 0, 0,  1 /)
-  distances(3) = cur_corner(3) + cur_width(3) - act_pos(3)
-  crossy(3) = posz
+  directions(ind_z,:) = (/ 0, 0,  1 /)
+  distances(ind_z) = cur_corner(ind_z) + cur_width(ind_z) - act_pos(ind_z)
+  crossy(ind_z) = posz
  ELSE
-  directions(3,:) = (/ 0, 0, -1 /)
-  distances(3) = act_pos(3) - cur_corner(3)
-  crossy(3) = negz
+  directions(ind_z,:) = (/ 0, 0, -1 /)
+  distances(ind_z) = act_pos(ind_z) - cur_corner(ind_z)
+  crossy(ind_z) = negz
  END IF
 
- DO cur_xyz_dir = 1,3
+ DO cur_xyz_dir = 1, const_dimofspace
   testPacket%dir = directions(cur_xyz_dir, :)
   testPacket%next_cross = crossy(cur_xyz_dir)
   testPacket%cell_numb = package(pack_index)%cell_numb
   testPacket%pos = package(pack_index)%pos
   ! write(*,*) 'roverw: dummypack_index = ', dummypack_index
-  dummypackage(dummypack_index) = testPacket
-  CALL next_cell_down(SIZE(package) + 10 + dummypack_index, down_cell)
+  dummypackage(cur_dummypack) = testPacket
+  CALL next_cell_down(dummypack_index, down_cell)
   IF(dyngrid == 0) THEN
    next_cell = down_cell
   ELSE 
-   CALL next_cell_up(SIZE(package) + 10 + dummypack_index, distances(cur_xyz_dir), down_cell, next_cell)
+   CALL next_cell_up(dummypack_index, distances(cur_xyz_dir), down_cell, next_cell)
   END IF
   ! write(*,*) 'roverw: next_cell = ', next_cell
   
@@ -189,24 +232,24 @@ ELSE IF(velApprox == 4) THEN
 write(*,*) 'roverw: vel_modgrid = ', vel_modgrid, ' vel_propgrid = ', vel_propgrid
 IF(velApprox == 3 .and. vel_modgrid) THEN
  IF(model_type == 3) THEN
-  mgi_index(1) = dyn_cell(neighb_cells(1))%model_index
-  vel_vectors(1,:) = model_grid(mgi_index(1))%vec_vel
-  mgi_index(2) = dyn_cell(neighb_cells(2))%model_index
-  vel_vectors(2,:) = model_grid(mgi_index(2))%vec_vel
-  mgi_index(3) = dyn_cell(neighb_cells(3))%model_index
-  vel_vectors(3,:) = model_grid(mgi_index(3))%vec_vel
+  mgi_index(ind_x) = dyn_cell(neighb_cells(ind_x))%model_index
+  vel_vectors(ind_x,:) = model_grid(mgi_index(ind_x))%vec_vel
+  mgi_index(ind_y) = dyn_cell(neighb_cells(ind_y))%model_index
+  vel_vectors(ind_y,:) = model_grid(mgi_index(ind_y))%vec_vel
+  mgi_index(ind_z) = dyn_cell(neighb_cells(ind_z))%model_index
+  vel_vectors(ind_z,:) = model_grid(mgi_index(ind_z))%vec_vel
  ELSE IF(model_type == 3) THEN
   STOP 'vel_discrete_points: this type of intput is not supported yet'
  END IF
 ELSE IF(velApprox == 4 .or. vel_propgrid) THEN ! velocity is pre-calculated in each propagation cell
- vel_vectors(1,:) = dyn_cell(neighb_cells(1))%vec_vel
- vel_vectors(2,:) = dyn_cell(neighb_cells(2))%vec_vel
- vel_vectors(3,:) = dyn_cell(neighb_cells(3))%vec_vel
+ vel_vectors(ind_x,:) = dyn_cell(neighb_cells(ind_x))%vec_vel
+ vel_vectors(ind_y,:) = dyn_cell(neighb_cells(ind_y))%vec_vel
+ vel_vectors(ind_z,:) = dyn_cell(neighb_cells(ind_z))%vec_vel
 END IF
 
 ! the calculation of the velocity gradient
-DO cur_index_i = 1,3 ! index of a derivative
- DO cur_index_j = 1,3 ! index of a vector v
+DO cur_index_i = 1, const_dimofspace ! index of a derivative
+ DO cur_index_j = 1, const_dimofspace ! index of a vector v
   vel_vectors(cur_index_i,cur_index_j) = (cur_vel(cur_index_j) - vel_vectors(cur_index_i, cur_index_j))/cur_dist(cur_index_i)
   ! write(*,*) 'roverw: vel_0 = ', cur_vel(cur_index_j), ' vel_j = ', vel_vectors(cur_index_i, cur_index_j)
   ! write(*,*) 'roverw: dist = ', cur_dist(cur_index_i)
@@ -216,9 +259,9 @@ END DO
 
 nvn = 0.D0
 ! a multiplication with direction vectors
-DO cur_index_i = 1,3
+DO cur_index_i = 1, const_dimofspace
  cur_sum = 0.D0
- DO cur_index_j = 1,3
+ DO cur_index_j = 1, const_dimofspace
   cur_sum = cur_sum + cur_dir(cur_index_j) * vel_vectors(cur_index_i, cur_index_j)
  END DO
  nvn = nvn + cur_sum * cur_dir(cur_index_i)
@@ -237,5 +280,8 @@ ELSE
  write(*,*) 'roverw: velapprox = ', velapprox, ' is not a valid choice'
  STOP
 END IF
+
+CALL deactivate_dummy_packet(cur_dummypack)
+
 
 END FUNCTION

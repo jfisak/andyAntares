@@ -1,3 +1,12 @@
+! calculates linear interpolation between two scalar coordinates pos1 and pos2
+!
+! INPUT: pos0(DBLE): interpolated coordinate
+!        vec1(DBLE(const_dimofspace)): vector in pos1
+!        pos1(DBLE): scalar boundary position 1
+!        vec2(DBLE(const_dimofspace)): vector in pos2
+!        pos2(DBLE): scalar boundary position 2
+! OUTPUT: int_vector(DBLE(const_dimofspace)): interpolated vector
+!
 SUBROUTINE lin_interpolation(pos0, vec1, pos1, vec2, pos2, int_vector)
 ! SUBROUTINE lin_interpolation(pos0, vec1, pos1, vec2, pos2, int_vector, vecpos0, neighborscells)
 
@@ -9,6 +18,7 @@ DOUBLE PRECISION, DIMENSION(const_dimofspace)                 :: vec1, vec2
 DOUBLE PRECISION                               :: pos0, pos1, pos2
 DOUBLE PRECISION, DIMENSION(const_dimofspace)                 :: int_vector
 DOUBLE PRECISION, DIMENSION(const_dimofspace)                 :: lina, linb
+DOUBLE PRECISION, PARAMETER                                   :: epsilon0 = 1.D1
 ! DOUBLE PRECISION, DIMENSION(3)                 :: vecpos0
 ! INTEGER, DIMENSION(8)                          :: neighborscells
 
@@ -17,10 +27,10 @@ if(pos1 == pos2) then
  STOP 'pos1 == pos2'
 end if
 
-IF(pos1 > pos2 .and. (pos0 < pos2 .or. pos0 > pos1)) then
+IF(pos1 > pos2  .and. (pos0 < pos2 - epsilon0 .or. pos0 > pos1 + epsilon0)) then
  write(*,*) 'lin_interpolation: pos1 = ', pos1, ' pos0 = ', pos0, ' pos2 = ', pos2
  STOP 'pos0 is not in the interval'
-ELSE IF(pos1 < pos2 .and. (pos0 > pos2 .or. pos0 < pos1)) THEN
+ELSE IF(pos1 < pos2 .and. (pos0 > pos2 + epsilon0 .or. pos0 < pos1 - epsilon0)) THEN
  write(*,*) 'lin_interpolation: pos1 = ', pos1, ' pos0 = ', pos0, ' pos2 = ', pos2
  STOP 'pos0 is not in the interval'
 END IF

@@ -10,16 +10,19 @@
 !         Zrad(INT): total rate of radiative deactivations of a macro atom
 !         actirates(irates): rates for the corresponding transitions
 !
-SUBROUTINE i_radtrans(current_mgi, indexe, indexi, indexl, Zintdown, Zintup, Zrad, actirates, pack_index)
+SUBROUTINE i_radtrans(current_mgi, indexe, indexi, indexl, Zintdown, Zintup, Zrad, actirates,&
+                      pack_index, new_direction)
 USE types
 USE constants
 USE rates_i
+USE dummypacket
 IMPLICIT NONE
 
 ! input variables
 INTEGER                                 :: nlns, nluns
 INTEGER                                 :: indexe, indexi, indexl
 INTEGER                                 :: current_mgi
+DOUBLE PRECISION, DIMENSION(const_dimofspace) :: new_direction
 INTEGER, ALLOCATABLE                    :: linetransitions(:)
 INTEGER, ALLOCATABLE                    :: lineuptransitions(:)
 DOUBLE PRECISION                        :: stat_weight_l, stat_weight_u
@@ -36,7 +39,7 @@ INTEGER                                 :: I
 ! output variables
 DOUBLE PRECISION                        :: Zintdown, Zintup, Zrad
 TYPE(irates)      :: actirates
-INTEGER                                 :: dummypackage, pack_index
+INTEGER                                 :: pack_index
 DOUBLE PRECISION                        :: constanta
 DOUBLE PRECISION                        :: ROverV, roverw
 DOUBLE PRECISION                        :: fr_line
@@ -45,6 +48,7 @@ DOUBLE PRECISION                        :: corrFactor
 LOGICAL                                 :: stmasnab=.false.
 
 DOUBLE PRECISION                        :: cur_r
+INTEGER                                 :: cur_dummypack, dummypack_index
 
 constanta = (const_pi * const_e**2)/( const_me_g * const_c)
 
@@ -69,9 +73,13 @@ lineuptransitions = elements(indexe)%ions(indexi)%levels(indexl)%lineuptransitio
 ! the actual population is now the upper population
 up_pop = act_pop
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-dummypackage = SIZE(package)
-package(dummypackage) = package(pack_index)
-CALL emit_rpackage(dummypackage)
+cur_dummypack = find_free_index()
+dummypack_index = cur_dummypack + SIZE(package)
+CALL copy_package(pack_index, cur_dummypack)
+CALL emit_rpackage(dummypack_index)
+new_direction = dummypackage(cur_dummypack)%dir
+CALL deactivate_dummy_packet(cur_dummypack)
+
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

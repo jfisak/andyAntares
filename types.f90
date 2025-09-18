@@ -16,10 +16,10 @@ SAVE
 ! Type Definitions
 
   TYPE dyn_grid_cell
-      INTEGER                        :: model_index=0, n_virt=0
+      INTEGER                        :: model_index=0, n_virt=0, ind_virt = 0
       INTEGER                        :: up_cell, down_cell
       INTEGER, DIMENSION(6)          :: neighbor
-      DOUBLE PRECISION, DIMENSION(const_dimofspace) :: corner, width
+      DOUBLE PRECISION, DIMENSION(const_dimofspace) :: corner, upcorner, width
       DOUBLE PRECISION, DIMENSION(const_dimofspace) :: vec_vel
       INTEGER, DIMENSION(const_dimofspace)          :: n_sbgr
   END TYPE dyn_grid_cell
@@ -130,7 +130,7 @@ SAVE
   INTEGER                            :: nlte
   INTEGER                            :: abs_surface
 ! properties of a central star
-  DOUBLE PRECISION                   :: R_star, R_inf, V_inf, V_0, M_dot, T_eff
+  DOUBLE PRECISION                   :: R_star, R_inf, V_star, V_inf, V_0, M_dot, T_eff
   DOUBLE PRECISION                   :: Z_inf
 ! lower boundary condition
   DOUBLE PRECISION, ALLOCATABLE      :: incomingflux(:,:)
@@ -146,11 +146,11 @@ SAVE
   ! brtm activation
   LOGICAL                            :: calc_brtm
   ! onle line mode
-  LOGICAL                            :: oneline
+  LOGICAL                            :: oneline, only_brtm
 
 ! fields for the given types
   TYPE(modelgrid), ALLOCATABLE       :: model_grid(:)
-  TYPE(dyn_grid_cell), ALLOCATABLE, SAVE   :: dyn_cell(:)   
+  TYPE(dyn_grid_cell), ALLOCATABLE   :: dyn_cell(:)   
   TYPE(photon), ALLOCATABLE          :: package(:)
   TYPE(virtual_packet), ALLOCATABLE  :: vpackage(:)
 
@@ -209,6 +209,7 @@ SAVE
 
   INTEGER, PARAMETER                 :: NONE = -99
   INTEGER, PARAMETER                 :: no_line = -99
+  INTEGER, PARAMETER                 :: no_modcell=-99 
 
   INTEGER                            :: my_rank
   INTEGER                            :: ierr

@@ -327,7 +327,7 @@ DO cur_prop_cell = 1, n_propgcells
    CYCLE
   END IF
 
-  ! in this case, we have to go through the saved list o points to see, whether we can save the new point or not
+  ! in this case, we have to go through the saved list of points to see, whether we can save the new point or not
   ! IF(n_coor(coor_x) >= 2 .or. n_coor(coor_y) >= 2 .or. n_coor(coor_z) >= 2) THEN
   count_xyz(:) = 0
   IF(procout) write(*,*) 'vel_interpolation: seeking for the points on the same line'
@@ -461,9 +461,11 @@ DO cur_prop_cell = 1, n_propgcells
  END DO
  ! ARTIFICIAL POINTS
  ! if the interp_dist still contains zeros, we have to add some artificial points
+ ! TOTO JEŠTĚ NENÍ DOKONČENO!!!
  DO cur_index_J = 1, n_closest
   cur_iti_mgi = INT(interp_dist(cur_index_J, ind_index))
   IF(cur_iti_mgi == 0) THEN
+
   END IF
  END DO
 

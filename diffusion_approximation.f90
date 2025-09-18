@@ -1,11 +1,16 @@
 ! this sbr should sign every model cell if a diffusion approximation
-SUBROUTINE diffusion_approximation(cur_mgi)
+! 
+! INPUT: cur_mgi(INT): current modGrid index
+! OUTPUT: NONE
+!
+SUBROUTINE diffusion_approximation(cur_mgi, cur_e_dens)
 
 USE types
 USE constants
 IMPLICIT NONE
 
 INTEGER                                 :: cur_mgi
+DOUBLE PRECISION                        :: cur_e_dens
 
 DOUBLE PRECISION                        :: electron_density, chi_cont
 
@@ -14,6 +19,7 @@ LOGICAL                                 :: is_diff
 DOUBLE PRECISION                        :: cur_lambda
 
 DOUBLE PRECISION, PARAMETER             :: chi_min = 5e-16, lambda_min = 0.30
+DOUBLE PRECISION, PARAMETER             :: min_edens = 1.D12
 
 
 ! write(*,*) 'diffusion_approximation: start'
@@ -29,7 +35,7 @@ IF(model_type == 3 .and. inputmodel == 1) THEN
  END IF
  ! write(*,*) 'diffusion_approximation: cur_mgi = ', cur_mgi, ' cur_lambda = ', cur_lambda, ' is_diff? = ', is_diff
 ELSE
- electron_density = model_grid(cur_mgi)%e_dens
+ electron_density = cur_e_dens
  chi_cont = const_sigma_e * electron_density
  
  IF(chi_cont > chi_min) THEN
@@ -39,8 +45,7 @@ ELSE
   is_diff = .false.
   model_grid(cur_mgi)%is_difapp = is_diff
  END IF
- ! write(*,*) 'diffusion_approximation: cur_mgi = ', cur_mgi, ' chi_cont = ', chi_cont, ' is_diff? ', is_diff
- 
+ write(*,*) 'diffusion_approximation: cur_mgi = ', cur_mgi, ' chi_cont = ', chi_cont, chi_min, ' is_diff? ', is_diff
 END IF
 
 

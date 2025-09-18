@@ -1,8 +1,8 @@
 ! this subroutine will divide the given cell into a subgrid nx * ny * nz
 !
 ! INPUT: act_n_dyncell(INT): current propGrid cell index
-!        max_n_dcell(INT): maximun number of propGrid cells
 !        numberofsubcells(INT): number of subcells
+! INPUT/OUTPUT: max_n_dcell(INT): number of already created propGrid cells
 ! OUTPUT: NONE
 !
 SUBROUTINE divide_cell_ijk(act_n_dyncell, max_n_dcell, numberofsubcells)

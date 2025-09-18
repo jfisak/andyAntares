@@ -28,7 +28,7 @@ DOUBLE PRECISION                                :: electron_density
 ! element information
 INTEGER                                         :: indexe, indexi, indexl
 ! loop variables
-INTEGER                                         :: I
+INTEGER                                         :: ind_I
 ! actual frequency
 DOUBLE PRECISION                                :: act_freq
 ! kappa coefficients
@@ -49,13 +49,14 @@ DOUBLE PRECISION                                :: temp
 ! free-free variables
 DOUBLE PRECISION, PARAMETER                     :: ffconst = 3.69255D8
 DOUBLE PRECISION                                :: alphaff, gff
-DOUBLE PRECISION                                :: kappaff
+DOUBLE PRECISION                                :: kappaff, mass_density
 
 !write(*,*) 'r_kappa_cont: dim(lcont) = ', SIZE(actirrates%Lcont)
 !calculation of basic variables
 current_mgi = get_package_model_index(pack_index)
 ! write(*,*) 'r_kappa_cont: current_mgi = ', current_mgi
 electron_density = model_grid(current_mgi)%e_dens
+mass_density = model_grid(current_mgi)%rho
 temp = model_grid(current_mgi)%t
 freq = package(pack_index)%freq_cmf
 ! write(*,*) 'r_kappa_cont: electron_density = ', electron_density
@@ -95,10 +96,10 @@ DO indexe = 1, n_elements
    IF(n_sigma == 0) CYCLE
    actPoint = 0
    ! finding the propper index in saved photcross data
-   DO I = 1, n_sigma
-    act_freq = elements(indexe)%ions(indexi)%levels(indexl)%photcros(1,I)
+   DO ind_I = 1, n_sigma
+    act_freq = elements(indexe)%ions(indexi)%levels(indexl)%photcros(1,ind_I)
     IF(freq < act_freq) THEN
-     actPoint = I
+     actPoint = ind_I
      EXIT
     END IF
    END DO

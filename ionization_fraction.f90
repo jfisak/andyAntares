@@ -1,7 +1,14 @@
-SUBROUTINE ionization_fraction(indexe, indexi, temp, el_nd, frac)
-
 ! Calculate the fraction of atoms of chemical element indexe in ionization
 ! stage indexi relative to the total number of atoms of that element
+! 
+! INPUT: indexe(INT): element index
+!        indexi(INT): ion index
+!        temp(DBL): temperature
+!        el_nd(DBL): electron density
+! OUTPUT: frac(DBL): calculated ionization fraction
+!
+SUBROUTINE ionization_fraction(indexe, indexi, temp, el_nd, frac)
+
 USE types 
 USE constants
 

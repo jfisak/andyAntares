@@ -23,7 +23,6 @@ INTEGER                                 :: cross
 INTEGER                                 :: act_cell
 
 DOUBLE PRECISION                        :: calc_dist
-INTEGER                                 :: cell_numb
 INTEGER                                 :: n_pos, n_neg, n_zer, n_par
 
 
@@ -38,9 +37,13 @@ END IF
 
 IF(cross <= 0 ) THEN
  ! cell_numb and calc_dist are not important in this case
- CALL bound_dist(pack_index, cell_numb, calc_dist, n_pos, n_neg, n_zer, n_par)
- ! cross = package(pack_index)%next_cross
- IF(cross < 0) STOP 'next_cell_down: next cross is impossible to find'
+ CALL bound_dist(pack_index, act_cell, calc_dist, n_pos, n_neg, n_zer, n_par)
+ cross = package(pack_index)%next_cross
+ IF(cross < 0) THEN
+  write(*,*) 'next_cell_down: r/R_inf = ', norm2(package(pack_index)%pos)/R_inf
+  write(*,*) 'next_cell_down: r/R_star = ', norm2(package(pack_index)%pos)/R_star
+  STOP 'next_cell_down: next cross is impossible to find'
+ END IF
 END IF
 
 DO

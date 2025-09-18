@@ -174,6 +174,7 @@ DO cur_propcell = my_start, my_end
    END IF ! choose_A or choose_B
     
    delta = large_number
+   best_mgi_index = -99
    DO ind_I = 1, cur_n_points
     cur_mgi = cur_points(ind_I)
     mgi_radius = model_grid(cur_mgi)%rwind
@@ -189,8 +190,13 @@ DO cur_propcell = my_start, my_end
      !  abs(mgi_theta-pgi_theta)/w_vgrid_y, delta2/R_star
     END IF
    END DO
-    dyn_cell(cur_propcell)%model_index = best_mgi_index
-    model_grid(best_mgi_index)%assoc_cells = model_grid(best_mgi_index)%assoc_cells + 1
+    IF(best_mgi_index > 0) THEN
+     dyn_cell(cur_propcell)%model_index = best_mgi_index
+     model_grid(best_mgi_index)%assoc_cells = model_grid(best_mgi_index)%assoc_cells + 1
+    ELSE IF(best_mgi_index == -99) THEN
+     dyn_cell(cur_propcell)%model_index = vacuum_index
+     model_grid(vacuum_index)%assoc_cells = model_grid(vacuum_index)%assoc_cells + 1
+    END IF
     DEALLOCATE(cur_points)
 
   ELSE IF(pgi_radius < R_star) THEN
@@ -210,6 +216,14 @@ END DO ! loop over propGrid cells
 write(99,*) 'number of propagation cells in vacuum: ', model_grid(vacuum_index)%assoc_cells
 ! write(*,*) 'number of propagation cells in vacuum: ', model_grid(vacuum_index)%assoc_cells, ' n_modelgrid = ', n_modelgrid, &
 ! ' fraction = ', model_grid(vacuum_index)%assoc_cells/REAL(n_modelgrid)
+
+IF(n_tasks > 1) THEN
+ CALL MPI_ALLREDUCE(dyn_cell(:)%model_index, dyn_cell(:)%model_index, n_propgcells, &
+   MPI_INT, MPI_SUM, mpi_comm_world, ierr)
+ CALL MPI_ALLREDUCE(model_grid(:)%assoc_cells, model_grid(:)%assoc_cells, n_modelgrid + add_mg, &
+   MPI_INT, MPI_SUM, mpi_comm_world, ierr)
+END IF
+
 DO ind_I = 1, n_propgcells
  IF(dyn_cell(ind_I)%up_cell == 0) THEN
   cur_mgi_index = dyn_cell(ind_I)%model_index
@@ -217,8 +231,8 @@ DO ind_I = 1, n_propgcells
    mgi_radius = model_grid(cur_mgi_index)%rwind
    mgi_theta = model_grid(cur_mgi_index)%angle
    pgi_radius = SQRT((dyn_cell(ind_I)%corner(ind_x) + dyn_cell(ind_I)%width(ind_x)/2.D0)**2 + &
-                     (dyn_cell(ind_I)%corner(ind_y) + dyn_cell(ind_I)%width(ind_y)/2.D0)**2 + &
-                     (dyn_cell(ind_I)%corner(ind_z) + dyn_cell(ind_I)%width(ind_z)/2.D0)**2)
+    (dyn_cell(ind_I)%corner(ind_y) + dyn_cell(ind_I)%width(ind_y)/2.D0)**2 + &
+    (dyn_cell(ind_I)%corner(ind_z) + dyn_cell(ind_I)%width(ind_z)/2.D0)**2)
    pgi_theta =  acos((dyn_cell(ind_I)%corner(ind_z) + dyn_cell(ind_I)%width(ind_z)/2.D0)/pgi_radius)
    delta2 = sqrt(pgi_radius**2 + mgi_radius**2 - &
     2.0 * pgi_radius * mgi_radius * cos(pgi_theta - mgi_theta))
@@ -236,13 +250,6 @@ DO ind_I = 1, n_modelgrid
  END IF
 END DO
 write(*,*) 'connect_2D_basic: cur_mgi_assoc = ', cur_mgi_assoc
-
-IF(n_tasks > 1) THEN
- CALL MPI_ALLREDUCE(dyn_cell(:)%model_index, dyn_cell(:)%model_index, n_propgcells, &
-   MPI_INT, MPI_SUM, mpi_comm_world, ierr)
- CALL MPI_ALLREDUCE(model_grid(:)%assoc_cells, model_grid(:)%assoc_cells, n_modelgrid + add_mg, &
-   MPI_INT, MPI_SUM, mpi_comm_world, ierr)
-END IF
 
 DO cur_propcell = 1, n_propgcells
  IF(dyn_cell(cur_propcell)%up_cell == 0) THEN

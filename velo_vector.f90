@@ -4,18 +4,19 @@
 !        mod_index -- INT modGrid cell index
 ! output: vel_vec -- DBLE(3) vector of a velocity
 !
+! RETURN point 2X
 SUBROUTINE velo_vector(pos, mod_index, vel_vec)
 
 USE types
 USE constants
 IMPLICIT NONE
 
-DOUBLE PRECISION, DIMENSION(3)                          :: pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: pos
 INTEGER                                                 :: mod_index
 
 INTEGER                                                 :: cur_pgi
 
-DOUBLE PRECISION, DIMENSION(3)                          :: vel_vec
+DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: vel_vec
 
 DOUBLE PRECISION                                        :: rad_vel
 
@@ -23,9 +24,10 @@ DOUBLE PRECISION                                        :: vr, vtheta
 DOUBLE PRECISION                                        :: coor_x, coor_y, coor_z
 DOUBLE PRECISION                                        :: cosphi, sinphi, costheta, sintheta
 DOUBLE PRECISION                                        :: radius, phi, theta
+DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: cur_n
 
 ! calculation of the model index if it is not defined in the input
-IF(mod_index == -99) THEN
+IF(mod_index == no_modcell) THEN
  CALL find_dyn_cell1(pos, cur_pgi)
  mod_index = dyn_cell(cur_pgi)%model_index
 END IF
@@ -33,10 +35,18 @@ END IF
 SELECT CASE(model_type)
  ! spherically symmetric models
  CASE(1)
-  IF(norm2(pos) < R_star) THEN
-   ! rad_vel = R_star / R_inf * V_inf
-   ! vel_vec = V_inf * pos / norm2(pos)
+  IF(norm2(pos) <= R_star) THEN
    vel_vec = (/ 0.D0, 0.D0, 0.D0 /)
+   IF(velApprox == 3) THEN
+    cur_n = pos/norm2(pos)
+    vel_vec = V_star * cur_n
+    ! RETURN point
+    RETURN
+   END IF
+   IF(inputmodel == 5) THEN
+    vel_vec = V_star * pos / norm2(pos)
+   END IF
+   ! RETURN point
    RETURN
   ELSE IF(norm2(pos) > R_inf) THEN
    vel_vec = V_inf * pos / norm2(pos)
@@ -46,9 +56,30 @@ SELECT CASE(model_type)
    END IF
    RETURN
   END IF
-  rad_vel = model_grid(mod_index)%vel
-  vel_vec = rad_vel * pos / norm2(pos)
-  ! write(37,*) norm2(pos)/R_star, rad_vel, mod_index
+  IF(inputmodel /= 5) THEN
+   rad_vel = model_grid(mod_index)%vel
+   vel_vec = rad_vel * pos / norm2(pos)
+  ELSE IF(inputmodel == 5) THEN
+   vr = model_grid(mod_index)%vel
+   vtheta = model_grid(mod_index)%velang
+
+   coor_x = pos(ind_x)
+   coor_y = pos(ind_y)
+   coor_z = pos(ind_z)
+
+   radius = norm2(pos)
+   theta = acos(coor_z/radius)
+   phi = atan2(coor_y,coor_x)
+
+   sintheta = sin(theta)
+   costheta = cos(theta)
+   sinphi = sin(phi)
+   cosphi = cos(phi)
+
+   vel_vec(ind_x) = vr * sintheta * cosphi + vtheta * costheta * cosphi 
+   vel_vec(ind_y) = vr * sintheta * sinphi + vtheta * costheta * sinphi
+   vel_vec(ind_z) = vr * costheta - vtheta * sintheta
+  END IF
  !________________________________________________________
  ! 2D model with radial velocity and tangential velocity
  CASE(2)
@@ -99,6 +130,39 @@ SELECT CASE(model_type)
   ELSE IF(mod_index == vacuum_index) THEN ! special treatment for vacuum cells
    vel_vec = (/-2.0, -3.0, -5.0/)
   END IF
+ !________________________________________________________
+ ! 1D model with radial velocity and tangential velocity
+ CASE(6)
+  vr = model_grid(mod_index)%vel
+  vtheta = model_grid(mod_index)%velang
+
+  coor_x = pos(ind_x)
+  coor_y = pos(ind_y)
+  coor_z = pos(ind_z)
+
+  ! cosphi = coor_y / norm2(pos)
+  ! sinphi = coor_x / norm2(pos)
+  
+  radius = norm2(pos)
+  theta = acos(coor_z/radius)
+  phi = atan2(coor_y,coor_x)
+
+  sintheta = sin(theta)
+  costheta = cos(theta)
+  sinphi = sin(phi)
+  cosphi = cos(phi)
+
+
+  ! vel_vec(ind_x) = vr * costheta * cosphi - vtheta * cosphi
+  vel_vec(ind_x) = vr * sintheta * cosphi + vtheta * costheta * cosphi 
+  vel_vec(ind_y) = vr * sintheta * sinphi + vtheta * costheta * sinphi
+  vel_vec(ind_z) = vr * costheta - vtheta * sintheta
+
+
+  ! vel_vec(ind_y) = vr * costheta * sinphi - vtheta * sinphi
+  ! vel_vec(ind_z) = vr * sintheta
+ 
+ !________________________________________________________
  CASE DEFAULT
  write(*,*) 'velo_vector: the choice of model_type = ', model_type, ' is not known...'
  STOP

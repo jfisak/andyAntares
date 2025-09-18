@@ -20,8 +20,6 @@ INTEGER                                 :: act_mgi
 DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: act_center, act_vel
 DOUBLE PRECISION                        :: act_vel_norm
 
-DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: rel_pos
-
 INTEGER, DIMENSION(8)                   :: velgridcells
 
 DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: cur_pos1, cur_vel1, cur_pos2, cur_vel2
@@ -36,7 +34,6 @@ DOUBLE PRECISION, DIMENSION(const_dimofspace,2)        :: w_point, w_pos
 LOGICAL                                 :: incellmode
 
 DOUBLE PRECISION, DIMENSION(8,const_dimofspace)        :: cube_pos
-INTEGER                                                 :: pomocna_bunka
 
 ! INTEGER                                 :: cur_propGrid_cell
 
@@ -44,14 +41,10 @@ INTEGER                                                 :: pomocna_bunka
 IF(pack_index <= SIZE(package)) THEN
  act_cell = package(pack_index)%cell_numb
  act_pos = package(pack_index)%pos
- CALL find_dyn_cell1(act_pos, pomocna_bunka)
- act_cell = package(pack_index)%cell_numb
 ELSE IF(pack_index > SIZE(package)) THEN
  dummypack_index = pack_index - SIZE(package)
  act_cell = dummypackage(dummypack_index)%cell_numb
  act_pos = dummypackage(dummypack_index)%pos
- ! CALL find_dyn_cell1(act_pos, cur_propGrid_cell)
- ! write(*,*) 'vel_discrete_points: act_cell = ', act_cell, ' cur_propGrid_cell = ', cur_propGrid_cell
 END IF
 act_mgi = dyn_cell(act_cell)%model_index
 act_corner = dyn_cell(act_cell)%corner
@@ -68,16 +61,20 @@ act_center = act_corner + act_width/2.0
 act_vel = model_grid(act_mgi)%vec_vel
 act_vel_norm = model_grid(act_mgi)%vel
 
-! a relative position in respect to the propCell center
-rel_pos = act_pos - act_center
-
 
 ! cell neighbour numbers
 IF(dyngrid == 0) THEN
- CALL oct_neighbors(pack_index, rel_pos, velgridcells, incellmode)
+ CALL oct_neighbors(pack_index, velgridcells, incellmode)
+ IF(debug == 2) THEN
+  write(*,*) 'vel_discrete_points: velgridcells = ', velgridcells
+ END IF
 ELSE IF(dyngrid > 0) THEN
- CALL oct_virtcube(pack_index, rel_pos, cube_pos, incellmode)
+ CALL oct_virtcube(pack_index, cube_pos, velgridcells, incellmode)
+ IF(debug == 2) THEN
+  write(*,*) 'vel_discrete_points: cube_pos = ', cube_pos
+ END IF
 END IF
+
 ! a special case when some neighbor cells do not exist, because we are close bound to the compuational domain
 IF(incellmode) THEN ! incellmode
  CALL velo_vector(act_pos, act_mgi, vel_vec)
@@ -87,7 +84,7 @@ IF(incellmode) THEN ! incellmode
 ELSE ! incellmode
  DO ind_I = 1,4
   IF(dyngrid == 0) THEN
-   cur_cell1 = velgridcells(2*ind_I -1)
+   cur_cell1 = velgridcells(2 * ind_I -1)
    cur_mgi1 = dyn_cell(cur_cell1)%model_index
    cur_pos1 = dyn_cell(cur_cell1)%corner + dyn_cell(cur_cell1)%width/2.0
    
@@ -95,12 +92,14 @@ ELSE ! incellmode
    cur_mgi2 = dyn_cell(cur_cell2)%model_index
    cur_pos2 = dyn_cell(cur_cell2)%corner + dyn_cell(cur_cell2)%width/2.0
   ELSE IF (dyngrid > 0) THEN
+   cur_cell1 = velgridcells(2 * ind_I -1)
    cur_pos1 = cube_pos(2*ind_I - 1, :)
-   CALL find_dyn_cell1(cur_pos1, cur_cell1)
+   ! CALL find_dyn_cell1(cur_pos1, cur_cell1)
    cur_mgi1 = dyn_cell(cur_cell1)%model_index
 
+   cur_cell2 = velgridcells(2*ind_I)
    cur_pos2 = cube_pos(2*ind_I, :)
-   CALL find_dyn_cell1(cur_pos2, cur_cell2)
+   ! CALL find_dyn_cell1(cur_pos2, cur_cell2)
    cur_mgi2 = dyn_cell(cur_cell2)%model_index
   END IF
   CALL velo_vector(cur_pos1, cur_mgi1, cur_vel1)
@@ -116,11 +115,11 @@ ELSE ! incellmode
 
   IF(cur_pos1(ind_z) > cur_pos2(ind_z) .and. (act_pos(ind_z) < cur_pos2(ind_z) .or. act_pos(ind_z) > cur_pos1(ind_z))) THEN
    DO ind_J = 1,8
-    write(29,*) cube_pos(ind_I,:)
+    write(29,*) cube_pos(ind_J,:)
    END DO
   ELSE IF (cur_pos1(ind_z) < cur_pos2(ind_z) .and. (act_pos(ind_z) > cur_pos2(ind_z) .or. act_pos(ind_z) < cur_pos1(ind_z))) THEN
    DO ind_J = 1,8
-    write(29,*) cube_pos(ind_I,:)
+    write(29,*) cube_pos(ind_J,:)
    END DO
   END IF
    

@@ -1,4 +1,13 @@
-! this sbr calculates if a packet can interact with the next line in the current propagation cell
+! this sbr calculates a distance to the closest line
+!
+! INPUT: pack_index(INT): index of a packet
+!        nextLine(INT): number of the next line
+! OUTPUT: cell_dist(DBLE): distance to the next propGrid boundary
+!         inCell(LOG): is the resonance point located in the current propGrid cell
+!         ldist(DBLE): distance to the next line
+!
+! 2x RETURN POINT
+!
 SUBROUTINE resonance_distance2(pack_index, nextLine, cell_dist, inCell, ldist)
 
 USE types
@@ -19,14 +28,14 @@ LOGICAL                                 :: iteration, change_of_cell
 DOUBLE PRECISION, PARAMETER             :: minint = 1.D-3
 
 DOUBLE PRECISION                        :: bfreq, lfreq, ufreq, f_line
-DOUBLE PRECISION, DIMENSION(3)          :: rbond, lbond, ubond
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: rbond, lbond, ubond
 DOUBLE PRECISION                        :: halffreq
-DOUBLE PRECISION, DIMENSION(3)          :: halfpos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: halfpos
 
 DOUBLE PRECISION                        :: D_doppler
 DOUBLE PRECISION                        :: chint
 
-INTEGER                                 :: I
+INTEGER                                 :: ind_I
 INTEGER, PARAMETER                      :: maxit = 111
 ! test of convergence
 
@@ -77,6 +86,7 @@ IF(redshift) THEN
   inCell = .false.
   ldist = R_inf
   CALL deactivate_dummy_packet(cur_dummypack)
+  ! RETURN POINT
   RETURN
  END IF
 ELSE ! blueshift
@@ -84,6 +94,7 @@ ELSE ! blueshift
   inCell = .false.
   ldist = R_inf
   CALL deactivate_dummy_packet(cur_dummypack)
+  ! RETURN POINT
   RETURN
  END IF
 END IF
@@ -91,11 +102,11 @@ END IF
 
 ! write(*,*) 'resonance_distance2: calculation of a resonance point'
 ! write(*,*) 'resonance_distance2: inCell = ', inCell
-I = 0
+ind_I = 0
 DO WHILE(iteration)
  
- I = I + 1
- if(I == maxit) then
+ ind_I = ind_I + 1
+ if(ind_I == maxit) then
   ldist = norm2(package(pack_index)%pos - halfpos)
   iteration = .false.
   ! STOP 'resonance_distance2: testing'

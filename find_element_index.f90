@@ -1,16 +1,21 @@
 ! SBR will find an element index for the given atomic number
-SUBROUTINE find_element_index(Z, indexe)
+!
+! INPUT: atomic_index(INT) -- atomic index
+!        indexe(INT) -- element index
+! OUTPUT: NONE
+!
+SUBROUTINE find_element_index(atomic_index, indexe)
 USE types
 USE constants
 IMPLICIT NONE
 
-INTEGER                                 :: Z
+INTEGER                                 :: atomic_index
 INTEGER                                 :: indexe
-INTEGER                                 :: I
+INTEGER                                 :: ind_I
 
-DO I = 1, n_elements
- IF(Z == elements(I)%atom_number) THEN
-  indexe = I
+DO ind_I = 1, n_elements
+ IF(atomic_index == elements(ind_I)%atom_number) THEN
+  indexe = ind_I
   RETURN
  END IF
 END DO

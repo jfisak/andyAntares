@@ -1,13 +1,18 @@
 ! this subroutine computes approximative value of the gamma
 ! function for the given x
 ! \Gamma(x) = max(\tilde{g}, 0.26 * exp(x) * E_1(x))
-SUBROUTINE gamma_function(x, transition, gf)
+!
+! INPUT: x(DBLE): input variable
+!        transition(INT): line index
+! OUTPUT: gf(DBL): calculated Gaunt factor
+!
+SUBROUTINE gamma_function(var_x, transition, gf)
 USE types
 USE constants
 IMPLICIT NONE
 
 ! input variables
-DOUBLE PRECISION                        :: x
+DOUBLE PRECISION                        :: var_x
 INTEGER                                 :: transition
 DOUBLE PRECISION, PARAMETER             :: gf_const = 2.76D0
 ! exponential integal function
@@ -68,9 +73,9 @@ END IF
 !STOP
 ! THE SECOND VALUE
 ! the main thing in this part is to calculate an exponential integral function
-CALL exp_int_func(1, x, eif)
+CALL exp_int_func(1, var_x, eif)
 
-value_2 = gf_const * exp(x) * eif
+value_2 = gf_const * exp(var_x) * eif
 
 gf = MAX(value_1, value_2)
 

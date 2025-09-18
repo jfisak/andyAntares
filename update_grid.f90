@@ -24,11 +24,15 @@ CHARACTER(filename_length)                           :: propmod_file
 INTEGER                                 :: cur_n_assoccells
 ! DOUBLE PRECISION                        :: test_temp
 
-DOUBLE PRECISION, DIMENSION(n_modelgrid + add_mg)    :: cur_j, cur_temp, cur_elnd
+DOUBLE PRECISION, DIMENSION(n_modelgrid + add_mg)    :: cur_j, cur_temp, cur_e_dens
+DOUBLE PRECISION, DIMENSION(n_modelgrid + add_mg)    :: recv_j, recv_temp, recv_e_dens
 
 cur_j(:) = 0.D0
+recv_j(:) = 0.D0
 cur_temp(:) = 0.D0
-cur_elnd(:) = 0.D0
+recv_temp(:) = 0.D0
+cur_e_dens(:) = 0.D0
+recv_e_dens(:) = 0.D0
   
 write(99,*) 'updating grid'
 #if mpi == 1
@@ -37,7 +41,7 @@ write(99,*) 'updating grid'
  IF(N_zbytek /= 0) N_tot_zbytek = (N_zbytek + 1) * (N_single + 1) + N_zbytek
  write(*,*) 'update_grid: N_single = ', N_single, ' N_zbytek = ', N_zbytek
  IF(my_rank <= N_zbytek - 1) THEN
-  my_start = my_rank * (N_single + 1) + my_rank
+  my_start = my_rank * (N_single + 1) + my_rank + 1
   my_end = (my_rank + 1) * (N_single + 1) + N_single
  ELSE IF(N_zbytek == 0) THEN
   my_start = my_rank * N_single + 1
@@ -54,8 +58,8 @@ write(99,*) 'updating grid'
  my_end = n_modelgrid
 #endif
 
-! write(*,*) 'update_grid: my_rank = ', my_rank, ' n_modelgrid = ', n_modelgrid
-! write(*,*) 'update_grid: my_start = ', my_start, ' my_end = ', my_end
+write(*,*) 'update_grid: my_rank = ', my_rank, ' n_modelgrid = ', n_modelgrid
+write(*,*) 'update_grid: my_start = ', my_start, ' my_end = ', my_end
 CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
 
 DO cur_mgi = my_start, my_end
@@ -67,23 +71,20 @@ DO cur_mgi = my_start, my_end
    ! Calculate electron number density for every model grid cell gridcell
    IF(eldensfile == 0) THEN
     CALL find_e_nd(cur_mgi, el_nd)
-    model_grid(cur_mgi)%e_dens = el_nd
+    cur_e_dens(cur_mgi) = el_nd
    END IF
    ! reading the temperature structure
    cur_temp(cur_mgi) = model_grid(cur_mgi)%T
   ELSE ! iteration > 1
-   ! Energy density contribeted to the model grid cell 
+   ! Energy density contributed to the model grid cell 
    cur_j(cur_mgi) = model_grid(cur_mgi)%J / model_grid(cur_mgi)%volume / (4 * const_pi)
    temp = (model_grid(cur_mgi)%J * const_pi / const_stefbolz )**(1./4.) 
    cur_temp(cur_mgi)  = temp
    ! Calculate electron number density for every model grid cell gridcell
    CALL find_e_nd(cur_mgi, el_nd)
-   model_grid(cur_mgi)%e_dens = el_nd
-   model_grid(cur_mgi)%J = 0.D0   
+   cur_e_dens(cur_mgi) = el_nd
+   cur_J(cur_mgi) = 0.D0   
   END IF ! test for the first iteration
-  IF(eldensfile == 0) THEN
-   cur_elnd(cur_mgi) = el_nd 
-  END IF
   write(propmod_file,"(A, A12)") TRIM(outputfolder), '/propmod.dat'
   INQUIRE(FILE=propmod_file, EXIST=propmod_file_exists)
 
@@ -94,7 +95,7 @@ DO cur_mgi = my_start, my_end
   ! if we calculate the condition only from electron density
    ! write(*,*) 'update_grid: enable_diffusion = ', enable_diffusion
    IF(enable_diffusion == 1) THEN
-    CALL diffusion_approximation(cur_mgi)
+    CALL diffusion_approximation(cur_mgi, cur_e_dens(cur_mgi))
    END IF
   END IF
   ! write(*,*) 'update_grid: temp = ', model_grid(cur_mgi)%T
@@ -119,13 +120,20 @@ END DO
 ! END DO
 
  IF(n_tasks > 1) THEN
-  CALL MPI_ALLREDUCE(model_grid(:)%j, model_grid(:)%j, n_modelgrid + add_mg, &
+  CALL MPI_ALLREDUCE(cur_j(1:n_modelgrid + add_mg), recv_j(:n_modelgrid + add_mg), n_modelgrid + add_mg, &
    MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
-  CALL MPI_ALLREDUCE(model_grid(:)%T, model_grid(:)%T, n_modelgrid + add_mg, &
+  CALL MPI_ALLREDUCE(cur_temp(1:n_modelgrid + add_mg), recv_temp(1:n_modelgrid + add_mg), n_modelgrid + add_mg, &
    MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
-  CALL MPI_ALLREDUCE(model_grid(:)%e_dens, model_grid(:)%e_dens, n_modelgrid + add_mg, &
+  CALL MPI_ALLREDUCE(cur_e_dens(1:n_modelgrid + add_mg), recv_e_dens(1:n_modelgrid + add_mg), n_modelgrid + add_mg, &
    MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
   CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
+  model_grid(:)%j = recv_j(:)
+  model_grid(:)%T = recv_temp(:)
+  model_grid(:)%e_dens = recv_e_dens(:)
+ ELSE IF(n_tasks == 1) THEN
+  model_grid(:)%j = cur_j(:)
+  model_grid(:)%T = cur_temp(:)
+  model_grid(:)%e_dens = cur_e_dens(:)
  END IF
 #endif
 

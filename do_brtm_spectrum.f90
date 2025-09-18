@@ -1,24 +1,32 @@
-SUBROUTINE do_brtm_spectrum(n_vpacks, nu_min, nu_max, freqs, specflux)
+! calculates brtm spectrum
+!
+! INPUT: n_vpacks(INT): number of virtual packets
+!        nu_min(DBLE): minimal frequency
+!        nu_max(DBLE): maximal frequency
+!        freqs(DBLE(n_nubin)): frequencies of packets
+! OUTPUT: specflux(DBLE(n_nubin)): spectrum flux
+!
+SUBROUTINE do_brtm_spectrum(n_vpacks, nu_min, nu_max, freqs, specflux, obs_point, det_nu, det_nv)
 
 USE types
 USE constants
 IMPLICIT NONE
 
 INTEGER                                                 :: n_vpacks, pack_index
+INTEGER                                                 :: det_nu, det_nv
+DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: obs_point
 DOUBLE PRECISION                                        :: nu_min, nu_max
 DOUBLE PRECISION, DIMENSION(n_nubin)                    :: specflux, freqs
 DOUBLE PRECISION                                        :: delta_nu, freq, delta_e
 
-INTEGER                                                 :: I, nubin
+INTEGER                                                 :: ind_I, nubin
 
 
 delta_nu = (nu_max - nu_min) / n_nubin
 
-DO I= 1, n_nubin 
- specflux(I) = 0.D0
- freqs(I) = nu_min + (I - 1) * delta_nu
- ! escs = 0
- !write(99,*) i, spectrum(i)%freq, spectrum(i)%flux
+DO ind_I= 1, n_nubin 
+ specflux(ind_I) = 0.D0
+ freqs(ind_I) = nu_min + (ind_I - 1) * delta_nu
 END DO
 
 
@@ -31,7 +39,7 @@ DO pack_index = 1, n_vpacks
   IF ((freq > nu_min) .AND. (freq < nu_max)) THEN
    nubin = floor( (freq - nu_min) / delta_nu ) + 1
    ! put the star to 100 parsecs
-   delta_e = (package(pack_index)%e_rf / delta_nu)! / (4.D0 * const_pi * (1.D2 * const_pc)**2)
+   delta_e = package(pack_index)%e_rf * 4.0/const_pi * norm2(obs_point)**2/(det_nu * det_nv)
    ! write(*,*) 'do_spectrum: e_rf = ', package(pack_index)%e_rf
    specflux(nubin) = specflux(nubin) + delta_e
   ENDIF

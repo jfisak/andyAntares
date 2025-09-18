@@ -1,10 +1,11 @@
 ! this sbr interpolates a velocity in the defined position in the propGrid
 ! it uses the trilinear interpolation
 !
-! input: pack_index -- an index of a packet
+! INPUT: pack_index -- an index of a packet
 !
-! output: vel_vec -- calculated velocity vector
+! OUTPUT: vel_vec -- calculated velocity vector
 !
+! RETURN point: 1x
 !
 SUBROUTINE vel_discrete_points_interpolation(pack_index, vel_vec)
 
@@ -12,24 +13,24 @@ USE types
 IMPLICIT NONE
 
 INTEGER                                 :: pack_index
-DOUBLE PRECISION, DIMENSION(3)          :: vel_vec
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: vel_vec
 
 TYPE(photon)                            :: testPacket
 INTEGER                                 :: dummyPacket
 INTEGER                                 :: cur_dir
-INTEGER, DIMENSION(6,3)                 :: directions
+INTEGER, DIMENSION(6,const_dimofspace)                 :: directions
 DOUBLE PRECISION, DIMENSION(6)          :: distances
-DOUBLE PRECISION, DIMENSION(3)          :: corner, width, act_pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: corner, width, act_pos
 INTEGER                                 :: next_cell, act_cell, down_cell
 INTEGER, DIMENSION(6)                   :: crossy, neighbors
 INTEGER                                 :: get_package_model_index, cur_mgi
-DOUBLE PRECISION, DIMENSION(3)          :: cur_center, cur_vel, cur_corner, cur_width
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: cur_center, cur_vel, cur_corner, cur_width
 DOUBLE PRECISION                        :: cur_vel_norm, cur_vel_norm0
-DOUBLE PRECISION, DIMENSION(7,3)        :: velocity_field
+DOUBLE PRECISION, DIMENSION(7,const_dimofspace)        :: velocity_field
 INTEGER                                 :: cur_neighbor, cur_nmgi
-INTEGER                                 :: I, J, K
+INTEGER                                 :: ind_I
 DOUBLE PRECISION, DIMENSION(7,7)        :: matA
-DOUBLE PRECISION, DIMENSION(3, 7)       :: vecB
+DOUBLE PRECISION, DIMENSION(const_dimofspace, 7)       :: vecB
 
 EXTERNAL                                :: DGETRI
 EXTERNAL                                :: DGETRF
@@ -39,17 +40,17 @@ INTEGER, DIMENSION(size(matA,1))        :: ipiv
 DOUBLE PRECISION, DIMENSION(size(matA,1)) :: work
 
 DOUBLE PRECISION                        :: act_coeff
-DOUBLE PRECISION, DIMENSION(3, 7)       :: coeffs
+DOUBLE PRECISION, DIMENSION(const_dimofspace, 7)       :: coeffs
 
 DOUBLE PRECISION                        :: sumx, sumxsq, sumy, sumysq, sumxy
-DOUBLE PRECISION, DIMENSION(3)          :: vel_m, vel_p, vel_0
-DOUBLE PRECISION, DIMENSION(3)          :: pos_m, pos_p, pos_0
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: vel_m, vel_p, vel_0
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: pos_m, pos_p, pos_0
 INTEGER                                 :: cur_dim, n_index
 INTEGER                                 :: cur_neighbor_p, cur_neighbor_m
 INTEGER                                 :: n_points
 
 INTEGER                                 :: mgi_p, mgi_m
-DOUBLE PRECISION, DIMENSION(3)          :: inda, indb
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: inda, indb
 DOUBLE PRECISION                        :: vel_ana
 
 testPacket = package(pack_index)
@@ -58,12 +59,14 @@ act_cell = package(pack_index)%cell_numb
 act_pos = package(pack_index)%pos
 cur_mgi = get_package_model_index(pack_index)
 corner = dyn_cell(act_cell)%corner
+upcorner = dyn_cell(act_cell)%upcorner
 cur_center = corner + width / 2.0
 width = dyn_cell(act_cell)%width
 cur_vel_norm0 = model_grid(cur_mgi)%vel
 
 IF(cur_vel_norm == 0.0) THEN
  vel_vec = (/ 0.0, 0.0, 0.0 /)
+ ! RETURN point
  RETURN
 END IF
 
@@ -72,24 +75,24 @@ END IF
 ! x+-, y+-, z+- and find next cells (six cell approximation)
 
 ! six possible  directions, distances to the boundaries and crosses
-directions(1,:) = (/ 1, 0, 0 /)
-distances(1) = corner(1) + width(1) - act_pos(1)
-crossy(1) = posx
-directions(2,:) = (/-1, 0, 0 /)
-distances(2) = act_pos(1) - corner(1)
-crossy(2) = negx
-directions(3,:) = (/ 0, 1, 0 /)
-distances(3) = corner(2) + width(2) - act_pos(2)
-crossy(3) = posy
-directions(4,:) = (/ 0,-1, 0 /)
-distances(4) = act_pos(2) - corner(2)
-crossy(4) = negy
-directions(5,:) = (/ 0, 0, 1 /)
-distances(5) = corner(3) + width(3) - act_pos(3)
-crossy(5) = posz
-directions(6,:) = (/ 0, 0,-1 /)
-distances(6) = act_pos(3) - corner(3)
-crossy(6) = negz
+directions(posx,:) = (/ 1, 0, 0 /)
+distances(posx) = upcorner(ind_x) - act_pos(ind_x)
+crossy(posx) = posx
+directions(negx,:) = (/-1, 0, 0 /)
+distances(negx) = act_pos(ind_x) - corner(ind_x)
+crossy(negx) = negx
+directions(posy,:) = (/ 0, 1, 0 /)
+distances(posy) = upcorner(ind_y)- act_pos(ind_y)
+crossy(posy) = posy
+directions(negy,:) = (/ 0,-1, 0 /)
+distances(negy) = act_pos(ind_y) - corner(ind_y)
+crossy(negy) = negy
+directions(posz,:) = (/ 0, 0, 1 /)
+distances(posz) = upcorner(ind_z) - act_pos(ind_z)
+crossy(posz) = posz
+directions(negz,:) = (/ 0, 0,-1 /)
+distances(negz) = act_pos(ind_z) - corner(ind_z)
+crossy(negz) = negz
 
 ! searching the neighbor cells
 DO cur_dir = 1,6
@@ -172,8 +175,8 @@ DO cur_dim = 1, 3
  n_index = n_index + 2
 END DO
 
-DO I = 1, 3
- vel_vec(I) = inda(I) * act_pos(I) + indb(I)
+DO ind_I = 1, 3
+ vel_vec(ind_I) = inda(ind_I) * act_pos(ind_I) + indb(ind_I)
 END DO
 
 vel_ana = V_inf/R_inf * norm2(package(pack_index)%pos)

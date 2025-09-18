@@ -28,6 +28,12 @@ DOUBLE PRECISION, PARAMETER       :: smallNumber = 1.D-2, mininum = 1.D4
 ! DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: cur_corner, new_corner
 ! INTEGER                                                 :: cur_pgi
 INTEGER                                                 :: next_cross
+DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: corner, upcorner, cur_pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: diff1, diff2
+INTEGER, PARAMETER                                      :: corner_x = 1, corner_y = 2, corner_z = 3
+INTEGER, PARAMETER                                      :: upcorner_x = 4, upcorner_y = 5, upcorner_z = 6
+INTEGER                                                 :: cur_close
+DOUBLE PRECISION                                        :: maxdist
 
 IF(debug == 2) THEN
  write(*,*) 'move_package: going to move the packet, pack_index = ', pack_index
@@ -48,39 +54,6 @@ ELSE
  if(abs(package(pack_index)%pos(ind_x)) < smallNumber) package(pack_index)%pos(ind_x) = 0.D0
  if(abs(package(pack_index)%pos(ind_y)) < smallNumber) package(pack_index)%pos(ind_y) = 0.D0
  if(abs(package(pack_index)%pos(ind_z)) < smallNumber) package(pack_index)%pos(ind_z) = 0.D0
-
- ! correction of a position
- ! IF(next_cell > 0) THEN
- !  cur_pgi = package(pack_index)%cell_numb
- !  new_pos = package(pack_index)%pos
- !  cur_corner = dyn_cell(cur_pgi)%corner
- !  new_corner = dyn_cell(next_cell)%corner
- !  IF(next_cross == posx) THEN
- !   IF(new_pos(ind_x) > new_corner(ind_x) - mininum .and. new_pos(ind_x) < new_corner(ind_x) + mininum) THEN
- !    package(pack_index)%pos(ind_x) = new_corner(ind_x)
- !   END IF
- !  ELSE IF(next_cross == posy) THEN
- !   IF(new_pos(ind_y) > new_corner(ind_y) - mininum .and. new_pos(ind_y) < new_corner(ind_y) + mininum) THEN
- !    package(pack_index)%pos(ind_y) = new_corner(ind_y)
- !   END IF
- !  ELSE IF(next_cross == posz) THEN
- !   IF(new_pos(ind_z) > new_corner(ind_z) - mininum .and. new_pos(ind_z) < new_corner(ind_z) + mininum) THEN
- !    package(pack_index)%pos(ind_z) = new_corner(ind_z)
- !   END IF
- !  ELSE IF(next_cross == negx) THEN
- !   IF(new_pos(ind_x) > cur_corner(ind_x) - mininum .and. new_pos(ind_x) < cur_corner(ind_x) + mininum) THEN
- !    package(pack_index)%pos(ind_x) = cur_corner(ind_x)
- !   END IF
- !  ELSE IF(next_cross == negy) THEN
- !   IF(new_pos(ind_y) > cur_corner(ind_y) - mininum .and. new_pos(ind_y) < cur_corner(ind_y) + mininum) THEN
- !    package(pack_index)%pos(ind_y) = cur_corner(ind_y)
- !   END IF
- !  ELSE IF(next_cross == negz) THEN
- !   IF(new_pos(ind_z) > cur_corner(ind_z) - mininum .and. new_pos(ind_z) < cur_corner(ind_z) + mininum) THEN
- !    package(pack_index)%pos(ind_z) = cur_corner(ind_z)
- !   END IF
- !  END IF
- ! END IF ! next_cell > 0
 END IF
 
 IF(debug == 2) THEN
@@ -108,7 +81,61 @@ END IF
 ! sbr doppler_factor a velocity vector is calculated and it should be done for
 ! the new propGrid cell index (if it was done for the old propGrid cell,
 ! it will generate a mistake)
-IF(change) CALL change_cell(pack_index, next_cell)
+IF(change) THEN
+! we expect the packet to be exactly on the boundary, hence if the packet is only close to it
+! we will slightly move it to be exactly there
+ IF(next_cell > 0) THEN
+  cur_pos = package(pack_index)%pos
+  corner = dyn_cell(next_cell)%corner
+  upcorner = dyn_cell(next_cell)%upcorner
+  diff1 = abs(cur_pos - corner)
+  diff2 = abs(cur_pos - upcorner)
+
+  maxdist = 1.D99
+  IF(diff1(ind_x) < maxdist) THEN
+   maxdist = diff1(ind_x)
+   cur_close = corner_x
+  END IF
+  IF(diff1(ind_y) < maxdist) THEN
+   maxdist = diff1(ind_y)
+   cur_close = corner_y
+  END IF
+  IF(diff1(ind_z) < maxdist) THEN
+   maxdist = diff1(ind_z)
+   cur_close = corner_z
+  END IF
+  IF(diff2(ind_x) < maxdist) THEN
+   maxdist = diff2(ind_x)
+   cur_close = upcorner_x
+  END IF
+  IF(diff2(ind_y) < maxdist) THEN
+   maxdist = diff2(ind_y)
+   cur_close = upcorner_y
+  END IF
+  IF(diff2(ind_z) < maxdist) THEN
+   maxdist = diff2(ind_z)
+   cur_close = upcorner_z
+  END IF
+
+  ! setting up a new coordinates
+  IF(cur_close == corner_x) THEN
+   package(pack_index)%pos(ind_x) = corner(ind_x)
+  ELSE IF(cur_close == corner_y) THEN
+   package(pack_index)%pos(ind_y) = corner(ind_y)
+  ELSE IF(cur_close == corner_z) THEN
+   package(pack_index)%pos(ind_z) = corner(ind_z)
+  ELSE IF(cur_close == upcorner_x) THEN
+   package(pack_index)%pos(ind_x) = upcorner(ind_x)
+  ELSE IF(cur_close == upcorner_y) THEN
+   package(pack_index)%pos(ind_y) = upcorner(ind_y)
+  ELSE IF(cur_close == upcorner_z) THEN
+   package(pack_index)%pos(ind_z) = upcorner(ind_z)
+  END IF
+ END IF
+
+ 
+ CALL change_cell(pack_index, next_cell)
+END IF
 CALL doppler_factor(pack_index, doppler_D)
 IF(pack_index <= SIZE(package)) THEN
  package(pack_index)%freq_cmf = package(pack_index)%freq_rf * doppler_D

@@ -2,29 +2,27 @@
 ! using distribution from an emergent flux computed by
 ! another model of atmosphere
 ! this procedure is called if and only if incomingflux = 1
+!
+! INPUT: n_packs(INT): n_packs(INT): number of packets
+! OUTPUT: freq(DBL): generated frequency
+! 
 SUBROUTINE freq_from_file(n_packs,freq)
 
-  USE types
+USE types
 USE constants
 
   IMPLICIT NONE 
 
-  INTEGER                       :: NR,n_packet,n_packs
-  INTEGER                       :: I
-!  LOGICAL                       :: found, linint
-  INTEGER, PARAMETER            :: maxrows = 6000000
-  DOUBLE PRECISION, DIMENSION(n_packs) :: freq
-!  DOUBLE PRECISION              :: freq, freq_min, freq_max, flux_max
-!  DOUBLE PRECISION              :: ran_freq, ran_flux, bound_flux
-  DOUBLE PRECISION              :: junk
-  INTEGER                       :: ios
+INTEGER                                         :: num_rows,n_packet,n_packs
+INTEGER                                         :: ind_I
+INTEGER, PARAMETER                              :: maxrows = 6000000
+DOUBLE PRECISION, DIMENSION(n_packs)            :: freq
+DOUBLE PRECISION                                :: junk
+INTEGER                                         :: ios
 ! (2) PoWR testing model
-DOUBLE PRECISION                        :: logwv, Iflux
-CHARACTER(100)                  :: fluxfile
-!  DOUBLE PRECISION              :: sinseed, cosseed
-!  ! the linear interpolation parameters
-!  DOUBLE PRECISION              :: a_linint, b_linint
-!  DOUBLE PRECISION              :: x1, x2, fx1, fx2
+DOUBLE PRECISION                                :: logwv, Iflux
+CHARACTER(filename_length)                      :: fluxfile
+INTEGER, PARAMETER                              :: ind_flux = 2, ind_freq = 1
  
 ! in the first photon computes the flux field which depends on frequency
 ! flux(NUMBER OF ROW, INDEX) INDEX = 1 ... FREQUENCY, INDEX = 2 ... FLUX
@@ -39,26 +37,26 @@ CASE (1)
    !print*, 'initialization of reading input flux'
    OPEN(11,status='old',FILE='emflux.dat')
    ! it is necessary to compute number of rows of the file
-   NR = 0
+   num_rows = 0
   DO 
     READ(11,*,IOSTAT=ios) junk, junk
    IF (ios /= 0) EXIT
-   NR = NR + 1
+   num_rows = num_rows + 1
   END DO
-  write(*,*) 'freq_from_file: nr = ', NR
+  write(*,*) 'freq_from_file: nr = ', num_rows
   REWIND(11)
   ! now we can allocate the field flux (frequency, flux))
-  write(*,*) 'allocation of the field incomingflux(', NR, ', 2)'
-  ALLOCATE(incomingflux(NR,2))
+  write(*,*) 'allocation of the field incomingflux(', num_rows, ', 2)'
+  ALLOCATE(incomingflux(num_rows,2))
   ! and read from given file
   PRINT*, 'reading the flux from input file...'
-  DO I=1,NR
-   READ(11,*) incomingflux(I,1), incomingflux(I,2)
+  DO ind_I = 1,num_rows
+   READ(11,*) incomingflux(ind_I,ind_freq), incomingflux(ind_I,ind_flux)
   END DO
   CLOSE(11)
-  do I=1,NR
+  ! do ind_I = 1,num_rows
   ! write(99,*) 'incomingflux: ', incomingflux(I,1), ', ', incomingflux(I,2)
-  end do
+  ! end do
  END IF
  !______________________________________________________________________________
  ! (2) PoWR model
@@ -69,23 +67,23 @@ CASE (1)
   IF(TRIM(fluxfile) == '') STOP 'freq_from_file: file was not found'
    OPEN(11, status='old', FILE=TRIM(fluxFile))
    IF(.NOT. ALLOCATED(incomingflux)) THEN
-   NR = 0
+   num_rows = 0
    DO
     READ(11,*,IOSTAT=ios) junk, junk
     IF (ios /= 0) EXIT
-    NR = NR + 1
+    num_rows = num_rows + 1
    END DO
-   ALLOCATE(incomingflux(NR, 2))
+   ALLOCATE(incomingflux(num_rows, ind_flux))
    REWIND(11)
    PRINT*, 'reading the flux from input file...'
-   write(*,*) 'freq_from_file: NR = ', NR
-   DO I=1,NR
+   write(*,*) 'freq_from_file: num_rows = ', num_rows
+   DO ind_I=1,num_rows
     ! wl in log(Angstroms), flux in erg / cm^2 / s / Hz
     READ(11,*) logwv, Iflux
     ! CHECK ONCE MORE !!!!!!!!!!!!!!!!!
-    incomingflux(NR - I + 1, 1) = 1.D6 * const_c * exp(- logwv)
+    incomingflux(num_rows - ind_I + 1, ind_freq) = 1.D6 * const_c * exp(- logwv)
     ! incomingflux(I, 2) = const_c * Iflux / (incomingflux(I, 1) ** 2.0)
-    incomingflux(I, 2) = Iflux
+    incomingflux(ind_I, ind_flux) = Iflux
     ! write(*,*) 'freq_from_file: I = ', I, ' logwv = ', logwv, ' freq = ', incomingflux(I, 1), ' flux = ', incomingflux(I, 2)
    END DO
    CLOSE(11)
@@ -105,9 +103,9 @@ CALL acc_rej_montecarlo(n_packs,freq)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! now we generate a new photonic frequency
 ! we will consider that frequencies are in the right order
-! NR = INT(incomingflux(1,1))
+! num_rows = INT(incomingflux(1,1))
 ! freq_min = incomingflux(2,1)
-! freq_max = incomingflux(NR + 1, 1)
+! freq_max = incomingflux(num_rows + 1, 1)
 ! !print*, 'incomingflux(:,2): ', incomingflux(:,2)
 ! flux_max = MAXVAL(incomingflux(:,2))
 ! !print*, 'MAXVAL? ', junk
@@ -129,7 +127,7 @@ CALL acc_rej_montecarlo(n_packs,freq)
 !  ! between these two flux points and then calculate the given bound point
 !  ! 1.)
 !  linint = .true.
-!  DO I=2,NR+1
+!  DO I=2,num_rows+1
 !   IF ( ran_freq .EQ. incomingflux(I,1)) THEN
 !    bound_flux = incomingflux(I,2)
 !    linint = .false.
@@ -140,7 +138,7 @@ CALL acc_rej_montecarlo(n_packs,freq)
 !  IF ( linint .EQV. .true.) THEN
 !    !print*, 'and we will calculate the linear interpolation...'
 !   ! i find two frequency points between we will interpolate
-!   DO J=2,NR+1
+!   DO J=2,num_rows+1
 !    IF (ran_freq > incomingflux(J,1)) THEN
 !     !print*, 'loop ', J, 'was cycled...'
 !     CYCLE

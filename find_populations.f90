@@ -1,3 +1,8 @@
+! reads populations from a file
+!
+! INPUT: fileFound(CHAR(filename_length)) -- name of file
+! OUTPUT: NONE
+!
 SUBROUTINE find_populations(fileFound)
 
 USE types
@@ -6,18 +11,18 @@ USE constants
 IMPLICIT NONE
 
 LOGICAL                                 :: fileFound
-CHARACTER(LEN=60)                       :: populFile, inputfile
+CHARACTER(LEN=filename_length)                       :: populFile, inputfile
 INTEGER                                 :: num_rows, npop_rows
 ! reading from file
 CHARACTER(LEN=100)                      :: line
 INTEGER                                 :: reading_populations
-CHARACTER(LEN=60)                       :: popInpFile
+CHARACTER(LEN=filename_length)                       :: popInpFile
 INTEGER                                 :: indexe, indexi, Z
 INTEGER                                 :: dataType
 ! type for a better data saving
 TYPE inp_Ion
  INTEGER                                :: indexe, indexi, inpType
- CHARACTER(LEN=60)                      :: fileName
+ CHARACTER(LEN=filename_length)                      :: fileName
 END TYPE inp_Ion
 TYPE(inp_Ion), ALLOCATABLE               :: inpIon(:)
 INTEGER                                 :: I, gridcell
