@@ -41,14 +41,14 @@ write(99,*) 'updating grid'
  IF(N_zbytek /= 0) N_tot_zbytek = (N_zbytek + 1) * (N_single + 1) + N_zbytek
  write(*,*) 'update_grid: N_single = ', N_single, ' N_zbytek = ', N_zbytek
  IF(my_rank <= N_zbytek - 1) THEN
-  my_start = my_rank * (N_single + 1) + my_rank + 1
-  my_end = (my_rank + 1) * (N_single + 1) + N_single
+  my_start = my_rank * N_single  + my_rank + 1
+  my_end = (my_rank + 1) * N_single + my_rank + 1
  ELSE IF(N_zbytek == 0) THEN
   my_start = my_rank * N_single + 1
   my_end = (my_rank + 1) * N_single
  ELSE IF(my_rank > N_zbytek - 1) THEN
-  my_start = N_tot_zbytek + 1 + (my_rank - N_zbytek) * N_single + (my_rank - N_zbytek)
-  my_end = N_tot_zbytek + 1 + (my_rank - N_zbytek + 1) * N_single + (my_rank - N_zbytek)
+  my_start = my_rank * N_single  + N_zbytek + 1
+  my_end = (my_rank + 1) * N_single + N_zbytek
  END IF
  IF(my_rank == n_tasks - 1) THEN
   my_end = n_modelgrid
