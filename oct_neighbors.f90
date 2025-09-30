@@ -56,7 +56,13 @@ act_center = (act_corner + act_upcorner)/2.0
 
 rel_pos = act_pos - act_center
 
+! write(*,*) 'oct_neighbors: *********************************'
 ! write(*,*) 'oct_neighbors: rel_pos = ', rel_pos
+! write(*,*) 'oct_neighbors: act_pos = ', act_pos
+! write(*,*) 'oct_neighbors: act_corner = ', act_corner
+! write(*,*) 'oct_neighbors: act_center = ', act_center
+! write(*,*) 'oct_neighbors: act_upcorner = ', act_upcorner
+! write(*,*) 'oct_neighbors: *********************************'
 ! 
 
 ! this part code only for the regular grid
@@ -66,7 +72,7 @@ rel_pos = act_pos - act_center
 ! calculation of direct neighbors
 ! x
 velgridcells(n_zero) = act_cell
-IF(rel_pos(dir_x) > 0) THEN
+IF(rel_pos(dir_x) >= 0) THEN
  velgridcells(n_x) = dyn_cell(act_cell)%neighbor(posx)
  posxyz(dir_x) = .TRUE.
 ELSE
@@ -74,7 +80,7 @@ ELSE
  posxyz(dir_x) = .FALSE.
 END IF
 ! y
-IF(rel_pos(dir_y) > 0) THEN
+IF(rel_pos(dir_y) >= 0) THEN
  velgridcells(n_y) = dyn_cell(act_cell)%neighbor(posy)
  posxyz(dir_y) = .TRUE.
 ELSE
@@ -82,7 +88,7 @@ ELSE
  posxyz(dir_y) = .FALSE.
 END IF
 ! z
-IF(rel_pos(dir_z) > 0) THEN
+IF(rel_pos(dir_z) >= 0) THEN
  velgridcells(n_z) = dyn_cell(act_cell)%neighbor(posz)
  posxyz(dir_z) = .TRUE.
 ELSE

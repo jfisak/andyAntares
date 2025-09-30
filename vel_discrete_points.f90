@@ -86,11 +86,11 @@ ELSE ! incellmode
   IF(dyngrid == 0) THEN
    cur_cell1 = velgridcells(2 * ind_I -1)
    cur_mgi1 = dyn_cell(cur_cell1)%model_index
-   cur_pos1 = dyn_cell(cur_cell1)%corner + dyn_cell(cur_cell1)%width/2.0
+   cur_pos1 = (dyn_cell(cur_cell1)%corner + dyn_cell(cur_cell1)%upcorner)/2.0
    
    cur_cell2 = velgridcells(2*ind_I)
    cur_mgi2 = dyn_cell(cur_cell2)%model_index
-   cur_pos2 = dyn_cell(cur_cell2)%corner + dyn_cell(cur_cell2)%width/2.0
+   cur_pos2 = (dyn_cell(cur_cell2)%corner + dyn_cell(cur_cell2)%upcorner)/2.0
   ELSE IF (dyngrid > 0) THEN
    cur_cell1 = velgridcells(2 * ind_I -1)
    cur_pos1 = cube_pos(2*ind_I - 1, :)
