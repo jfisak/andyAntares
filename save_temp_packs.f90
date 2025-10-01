@@ -3,6 +3,8 @@
 ! this SBR will save actually calculated packages which
 ! were caulculated in previous runs
 !
+! INPUT: pack_index(INT): index of a packet
+! OUTPUT: NONE
 !
 SUBROUTINE save_temp_packs(pack_index)
 
@@ -13,7 +15,7 @@ IMPLICIT NONE
 INTEGER                         :: pack_index
 INTEGER                         :: n_file
 CHARACTER(100)                   :: temp_file_name
-INTEGER                         :: I
+INTEGER                         :: ind_I
 
 n_file = INT(FLOAT(pack_index) / FLOAT(n_pack_save))
 
@@ -28,8 +30,8 @@ OPEN(73, form='unformatted', FILE=temp_file_name)
 ! OPEN(73, FILE=temp_file_name)
  ! write(*,*) 'save_temp_packs: I0 = ', n_pack_save * (n_file - 1) + 1,&
  !  ' I1 = ', n_pack_save * n_file
- DO I = n_pack_save * (n_file - 1) + 1, n_pack_save * n_file
-  WRITE(73) package(I)
+ DO ind_I = n_pack_save * (n_file - 1) + 1, n_pack_save * n_file
+  WRITE(73) package(ind_I)
  END DO
 CLOSE(73)
 

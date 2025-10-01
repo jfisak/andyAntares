@@ -22,7 +22,7 @@ INTEGER                                 :: current_mgi, nrecom
 DOUBLE PRECISION                        :: act_pop
 ! computing fields
 INTEGER                                 :: npoints
-INTEGER                                 :: I, K
+INTEGER                                 :: ind_I, ind_K
 DOUBLE PRECISION                        :: photRate
 DOUBLE PRECISION                        :: temp
 DOUBLE PRECISION                        :: phot_cross
@@ -48,10 +48,10 @@ Ntpoints = SIZE(i_temps)
 Tmin = i_temps(1)
 Tmax = i_temps(Ntpoints)
 act_index = 0
-DO I = 1, n_photcrossect
- IF(iints(I)%indexe == indexe .AND. iints(I)%indexi == indexi &
-  .AND. iints(I)%indexl == leveli) THEN
-  act_index = I
+DO ind_I = 1, n_photcrossect
+ IF(iints(ind_I)%indexe == indexe .AND. iints(ind_I)%indexi == indexi &
+  .AND. iints(ind_I)%indexl == leveli) THEN
+  act_index = ind_I
  END IF
 END DO
 !print*, 'photion_rates: npoints = ', npoints
@@ -83,7 +83,7 @@ IF(act_index /= 0) THEN
  END IF
  photRate = act_pop * actVal
  ! write(*,*) 'i_radion: actVal = ', actVal
- ! write(*,*) 'i_radion: indexe = ', indexe, ' indexi - 1 = ', indexi - 1, 'K = ', K
+ ! write(*,*) 'i_radion: indexe = ', indexe, ' indexi - 1 = ', indexi - 1, 'ind_K = ', K
  ! write(*,*) 'i_radion: act_pop = ', act_pop
  IF(photRate < 0.D0) STOP 'i_radion: photRate < 0'
  Zion = photRate * elements(indexe)%ions(indexi)%levels(leveli)%exci_energy
@@ -100,16 +100,16 @@ Zrecom = 0.D0
 IF(indexi > 1) THEN
  nrecom = SIZE(actirates%Lma_recrad)
  ! write(*,*) 'i_radion: nrecom = ', nrecom
- DO K = 1, nrecom
-  IF(ALLOCATED(elements(indexe)%ions(indexi - 1)%levels(K)%photcros)) THEN
-   npoints = SIZE(elements(indexe)%ions(indexi - 1)%levels(K)%photcros(1,:))
+ DO ind_K = 1, nrecom
+  IF(ALLOCATED(elements(indexe)%ions(indexi - 1)%levels(ind_K)%photcros)) THEN
+   npoints = SIZE(elements(indexe)%ions(indexi - 1)%levels(ind_K)%photcros(1,:))
   ELSE
    npoints = 0
   END IF
   ! write(*,*) 'i_radion: npoints = ', npoints
   IF(npoints /= 0) THEN  
    ! write(*,*) 'i_radion: calling populations...'
-   act_index = elements(indexe)%ions(indexi - 1)%levels(K)%phfreqi
+   act_index = elements(indexe)%ions(indexi - 1)%levels(ind_K)%phfreqi
    CALL populations(indexe, indexi, 1, current_mgi, pop_number)
    IF(Ntpoints /= 1) THEN
     IF(temp == Tmax) THEN
@@ -139,24 +139,24 @@ IF(indexi > 1) THEN
    ! write(*,*) 'i_radion: temp1 ', temp1, ' temp2 = ', temp2, ' func1 = ', func1, &
    !  ' func2 = ', func2
    ! write(*,*) 'i_radion: ali = ', ali, ' bli = ', bli, 'phot_cross = ', phot_cross
-   exci_energy = elements(indexe)%ions(indexi - 1)%levels(K)%exci_energy
+   exci_energy = elements(indexe)%ions(indexi - 1)%levels(ind_K)%exci_energy
    gr_exci_energy = MINVAL(elements(indexe)%ions(indexi)%levels(:)%exci_energy)
    actVal = pop_number * el_dens * phot_cross
-   actirates%Lma_int_recrad(K) = actVal * exci_energy
-   actirates%Lma_recrad(K) = actVal * (gr_exci_energy - exci_energy)
+   actirates%Lma_int_recrad(ind_K) = actVal * exci_energy
+   actirates%Lma_recrad(ind_K) = actVal * (gr_exci_energy - exci_energy)
    !write(*,*) 'i_radion: actVal = ', actVal
    ! write(*,*) 'i_radion: phot_cross = ', phot_cross
    ! write(*,*) 'i_radion: indexe = ', indexe, ' indexi - 1 = ', indexi - 1, 'K = ', K
    ! write(*,*) 'i_radion: exci_energy = ', exci_energy, ' gr_exci_energy = ', gr_exci_energy
    ! write(*,*) 'i_radion: pop_number = ', pop_number, ' el_dens = ', el_dens
-   ! write(*,*) 'i_radion: Lint = ', actirates%Lma_int_recrad(K), ' Lrec = ', actirates%Lma_recrad(K)
-   Zintrecom = Zintrecom + actirates%Lma_int_recrad(K) 
-   Zrecom = Zrecom + actirates%Lma_recrad(K)
+   ! write(*,*) 'i_radion: Lint = ', actirates%Lma_int_recrad(ind_K), ' Lrec = ', actirates%Lma_recrad(ind_K)
+   Zintrecom = Zintrecom + actirates%Lma_int_recrad(ind_K) 
+   Zrecom = Zrecom + actirates%Lma_recrad(ind_K)
    ! print*, 'Zrecom = ', Zrecom
    act_index = act_index + 1
   ELSE ! npoints = 0
-   actirates%Lma_int_recrad(K) = 0.D0
-   actirates%Lma_recrad(K) = 0.D0
+   actirates%Lma_int_recrad(ind_K) = 0.D0
+   actirates%Lma_recrad(ind_K) = 0.D0
   END IF ! npoints
  END DO
  ! STOP 'i_radion: testing'

@@ -17,7 +17,7 @@ INTEGER                                 :: num_rows, npop_rows
 CHARACTER(LEN=100)                      :: line
 INTEGER                                 :: reading_populations
 CHARACTER(LEN=filename_length)                       :: popInpFile
-INTEGER                                 :: indexe, indexi, Z
+INTEGER                                 :: indexe, indexi, part_Z
 INTEGER                                 :: dataType
 ! type for a better data saving
 TYPE inp_Ion
@@ -25,7 +25,7 @@ TYPE inp_Ion
  CHARACTER(LEN=filename_length)                      :: fileName
 END TYPE inp_Ion
 TYPE(inp_Ion), ALLOCATABLE               :: inpIon(:)
-INTEGER                                 :: I, gridcell
+INTEGER                                 :: ind_I, gridcell
 DOUBLE PRECISION                        :: logntot, loggi
 ! saving populations
 LOGICAL                                 :: fileExists
@@ -60,14 +60,14 @@ OPEN(51,FILE=inputfile)
  END DO
  REWIND(51)
  ALLOCATE(inpIon(num_rows))
- I = 0
+ ind_I = 0
  line = ' '
  DO
   READ(51,'(A)', IOSTAT = reading_populations) line
   IF(reading_populations /= 0) EXIT
   ! write(*,*) 'find_populations: #1 line = ', line
   IF(line(1:1) .EQ. '*') CYCLE
-  READ(line,*) Z, indexi, dataType, popInpFile
+  READ(line,*) part_Z, indexi, dataType, popInpFile
   ! write(*,*) 'find_populations: #2 popInpFile = ', popInpFile, LEN(popInpFile)
   ! write(*,*) 'find_populations: #3 Z = ', Z, ' indexi = ', indexi,&
   !  'dataType = ', dataType 
@@ -77,22 +77,22 @@ OPEN(51,FILE=inputfile)
   ! IF(Z == 2 .AND. indexi == 1) popInpFile = '/home/jakub/Documents/PhD/3dwind/PoWRtestCase/He_I.dat'
   ! IF(Z == 2 .AND. indexi == 2) popInpFile = '/home/jakub/Documents/PhD/3dwind/PoWRtestCase/He_II.dat'
   ! IF(Z == 2 .AND. indexi == 3) popInpFile = '/home/jakub/Documents/PhD/3dwind/PoWRtestCase/He_III.dat'
-  write(*,*) 'find_populations: Z = ', Z, ' indexi = ', indexi,&
+  write(*,*) 'find_populations: part_Z = ', part_Z, ' indexi = ', indexi,&
    'dataType = ', dataType, ' popInpFile = ', TRIM(popInpFile)
-  I = I + 1
-  inpIon(I)%indexe = Z
-  inpIon(I)%indexi = indexi
-  inpIon(I)%fileName = popInpFile
-  inpIon(I)%inpType = dataType
+  ind_I = ind_I + 1
+  inpIon(ind_I)%indexe = part_Z
+  inpIon(ind_I)%indexi = indexi
+  inpIon(ind_I)%fileName = popInpFile
+  inpIon(ind_I)%inpType = dataType
  END DO
 CLOSE(51)
 
 ! reading the populations from the given files
-DO I = 1, num_rows
- indexe = inpIon(I)%indexe
- indexi = inpIon(I)%indexi
- popInpFile = inpIon(I)%fileName
- dataType = inpIon(I)%inpType
+DO ind_I = 1, num_rows
+ indexe = inpIon(ind_I)%indexe
+ indexi = inpIon(ind_I)%indexi
+ popInpFile = inpIon(ind_I)%fileName
+ dataType = inpIon(ind_I)%inpType
  ! write(*,*) 'find_populations: indexe = ', indexe, ' indexi = ', indexi
  SELECT CASE(dataType)
   ! PoWR test case

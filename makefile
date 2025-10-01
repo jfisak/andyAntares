@@ -29,7 +29,7 @@ VELOCITY=velo.o velo_vector.o vel_discrete_points.o vel_interpolation.o vel_vect
          lin_interpolation_3D.o lin_interpolation.o vel_pseudo3D_model.o
 PACKETS=do_rpackage.o do_ipackage.o do_rpackage_event.o do_kpackage.o do_dpackage.o \
  do_vpackage.o packet_dynamics.o
-SPECTRA=do_brtm_spectrum.o do_spectrum.o
+SPECTRA=do_brtm_spectrum.o 
 GRIDS=propmodgrid_diagnostics.o setup_model_grid.o update_grid.o setup_propgrid.o create_dynamical_grid_cells.o \
       propgrid_dist.o save_propmod_grid.o read_propmod_grid.o find_dyn_cell1.o divide_cell_8.o divide_cell_ijk.o \
       correction_propagation.o next_cell_down.o next_cell_up.o oct_neighbors.o
