@@ -586,6 +586,11 @@ write(temp_file_name_velv,"(A, A20)") TRIM(outputfolder), '/propmod_velv_yz.dat'
 cur_pos(ind_x) = x_cov
 ! yz plane
 cur_index = 0
+DEALLOCATE(coverage_matrix_rho, coverage_matrix_t, coverage_matrix_v, coverage_matrix_velv)
+ALLOCATE(coverage_matrix_rho(Ny_cov, Nz_cov), coverage_matrix_t(Ny_cov, Nz_cov), &
+  coverage_matrix_v(Ny_cov * Nz_cov, 2 * const_dimofspace), coverage_matrix_velv(Ny_cov, Nz_cov))
+! write(*,*) 'save_output: Nx_cov = ', Nx_cov, ' Ny_cov = ', Ny_cov, ' Nz_cov = ', Nz_cov
+! STOP 'save_output: testing'
 DO ind_I = 1, Ny_cov
  cur_pos(ind_y) = ((ymax - ymin) * ind_I + (Ny_cov * ymin - ymax))/DBLE(Ny_cov - 1)
  DO ind_J = 1, Nz_cov
