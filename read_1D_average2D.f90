@@ -24,6 +24,7 @@ CHARACTER(filename_length)                             :: modelfile
 DOUBLE PRECISION, PARAMETER                :: meanAtMass = 1.33
 INTEGER                                         :: reading_grid
 INTEGER, DIMENSION(1)                           :: ind_min, ind_max
+DOUBLE PRECISION                                :: unit_length, unit_velocity, unit_density
 
 modelfile=TRIM(inputmodelFile)
 unit_length = 12.64759321736591 * const_Rsun
