@@ -61,7 +61,7 @@ modelfile=TRIM(inputmodelFile)
   ALLOCATE(model_grid(n_modelgrid + add_mg))
   REWIND(11)
   READ(11,*) junk
-  ! READ(11,*) junk
+  READ(11,*) junk
   ! READ(11,*) junk
   ! READ(11,*) junk
   ind_I = 0
