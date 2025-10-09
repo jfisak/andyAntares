@@ -34,7 +34,7 @@ modelfile=TRIM(inputmodelFile)
 
  OPEN (UNIT=11, FILE=modelfile)
  READ(11,*) T_eff
- ! READ(11,*) R_star
+ READ(11,*) R_star
  ! READ(11,*) R_inf
  ! READ(11,*) V_inf
  ! READ(11,*) V_inf
@@ -53,8 +53,9 @@ modelfile=TRIM(inputmodelFile)
  ! Cell n_modelgrid+1 is associated to propagation grid cells 
  ! which have no counterpart on the modelgrid  
   DO 
-   READ(11, *, iostat = reading_grid) junk
+   READ(11, *, iostat = reading_grid) r, junk
    IF(reading_grid /= 0) EXIT
+   IF(r< R_star) cycle
    n_modelgrid = n_modelgrid + 1
   END DO
   ALLOCATE(model_grid(n_modelgrid + add_mg))
@@ -63,9 +64,12 @@ modelfile=TRIM(inputmodelFile)
   ! READ(11,*) junk
   ! READ(11,*) junk
   ! READ(11,*) junk
-  DO ind_I = 1, n_modelgrid
+  ind_I = 0
+  DO 
      ! Maybe better to calculate at the midle of the grid cell rather then at the outer boundary 
      READ(11,*) r, velo_r, velo_theta, dens, temp!, massfrac
+     IF(r< R_star) cycle
+     ind_I = ind_I + 1
      model_grid(ind_I)%rwind = r 
      model_grid(ind_I)%vel = velo_r
      model_grid(ind_I)%velang = velo_theta
@@ -85,7 +89,6 @@ modelfile=TRIM(inputmodelFile)
   END DO
   CLOSE(11)
 
-  R_star = MINVAL(model_grid(1:n_modelgrid)%rwind)
   R_inf = MAXVAL(model_grid(1:n_modelgrid)%rwind)
   ind_max(1) = MAXLOC(model_grid(:)%rwind,1, MASK=(model_grid(:)%rwind <= R_inf))
   ind_min(1) = MINLOC(model_grid(:)%rwind,1, MASK=(model_grid(:)%rwind >= R_star))
