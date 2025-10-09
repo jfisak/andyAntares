@@ -76,8 +76,8 @@ unit_density = 1.41314878888978971775872825028550241D-0006
      IF(r * unit_length < R_star) cycle
      ind_I = ind_I + 1
      model_grid(ind_I)%rwind = r * unit_length
-     model_grid(ind_I)%vel = velo_r * unit_velocity
-     model_grid(ind_I)%velang = velo_theta * unit_velocity
+     model_grid(ind_I)%vel = velo_r
+     model_grid(ind_I)%velang = velo_theta
      model_grid(ind_I)%rho = dens * unit_density
      model_grid(ind_I)%T = temp ! should be temp 
      model_grid(ind_I)%J = 0.D0 
