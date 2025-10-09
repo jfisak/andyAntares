@@ -59,7 +59,7 @@ unit_density = 1.41314878888978971775872825028550241D-0006
   DO 
    READ(11, *, iostat = reading_grid) r, junk
    IF(reading_grid /= 0) EXIT
-   IF(r * unit_density < R_star) cycle
+   IF(r * unit_length < R_star) cycle
    n_modelgrid = n_modelgrid + 1
   END DO
   ALLOCATE(model_grid(n_modelgrid + add_mg))
