@@ -71,6 +71,7 @@ unit_density = 1.41314878888978971775872825028550241D-0006
   ind_I = 0
   DO 
      ! Maybe better to calculate at the midle of the grid cell rather then at the outer boundary 
+     IF(ind_I == n_modelgrid) EXIT
      READ(11,*) r, velo_r, velo_theta, dens, temp!, massfrac
      IF(r< R_star) cycle
      ind_I = ind_I + 1
