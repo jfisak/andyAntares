@@ -26,6 +26,9 @@ INTEGER                                         :: reading_grid
 INTEGER, DIMENSION(1)                           :: ind_min, ind_max
 
 modelfile=TRIM(inputmodelFile)
+unit_length = 12.64759321736591 * const_Rsun
+unit_velocity = 1.D8
+unit_density = 1.41314878888978971775872825028550241D-0006
 
 ! case
 ! (1)
@@ -55,7 +58,7 @@ modelfile=TRIM(inputmodelFile)
   DO 
    READ(11, *, iostat = reading_grid) r, junk
    IF(reading_grid /= 0) EXIT
-   IF(r< R_star) cycle
+   IF(r * unit_density < R_star) cycle
    n_modelgrid = n_modelgrid + 1
   END DO
   ALLOCATE(model_grid(n_modelgrid + add_mg))
@@ -70,10 +73,10 @@ modelfile=TRIM(inputmodelFile)
      READ(11,*) r, velo_r, velo_theta, dens, temp!, massfrac
      IF(r< R_star) cycle
      ind_I = ind_I + 1
-     model_grid(ind_I)%rwind = r 
-     model_grid(ind_I)%vel = velo_r
-     model_grid(ind_I)%velang = velo_theta
-     model_grid(ind_I)%rho = dens
+     model_grid(ind_I)%rwind = r * unit_length
+     model_grid(ind_I)%vel = velo_r * unit_velocity
+     model_grid(ind_I)%velang = velo_theta * unit_velocity
+     model_grid(ind_I)%rho = dens * unit_density
      model_grid(ind_I)%T = temp ! should be temp 
      model_grid(ind_I)%J = 0.D0 
      model_grid(ind_I)%assoc_cells = 0
