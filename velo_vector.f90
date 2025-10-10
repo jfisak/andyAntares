@@ -20,7 +20,7 @@ DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: vel_vec
 
 DOUBLE PRECISION                                        :: rad_vel
 
-DOUBLE PRECISION                                        :: vr, vtheta
+DOUBLE PRECISION                                        :: vr, vtheta, vz
 DOUBLE PRECISION                                        :: coor_x, coor_y, coor_z
 DOUBLE PRECISION                                        :: cosphi, sinphi, costheta, sintheta
 DOUBLE PRECISION                                        :: radius, phi, theta
@@ -83,41 +83,49 @@ SELECT CASE(model_type)
  !________________________________________________________
  ! 2D model with radial velocity and tangential velocity
  CASE(2)
-  vr = model_grid(mod_index)%vel
-  vtheta = model_grid(mod_index)%velang
+  IF(inputmodel == 1) THEN
+   vr = model_grid(mod_index)%vel
+   vtheta = model_grid(mod_index)%velang
 
-  coor_x = pos(ind_x)
-  coor_y = pos(ind_y)
-  coor_z = pos(ind_z)
+   coor_x = pos(ind_x)
+   coor_y = pos(ind_y)
+   coor_z = pos(ind_z)
 
-  ! cosphi = coor_y / norm2(pos)
-  ! sinphi = coor_x / norm2(pos)
-  
-  radius = norm2(pos)
-  theta = acos(coor_z/radius)
-  phi = atan2(coor_y,coor_x)
+   ! cosphi = coor_y / norm2(pos)
+   ! sinphi = coor_x / norm2(pos)
+   
+   radius = norm2(pos)
+   theta = acos(coor_z/radius)
+   phi = atan2(coor_y,coor_x)
 
-  sintheta = sin(theta)
-  costheta = cos(theta)
-  sinphi = sin(phi)
-  cosphi = cos(phi)
+   sintheta = sin(theta)
+   costheta = cos(theta)
+   sinphi = sin(phi)
+   cosphi = cos(phi)
 
-  ! costheta = coor_z/norm2(pos)
-  ! sintheta = sqrt(coor_x**2+coor_y**2)/norm2(pos)
+   ! costheta = coor_z/norm2(pos)
+   ! sintheta = sqrt(coor_x**2+coor_y**2)/norm2(pos)
 
-  ! output vector
-  ! vel_vec(1) = vr * costheta * cosphi - vtheta * sintheta * cosphi
-  ! vel_vec(2) = vr * costheta * sinphi - vtheta * sintheta * sinphi
-  ! vel_vec(3) = vr * sintheta + vtheta * costheta
+   ! output vector
+   ! vel_vec(1) = vr * costheta * cosphi - vtheta * sintheta * cosphi
+   ! vel_vec(2) = vr * costheta * sinphi - vtheta * sintheta * sinphi
+   ! vel_vec(3) = vr * sintheta + vtheta * costheta
 
-  ! vel_vec(ind_x) = vr * costheta * cosphi - vtheta * cosphi
-  vel_vec(ind_x) = vr * sintheta * cosphi + vtheta * costheta * cosphi 
-  vel_vec(ind_y) = vr * sintheta * sinphi + vtheta * costheta * sinphi
-  vel_vec(ind_z) = vr * costheta - vtheta * sintheta
+   ! vel_vec(ind_x) = vr * costheta * cosphi - vtheta * cosphi
+   vel_vec(ind_x) = vr * sintheta * cosphi + vtheta * costheta * cosphi 
+   vel_vec(ind_y) = vr * sintheta * sinphi + vtheta * costheta * sinphi
+   vel_vec(ind_z) = vr * costheta - vtheta * sintheta
 
 
-  ! vel_vec(ind_y) = vr * costheta * sinphi - vtheta * sinphi
-  ! vel_vec(ind_z) = vr * sintheta
+   ! vel_vec(ind_y) = vr * costheta * sinphi - vtheta * sinphi
+   ! vel_vec(ind_z) = vr * sintheta
+  ELSE IF(inputmodel == 2) THEN
+   vr = model_grid(mod_index)%vel
+   vz = model_grid(mod_index)%velz
+   vel_vec(ind_x) = vr * pos(ind_x)/sqrt(pos(ind_x)**2+pos(ind_y)**2)
+   vel_vec(ind_y) = vr * pos(ind_y)/sqrt(pos(ind_x)**2+pos(ind_y)**2)
+   vel_vec(ind_z) = vz
+  END IF
  
  !________________________________________________________
  CASE(3)

@@ -25,6 +25,8 @@ DOUBLE PRECISION, PARAMETER                :: meanAtMass = 1.33
 INTEGER                                         :: reading_grid
 INTEGER, DIMENSION(1)                           :: ind_min, ind_max
 DOUBLE PRECISION                                :: unit_length, unit_velocity, unit_density
+DOUBLE PRECISION                                :: min_radius
+
 
 modelfile=TRIM(inputmodelFile)
 unit_length = 12.64759321736591 * const_Rsun
@@ -39,6 +41,7 @@ unit_density = 1.41314878888978971775872825028550241D-0006
  OPEN (UNIT=11, FILE=modelfile)
  READ(11,*) T_eff
  READ(11,*) R_star
+ min_radius = 1.5 * R_star
  ! READ(11,*) R_inf
  ! READ(11,*) V_inf
  ! READ(11,*) V_inf
@@ -59,7 +62,7 @@ unit_density = 1.41314878888978971775872825028550241D-0006
   DO 
    READ(11, *, iostat = reading_grid) r, junk
    IF(reading_grid /= 0) EXIT
-   IF(r * unit_length < R_star) cycle
+   IF(r * unit_length < min_radius) cycle
    n_modelgrid = n_modelgrid + 1
   END DO
   ALLOCATE(model_grid(n_modelgrid + add_mg))
@@ -73,7 +76,7 @@ unit_density = 1.41314878888978971775872825028550241D-0006
      ! Maybe better to calculate at the midle of the grid cell rather then at the outer boundary 
      IF(ind_I == n_modelgrid) EXIT
      READ(11,*) r, velo_r, velo_theta, dens, temp!, massfrac
-     IF(r * unit_length < R_star) cycle
+     IF(r * unit_length < min_radius) cycle
      ind_I = ind_I + 1
      model_grid(ind_I)%rwind = r * unit_length
      model_grid(ind_I)%vel = velo_r
