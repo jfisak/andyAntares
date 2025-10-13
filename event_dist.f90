@@ -37,7 +37,7 @@ USE constants
  DOUBLE PRECISION                       :: ran2
  ! looking for next line
  LOGICAL                                :: procout=.FALSE.
- LOGICAL                                :: inCell, tooRed = .FALSE.
+ LOGICAL                                :: inCell
  LOGICAL                                :: raninit
  INTEGER                           :: lastLine
  INTEGER                           :: nloop
@@ -111,7 +111,7 @@ DO WHILE (do_loop)
  CALL next_line_bluered(cur_approx, pack_index, cell_dist, lastLine, nextLine, n_next_lines)
  ! write(*,*) 'event_dist: nextLine = ', nextLine, ' n_next_lines = ', n_next_lines
  ALLOCATE(actirrates%Lline(n_next_lines), actirrates%nline(n_next_lines))
- IF(nextLine < ntransitions + 1) THEN
+ IF(nextLine < ntransitions + 1 .and. nextLine > 0) THEN
   freq_line = linelist(nextLine)%freq
   CALL resonance_distance2(pack_index, nextLine, cell_dist, inCell, l_dist)
   tau_line = 0.D0
@@ -128,7 +128,7 @@ DO WHILE (do_loop)
   ! write(*,*) 'event_dist: l_dist/cell_dist = ', l_dist/cell_dist, ' nextLine = ', nextLine
   ! write(*,*) 'event_dist: tau_line = ', tau_line, ' tau_cont = ', tau_cont, ' tau_rand = ', tau_rand
 
- IF(inCell .AND. nextLine /= ntransitions + 1 .AND. .NOT. tooRed) THEN
+ IF(inCell .AND. nextLine /= ntransitions + 1 .AND. nextLine /= 0) THEN
  
  ! Calculate optical depth in the next line (Sobolev, dv/dr dependent)
  ! and continuum optical depth accumulated up to the line
@@ -146,7 +146,7 @@ DO WHILE (do_loop)
   write(*,*) 'event_dist: tau_line = ', tau_line, ' tau_cont = ', tau_cont, ' tau_rand = ', tau_rand
  end if
  
-  IF(current_mgi .EQ. n_modelgrid + 2) tau_cont = 0.D0
+  IF(current_mgi .EQ. vacuum_index) tau_cont = 0.D0
   ! write(*,*) 'event_dist:', tau_line, tau_cont, tau_rand, tau
  
   ! Now do a step by step analysis of which event occurs and return the 
@@ -168,11 +168,24 @@ DO WHILE (do_loop)
      tau = tau + tau_cont + tau_line
      if(procout) write(*,*) 'event_dist: pack_index = ', pack_index, ' nextLine = ', nextLine
      if(package(pack_index)%redshift) then
-      lastLine = nextLine + n_next_lines - 1
+      lastLine = nextLine - 1
+      IF(nextLine == 1) THEN
+       e_dist = cell_dist + largeNumber
+       do_loop = .FALSE.
+       event = rpkt_eventtype_changecell
+       if(procout) write(*,*) 'event_dist: rpkt_eventtype_changecell'
+      END IF
      else
       lastLine = nextLine - n_next_lines + 1
+      IF(nextLine == ntransitions) THEN
+       e_dist = cell_dist + largeNumber
+       do_loop = .FALSE.
+       event = rpkt_eventtype_changecell
+       if(procout) write(*,*) 'event_dist: rpkt_eventtype_changecell'
+      END IF
      end if
-     if(procout) write(*,*) 'event_dist: choosing next line nextLine = ', nextLine
+     if(procout) write(*,*) 'event_dist: choosing next line nextLine = ', nextLine, ' lastLine = ', lastLine, &
+      ' redshift = ', package(pack_index)%redshift
     ! if #03
     END IF
    ! if #02
