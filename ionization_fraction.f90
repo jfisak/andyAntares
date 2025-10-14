@@ -60,7 +60,10 @@ CASE(0)
    frac = DBLE(tot_N / SUMM)
    ! write(*,*) 'ionization_fraction: fraction = ', frac
    ! IF(frac < 1.D-40) frac = 0
-   IF(isnan(frac)) STOP 'ionization_fraction: frac = NaN'
+   IF(isnan(frac)) THEN
+    write(*,*) 'ionization_fraction: temp = ', temp
+    STOP 'ionization_fraction: frac = NaN'
+   END IF
 CASE DEFAULT
  write(*,*) 'ionization_fraction: nlte = ', nlte
  STOP 'ionization_fraction: this choice is not possible'

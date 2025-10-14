@@ -187,7 +187,7 @@ init_down_cell = actCell
 DO
  ! we have to move to the higher level of the dyncell tree
  ind_J = ind_J + 1
- write(*,*) 'find_dyn_cell1: loop ind_J = ', ind_J, ' cur_cell = ', cur_cell
+ ! write(*,*) 'find_dyn_cell1: loop ind_J = ', ind_J, ' cur_cell = ', cur_cell
  ! IF(cur_cell == dyn_cell(cur_cell)%up_cell) THEN
  !  write(*,*) 'find_dyn_cell1: ERROR upper cell == actCell'
  !  STOP 'find_dyn_cell1'
@@ -213,7 +213,7 @@ DO
   ! is this cell on the top of the dyncell tree?
   IF(dyn_cell(cur_cell)%up_cell == 0) THEN
    obtained_cell = cur_cell
-   write(*,*) 'find_dyn_cell1: obtained_cell = ', obtained_cell
+   ! write(*,*) 'find_dyn_cell1: obtained_cell = ', obtained_cell
    EXIT
   ! we have to move to the higher level of the dyncell tree
   ELSE

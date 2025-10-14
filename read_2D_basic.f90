@@ -58,7 +58,7 @@ unit_density = 1.41314878888978971775872825028550241D-0006
    END IF
   END DO
   R_star = min_radius
-  min_rad = 3 * R_star
+  min_rad = 1.5 * R_star
   write(*,*) 'read_2D_basic: R_star = ', R_star, ' min_rad = ', min_rad
   REWIND(15)
   DO ind_I = 1, maxrows

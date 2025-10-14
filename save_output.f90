@@ -754,7 +754,7 @@ CASE(102)
  write(99,*) '__________________________________________________'
  write(99,*) '_________MODEL GRID DESCRIPTION___________________'
  write(99,*) '__________________________________________________'
- write(99,*) 'R_star = ', R_star/const_Rsun, 'R_inf = ', R_inf/const_Rsun
+ write(99,*) 'R_star = ', R_star, 'R_inf = ', R_inf
 
  write(99,*) '__________________________________________________'
  
@@ -768,10 +768,10 @@ CASE(103)
  write(99,*) '__________________________________________________'
  write(99,*) '_________PROPAGATION GRID DESCRIPTION_____________'
  write(99,*) '__________________________________________________'
- write(99,*) 'xmin = ', xmin/R_star, ' ymin = ', ymin/R_star, ' zmin = ', zmin/R_star
- write(99,*) 'xmax = ', xmax/R_star, ' ymax = ', ymax/R_star, ' zmax = ', zmax/R_star
+ write(99,*) 'xmin/R_* = ', xmin/R_star, ' ymin/R_* = ', ymin/R_star, ' zmin/R_* = ', zmin/R_star
+ write(99,*) 'xmax/R_* = ', xmax/R_star, ' ymax/R_* = ', ymax/R_star, ' zmax/R_* = ', zmax/R_star
  write(99,*) 'nx_cell = ', nx_cell, ' ny_cell = ', ny_cell, ' nz_cell = ', nz_cell
- write(99,*) 'basic cell width = ', basic_cell_width(:)/R_star
+ write(99,*) 'basic cell width/R_* = ', basic_cell_width(:)/R_star
 
 CASE DEFAULT
  write(99,*) 'save_output: this case is not known'

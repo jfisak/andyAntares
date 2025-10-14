@@ -236,7 +236,6 @@ ELSE
  
  IF(debug == 3) write(*,*) 'connecting prop and mod grids'
  CALL connection_prop_model_grid()
- write(*,*) 'main: n_modelgrid = ', n_modelgrid
  IF(debug == 3) write(*,*) 'prop and mod grids are connected'
 END IF ! saved propmod grid
 

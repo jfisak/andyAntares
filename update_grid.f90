@@ -58,8 +58,8 @@ write(99,*) 'updating grid'
  my_end = n_modelgrid
 #endif
 
-write(*,*) 'update_grid: my_rank = ', my_rank, ' n_modelgrid = ', n_modelgrid
-write(*,*) 'update_grid: my_start = ', my_start, ' my_end = ', my_end
+! write(*,*) 'update_grid: my_rank = ', my_rank, ' n_modelgrid = ', n_modelgrid
+! write(*,*) 'update_grid: my_start = ', my_start, ' my_end = ', my_end
 CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
 
 DO cur_mgi = my_start, my_end
@@ -70,6 +70,8 @@ DO cur_mgi = my_start, my_end
   IF (iteration == 1) THEN
    ! Calculate electron number density for every model grid cell gridcell
    IF(eldensfile == 0) THEN
+    ! write(*,*) 'update_grid: cur_mgi = ', cur_mgi, ' n_modelgrid = ', n_modelgrid
+    ! write(*,*) 'update_grid: temp = ', model_grid(cur_mgi)%T
     CALL find_e_nd(cur_mgi, el_nd)
     cur_e_dens(cur_mgi) = el_nd
    END IF
@@ -131,9 +133,9 @@ END DO
   model_grid(:)%T = recv_temp(:)
   model_grid(:)%e_dens = recv_e_dens(:)
  ELSE IF(n_tasks == 1) THEN
-  model_grid(:)%j = cur_j(:)
-  model_grid(:)%T = cur_temp(:)
-  model_grid(:)%e_dens = cur_e_dens(:)
+  model_grid(1:n_modelgrid)%j = cur_j(1:n_modelgrid)
+  model_grid(1:n_modelgrid)%T = cur_temp(1:n_modelgrid)
+  model_grid(1:n_modelgrid)%e_dens = cur_e_dens(1:n_modelgrid)
  END IF
 #endif
 
