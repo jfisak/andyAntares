@@ -1,4 +1,11 @@
 ! red or blue shift
+! 
+! INPUT: pack_index(INT): index of packet
+!        b_dist(DBL): bound distance
+! OUTPUT: rob(LOG): red shift (T), blue shift (F)
+!
+! 1x RETURN point
+!
 FUNCTION rob(pack_index, b_dist)
 
 USE types
@@ -38,6 +45,7 @@ CALL deactivate_dummy_packet(cur_dummypack)
 
 rob = redshift
 
+! RETURN point
 RETURN
 
 END FUNCTION rob

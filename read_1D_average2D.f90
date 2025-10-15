@@ -15,7 +15,7 @@ INTEGER                                   :: ind_I, ind_J, numbions, atom_number
 ! for reading from files
 DOUBLE PRECISION                          :: junk
 INTEGER, PARAMETER                        :: maxrows = 6000000
-DOUBLE PRECISION                          :: r, velo_r, velo_theta, dens, temp
+DOUBLE PRECISION                          :: radius, velo_r, velo_theta, dens, temp
 ! DOUBLE PRECISION, DIMENSION(n_elements)   :: massfrac
 CHARACTER(filename_length)                             :: modelfile
 ! variables which are not needed in the code
@@ -60,9 +60,9 @@ unit_density = 1.41314878888978971775872825028550241D-0006
  ! Cell n_modelgrid+1 is associated to propagation grid cells 
  ! which have no counterpart on the modelgrid  
   DO 
-   READ(11, *, iostat = reading_grid) r, junk
+   READ(11, *, iostat = reading_grid) radius, junk
    IF(reading_grid /= 0) EXIT
-   IF(r * unit_length < min_radius) cycle
+   IF(radius * unit_length < min_radius) cycle
    n_modelgrid = n_modelgrid + 1
   END DO
   ALLOCATE(model_grid(n_modelgrid + add_mg))
@@ -75,10 +75,10 @@ unit_density = 1.41314878888978971775872825028550241D-0006
   DO 
      ! Maybe better to calculate at the midle of the grid cell rather then at the outer boundary 
      IF(ind_I == n_modelgrid) EXIT
-     READ(11,*) r, velo_r, velo_theta, dens, temp!, massfrac
-     IF(r * unit_length < min_radius) cycle
+     READ(11,*) radius, velo_r, velo_theta, dens, temp!, massfrac
+     IF(radius * unit_length < min_radius) cycle
      ind_I = ind_I + 1
-     model_grid(ind_I)%rwind = r * unit_length
+     model_grid(ind_I)%rwind = radius * unit_length
      model_grid(ind_I)%vel = velo_r * unit_velocity
      model_grid(ind_I)%velang = velo_theta * unit_velocity
      model_grid(ind_I)%rho = dens * unit_density

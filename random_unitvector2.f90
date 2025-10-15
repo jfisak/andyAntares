@@ -1,9 +1,15 @@
+! Scatter photon randomly from the photosphere isotropicaly in phi and
+! with distribution function theta*d(theta) in theta
+! INPUT: NONE
+! OUTPUT: direction(DOUBLE(const_dimofspace)): calculated random direciton
+! 
+! 1x RETURN point
+!
 SUBROUTINE random_unitvector2(direction)
      
 USE types
 USE constants
 
-!     Scatter photon randomly from the photosphere isotropicaly in phi and with distribution function theta*d(theta) in theta
 
 IMPLICIT NONE 
 
@@ -21,6 +27,7 @@ direction(ind_y)=sint*sinp
 direction(ind_z)=cost 
 
 
+! RETURN point
 RETURN 
 
 END SUBROUTINE random_unitvector2

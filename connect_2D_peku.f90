@@ -26,7 +26,7 @@ INTEGER, DIMENSION(2)                   :: dummy_var_A, dummy_A, dummy_var_B, du
 INTEGER, ALLOCATABLE                    :: n_points_A(:), n_points_B(:)
 INTEGER, ALLOCATABLE                    :: indices_A(:), indices_B(:)
 
-INTEGER                                 :: ind_I, ind_J
+INTEGER                                 :: ind_I
 INTEGER                                 :: cur_prop_cell
 INTEGER                                 :: cur_vmg_A, cur_vmg_B
 INTEGER                                 :: n_zeros, n_propgrid
@@ -42,14 +42,8 @@ INTEGER, DIMENSION(n_modelgrid + add_mg) :: cur_n_assoc
 INTEGER                                 :: cur_mgi, cur_VG_point
 DOUBLE PRECISION                        :: cur_VG_r, cur_VG_t, delta, dist, min_point
 
-DOUBLE PRECISION               :: diagonal
 ! loop variables
-INTEGER                        :: cur_propcell, best_index
 ! variables for calculating the shortest distance between
-! propagation and model cell
-DOUBLE PRECISION               :: delta2
-! radial and vertical distance
-DOUBLE PRECISION               :: coor_r, coor_z, coor_r0, phi, phi0, coor_z0
 
 DOUBLE PRECISION, PARAMETER     :: large_number=1.d90
 

@@ -6,6 +6,8 @@
 !        incell(LOG): inCell mode
 ! OUTPUT: NONE
 !
+! 1x RETURN point
+!
 SUBROUTINE oct_neighbors(pack_index, velgridcells, incell)
 
 
@@ -99,6 +101,7 @@ END IF
 DO ind_I = 2,4
  IF(velgridcells(ind_I) < 0) THEN
   incell = .true.
+  ! RETURN point
   RETURN
  END IF
 END DO

@@ -1,3 +1,13 @@
+! calculates random unitvector in an arbitrary direction
+!
+! INPUT: sint(DBL): sin(theta)
+!        cost(DBL): cos(theta)
+!        sinp(DBL): sin(phi)
+!        cosp(DBL): cos(phi)
+! OUTPUT: direction(DBL(const_dimofspace)): random direction
+!
+! 1x RETURN point
+!
   SUBROUTINE random_unitvector1(direction, sint, cost, sinp, cosp)
 
 !     Scatter photon randomly and isotropicaly (in phi and theta) in any direction in the wind
@@ -29,6 +39,7 @@ USE constants
 !      dir=SQRT(norm_direction(1)**2 + norm_direction(2)**2 + norm_direction(3)**2)  
 !      print*, dir
 !      STOP
+      ! RETURN point
       RETURN 
 
   END SUBROUTINE random_unitvector1

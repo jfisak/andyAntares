@@ -3,6 +3,8 @@
 ! INPUT: fileFound(CHAR(filename_length)) -- name of file
 ! OUTPUT: NONE
 !
+! 2x RETURN point
+!
 SUBROUTINE find_populations(fileFound)
 
 USE types
@@ -37,6 +39,7 @@ CALL GET_ENVIRONMENT_VARIABLE("POPULATIONS", populFile)
 IF(populFile == '') THEN
  ! no input data were found, the data will be calculated by the code
  fileFound = .FALSE.
+ ! RETURN point
  RETURN
 ELSE
  ! the code will read the data which will be used for the first iteration
@@ -48,6 +51,7 @@ write(inputfile,"(A, A)") trim(outputfolder), trim(populFile)
 ! user can set the variable POPULATIONS but the file still could not exist
 inquire( file=inputfile, exist=fileFound )
 
+! RETURN point
 IF(.NOT. fileFound) RETURN
 
 OPEN(51,FILE=inputfile)

@@ -15,6 +15,8 @@
 ! INPUT: NONE
 ! OUTPUT: NONE
 !
+! 1x RETURN point
+!
 SUBROUTINE main
 
 USE MPI
@@ -173,6 +175,7 @@ IF(only_brtm) THEN
  IF(debug == 3) write(*,*) 'calling mpi_finalize'
  CALL mpi_finalize(ierr)
 #endif
+ ! RETURN point
  RETURN
 END IF
 

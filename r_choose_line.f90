@@ -1,3 +1,12 @@
+! choose a random line from the list based on the optical depth
+!
+! INPUT: pack_index(INT): index of packet
+!        actirrates(rrates): rates
+!        n_next_lines(INT): number of possible choices
+! OUTPUT: n_chosenline(INT): an index of chosen line
+!
+! RETURN point
+!
 SUBROUTINE r_choose_line(pack_index, actirrates, n_next_lines, n_chosenline)
 
 
@@ -18,6 +27,7 @@ DOUBLE PRECISION                :: tot_lop, summ, ran_numb
 
 IF(n_next_lines == 1) THEN
  n_chosenline = actirrates%nline(1)
+ ! RETURN point
  RETURN
 END IF
 

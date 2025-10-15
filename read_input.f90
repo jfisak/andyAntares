@@ -1,6 +1,13 @@
+! reads input from the file input.dat
+! 
+! INPUT: iseed(INT): random seed
+! OUTPUT: n_pack(INT): number of packets
+! 
+! 1x RETURN point
+!
 SUBROUTINE read_input(n_pack, iseed)
 
-  USE types
+USE types
 USE constants
 
   IMPLICIT NONE
@@ -287,6 +294,7 @@ USE constants
      WRITE (99,'(A,I6)') 'random_seed = ', iseed
   ENDIF
 
+! RETURN point
 RETURN
 
 !! Error branches
