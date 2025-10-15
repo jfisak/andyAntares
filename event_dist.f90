@@ -83,7 +83,7 @@ END DO
 
  ! calculates all continuum opacities
  CALL r_kappa_cont(pack_index, kappa_cont, actirrates)
- kappa_cont = 0.D0
+ ! kappa_cont = 0.D0
 
  ! This is the opacity in co-moving frame. Must be transformed to the lab frame
  ! According to Mihalas and Mihalas Eq. 90.8 this is achieved by 
@@ -110,7 +110,9 @@ DO WHILE (do_loop)
  cur_approx = 1
  CALL next_line_bluered(cur_approx, pack_index, cell_dist, lastLine, nextLine, n_next_lines)
  ! write(*,*) 'event_dist: nextLine = ', nextLine, ' n_next_lines = ', n_next_lines
- ALLOCATE(actirrates%Lline(n_next_lines), actirrates%nline(n_next_lines))
+ IF(n_next_lines > 0) THEN
+  ALLOCATE(actirrates%Lline(n_next_lines), actirrates%nline(n_next_lines))
+ END IF
  IF(nextLine < ntransitions + 1 .and. nextLine > 0) THEN
   freq_line = linelist(nextLine)%freq
   CALL resonance_distance2(pack_index, nextLine, cell_dist, inCell, l_dist)
@@ -124,21 +126,20 @@ DO WHILE (do_loop)
   tau_line = 0.e0
  END IF
 
-  ! write(*,*) 'event_dist: pack_index = ', pack_index, ' l_dist = ', l_dist
-  ! write(*,*) 'event_dist: l_dist/cell_dist = ', l_dist/cell_dist, ' nextLine = ', nextLine
-  ! write(*,*) 'event_dist: tau_line = ', tau_line, ' tau_cont = ', tau_cont, ' tau_rand = ', tau_rand
+ if(procout) then
+  write(*,*) 'event_dist: pack_index = ', pack_index, ' l_dist = ', l_dist
+  write(*,*) 'event_dist: l_dist/cell_dist = ', l_dist/cell_dist, ' nextLine = ', nextLine
+  write(*,*) 'event_dist: tau_line = ', tau_line, ' tau_cont = ', tau_cont, ' tau_rand = ', tau_rand
+ end if
 
  IF(inCell .AND. nextLine /= ntransitions + 1 .AND. nextLine /= 0) THEN
  
+  if(procout) write(*,*) 'event_dist, inCell and next line = ', nextLine
  ! Calculate optical depth in the next line (Sobolev, dv/dr dependent)
  ! and continuum optical depth accumulated up to the line
  !print*, 'before moving package #', pack_index
 
- if(inCell) then
   tau_cont = kappa_cont * l_dist
- else
-  tau_cont = kappa_cont * cell_dist
- end if
 
  
  if(procout) then
@@ -168,21 +169,21 @@ DO WHILE (do_loop)
      tau = tau + tau_cont + tau_line
      if(procout) write(*,*) 'event_dist: pack_index = ', pack_index, ' nextLine = ', nextLine
      if(package(pack_index)%redshift) then
-      lastLine = nextLine - 1
-      IF(nextLine == 1) THEN
-       e_dist = cell_dist + largeNumber
-       do_loop = .FALSE.
-       event = rpkt_eventtype_changecell
-       if(procout) write(*,*) 'event_dist: rpkt_eventtype_changecell'
-      END IF
+      lastLine = nextLine + n_next_lines - 1
+      ! IF(nextLine == 1) THEN
+      !  e_dist = cell_dist + largeNumber
+      !  do_loop = .FALSE.
+      !  event = rpkt_eventtype_changecell
+      !  if(procout) write(*,*) 'event_dist: rpkt_eventtype_changecell'
+      ! END IF
      else
       lastLine = nextLine - n_next_lines + 1
-      IF(nextLine == ntransitions) THEN
-       e_dist = cell_dist + largeNumber
-       do_loop = .FALSE.
-       event = rpkt_eventtype_changecell
-       if(procout) write(*,*) 'event_dist: rpkt_eventtype_changecell'
-      END IF
+      ! IF(nextLine == ntransitions) THEN
+      !  e_dist = cell_dist + largeNumber
+      !  do_loop = .FALSE.
+      !  event = rpkt_eventtype_changecell
+      !  if(procout) write(*,*) 'event_dist: rpkt_eventtype_changecell'
+      ! END IF
      end if
      if(procout) write(*,*) 'event_dist: choosing next line nextLine = ', nextLine, ' lastLine = ', lastLine, &
       ' redshift = ', package(pack_index)%redshift
@@ -213,6 +214,7 @@ DO WHILE (do_loop)
  !   print*, 'cont.process happens',  tau_line, tau_cont
   END IF
  ELSE    
+  if(procout) write(*,*) 'event_dist: too red cmf frequency'
   ! The package cmf frequency is too red to interact to another
   ! line - No line interact anymore
   tau_cont = kappa_cont * (cell_dist - dist)
@@ -230,7 +232,9 @@ DO WHILE (do_loop)
    if(procout) write(*,*) 'event_dist: rpkt_eventtype_continuum 2'
   END IF
  END IF
- DEALLOCATE(actirrates%Lline, actirrates%nline)
+ IF(n_next_lines > 0) THEN
+  DEALLOCATE(actirrates%Lline, actirrates%nline)
+ END IF
  ! write(*,*) 'event_dist: eofloop, do_loop = ', do_loop
 END DO
 ! STOP 'event_dist: testing'  
