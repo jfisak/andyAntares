@@ -8,8 +8,6 @@
 ! OUTPUT: next_line(INT) -- index of a next line
 !         n_lines(INT) -- number of the lines with the same frequency as next_line
 !
-! 2x RETURN point
-!
 SUBROUTINE next_line_bluered(approximation, pack_index, b_dist, init_line, next_line, n_lines)
 
 USE types
@@ -27,10 +25,8 @@ INTEGER                                 :: cur_index
 DOUBLE PRECISION                        :: cur_fline
 
 
-
 LOGICAL                                 :: redshift, rob
 LOGICAL                                 :: pack_redshift
-LOGICAL                                 :: procout = .FALSE.
 
 DOUBLE PRECISION                        :: f_line, f_nextline
 INTEGER, PARAMETER                      :: ind_init_line = 1
@@ -38,26 +34,8 @@ INTEGER, PARAMETER                      :: ind_init_line = 1
 n_lines = 1
 redshift = rob(pack_index, b_dist)
 
-IF(procout) THEN
- write(*,*) 'next_line_bluered: redshift = ', redshift
- write(*,*) 'next_line_bluered: init_line = ', init_line
-END IF
-
-IF(redshift) THEN
- IF(init_line == ntransitions) THEN
-  next_line = ntransitions + 1
-  n_lines = 0
-  ! RETURN point
-  RETURN
- END IF
-ELSE
- IF(init_line == 1) THEN
-  next_line = 0
-  n_lines = 0
-  ! RETURN point
-  RETURN
- END IF
-END IF
+! write(*,*) 'next_line_bluered: redshift = ', redshift
+! write(*,*) 'next_line_bluered: init_line = ', init_line
 
 f_cmf = package(pack_index)%freq_cmf
 pack_redshift = package(pack_index)%redshift
