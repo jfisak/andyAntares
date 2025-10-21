@@ -33,7 +33,6 @@ write(99,*) 'we will read input input data from Petr Kurfurst model of stellar d
 n_modelgrid = 0
 OPEN(UNIT=15,status='old', FILE=inputmodelFile)
  READ(15, *) junk
- READ(15, *) junk
  DO ind_I = 1, maxrows
   READ(15,'(A)',IOSTAT = ios) ch_line
   if(ch_line == '') cycle
@@ -55,7 +54,6 @@ OPEN(UNIT=15,status='old', FILE=inputmodelFile)
 
  ALLOCATE ( model_grid(n_modelgrid + add_mg))
  REWIND(15)
- READ(15, *) T_eff
  READ(15, *) junk
  ind_I = 1
  DO 
@@ -88,7 +86,7 @@ OPEN(UNIT=15,status='old', FILE=inputmodelFile)
   END DO
   ind_I = ind_I + 1
  END DO
- R_star = 1.D2
+ R_star = 1.6D15
  R_inf = MAXVAL(model_grid(:)%rwind)
  model_grid(outerspace_index)%vel = 0.D0
  model_grid(vacuum_index)%vel = 0.D0
