@@ -188,17 +188,14 @@ END DO
  N_single = n_modelgrid/n_tasks
  N_zbytek = n_modelgrid - n_tasks * N_single
  IF(my_rank <= N_zbytek - 1) THEN
-  my_start = my_rank * (N_single + 1) + 1
-  my_end = my_rank * (N_single + 1) + N_single
+  my_start = my_rank * N_single  + my_rank + 1
+  my_end = (my_rank + 1) * N_single + my_rank + 1
  ELSE IF(N_zbytek == 0) THEN
-  my_start = my_rank * (N_single + 1) + 1
-  my_end = my_rank * (N_single + 1) + N_single
- ELSE
+  my_start = my_rank * (N_single) + 1
+  my_end = my_rank * (N_single) + N_single
+ ELSE IF(my_rank > N_zbytek - 1) THEN
   my_start = my_rank * N_single  + N_zbytek + 1
   my_end = (my_rank + 1) * N_single + N_zbytek
- END IF
- IF(my_rank == n_tasks - 1) THEN
-  my_end = n_propgcells
  END IF
 #else
  my_start = 1
