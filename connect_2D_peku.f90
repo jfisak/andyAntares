@@ -185,8 +185,8 @@ END DO
 ! going through model point one by one and calculating the closest point
 
 #if mpi == 1
- N_single = n_modelgrid/n_tasks
- N_zbytek = n_modelgrid - n_tasks * N_single
+ N_single = n_propgcells/n_tasks
+ N_zbytek = n_propgcells - n_tasks * N_single
  IF(my_rank <= N_zbytek - 1) THEN
   my_start = my_rank * N_single  + my_rank + 1
   my_end = (my_rank + 1) * N_single + my_rank + 1
