@@ -39,6 +39,9 @@ USE constants
   sobolev_approximation = 1
   calc_brtm = .FALSE.
   thomson_scattering = .FALSE.
+  T_eff = 0
+  R_star = 0.00D0
+  rstar_init = .false.
 
 ! 001 n_pack
 ! 002 n_nubin
@@ -70,6 +73,7 @@ USE constants
 ! 026 Calculation mode
 ! 028 electron scattering
 ! 029 lower boundary condition
+! 030 lower boundary radius
   DO
     READ (1, '(A)', END=99) LINE
 
@@ -302,11 +306,25 @@ USE constants
      READ (ACTPAR, '(I20)', ERR=94) int_teff
      T_eff = DBLE(int_teff)
      write(*,*) 'read_input: T_eff = ', T_eff
-     IF(T_eff > 0.D0) THEN
+     IF(T_eff > 1.D4) THEN
       write(99,*) 'effective temperature of radiation = ', T_eff
+     ELSE IF(T_eff == 0.D0) THEN
+      write(99,*) 'effective temperature of radiation is random'
      ELSE IF(T_eff < -1.D4) THEN
       write(99,*) 'effective temperature of radiation based on the model grid'
      END IF
+    ! 030 lower boundary radius R_star
+    ELSE IF (ACTPAR .EQ. 'rstar') THEN
+     CALL SARGC (LINE, NPAR)
+     IF (NPAR .LT. 2) GOTO 90
+     CALL SARGV(LINE,2,ACTPAR)
+     READ (ACTPAR, '(e6.2)', ERR=94) R_star
+     IF(R_star == 0.00D0) THEN
+      rstar_init = .false.
+     ELSE
+      rstar_init = .true.
+     END IF
+     write(*,*) 'read_input: rstar_init = ', rstar_init, ' R_star = ', R_star
     END IF
   END DO
 

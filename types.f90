@@ -240,7 +240,7 @@ SAVE
   INTEGER                               :: enable_diffusion
   INTEGER                               :: sobolev_approximation
   LOGICAL                               :: vel_propgrid = .false., vel_modgrid = .true.
-  LOGICAL                               :: thomson_scattering
+  LOGICAL                               :: thomson_scattering, rstar_init
 
 
   DOUBLE PRECISION, PARAMETER           :: beta = 1.3D0

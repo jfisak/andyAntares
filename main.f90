@@ -165,6 +165,12 @@ debug = 0
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 IF(only_brtm) THEN
  write(*,*) 'main: read_propmod_grid'
+ INQUIRE(FILE=propmod_file, EXIST=propmod_file_exists)
+ IF(.not. propmod_file_exists) THEN
+  write(*,*) 'main: error: the propmod_file does not exist'
+  write(*,*) 'main: exiting now'
+  STOP
+ END IF
  CALL read_propmod_grid()
  write(*,*) 'main: brtm'
  wale_min = 6000

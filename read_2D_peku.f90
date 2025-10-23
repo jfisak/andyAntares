@@ -86,7 +86,7 @@ OPEN(UNIT=15,status='old', FILE=inputmodelFile)
   END DO
   ind_I = ind_I + 1
  END DO
- R_star = 1.6D15
+ ! set up of the lower boundary radius
  R_inf = MAXVAL(model_grid(:)%rwind)
  model_grid(outerspace_index)%vel = 0.D0
  model_grid(vacuum_index)%vel = 0.D0
