@@ -321,9 +321,9 @@ END DO ! loop over every propGrid cell to calculate associated modGrid cells
 
 #if mpi == 1
 IF(n_tasks > 1) THEN
- CALL MPI_ALLREDUCE(cur_model_index(:), dyn_cell(:)%model_index, n_propgcells, &
+ CALL MPI_ALLREDUCE(cur_model_index(1:n_propgcells), dyn_cell(1:n_propgcells)%model_index, n_propgcells, &
    MPI_INT, MPI_SUM, mpi_comm_world, ierr)
- CALL MPI_ALLREDUCE(cur_n_assoc(:), model_grid(:)%assoc_cells, n_modelgrid + add_mg, &
+ CALL MPI_ALLREDUCE(cur_n_assoc(1:n_modelgrid + add_mg), model_grid(1:n_modelgrid + add_mg)%assoc_cells, n_modelgrid + add_mg, &
    MPI_INT, MPI_SUM, mpi_comm_world, ierr)
 ELSE IF(n_tasks == 1) THEN
  dyn_cell(:)%model_index = cur_model_index(:)
