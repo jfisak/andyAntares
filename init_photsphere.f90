@@ -23,7 +23,7 @@ DOUBLE PRECISION                      :: R_bound, ran2
 INTEGER, PARAMETER                    :: ind_savephdistr = 12
 LOGICAL                               :: is_diff
 
-IF(T_eff == 0) THEN
+IF(T_eff <= 0) THEN
  homogeneous = .false.
 ELSE
  homogeneous = .true.

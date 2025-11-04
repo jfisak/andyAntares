@@ -29,7 +29,7 @@ INTEGER, ALLOCATABLE                    :: indices_A(:), indices_B(:)
 INTEGER                                 :: ind_I
 INTEGER                                 :: cur_prop_cell
 INTEGER                                 :: cur_vmg_A, cur_vmg_B
-INTEGER                                 :: n_zeros, n_propgrid
+INTEGER                                 :: n_zeros
 
 DOUBLE PRECISION, DIMENSION(2)          :: centre_A, centre_B
 DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: cur_pos
@@ -77,7 +77,7 @@ n_points_A(:) = 0
 n_points_B(:) = 0
 n_zeros = 0
 
-n_propgrid = SIZE(dyn_cell)
+cur_model_index(:) = 0
 
 rmax = MAXVAL(model_grid(:)%rxywind) + 1e1
 rmin = MINVAL(model_grid(:)%rxywind) - 1e1
@@ -329,11 +329,6 @@ ELSE IF(n_tasks == 1) THEN
  dyn_cell(:)%model_index = cur_model_index(:)
  model_grid(:)%assoc_cells = cur_n_assoc(:)
 END IF
-
 #endif
-
-
-
-
 
 END SUBROUTINE connect_2D_peku

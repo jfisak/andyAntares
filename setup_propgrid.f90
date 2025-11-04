@@ -269,20 +269,20 @@ n_propgcells = max_n_dcell
  DO cur_xyz = 1,3
   IF(my_rank == 0) THEN
    DO ind_I = 1, n_tasks - 1
+    CALL MPI_SEND(dyn_cell(:)%upcorner(cur_xyz), n_propgcells, MPI_DOUBLE, ind_I, 0, MPI_COMM_WORLD, ierr)
     CALL MPI_SEND(dyn_cell(:)%corner(cur_xyz), n_propgcells, MPI_DOUBLE, ind_I, 1, MPI_COMM_WORLD, ierr)
     CALL MPI_SEND(dyn_cell(:)%width(cur_xyz), n_propgcells, MPI_DOUBLE, ind_I, 2, MPI_COMM_WORLD, ierr)
     CALL MPI_SEND(dyn_cell(:)%vec_vel(cur_xyz), n_propgcells, MPI_DOUBLE, ind_I, 3, MPI_COMM_WORLD, ierr)
     CALL MPI_SEND(dyn_cell(:)%n_sbgr(cur_xyz), n_propgcells, MPI_INT, ind_I, 4, MPI_COMM_WORLD, ierr)
     CALL MPI_SEND(basic_cell_width(cur_xyz), 1, MPI_DOUBLE, ind_I, 5, MPI_COMM_WORLD, ierr)
-    CALL MPI_SEND(dyn_cell(:)%upcorner(cur_xyz), n_propgcells, MPI_DOUBLE, ind_I, 6, MPI_COMM_WORLD, ierr)
    END DO
   ELSE
+   CALL MPI_RECV(dyn_cell(:)%upcorner(cur_xyz), n_propgcells, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, status, ierr)
    CALL MPI_RECV(dyn_cell(:)%corner(cur_xyz), n_propgcells, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, status, ierr)
    CALL MPI_RECV(dyn_cell(:)%width(cur_xyz), n_propgcells, MPI_DOUBLE, 0, 2, MPI_COMM_WORLD, status, ierr)
    CALL MPI_RECV(dyn_cell(:)%vec_vel(cur_xyz), n_propgcells, MPI_DOUBLE, 0, 3, MPI_COMM_WORLD, status, ierr)
    CALL MPI_RECV(dyn_cell(:)%n_sbgr(cur_xyz), n_propgcells, MPI_INT, 0, 4, MPI_COMM_WORLD, status, ierr)
    CALL MPI_RECV(basic_cell_width(cur_xyz), 1, MPI_DOUBLE, 0, 5, MPI_COMM_WORLD, status, ierr)
-   CALL MPI_RECV(dyn_cell(:)%upcorner(cur_xyz), n_propgcells, MPI_DOUBLE, 0, 6, MPI_COMM_WORLD, status, ierr)
   END IF
   CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
  END DO
