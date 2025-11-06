@@ -78,6 +78,7 @@ n_points_B(:) = 0
 n_zeros = 0
 
 cur_model_index(:) = 0
+cur_n_assoc(:) = 0
 
 rmax = MAXVAL(model_grid(:)%rxywind) + 1e1
 rmin = MINVAL(model_grid(:)%rxywind) - 1e1
