@@ -24,29 +24,33 @@ DO gridcell = 1, n_modelgrid
   temp = model_grid(gridcell)%T
   IF(temp <= 0) CYCLE
   ! write(*,*) 'lte_pops: el_nd = ', el_nd
-  CALL ionization_fraction(indexe, indexi, temp, el_nd, frac)
-  ! Total population number of the element indexe in ionization stage indexi
-  ! and particular gridcell (total number of atoms in particular ionization stage)
-  N_jk = frac * model_grid(gridcell)%rho * model_grid(gridcell)%grid_comp(indexe)%abund / elements(indexe)%atom_mass
-  ! write(*,*) 'lte_pops: frac = ', frac, ' rho = ', model_grid(gridcell)%rho, &
-  !  ' a = ', model_grid(gridcell)%grid_comp(indexe)%abund, ' m_a = ', elements(indexe)%atom_mass
-  ! CALL ionization_fraction(indexe, indexi, temp, el_nd, frac)
-  ! Calculate partition function (tot_part_fun) of element indexe in ionization stage 
-  ! indexi at given temperature temp
-  CALL part_fun(indexe, indexi, temp, tot_part_fun)
-  ! Ground level population number (number density of the atom at ground level)
-  indexl0(1) = MINLOC(elements(indexe)%ions(indexi)%levels(:)%exci_energy,1)
-  gl_pop = ( elements(indexe)%ions(indexi)%levels(indexl0(1))%stat_waight * N_jk ) /  tot_part_fun 
-  ! IF(indexe == 1 .AND. indexi == 1) write(*,*) 'lte_pops: H I = ', frac
-  ! IF(indexe == 1 .AND. indexi == 2) write(*,*) 'lte_pops: H II = ', frac
-  ! write(*,*) 'update_grid: gl_pop = ', gl_pop, ' N_jk = ', N_jk,&
-  !  ' tot_part_fun = ', tot_part_fun, ' temp = ', temp
-  model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%gl_pop = gl_pop
-  IF(N_jk > 1.D-40) THEN
-   model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop = N_jk
-  ELSE
-   model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop = 0.E0
+  IF(nlte == 5) THEN
+   N_jk = model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop
+  ELSE ! the total abundances are calculated from density and abundance
+   CALL ionization_fraction(indexe, indexi, temp, el_nd, frac)
+   ! Total population number of the element indexe in ionization stage indexi
+   ! and particular gridcell (total number of atoms in particular ionization stage)
+   N_jk = frac * model_grid(gridcell)%rho * model_grid(gridcell)%grid_comp(indexe)%abund / elements(indexe)%atom_mass
+   IF(N_jk > 1.D-40) THEN
+    model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop = N_jk
+   ELSE
+    model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%tot_pop = 0.E0
+   END IF! the total abundances are calculated from density and abundance
+   ! write(*,*) 'lte_pops: frac = ', frac, ' rho = ', model_grid(gridcell)%rho, &
+   !  ' a = ', model_grid(gridcell)%grid_comp(indexe)%abund, ' m_a = ', elements(indexe)%atom_mass
+   ! CALL ionization_fraction(indexe, indexi, temp, el_nd, frac)
+   ! Calculate partition function (tot_part_fun) of element indexe in ionization stage 
+   ! indexi at given temperature temp
   END IF
+   ! Ground level population number (number density of the atom at ground level)
+   CALL part_fun(indexe, indexi, temp, tot_part_fun)
+   indexl0(1) = MINLOC(elements(indexe)%ions(indexi)%levels(:)%exci_energy,1)
+   gl_pop = ( elements(indexe)%ions(indexi)%levels(indexl0(1))%stat_waight * N_jk ) /  tot_part_fun 
+   ! IF(indexe == 1 .AND. indexi == 1) write(*,*) 'lte_pops: H I = ', frac
+   ! IF(indexe == 1 .AND. indexi == 2) write(*,*) 'lte_pops: H II = ', frac
+   ! write(*,*) 'update_grid: gl_pop = ', gl_pop, ' N_jk = ', N_jk,&
+   !  ' tot_part_fun = ', tot_part_fun, ' temp = ', temp
+   model_grid(gridcell)%grid_comp(indexe)%grid_ion(indexi)%gl_pop = gl_pop
   ! write(*,*) 'update_grid: indexe = ', indexe, ' indexi = ', indexi, &
   !  ' tot_pop = ', N_jk * frac
   IF(N_jk  > 1.D20) THEN

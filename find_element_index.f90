@@ -23,6 +23,7 @@ DO ind_I = 1, n_elements
  END IF
 END DO
 
-STOP 'find_element_index: no valid element was found'
+! in the case that the element has not been found
+indexe = -1
 
 END SUBROUTINE find_element_index

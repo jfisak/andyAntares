@@ -21,43 +21,61 @@ INTEGER                                   :: ind_I, ind_J, numbions, atom_number
 ! for reading from files
 INTEGER                                   :: ios
 INTEGER, PARAMETER                        :: maxrows = 6000000
-DOUBLE PRECISION                          :: r, velo, dens, temp
+DOUBLE PRECISION                          :: radius, velo, dens, temp_e, temp_rad, e_dens
 ! DOUBLE PRECISION, DIMENSION(n_elements)   :: massfrac
 ! variables which are not needed in the code
 !DOUBLE PRECISION                          :: delta_r, delta, delta2, tot_nd, tot_md
 ! (2) PoWR model
-CHARACTER(filename_length)                             :: line
+CHARACTER(filename_length)                             :: line, junk, ion_file
 DOUBLE PRECISION, PARAMETER                :: meanAtMass = 1.33
+DOUBLE PRECISION                          :: pop_HI, pop_HII
+DOUBLE PRECISION                          :: pop_HeI, pop_HeII, pop_HeIII
+DOUBLE PRECISION                          :: pop_NIII, pop_NIV, pop_NV, pop_NVI
+DOUBLE PRECISION                          :: pop_CIII, pop_CIV, pop_CV, pop_CVI
+DOUBLE PRECISION                          :: pop_OII, pop_OIII, pop_OIV, pop_OV, pop_OVI
+DOUBLE PRECISION                          :: pop_S_IV, pop_S_V, pop_S_VI, pop_S_VII
+DOUBLE PRECISION                          :: pop_MgII, pop_MgIII, pop_MgIV, pop_MgV
+DOUBLE PRECISION                          :: pop_SiIII, pop_SiIV, pop_SiV, pop_SiVI, pop_SiVII
+DOUBLE PRECISION                          :: pop_PIV, pop_PV, pop_PVI
+DOUBLE PRECISION                          :: pop_G2, pop_G3, pop_G4, pop_G5, pop_G6, pop_G7
+integer                                   :: cur_el_index
 
 write(99,*) 'we will read the TESTCASE from the PoWR code...'
-R_star = 20.066 * const_Rsun
-T_eff = 37000
+write(99,*) 'read_1D_PoWR: powrfile = ', inputmodelFile
+
+! settings for the selected model
 add_mg = 2
-write(*,*) 'read_1D_PoWR: powrfile = ', inputmodelFile
+! beta velocity field
+beta = 1.01
+V_inf = 2407E5
+
+
+
 n_modelgrid = 0
 OPEN(UNIT=11, STATUS="old", FILE=inputmodelFile)
+read(11, *, IOSTAT=ios) junk
 DO
- read(11, *, IOSTAT=ios) line
+ read(11, "(A)", IOSTAT=ios) line
+ write(*,*) 'read_1D_PoWR: line = ', line
  IF (ios /= 0) EXIT
  n_modelgrid = n_modelgrid + 1
 END DO
 ALLOCATE (model_grid(n_modelgrid + add_mg))
 write(99,*) 'read_1D_PoWR: n_modelgrid = ', n_modelgrid
+! write(*,*) 'read_1D_PoWR: n_modelgrid = ', n_modelgrid
 REWIND(11)
+read(11, *, IOSTAT=ios) junk
 DO ind_I=1,n_modelgrid
- READ(11,*) r, velo, dens, temp
- ! write(*,*) 'read_1D_PoWR: ind_I = ', ind_I, ' r = ', r, ' velo = ', velo, ' dens = ', dens, ' temp = ', temp
- model_grid(ind_I)%rwind = r * R_star
- model_grid(ind_I)%vel = velo * 1.E5
- model_grid(ind_I)%rho = dens * meanAtMass * const_mp_g
- model_grid(ind_I)%T = temp 
+ READ(11,*) radius, temp_e, temp_rad, dens, junk, e_dens
+ ! write(*,*) 'read_1D_PoWR: ind_I = ', ind_I, ' r = ', radius, ' dens = ', dens, ' temp = ', temp_e
+ model_grid(ind_I)%rwind = radius
+ model_grid(ind_I)%rho = dens
+ model_grid(ind_I)%T = temp_rad
+ model_grid(ind_I)%Trad = temp_rad
+ model_grid(ind_I)%Tele = temp_e
  model_grid(ind_I)%J = 0.D0 
+ model_grid(ind_I)%e_dens = e_dens
  model_grid(ind_I)%assoc_cells = 0
- ! print*, 'read_1D_PoWR: testing model grid...'
- ! print*, 'read_1D_PoWR: ', I, model_grid(I)%rwind, model_grid(I)%vel, &
- !  model_grid(I)%rho, model_grid(I)%T, model_grid(I)%J, &
- !  model_grid(I)%assoc_cells
- !IF (ind_I /= 1) print*, 'delta r: ', model_grid(I)%rwind - model_grid(I-1)%rwind
  ALLOCATE (model_grid(ind_I)%grid_comp(n_elements))
  DO ind_J = 1, n_elements      
   numbions = elements(ind_J)%nions
@@ -69,9 +87,9 @@ DO ind_I=1,n_modelgrid
   !model_grid(ind_I)%grid_comp(ind_J)%numb_den = tot_nd
  END DO
 END DO
-R_inf  = model_grid(1)%rwind
-write(*,*) 'read_1D_PoWR: R_inf = ', R_inf / R_star
-V_inf  = model_grid(1)%vel
+R_star  = MINVAL(model_grid(1:n_modelgrid)%rwind)
+R_inf = MAXVAL(model_grid(1:n_modelgrid)%rwind)
+write(*,*) 'read_1D_PoWR: R_star = ', R_star, ' R_inf = ', R_inf / R_star
 outerspace_index = n_modelgrid + 1
 photosphere_index = n_modelgrid + 2
 ! write(99,*) 'read_1D_PoWR: R_star = ', R_star, ' R_inf = ', R_inf
@@ -87,5 +105,58 @@ model_grid(photosphere_index)%vel   = 0.D0
 model_grid(photosphere_index)%rho   = 0.D0     
 CLOSE(11)
 ! STOP 'read_1D_PoWR: testing...'
+
+! read ionization fractions from the population file
+IF(nlte == 5) THEN
+ ion_file = 'popnums.dat'
+ ! columns according to the ion
+ ! H I   H II
+ ! He I  He II   He III
+ ! N III N IV    N V      N VI
+ ! C III C IV    C V     C VI
+ ! O II  O III   O IV    O V     O VI
+ ! S IV  S V     S VI    S VII
+ ! Mg II Mg III  Mg IV   Mg V
+ ! Si III Si IV  Si V    Si VI Si VII
+ ! P IV  P V     P VI
+ ! general element
+ ! G2    G3      G4     G5      G6      G7
+ OPEN(11, STATUS="old", FILE=ion_file)
+  READ(11, *) junk
+  DO ind_I = 1, n_modelgrid
+   READ(11, "(A)", IOSTAT=ios) line
+   ! WRITE(*,*) 'read_1D_PoWR: line = ', line
+   ! H I, H II
+    READ(line,*) pop_HI, pop_HII, pop_HeI, pop_HeII, pop_HeIII, &
+                 pop_NIII, pop_NIV, pop_NV, pop_NVI, &
+                 pop_CIII, pop_CIV, pop_CV, pop_CVI, &
+                 pop_OII, pop_OIII, pop_OIV, pop_OV, pop_OVI, &
+                 pop_S_IV, pop_S_V, pop_S_VI, pop_S_VII, &
+                 pop_MgII, pop_MgIII, pop_MgIV, pop_MgV, &
+                 pop_SiIII, pop_SiIV, pop_SiV, pop_SiVI, pop_SiVII, &
+                 pop_PIV, pop_PV, pop_PVI, junk
+                 !pop_G2, pop_G3, pop_G4, pop_G5, pop_G6, pop_G7
+   ! now we only use hydrogen and helium
+   CALL find_element_index(1, cur_el_index)
+   model_grid(ind_I)%grid_comp(cur_el_index)%grid_ion(1)%tot_pop = pop_HI
+   model_grid(ind_I)%grid_comp(cur_el_index)%grid_ion(2)%tot_pop = pop_HII
+   CALL find_element_index(2, cur_el_index)
+   model_grid(ind_I)%grid_comp(cur_el_index)%grid_ion(1)%tot_pop = pop_HeI
+   model_grid(ind_I)%grid_comp(cur_el_index)%grid_ion(2)%tot_pop = pop_HeII
+   model_grid(ind_I)%grid_comp(cur_el_index)%grid_ion(3)%tot_pop = pop_HeIII
+  END DO
+ 
+ 
+ 
+ 
+ CLOSE(11)
+ ! STOP 'read_1D_PoWR: testing'
+
+END IF
+
+
+
+
+
 
 END SUBROUTINE read_1D_PoWR

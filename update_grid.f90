@@ -73,12 +73,16 @@ DO cur_mgi = my_start, my_end
    IF(eldensfile == 0) THEN
     ! write(*,*) 'update_grid: cur_mgi = ', cur_mgi, ' n_modelgrid = ', n_modelgrid
     ! write(*,*) 'update_grid: temp = ', model_grid(cur_mgi)%T
-    CALL find_e_nd(cur_mgi, el_nd)
-    cur_e_dens(cur_mgi) = el_nd
+    IF(nlte /= 5) THEN ! nlte = 5 == the electron densities are read from the model file
+     CALL find_e_nd(cur_mgi, el_nd)
+     cur_e_dens(cur_mgi) = el_nd
+    END IF
    END IF
    ! reading the temperature structure
    cur_temp(cur_mgi) = model_grid(cur_mgi)%T
-  ELSE ! iteration > 1
+  !___________________________________________________________________________________________
+  ! iteration > 1
+  ELSE 
    ! Energy density contributed to the model grid cell 
    cur_j(cur_mgi) = model_grid(cur_mgi)%J / model_grid(cur_mgi)%volume / (4 * const_pi)
    temp = (model_grid(cur_mgi)%J * const_pi / const_stefbolz )**(1./4.) 
@@ -123,33 +127,21 @@ END DO
 ! END DO
 
  IF(n_tasks > 1) THEN
-  ! DO cur_mgi = 1, n_modelgrid
-  !  IF(my_rank == 0) THEN
-  !   DO ind_I = 1, n_tasks - 1
-  !    CALL MPI_SEND(cur_j(cur_mgi), 1, MPI_DOUBLE, ind_I, 1, MPI_COMM_WORLD, ierr)
-  !    CALL MPI_SEND(cur_temp(cur_mgi), 1, MPI_DOUBLE, ind_I, 2, MPI_COMM_WORLD, ierr)
-  !    CALL MPI_SEND(cur_e_dens(cur_mgi), 1, MPI_DOUBLE, ind_I, 3, MPI_COMM_WORLD, ierr)
-  !   END DO
-  !  ELSE
-  !   CALL MPI_RECV(model_grid(cur_mgi)%j, 1, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, status, ierr)
-  !   CALL MPI_RECV(model_grid(cur_mgi)%T, 1, MPI_DOUBLE, 0, 2, MPI_COMM_WORLD, status, ierr)
-  !   CALL MPI_RECV(model_grid(cur_mgi)%e_dens, 1, MPI_DOUBLE, 0, 3, MPI_COMM_WORLD, status, ierr)
-  !  END IF
-  !  CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
-  ! END DO
   CALL MPI_ALLREDUCE(cur_j(1:n_modelgrid + add_mg), recv_j(:n_modelgrid + add_mg), n_modelgrid + add_mg, &
    MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
   CALL MPI_ALLREDUCE(cur_temp(1:n_modelgrid + add_mg), recv_temp(1:n_modelgrid + add_mg), n_modelgrid + add_mg, &
    MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
-  CALL MPI_ALLREDUCE(cur_e_dens(1:n_modelgrid + add_mg), recv_e_dens(1:n_modelgrid + add_mg), n_modelgrid + add_mg, &
-   MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
+  IF(nlte /= 5) THEN
+   CALL MPI_ALLREDUCE(cur_e_dens(1:n_modelgrid + add_mg), recv_e_dens(1:n_modelgrid + add_mg), n_modelgrid + add_mg, &
+    MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
+  END IF
   CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
   model_grid(:)%j = recv_j(:)
-  model_grid(:)%T = recv_temp(:)
+  IF(nlte /= 5) model_grid(:)%T = recv_temp(:)
   model_grid(:)%e_dens = recv_e_dens(:)
  ELSE IF(n_tasks == 1) THEN
   model_grid(1:n_modelgrid)%j = cur_j(1:n_modelgrid)
-  model_grid(1:n_modelgrid)%T = cur_temp(1:n_modelgrid)
+  IF(nlte /= 5) model_grid(1:n_modelgrid)%T = cur_temp(1:n_modelgrid)
   model_grid(1:n_modelgrid)%e_dens = cur_e_dens(1:n_modelgrid)
  END IF
 #endif

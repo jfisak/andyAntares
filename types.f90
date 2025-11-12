@@ -7,7 +7,7 @@ SAVE
 ! #endif
 
 
- INTEGER, PARAMETER                 :: filename_length = 500
+ INTEGER, PARAMETER                 :: filename_length = 800
  INTEGER, PARAMETER                    :: const_dimofspace = 3
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -60,6 +60,7 @@ SAVE
      DOUBLE PRECISION                :: J = 0.D0, Irad = 0.D0
      DOUBLE PRECISION, DIMENSION(const_dimofspace)      :: Frad = (/ 0.D0, 0.D0, 0.D0 /)
      DOUBLE PRECISION                :: T = -1.D0, rho = -1.D0, rwind, e_dens = -1.D0
+     DOUBLE PRECISION                :: Tele = -1.D0, Trad = -1.D0
      DOUBLE PRECISION                :: zwind, rxywind, velang = -1.D0
      DOUBLE PRECISION                :: angle = -1.D0, vel = -1.D0, velz = -1.D0
      DOUBLE PRECISION, DIMENSION(const_dimofspace)  :: vec_vel, vec_pos
@@ -243,7 +244,7 @@ SAVE
   LOGICAL                               :: thomson_scattering, rstar_init
 
 
-  DOUBLE PRECISION, PARAMETER           :: beta = 1.3D0
+  real                                 :: beta = 1.0
 
 
 

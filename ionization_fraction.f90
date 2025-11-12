@@ -64,6 +64,9 @@ CASE(0)
     write(*,*) 'ionization_fraction: temp = ', temp
     STOP 'ionization_fraction: frac = NaN'
    END IF
+! the ionization fractions are read from the input model
+CASE(5)
+! nothing to be done here
 CASE DEFAULT
  write(*,*) 'ionization_fraction: nlte = ', nlte
  STOP 'ionization_fraction: this choice is not possible'
