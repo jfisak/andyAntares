@@ -292,7 +292,7 @@ USE constants
      CALL SARGC (LINE, NPAR)
      IF (NPAR .LT. 2) GOTO 90
      CALL SARGV(LINE,2,ACTPAR)
-     READ (ACTPAR, '(A)', ERR=94) set_thomson
+     READ (ACTPAR, '(I1)', ERR=94) set_thomson
      IF(set_thomson == 1) THEN
       thomson_scattering = .TRUE.
      ELSE
