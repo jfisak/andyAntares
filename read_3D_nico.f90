@@ -6,7 +6,7 @@ IMPLICIT NONE
 
 INTEGER                                 :: cur_mgi, n_mgi
 DOUBLE PRECISION                        :: cur_rinf, cur_vinf
-DOUBLE PRECISION                        :: x, y, z, vx, vy, vz, rho, temp, lambda
+DOUBLE PRECISION                        :: var_x, var_y, var_z, vx, vy, vz, rho, temp, lambda
 DOUBLE PRECISION                        :: cur_radius, cur_velocity
 DOUBLE PRECISION                        :: cur_xmax, cur_ymax, cur_zmax
 
@@ -15,7 +15,7 @@ INTEGER                                 :: reading_models
 CHARACTER(500)                           :: line, modelfile
 
 INTEGER                                  :: numbions, atom_number
-INTEGER                                  :: I, J
+INTEGER                                  :: ind_I, ind_J
 
 
 
@@ -67,24 +67,24 @@ OPEN(UNIT=11, FILE=modelfile)
 
   cur_mgi = cur_mgi + 1
 
-  READ(line,*) x, y, z, vx, vy, vz, rho, temp, lambda
+  READ(line,*) var_x, var_y, var_z, vx, vy, vz, rho, temp, lambda
   
-  model_grid(cur_mgi)%vec_pos(1) = x * const_Rsun
-  model_grid(cur_mgi)%vec_pos(2) = y * const_Rsun
-  model_grid(cur_mgi)%vec_pos(3) = z * const_Rsun
-  model_grid(cur_mgi)%rwind = sqrt(x**2 + y**2 + z**2) * const_Rsun
+  model_grid(cur_mgi)%vec_pos(ind_x) = var_x * const_Rsun
+  model_grid(cur_mgi)%vec_pos(ind_y) = var_y * const_Rsun
+  model_grid(cur_mgi)%vec_pos(ind_z) = var_z * const_Rsun
+  model_grid(cur_mgi)%rwind = sqrt(var_x**2 + var_y**2 + var_z**2) * const_Rsun
 
-  cur_radius = const_Rsun * sqrt(x**2 + y**2 + z**2)
+  cur_radius = const_Rsun * sqrt(var_x**2 + var_y**2 + var_z**2)
 
-  model_grid(cur_mgi)%vec_vel(1) = vx
-  model_grid(cur_mgi)%vec_vel(2) = vy
-  model_grid(cur_mgi)%vec_vel(3) = vz
+  model_grid(cur_mgi)%vec_vel(ind_x) = vx
+  model_grid(cur_mgi)%vec_vel(ind_y) = vy
+  model_grid(cur_mgi)%vec_vel(ind_z) = vz
 
   model_grid(cur_mgi)%diff_param = lambda
 
   cur_velocity = sqrt(vx**2 + vy**2 + vz**2)
   IF(cur_velocity > const_c) THEN
-   write(*,*) 'read_3D_nico: the velocity of the point I = ', cur_velocity,&
+   write(*,*) 'read_3D_nico: the velocity of the point ind_I = ', cur_velocity,&
     ' is larger than the speed of light'
    CALL abort()
   END IF
@@ -97,9 +97,9 @@ OPEN(UNIT=11, FILE=modelfile)
    cur_vinf = cur_velocity
   END IF
 
-  IF(abs(x) > cur_xmax) cur_xmax = abs(x)
-  IF(abs(y) > cur_ymax) cur_ymax = abs(y)
-  IF(abs(z) > cur_zmax) cur_zmax = abs(z)
+  IF(abs(var_x) > cur_xmax) cur_xmax = abs(var_x)
+  IF(abs(var_y) > cur_ymax) cur_ymax = abs(var_y)
+  IF(abs(var_z) > cur_zmax) cur_zmax = abs(var_z)
 
   
   model_grid(cur_mgi)%J = 0.D0
@@ -107,15 +107,15 @@ OPEN(UNIT=11, FILE=modelfile)
   model_grid(cur_mgi)%volume = 0.D0
 
   ALLOCATE (model_grid(cur_mgi)%grid_comp(n_elements))
-  DO J = 1, n_elements
-   numbions = elements(J)%nions
-   ALLOCATE (model_grid(cur_mgi)%grid_comp(J)%grid_ion(numbions))
-   atom_number = elements(J)%atom_number
-   !model_grid(I)%grid_comp(J)%abund = massfrac(atom_number)
-   model_grid(cur_mgi)%grid_comp(J)%abund = elements(J)%abundance
+  DO ind_J = 1, n_elements
+   numbions = elements(ind_J)%nions
+   ALLOCATE (model_grid(cur_mgi)%grid_comp(ind_J)%grid_ion(numbions))
+   atom_number = elements(ind_J)%atom_number
+   !model_grid(ind_I)%grid_comp(ind_J)%abund = massfrac(atom_number)
+   model_grid(cur_mgi)%grid_comp(ind_J)%abund = elements(ind_J)%abundance
    !Calculate total number density for included species
-   !tot_nd = model_grid(I)%grid_comp(J)%abund / elements(J)%atom_mass
-   !model_grid(I)%grid_comp(J)%numb_den = tot_nd
+   !tot_nd = model_grid(ind_I)%grid_comp(ind_J)%abund / elements(ind_J)%atom_mass
+   !model_grid(ind_I)%grid_comp(ind_J)%numb_den = tot_nd
   END DO
 
  END DO
@@ -127,14 +127,14 @@ photosphere_index = n_modelgrid + 1
 outerspace_index = n_modelgrid + 2
 vacuum_index = n_modelgrid + 3
 
-DO I = 1, add_mg
- model_grid(n_modelgrid + I)%vec_vel = (/ 0.e0, 0.e0, 0.e0 /)
- model_grid(n_modelgrid + I)%rwind = 0.D0
- model_grid(n_modelgrid + I)%vel   = 0.D0
- model_grid(n_modelgrid + I)%rho   = 0.D0
- model_grid(n_modelgrid + I)%J = 0.D0
- model_grid(n_modelgrid + I)%assoc_cells = 0
- model_grid(n_modelgrid + I)%volume = 0.D0
+DO ind_I = 1, add_mg
+ model_grid(n_modelgrid + ind_I)%vec_vel = (/ 0.e0, 0.e0, 0.e0 /)
+ model_grid(n_modelgrid + ind_I)%rwind = 0.D0
+ model_grid(n_modelgrid + ind_I)%vel   = 0.D0
+ model_grid(n_modelgrid + ind_I)%rho   = 0.D0
+ model_grid(n_modelgrid + ind_I)%J = 0.D0
+ model_grid(n_modelgrid + ind_I)%assoc_cells = 0
+ model_grid(n_modelgrid + ind_I)%volume = 0.D0
 END DO
   
  V_inf = cur_vinf/10.0

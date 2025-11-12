@@ -1,4 +1,10 @@
 ! a functinon for a simple calculation of a round number
+!
+! INPUT: input_number(DBL): input number
+! OUTPUT: NONE
+!
+! 1x RETURN point
+!
 FUNCTION round_number(input_number)
 
 IMPLICIT NONE
@@ -16,6 +22,7 @@ ELSE IF (zbytek >= 0.5) THEN
 END IF
 
  round_number = vysledek
+ ! RETURN point
  RETURN
 
 END FUNCTION

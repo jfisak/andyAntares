@@ -1,7 +1,13 @@
-SUBROUTINE find_e_nd(model_grid_index, el_nd)
-   
 ! Calculation of electron number density iteratively in 
 ! model grid cellmodel_grid_index
+!
+! INPUT: model_grid_index(INT): model grid index
+! OUTPUT: el_nd(DBL): calculated electron number density
+!
+! 1x RETURN point
+!
+SUBROUTINE find_e_nd(model_grid_index, el_nd)
+   
 
   USE types
 USE constants
@@ -16,6 +22,7 @@ USE constants
   IF(model_grid(model_grid_index)%rho == 0.00) THEN
    el_nd = 0.00
    write(*,*) 'find_e_nd: el_nd set to zero'
+   ! RETURN point
    RETURN
   END IF
 

@@ -5,6 +5,8 @@
 ! OUTPUT: cube_pos(DBLE(8, const_dimofspace)) -- position of interpolation points
 !         incell(LOG) -- is the current propGrid cell index < 0
 !
+! 1x RETURN point
+! 
 SUBROUTINE oct_virtcube(pack_index, cube_pos, velgridcells, incell)
 
 USE types
@@ -110,6 +112,7 @@ DO ind_I = 2, 8
  velgridcells(ind_I) = cur_cell
  IF(cur_cell < 0) THEN
   incell = .TRUE.
+  ! RETURN point
   RETURN
  END IF
 END DO

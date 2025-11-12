@@ -1,35 +1,44 @@
-      SUBROUTINE SARGP(TEXT,N,I,AS,AE)
+! The subroutine sargp parses a string.
+! The following are determined:
+! n : the number of arguments and, 
+!         if i is in [1..n],
+! as and ae : start and end index of the i-th argument.
+! Parsing is performed according to the following rules:
+! Spaces are generally ignored
+! (see below for exceptions).
+! Arguments are separated by spaces or commas or “=” or “:”.
+! If an argument is separated by spaces and commas,
+! this is considered a separation.
+! If two commas follow without an argument, i.e. separated by spaces at most,
+! this is considered an empty argument.
+! Characters between two double quotation marks are considered
+! Characters between two double quotation marks are considered
+! to be one argument, even if they contain spaces or commas.
+!  In this case, the quotation marks are
+! not considered to be part of the argument.
+! Interpretation of return values:
+! n: always the number of arguments
+! as=-1 -> No i-th argument was found (i not in [1..n])
+! as=0  -> The i-th argument was empty (e.g. ‘,,’)
+! otherwise : text(as:ae) = i-th argument
+!
+! INPUT: TEXT(CHR(*)): input text
+!        Npoints(INT): number of arguments
+!        AS(INT): position of the first argument
+!        AE(INT): position of the last argument
+! OUTPUT: ind_I(INT): desired argument 
+! 
+! 1x RETURN point
+! 
+SUBROUTINE SARGP(TEXT,Npoints,ind_I,AS,AE)
 
-!**	Die Subroutine sargp zerlegt einen String.
-!**	Ermittelt werden:
-!**	n : die Anzahl der Argumente und, 
-!**     	falls i in [1..n],
-!**	as und ae : Start- und Endindex des i-ten Arguments.
-!**	Geparsed wird nach folgenden Regel:
-!**	Leerzeichen werden grunsaetzlich nicht beachtet
-!**	(Ausnahmen siehe unten).
-!**	Argumente werden durch Leerzeichen oder Komma oder '=' oder ':'
-!**     getrennt.
-!**	Wird ein Argument durch Leerzeichen und Komma getrennt,
-!**     so gilt dies als eine Trennung.
-!**	Folgen zwei Kommata ohne Argument, also hoechstens durch
-!**	Leerzeichen getrennt, gilt dies als Leerargument.
-!**	Zeichen zwischen zwei doppelten Anfuehrungszeichen gelten
-!**	als ein Argument, auch wenn Leerzeichen oder Kommata
-!**	enthalten sind. In diesem Fall werden die Anfuehrungszeichen
-!**	als nicht zum Argument gehoerig betrachtet.
-!**	Interpretaion der Rueckgabewerte:
-!**	n: immer die Anzahl der Argumente
-!**	as=-1 -> Es wurde kein i-tes Argument gefunden (i nicht in [1..n])
-!**	as=0  -> Das i-te Argument war leer (z.B. ",,")
-!**	sonst : text(as:ae) = i-tes Argument
+        IMPLICIT NONE
 
         CHARACTER*(*) TEXT
-        INTEGER N                  ! Out: Anzahl der Argumente
-        INTEGER I                  ! In : gesuchtes Argument
-        INTEGER AS,AE              ! Out: erste u. letzte Position des 
-                                   !         Arguments im String
-
+        INTEGER Npoints                  ! Out: Number of arguments
+        INTEGER ind_I                  ! In : desired argument
+        INTEGER AS,AE              ! first and last position of the
+                                   ! argument in the string
         INTEGER TL,TI
         INTEGER STATE
 
@@ -43,7 +52,7 @@
 !	state=3 -> Argument in '"' aktiv
 
 
-        N=0
+        Npoints=0
         AS=-1
         AE=TL
 
@@ -55,21 +64,21 @@
            IF ((TEXT(TI:TI) .EQ. ',') &
            .OR.(TEXT(TI:TI) .EQ. '=') &
            .OR.(TEXT(TI:TI) .EQ. ':')) THEN
-                            N=N+1
-                            IF (N .EQ. I) THEN
+                            Npoints=Npoints+1
+                            IF (Npoints .EQ. ind_I) THEN
                                 AS=0
                             ENDIF
                             GOTO 100
            ENDIF
            IF (TEXT(TI:TI) .EQ. '"') THEN
-                           N=N+1
-                           IF (N .EQ. I) AS=TI+1
+                           Npoints=Npoints+1
+                           IF (Npoints .EQ. ind_I) AS=TI+1
                            STATE=3
                            GOTO 100
            ENDIF
            STATE=2
-           N=N+1
-           IF (N .EQ. I) AS=TI
+           Npoints = Npoints + 1
+           IF (Npoints .EQ. ind_I) AS=TI
            GOTO 100
         ELSEIF (STATE .EQ. 1) THEN
            IF (TEXT(TI:TI) .EQ. ' ') GOTO 100
@@ -80,26 +89,26 @@
                            GOTO 100
            ENDIF
            IF (TEXT(TI:TI) .EQ. '"') THEN
-                           N=N+1
-                           IF (N .EQ. I) AS=TI+1
+                           Npoints=Npoints+1
+                           IF (Npoints .EQ. ind_I) AS=TI+1
                            STATE=3
                            GOTO 100
            ENDIF
            STATE=2
-           N=N+1
-           IF (N .EQ. I) AS=TI
+           Npoints = Npoints + 1
+           IF (Npoints .EQ. ind_I) AS=TI
            GOTO 100
         ELSEIF (STATE .EQ. 2) THEN
            IF (TEXT(TI:TI) .EQ. ' ') THEN
                           STATE=1
-                          IF (N .EQ. I) AE=TI
+                          IF (Npoints .EQ. ind_I) AE=TI
                           GOTO 100
            ENDIF
            IF ((TEXT(TI:TI) .EQ. ',') &
            .OR.(TEXT(TI:TI) .EQ. '=') &
            .OR.(TEXT(TI:TI) .EQ. ':')) THEN
                           STATE=0
-                          IF (N .EQ. I) AE=TI-1
+                          IF (Npoints .EQ. ind_I) AE=TI-1
                           GOTO 100
            ENDIF
            GOTO 100
@@ -107,12 +116,13 @@
 !***  ! IF (STATE .EQ. 3)
            IF (TEXT(TI:TI) .EQ. '"') THEN
                           STATE=1
-                          IF (N .EQ. I) AE=TI-1
+                          IF (Npoints .EQ. ind_I) AE=TI-1
                           GOTO 100
            ENDIF
         ENDIF
 
 100     CONTINUE
 
+        ! RETURN point
         RETURN
         END

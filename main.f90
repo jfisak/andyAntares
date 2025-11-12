@@ -15,6 +15,8 @@
 ! INPUT: NONE
 ! OUTPUT: NONE
 !
+! 1x RETURN point
+!
 SUBROUTINE main
 
 USE MPI
@@ -152,7 +154,7 @@ saha_const = 5.D-1 * (const_h**2/(2.0*const_pi*const_me_g*const_kB))**1.5
 ! 3 -- progress of the calculation procedure
 ! 4 -- rikd packet dynamics
 ! 5 -- line interactions
-debug = 3
+debug = 0
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -163,6 +165,13 @@ debug = 3
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 IF(only_brtm) THEN
  write(*,*) 'main: read_propmod_grid'
+ write(propmod_file, "(A,A12)") trim(outputfolder), '/propmod.dat'
+ INQUIRE(FILE=propmod_file, EXIST=propmod_file_exists)
+ IF(.not. propmod_file_exists) THEN
+  write(*,*) 'main: error: the propmod_file does not exist'
+  write(*,*) 'main: exiting now'
+  STOP
+ END IF
  CALL read_propmod_grid()
  write(*,*) 'main: brtm'
  wale_min = 6000
@@ -173,6 +182,7 @@ IF(only_brtm) THEN
  IF(debug == 3) write(*,*) 'calling mpi_finalize'
  CALL mpi_finalize(ierr)
 #endif
+ ! RETURN point
  RETURN
 END IF
 
@@ -236,14 +246,13 @@ ELSE
  
  IF(debug == 3) write(*,*) 'connecting prop and mod grids'
  CALL connection_prop_model_grid()
- write(*,*) 'main: n_modelgrid = ', n_modelgrid
  IF(debug == 3) write(*,*) 'prop and mod grids are connected'
 END IF ! saved propmod grid
 
 CALL propmodgrid_diagnostics()
 
 ! save propmod_grid?
-IF(saved_grid == 2 .and. .not. propmod_file_exists .or. saved_grid == 2) THEN
+IF(saved_grid == 2 .and. .not. propmod_file_exists .or. saved_grid == 3) THEN
 #if mpi==1
  IF(my_rank == 0) THEN
 #endif

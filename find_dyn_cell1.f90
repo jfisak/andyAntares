@@ -82,13 +82,13 @@ IF(debug == 2) THEN
 END IF
 
 IF(pos(ind_x) <= xmax .and. bcell(ind_x) == nx_cell + 1) THEN
- bcell(ind_x) = bcell(ind_x) - 1
+ bcell(ind_x) = nx_cell
 END IF
 IF(pos(ind_y) <= xmax .and. bcell(ind_y) == nx_cell + 1) THEN
- bcell(ind_y) = bcell(ind_y) - 1
+ bcell(ind_y) = ny_cell
 END IF
 IF(pos(ind_z) <= xmax .and. bcell(ind_z) == nx_cell + 1) THEN
- bcell(ind_z) = bcell(ind_z) - 1
+ bcell(ind_z) = nz_cell
 END IF
 
 bindex = (bcell(ind_x) - 1) * ny_cell * nz_cell + (bcell(ind_y) - 1) * nz_cell + bcell(ind_z)
@@ -187,7 +187,7 @@ init_down_cell = actCell
 DO
  ! we have to move to the higher level of the dyncell tree
  ind_J = ind_J + 1
- write(*,*) 'find_dyn_cell1: loop ind_J = ', ind_J, ' cur_cell = ', cur_cell
+ ! write(*,*) 'find_dyn_cell1: loop ind_J = ', ind_J, ' cur_cell = ', cur_cell
  ! IF(cur_cell == dyn_cell(cur_cell)%up_cell) THEN
  !  write(*,*) 'find_dyn_cell1: ERROR upper cell == actCell'
  !  STOP 'find_dyn_cell1'
@@ -213,7 +213,7 @@ DO
   ! is this cell on the top of the dyncell tree?
   IF(dyn_cell(cur_cell)%up_cell == 0) THEN
    obtained_cell = cur_cell
-   write(*,*) 'find_dyn_cell1: obtained_cell = ', obtained_cell
+   ! write(*,*) 'find_dyn_cell1: obtained_cell = ', obtained_cell
    EXIT
   ! we have to move to the higher level of the dyncell tree
   ELSE

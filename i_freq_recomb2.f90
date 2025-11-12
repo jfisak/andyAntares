@@ -4,6 +4,15 @@
 ! (number of photoionization data) does exist, because if it does not
 ! exist, the total rate is equal to zero thus no recombination deactivation
 ! is possible to happen
+!
+! INPUT: indexe(INT): element index
+!        indexi(INT): ion index
+!        indexl(INT): level index
+!        pack_index(INT): packet index
+!        population(DBL): population of the given level
+!        ran_frequency(DBL): random frequency
+! OUTPUT: NONE
+!
 SUBROUTINE i_freq_recomb(indexe, indexi, indexl, pack_index, population, ran_frequency)
 USE types
 USE constants
@@ -18,7 +27,7 @@ DOUBLE PRECISION                        :: population
 INTEGER                                 :: act_mgi
 DOUBLE PRECISION                        :: temp
 ! loop variables
-INTEGER                                 :: I
+INTEGER                                 :: ind_I
 INTEGER                                 :: get_package_model_index
 ! variables for integration
 DOUBLE PRECISION                        :: act_freq, act_value, act_sum
@@ -56,9 +65,9 @@ freqt = (MINVAL(elements(indexe)%ions(indexi)%levels(:)%exci_energy) - &
 !ran_frequency = freqt
 !RETURN
 
-DO I = 1, n_points
- IF(freqs(I) > freqt) THEN
-  Istart = I
+DO ind_I = 1, n_points
+ IF(freqs(ind_I) > freqt) THEN
+  Istart = ind_I
   ! write(*,*) 'i_freq_recomb: Istart = ', Istart
   EXIT
  END IF
@@ -134,7 +143,7 @@ act_sum = 0.D0
 fI = (2.0 * h * freqs(n_points) / const_c**2.0) * css(n_points) *&
  exp(-(h * freqs(n_points)) / (const_kB * temp))
 DO I=2, n_points - 1
- ind = n_points - I + 1
+ ind = n_points - ind_I + 1
  fI1 = fI
  fI = (2.0 * h * freqs(ind)**3.0 / const_c**2.0) * css(ind) *&
  exp(-(h * freqs(ind)) / (const_kB * temp))

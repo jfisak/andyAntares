@@ -34,26 +34,44 @@ DOUBLE PRECISION                       :: act_radius, min_radius, max_radius
 INTEGER                                :: max_radius_index
 
 DOUBLE PRECISION                        :: unit_length, unit_velocity, unit_density
+DOUBLE PRECISION                        :: min_rad
 
 unit_length = 12.64759321736591 * const_Rsun
 unit_velocity = 1.D8
 unit_density = 1.41314878888978971775872825028550241D-0006
 
+
+
  add_mg = 3
  write(99,*) 'we will read input input data from the basic 2D model'
  ! firstly we calculate number of rows in the file
  n_modelgrid = 0
-  T_eff = 30000
+ T_eff = 30000
+ min_radius = 1.D99
  OPEN(UNIT=15,status='old', FILE=inputmodelFile)
   DO ind_I = 1, maxrows
-   READ(15,*,IOSTAT = ios) junk, junk, junk, junk, junk, junk
+   READ(15,*,IOSTAT = ios) radius, junk, junk, junk, junk, junk
+   if(ios /= 0) EXIT
+   radius = radius * unit_length
+   IF(radius < min_radius) THEN
+    min_radius = radius
+   END IF
+  END DO
+  R_star = min_radius
+  min_rad = 1.5 * R_star
+  write(*,*) 'read_2D_basic: R_star = ', R_star, ' min_rad = ', min_rad
+  REWIND(15)
+  DO ind_I = 1, maxrows
+   READ(15,*,IOSTAT = ios) radius, junk, junk, junk, junk, junk
    if(ios /= 0) EXIT
    if(ind_I == maxrows) THEN
     write(99,*) 'maximum number of records exceeded in subroutine read_2d_model'
     write(99,*) 'exiting program now...'
     STOP
    end if
-  n_modelgrid = n_modelgrid + 1
+  IF(radius * unit_length > min_rad) THEN
+   n_modelgrid = n_modelgrid + 1
+  END IF
  END DO
  write(99,*) 'mumber of model grids: ', n_modelgrid
  write(*,*) 'mumber of model grids: ', n_modelgrid
@@ -68,37 +86,37 @@ unit_density = 1.41314878888978971775872825028550241D-0006
  vacuum_index = n_modelgrid + 3
 
  REWIND(15)
- DO ind_I = 1, n_modelgrid
-  READ(15,*) radius, perpend, dens, velrad, velang, temp
-  model_grid(ind_I)%rwind = radius * unit_length
-  model_grid(ind_I)%angle = perpend
-  model_grid(ind_I)%vel = velrad * unit_velocity
-  model_grid(ind_I)%velang = velang * unit_velocity
-  model_grid(ind_I)%rho = dens * unit_density
-  model_grid(ind_I)%T = temp
-  model_grid(ind_I)%J = 0.D0
-  model_grid(ind_I)%assoc_cells = 0
-  IF(temp < 1000) STOP 'read_2D_basic: temp < 1000'
-  ALLOCATE (model_grid(ind_I)%grid_comp(n_elements))
-  ! now we add informations about every included element for every model cell
-  DO ind_J = 1, n_elements
-   numbions = elements(ind_J)%nions
-   ALLOCATE (model_grid(ind_I)%grid_comp(ind_J)%grid_ion(numbions))
-   atom_number = elements(ind_J)%atom_number
-   model_grid(ind_I)%grid_comp(ind_J)%abund = elements(ind_J)%abundance
-   !Calculate total number density for included species
-   !tot_nd = model_grid(I)%grid_comp(J)%abund / elements(J)%atom_mass 
-   !model_grid(I)%grid_comp(J)%numb_den = tot_nd
-  END DO
+ ind_I = 0
+ DO 
+  READ(15,*, IOSTAT = ios) radius, perpend, dens, velrad, velang, temp
+  if(ios /= 0) EXIT
+  ! we want a model not starting so deep in photosphere
+  IF(radius * unit_length > min_rad) THEN ! if1
+   ind_I = ind_I + 1
+   model_grid(ind_I)%rwind = radius * unit_length
+   model_grid(ind_I)%angle = perpend
+   model_grid(ind_I)%vel = velrad * unit_velocity
+   model_grid(ind_I)%velang = velang * unit_velocity
+   model_grid(ind_I)%rho = dens * unit_density
+   model_grid(ind_I)%T = temp
+   model_grid(ind_I)%J = 0.D0
+   model_grid(ind_I)%assoc_cells = 0
+   IF(temp < 1000) STOP 'read_2D_basic: temp < 1000'
+   ALLOCATE (model_grid(ind_I)%grid_comp(n_elements))
+   ! now we add informations about every included element for every model cell
+   DO ind_J = 1, n_elements
+    numbions = elements(ind_J)%nions
+    ALLOCATE (model_grid(ind_I)%grid_comp(ind_J)%grid_ion(numbions))
+    atom_number = elements(ind_J)%atom_number
+    model_grid(ind_I)%grid_comp(ind_J)%abund = elements(ind_J)%abundance
+    !Calculate total number density for included species
+    !tot_nd = model_grid(I)%grid_comp(J)%abund / elements(J)%atom_mass 
+    !model_grid(I)%grid_comp(J)%numb_den = tot_nd
+   END DO
+  END IF ! if1: r * n_r > min_r
  END DO
  CLOSE(15)
  ! calculation of the stellar radius and Rinf
- min_radius = 1.D99
- DO ind_I = 1, n_modelgrid
-  act_radius = model_grid(ind_I)%rwind
-  IF(act_radius < min_radius) min_radius = act_radius
- END DO
- R_star = min_radius
  ! R_inf
  max_radius = 1.D0
  DO ind_I = 1, n_modelgrid

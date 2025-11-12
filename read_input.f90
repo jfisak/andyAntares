@@ -1,16 +1,23 @@
+! reads input from the file input.dat
+! 
+! INPUT: iseed(INT): random seed
+! OUTPUT: n_pack(INT): number of packets
+! 
+! 1x RETURN point
+!
 SUBROUTINE read_input(n_pack, iseed)
 
-  USE types
+USE types
 USE constants
 
   IMPLICIT NONE
 
-  INTEGER    :: n_pack, iseed, idx, npar
+  INTEGER    :: n_pack, iseed, idx, npar, set_thomson
   CHARACTER(LEN=180)  :: LINE, ACTPAR
   CHARACTER(LEN=180)  :: cur_calcmode
   CHARACTER(LEN=filename_length) :: linefile
 
-  INTEGER                               :: calc_brtm_int
+  INTEGER                               :: calc_brtm_int, int_teff
 
   OPEN (UNIT=1, FILE='input.dat', STATUS='OLD')
 
@@ -31,6 +38,10 @@ USE constants
   enable_diffusion = 0
   sobolev_approximation = 1
   calc_brtm = .FALSE.
+  thomson_scattering = .FALSE.
+  T_eff = 0
+  R_star = 0.00D0
+  rstar_init = .false.
 
 ! 001 n_pack
 ! 002 n_nubin
@@ -59,8 +70,10 @@ USE constants
 ! 025 BRTM
 ! 026 Sobolev approximation
 ! 027 Note
-! 028 Calculation mode
-! 029 
+! 026 Calculation mode
+! 028 electron scattering
+! 029 lower boundary condition
+! 030 lower boundary radius
   DO
     READ (1, '(A)', END=99) LINE
 
@@ -274,6 +287,44 @@ USE constants
      IF(oneline) THEN
       singleline_file = linefile
      END IF
+    ! 028 electron scattering
+    ELSE IF (ACTPAR .EQ. 'thomson') THEN
+     CALL SARGC (LINE, NPAR)
+     IF (NPAR .LT. 2) GOTO 90
+     CALL SARGV(LINE,2,ACTPAR)
+     READ (ACTPAR, '(A)', ERR=94) set_thomson
+     IF(set_thomson == 1) THEN
+      thomson_scattering = .TRUE.
+     ELSE
+      thomson_scattering = .FALSE.
+     END IF
+    ! 029 lower boundary condition
+    ELSE IF (ACTPAR .EQ. 'teff') THEN
+     CALL SARGC (LINE, NPAR)
+     IF (NPAR .LT. 2) GOTO 90
+     CALL SARGV(LINE,2,ACTPAR)
+     READ (ACTPAR, '(I20)', ERR=94) int_teff
+     T_eff = DBLE(int_teff)
+     write(*,*) 'read_input: T_eff = ', T_eff
+     IF(T_eff > 1.D4) THEN
+      write(99,*) 'effective temperature of radiation = ', T_eff
+     ELSE IF(T_eff == 0.D0) THEN
+      write(99,*) 'effective temperature of radiation is random'
+     ELSE IF(T_eff < -1.D4) THEN
+      write(99,*) 'effective temperature of radiation based on the model grid'
+     END IF
+    ! 030 lower boundary radius R_star
+    ELSE IF (ACTPAR .EQ. 'rstar') THEN
+     CALL SARGC (LINE, NPAR)
+     IF (NPAR .LT. 2) GOTO 90
+     CALL SARGV(LINE,2,ACTPAR)
+     READ (ACTPAR, '(e6.2)', ERR=94) R_star
+     IF(R_star == 0.00D0) THEN
+      rstar_init = .false.
+     ELSE
+      rstar_init = .true.
+     END IF
+     write(*,*) 'read_input: rstar_init = ', rstar_init, ' R_star = ', R_star
     END IF
   END DO
 
@@ -287,6 +338,7 @@ USE constants
      WRITE (99,'(A,I6)') 'random_seed = ', iseed
   ENDIF
 
+! RETURN point
 RETURN
 
 !! Error branches

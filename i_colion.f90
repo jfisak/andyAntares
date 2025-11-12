@@ -26,11 +26,11 @@ INTEGER                         :: indexe, indexi
 INTEGER                         :: nlevels
 ! grid informations
 INTEGER                         :: current_mgi
-DOUBLE PRECISION                :: el_dens, temp, x
+DOUBLE PRECISION                :: el_dens, temp, var_x
 INTEGER                         :: nfreq
 DOUBLE PRECISION                :: gindex
 INTEGER                         :: get_package_model_index
-INTEGER                         :: I, J
+INTEGER                         :: ind_I, ind_J
 INTEGER                         :: npoints
 DOUBLE PRECISION, PARAMETER     :: coll_const = 1.55D13
 DOUBLE PRECISION, ALLOCATABLE   :: crossfreq(:)
@@ -72,18 +72,18 @@ CASE (1)
    ! frequency
    freq = (elements(indexe)%ions(indexi + 1)%levels(1)%exci_energy - &
            elements(indexe)%ions(indexi)%levels(act_level)%exci_energy) / const_h
-   ! argument of E_1(x)
-   x = (const_h * freq) / (const_kB * temp)
+   ! argument of E_1(var_x)
+   var_x = (const_h * freq) / (const_kB * temp)
    ! exponential integral function (calculation of eif)
-   CALL exp_int_func(1, x, eif)
+   CALL exp_int_func(1, var_x, eif)
    ! photoionization cross section
    !CALL bound_free_rates(pack_index, act_level, rad_rate)
    ! photoionization cross section for the given frequency freq
    crossfreq(:) = elements(indexe)%ions(indexi)%levels(act_level)%photcros(1,:)
    actPoint = 0
-   DO I = 1, nfreq
-    IF(freq > crossfreq(I)) THEN
-     actPoint = I
+   DO ind_I = 1, nfreq
+    IF(freq > crossfreq(ind_I)) THEN
+     actPoint = ind_I
      EXIT
     END IF
    END DO
@@ -109,7 +109,7 @@ CASE (1)
     ELSE IF(indexi > 2) THEN
      gindex = 0.3
     END IF
-    Zion = act_pop * el_dens *coll_const / temp**(1.0/2.0) * gindex * cross_sect * exp(-x) / x 
+    Zion = act_pop * el_dens *coll_const / temp**(1.0/2.0) * gindex * cross_sect * exp(-var_x) / var_x 
     Zion = times * Zion
     !print*, 'collion_rates: Zion = ', Zion
     ! write(*,*) 'i_colion: act_pop = ', act_pop, ' el_dens = ', el_dens, ' temp = ', temp, &
@@ -132,30 +132,30 @@ CASE (1)
    IF(indexi > 1) THEN
     nlevels = SIZE(actirates%Lma_int_reccol)
     !write(*,*) 'i_colion: number of points: ', nlevels
-    DO I = 1, nlevels
-     IF(ALLOCATED(elements(indexe)%ions(indexi - 1)%levels(I)%photcros)) THEN
-      npoints = SIZE(elements(indexe)%ions(indexi - 1)%levels(I)%photcros(1,:))
+    DO ind_I = 1, nlevels
+     IF(ALLOCATED(elements(indexe)%ions(indexi - 1)%levels(ind_I)%photcros)) THEN
+      npoints = SIZE(elements(indexe)%ions(indexi - 1)%levels(ind_I)%photcros(1,:))
      ELSE
       npoints = 0
      END IF
      IF(npoints /= 0) THEN
       ALLOCATE(crossfreq(npoints))
-      crossfreq(1:npoints) = elements(indexe)%ions(indexi - 1)%levels(I)%photcros(1, 1:npoints)
+      crossfreq(1:npoints) = elements(indexe)%ions(indexi - 1)%levels(ind_I)%photcros(1, 1:npoints)
       ! frequency
       freq = (MINVAL(elements(indexe)%ions(indexi)%levels(:)%exci_energy) - &
-              elements(indexe)%ions(indexi - 1)%levels(I)%exci_energy) / const_h
+              elements(indexe)%ions(indexi - 1)%levels(ind_I)%exci_energy) / const_h
       !write(*,*) 'i_colion: excienergy1 = ', &
       ! elements(indexe)%ions(indexi)%levels(act_level)%exci_energy, &
       ! ' excienergy2 =  ',  &
       ! elements(indexe)%ions(indexi - 1)%levels(I)%exci_energy, &
       ! 'freq = ', freq
-      x = (const_h * freq) / (const_kB * temp)
+      var_x = (const_h * freq) / (const_kB * temp)
       ! exponential integral function (calculation of eif)
-      CALL exp_int_func(1, x, eif)
+      CALL exp_int_func(1, var_x, eif)
       actPoint = 0
-      DO J = 1, npoints
-       IF(freq < crossfreq(J)) THEN
-        actPoint = J
+      DO ind_J = 1, npoints
+       IF(freq < crossfreq(ind_J)) THEN
+        actPoint = ind_J
         EXIT
        END IF
       END DO
@@ -163,16 +163,16 @@ CASE (1)
       ! the total rate will be equal to zero
       !write(*,*) 'i_colion: actPoint = ', actPoint
       IF(actPoint == 0 .OR. actPoint == 1) THEN
-       actirates%Lma_int_reccol(I) = 0.D0
-       actirates%Lma_reccol(I) = 0.D0
+       actirates%Lma_int_reccol(ind_I) = 0.D0
+       actirates%Lma_reccol(ind_I) = 0.D0
        DEALLOCATE(crossfreq)
        CYCLE
       END IF
       ! now we have to do a linear interpolation between the points actPoint - 1 and actPoint
-      freq1 = elements(indexe)%ions(indexi - 1)%levels(I)%photcros(1, actPoint - 1)
-      freq2 = elements(indexe)%ions(indexi - 1)%levels(I)%photcros(1, actPoint)
-      func1 = elements(indexe)%ions(indexi - 1)%levels(I)%photcros(2, actPoint - 1)
-      func2 = elements(indexe)%ions(indexi - 1)%levels(I)%photcros(2, actPoint)
+      freq1 = elements(indexe)%ions(indexi - 1)%levels(ind_I)%photcros(1, actPoint - 1)
+      freq2 = elements(indexe)%ions(indexi - 1)%levels(ind_I)%photcros(1, actPoint)
+      func1 = elements(indexe)%ions(indexi - 1)%levels(ind_I)%photcros(2, actPoint - 1)
+      func2 = elements(indexe)%ions(indexi - 1)%levels(ind_I)%photcros(2, actPoint)
       ali = (func1 - func2) / (freq1 - freq2)
       bli = (func2 * freq1 - func1 * freq2) / (freq1 - freq2)
       cross_sect = ali * freq + bli
@@ -185,20 +185,20 @@ CASE (1)
         gindex = 0.3
       END IF
       ! populations calculation
-      CALL populations(indexe, indexi - 1, I, current_mgi, pop_number)
-      exci_energy = elements(indexe)%ions(indexi - 1)%levels(I)%exci_energy
+      CALL populations(indexe, indexi - 1, ind_I, current_mgi, pop_number)
+      exci_energy = elements(indexe)%ions(indexi - 1)%levels(ind_I)%exci_energy
       gr_exci_energy = MINVAL(elements(indexe)%ions(indexi)%levels(:)%exci_energy)
-      stat_weight = elements(indexe)%ions(indexi - 1)%levels(I)%stat_waight
-      actirates%Lma_int_reccol(I) = pop_number * el_dens * coll_const / temp**(1.0/2.0) * gindex * cross_sect * &
-        exp(-x) / x * exci_energy 
-      actirates%Lma_reccol(I) = pop_number * el_dens * coll_const / temp**(1.0/2.0) * gindex * cross_sect * &
-        exp(-x) / x * (gr_exci_energy - exci_energy) 
+      stat_weight = elements(indexe)%ions(indexi - 1)%levels(ind_I)%stat_waight
+      actirates%Lma_int_reccol(ind_I) = pop_number * el_dens * coll_const / temp**(1.0/2.0) * gindex * cross_sect * &
+        exp(-var_x) / var_x * exci_energy 
+      actirates%Lma_reccol(ind_I) = pop_number * el_dens * coll_const / temp**(1.0/2.0) * gindex * cross_sect * &
+        exp(-var_x) / var_x * (gr_exci_energy - exci_energy) 
       !write(*,*) 'i_colion: el = ', indexe, ' ion = ', indexi, ' e - e0 = ', (exci_energy - gr_exci_energy)
       ! for now it will be equal to zero
-      !actirates%Lma_reccol(I) = 0.D0
-      Zintrecomb = Zintrecomb + actirates%Lma_int_reccol(I)
-      Zrecomb = Zrecomb + actirates%Lma_reccol(I)
-      !print*, 'collion_rates: actirates%Lma_reccol = ', actirates%Lma_reccol(I)
+      !actirates%Lma_reccol(ind_I) = 0.D0
+      Zintrecomb = Zintrecomb + actirates%Lma_int_reccol(ind_I)
+      Zrecomb = Zrecomb + actirates%Lma_reccol(ind_I)
+      !print*, 'collion_rates: actirates%Lma_reccol = ', actirates%Lma_reccol(ind_I)
       DEALLOCATE(crossfreq)
      END IF
      !write(*,*) 'i_colion: Zintrecomb = ', Zintrecomb, ' Zrecomb = ', Zrecomb

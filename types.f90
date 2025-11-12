@@ -60,7 +60,8 @@ SAVE
      DOUBLE PRECISION                :: J = 0.D0, Irad = 0.D0
      DOUBLE PRECISION, DIMENSION(const_dimofspace)      :: Frad = (/ 0.D0, 0.D0, 0.D0 /)
      DOUBLE PRECISION                :: T = -1.D0, rho = -1.D0, rwind, e_dens = -1.D0
-     DOUBLE PRECISION                :: zwind, velang = -1.D0, angle = -1.D0, vel = -1.D0
+     DOUBLE PRECISION                :: zwind, rxywind, velang = -1.D0
+     DOUBLE PRECISION                :: angle = -1.D0, vel = -1.D0, velz = -1.D0
      DOUBLE PRECISION, DIMENSION(const_dimofspace)  :: vec_vel, vec_pos
      TYPE(grid_comp_t), ALLOCATABLE  :: grid_comp(:)
      ! is the diffusion approximation recommended?
@@ -239,6 +240,7 @@ SAVE
   INTEGER                               :: enable_diffusion
   INTEGER                               :: sobolev_approximation
   LOGICAL                               :: vel_propgrid = .false., vel_modgrid = .true.
+  LOGICAL                               :: thomson_scattering, rstar_init
 
 
   DOUBLE PRECISION, PARAMETER           :: beta = 1.3D0

@@ -15,7 +15,7 @@ INTEGER                                   :: ind_I, ind_J, numbions, atom_number
 ! for reading from files
 DOUBLE PRECISION                          :: junk
 INTEGER, PARAMETER                        :: maxrows = 6000000
-DOUBLE PRECISION                          :: r, velo_r, velo_theta, dens, temp
+DOUBLE PRECISION                          :: radius, velo_r, velo_theta, dens, temp
 ! DOUBLE PRECISION, DIMENSION(n_elements)   :: massfrac
 CHARACTER(filename_length)                             :: modelfile
 ! variables which are not needed in the code
@@ -24,8 +24,14 @@ CHARACTER(filename_length)                             :: modelfile
 DOUBLE PRECISION, PARAMETER                :: meanAtMass = 1.33
 INTEGER                                         :: reading_grid
 INTEGER, DIMENSION(1)                           :: ind_min, ind_max
+DOUBLE PRECISION                                :: unit_length, unit_velocity, unit_density
+DOUBLE PRECISION                                :: min_radius
+
 
 modelfile=TRIM(inputmodelFile)
+unit_length = 12.64759321736591 * const_Rsun
+unit_velocity = 1.D8
+unit_density = 1.41314878888978971775872825028550241D-0006
 
 ! case
 ! (1)
@@ -34,7 +40,8 @@ modelfile=TRIM(inputmodelFile)
 
  OPEN (UNIT=11, FILE=modelfile)
  READ(11,*) T_eff
- ! READ(11,*) R_star
+ READ(11,*) R_star
+ min_radius = 1.5 * R_star
  ! READ(11,*) R_inf
  ! READ(11,*) V_inf
  ! READ(11,*) V_inf
@@ -53,23 +60,28 @@ modelfile=TRIM(inputmodelFile)
  ! Cell n_modelgrid+1 is associated to propagation grid cells 
  ! which have no counterpart on the modelgrid  
   DO 
-   READ(11, *, iostat = reading_grid) junk
+   READ(11, *, iostat = reading_grid) radius, junk
    IF(reading_grid /= 0) EXIT
+   IF(radius * unit_length < min_radius) cycle
    n_modelgrid = n_modelgrid + 1
   END DO
   ALLOCATE(model_grid(n_modelgrid + add_mg))
   REWIND(11)
   READ(11,*) junk
+  READ(11,*) junk
   ! READ(11,*) junk
   ! READ(11,*) junk
-  ! READ(11,*) junk
-  DO ind_I = 1, n_modelgrid
+  ind_I = 0
+  DO 
      ! Maybe better to calculate at the midle of the grid cell rather then at the outer boundary 
-     READ(11,*) r, velo_r, velo_theta, dens, temp!, massfrac
-     model_grid(ind_I)%rwind = r 
-     model_grid(ind_I)%vel = velo_r
-     model_grid(ind_I)%velang = velo_theta
-     model_grid(ind_I)%rho = dens
+     IF(ind_I == n_modelgrid) EXIT
+     READ(11,*) radius, velo_r, velo_theta, dens, temp!, massfrac
+     IF(radius * unit_length < min_radius) cycle
+     ind_I = ind_I + 1
+     model_grid(ind_I)%rwind = radius * unit_length
+     model_grid(ind_I)%vel = velo_r * unit_velocity
+     model_grid(ind_I)%velang = velo_theta * unit_velocity
+     model_grid(ind_I)%rho = dens * unit_density
      model_grid(ind_I)%T = temp ! should be temp 
      model_grid(ind_I)%J = 0.D0 
      model_grid(ind_I)%assoc_cells = 0
@@ -85,7 +97,6 @@ modelfile=TRIM(inputmodelFile)
   END DO
   CLOSE(11)
 
-  R_star = MINVAL(model_grid(1:n_modelgrid)%rwind)
   R_inf = MAXVAL(model_grid(1:n_modelgrid)%rwind)
   ind_max(1) = MAXLOC(model_grid(:)%rwind,1, MASK=(model_grid(:)%rwind <= R_inf))
   ind_min(1) = MINLOC(model_grid(:)%rwind,1, MASK=(model_grid(:)%rwind >= R_star))

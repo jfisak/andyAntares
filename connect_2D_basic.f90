@@ -58,14 +58,14 @@ max_dist = 2 * sqrt(basic_cell_width(ind_x)**2+basic_cell_width(ind_y)**2+basic_
    N_single = n_propgcells/n_tasks
    N_zbytek = n_propgcells - n_tasks * N_single
    IF(my_rank <= N_zbytek - 1) THEN
-    my_start = my_rank * (N_single + 1) + 1
-    my_end = my_rank * (N_single + 1) + N_single
+    my_start = my_rank * N_single  + my_rank + 1
+    my_end = (my_rank + 1) * N_single + my_rank + 1
    ELSE IF(N_zbytek == 0) THEN
     my_start = my_rank * (N_single) + 1
     my_end = my_rank * (N_single) + N_single
-   ELSE
-    my_start = N_zbytek * (N_single + 1) + (my_rank - N_zbytek - 1) * N_single + 1
-    my_end = N_zbytek * (N_single + 1) + (my_rank - N_zbytek - 1) * N_single + N_single +1
+   ELSE IF(my_rank > N_zbytek - 1) THEN
+    my_start = my_rank * N_single  + N_zbytek + 1
+    my_end = (my_rank + 1) * N_single + N_zbytek
    END IF
 #else
    my_start = 1

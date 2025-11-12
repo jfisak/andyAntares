@@ -28,8 +28,6 @@ write(propmod_file,"(A, A12)") TRIM(outputfolder), '/propmod.dat'
 
 OPEN(49, FILE=propmod_file)
 
-n_modelgrid = SIZE(model_grid)
-
 ! saves the model grid
 write(49,*) n_modelgrid
 write(49,*) T_eff
@@ -70,9 +68,8 @@ DO ind_I = 1, n_modelgrid
 END DO
 
 ! saves the associated propagation grid
-n_propgrid = SIZE(dyn_cell)
-write(49,*) n_propgrid
-DO ind_I = 1, n_propgrid
+write(49,*) n_propgcells
+DO ind_I = 1, n_propgcells
  pos = dyn_cell(ind_I)%corner
  width = dyn_cell(ind_I)%width
  up_cell = dyn_cell(ind_I)%up_cell

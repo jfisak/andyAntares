@@ -16,10 +16,11 @@ LOGICAL                 :: wasFound
 INTEGER                                 :: N_single, N_zbytek, N_tot_zbytek
 INTEGER                                 :: cur_mgi
 INTEGER                                 :: my_start, my_end
-! INTEGER                                 :: status(MPI_STATUS_SIZE)
+INTEGER                                 :: status(MPI_STATUS_SIZE)
 
 LOGICAL                                 :: propmod_file_exists
 CHARACTER(filename_length)                           :: propmod_file
+INTEGER                                 :: ind_I
 
 INTEGER                                 :: cur_n_assoccells
 ! DOUBLE PRECISION                        :: test_temp
@@ -41,14 +42,14 @@ write(99,*) 'updating grid'
  IF(N_zbytek /= 0) N_tot_zbytek = (N_zbytek + 1) * (N_single + 1) + N_zbytek
  write(*,*) 'update_grid: N_single = ', N_single, ' N_zbytek = ', N_zbytek
  IF(my_rank <= N_zbytek - 1) THEN
-  my_start = my_rank * (N_single + 1) + my_rank + 1
-  my_end = (my_rank + 1) * (N_single + 1) + N_single
+  my_start = my_rank * N_single  + my_rank + 1
+  my_end = (my_rank + 1) * N_single + my_rank + 1
  ELSE IF(N_zbytek == 0) THEN
   my_start = my_rank * N_single + 1
   my_end = (my_rank + 1) * N_single
  ELSE IF(my_rank > N_zbytek - 1) THEN
-  my_start = N_tot_zbytek + 1 + (my_rank - N_zbytek) * N_single + (my_rank - N_zbytek)
-  my_end = N_tot_zbytek + 1 + (my_rank - N_zbytek + 1) * N_single + (my_rank - N_zbytek)
+  my_start = my_rank * N_single  + N_zbytek + 1
+  my_end = (my_rank + 1) * N_single + N_zbytek
  END IF
  IF(my_rank == n_tasks - 1) THEN
   my_end = n_modelgrid
@@ -70,6 +71,8 @@ DO cur_mgi = my_start, my_end
   IF (iteration == 1) THEN
    ! Calculate electron number density for every model grid cell gridcell
    IF(eldensfile == 0) THEN
+    ! write(*,*) 'update_grid: cur_mgi = ', cur_mgi, ' n_modelgrid = ', n_modelgrid
+    ! write(*,*) 'update_grid: temp = ', model_grid(cur_mgi)%T
     CALL find_e_nd(cur_mgi, el_nd)
     cur_e_dens(cur_mgi) = el_nd
    END IF
@@ -120,6 +123,20 @@ END DO
 ! END DO
 
  IF(n_tasks > 1) THEN
+  ! DO cur_mgi = 1, n_modelgrid
+  !  IF(my_rank == 0) THEN
+  !   DO ind_I = 1, n_tasks - 1
+  !    CALL MPI_SEND(cur_j(cur_mgi), 1, MPI_DOUBLE, ind_I, 1, MPI_COMM_WORLD, ierr)
+  !    CALL MPI_SEND(cur_temp(cur_mgi), 1, MPI_DOUBLE, ind_I, 2, MPI_COMM_WORLD, ierr)
+  !    CALL MPI_SEND(cur_e_dens(cur_mgi), 1, MPI_DOUBLE, ind_I, 3, MPI_COMM_WORLD, ierr)
+  !   END DO
+  !  ELSE
+  !   CALL MPI_RECV(model_grid(cur_mgi)%j, 1, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, status, ierr)
+  !   CALL MPI_RECV(model_grid(cur_mgi)%T, 1, MPI_DOUBLE, 0, 2, MPI_COMM_WORLD, status, ierr)
+  !   CALL MPI_RECV(model_grid(cur_mgi)%e_dens, 1, MPI_DOUBLE, 0, 3, MPI_COMM_WORLD, status, ierr)
+  !  END IF
+  !  CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
+  ! END DO
   CALL MPI_ALLREDUCE(cur_j(1:n_modelgrid + add_mg), recv_j(:n_modelgrid + add_mg), n_modelgrid + add_mg, &
    MPI_DOUBLE, MPI_SUM, mpi_comm_world, ierr)
   CALL MPI_ALLREDUCE(cur_temp(1:n_modelgrid + add_mg), recv_temp(1:n_modelgrid + add_mg), n_modelgrid + add_mg, &
@@ -131,9 +148,9 @@ END DO
   model_grid(:)%T = recv_temp(:)
   model_grid(:)%e_dens = recv_e_dens(:)
  ELSE IF(n_tasks == 1) THEN
-  model_grid(:)%j = cur_j(:)
-  model_grid(:)%T = cur_temp(:)
-  model_grid(:)%e_dens = cur_e_dens(:)
+  model_grid(1:n_modelgrid)%j = cur_j(1:n_modelgrid)
+  model_grid(1:n_modelgrid)%T = cur_temp(1:n_modelgrid)
+  model_grid(1:n_modelgrid)%e_dens = cur_e_dens(1:n_modelgrid)
  END IF
 #endif
 

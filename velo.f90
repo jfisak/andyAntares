@@ -49,14 +49,17 @@ IF(norm2(pack_position) <= R_star) THEN
   vel_vec = (/ 0.D0, 0.D0, 0.D0 /)
   ! RETURN POINT
   RETURN
- ELSE
- cur_n = pack_position/norm2(pack_position)
- pack_position = R_star * cur_n
- END IF
- IF(velApprox == 3) THEN
-  cur_n = pack_position/norm2(pack_position)
-  vel_vec = V_star * cur_n
+ ELSE IF(velApprox == 3) THEN
+  IF(norm2(pack_position) /= 0.D0) THEN
+   cur_n = pack_position/norm2(pack_position)
+   vel_vec = V_star * cur_n
+  ELSE
+   vel_vec = (/ 0.D0, 0.D0, 0.D0 /)
+  END IF
   RETURN
+ ELSE
+  cur_n = pack_position/norm2(pack_position)
+  pack_position = R_star * cur_n
  END IF
 ELSE IF(norm2(pack_position) > R_inf) THEN
  cur_n = pack_position/norm2(pack_position)
@@ -158,36 +161,3 @@ END IF
 
 
 END SUBROUTINE velo
-
-
-
-
- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- ! petr kurfurst's disk model
- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!  IF ((model_type .EQ. 2) .AND. (inputmodel .EQ. 1)) THEN
-!   ! we have to know the velocity of matter in the given point
-!   pack_mi = get_package_model_index(pack_index)
-!   vel_rad_norm = model_grid(pack_mi)%vel
-!   vel_ang_norm = model_grid(pack_mi)%velang
-!   ! now we compute given vectors
-!   vel_rad = (/ vel_rad_norm * pack_position(1) / vec_length(pack_position(1)), &
-!              vel_rad_norm * pack_position(2) / vec_length(pack_position(1)), 0.D0 /)
-!   vel_ang = (/ - vel_ang_norm * pack_position(2) / vec_length(pack_position(1)), &
-!              vel_ang_norm * pack_position(1) / vec_length(pack_position(1)), 0.D0 /)
-!   ! and finally the velocity vector
-!   vel_vec = vel_rad + vel_ang
-!  END IF
-! IF ((model_type .EQ. 2) .AND. (inputmodel .EQ. 1)) THEN
-!  ! we have to know the velocity of matter in the given point
-!  pack_mi = get_package_model_index(pack_index)
-!  vel_rad_norm = model_grid(pack_mi)%vel
-!  vel_ang_norm = model_grid(pack_mi)%velang
-!  ! now we compute given vectors
-!  vel_rad = (/ vel_rad_norm * pack_position(1) / vec_length(pack_position(1)), &
-!             vel_rad_norm * pack_position(2) / vec_length(pack_position(1)), 0.D0 /)
-!  vel_ang = (/ - vel_ang_norm * pack_position(2) / vec_length(pack_position(1)), &
-!             vel_ang_norm * pack_position(1) / vec_length(pack_position(1)), 0.D0 /)
-!  ! and finally the velocity vector
-!  vel_vec = vel_rad + vel_ang
-! END IF

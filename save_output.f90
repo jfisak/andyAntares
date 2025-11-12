@@ -587,6 +587,11 @@ write(temp_file_name_velv,"(A, A20)") TRIM(outputfolder), '/propmod_velv_yz.dat'
 cur_pos(ind_x) = x_cov
 ! yz plane
 cur_index = 0
+DEALLOCATE(coverage_matrix_rho, coverage_matrix_t, coverage_matrix_v, coverage_matrix_velv)
+ALLOCATE(coverage_matrix_rho(Ny_cov, Nz_cov), coverage_matrix_t(Ny_cov, Nz_cov), &
+  coverage_matrix_v(Ny_cov * Nz_cov, 2 * const_dimofspace), coverage_matrix_velv(Ny_cov, Nz_cov))
+! write(*,*) 'save_output: Nx_cov = ', Nx_cov, ' Ny_cov = ', Ny_cov, ' Nz_cov = ', Nz_cov
+! STOP 'save_output: testing'
 DO ind_I = 1, Ny_cov
  cur_pos(ind_y) = ((ymax - ymin) * ind_I + (Ny_cov * ymin - ymax))/DBLE(Ny_cov - 1)
  DO ind_J = 1, Nz_cov
@@ -749,7 +754,7 @@ CASE(102)
  write(99,*) '__________________________________________________'
  write(99,*) '_________MODEL GRID DESCRIPTION___________________'
  write(99,*) '__________________________________________________'
- write(99,*) 'R_star = ', R_star/const_Rsun, 'R_inf = ', R_inf/const_Rsun
+ write(99,*) 'R_star = ', R_star, 'R_inf = ', R_inf
 
  write(99,*) '__________________________________________________'
  
@@ -763,10 +768,10 @@ CASE(103)
  write(99,*) '__________________________________________________'
  write(99,*) '_________PROPAGATION GRID DESCRIPTION_____________'
  write(99,*) '__________________________________________________'
- write(99,*) 'xmin = ', xmin/R_star, ' ymin = ', ymin/R_star, ' zmin = ', zmin/R_star
- write(99,*) 'xmax = ', xmax/R_star, ' ymax = ', ymax/R_star, ' zmax = ', zmax/R_star
+ write(99,*) 'xmin/R_* = ', xmin/R_star, ' ymin/R_* = ', ymin/R_star, ' zmin/R_* = ', zmin/R_star
+ write(99,*) 'xmax/R_* = ', xmax/R_star, ' ymax/R_* = ', ymax/R_star, ' zmax/R_* = ', zmax/R_star
  write(99,*) 'nx_cell = ', nx_cell, ' ny_cell = ', ny_cell, ' nz_cell = ', nz_cell
- write(99,*) 'basic cell width = ', basic_cell_width(:)/R_star
+ write(99,*) 'basic cell width/R_* = ', basic_cell_width(:)/R_star
 
 CASE DEFAULT
  write(99,*) 'save_output: this case is not known'

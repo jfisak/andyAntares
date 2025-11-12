@@ -24,7 +24,7 @@ INTEGER                                 :: act_mgi
 DOUBLE PRECISION                        :: temp
 DOUBLE PRECISION                       :: ran2
 ! loop variables
-INTEGER                                 :: I
+INTEGER                                 :: ind_I
 INTEGER                                 :: get_package_model_index
 ! variables for integration
 DOUBLE PRECISION                        :: act_freq, act_value, act_sum
@@ -57,9 +57,9 @@ freqt = (MINVAL(elements(indexe)%ions(indexI)%levels(:)%exci_energy) - &
 ! ran_frequency = freqt
 ! RETURN
 Istart = 0
-DO I = 1, n_points
- IF(freqs(I) > freqt) THEN
-  Istart = I
+DO ind_I = 1, n_points
+ IF(freqs(ind_I) > freqt) THEN
+  Istart = ind_I
   EXIT
  END IF
 END DO
@@ -81,19 +81,19 @@ rand_z = ran2(idum)
 ! write(*,*) 'i_freq_recomb: rand_z = ', rand_z
 
 ! saving field of exponentials, it will speed up the calculation procedure
-DO I=1,n_points
- act_freq = freqs(I)
- exps(I) = exp(-( const_h * act_freq ) / ( const_kB * temp ))
+DO ind_I=1,n_points
+ act_freq = freqs(ind_I)
+ exps(ind_I) = exp(-( const_h * act_freq ) / ( const_kB * temp ))
  ! write(*,*) 'exps(I) = ', exps(I)
 END DO
 ! calculation of the integral value
 act_sum = 0.D0
 ints(Istart) = 0.D0
-DO I=Istart,n_points - 1
+DO ind_I=Istart,n_points - 1
  act_value = 2.D0  * const_h / const_c**2 *&
-  (css(I + 1) * freqs(I + 1)**3 * exps( I + 1) + css(I) * freqs(I)**3 * exps(I)) &
-  * (freqs(I + 1) - freqs(I)) / 2.D0
- ints(I + 1) = act_sum + act_value
+  (css(ind_I + 1) * freqs(ind_I + 1)**3 * exps(ind_I + 1) + css(ind_I) * freqs(ind_I)**3 * exps(ind_I)) &
+  * (freqs(ind_I + 1) - freqs(ind_I)) / 2.D0
+ ints(ind_I + 1) = act_sum + act_value
  act_sum = act_sum + act_value
  ! write(*,*) 'i_freq_recomb: act_sum = ', act_sum
 END DO
@@ -108,11 +108,11 @@ DEALLOCATE(exps)
 ! and if the summed up value is larger than value z*int
 ! we found interval of frequency, where the new frequency is placed
 act_sum = 0.D0
-DO I=Istart + 1,n_points
+DO ind_I=Istart + 1,n_points
  ! write(*,*) 'i_freq_recomb: act_sum = ', act_sum
- IF(ints(I) >= int_value) THEN
-  act_point = I
-  ! write(*,*) 'i_freq_recomb: act_point = ', I
+ IF(ints(ind_I) >= int_value) THEN
+  act_point = ind_I
+  ! write(*,*) 'i_freq_recomb: act_point = ', ind_I
   EXIT
  END IF
 END DO

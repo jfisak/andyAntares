@@ -3,7 +3,8 @@
 ! input: none
 ! output: none (yet)
 !
-!
+! 1x RETURN point
+! 
 SUBROUTINE propmodgrid_diagnostics()
 
 USE types
@@ -114,7 +115,8 @@ ELSE IF(model_type == 3) THEN
 END IF
 ALLOCATE(list_points(np_wewant))
 
-CALL save_output(12)
+! CALL save_output(12)
+! RETURN point
 RETURN
 
 ALLOCATE(radii(np_wewant), thetas(np_wewant), positions(np_wewant + 1,3), vectors(np_wewant,3))

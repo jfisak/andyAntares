@@ -3,6 +3,8 @@
 ! INPUT: NONE
 ! OUTPUT: direction(DBLE(const_dimofspace)): a calculated random direction
 !
+! 1x RETURN point
+!
 SUBROUTINE random_unitvector(direction)
 
 USE types
@@ -25,6 +27,7 @@ direction(ind_x)=sint*cosp
 direction(ind_y)=sint*sinp                       
 direction(ind_z)=cost  
 
+! RETURN point
 RETURN 
 
 END SUBROUTINE random_unitvector

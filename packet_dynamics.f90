@@ -9,10 +9,21 @@ IMPLICIT NONE
 INTEGER                                 :: pack_index
 INTEGER                                 :: pack_type
 INTEGER, PARAMETER                      :: min_n_interact = 2000000
+INTEGER                                 :: testing_counter
+INTEGER, PARAMETER                      :: n_testingloop = 2000000
+DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: cur_pos, old_pos
+DOUBLE PRECISION                                :: cur_dist
+DOUBLE PRECISION, PARAMETER                     :: min_dist = 1.D1
 
 pack_type = package(pack_index)%typ
 
+testing_counter = 0
+
 DO  WHILE (package(pack_index)%active == 1)
+ testing_counter = testing_counter + 1
+ IF(testing_counter == 1) THEN
+  old_pos = package(pack_index)%pos
+ END IF
  IF ((pack_type == type_rpkt) .OR. (pack_type == type_vrpkt)) THEN
   IF(package(pack_index)%n_interactions .EQ. min_n_interact) THEN
    write(*,*) 'package ', pack_index, ' interacted for ', min_n_interact, ' times and will be destroyed...'
@@ -35,6 +46,15 @@ DO  WHILE (package(pack_index)%active == 1)
   CALL do_dpackage(pack_index)
  ELSE
     STOP 'ERROR unknown package typ'
+ END IF
+ IF(testing_counter == n_testingloop) THEN
+  cur_pos = package(pack_index)%pos
+  cur_dist = sqrt((cur_pos(ind_x) - old_pos(ind_x))**2 + (cur_pos(ind_y) - old_pos(ind_y))**2 + &
+   (cur_pos(ind_z) - old_pos(ind_z))**2)
+  IF(cur_dist < min_dist) THEN
+   write(*,*) 'packet_dynamics: packet ', pack_index, ' is stucked'
+   STOP
+  END IF
  END IF
 END DO
 

@@ -133,6 +133,16 @@ LOGICAL                                 :: is_vgrid_A
     vg_zmin = -1.D0
     vg_zmax = 1.D0
     w_vgrid_z = 0.D0
+   ELSE IF(inputmodel == 2) THEN
+    vg_xmin = MINVAL(model_grid(:)%rxywind)
+    vg_xmax = MAXVAL(model_grid(:)%rxywind)
+    w_vgrid_x = (vg_xmax - vg_xmin)/N_vgrid_x
+    vg_ymin = MINVAL(model_grid(:)%zwind)
+    vg_ymax = MAXVAL(model_grid(:)%zwind)
+    w_vgrid_y = (vg_ymax - vg_ymin)/N_vgrid_y
+    vg_zmin = -1.D0
+    vg_zmax = 1.D0
+    w_vgrid_z = 0.D0
    END IF
   END IF
   IF(model_type == 3) THEN
@@ -160,6 +170,10 @@ LOGICAL                                 :: is_vgrid_A
     IF(inputmodel == 1) THEN
      cur_x = model_grid(cur_point)%rwind
      cur_y = model_grid(cur_point)%angle
+     cur_z = 0.D0
+    ELSE IF(inputmodel == 2) then
+     cur_x = model_grid(cur_point)%rxywind
+     cur_y = model_grid(cur_point)%zwind
      cur_z = 0.D0
     END IF
    ELSE IF(model_type == 3) THEN

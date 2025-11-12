@@ -35,7 +35,7 @@ DOUBLE PRECISION                        :: flux_function
 INTEGER                                 :: act_line
 INTEGER                                 :: lower_level, upper_level
 DOUBLE PRECISION                        :: actVal
-INTEGER                                 :: I
+INTEGER                                 :: ind_I
 ! output variables
 DOUBLE PRECISION                        :: Zintdown, Zintup, Zrad
 TYPE(irates)      :: actirates
@@ -89,8 +89,8 @@ CALL deactivate_dummy_packet(cur_dummypack)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !______________________________________________________________________
 ! internal downward jump and radiative deexcitation
-DO I = 1, nlns
- act_line = linetransitions(I)
+DO ind_I = 1, nlns
+ act_line = linetransitions(ind_I)
  lower_level = linelist(act_line)%lower
  upper_level = linelist(act_line)%upper
 
@@ -141,15 +141,15 @@ DO I = 1, nlns
 
 
 
- actirates%Lma_int_dorad(I) = actVal * exci_energy_l
+ actirates%Lma_int_dorad(ind_I) = actVal * exci_energy_l
 
 
 
- IF(actirates%Lma_int_dorad(I) < 0.D0) STOP 'i_radtrans: Lma_int_dorad < 0'
+ IF(actirates%Lma_int_dorad(ind_I) < 0.D0) STOP 'i_radtrans: Lma_int_dorad < 0'
  
- actirates%Lma_rad(I) = actVal * (exci_energy_u - exci_energy_l)
- Zintdown = Zintdown + actirates%Lma_int_dorad(I)
- Zrad = Zrad + actirates%Lma_rad(I)
+ actirates%Lma_rad(ind_I) = actVal * (exci_energy_u - exci_energy_l)
+ Zintdown = Zintdown + actirates%Lma_int_dorad(ind_I)
+ Zrad = Zrad + actirates%Lma_rad(ind_I)
 
  IF(exci_energy_u - exci_energy_l < 0) STOP 'i_radtrans: exci_energy_u - exci_energy_l < 0'
 END DO
@@ -164,9 +164,9 @@ END DO
 ! internal upward jump
 ! write(36,*) 'i_radtrans: nluns = ', nluns
 low_pop = act_pop
-DO I = 1, nluns
+DO ind_I = 1, nluns
 
- act_line = lineuptransitions(I)
+ act_line = lineuptransitions(ind_I)
  lower_level = linelist(act_line)%lower
  upper_level = linelist(act_line)%upper
 
@@ -214,8 +214,8 @@ DO I = 1, nluns
  IF(actVal < 0.D0) STOP 'i_radtrans: (l_pop * Blu - u_pop * Bul) < 0'
 
 
- actirates%Lma_int_uprad(I) = actVal * exci_energy_l
- Zintup = Zintup + actirates%Lma_int_uprad(I)
+ actirates%Lma_int_uprad(ind_I) = actVal * exci_energy_l
+ Zintup = Zintup + actirates%Lma_int_uprad(ind_I)
 
 END DO
 

@@ -4,6 +4,8 @@
 !        indexe(INT) -- element index
 ! OUTPUT: NONE
 !
+! 1x RETURN point
+!
 SUBROUTINE find_element_index(atomic_index, indexe)
 USE types
 USE constants
@@ -16,6 +18,7 @@ INTEGER                                 :: ind_I
 DO ind_I = 1, n_elements
  IF(atomic_index == elements(ind_I)%atom_number) THEN
   indexe = ind_I
+  ! RETURN point
   RETURN
  END IF
 END DO

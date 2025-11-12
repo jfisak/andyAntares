@@ -17,14 +17,15 @@ DOUBLE PRECISION                      :: freq, freq_max, planck, ran_freq, ran_p
 DOUBLE PRECISION                      :: planck_numax, planck_numin
 DOUBLE PRECISION                      :: wale_start, wale_end 
 DOUBLE PRECISION                      :: nu_max, nu_min
-DOUBLE PRECISION                      :: lfreq
+DOUBLE PRECISION                      :: lfreq, lwale
 DOUBLE PRECISION, PARAMETER           :: delta_f = 20 ! Angstrom
 
 
 IF(oneline) THEN
  lfreq = linelist(1)%freq
- wale_start = lfreq - delta_f
- wale_end = lfreq + delta_f
+ lwale = const_c/(lfreq*1.D-8)
+ wale_start = lwale - delta_f
+ wale_end = lwale + delta_f
 ELSE
  wale_start = 200   ! in Angstroms
  wale_end = 20000   ! in Angstroms
