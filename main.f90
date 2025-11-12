@@ -165,6 +165,7 @@ debug = 0
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 IF(only_brtm) THEN
  write(*,*) 'main: read_propmod_grid'
+ write(propmod_file, "(A,A12)") trim(outputfolder), '/propmod.dat'
  INQUIRE(FILE=propmod_file, EXIST=propmod_file_exists)
  IF(.not. propmod_file_exists) THEN
   write(*,*) 'main: error: the propmod_file does not exist'
@@ -251,7 +252,7 @@ END IF ! saved propmod grid
 CALL propmodgrid_diagnostics()
 
 ! save propmod_grid?
-IF(saved_grid == 2 .and. .not. propmod_file_exists .or. saved_grid == 2) THEN
+IF(saved_grid == 2 .and. .not. propmod_file_exists .or. saved_grid == 3) THEN
 #if mpi==1
  IF(my_rank == 0) THEN
 #endif

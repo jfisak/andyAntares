@@ -82,13 +82,13 @@ IF(debug == 2) THEN
 END IF
 
 IF(pos(ind_x) <= xmax .and. bcell(ind_x) == nx_cell + 1) THEN
- bcell(ind_x) = bcell(ind_x) - 1
+ bcell(ind_x) = nx_cell
 END IF
 IF(pos(ind_y) <= xmax .and. bcell(ind_y) == nx_cell + 1) THEN
- bcell(ind_y) = bcell(ind_y) - 1
+ bcell(ind_y) = ny_cell
 END IF
 IF(pos(ind_z) <= xmax .and. bcell(ind_z) == nx_cell + 1) THEN
- bcell(ind_z) = bcell(ind_z) - 1
+ bcell(ind_z) = nz_cell
 END IF
 
 bindex = (bcell(ind_x) - 1) * ny_cell * nz_cell + (bcell(ind_y) - 1) * nz_cell + bcell(ind_z)
