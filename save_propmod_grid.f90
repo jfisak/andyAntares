@@ -15,7 +15,7 @@ CHARACTER(LEN=filename_length)                  :: propmod_file
 
 INTEGER                                         :: n_propgrid
 
-DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: pos, vel, width
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: pos, vel, uppos
 DOUBLE PRECISION                                :: rho, temp, volume, el_dens
 
 INTEGER                                         :: down_cell, up_cell, model_index, assoc_cells
@@ -36,6 +36,7 @@ write(49,*) R_inf
 write(49,*) V_inf
 write(49,*) xmax, ymax, zmax
 write(49,*) nx_cell, ny_cell, nz_cell
+write(49,*) dyngrid
 write(49,*) add_mg
 
 DO ind_I = 1, n_modelgrid
@@ -71,13 +72,13 @@ END DO
 write(49,*) n_propgcells
 DO ind_I = 1, n_propgcells
  pos = dyn_cell(ind_I)%corner
- width = dyn_cell(ind_I)%width
+ uppos = dyn_cell(ind_I)%upcorner
  up_cell = dyn_cell(ind_I)%up_cell
  down_cell = dyn_cell(ind_I)%down_cell
  neighbors = dyn_cell(ind_I)%neighbor
  model_index = dyn_cell(ind_I)%model_index
 
- write(49,*) pos, width, up_cell, down_cell, neighbors, model_index
+ write(49,*) pos, uppos, up_cell, down_cell, neighbors, model_index
 END DO
 
 

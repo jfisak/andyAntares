@@ -12,7 +12,7 @@ IMPLICIT NONE
 INTEGER                                         :: ind_I, ind_J
 CHARACTER(LEN=filename_length)                  :: propmod_file
 
-DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: pos, vel, width
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: pos, vel, uppos
 DOUBLE PRECISION                                :: rho, temp, volume, el_dens
 
 INTEGER                                         :: down_cell, up_cell, model_index
@@ -42,6 +42,7 @@ read(49, *) R_inf
 read(49, *) V_inf
 read(49, *) xmax, ymax, zmax
 read(49, *) Nx, Ny, Nz
+write(49,*) dyngrid
 read(49, *) add_mg
 
 write(*,*) 'read_propmod_grid: n_modelgrid = ', n_modelgrid
@@ -91,17 +92,17 @@ read(49, *) n_propgcells
 write(*,*) 'read_propmod_grid. n_propgcells = ', n_propgcells
 ALLOCATE(dyn_cell(n_propgcells))
 DO ind_I = 1, n_propgcells
- read(49, *) pos, width, up_cell, down_cell, neighbors, model_index
+ read(49, *) pos, uppos, up_cell, down_cell, neighbors, model_index
  
  dyn_cell(ind_I)%corner = pos
- dyn_cell(ind_I)%width = width
+ dyn_cell(ind_I)%upcorner = uppos
  dyn_cell(ind_I)%up_cell = up_cell
  dyn_cell(ind_I)%down_cell = down_cell
  dyn_cell(ind_I)%neighbor = neighbors
  dyn_cell(ind_I)%model_index = model_index
 END DO
 
-basic_cell_width = dyn_cell(1)%width
+basic_cell_width = dyn_cell(1)%upcorner - dyn_cell(1)%corner
 
 
 CLOSE(49)
