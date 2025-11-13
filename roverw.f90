@@ -21,7 +21,7 @@ IMPLICIT NONE
 
 DOUBLE PRECISION                               :: R_pos, V_pos, fr_line
 DOUBLE PRECISION                                :: l_dist
-DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: R_pos_vec
+DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: R_pos_vec, V_pos_vec
 DOUBLE PRECISION                                :: costheta
 ! DOUBLE PRECISION                                :: dV_pos
 INTEGER                                         :: dummypack_index, next_cell, pack_index, cur_dummypack
@@ -76,14 +76,13 @@ ELSE IF(velapprox == 2) THEN
 
  ! according to (10) in Abbot & Lucy (1985)
  ! r
- ! R_pos = norm2(package(dummypack_index)%pos)
- ! ! ||v||
- ! V_pos = V_inf * (1.0 - R_star / R_pos ) ** beta
- ! ! v = (v_x, v_y, v_z)
- ! V_pos_vec = V_pos * package(dummypack_index)%pos / norm2(package(dummypack_index)%pos)
- ! costheta = dot_product(package(dummypack_index)%dir, V_pos_vec) / norm2(V_pos_vec)
- ! ROverW = (V_inf - V_0) / (R_inf - R_star) + 1 / R_pos * (1 - costheta**2.0) * &
- !  (V_0 * R_inf - V_inf * R_star) / (R_inf - R_star)
+ R_pos = norm2(package(dummypack_index)%pos)
+ ! ||v||
+ V_pos = V_inf * (1.0 - R_star / R_pos ) ** beta
+ ! v = (v_x, v_y, v_z)
+ V_pos_vec = V_pos * package(dummypack_index)%pos / norm2(package(dummypack_index)%pos)
+ costheta = dot_product(package(dummypack_index)%dir, V_pos_vec) / norm2(V_pos_vec)
+ ROverW = R_pos/V_pos * 1.D0/(costheta**2 * ((R_star * beta)/(R_pos-R_star)-1.0)+1.0)
 ELSE IF(velapprox == 1) THEN
  ! according to (10) in Abbot & Lucy (1985)
  ! r
