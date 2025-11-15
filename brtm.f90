@@ -5,7 +5,7 @@
 !        ccd_pos(DBLE(const_dimofspace)): position of a detector in R_inf
 ! OUTPUT: NONE
 ! 
-SUBROUTINE brtm(wale_start, wale_end, ccd_pos)
+SUBROUTINE brtm(wale_start, wale_end, ccd_pos, outputfile_ccd, outputfile_spectrum)
 
 USE MPI
 USE types
@@ -15,6 +15,8 @@ IMPLICIT NONE
 DOUBLE PRECISION                                        :: wale_start, wale_end
 DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: obs_point, ccd_point, ccd_centre
 DOUBLE PRECISION, DIMENSION(const_dimofspace)           :: ccd_pos
+CHARACTER(filename_length)                              :: outputfile_ccd, outputfile_spectrum
+CHARACTER(filename_length)                              :: file_ccd, file_spectrum
 INTEGER                                                 :: cur_vpack
 INTEGER, PARAMETER                                      :: Nvpackets = 50000
 ! number of packet flown into the photosphere
@@ -104,7 +106,7 @@ obs_point = ccd_centre + obs_ccd_dist * ccd_centre/norm2(ccd_centre)
 
 ccdc_rad = sqrt(ccd_centre(ind_x)**2+ccd_centre(ind_y)**2+ccd_centre(ind_z))
 ccdc_theta = acos(ccd_centre(ind_z)/ccdc_rad)
-! write(*,*) 'brtm: ccdc_rad = ', ccdc_rad, ' ccdc_theta = ', ccdc_theta
+write(*,*) 'brtm: ccdc_rad = ', ccdc_rad, ' ccdc_theta = ', ccdc_theta
 ! phi is more complicated to calculate
 IF(ccd_centre(ind_x) > 0.0) THEN
  ccdc_phi = atan(ccd_centre(ind_y)/ccd_centre(ind_x))
@@ -122,7 +124,7 @@ ELSE IF(ccd_centre(ind_x) < 0.0) THEN
  END IF
 END IF
 
-! write(*,*) 'brtm: ccdc_rad = ', ccdc_rad/R_star, ' ccdc_phi = ', ccdc_phi, ' ccdc_theta = ', ccdc_theta
+write(*,*) 'brtm: ccdc_rad = ', ccdc_rad/R_star, ' ccdc_phi = ', ccdc_phi, ' ccdc_theta = ', ccdc_theta
 
 
 
@@ -194,10 +196,10 @@ DO
    EXIT
   END IF
  END IF
- ! write(*,*) 'brtm: cur_ccd = ', cur_ccd
+ write(*,*) 'brtm: cur_ccd = ', cur_ccd
  
  
- ! write(*,*) 'brtm: ccd_point = ', ccd_point(ind_y) - ccd_centre(ind_y), ccd_point(ind_z) - ccd_centre(ind_z)
+ write(*,*) 'brtm: ccd_point = ', ccd_point(ind_y) - ccd_centre(ind_y), ccd_point(ind_z) - ccd_centre(ind_z)
 
  ! write(46,*) obs_point, ccd_point - obs_point
  ! write(47,*) ccd_point
@@ -219,15 +221,14 @@ DO
      &  det_vec_v * rand_v
    det_cur_nv = FLOOR(rand_u/det_lu * det_nu) + 1
    det_cur_nu = FLOOR(rand_v/det_lv * det_nv) + 1
-   ! write(*,*) 'brtm: ccd_point = ', (ccd_point - uvmin)/det_cell_wu
-   ! write(*,*) 'brtm: det_cur_nv = ', det_cur_nv, ' det_cur_nu = ', det_cur_nu
+   write(*,*) 'brtm: ccd_point = ', (ccd_point - uvmin)/det_cell_wu
+   write(*,*) 'brtm: det_cur_nv = ', det_cur_nv, ' det_cur_nu = ', det_cur_nu
   END IF
  
   if(procout) write(*,*) 'brtm: processing the v-packet: cur_vpack = ', cur_vpack
   ! a basic initialisation of a packet
   package(cur_vpack)%pos = obs_point
   package(cur_vpack)%dir = (ccd_point - obs_point)/norm2(ccd_point - obs_point)
- 
   ran_freq = nu_min + (nu_max - nu_min) * ran2(idum)
   package(cur_vpack)%freq_rf = ran_freq
   
@@ -321,14 +322,19 @@ ELSE IF(n_tasks == 1) THEN
  det_matrix(:,:) = det_sending(:,:)
  specflux(:) =  sendflux(:)
 END IF
+
+write(file_ccd,"(A, A1, A)") TRIM(outputfolder), '/', TRIM(outputfile_ccd)
+write(file_spectrum,"(A, A1, A)") TRIM(outputfolder), '/', TRIM(outputfile_spectrum)
+
 IF(my_rank == 0) THEN
- OPEN(449,FILE='ccd_matrix.dat')
+ OPEN(449,FILE=file_ccd)
  DO cur_nu = 1, det_nu
   write(449,*) det_matrix(cur_nu,:)
  END DO
  CLOSE(449)
  
- OPEN(450, FILE='ccd_spectrum.dat')
+
+ OPEN(450, FILE=file_spectrum)
   DO ind_I = 1, n_nubin
    write(450, *) 1.D8 * const_c/freqs(ind_I), specflux(ind_I)
   END DO

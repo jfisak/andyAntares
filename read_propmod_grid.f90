@@ -42,11 +42,14 @@ read(49, *) R_inf
 read(49, *) V_inf
 read(49, *) xmax, ymax, zmax
 read(49, *) Nx, Ny, Nz
-write(49,*) dyngrid
+read(49,*) dyngrid
 read(49, *) add_mg
 
-write(*,*) 'read_propmod_grid: n_modelgrid = ', n_modelgrid
 ALLOCATE(model_grid(n_modelgrid + add_mg))
+
+xmin = -xmax
+ymin = -ymax
+zmin = -zmax
 
 nx_cell = Nx
 ny_cell = Ny
@@ -55,7 +58,6 @@ Ngrid = nx_cell * ny_cell * nz_cell
 
 DO ind_I = 1, n_modelgrid
  read(49, *) pos, vel, rho, temp, volume, assoc_cells, el_dens, is_diff
- write(*,*) 'read_propmod_grid: pos = ', pos
 
  IF(model_type == 1) THEN
   model_grid(ind_I)%rwind = pos(ind_x)
@@ -89,7 +91,6 @@ model_grid(n_modelgrid+1)%rho   = 0.D0
 
 
 read(49, *) n_propgcells
-write(*,*) 'read_propmod_grid. n_propgcells = ', n_propgcells
 ALLOCATE(dyn_cell(n_propgcells))
 DO ind_I = 1, n_propgcells
  read(49, *) pos, uppos, up_cell, down_cell, neighbors, model_index

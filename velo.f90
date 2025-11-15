@@ -78,7 +78,6 @@ CASE(1)
  r_pos = norm2(pack_position)
  vel_radial = V_inf * (1.D0 - R_star / norm2(pack_position))**beta
  ! write(*,*) 'velo: pack_position = ', pack_position
- if(isnan(vel_radial)) STOP 'velo: vel_radial = NaN'
  vel_vec = pack_position/r_pos * vel_radial
 ! #05
 CASE(5)
@@ -105,6 +104,7 @@ CASE(3)
   CALL deactivate_dummy_packet(cur_dummypack)
  END IF
  IF(isnan(vel_vec(ind_x)) .or. isnan(vel_vec(ind_y)) .or. isnan(vel_vec(ind_z))) THEN
+  write(*,*) 'velo: pos = ', pack_position/R_star, '||pos|| = ', norm2(pack_position)
   write(*,*) 'velo: vel_vec = ', vel_vec
   STOP 'velo: at least one component of velocity vector is Nan'
  END IF

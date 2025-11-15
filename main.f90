@@ -51,6 +51,8 @@ INTEGER, PARAMETER                      :: ind_save_velfield = 11
 DOUBLE PRECISION                        :: wale_min, wale_max
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: ccd_pos
 
+CHARACTER(filename_length)              :: out_ccd_1, out_spec_1
+
 ! Link data to identify program version
 CHARACTER LINK_DATE*30, LINK_USER*10, LINK_HOST*60
 COMMON / COM_LINKINFO / LINK_DATE, LINK_USER, LINK_HOST
@@ -176,8 +178,10 @@ IF(only_brtm) THEN
  write(*,*) 'main: brtm'
  wale_min = 6000
  wale_max = 7000
- ccd_pos = (/ -0.25, -0.25, -0.25 /)
- CALL brtm(wale_min, wale_max, ccd_pos)
+ ccd_pos = (/ -1.25, -1.25, -1.25 /) ! times R_inf
+ out_ccd_1 = "ccd_1.dat"
+ out_spec_1 = "spec_1.dat"
+ CALL brtm(wale_min, wale_max, ccd_pos, out_ccd_1, out_spec_1)
 #if mpi==1
  IF(debug == 3) write(*,*) 'calling mpi_finalize'
  CALL mpi_finalize(ierr)
@@ -404,7 +408,9 @@ IF(calc_brtm) THEN
  wale_min = 6000
  wale_max = 7000
  ccd_pos = (/ 0.00, 0.5, 0.5 /)
- CALL brtm(wale_min, wale_max, ccd_pos)
+ out_ccd_1 = "ccd_1.dat"
+ out_spec_1 = "spec_1.dat"
+ CALL brtm(wale_min, wale_max, ccd_pos, out_ccd_1, out_spec_1)
 END IF
 
 #if mpi==1
