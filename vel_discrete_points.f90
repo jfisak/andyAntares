@@ -14,10 +14,10 @@ IMPLICIT NONE
 INTEGER                                 :: pack_index, dummypack_index
 DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: vel_vec
 
-DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: act_corner, act_width, act_pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: act_corner, act_pos
 INTEGER                                 :: act_cell
 INTEGER                                 :: act_mgi
-DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: act_center, act_vel
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: act_vel
 DOUBLE PRECISION                        :: act_vel_norm
 
 INTEGER, DIMENSION(8)                   :: velgridcells
@@ -48,8 +48,6 @@ ELSE IF(pack_index > SIZE(package)) THEN
 END IF
 act_mgi = dyn_cell(act_cell)%model_index
 act_corner = dyn_cell(act_cell)%corner
-act_width = dyn_cell(act_cell)%width
-act_center = act_corner + act_width/2.0
 
 ! write(*,*) 'vel_discrete_points: act_cell = ', act_cell, ' skutecna bunka = ', pomocna_bunka
 ! write(*,"(A, es44.33, es44.33, es44.33)") 'vel_discrete_points II: cell starting = ', dyn_cell(act_cell)%corner!/R_star

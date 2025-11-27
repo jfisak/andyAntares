@@ -46,7 +46,6 @@ unit_density = 1.41314878888978971775872825028550241D-0006
  write(99,*) 'we will read input input data from the basic 2D model'
  ! firstly we calculate number of rows in the file
  n_modelgrid = 0
- T_eff = 30000
  min_radius = 1.D99
  OPEN(UNIT=15,status='old', FILE=inputmodelFile)
   DO ind_I = 1, maxrows
@@ -57,8 +56,8 @@ unit_density = 1.41314878888978971775872825028550241D-0006
     min_radius = radius
    END IF
   END DO
-  R_star = min_radius
-  min_rad = 1.5 * R_star
+  min_rad = 1.5 * min_radius
+  R_star = (1.5 + 0.2) * min_rad
   write(*,*) 'read_2D_basic: R_star = ', R_star, ' min_rad = ', min_rad
   REWIND(15)
   DO ind_I = 1, maxrows

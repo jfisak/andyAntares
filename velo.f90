@@ -32,6 +32,7 @@ INTEGER                            :: cur_dummy_index
 INTEGER                                 :: cur_dummypack, dummypack_index
 
 DOUBLE PRECISION                        :: a_index, b_index, vel_star
+LOGICAL                                 :: is_virtual
 
 IF(debug == 100) write(*,*) 'velo: approx = ', approx
 
@@ -144,7 +145,8 @@ END SELECT
 
 ! write(*,*) 'velo: vel_vec = ', vel_vec
 IF(velocityTesting) THEN
- IF(my_rank == 0 .and. pack_index <= max_n_of_velopackets) THEN
+ is_virtual = package(pack_index)%virtual
+ IF(my_rank == 0 .and. pack_index <= max_n_of_velopackets .and. .not. is_virtual) THEN
   write(34,*) norm2(init_pack_pos)/R_star, norm2(vel_vec)
  END IF
 END IF

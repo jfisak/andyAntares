@@ -31,8 +31,9 @@ INTEGER                                         :: next_cross
 DOUBLE PRECISION                                :: doppler_D! , L_star
 INTEGER                                         :: ind_cell_numb
 
-LOGICAL                                         :: seeking, procout=.FALSE.
+LOGICAL                                         :: seeking, procout=.false.
 DOUBLE PRECISION, PARAMETER                     :: delta_tecka = 1.D2
+DOUBLE PRECISION                                :: crossing_x, crossing_y, crossing_z
 
 ! L_star = 4.D0*pi*(R_star)**2*const_stefbolz*T_eff**4
 
@@ -123,6 +124,8 @@ IF(pos(ind_x) < xmin .or. pos(ind_x) > xmax .or. pos(ind_y) < ymin .or. pos(ind_
     cur_pos(ind_z) > zmin .and. cur_pos(ind_z) < zmax) THEN
      package(cur_vpackage)%pos = cur_pos
      seeking = .false.
+    IF(procout) write(*,*) 'do_vpackage: posx/negx was chosen'
+    ! write(64,*) dir, cur_pos(:)/xmax
    END IF
   END IF
   IF(cur_poser == posy .or. cur_poser == negy) THEN
@@ -131,6 +134,8 @@ IF(pos(ind_x) < xmin .or. pos(ind_x) > xmax .or. pos(ind_y) < ymin .or. pos(ind_
      ! write(*,*) 'do_vpackage: setting a new position for the vpackage'
      package(cur_vpackage)%pos = cur_pos
      seeking = .false.
+    IF(procout) write(*,*) 'do_vpackage: posy/negy was chosen'
+    ! write(64,*) dir, cur_pos(:)/xmax
    END IF
   END IF
   IF(cur_poser == posz .or. cur_poser == negz) THEN
@@ -138,6 +143,8 @@ IF(pos(ind_x) < xmin .or. pos(ind_x) > xmax .or. pos(ind_y) < ymin .or. pos(ind_
     cur_pos(ind_x) > xmin .and. cur_pos(ind_x) < xmax) THEN
      package(cur_vpackage)%pos = cur_pos
      seeking = .false.
+    IF(procout) write(*,*) 'do_vpackage: posz/negz was chosen'
+    ! write(64,*) dir, cur_pos(:)/xmax
    END IF
   END IF
 
@@ -148,6 +155,7 @@ IF(pos(ind_x) < xmin .or. pos(ind_x) > xmax .or. pos(ind_y) < ymin .or. pos(ind_
    seeking = .false.
    package(cur_vpackage)%active = -99
    package(cur_vpackage)%cell_numb = cur_pgi
+   IF(procout) write(*,*) 'do_vpackage: nothing was found'
   END IF
 
  END DO ! while seeking
@@ -177,6 +185,7 @@ IF(pos(ind_x) >= xmin .and. pos(ind_x) <= xmax .and. pos(ind_y) >= ymin .and. po
  IF(debug == 2) THEN
   write(*,*) 'do_vpackage: init pos = ', package(cur_vpackage)%pos/xmax
  END IF
+ if(procout) write(*,*) 'do_vpackage: init pos = ', package(cur_vpackage)%pos/xmax
 
  cur_dir = package(cur_vpackage)%dir
  CALL find_dyn_cell1(cur_pos,ind_cell_numb)

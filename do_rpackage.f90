@@ -18,7 +18,7 @@ INTEGER                                         :: pack_index, next_cell, event
 INTEGER                                         :: get_package_model_index
 DOUBLE PRECISION                                :: cell_dist, e_dist
 
-DOUBLE PRECISION, PARAMETER                     :: mininum = 1.E-1
+DOUBLE PRECISION, PARAMETER                     :: mininum = 5.E0
 INTEGER                                         :: ind_I
 DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: pos, corner, upcorner
 DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: cur_cor, cur_width
@@ -63,7 +63,7 @@ pos = package(pack_index)%pos
 cur_cor = dyn_cell(cur_pgi)%corner
 cur_width = dyn_cell(cur_pgi)%upcorner - dyn_cell(cur_pgi)%corner
 
-! write(*,*) 'do_rpackage: ||pos||/R_star = ', norm2(pos)/R_star, R_inf/R_star
+! write(*,*) 'do_rpackage: ||pos||/R_star = ', norm2(pos)/R_star, R_inf, R_star
 
 !______________________________________________________________________________
 ! seeking for the next boundary (propGrid) and 

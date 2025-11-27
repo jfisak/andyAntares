@@ -124,7 +124,7 @@ LOGICAL                                 :: is_vgrid_A
   END IF
   IF(model_type == 2) THEN
    IF(inputmodel == 1) THEN
-    vg_xmin = R_star
+    vg_xmin = MINVAL(model_grid(:)%rwind)
     vg_xmax = R_inf
     w_vgrid_x = (R_inf - R_star)/N_vgrid_x
     vg_ymin = 0.D0
