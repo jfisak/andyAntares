@@ -20,6 +20,7 @@ pack_type = package(pack_index)%typ
 testing_counter = 0
 
 DO  WHILE (package(pack_index)%active == 1)
+ pack_type = package(pack_index)%typ
  testing_counter = testing_counter + 1
  IF(testing_counter == 1) THEN
   old_pos = package(pack_index)%pos

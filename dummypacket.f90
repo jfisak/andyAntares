@@ -7,17 +7,19 @@
 !
 MODULE dummypacket
 
+USE types
+
 IMPLICIT NONE
 SAVE
 
-INTEGER, PARAMETER              :: n_dummy_packs = 10
+INTEGER, PARAMETER              :: n_dummy_packs = 20
 
 TYPE dummyphoton 
    INTEGER                         :: cell_numb, active
    DOUBLE PRECISION                :: e_cmf, e_rf, freq_cmf, freq_rf, delta_s
    INTEGER                         :: typ, next_cross, last_line
    INTEGER                         :: n_interactions
-   DOUBLE PRECISION, DIMENSION(3)  :: pos, dir 
+   DOUBLE PRECISION, DIMENSION(const_dimofspace)  :: pos, dir 
    INTEGER                         :: l_ele, l_ion, l_lev, n_int = 0
    LOGICAL                         :: redShift, virtual
    LOGICAL                         :: occupied=.false.
@@ -91,6 +93,7 @@ CONTAINS
    dummypackage(ind_dummy_packet)%typ = package(input_packet)%typ
    dummypackage(ind_dummy_packet)%next_cross = package(input_packet)%next_cross
    dummypackage(ind_dummy_packet)%last_line = package(input_packet)%last_line
+  ! we can copy one dummy packet to another dummy packet
   ELSE IF(input_packet > SIZE(package)) THEN
    input_packet = input_packet - SIZE(package)
    dummypackage(ind_dummy_packet)%pos = dummypackage(input_packet)%pos

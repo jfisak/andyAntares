@@ -112,20 +112,30 @@ DO ind_I = 1, nlns
 
  IF(corrFactor < 0.D0) write(*,*) 'WARNING: correction factor 1 - (gl nu) / (gu nl) < 0'
  !______________________________________________________________________
- ROverV = roverw(pack_index, R_star, fr_line)
+ ROverV = roverw(pack_index, 0.D0, fr_line)
+ write(*,*) 'i_radtrans: roverw = ', ROverV
 
 
  taulu = const_c / fr_line * constanta * &
    linelist(act_line)%f_lu * up_pop * ROverV * corrFactor
 
+write(*,*) 'i_radtrans: taulu = ', taulu
 
- betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
+ IF(taulu == 0.D0) THEN
+  betalu = 1.D0
+ ELSE IF(taulu > 0.D0) THEN
+  betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
+ ELSE
+  write(*,*) 'i_radtrans: betalu = ', betalu
+  STOP 'i_radtrans, betalu < 0'
+ END IF
 
 
  Blu = 4 * const_pi**2 * const_e**2 / (const_me_g * const_c * const_h * fr_line) * linelist(act_line)%f_lu
  Bul = stat_weight_l / stat_weight_u * Blu
  Aul = 8.D0 * fr_line**2 * const_pi**2 * const_e**2/ (const_me_g * const_c**3) *&
   stat_weight_l / stat_weight_u * linelist(act_line)%f_lu
+
 
 
  Jlu = flux_function(1, linelist(act_line)%freq, model_grid(current_mgi)%T, cur_r)
@@ -200,7 +210,14 @@ DO ind_I = 1, nluns
   linelist(act_line)%f_lu * low_pop * corrFactor * ROverV
 
 
- betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
+ IF(taulu == 0.D0) THEN
+  betalu = 1.D0
+ ELSE IF(taulu > 0.D0) THEN
+  betalu = 1.D0 / taulu * (1.D0 - exp(- taulu))
+ ELSE
+  write(*,*) 'i_radtrans: betalu = ', betalu
+  STOP 'i_radtrans, betalu < 0'
+ END IF
 
  IF(stmasnab) THEN
   actVal = up_pop * betalu * linelist(act_line)%A_ul

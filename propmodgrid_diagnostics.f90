@@ -115,7 +115,7 @@ ELSE IF(model_type == 3) THEN
 END IF
 ALLOCATE(list_points(np_wewant))
 
-! CALL save_output(12)
+CALL save_output(12)
 ! RETURN point
 RETURN
 

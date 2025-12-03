@@ -39,9 +39,11 @@ IF(debug == 100) write(*,*) 'velo: approx = ', approx
 ! dosti nelogické využívání dvakrát té stejné proměnné...
 IF(pack_index <= SIZE(package)) THEN
  pack_position = package(pack_index)%pos
+ is_virtual = package(pack_index)%virtual
 ELSE IF(pack_index > SIZE(package)) THEN
  cur_dummy_index = pack_index - SIZE(package)
  pack_position = dummypackage(cur_dummy_index)%pos
+ is_virtual = package(cur_dummy_index)%virtual
 END IF
 init_pack_pos = pack_position
 
@@ -145,7 +147,6 @@ END SELECT
 
 ! write(*,*) 'velo: vel_vec = ', vel_vec
 IF(velocityTesting) THEN
- is_virtual = package(pack_index)%virtual
  IF(my_rank == 0 .and. pack_index <= max_n_of_velopackets .and. .not. is_virtual) THEN
   write(34,*) norm2(init_pack_pos)/R_star, norm2(vel_vec)
  END IF

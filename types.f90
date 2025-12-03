@@ -170,8 +170,6 @@ SAVE
   CHARACTER(filename_length)                         :: inputmodelFile, inputcomposition
 ! number of photoionization cross sections
   INTEGER                               :: n_photcrossect, n_tot_cont, n_ff = 0
-! number of dummy packages
-  INTEGER                            :: n_dummy_packs
 ! is the random seed initialized?
   LOGICAL, ALLOCATABLE               :: initrs(:)
 

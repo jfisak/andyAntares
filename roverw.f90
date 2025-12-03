@@ -24,19 +24,20 @@ DOUBLE PRECISION                                :: l_dist
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: R_pos_vec
 DOUBLE PRECISION                                :: costheta
 ! DOUBLE PRECISION                                :: dV_pos
-INTEGER                                         :: dummypack_index, next_cell, pack_index, cur_dummypack
+INTEGER                                         :: dummypack_index, next_cell, pack_index, cur_dummypack, cur_dummypack2
 
 DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: cur_dir
 INTEGER, PARAMETER                              :: n_vectors = 3
-! DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: pos_min, pos_pls!, pos_lin
-! DOUBLE PRECISION                                :: freq_min, freq_pls
-! DOUBLE PRECISION                                :: cmf_min, cmf_pls
-! DOUBLE PRECISION                                :: cur_freq_rf
-! DOUBLE PRECISION                                :: delta
-! DOUBLE PRECISION                                :: deriv
-! DOUBLE PRECISION                                :: deriv_min, deriv_pls
-! DOUBLE PRECISION, DIMENSION(3)                  :: pos_line
-! DOUBLE PRECISION                                :: s_min, s_pls
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: pos_min, pos_pls!, pos_lin
+DOUBLE PRECISION                                :: freq_min, freq_pls
+DOUBLE PRECISION                                :: cmf_min, cmf_pls
+DOUBLE PRECISION                                :: cur_freq_rf
+DOUBLE PRECISION                                :: delta
+DOUBLE PRECISION                                :: deriv
+DOUBLE PRECISION                                :: deriv_min, deriv_pls
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: pos_line, cur_pos
+DOUBLE PRECISION                                :: line_dist
+DOUBLE PRECISION                                :: s_min, s_pls
 DOUBLE PRECISION, DIMENSION(n_vectors,const_dimofspace)                :: vel_vectors
 LOGICAL                                         :: isposx, isposy, isposz
 INTEGER, DIMENSION(n_vectors,const_dimofspace)                         :: directions
@@ -118,8 +119,35 @@ ELSE IF(velApprox == 5) THEN
 !_____________________________________________________________________________________________
 ! 3D velocity approximation
 ELSE IF(velApprox == 3) THEN
- write(*,*) 'roverw: this calculation is implemented into the sbr r_kappa_line'
- STOP 'roverw: exiting'
+  cur_pos = package(pack_index)%pos
+  cur_dir = package(pack_index)%dir
+  cur_freq_rf = package(pack_index)%freq_rf
+ 
+  delta = basic_cell_width(ind_x)/100.0
+ 
+  s_min = line_dist - delta
+  s_pls = line_dist + delta
+ 
+  pos_min = cur_pos + cur_dir * s_min
+  pos_pls = cur_pos + cur_dir * s_pls
+
+  cur_dummypack2 = find_free_index()
+  dummypack_index = cur_dummypack2 + SIZE(package)
+  CALL copy_package(pack_index, cur_dummypack2)
+  ! move packet to the pos_min
+  CALL teleport_dummypacket(cur_dummypack2, pos_min)
+  CALL cmf_freq(dummypack_index, cur_freq_rf, cmf_min)
+  ! move packet to the pos_pls
+  CALL teleport_dummypacket(cur_dummypack2, pos_pls)
+  CALL cmf_freq(dummypack_index, cur_freq_rf, cmf_pls)
+  CALL deactivate_dummy_packet(cur_dummypack2)
+  
+  IF(cmf_pls /= cmf_min) THEN
+   deriv = abs((s_pls - s_min)/(cmf_pls - cmf_min))
+  ELSE
+   deriv = 0.D0
+  END IF
+  ROverW = deriv
 ELSE IF(velApprox == 10) THEN
  R_pos = norm2(package(pack_index)%pos)
  IF(R_pos <= R_star .or. R_pos > R_inf) THEN

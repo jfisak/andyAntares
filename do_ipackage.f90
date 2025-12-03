@@ -102,13 +102,12 @@ ion_index = last_ion
 ! we will run this loop until the macro atom is deactivated
 DO WHILE (active == 1)
 
- ! write(*,*) 'do_ipackage: actual_state = ', actual_state, ' ion_index = ', ion_index
  !____________________________________________________________________________________
  ! we have to find all possible downward upward transitions
  ! firstly we calculate number of these possible transitions
  ! number of transitions to a lower level
  IF(element_index == 0) THEN
-  write(*,*) 'pack_index = ', pack_index
+  write(*,*) 'do_ipackage: element_index == 0, pack_index = ', pack_index
  END IF
  nlns = &
   SIZE(elements(element_index)%ions(ion_index)%levels(actual_state)%linetransitions)
@@ -392,6 +391,9 @@ IF(Zcollrecom < 0.D0) STOP 'do_ipackage: Zcollrecom < 0'
   count_i_col_reco = count_i_col_reco + 1
  ! no event was chosen
  ELSE
+ write(*,*) 'do_ipackage: Zintdown = ', Zintdown, ' Zraddeexc = ', Zraddeexc, ' Zintup = ', Zintup, ' Zcoll = ', Zcoll, &
+  ' Zionization = ', Zionization, ' Zintrecombination = ', Zintrecombination, ' Zphotrecom = ', Zphotrecom, &
+  ' Zcollrecom = ', Zcollrecom
   write(*,*) 'do_ipackage, pack_index = ', pack_index, ' no event was chosen...'
   STOP
  END IF
