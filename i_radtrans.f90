@@ -113,13 +113,11 @@ DO ind_I = 1, nlns
  IF(corrFactor < 0.D0) write(*,*) 'WARNING: correction factor 1 - (gl nu) / (gu nl) < 0'
  !______________________________________________________________________
  ROverV = roverw(pack_index, 0.D0, fr_line)
- write(*,*) 'i_radtrans: roverw = ', ROverV
 
 
  taulu = const_c / fr_line * constanta * &
    linelist(act_line)%f_lu * up_pop * ROverV * corrFactor
 
-write(*,*) 'i_radtrans: taulu = ', taulu
 
  IF(taulu == 0.D0) THEN
   betalu = 1.D0
