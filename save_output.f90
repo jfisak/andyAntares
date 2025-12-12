@@ -299,7 +299,7 @@ CASE(5)
  write(99,*) 'save_output: filePackets = ', filePackets
  OPEN(98, FILE=filePackets)
   DO ind_I = 1, SIZE(package) - 1
-   write(98,*) package(ind_I)%typ, package(ind_I)%freq_rf, package(ind_I)%e_rf
+   write(98,*) package(ind_I)%typ, package(ind_I)%freq_rf, package(ind_I)%e_rf, package(ind_I)%pos
   END DO
  CLOSE(98)
 #if mpi==1
@@ -572,10 +572,6 @@ CLOSE(174)
 CLOSE(175)
 CLOSE(176)
 
-coverage_matrix_rho(:,:) = -1.0
-coverage_matrix_t(:,:) = -1.0
-coverage_matrix_v(:,:) = -1.0
-coverage_matrix_velv(:,:) = -1.0
 
 write(temp_file_name_t,"(A, A17)") TRIM(outputfolder), '/propmod_t_yz.dat'
 write(temp_file_name_rho,"(A, A19)") TRIM(outputfolder), '/propmod_rho_yz.dat'
@@ -589,6 +585,10 @@ cur_index = 0
 DEALLOCATE(coverage_matrix_rho, coverage_matrix_t, coverage_matrix_v, coverage_matrix_velv)
 ALLOCATE(coverage_matrix_rho(Ny_cov, Nz_cov), coverage_matrix_t(Ny_cov, Nz_cov), &
   coverage_matrix_v(Ny_cov * Nz_cov, 2 * const_dimofspace), coverage_matrix_velv(Ny_cov, Nz_cov))
+coverage_matrix_rho(:,:) = -1.0
+coverage_matrix_t(:,:) = -1.0
+coverage_matrix_v(:,:) = -1.0
+coverage_matrix_velv(:,:) = -1.0
 ! write(*,*) 'save_output: Nx_cov = ', Nx_cov, ' Ny_cov = ', Ny_cov, ' Nz_cov = ', Nz_cov
 ! STOP 'save_output: testing'
 DO ind_I = 1, Ny_cov
