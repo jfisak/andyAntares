@@ -80,6 +80,11 @@ IF(rel_coverage < min_rel_coverage) THEN
  write(99,*) 'propmodgrid_diagnostics: the relative coverage is too low!'
  write(99,*) 'propmodgrid_diagnostics: rel_coverage = ', rel_coverage * 100.0, ' %'
  write(99,*) '**********************************************************'
+ELSE
+ write(99,*) '**********************************************************'
+ write(99,*) 'propmodgrid_diagnostics: the relative coverage is good enough'
+ write(99,*) 'propmodgrid_diagnostics: rel_coverage = ', rel_coverage * 100.0, ' %'
+ write(99,*) '**********************************************************'
 END IF
 
 tot_model_volume = 0.D0
