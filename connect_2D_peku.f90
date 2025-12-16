@@ -17,7 +17,7 @@ INTEGER                                 :: cur_point, n_rt_A, n_rt_B
 INTEGER                                 :: cur_n_r_A, cur_n_t_A, cur_n_r_B, cur_n_t_B
 INTEGER                                 :: cur_ind_A, cur_ind_B, cur_vpg_cell
 
-DOUBLE PRECISION                        :: cur_r, cur_t
+DOUBLE PRECISION                        :: cur_r, cur_t, cur_radius
 DOUBLE PRECISION                        :: rmax, rmin, tmax, tmin
 
 INTEGER, DIMENSION (n_modelgrid,2)        :: vg_indexy_A, vg_indexy_B
@@ -42,10 +42,10 @@ INTEGER, DIMENSION(n_modelgrid + add_mg) :: cur_n_assoc
 INTEGER                                 :: cur_mgi, cur_VG_point
 DOUBLE PRECISION                        :: cur_VG_r, cur_VG_t, delta, dist, min_point
 
+DOUBLE PRECISION, PARAMETER             :: large_number = 1.D99
+
 ! loop variables
 ! variables for calculating the shortest distance between
-
-DOUBLE PRECISION, PARAMETER     :: large_number=1.d90
 
   
 
@@ -82,8 +82,8 @@ cur_n_assoc(:) = 0
 
 rmax = MAXVAL(model_grid(:)%rxywind) + 1e1
 rmin = MINVAL(model_grid(:)%rxywind) - 1e1
-tmax = MAXVAL(model_grid(:)%zwind) + 1e-2
-tmin = MINVAL(model_grid(:)%zwind) - 1e-2
+tmax = MAXVAL(model_grid(:)%zwind) + 1e1
+tmin = MINVAL(model_grid(:)%zwind) - 1e1
 
 w_vgrid_r = abs(rmax - rmin)/N_vgrid_r
 w_vgrid_t = abs(tmax - tmin)/N_vgrid_t
@@ -97,8 +97,8 @@ DO cur_point = 1, n_modelgrid
  cur_t = model_grid(cur_point)%zwind
  cur_n_r_A = floor((cur_r-rmin)/w_vgrid_r) + 1
  cur_n_t_A = floor((cur_t-tmin)/w_vgrid_t) + 1
- IF(cur_r == rmax) cur_n_r_A = cur_n_r_A - 1
- IF(cur_t == tmax) cur_n_t_A = cur_n_t_A - 1
+ IF(cur_r >= rmax) cur_n_r_A = N_vgrid_r
+ IF(cur_t >= tmax) cur_n_t_A = N_vgrid_t
 
  ! n_rt_A -- numerical index of VG cell
  n_rt_A = cur_n_r_A + N_vgrid_r * (cur_n_t_A - 1)
@@ -211,7 +211,10 @@ DO cur_prop_cell = my_start, my_end
  ! is the point located inside the Vgrid?
  IF(dyn_cell(cur_prop_cell)%up_cell == 0) THEN
   cur_pos = dyn_cell(cur_prop_cell)%corner
+  ! x^2 + y^2
   cur_r = sqrt(cur_pos(ind_x)**2 + cur_pos(ind_y)**2)
+  ! x^2 + y^2 + z^2
+  cur_radius = sqrt(cur_pos(ind_x)**2 + cur_pos(ind_y)**2 + cur_pos(ind_z)**2)
   cur_t = cur_pos(ind_z)
   IF(cur_r >= rmin .and. cur_r <= rmax .and. &
    cur_t >= tmin .and. cur_t <= tmax) THEN
@@ -223,7 +226,7 @@ DO cur_prop_cell = my_start, my_end
 
    ! B VG
    IF(cur_r > rmin + w_vgrid_r/2.0 .and. cur_r < rmax - w_vgrid_r/2.0 .and.&
-      cur_t > tmin + w_vgrid_t/2.0 .and. cur_t < tmax - w_vgrid_t/2.0) THEN
+     cur_t > tmin + w_vgrid_t/2.0 .and. cur_t < tmax - w_vgrid_t/2.0) THEN
     cur_n_r_B = floor((cur_r - rmin)/w_vgrid_r - 1.0/2.0) + 1
     cur_n_t_B = floor((cur_t - tmin)/w_vgrid_t - 1.0/2.0) + 1
     cur_vmg_B = cur_n_r_B + (N_vgrid_r - 1) * (cur_n_t_B - 1)
@@ -233,18 +236,18 @@ DO cur_prop_cell = my_start, my_end
    END IF
    
    ! distances from the centres of the VG A and B
-   centre_A(ind_x) = w_vgrid_r * (cur_n_r_B - 1) + w_vgrid_r/2.0
-   centre_A(ind_y) = w_vgrid_t * (cur_n_t_B - 1) + w_vgrid_t/2.0
+   centre_A(ind_x) = w_vgrid_r * (cur_n_r_A - 1) + w_vgrid_r/2.0
+   centre_A(ind_y) = w_vgrid_t * (cur_n_t_A - 1) + w_vgrid_t/2.0
 
-   centre_B(ind_x) = w_vgrid_r * (cur_n_r_A - 1) + w_vgrid_r
-   centre_B(ind_y) = w_vgrid_t * (cur_n_t_A - 1) + w_vgrid_t
+   centre_B(ind_x) = w_vgrid_r * (cur_n_r_B - 1) + w_vgrid_r
+   centre_B(ind_y) = w_vgrid_t * (cur_n_t_B - 1) + w_vgrid_t
 
    ! looking for the closest point
-   dist_A = sqrt((cur_r-centre_A(ind_x))**2+(cur_t-centre_A(ind_y))**2)
+   dist_A = sqrt((cur_r - centre_A(ind_x))**2 + (cur_t - centre_A(ind_y))**2)
    IF(cur_n_t_B > 0) THEN
-    dist_B = sqrt((cur_r-centre_B(ind_x))**2+(cur_t-centre_B(ind_y))**2)
+    dist_B = sqrt((cur_r - centre_B(ind_x))**2 + (cur_t - centre_B(ind_y))**2)
    ELSE IF(cur_n_t_B == 0) THEN
-    dist_B = 1.D99
+    dist_B = large_number
    END IF
 
    ! choosing the correct modGrid points
@@ -272,12 +275,14 @@ DO cur_prop_cell = my_start, my_end
    END IF
 
    ! finally, looking for the point with the shortest distance
-   delta = 1.D99
+   delta = large_number
    DO cur_VG_point = 1, cur_n_points
     cur_mgi = cur_points(cur_VG_point)
     cur_VG_r = model_grid(cur_VG_point)%rxywind
     cur_VG_t = model_grid(cur_VG_point)%zwind
     dist = sqrt((cur_VG_r - cur_r)**2 + (cur_VG_t - cur_t)**2)
+    write(66,*) dist/((w_vgrid_r**2+w_vgrid_t**2)**0.5)
+    ! write(66,*) cur_VG_r/R_star, cur_VG_t/R_star
     IF(dist < delta) THEN
      delta = dist
      min_point = cur_mgi
@@ -287,16 +292,19 @@ DO cur_prop_cell = my_start, my_end
      END IF
     END IF
    END DO
+   ! IF(cur_n_points > 4) STOP 'connect_2D_peku: testing'
    ! Heureka! We have got the point!
-   cur_model_index(cur_prop_cell) = INT(min_point)
-   IF(INT(min_point) /= 0) THEN
-    cur_n_assoc(INT(min_point)) = cur_n_assoc(INT(min_point)) + 1
+   IF(cur_radius > R_star .and. cur_radius < R_inf) THEN
+    IF(INT(min_point) /= 0) THEN
+     cur_model_index(cur_prop_cell) = INT(min_point)
+     cur_n_assoc(INT(min_point)) = cur_n_assoc(INT(min_point)) + 1
+    END IF
    END IF
 
-   IF(cur_r < R_star) THEN
+   IF(cur_radius < R_star) THEN
     cur_model_index(cur_prop_cell) = photosphere_index
     cur_n_assoc(photosphere_index) = cur_n_assoc(photosphere_index) + 1
-   ELSE IF(cur_r > R_inf) THEN
+   ELSE IF(cur_radius > R_inf) THEN
     cur_model_index(cur_prop_cell) = outerspace_index
     cur_n_assoc(outerspace_index) = cur_n_assoc(outerspace_index) + 1
    ELSE IF(cur_model_index(cur_prop_cell) == 0) THEN
@@ -331,5 +339,7 @@ ELSE IF(n_tasks == 1) THEN
  model_grid(:)%assoc_cells = cur_n_assoc(:)
 END IF
 #endif
+
+! STOP 'connect_2D_peku: testing'
 
 END SUBROUTINE connect_2D_peku
