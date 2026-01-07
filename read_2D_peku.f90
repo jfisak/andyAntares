@@ -48,6 +48,8 @@ OPEN(UNIT=15,status='old', FILE=inputmodelFile)
  ! n_modelgrid + 1 ... for dummy cells
  ! n_modelgrid + 2 ... for cells with r < R_inf but too far from some model grid point
  !                     (vacuum cell) 
+ ! n_modelgrid + 3 ... for cells inside the photosphere
+ !
  outerspace_index = n_modelgrid + 1
  vacuum_index = n_modelgrid + 2
  photosphere_index = n_modelgrid + 3
@@ -80,9 +82,6 @@ OPEN(UNIT=15,status='old', FILE=inputmodelFile)
    ALLOCATE (model_grid(ind_I)%grid_comp(ind_J)%grid_ion(numbions))
    atom_number = elements(ind_J)%atom_number
    model_grid(ind_I)%grid_comp(ind_J)%abund = elements(ind_J)%abundance
-   !Calculate total number density for included species
-   !tot_nd = model_grid(I)%grid_comp(J)%abund / elements(J)%atom_mass 
-   !model_grid(I)%grid_comp(J)%numb_den = tot_nd
   END DO
   ind_I = ind_I + 1
  END DO

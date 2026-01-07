@@ -24,13 +24,14 @@ INTEGER, PARAMETER                    :: ind_savephdistr = 12
 LOGICAL                               :: is_diff
 
 IF(T_eff <= 0) THEN
+ L_star = 0.D0
  homogeneous = .false.
 ELSE
+ L_star = 4.D0*const_pi*(R_star)**2*const_stefbolz*T_eff**4
  homogeneous = .true.
 END IF
 
 destroyed_pack = 0
-L_star = 4.D0*const_pi*(R_star)**2*const_stefbolz*T_eff**4
 write(99,*) 'init photsphere...'
 write(99,*) 'init_photsphere: R_star = ', R_star, ' T_eff = ', T_eff, ' L_star = ', L_star
 
@@ -63,9 +64,11 @@ DO ind_I = 1, n_pack
    ELSE
     cur_mgi = dyn_cell(ind_cell_numb)%model_index
     cur_Teff = model_grid(cur_mgi)%T
+    L_star = L_star + 4.D0*const_pi*(R_star)**2*const_stefbolz*T_eff**4/n_pack
     if(cur_mgi > n_modelgrid) then
      cur_Teff = -T_eff
     end if
+    ! write(64,*) cur_Teff
     CALL freq_from_planck(freq, cur_Teff)
    END IF
    IF(ind_I > tot_saved_packets) package(ind_I)%freq_rf = freq

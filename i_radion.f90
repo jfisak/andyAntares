@@ -97,6 +97,8 @@ END IF
  ! recombination
 Zintrecom = 0.D0
 Zrecom = 0.D0
+actirates%Lma_int_recrad(:) = 0.D0
+actirates%Lma_recrad(:) = 0.D0
 IF(indexi > 1) THEN
  nrecom = SIZE(actirates%Lma_recrad)
  ! write(*,*) 'i_radion: nrecom = ', nrecom
@@ -160,6 +162,9 @@ IF(indexi > 1) THEN
   END IF ! npoints
  END DO
  ! STOP 'i_radion: testing'
+ELSE IF(indexi == 1) THEN
+ Zintrecom = 0.D0
+ Zrecom = 0.D0
 END IF ! indexi > 1
 ! write(*,*)  'photion_rates: Zion = ', Zion, ' Zrecom = ', Zrecom, ' Zintrecom = ', Zintrecom
 END SUBROUTINE i_radion

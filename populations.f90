@@ -38,6 +38,7 @@ SELECT CASE(nlte)
 ! LTE approximation
 CASE(0)
  ! obvious
+ ! write(*,*) 'populations: model_cell = ', model_cell, n_modelgrid
  ground_level_pop = model_grid(model_cell)%grid_comp(indexe)%grid_ion(indexi)%gl_pop
  ! statistical weight of the ground state
  g_gstat = elements(indexe)%ions(indexi)%levels(1)%stat_waight

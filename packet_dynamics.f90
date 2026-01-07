@@ -14,6 +14,7 @@ INTEGER, PARAMETER                      :: n_testingloop = 2000000
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: cur_pos, old_pos
 DOUBLE PRECISION                                :: cur_dist
 DOUBLE PRECISION, PARAMETER                     :: min_dist = 1.D1
+LOGICAL                                         :: procout=.false.
 
 pack_type = package(pack_index)%typ
 
@@ -32,18 +33,22 @@ DO  WHILE (package(pack_index)%active == 1)
    count_des_inte = count_des_inte + 1
   END IF
    ! If the packet is of type rpkt, it represents a photon. So it needs to be propagated.
+   if(procout) write(*,*) 'packet_dynamics: r-packet'
    CALL do_rpackage(pack_index)
  ELSE IF ((pack_type .EQ. type_kpkt) .OR. (pack_type == type_vkpkt)) THEN 
    ! If the packet is of type kpkt, it represents thermal kinetic energy.
    ! Sample all possible cooling processes and randomly select one of them
+   if(procout) write(*,*) 'packet_dynamics: k-packet'
     CALL do_kpackage(pack_index)
  ELSE IF ((pack_type .EQ. type_ipkt) .OR. (pack_type == type_vipkt)) THEN 
    ! If the packet is of type ipkt, it represents atomic internal energy (excitation/ionization).
    ! Calculate all transition probabilities and randomly select one of them (macro-atom formalism)
+   if(procout) write(*,*) 'packet_dynamics: i-packet'
    CALL do_ipackage(pack_index)
  ELSE IF ((pack_type == type_dpkt) .OR. (pack_type == type_vdpkt)) THEN
   ! this state corresponds to diffusive approximation
-  write(*,*) 'packet_dynamics: calling do_dpackage for pack_index = ', pack_index
+  if(procout) write(*,*) 'packet_dynamics: d-packet'
+  ! write(*,*) 'packet_dynamics: calling do_dpackage for pack_index = ', pack_index
   CALL do_dpackage(pack_index)
  ELSE
     STOP 'ERROR unknown package typ'

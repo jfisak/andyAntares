@@ -40,7 +40,8 @@ INTEGER                                         :: J, K
 
 ! temperature grid
 ! starting and ending point
-Tmin = MINVAL(model_grid(1:n_modelgrid)%t)
+! Tmin = MINVAL(model_grid(1:n_modelgrid)%t, mask=(model_grid(:)%t > 1.E4))
+Tmin = 1.D4
 Tmax = MAXVAL(model_grid(1:n_modelgrid)%t)
 
 ! write(*,*) 'i_ion_recomb: Tmin = ', Tmin, ' Tmax = ', Tmax
@@ -139,7 +140,6 @@ DO indexe = 1, n_elements
      summ2 = summ2 + (func2(I) + func2(I + 1)) / 2.D0 * (freq(I + 1) - freq(I))
      ! summ3 = summ3 + (func3(I) + func3(I + 1)) / 2.D0 * (freq(I + 1) - freq(I))
     END DO
-    ! write(*,*) 'i_ion_recomb: temp = ', cur_temp
     CALL saha_factor(indexe, indexi + 1, indexl, cur_temp, sfactor)
     iints(act_int)%indexe = indexe
     iints(act_int)%indexi = indexi

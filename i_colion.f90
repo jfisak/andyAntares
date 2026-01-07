@@ -48,6 +48,10 @@ DOUBLE PRECISION, PARAMETER             :: times = 1e0
 TYPE(irates)                   :: actirates
 
 
+Zion = 0.D0
+Zrecomb = 0.D0
+Zintrecomb = 0.D0
+write(*,*) 'i_colion: Zion = ', Zion, ' Zrecomb = ', Zrecomb, ' Zintrecomb = ', Zintrecomb
 
 SELECT CASE(approximation)
 
@@ -127,8 +131,9 @@ CASE (1)
 ! recombination
  SELECT CASE(nlte)
   CASE(0)
-   Zrecomb = 0.D0
-   Zintrecomb = 0.D0
+   actirates%Lma_int_reccol(:) = 0.D0
+   actirates%Lma_reccol(:) = 0.D0
+   write(*,*) 'i_colion: indexi = ', indexi
    IF(indexi > 1) THEN
     nlevels = SIZE(actirates%Lma_int_reccol)
     !write(*,*) 'i_colion: number of points: ', nlevels
@@ -214,5 +219,6 @@ CASE DEFAULT
  STOP 'bound_free_rates: non valid approximation was chosen'
 END SELECT
 
+write(*,*) 'i_colion: END Zion = ', Zion, ' Zrecomb = ', Zrecomb, ' Zintrecomb = ', Zintrecomb
 
 END SUBROUTINE i_colion

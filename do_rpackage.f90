@@ -63,7 +63,7 @@ pos = package(pack_index)%pos
 cur_cor = dyn_cell(cur_pgi)%corner
 cur_width = dyn_cell(cur_pgi)%upcorner - dyn_cell(cur_pgi)%corner
 
-! write(*,*) 'do_rpackage: ||pos||/R_star = ', norm2(pos)/R_star, R_inf, R_star
+! write(*,*) 'do_rpackage I: ||pos||/R_star = ', norm2(pos)/R_star, R_inf/R_star
 
 !______________________________________________________________________________
 ! seeking for the next boundary (propGrid) and 
@@ -381,5 +381,7 @@ IF(debug == 2) THEN
  END DO
 END IF
 
+! write(*,*) 'do_rpackage II: cur_mgi = ', get_package_model_index(pack_index), n_modelgrid
+! write(*,*) 'do_rpackage II: ||pos||/R_star = ', norm2(pos)/R_star, R_inf/R_star
   
 END SUBROUTINE do_rpackage

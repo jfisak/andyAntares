@@ -1,1 +1,33 @@
 This is going to be the readme file (MK 2012-07-17).
+
+ANDY ANTARES CODE
+
+_____________________________________________________________
+compilation
+
+$ make clean
+$ make
+
+options during compilation
+FCFLAGS
+- Dmpi -- using MPI
+	0 -- non-parallel
+	1 -- parallel
+
+- O0 -- optimization
+	0 -- without optimization
+	1 -- light optimization
+	.
+	.
+	.
+
+VARIABLES
+- F90: Fortran version
+  recommended: mpif90 (parallel run), gfortran (non-parallel run)
+
+OUTPUT EXECUTABLE
+main.run
+
+THE SOURCE CODE
+_____________________________________________________________
+* the root subroutine is the main.f90 file

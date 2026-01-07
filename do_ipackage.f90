@@ -55,7 +55,7 @@ DOUBLE PRECISION                :: new_freq
 DOUBLE PRECISION                :: doppler_D
 TYPE(irates)                    :: actirates
 ! write down the processes
-LOGICAL                         :: procout = .FALSE.
+LOGICAL                         :: procout = .TRUE.
 LOGICAL                         :: sstates = .FALSE.
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: new_dir
 INTEGER                         :: dummy_pack_index
@@ -94,6 +94,7 @@ END IF
 !IF(.NOT. ASSOCIATED(actirates)) ALLOCATE(actirates)
  
 current_mgi = get_package_model_index(pack_index)
+write(*,*) 'do_ipackage: pack_index = ', pack_index, ' current_mgi = ', current_mgi
 
 active = 1
 ! this is an initial state of the macro-atom
@@ -102,11 +103,16 @@ ion_index = last_ion
 ! we will run this loop until the macro atom is deactivated
 DO WHILE (active == 1)
 
+  if(procout) write(*,*) 'do_ipackage:________________________________________________________________'
+  if(procout) write(*,*) 'do_ipackage: element_index = ', element_index, ' ion_index = ', ion_index, &
+   ' actual_state = ', actual_state
+  if(procout) write(*,*) 'do_ipackage:________________________________________________________________'
  !____________________________________________________________________________________
  ! we have to find all possible downward upward transitions
  ! firstly we calculate number of these possible transitions
  ! number of transitions to a lower level
- IF(element_index == 0) THEN
+ IF(element_index == 0 .or. ion_index == 0) THEN
+  write(*,*) 'do_ipackage: element_index = ', element_index, ' ion_index = ', ion_index, ' actual_state = ', actual_state
   write(*,*) 'do_ipackage: element_index == 0, pack_index = ', pack_index
  END IF
  nlns = &
@@ -142,25 +148,42 @@ DO WHILE (active == 1)
    actual_state
  ! write(*,*) 'do_ipackage: pop = ', act_pop
  ! calculations of radiative rates
- CALL i_radtrans(current_mgi, element_index, ion_index, actual_state, &
-  Zintdownrad, Zintuprad, Zraddeexc, actirates, pack_index, new_dir)
- CALL i_coltrans(1, pack_index, element_index, ion_index, actual_state, act_pop, &
-  Zintdowncoll, Zintupcoll, Zcoll, actirates)
- CALL i_radion(element_index, ion_index, actual_state, current_mgi, act_pop, Zphotionup, &
-   Zphotiondown, Zphotrecom, actirates)
- CALL i_colion(1, element_index, ion_index, actual_state, pack_index, act_pop, Zcollionup, &
-  Zcolliondown,Zcollrecom, actirates)
+ IF(current_mgi <= n_modelgrid) THEN
+  Zcollrecom = 0.D0
+  Zcoll = 0.D0
+  Zphotrecom = 0.D0
+  Zcolliondown = 0.D0
+  Zphotiondown = 0.D0
+  Zintupcoll = 0.D0
+  Zintdowncoll = 0.D0
+  Zintdownrad = 0.D0
+  Zintuprad = 0.D0
+  Zphotionup = 0.D0
+  Zcollionup = 0.D0
+  CALL i_radtrans(current_mgi, element_index, ion_index, actual_state, &
+   Zintdownrad, Zintuprad, Zraddeexc, actirates, pack_index, new_dir)
+  CALL i_coltrans(1, pack_index, element_index, ion_index, actual_state, act_pop, &
+   Zintdowncoll, Zintupcoll, Zcoll, actirates)
+  CALL i_radion(element_index, ion_index, actual_state, current_mgi, act_pop, Zphotionup, &
+    Zphotiondown, Zphotrecom, actirates)
+  CALL i_colion(1, element_index, ion_index, actual_state, pack_index, act_pop, Zcollionup, &
+   Zcolliondown,Zcollrecom, actirates)
+ ELSE
+  write(*,*) 'do_ipackage: i-packet cannot be activated in an empty space'
+  write(*,*) 'do_ipackage: exiting now'
+  STOP 'do_ipackage'
+ END IF
 ! 
 ! testing
-Zcollrecom = 0.D0
-Zcoll = 0.D0
-Zphotrecom = 0.D0
-Zintupcoll = 0.D0
-Zintdowncoll = 0.D0
+! Zcollrecom = 0.D0
+! Zcoll = 0.D0
+! Zphotrecom = 0.D0
+! Zintupcoll = 0.D0
+! Zintdowncoll = 0.D0
 ! Zintdownrad = 0.D0
 ! Zintuprad = 0.D0
-Zphotionup = 0.D0
-Zcollionup = 0.D0
+! Zphotionup = 0.D0
+! Zcollionup = 0.D0
 ! end testing
 !
 ! control part of calculation
@@ -213,10 +236,10 @@ IF(Zcollrecom < 0.D0) STOP 'do_ipackage: Zcollrecom < 0'
  Z6 = Z5 + Zphotrecom
  Z7 = Z6 + Zcollrecom
 
-! write(*,*) 'Zintdown = ', Zintdown, ' Zraddeexc = ', Zraddeexc, ' Zintup = ', Zintup, ' Zcoll = ', Zcoll, &
-!  ' Zionization = ', Zionization, ' Zintrecombination = ', Zintrecombination, ' Zphotrecom = ', Zphotrecom, &
-!  ' Zcollrecom = ', Zcollrecom
-
+ if(procout) write(*,*) 'Zintdown = ', Zintdown, ' Zraddeexc = ', Zraddeexc, ' Zintup = ', Zintup, ' Zcoll = ', Zcoll, &
+  ' Zionization = ', Zionization, ' Zintrecombination = ', Zintrecombination, ' Zphotrecom = ', Zphotrecom, &
+  ' Zcollrecom = ', Zcollrecom
+if(procout) write(*,*) ' Zcolliondown = ', Zcolliondown, ' Zphotiondown = ', Zphotiondown
 
 
  IF(Ztotal == 0.D0) THEN

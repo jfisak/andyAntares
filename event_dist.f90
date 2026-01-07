@@ -30,8 +30,6 @@ USE constants
  DOUBLE PRECISION, PARAMETER       :: largeNumber = 1.D20
  ! number of lines with the same frequencies
  INTEGER                           :: n_next_lines
- INTEGER                           :: dummypackage
- INTEGER                           :: n_pack_d
  DOUBLE PRECISION                  :: freq_line
  TYPE(rrates)                      :: actirrates
  DOUBLE PRECISION                       :: ran2
@@ -46,11 +44,6 @@ USE constants
 
 IF(debug == 4 .or. debug == 5) procout = .TRUE.
 IF(debug == 2) procout = .TRUE.
-
-      
- n_pack_d = SIZE(package)
- dummypackage = SIZE(package)
- ! write(*,*) 'event_dist: last_line = ', package(pack_index)%last_line
 
 raninit = .TRUE.
 DO WHILE(raninit .EQV. .TRUE.)
@@ -128,7 +121,8 @@ DO WHILE (do_loop)
 
   ! write(*,*) 'event_dist: pack_index = ', pack_index, ' l_dist = ', l_dist
   ! write(*,*) 'event_dist: l_dist/cell_dist = ', l_dist/cell_dist, ' nextLine = ', nextLine
-  ! write(*,*) 'event_dist: tau_line = ', tau_line, ' tau_cont = ', tau_cont, ' tau_rand = ', tau_rand
+ ! write(*,*) 'event_dist: tau_line = ', tau_line, ' tau_cont = ', tau_cont, ' tau_rand = ', tau_rand
+
 
  IF(inCell .AND. nextLine /= ntransitions + 1 .AND. .NOT. tooRed) THEN
  
@@ -182,6 +176,7 @@ DO WHILE (do_loop)
     e_dist = l_dist
     do_loop = .FALSE.
     event = rpkt_eventtype_lineinteraction
+    ! write(*,*) 'event_dist: l_dist/cell_dist = ', l_dist/cell_dist
     ! write(*,*) 1.D8 * const_c / package(pack_index)%freq_cmf, &
     !  1.D8 * const_c / package(pack_index)%freq_rf
     if(procout) write(*,*) 'event_dist: rpkt_eventtype_lineinteraction'
