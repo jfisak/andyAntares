@@ -242,6 +242,11 @@ LOGICAL                                 :: is_vgrid_A
  ! array containing the initial indeces for all vg indeces
   cur_ind_A = 0
   cur_ind_B = n_zeros
+  ! Check if indices_A is allocated
+  IF (.NOT. ALLOCATED(indices_A)) THEN
+   WRITE(*,*) 'virt_gridAB_init: Error - indices_A is not allocated at the end of the subroutine.'
+   STOP 'Error: indices_A not allocated'
+  END IF
   !_______________________________________________________________
   ! create arrays with indeces pointing to an ordered list of
   ! modCell grids indeces
