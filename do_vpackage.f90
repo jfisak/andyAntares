@@ -33,7 +33,6 @@ INTEGER                                         :: ind_cell_numb
 
 LOGICAL                                         :: seeking, procout=.false.
 DOUBLE PRECISION, PARAMETER                     :: delta_tecka = 1.D2
-DOUBLE PRECISION                                :: crossing_x, crossing_y, crossing_z
 
 ! L_star = 4.D0*pi*(R_star)**2*const_stefbolz*T_eff**4
 

@@ -13,8 +13,6 @@ IMPLICIT NONE
 INTEGER                                         :: ind_I
 CHARACTER(LEN=filename_length)                  :: propmod_file
 
-INTEGER                                         :: n_propgrid
-
 DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: pos, vel, uppos
 DOUBLE PRECISION                                :: rho, temp, volume, el_dens
 

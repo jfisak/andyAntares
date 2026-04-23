@@ -16,11 +16,9 @@ LOGICAL                 :: wasFound
 INTEGER                                 :: N_single, N_zbytek, N_tot_zbytek
 INTEGER                                 :: cur_mgi
 INTEGER                                 :: my_start, my_end
-INTEGER                                 :: status(MPI_STATUS_SIZE)
 
 LOGICAL                                 :: propmod_file_exists
 CHARACTER(filename_length)                           :: propmod_file
-INTEGER                                 :: ind_I
 
 INTEGER                                 :: cur_n_assoccells
 ! DOUBLE PRECISION                        :: test_temp

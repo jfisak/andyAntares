@@ -3,7 +3,7 @@
 ! INPUT: pack_index(INT): index of a packet
 ! OUTPUT: NONE
 !
-! 1x RETURN POINT
+! 2x RETURN POINT
 ! 
 SUBROUTINE do_rpackage(pack_index)
  
@@ -31,7 +31,7 @@ TYPE(rrates)                                    :: actirrates
 INTEGER                                         :: pomocna_bunka, cur_pgi
 INTEGER                                         :: next_cross
 ! DOUBLE PRECISION                                :: max_dist
-LOGICAL                                         :: procout = .FALSE.
+LOGICAL                                         :: procout = .TRUE.
 DOUBLE PRECISION, PARAMETER                     :: epsilon0 = 1.D0
 ! free free
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: pack_pos
@@ -245,25 +245,33 @@ ELSE IF(e_dist > cell_dist) THEN
    cur_upcorner = dyn_cell(cur_pgi)%upcorner
    cur_width = dyn_cell(cur_pgi)%upcorner - dyn_cell(cur_pgi)%corner
    CALL find_dyn_cell1(cur_pos, cur_pgi)
-   write(*,*) 'do_rpackage cell starting = ', dyn_cell(cur_pgi)%corner
-   write(*,*) 'do_rpackage packet pos = ', package(pack_index)%pos
-   write(*,*) 'do_rpackage cell ending = ', dyn_cell(cur_pgi)%upcorner
-   IF(cur_pos(ind_x) == cur_corner(ind_x)) THEN
-    next_cell = dyn_cell(cur_pgi)%neighbor(negx)
-   ELSE IF(cur_pos(ind_y) == cur_corner(ind_y)) THEN
-    next_cell = dyn_cell(cur_pgi)%neighbor(negy)
-   ELSE IF(cur_pos(ind_z) == cur_corner(ind_z)) THEN
-    next_cell = dyn_cell(cur_pgi)%neighbor(negz)
-   ELSE IF(cur_pos(ind_x) == cur_upcorner(ind_x)) THEN
-    next_cell = dyn_cell(cur_pgi)%neighbor(posx)
-   ELSE IF(cur_pos(ind_y) == cur_upcorner(ind_y)) THEN
-    next_cell = dyn_cell(cur_pgi)%neighbor(posy)
-   ELSE IF(cur_pos(ind_z) == cur_upcorner(ind_z)) THEN
-    next_cell = dyn_cell(cur_pgi)%neighbor(posz)
+   IF(cur_pgi > 0) THEN
+    write(*,*) 'do_rpackage cell starting = ', dyn_cell(cur_pgi)%corner
+    write(*,*) 'do_rpackage packet pos = ', package(pack_index)%pos
+    write(*,*) 'do_rpackage cell ending = ', dyn_cell(cur_pgi)%upcorner
+    IF(cur_pos(ind_x) == cur_corner(ind_x)) THEN
+     next_cell = dyn_cell(cur_pgi)%neighbor(negx)
+    ELSE IF(cur_pos(ind_y) == cur_corner(ind_y)) THEN
+     next_cell = dyn_cell(cur_pgi)%neighbor(negy)
+    ELSE IF(cur_pos(ind_z) == cur_corner(ind_z)) THEN
+     next_cell = dyn_cell(cur_pgi)%neighbor(negz)
+    ELSE IF(cur_pos(ind_x) == cur_upcorner(ind_x)) THEN
+     next_cell = dyn_cell(cur_pgi)%neighbor(posx)
+    ELSE IF(cur_pos(ind_y) == cur_upcorner(ind_y)) THEN
+     next_cell = dyn_cell(cur_pgi)%neighbor(posy)
+    ELSE IF(cur_pos(ind_z) == cur_upcorner(ind_z)) THEN
+     next_cell = dyn_cell(cur_pgi)%neighbor(posz)
+    END IF
+    CALL change_cell(pack_index, next_cell)
+   ELSE IF(cur_pgi < 0) THEN ! 
+    package(pack_index)%active = 0
+    ! RETURN point
+    RETURN
    END IF
-   CALL change_cell(pack_index, next_cell)
   END IF
  ELSE IF(cell_dist < 0.D0) THEN
+  package(pack_index)%active = 0
+  RETURN
   IF(procout) write(*,*) 'do_rpackage: cell_dist < 0'
   IF(((next_cross <= 6) .and. (next_cross >=1))) THEN
    ! next_cell = dyn_cell(cur_pgi)%neighbor(package(pack_index)%next_cross)
@@ -275,14 +283,17 @@ ELSE IF(e_dist > cell_dist) THEN
    cur_width = dyn_cell(next_cell)%width
    IF(next_cross == posx) THEN
     package(pack_index)%pos(ind_x) = cur_upcorner(ind_x)
+    package(pack_index)%cell_numb = dyn_cell(next_cell)%neighbor(ind_x)
    ELSE IF(next_cross == negx) THEN
     package(pack_index)%pos(ind_x) = cur_corner(ind_x)
    ELSE IF(next_cross == posy) THEN
     package(pack_index)%pos(ind_y) = cur_upcorner(ind_y)
+    package(pack_index)%cell_numb = dyn_cell(next_cell)%neighbor(ind_y)
    ELSE IF(next_cross == negy) THEN
     package(pack_index)%pos(ind_y) = cur_corner(ind_y)
    ELSE IF(next_cross == posz) THEN
     package(pack_index)%pos(ind_z) = cur_upcorner(ind_z)
+    package(pack_index)%cell_numb = dyn_cell(next_cell)%neighbor(ind_z)
    ELSE IF(next_cross == negz) THEN
     package(pack_index)%pos(ind_z) = cur_corner(ind_z)
    END IF

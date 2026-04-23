@@ -18,7 +18,7 @@ LOGICAL                                 :: is_diff
 
 DOUBLE PRECISION                        :: cur_lambda
 
-DOUBLE PRECISION, PARAMETER             :: chi_min = 5e-16, lambda_min = 0.30
+DOUBLE PRECISION, PARAMETER             :: chi_min = 5e-13, lambda_min = 0.30
 DOUBLE PRECISION, PARAMETER             :: min_edens = 1.D12
 
 

@@ -20,7 +20,7 @@ INTEGER                                         :: n_cell
 INTEGER                                         :: ind_I
 
 DOUBLE PRECISION                                :: rand, ran2
-DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: corner, width, cross_pos
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: corner, width, cross_pos, upcorner
 
 INTEGER                                         :: subind_x, subind_y, subind_z
 INTEGER                                         :: sub_nx, sub_ny, sub_nz
@@ -31,8 +31,9 @@ DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: subcells_width
 
 
 corner = dyn_cell(cur_pgi)%corner
-width = dyn_cell(cur_pgi)%width
+upcorner = dyn_cell(cur_pgi)%upcorner
 rand = ran2(idum)
+width = (corner + upcorner)/2.D0
 
 DO ind_I = 1,3
  cross_pos(ind_I) = corner(ind_I) + rand * width(ind_I)

@@ -669,7 +669,7 @@ CASE(14)
     cur_pos = model_grid(cur_mgi)%vec_pos
     est_F = model_grid(cur_mgi)%Frad
     est_I = model_grid(cur_mgi)%Irad
-    write(20,*) cur_pos, est_F, est_I
+    write(20,*) cur_mgi, cur_pos, est_F, est_I
    END IF
   END DO
  CLOSE(20)

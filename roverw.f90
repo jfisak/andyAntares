@@ -29,14 +29,11 @@ INTEGER                                         :: dummypack_index, next_cell, p
 DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: cur_dir
 INTEGER, PARAMETER                              :: n_vectors = 3
 DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: pos_min, pos_pls!, pos_lin
-DOUBLE PRECISION                                :: freq_min, freq_pls
 DOUBLE PRECISION                                :: cmf_min, cmf_pls
 DOUBLE PRECISION                                :: cur_freq_rf
 DOUBLE PRECISION                                :: delta
 DOUBLE PRECISION                                :: deriv
-DOUBLE PRECISION                                :: deriv_min, deriv_pls
-DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: pos_line, cur_pos
-DOUBLE PRECISION                                :: line_dist
+DOUBLE PRECISION, DIMENSION(const_dimofspace)                  :: cur_pos
 DOUBLE PRECISION                                :: s_min, s_pls
 DOUBLE PRECISION, DIMENSION(n_vectors,const_dimofspace)                :: vel_vectors
 LOGICAL                                         :: isposx, isposy, isposz
@@ -125,8 +122,8 @@ ELSE IF(velApprox == 3) THEN
  
   delta = basic_cell_width(ind_x)/100.0
  
-  s_min = line_dist - delta
-  s_pls = line_dist + delta
+  s_min = l_dist - delta
+  s_pls = l_dist + delta
  
   pos_min = cur_pos + cur_dir * s_min
   pos_pls = cur_pos + cur_dir * s_pls

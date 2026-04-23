@@ -226,7 +226,7 @@ DO cur_prop_cell = my_start, my_end
 
    ! B VG
    IF(cur_r > rmin + w_vgrid_r/2.0 .and. cur_r < rmax - w_vgrid_r/2.0 .and.&
-     cur_t > tmin + w_vgrid_t/2.0 .and. cur_t < tmax - w_vgrid_t/2.0) THEN
+      cur_t > tmin + w_vgrid_t/2.0 .and. cur_t < tmax - w_vgrid_t/2.0) THEN
     cur_n_r_B = floor((cur_r - rmin)/w_vgrid_r - 1.0/2.0) + 1
     cur_n_t_B = floor((cur_t - tmin)/w_vgrid_t - 1.0/2.0) + 1
     cur_vmg_B = cur_n_r_B + (N_vgrid_r - 1) * (cur_n_t_B - 1)
@@ -296,6 +296,7 @@ DO cur_prop_cell = my_start, my_end
    ! Heureka! We have got the point!
    IF(cur_radius > R_star .and. cur_radius < R_inf) THEN
     IF(INT(min_point) /= 0) THEN
+     write(69,*) delta/dyn_cell(cur_prop_cell)%width(ind_x)
      cur_model_index(cur_prop_cell) = INT(min_point)
      cur_n_assoc(INT(min_point)) = cur_n_assoc(INT(min_point)) + 1
     END IF

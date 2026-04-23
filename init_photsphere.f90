@@ -19,7 +19,7 @@ INTEGER                               :: cur_mgi
 DOUBLE PRECISION                      :: cur_Teff
 LOGICAL                               :: homogeneous
 
-DOUBLE PRECISION                      :: R_bound, ran2
+DOUBLE PRECISION                      :: R_bound
 INTEGER, PARAMETER                    :: ind_savephdistr = 12
 LOGICAL                               :: is_diff
 
