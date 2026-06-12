@@ -12,6 +12,7 @@ IMPLICIT NONE
 
 INTEGER                           :: ind_I, ind_J, n_pack, ind_cell_numb
 DOUBLE PRECISION                  :: L_star, sint, cost, sinp, cosp, freq, doppler_D
+DOUBLE PRECISION                  :: ran2
 DOUBLE PRECISION, DIMENSION(const_dimofspace)    :: direction, directionn
 DOUBLE PRECISION, DIMENSION(n_pack) :: frequencies
 
@@ -66,7 +67,7 @@ DO ind_I = 1, n_pack
     cur_Teff = model_grid(cur_mgi)%T
     L_star = L_star + 4.D0*const_pi*(R_star)**2*const_stefbolz*T_eff**4/n_pack
     if(cur_mgi > n_modelgrid) then
-     cur_Teff = -T_eff
+     cur_Teff = 10000 + ((-T_eff) - 10000) * ran2(idum)
     end if
     ! write(64,*) cur_Teff
     CALL freq_from_planck(freq, cur_Teff)
