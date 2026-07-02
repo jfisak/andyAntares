@@ -225,9 +225,13 @@ LOGICAL                                 :: is_vgrid_A
    lower_resolution = .TRUE.
    ! write(*,*) 'virt_gridAB_init: lower_resolution = ', lower_resolution
    ! write(*,*) 'virt_gridAB_init: deallocating arrays'
-   DEALLOCATE(n_points_A, n_points_B, indices_A, indices_B)
-   DEALLOCATE(counter_A, counter_B, vg_indexy_A, vg_indexy_B)
-   DEALLOCATE(vg_pom_A, vg_pom_B)
+   IF(N_vgrid_cells_A > 1) THEN
+    DEALLOCATE(n_points_A, n_points_B, indices_A, indices_B)
+    DEALLOCATE(counter_A, counter_B, vg_indexy_A, vg_indexy_B)
+    DEALLOCATE(vg_pom_A, vg_pom_B)
+   ELSE ! the lower resolution is not possible, we have to stop this cycle
+    EXIT
+   END IF
   ELSE
    lower_resolution = .FALSE.
    confirmed = .TRUE.
