@@ -44,6 +44,7 @@ END IF
 
 ! Define length of dynamic arrays (cell and package)
 IF(dyngrid == 0) THEN
+ ! write(*,*) 'setup_propgrid: dyngrid = 0, Ngrid = ', Ngrid
  ALLOCATE (dyn_cell(INT(Ngrid)))
 ELSE 
  ALLOCATE (dyn_cell(INT(Ngrid + 3.0 * Nvirtpoint)))

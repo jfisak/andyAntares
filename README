@@ -31,3 +31,220 @@ main.run
 THE SOURCE CODE
 _____________________________________________________________
 * the root subroutine is the main.f90 file
+
+_____________________________________________________________
+SUPPORTED MODEL READERS AND EXPECTED INPUT FILE FORMATS
+
+Model selection flow
+- model_type = 1 -> read_1D_model()
+- model_type = 2 -> read_2D_model()
+- model_type = 3 -> read_3D_model()
+
+1D models (selected by inputModel in read_1D_model)
+- inputModel = 0: generic 1D format (implemented inside read_1D_model)
+- inputModel = 1: JIKR model
+- inputModel = 2: PoWR model (read_1D_PoWR)
+- inputModel = 3: Araya model (read_1D_araya)
+- inputModel = 4: DWAP-like model (read_1D_dwap)
+- inputModel = 5: average from 2D model (read_1D_average2D)
+
+2D models (selected by inputModel in read_2D_model)
+- inputModel = 1: basic 2D model (read_2D_basic)
+- inputModel = 2: Peku model (read_2D_peku)
+
+3D models (selected by inputmodel in read_3D_model)
+- inputmodel = 0: pseudo3D test model (read_3D_pseudo3D)
+- inputmodel = 1: Nico 3D model (read_3D_nico)
+
+-------------------------------------------------------------
+EXPECTED DATAFILE FORMATS
+
+1D, inputModel = 0 (generic)
+Header (4 lines):
+	T_eff
+	R_star
+	R_inf
+	V_inf
+Rows:
+	cell_index  r  v  rho  T
+
+1D, inputModel = 1 (JIKR)
+Two-file setup:
+1) file pointed by environment variable JIKRMODEL:
+	 T_eff  R_star  model_filename
+2) model_filename rows:
+	 index  r  v  rho  T  q  mdot
+(q and mdot are read but not used for model state)
+
+1D, inputModel = 2 (PoWR)
+Rows:
+	r_over_Rstar  v_km_s  n_total  T
+
+1D, inputModel = 3 (Araya)
+Header:
+	T_eff
+	R_star
+Rows:
+	r_over_Rstar  junk  v_km_s  junk  junk  rho  junk
+
+1D, inputModel = 4 (DWAP-like)
+Line 1: text description/header
+Line 2: T_eff
+Rows:
+	I  r_cm  rho_g_cm3  v_r_cm_s  v_t_cm_s  T_gas_K  T_rad_K
+
+1D, inputModel = 5 (average2D)
+Header:
+	T_eff
+	R_star
+Rows:
+	r  v_r  v_theta  rho  T
+
+2D, inputModel = 1 (basic)
+Rows:
+	radius  perpend  rho  v_rad  v_ang  T
+
+2D, inputModel = 2 (Peku)
+Line 1: header text
+Rows:
+	r  z  rho  T  junk  v_r  v_z
+
+3D, inputmodel = 0 (pseudo3D)
+Header (6 lines):
+	T_eff
+	R_star
+	R_inf
+	V_star
+	V_inf
+	Nx Ny Nz
+Rows:
+	pos(1) pos(2) pos(3)  vel(1) vel(2) vel(3)  rho  T
+
+3D, inputmodel = 1 (Nico)
+Header (3 lines):
+	T_eff
+	R_star
+	R_inf
+Rows (lines beginning with '*' are comments and are skipped):
+	x  y  z  vx  vy  vz  rho  T  lambda
+
+Notes
+- Input files are plain text and are read row-by-row.
+- Most readers first count readable rows to determine n_modelgrid.
+- For full documentation, see model_datafile_formats.tex.
+
+_____________________________________________________________
+INPUT.DAT FORMAT (read_input.f90)
+
+General rule
+- The parser reads input.dat line-by-line.
+- Each active line is keyword value.
+- Unknown lines are ignored unless they cause parse errors.
+
+Recognized keywords
+- n_pack
+- n_nubin
+- nx_cell
+- ny_cell
+- nz_cell
+- model_type
+- xmax
+- ymax
+- zmax
+- random_seed
+- inputflux
+- inputmodel
+- Nvirtpoint
+- dyngrid
+- nlte
+- velApprox
+- n_pack_save
+- abs_surface
+- inputmodelFile
+- inputComposition
+- eldensfile
+- inputpopfile
+- saved_grid
+- diffusive
+- calc_brtm_int
+- sobolev
+- calcmode (allowed values: oneline, multiline, brtm)
+- linefile (used when calcmode = oneline)
+- thomson (0/1)
+- teff
+- rstar
+
+Important behavior
+- Defaults are set internally before parsing (for example n_pack=10000, n_nubin=100, model_type=1).
+- calc_brtm_int = 1 turns on BRTM mode.
+- thomson = 1 enables electron (Thomson) scattering.
+- teff = 0 means random; teff < -1e4 means based on model grid in current logic.
+- If rstar is non-zero in input.dat, lower boundary radius is considered initialized.
+
+Minimal example input.dat
+	model_type 1
+	inputmodel 2
+	inputmodelFile model_1d_powr.dat
+	inputComposition compose_adata.dat
+	n_pack 100000
+	random_seed -1
+	calcmode multiline
+
+_____________________________________________________________
+CHEMICAL COMPOSITION FILE FORMAT (read_composition.f90)
+
+The file path is taken from input.dat keyword inputComposition.
+
+The file has 3 blocks separated by markers:
+- **composition** block: from file start to line **levels**
+- **levels** block: from **levels** to **transitions**
+- **transitions** block: from **transitions** to EOF
+
+Lines beginning with * are comments and skipped.
+
+Block 1: composition rows
+	Z  abundance  lowerIon  upperIon  atomic_mass
+where
+- Z is atomic number
+- abundance is normalized internally over all listed elements
+- lowerIon..upperIon defines included ion stages
+
+Block 2: levels rows
+	atom_number  lowerIon  upperIon  levels_type  levels_file
+This calls read_levels(...) for each row.
+
+Block 3: transitions rows
+	atom_number  lowerIon  upperIon  transition_type  trans_file  phcs_type  photn  phot_file
+This calls read_transitions(...).
+If photn > 0, it also calls read_photcs(...).
+
+Special mode
+- If calcmode oneline is set in input.dat, transitions are read via read_singleline() from linefile.
+
+_____________________________________________________________
+ATOMIC LEVELS AND TRANSITIONS DATA
+
+Atomic levels (read_levels.f90)
+- levels_type 2: Opacity Project format.
+- levels_type 8: Tardis/Kurucz style format.
+- levels_type 0: no longer supported.
+
+Transitions (read_transitions.f90)
+- transition_type 2: Opacity Project transition format.
+- transition_type 8: Kurucz/Tardis extracted format path in code.
+- transition_type 9: treated as simplified mode that maps internally to type 2.
+- transition_type 0: no longer supported.
+
+Photoionization cross sections (read_photcs.f90)
+- phcs_type 2 supported.
+- Header line per level: level/ion metadata and number of points.
+- Then nofPoints rows with frequency-like coordinate and cross section.
+
+Opacity Project transition line format used by reader
+	kindex at_number electron_number low_vsplit up_vsplit low_level up_level low_conf up_conf col_str A_ul freq
+
+Opacity Project level line format used by reader
+	levelindex ... ion ... vsplit ... configuration energy(ryd) statistical_weight
+
+Note
+- Exact numeric formats are strict in some readers (fixed-width Fortran FORMAT statements), so keep source files aligned to their original data conventions.

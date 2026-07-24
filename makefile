@@ -46,7 +46,7 @@ OBJECTS = main.o sargc.o sargp.o sargv.o idx.o read_input.o 	  \
           saha_boltzmann_factor.o ionization_fraction.o f_edens.o round_number.o\
           find_e_nd.o part_fun.o update_estimators.o freq_from_file.o rob.o \
           acc_rej_montecarlo.o virtual_points.o \
-          seek_nclosest_points.o\
+          seek_nclosest_points.o voronoi_volume.o\
 	  populations.o  \
 	  gamma_function.o exp_int_func.o find_populations.o\
 	  flux_function.o find_element_index.o analyse_input.o \

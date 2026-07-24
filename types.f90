@@ -55,7 +55,7 @@ SAVE
   TYPE modelgrid 
      INTEGER                         :: assoc_cells = 0
      DOUBLE PRECISION                :: width
-     DOUBLE PRECISION                :: volume = -1.D0
+     DOUBLE PRECISION                :: volume = -1.D0, voronoi_volume = -1.D0
      DOUBLE PRECISION                :: diff_param
      DOUBLE PRECISION                :: J = 0.D0, Irad = 0.D0
      DOUBLE PRECISION, DIMENSION(const_dimofspace)      :: Frad = (/ 0.D0, 0.D0, 0.D0 /)

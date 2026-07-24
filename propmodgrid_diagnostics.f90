@@ -110,74 +110,11 @@ DO cur_pgi = 1, n_propgcells
  END IF
 END DO
 
-! obtaining a number of points we need to calculate a volume for each modGrid cell
-IF(model_type == 1) THEN
- np_wewant = 2
-ELSE IF(model_type == 2) THEN
- np_wewant = 4
-ELSE IF(model_type == 3) THEN
- np_wewant = 6
-END IF
-ALLOCATE(list_points(np_wewant))
 
 CALL save_output(12)
+
 ! RETURN point
 RETURN
-
-ALLOCATE(radii(np_wewant), thetas(np_wewant), positions(np_wewant + 1,3), vectors(np_wewant,3))
-ALLOCATE(half_pos(np_wewant, 3))
-DO cur_mgi = 1, n_modelgrid
- ! find the closest neighbors
- IF(model_type == 1) THEN
- ELSE IF(model_type == 2) THEN
-  CALL n_closest_points_2D(cur_mgi, np_wewant, list_points)
-  ! write(*,*) 'propmodgrid_diagnostics: list_points = ', list_points
-  ! a calculation of a volume of these points
-  IF(inputmodel == 1) THEN
-   ! four points halfway to the closest points
-   positions(np_wewant + 1, ind_x) = 0.D0
-   positions(np_wewant + 1, ind_y) = model_grid(cur_mgi)%rwind * cos(model_grid(cur_mgi)%angle)
-   positions(np_wewant + 1, ind_z) = model_grid(cur_mgi)%rwind * sin(model_grid(cur_mgi)%angle)
-   ! write(*,*) 'propmodgrid_diagnostics: cur_position = ', positions(np_wewant + 1, :)
-   ! write(*,*) 'propmodgrid_diagnostics: MINVAL() = ', MINVAL(list_points(:))
-   IF(MINVAL(list_points(:)) == 0) CYCLE
-    DO ind_I = 1, np_wewant
-     ! write(*,*) 'propmodgrid_diagnostics: list_points(', ind_I, ') = ', list_points(ind_I)
-     radii(ind_I) = model_grid(list_points(ind_I))%rwind
-     thetas(ind_I) = model_grid(list_points(ind_I))%angle
-     positions(ind_I, ind_x) = 0.D0
-     positions(ind_I, ind_y) = radii(ind_I) * cos(thetas(ind_I))
-     positions(ind_I, ind_z) = radii(ind_I) * sin(thetas(ind_I))
-     ! vector from the central point connecting each point, we divide this vector
-     ! by a factor of 2, because we assume, that the volume belonging to the current
-     ! modGrid point is only a halfway to each closest modGrid point
-     vectors(ind_I,:) = 5.D-1 * (positions(np_wewant + 1,:) - positions(ind_I,:))
-     half_pos(ind_I,:) = positions(np_wewant,:) + vectors(ind_I,:)
-     CALL cross_product(vectors(ind_I,:), vectors(np_wewant + 1,:), vysledek)
-     ! write(*,*) 'propmodgrid_diagnostics: cross_product = ', vysledek, ' ||vysl.|| = ', norm2(vysledek)
-    END DO
-   !END IF
-   ! calculate volume vector by vector
-   cur_vol = 0.D0
-   DO ind_I = 1, np_wewant
-    half_vec_1(:) = positions(ind_I,:) - positions(np_wewant + 1, :)
-    ! choice of the second vector, it should be periodical, thus index np_wewant + 1
-    ! is equivalent to the index 1
-    IF(ind_I < np_wewant) THEN
-     half_vec_2(:) = positions(ind_I + 1, :) - positions(np_wewant + 1, :)
-    ELSE IF(ind_I == np_wewant) THEN
-     half_vec_2(:) = positions(1, :) - positions(np_wewant + 1, :)
-    END IF
-    CALL cross_product(half_vec_1, half_vec_2, cur_vecpro)
-    ! write(*,*) 'propmodgrid_diagnostics: cur_vecpro = ', cur_vecpro
-    cur_vol = cur_vol + norm2(cur_vecpro)/4.D0
-   END DO
-   vol_mgi(cur_mgi) = cur_vol
-   ! write(*,*) 'propmodgrid_diagnostics: cur_vol = ', cur_vol
-  END IF
- ELSE IF(model_type == 3) THEN
- END IF
-END DO
 
 ! DO cur_mgi = 1, n_modelgrid
 !  write(*,*) 'propmodgrid_diagnostics: cur_mgi = ', cur_mgi, ' vol = ', model_grid(cur_mgi)%volume

@@ -31,7 +31,7 @@ TYPE(rrates)                                    :: actirrates
 INTEGER                                         :: pomocna_bunka, cur_pgi
 INTEGER                                         :: next_cross
 ! DOUBLE PRECISION                                :: max_dist
-LOGICAL                                         :: procout = .TRUE.
+LOGICAL                                         :: procout = .FALSE.
 DOUBLE PRECISION, PARAMETER                     :: epsilon0 = 1.D0
 ! free free
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: pack_pos

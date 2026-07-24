@@ -16,7 +16,7 @@ INTEGER             :: n_pack, pack_index
 DO pack_index = tot_saved_packets + 1, n_pack
  ! IF (MODULO(pack_index,100000) .EQ. 0) write(99,*) 'Working on packet ', pack_index,' ...'
  IF (MODULO(pack_index,100000) .EQ. 0) write(*,*) 'Working on packet ', pack_index,' ...'
- write(*,*) 'Working on packet ', pack_index,' ...'
+ ! write(*,*) 'Working on packet ', pack_index,' ...'
  ! write(*,*) 'Working on packet ', pack_index,' ...'
  CALL packet_dynamics(pack_index)
  ! Do this loop until something happened with package
