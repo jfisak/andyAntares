@@ -29,6 +29,7 @@ DOUBLE PRECISION, ALLOCATABLE                   :: radii(:), thetas(:), position
 DOUBLE PRECISION, ALLOCATABLE                   :: half_pos(:,:)
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: vysledek, cur_vecpro
 DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: half_vec_1, half_vec_2
+DOUBLE PRECISION, DIMENSION(n_modelgrid)        :: ratio
 DOUBLE PRECISION                                :: cur_vol
 DOUBLE PRECISION, DIMENSION(n_modelgrid)        :: vol_mgi
 
@@ -40,11 +41,12 @@ IF(xmax < R_inf .or. ymax < R_inf .or. zmax < R_inf) THEN
  STOP 'propmodgrid_diagnostics'
 END IF
 
-! write(*,*) 'main: xmax = ', xmax/R_inf, ' ymax = ', ymax/R_inf, ' zmax = ', zmax/R_inf
+write(*,*) 'propmodgrid_diagnostics: xmax = ', xmax/R_inf, ' ymax = ', ymax/R_inf, ' zmax = ', zmax/R_inf
 
 n_alone = 0
 n_assoc = 0
 
+! number of associated propGrid cells for each modGrid cell
 DO cur_mgi = 1, n_modelgrid
  n_associated_pgi = model_grid(cur_mgi)%assoc_cells
  ! relative covering of the modGrid by the propGrid
@@ -56,6 +58,7 @@ DO cur_mgi = 1, n_modelgrid
 
 END DO
 
+! relative coverage of the modGrid by the propGrid
 rel_coverage = real(n_assoc) / real(n_modelgrid)
 
 ! vacuum, photospheric and outer propGrid cells
@@ -108,6 +111,15 @@ DO cur_pgi = 1, n_propgcells
   !  count_pg_vacuum = count_pg_vacuum + 1
   ! END IF
  END IF
+END DO
+
+CALL voronoi_volume()
+
+DO ind_i = 1, n_modelgrid
+ ratio(ind_i) = model_grid(ind_i)%volume/model_grid(ind_i)%voronoi_volume
+ write(*,*) 'propmodgrid_diagnostics: mgi = ', ind_i, ' volume = ', model_grid(ind_i)%volume, ' &
+        voronoi_volume = ', model_grid(ind_i)%voronoi_volume
+ write(*,*) 'propmodgrid_diagnostics: ratio = ', ratio(ind_i)
 END DO
 
 

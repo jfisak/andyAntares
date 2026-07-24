@@ -7,17 +7,19 @@
 !
 ! Geometry handling by model type:
 ! - model_type == 3: full 3D Cartesian Voronoi (x, y, z from vec_pos).
-! - model_type == 2: axisymmetric case using (radius, theta), then revolve
-!   around the symmetry axis via Jacobian weight 2*pi*r^2*sin(theta).
-SUBROUTINE voronoi_volume(n_points, volumes)
+! - model_type == 2:
+!   * inputmodel /= 2: axisymmetric case using (radius, theta), then revolve
+!     around the symmetry axis via Jacobian weight 2*pi*r^2*sin(theta).
+!   * inputmodel == 2: axisymmetric case using cylindrical meridional
+!     coordinates (R,z), then revolve with Jacobian weight 2*pi*R.
+SUBROUTINE voronoi_volume()
 
-USE types, ONLY : const_dimofspace, ind_x, ind_y, ind_z, model_grid, model_type
+USE types, ONLY : const_dimofspace, ind_x, ind_y, ind_z, model_grid, model_type, n_modelgrid, inputmodel
 USE constants, ONLY : const_pi
 
 IMPLICIT NONE
 
-INTEGER, INTENT(IN)                                  :: n_points
-DOUBLE PRECISION, INTENT(OUT)                        :: volumes(n_points)
+DOUBLE PRECISION                                     :: volumes(n_modelgrid)
 
 INTEGER, PARAMETER                                   :: n_samples_min = 30000
 DOUBLE PRECISION, PARAMETER                          :: padding_frac = 5.D-2
@@ -34,13 +36,13 @@ INTEGER, ALLOCATABLE                                 :: hit_count(:)
 DOUBLE PRECISION, ALLOCATABLE                        :: hit_weight(:)
 
 ! Guard: nothing to do.
-IF(n_points <= 0) RETURN
+IF(n_modelgrid <= 0) RETURN
 
 ! Guard: model grid data must be available before sampling.
 IF(.NOT. ALLOCATED(model_grid)) STOP 'voronoi_volume: model_grid is not allocated'
 
 ! Guard: requested number of points cannot exceed available model entries.
-IF(SIZE(model_grid) < n_points) STOP 'voronoi_volume: n_points exceeds size(model_grid)'
+IF(SIZE(model_grid) < n_modelgrid) STOP 'voronoi_volume: n_modelgrid exceeds size(model_grid)'
 
 ! Guard: this routine currently supports only 2D axisymmetric and 3D models.
 IF(model_type /= 2 .AND. model_type /= 3) STOP 'voronoi_volume: only model_type 2 or 3 is supported'
@@ -51,12 +53,12 @@ volumes(:) = 0.D0
 ! Sampling budget:
 ! - keep a robust minimum for small models,
 ! - scale linearly with number of points for larger models.
-n_samples = MAX(n_samples_min, 100*n_points)
+n_samples = MAX(n_samples_min, 100*n_modelgrid)
 
 IF(model_type == 3) THEN
 
     ! Integer ownership counter for each site in Cartesian 3D.
-    ALLOCATE(hit_count(n_points))
+    ALLOCATE(hit_count(n_modelgrid))
     hit_count(:) = 0
 
     ! Build a padded 3D bounding box in Cartesian coordinates (x, y, z).
@@ -66,7 +68,7 @@ IF(model_type == 3) THEN
      box_max(dim_idx) = model_grid(1)%vec_pos(dim_idx)
 
      ! Find coordinate extrema over all model points for this dimension.
-     DO point_idx = 2, n_points
+     DO point_idx = 2, n_modelgrid
       box_min(dim_idx) = MIN(box_min(dim_idx), model_grid(point_idx)%vec_pos(dim_idx))
       box_max(dim_idx) = MAX(box_max(dim_idx), model_grid(point_idx)%vec_pos(dim_idx))
      END DO
@@ -99,7 +101,7 @@ IF(model_type == 3) THEN
      best_dist2 = HUGE(1.D0)
 
      ! Nearest-neighbor query in standard Euclidean metric.
-     DO point_idx = 1, n_points
+     DO point_idx = 1, n_modelgrid
       dist2 = (cur_pos(ind_x) - model_grid(point_idx)%vec_pos(ind_x))**2 + &
           & (cur_pos(ind_y) - model_grid(point_idx)%vec_pos(ind_y))**2 + &
           & (cur_pos(ind_z) - model_grid(point_idx)%vec_pos(ind_z))**2
@@ -117,7 +119,7 @@ IF(model_type == 3) THEN
 
     ! Convert occupancy fraction to Voronoi volume estimate.
     ! volume_i = box_volume * (hits_i / total_samples)
-    DO cur_mgi = 1, n_points
+    DO cur_mgi = 1, n_modelgrid
      volumes(cur_mgi) = box_volume*DBLE(hit_count(cur_mgi))/DBLE(n_samples)
      model_grid(cur_mgi)%voronoi_volume = volumes(cur_mgi)
     END DO
@@ -128,97 +130,126 @@ IF(model_type == 3) THEN
 ELSE IF(model_type == 2) THEN
 
     ! Weighted ownership accumulator for axisymmetric geometry.
-    ALLOCATE(hit_weight(n_points))
+    ALLOCATE(hit_weight(n_modelgrid))
     hit_weight(:) = 0.D0
 
-    ! Build a padded 2D box in (radius, theta).
-    ! This is the sampling domain before applying axisymmetric weights.
-    box_min(ind_x) = MINVAL(model_grid(:)%rwind)
-    box_max(ind_x) = MAXVAL(model_grid(:)%rwind)
-    box_min(ind_y) = MINVAL(model_grid(:)%angle)
-    box_max(ind_y) = MAXVAL(model_grid(:)%angle)
+    IF(inputmodel == 2) THEN
 
-    DO dim_idx = 1, 2
-     ! Re-evaluate extrema explicitly over the requested point range.
-     DO point_idx = 2, n_points
-      IF(dim_idx == ind_x) THEN
-       box_min(dim_idx) = MIN(box_min(dim_idx), model_grid(point_idx)%rwind)
-       box_max(dim_idx) = MAX(box_max(dim_idx), model_grid(point_idx)%rwind)
-      ELSE
-       box_min(dim_idx) = MIN(box_min(dim_idx), model_grid(point_idx)%angle)
-       box_max(dim_idx) = MAX(box_max(dim_idx), model_grid(point_idx)%angle)
-      END IF
+     ! Peku-like geometry: sample directly in (R,z) and revolve around z-axis.
+     box_min(ind_x) = MINVAL(model_grid(1:n_modelgrid)%rxywind)
+     box_max(ind_x) = MAXVAL(model_grid(1:n_modelgrid)%rxywind)
+     box_min(ind_y) = MINVAL(model_grid(1:n_modelgrid)%zwind)
+     box_max(ind_y) = MAXVAL(model_grid(1:n_modelgrid)%zwind)
+
+     DO dim_idx = 1, 2
+      box_width(dim_idx) = box_max(dim_idx) - box_min(dim_idx)
+      IF(box_width(dim_idx) <= 0.D0) box_width(dim_idx) = 1.D0
+      box_min(dim_idx) = box_min(dim_idx) - padding_frac*box_width(dim_idx)
+      box_max(dim_idx) = box_max(dim_idx) + padding_frac*box_width(dim_idx)
+      box_width(dim_idx) = box_max(dim_idx) - box_min(dim_idx)
      END DO
 
-     box_width(dim_idx) = box_max(dim_idx) - box_min(dim_idx)
+     ! Cylindrical radius must be non-negative.
+     box_min(ind_x) = MAX(0.D0, box_min(ind_x))
+     box_width(ind_x) = box_max(ind_x) - box_min(ind_x)
+     box_width(ind_y) = box_max(ind_y) - box_min(ind_y)
+     IF(box_width(ind_x) <= 0.D0) box_width(ind_x) = 1.D0
+     IF(box_width(ind_y) <= 0.D0) box_width(ind_y) = 1.D0
 
-     ! Degenerate range protection in either radius or theta dimension.
-     IF(box_width(dim_idx) <= 0.D0) THEN
-      box_width(dim_idx) = 1.D0
-     END IF
+     box_area = box_width(ind_x)*box_width(ind_y)
 
-     ! Apply symmetric padding around the data extent.
-     box_min(dim_idx) = box_min(dim_idx) - padding_frac*box_width(dim_idx)
-     box_max(dim_idx) = box_max(dim_idx) + padding_frac*box_width(dim_idx)
-     box_width(dim_idx) = box_max(dim_idx) - box_min(dim_idx)
-    END DO
+     DO sample_idx = 1, n_samples
+      sample_mer_r = box_min(ind_x) + box_width(ind_x)*halton_coord(sample_idx, 2)
+      sample_mer_z = box_min(ind_y) + box_width(ind_y)*halton_coord(sample_idx, 3)
 
-    ! Clamp domain to physical ranges:
-    ! radius >= 0, theta in [0, pi].
-    box_min(ind_x) = MAX(0.D0, box_min(ind_x))
-    box_min(ind_y) = MAX(0.D0, box_min(ind_y))
-    box_max(ind_y) = MIN(const_pi, box_max(ind_y))
-    box_width(ind_x) = box_max(ind_x) - box_min(ind_x)
-    box_width(ind_y) = box_max(ind_y) - box_min(ind_y)
-    ! Final safeguard against zero-width sampling interval.
-    IF(box_width(ind_x) <= 0.D0) box_width(ind_x) = 1.D0
-    IF(box_width(ind_y) <= 0.D0) box_width(ind_y) = 1.D0
+      nearest_idx = 1
+      best_dist2 = HUGE(1.D0)
 
-    ! Area of the sampled (r, theta) rectangle.
-    box_area = box_width(ind_x)*box_width(ind_y)
+      DO point_idx = 1, n_modelgrid
+       point_mer_r = model_grid(point_idx)%rxywind
+       point_mer_z = model_grid(point_idx)%zwind
+       dist2 = (sample_mer_r - point_mer_r)**2 + &
+           & (sample_mer_z - point_mer_z)**2
+       IF(dist2 < best_dist2) THEN
+        best_dist2 = dist2
+        nearest_idx = point_idx
+       END IF
+      END DO
 
-    ! Sample in (radius, theta) using Halton bases 2 and 3.
-    ! Each sample carries Jacobian weight:
-    ! dV = 2*pi*r^2*sin(theta) * dr * dtheta,
-    ! where 2*pi comes from revolution around the symmetry axis.
-    DO sample_idx = 1, n_samples
-     r_sample = box_min(ind_x) + box_width(ind_x)*halton_coord(sample_idx, 2)
-     theta_sample = box_min(ind_y) + box_width(ind_y)*halton_coord(sample_idx, 3)
-
-     ! Map sample from spherical (r, theta) to meridional (R,z) plane.
-     sample_mer_r = r_sample*SIN(theta_sample)
-     sample_mer_z = r_sample*COS(theta_sample)
-
-     ! Track nearest Voronoi site for this sample.
-     nearest_idx = 1
-     best_dist2 = HUGE(1.D0)
-
-     ! Compare distances in meridional plane coordinates.
-     ! This defines the Voronoi partition used in axisymmetric mode.
-     DO point_idx = 1, n_points
-      point_mer_r = model_grid(point_idx)%rwind*SIN(model_grid(point_idx)%angle)
-      point_mer_z = model_grid(point_idx)%rwind*COS(model_grid(point_idx)%angle)
-      dist2 = (sample_mer_r - point_mer_r)**2 + &
-          & (sample_mer_z - point_mer_z)**2
-
-      ! Keep the nearest candidate.
-      IF(dist2 < best_dist2) THEN
-       best_dist2 = dist2
-       nearest_idx = point_idx
-      END IF
+      ! dV = 2*pi*R*dR*dz
+      weight = 2.D0*const_pi*sample_mer_r
+      hit_weight(nearest_idx) = hit_weight(nearest_idx) + weight
      END DO
 
-     ! Jacobian-based volume contribution for this sampled direction/radius.
-     weight = 2.D0*const_pi*r_sample**2*SIN(theta_sample)
+    ELSE
 
-     ! Add weighted ownership to the winning site.
-     hit_weight(nearest_idx) = hit_weight(nearest_idx) + weight
-    END DO
+     ! Original axisymmetric geometry using (radius, theta).
+     box_min(ind_x) = MINVAL(model_grid(1:n_modelgrid)%rwind)
+     box_max(ind_x) = MAXVAL(model_grid(1:n_modelgrid)%rwind)
+     box_min(ind_y) = MINVAL(model_grid(1:n_modelgrid)%angle)
+     box_max(ind_y) = MAXVAL(model_grid(1:n_modelgrid)%angle)
+
+     DO dim_idx = 1, 2
+      DO point_idx = 2, n_modelgrid
+       IF(dim_idx == ind_x) THEN
+        box_min(dim_idx) = MIN(box_min(dim_idx), model_grid(point_idx)%rwind)
+        box_max(dim_idx) = MAX(box_max(dim_idx), model_grid(point_idx)%rwind)
+       ELSE
+        box_min(dim_idx) = MIN(box_min(dim_idx), model_grid(point_idx)%angle)
+        box_max(dim_idx) = MAX(box_max(dim_idx), model_grid(point_idx)%angle)
+       END IF
+      END DO
+
+      box_width(dim_idx) = box_max(dim_idx) - box_min(dim_idx)
+      IF(box_width(dim_idx) <= 0.D0) box_width(dim_idx) = 1.D0
+      box_min(dim_idx) = box_min(dim_idx) - padding_frac*box_width(dim_idx)
+      box_max(dim_idx) = box_max(dim_idx) + padding_frac*box_width(dim_idx)
+      box_width(dim_idx) = box_max(dim_idx) - box_min(dim_idx)
+     END DO
+
+     ! Clamp domain to physical ranges: radius >= 0, theta in [0, pi].
+     box_min(ind_x) = MAX(0.D0, box_min(ind_x))
+     box_min(ind_y) = MAX(0.D0, box_min(ind_y))
+     box_max(ind_y) = MIN(const_pi, box_max(ind_y))
+     box_width(ind_x) = box_max(ind_x) - box_min(ind_x)
+     box_width(ind_y) = box_max(ind_y) - box_min(ind_y)
+     IF(box_width(ind_x) <= 0.D0) box_width(ind_x) = 1.D0
+     IF(box_width(ind_y) <= 0.D0) box_width(ind_y) = 1.D0
+
+     box_area = box_width(ind_x)*box_width(ind_y)
+
+     DO sample_idx = 1, n_samples
+      r_sample = box_min(ind_x) + box_width(ind_x)*halton_coord(sample_idx, 2)
+      theta_sample = box_min(ind_y) + box_width(ind_y)*halton_coord(sample_idx, 3)
+
+      sample_mer_r = r_sample*SIN(theta_sample)
+      sample_mer_z = r_sample*COS(theta_sample)
+
+      nearest_idx = 1
+      best_dist2 = HUGE(1.D0)
+
+      DO point_idx = 1, n_modelgrid
+       point_mer_r = model_grid(point_idx)%rwind*SIN(model_grid(point_idx)%angle)
+       point_mer_z = model_grid(point_idx)%rwind*COS(model_grid(point_idx)%angle)
+       dist2 = (sample_mer_r - point_mer_r)**2 + &
+           & (sample_mer_z - point_mer_z)**2
+       IF(dist2 < best_dist2) THEN
+        best_dist2 = dist2
+        nearest_idx = point_idx
+       END IF
+      END DO
+
+      weight = 2.D0*const_pi*r_sample**2*SIN(theta_sample)
+      hit_weight(nearest_idx) = hit_weight(nearest_idx) + weight
+     END DO
+
+    END IF
 
     ! Weighted Monte Carlo average converted to physical 3D volume estimate.
     ! volume_i = box_area * (sum(weights for site i) / total_samples)
-    DO cur_mgi = 1, n_points
+    DO cur_mgi = 1, n_modelgrid
      volumes(cur_mgi) = box_area*hit_weight(cur_mgi)/DBLE(n_samples)
+     write(*,*) 'voronoi_volume: mgi = ', cur_mgi, ' volume = ', volumes(cur_mgi)
      model_grid(cur_mgi)%voronoi_volume = volumes(cur_mgi)
     END DO
 
