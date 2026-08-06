@@ -22,16 +22,8 @@ REAL, PARAMETER                                 :: min_rel_coverage = 0.9
 
 INTEGER                                         :: gridcell, cur_pgi
 DOUBLE PRECISION                                :: loc_volume, tot_model_volume, tot_nonmodel_volume
-INTEGER, ALLOCATABLE                            :: list_points(:)
-INTEGER                                         :: np_wewant
-
-DOUBLE PRECISION, ALLOCATABLE                   :: radii(:), thetas(:), positions(:,:), vectors(:,:)
-DOUBLE PRECISION, ALLOCATABLE                   :: half_pos(:,:)
-DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: vysledek, cur_vecpro
-DOUBLE PRECISION, DIMENSION(const_dimofspace)   :: half_vec_1, half_vec_2
 DOUBLE PRECISION, DIMENSION(n_modelgrid)        :: ratio
-DOUBLE PRECISION                                :: cur_vol
-DOUBLE PRECISION, DIMENSION(n_modelgrid)        :: vol_mgi
+DOUBLE PRECISION                                :: aver_chi, cur_sum
 
 ! basic tests of the propGrid vers the modGrid
 ! test for the created
@@ -115,13 +107,19 @@ END DO
 
 CALL voronoi_volume()
 
+cur_sum = 0.D0
 DO ind_i = 1, n_modelgrid
- ratio(ind_i) = model_grid(ind_i)%volume/model_grid(ind_i)%voronoi_volume
- write(*,*) 'propmodgrid_diagnostics: mgi = ', ind_i, ' volume = ', model_grid(ind_i)%volume, ' &
-        voronoi_volume = ', model_grid(ind_i)%voronoi_volume
- write(*,*) 'propmodgrid_diagnostics: ratio = ', ratio(ind_i)
+ IF(model_grid(ind_i)%assoc_cells > 0) THEN
+  ratio(ind_i) = model_grid(ind_i)%volume/model_grid(ind_i)%voronoi_volume
+  write(*,*) 'propmodgrid_diagnostics: mgi = ', ind_i, ' volume = ', model_grid(ind_i)%volume, ' &
+         & voronoi_volume = ', model_grid(ind_i)%voronoi_volume
+  write(*,*) 'propmodgrid_diagnostics: ratio = ', ratio(ind_i)
+  cur_sum = cur_sum + (ratio(ind_i)-1)**2.0
+ END IF
 END DO
 
+aver_chi = sqrt(cur_sum/real(n_modelgrid))
+write(*,*) 'propmodgrid_diagnostics: aver_chi = ', aver_chi
 
 CALL save_output(12)
 
@@ -138,12 +136,5 @@ RETURN
 
 ! write(*,*) 'propmodgrid_diagnostics: n_assoc = ', n_assoc, ' n_alone = ', n_alone
 ! STOP 'propmodgrid_diagnostics: testing'
-
-
-
-
-
-
-
 
 END SUBROUTINE propmodgrid_diagnostics

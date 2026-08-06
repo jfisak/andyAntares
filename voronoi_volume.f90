@@ -190,14 +190,16 @@ ELSE IF(model_type == 2) THEN
      box_max(ind_y) = MAXVAL(model_grid(1:n_modelgrid)%angle)
 
      DO dim_idx = 1, 2
-      DO point_idx = 2, n_modelgrid
+      DO cur_mgi = 2, n_modelgrid
        IF(dim_idx == ind_x) THEN
-        box_min(dim_idx) = MIN(box_min(dim_idx), model_grid(point_idx)%rwind)
-        box_max(dim_idx) = MAX(box_max(dim_idx), model_grid(point_idx)%rwind)
+        box_min(dim_idx) = MIN(box_min(dim_idx), model_grid(cur_mgi)%rwind)
+        box_max(dim_idx) = MAX(box_max(dim_idx), model_grid(cur_mgi)%rwind)
        ELSE
-        box_min(dim_idx) = MIN(box_min(dim_idx), model_grid(point_idx)%angle)
-        box_max(dim_idx) = MAX(box_max(dim_idx), model_grid(point_idx)%angle)
+        box_min(dim_idx) = MIN(box_min(dim_idx), model_grid(cur_mgi)%angle)
+        box_max(dim_idx) = MAX(box_max(dim_idx), model_grid(cur_mgi)%angle)
        END IF
+       write(*,*) 'voronoi_volume: cur_mgi = ', cur_mgi, ' box_min(', dim_idx, ') = ', box_min(dim_idx), &
+           & ' box_max(', dim_idx, ') = ', box_max(dim_idx)
       END DO
 
       box_width(dim_idx) = box_max(dim_idx) - box_min(dim_idx)
@@ -228,9 +230,11 @@ ELSE IF(model_type == 2) THEN
       nearest_idx = 1
       best_dist2 = HUGE(1.D0)
 
-      DO point_idx = 1, n_modelgrid
-       point_mer_r = model_grid(point_idx)%rwind*SIN(model_grid(point_idx)%angle)
-       point_mer_z = model_grid(point_idx)%rwind*COS(model_grid(point_idx)%angle)
+      DO cur_mgi = 1, n_modelgrid
+       point_mer_r = model_grid(cur_mgi)%rwind*SIN(model_grid(cur_mgi)%angle)
+       point_mer_z = model_grid(cur_mgi)%rwind*COS(model_grid(cur_mgi)%angle)
+       write(*,*) 'voronoi_volume: cur_mgi = ', cur_mgi, ' point_mer_r = ', point_mer_r, &
+           & ' point_mer_z = ', point_mer_z
        dist2 = (sample_mer_r - point_mer_r)**2 + &
            & (sample_mer_z - point_mer_z)**2
        IF(dist2 < best_dist2) THEN
