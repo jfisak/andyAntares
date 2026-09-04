@@ -68,9 +68,9 @@ IF(model_type == 3) THEN
      box_max(dim_idx) = model_grid(1)%vec_pos(dim_idx)
 
      ! Find coordinate extrema over all model points for this dimension.
-     DO point_idx = 2, n_modelgrid
-      box_min(dim_idx) = MIN(box_min(dim_idx), model_grid(point_idx)%vec_pos(dim_idx))
-      box_max(dim_idx) = MAX(box_max(dim_idx), model_grid(point_idx)%vec_pos(dim_idx))
+     DO cur_mgi = 2, n_modelgrid
+      box_min(dim_idx) = MIN(box_min(dim_idx), model_grid(cur_mgi)%vec_pos(dim_idx))
+      box_max(dim_idx) = MAX(box_max(dim_idx), model_grid(cur_mgi)%vec_pos(dim_idx))
      END DO
 
      box_width(dim_idx) = box_max(dim_idx) - box_min(dim_idx)
@@ -101,17 +101,18 @@ IF(model_type == 3) THEN
      best_dist2 = HUGE(1.D0)
 
      ! Nearest-neighbor query in standard Euclidean metric.
-     DO point_idx = 1, n_modelgrid
-      dist2 = (cur_pos(ind_x) - model_grid(point_idx)%vec_pos(ind_x))**2 + &
-          & (cur_pos(ind_y) - model_grid(point_idx)%vec_pos(ind_y))**2 + &
-          & (cur_pos(ind_z) - model_grid(point_idx)%vec_pos(ind_z))**2
-
+     DO cur_mgi = 1, n_modelgrid
+      dist2 = (cur_pos(ind_x) - model_grid(cur_mgi)%vec_pos(ind_x))**2 + &
+          & (cur_pos(ind_y) - model_grid(cur_mgi)%vec_pos(ind_y))**2 + &
+          & (cur_pos(ind_z) - model_grid(cur_mgi)%vec_pos(ind_z))**2
       ! Keep the current best candidate.
       IF(dist2 < best_dist2) THEN
        best_dist2 = dist2
-       nearest_idx = point_idx
+       nearest_idx = cur_mgi
       END IF
      END DO
+     write(*,*) 'voronoi_volume: sample_idx = ', sample_idx, &
+         ' best_dist2 = ', best_dist2, ' nearest_idx = ', nearest_idx
 
      ! Increase ownership count for the winning site.
      hit_count(nearest_idx) = hit_count(nearest_idx) + 1
@@ -122,6 +123,7 @@ IF(model_type == 3) THEN
     DO cur_mgi = 1, n_modelgrid
      volumes(cur_mgi) = box_volume*DBLE(hit_count(cur_mgi))/DBLE(n_samples)
      model_grid(cur_mgi)%voronoi_volume = volumes(cur_mgi)
+     write(*,*) 'voronoi_volume: mgi = ', cur_mgi, ' volume = ', volumes(cur_mgi)
     END DO
 
     ! Cleanup temporary ownership array.

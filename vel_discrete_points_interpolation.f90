@@ -31,6 +31,7 @@ INTEGER                                 :: cur_neighbor, cur_nmgi
 INTEGER                                 :: ind_I
 DOUBLE PRECISION, DIMENSION(7,7)        :: matA
 DOUBLE PRECISION, DIMENSION(const_dimofspace, 7)       :: vecB
+DOUBLE PRECISION, DIMENSION(const_dimofspace)          :: upcorner
 
 EXTERNAL                                :: DGETRI
 EXTERNAL                                :: DGETRF

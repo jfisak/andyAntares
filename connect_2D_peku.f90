@@ -80,10 +80,10 @@ n_zeros = 0
 cur_model_index(:) = 0
 cur_n_assoc(:) = 0
 
-rmax = MAXVAL(model_grid(:)%rxywind) + 1e1
-rmin = MINVAL(model_grid(:)%rxywind) - 1e1
-tmax = MAXVAL(model_grid(:)%zwind) + 1e1
-tmin = MINVAL(model_grid(:)%zwind) - 1e1
+rmax = MAXVAL(model_grid(1:n_modelgrid)%rxywind) + 1e1
+rmin = MINVAL(model_grid(1:n_modelgrid)%rxywind) - 1e1
+tmax = MAXVAL(model_grid(1:n_modelgrid)%zwind) + 1e1
+tmin = MINVAL(model_grid(1:n_modelgrid)%zwind) - 1e1
 
 w_vgrid_r = abs(rmax - rmin)/N_vgrid_r
 w_vgrid_t = abs(tmax - tmin)/N_vgrid_t
@@ -236,11 +236,11 @@ DO cur_prop_cell = my_start, my_end
    END IF
    
    ! distances from the centres of the VG A and B
-   centre_A(ind_x) = w_vgrid_r * (cur_n_r_A - 1) + w_vgrid_r/2.0
-   centre_A(ind_y) = w_vgrid_t * (cur_n_t_A - 1) + w_vgrid_t/2.0
+   centre_A(ind_x) = rmin + w_vgrid_r * (cur_n_r_A - 1) + w_vgrid_r/2.0
+   centre_A(ind_y) = tmin + w_vgrid_t * (cur_n_t_A - 1) + w_vgrid_t/2.0
 
-   centre_B(ind_x) = w_vgrid_r * (cur_n_r_B - 1) + w_vgrid_r
-   centre_B(ind_y) = w_vgrid_t * (cur_n_t_B - 1) + w_vgrid_t
+   centre_B(ind_x) = rmin + w_vgrid_r * (cur_n_r_B - 1) + w_vgrid_r
+   centre_B(ind_y) = tmin + w_vgrid_t * (cur_n_t_B - 1) + w_vgrid_t
 
    ! looking for the closest point
    dist_A = sqrt((cur_r - centre_A(ind_x))**2 + (cur_t - centre_A(ind_y))**2)
@@ -278,8 +278,8 @@ DO cur_prop_cell = my_start, my_end
    delta = large_number
    DO cur_VG_point = 1, cur_n_points
     cur_mgi = cur_points(cur_VG_point)
-    cur_VG_r = model_grid(cur_VG_point)%rxywind
-    cur_VG_t = model_grid(cur_VG_point)%zwind
+    cur_VG_r = model_grid(cur_mgi)%rxywind
+    cur_VG_t = model_grid(cur_mgi)%zwind
     dist = sqrt((cur_VG_r - cur_r)**2 + (cur_VG_t - cur_t)**2)
     write(66,*) dist/((w_vgrid_r**2+w_vgrid_t**2)**0.5)
     ! write(66,*) cur_VG_r/R_star, cur_VG_t/R_star
