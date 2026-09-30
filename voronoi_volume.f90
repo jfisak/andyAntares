@@ -25,7 +25,7 @@ INTEGER, PARAMETER                                   :: n_samples_min = 30000
 DOUBLE PRECISION, PARAMETER                          :: padding_frac = 5.D-2
 
 INTEGER                                              :: n_samples
-INTEGER                                              :: sample_idx, point_idx, dim_idx, nearest_idx
+INTEGER                                              :: sample_idx, dim_idx, nearest_idx
 integer                                              :: cur_mgi
 DOUBLE PRECISION                                     :: dist2, best_dist2, box_volume, box_area
 DOUBLE PRECISION                                     :: r_sample, theta_sample, weight
@@ -111,8 +111,8 @@ IF(model_type == 3) THEN
        nearest_idx = cur_mgi
       END IF
      END DO
-     write(*,*) 'voronoi_volume: sample_idx = ', sample_idx, &
-         ' best_dist2 = ', best_dist2, ' nearest_idx = ', nearest_idx
+     ! write(*,*) 'voronoi_volume: sample_idx = ', sample_idx, &
+     !     ' best_dist2 = ', best_dist2, ' nearest_idx = ', nearest_idx
 
      ! Increase ownership count for the winning site.
      hit_count(nearest_idx) = hit_count(nearest_idx) + 1
@@ -167,14 +167,14 @@ ELSE IF(model_type == 2) THEN
       nearest_idx = 1
       best_dist2 = HUGE(1.D0)
 
-      DO point_idx = 1, n_modelgrid
-       point_mer_r = model_grid(point_idx)%rxywind
-       point_mer_z = model_grid(point_idx)%zwind
+      DO cur_mgi = 1, n_modelgrid
+       point_mer_r = model_grid(cur_mgi)%rxywind
+       point_mer_z = model_grid(cur_mgi)%zwind
        dist2 = (sample_mer_r - point_mer_r)**2 + &
            & (sample_mer_z - point_mer_z)**2
        IF(dist2 < best_dist2) THEN
         best_dist2 = dist2
-        nearest_idx = point_idx
+        nearest_idx = cur_mgi
        END IF
       END DO
 
@@ -235,13 +235,13 @@ ELSE IF(model_type == 2) THEN
       DO cur_mgi = 1, n_modelgrid
        point_mer_r = model_grid(cur_mgi)%rwind*SIN(model_grid(cur_mgi)%angle)
        point_mer_z = model_grid(cur_mgi)%rwind*COS(model_grid(cur_mgi)%angle)
-       write(*,*) 'voronoi_volume: cur_mgi = ', cur_mgi, ' point_mer_r = ', point_mer_r, &
-           & ' point_mer_z = ', point_mer_z
+       ! write(*,*) 'voronoi_volume: cur_mgi = ', cur_mgi, ' point_mer_r = ', point_mer_r, &
+       !     & ' point_mer_z = ', point_mer_z
        dist2 = (sample_mer_r - point_mer_r)**2 + &
            & (sample_mer_z - point_mer_z)**2
        IF(dist2 < best_dist2) THEN
         best_dist2 = dist2
-        nearest_idx = point_idx
+        nearest_idx = cur_mgi
        END IF
       END DO
 
@@ -255,7 +255,7 @@ ELSE IF(model_type == 2) THEN
     ! volume_i = box_area * (sum(weights for site i) / total_samples)
     DO cur_mgi = 1, n_modelgrid
      volumes(cur_mgi) = box_area*hit_weight(cur_mgi)/DBLE(n_samples)
-     write(*,*) 'voronoi_volume: mgi = ', cur_mgi, ' volume = ', volumes(cur_mgi)
+     ! write(*,*) 'voronoi_volume: mgi = ', cur_mgi, ' volume = ', volumes(cur_mgi)
      model_grid(cur_mgi)%voronoi_volume = volumes(cur_mgi)
     END DO
 

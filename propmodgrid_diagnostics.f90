@@ -111,15 +111,19 @@ cur_sum = 0.D0
 DO ind_i = 1, n_modelgrid
  IF(model_grid(ind_i)%assoc_cells > 0) THEN
   ratio(ind_i) = model_grid(ind_i)%volume/model_grid(ind_i)%voronoi_volume
-  write(*,*) 'propmodgrid_diagnostics: mgi = ', ind_i, ' volume = ', model_grid(ind_i)%volume, ' &
-         & voronoi_volume = ', model_grid(ind_i)%voronoi_volume
-  write(*,*) 'propmodgrid_diagnostics: ratio = ', ratio(ind_i)
+  ! write(*,*) 'propmodgrid_diagnostics: mgi = ', ind_i, ' volume = ', model_grid(ind_i)%volume, ' &
+  !        & voronoi_volume = ', model_grid(ind_i)%voronoi_volume
+  ! write(*,*) 'propmodgrid_diagnostics: ratio = ', ratio(ind_i)
   cur_sum = cur_sum + (ratio(ind_i)-1)**2.0
  END IF
 END DO
 
 aver_chi = sqrt(cur_sum/real(n_modelgrid))
 write(*,*) 'propmodgrid_diagnostics: aver_chi = ', aver_chi
+write(99,*) '************propmodgrid_diagnostics**********************'
+write(99,*) 'propmodgrid_diagnostics: rel_coverage = ', rel_coverage * 100.0, ' %'
+write(99,*) 'propmodgrid_diagnostics: aver_chi = ', aver_chi
+write(99,*) '************propmodgrid_diagnostics**********************'
 
 CALL save_output(12)
 
